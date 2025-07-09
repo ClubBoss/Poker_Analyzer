@@ -12,6 +12,7 @@ import '../services/training_pack_author_service.dart' show TrainingPackAuthorSe
 import '../models/v2/hero_position.dart';
 import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
+import 'pack_preview_screen.dart';
 
 class PacksLibraryScreen extends StatefulWidget {
   const PacksLibraryScreen({super.key});
@@ -368,6 +369,20 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                             child: const Text('Start'),
                           ),
                         ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PackPreviewScreen(pack: t),
+                              ),
+                            );
+                          },
+                          child: const Text('Preview'),
+                        ),
+                      ),
                       IconButton(
                         icon: const Icon(Icons.play_circle_fill),
                         tooltip: solvedAll ? 'All solved' : 'Resume',
