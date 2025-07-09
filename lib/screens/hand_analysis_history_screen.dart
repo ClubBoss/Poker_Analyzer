@@ -111,7 +111,7 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        'Средний EV ${ev.toStringAsFixed(2)} BB • ICM ${icm.toStringAsFixed(2)}',
+        '$_period • $_result\nEV ${ev.toStringAsFixed(2)} BB • ICM ${icm.toStringAsFixed(2)}',
         style: const TextStyle(color: Colors.white70),
       ),
     );
@@ -178,12 +178,12 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                     ],
                   ),
                 ),
-                _summary(data),
                 Expanded(
                   child: data.isEmpty
                       ? const Center(child: Text('Нет результатов', style: TextStyle(color: Colors.white70)))
                       : _list(data),
                 ),
+                _summary(data),
               ],
             ),
     );
