@@ -61,6 +61,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortEdited = 'edited';
   static const kSortSpots = 'spots';
   static const kSortName = 'name';
+  static const kSortProgress = 'progress';
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -264,6 +265,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       case kSortSpots:
         copy.sort((a, b) {
           final cmp = b.hands.length.compareTo(a.hands.length);
+          return cmp == 0 ? a.name.compareTo(b.name) : cmp;
+        });
+        break;
+      case kSortProgress:
+        copy.sort((a, b) {
+          final aAcc = _stats[a.id]?.accuracy ?? 0.0;
+          final bAcc = _stats[b.id]?.accuracy ?? 0.0;
+          final cmp = aAcc.compareTo(bAcc);
           return cmp == 0 ? a.name.compareTo(b.name) : cmp;
         });
         break;
@@ -829,10 +838,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             PopupMenuButton<String>(
               onSelected: _setSort,
               initialValue: _sort,
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: kSortEdited, child: Text('Newest')),
-                PopupMenuItem(value: kSortSpots, child: Text('Most Hands')),
-                PopupMenuItem(value: kSortName, child: Text('Name A-Z')),
+              itemBuilder: (ctx) => [
+                const PopupMenuItem(value: kSortEdited, child: Text('Newest')),
+                const PopupMenuItem(value: kSortSpots, child: Text('Most Hands')),
+                const PopupMenuItem(value: kSortName, child: Text('Name A-Z')),
+                PopupMenuItem(
+                  value: kSortProgress,
+                  child: Text(AppLocalizations.of(ctx)!.sortProgress),
+                ),
               ],
             ),
           ],
