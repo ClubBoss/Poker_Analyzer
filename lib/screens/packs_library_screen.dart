@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_pack_asset_loader.dart';
 import 'package:uuid/uuid.dart';
@@ -419,6 +420,61 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                                   );
                                 },
                                 child: const Text('Resume'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Builder(
+                  builder: (context) {
+                    final suggest = _packs
+                        .where((p) =>
+                            (p.evCovered + p.icmCovered) < p.spots.length * 2)
+                        .minBy((p) => p.evCovered + p.icmCovered);
+                    if (suggest == null) return const SizedBox.shrink();
+                    final total = suggest.spots.length;
+                    final evPct =
+                        total == 0 ? 0 : suggest.evCovered * 100 / total;
+                    final icmPct =
+                        total == 0 ? 0 : suggest.icmCovered * 100 / total;
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(suggest.name,
+                                        style:
+                                            const TextStyle(fontSize: 16)),
+                                    const SizedBox(height: 4),
+                                    CombinedProgressBar(evPct, icmPct),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final newSession = await context
+                                      .read<TrainingSessionService>()
+                                      .startFromTemplate(suggest);
+                                  if (!context.mounted) return;
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => TrainingSessionScreen(
+                                          session: newSession),
+                                    ),
+                                  );
+                                },
+                                child: const Text('Start'),
                               ),
                             ],
                           ),
