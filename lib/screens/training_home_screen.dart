@@ -190,11 +190,15 @@ class _PackCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.white12,
-            color: color,
-            minHeight: 6,
+          TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 600),
+            tween: Tween(begin: 0.0, end: progress),
+            builder: (context, value, _) => LinearProgressIndicator(
+              value: value,
+              backgroundColor: Colors.white12,
+              color: color,
+              minHeight: 6,
+            ),
           ),
           const SizedBox(height: 4),
           ElevatedButton.icon(
