@@ -207,11 +207,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return copy;
   }
 
-  bool _isStarter(TrainingPackTemplate t) =>
-      t.tags.any((tag) => tag.toLowerCase() == kStarterTag);
+  bool _hasTag(TrainingPackTemplate t, String tag) =>
+      t.tags.any((x) => x.toLowerCase() == tag);
 
-  bool _isFeatured(TrainingPackTemplate t) =>
-      t.tags.any((tag) => tag.toLowerCase() == kFeaturedTag);
+  bool _isStarter(TrainingPackTemplate t) => _hasTag(t, kStarterTag);
+
+  bool _isFeatured(TrainingPackTemplate t) => _hasTag(t, kFeaturedTag);
 
   Future<void> _importTemplate() async {
     if (_importing) return;
@@ -581,16 +582,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final sortedFav = _applySorting(fav);
     final featured =
         _applySorting([for (final t in nonFav) if (_isFeatured(t)) t]);
+    final remaining = [for (final t in nonFav) if (!_isFeatured(t)) t];
     final builtInStarter = _applySorting([
-      for (final t in nonFav)
-        if (t.isBuiltIn && _isStarter(t) && !_isFeatured(t)) t
+      for (final t in remaining)
+        if (t.isBuiltIn && _isStarter(t)) t
     ]);
     final builtInOther = _applySorting([
-      for (final t in nonFav)
-        if (t.isBuiltIn && !_isStarter(t) && !_isFeatured(t)) t
+      for (final t in remaining)
+        if (t.isBuiltIn && !_isStarter(t)) t
     ]);
     final user =
-        _applySorting([for (final t in nonFav) if (!t.isBuiltIn && !_isFeatured(t)) t]);
+        _applySorting([for (final t in remaining) if (!t.isBuiltIn) t]);
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Row(
@@ -766,7 +768,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ? ListView(
                   children: [
                     if (featured.isNotEmpty) ...[
-                      const ListTile(title: Text('Featured Packs')),
+                      const ListTile(title: Text('Рекомендуемые паки')),
                       for (final t in featured) _item(t),
                       if (sortedFav.isNotEmpty ||
                           builtInStarter.isNotEmpty ||
@@ -780,12 +782,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ],
                     if (builtInStarter.isNotEmpty) ...[
-                      const ListTile(title: Text('Starter Packs')),
+                      const ListTile(title: Text('Стартовые паки')),
                       for (final t in builtInStarter) _item(t),
                       if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ],
                     if (builtInOther.isNotEmpty) ...[
-                      const ListTile(title: Text('Built-in Packs')),
+                      const ListTile(title: Text('Встроенные паки')),
                       for (final t in builtInOther) _item(t),
                       if (user.isNotEmpty) const Divider(),
                     ],
