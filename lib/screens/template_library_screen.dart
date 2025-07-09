@@ -790,7 +790,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         AnimatedOpacity(
           opacity: _importing ? 1 : 0,
           duration: const Duration(milliseconds: 200),
-          child: _importing ? const _ImportOverlay() : const SizedBox.shrink(),
+          child: const _ImportOverlay(),
         ),
       ],
     );
@@ -805,7 +805,7 @@ class _ImportOverlay extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: const [
-        ModalBarrier(color: Colors.black45, dismissible: false),
+        ModalBarrier(color: Colors.black38, dismissible: false),
         Center(
           child: Semantics(
             label: 'Импорт паков…',
