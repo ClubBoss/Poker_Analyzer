@@ -18,6 +18,8 @@ import '../models/saved_hand.dart';
 
 class TrainingPackStorageService extends ChangeNotifier {
   static const _storageFile = 'training_packs.json';
+  static late final Future<Map<String, dynamic>> _manifestFuture =
+      rootBundle.loadString('AssetManifest.json').then(jsonDecode);
 
   Timer? _persistTimer;
 
@@ -82,10 +84,9 @@ class TrainingPackStorageService extends ChangeNotifier {
     }
     if (_packs.isEmpty) {
       try {
-        final manifest =
-            jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
-        final packPaths = manifest.keys.where((e) =>
-            e.startsWith('assets/training_packs/') && e.endsWith('.json'));
+        final manifest = await _manifestFuture;
+        final packPaths = manifest.keys
+            .where((e) => e.startsWith('assets/training_packs/') && e.endsWith('.json'));
         for (final p in packPaths) {
           final data = jsonDecode(await rootBundle.loadString(p));
           if (data is Map<String, dynamic>) {

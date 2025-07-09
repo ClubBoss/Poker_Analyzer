@@ -12,6 +12,8 @@ import 'package:open_filex/open_filex.dart';
 import '../models/training_pack_template.dart';
 
 class TemplateStorageService extends ChangeNotifier {
+  static late final Future<Map<String, dynamic>> _manifestFuture =
+      rootBundle.loadString('AssetManifest.json').then(jsonDecode);
   final List<TrainingPackTemplate> _templates = [];
   List<TrainingPackTemplate> get templates => List.unmodifiable(_templates);
 
@@ -42,9 +44,7 @@ class TemplateStorageService extends ChangeNotifier {
   }
 
   void addTemplate(TrainingPackTemplate template) {
-    final exists = _templates.any(
-        (t) => t.id == template.id || t.name.trim() == template.name.trim());
-    if (exists) return;
+    if (_templates.any((t) => t.id == template.id)) return;
     _templates.add(template);
     _resort();
     notifyListeners();
@@ -96,8 +96,7 @@ class TemplateStorageService extends ChangeNotifier {
 
   Future<void> load() async {
     try {
-      final manifest =
-          jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
+      final manifest = await _manifestFuture;
       final paths = manifest.keys.where((e) =>
           e.startsWith('assets/training_templates/') && e.endsWith('.json'));
       _templates.clear();
