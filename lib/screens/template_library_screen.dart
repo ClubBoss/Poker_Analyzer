@@ -631,9 +631,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       (_favorites.contains(t.id) ? fav : nonFav).add(t);
     }
     final sortedFav = _applySorting(fav);
-    final featured =
-        _applySorting([for (final t in nonFav) if (_isFeatured(t)) t]);
-    final remaining = [for (final t in nonFav) if (!_isFeatured(t)) t];
+    final featured = [
+      for (final t in nonFav)
+        if (t.isBuiltIn && _isFeatured(t)) t
+    ]..sort(
+        (a, b) {
+          final cmp = b.updatedAt.compareTo(a.updatedAt);
+          return cmp == 0 ? a.name.compareTo(b.name) : cmp;
+        },
+      );
+    final remaining = [
+      for (final t in nonFav)
+        if (!(t.isBuiltIn && _isFeatured(t))) t
+    ];
     final builtInStarter = _applySorting([
       for (final t in remaining)
         if (t.isBuiltIn && _isStarter(t)) t
@@ -824,23 +834,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           child: hasResults
               ? ListView(
                   children: [
-                    if (featured.isNotEmpty) ...[
-                      const ListTile(title: Text('Рекомендуемые паки')),
-                      for (final t in featured) _item(t),
-                      if (sortedFav.isNotEmpty ||
-                          builtInStarter.isNotEmpty ||
-                          builtInOther.isNotEmpty ||
-                          user.isNotEmpty)
-                        const Divider(),
-                    ]
-                    else if (filteringActive) ...[
-                      _emptyTile,
-                      if (sortedFav.isNotEmpty ||
-                          builtInStarter.isNotEmpty ||
-                          builtInOther.isNotEmpty ||
-                          user.isNotEmpty)
-                        const Divider(),
-                    ],
                     if (sortedFav.isNotEmpty) ...[
                       const ListTile(title: Text('★ Favorites')),
                       for (final t in sortedFav) _item(t),
@@ -849,6 +842,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     else if (filteringActive) ...[
                       _emptyTile,
                       if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
+                    ],
+                    if (featured.isNotEmpty) ...[
+                      const ListTile(title: Text('Рекомендовано')),
+                      for (final t in featured) _item(t),
+                      if (builtInStarter.isNotEmpty ||
+                          builtInOther.isNotEmpty ||
+                          user.isNotEmpty)
+                        const Divider(),
+                    ]
+                    else if (filteringActive) ...[
+                      _emptyTile,
+                      if (builtInStarter.isNotEmpty ||
+                          builtInOther.isNotEmpty ||
+                          user.isNotEmpty)
+                        const Divider(),
                     ],
                     if (builtInStarter.isNotEmpty) ...[
                       const ListTile(title: Text('Стартовые паки')),
