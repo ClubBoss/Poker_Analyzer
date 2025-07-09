@@ -72,8 +72,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Future<void> _init() async {
-    final prefs = await _load();
-    await _autoImport(prefs);
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _sort = prefs.getString(_sortKey) ?? 'edited');
+    final loaded = await _load();
+    await _autoImport(loaded);
   }
 
   @override
@@ -127,7 +129,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _setSort(String value) async {
     setState(() => _sort = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_sortKey, value);
+    await prefs.setString(_sortKey, _sort);
   }
 
   Future<void> _updateNeedsPractice(bool value) async {
