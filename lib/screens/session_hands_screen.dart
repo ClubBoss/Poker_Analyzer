@@ -7,6 +7,7 @@ import '../widgets/session_label_overlay.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
+import '../services/session_manager.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../helpers/date_utils.dart';
 import '../theme/app_colors.dart';
@@ -298,6 +299,18 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                         child: ElevatedButton(
                           onPressed: () => _exportPdf(context),
                           child: const Text('Экспорт в PDF'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            await context
+                                .read<SessionManager>()
+                                .reset(widget.sessionId);
+                            if (context.mounted) Navigator.pop(context);
+                          },
+                          child: const Text('Reset Session'),
                         ),
                       ),
                     ],
