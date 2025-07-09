@@ -495,7 +495,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final tags = t.tags.take(3).toList();
     final isNew =
         t.isBuiltIn && DateTime.now().difference(t.createdAt).inDays < 7;
-    final card = Card(
+    Widget card = Card(
       child: ListTile(
         leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
         title: Column(
@@ -639,7 +639,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ),
     );
     if (_isStarter(t)) {
-      return Container(
+      card = Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.blueAccent, width: 2),
           borderRadius: BorderRadius.circular(8),
@@ -647,7 +647,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         child: card,
       );
     }
-    return card;
+    return GestureDetector(
+      onLongPress: () => showDialog(
+        context: context,
+        builder: (_) => TemplatePreviewDialog(template: t),
+      ),
+      child: card,
+    );
   }
 
   Widget get _emptyTile => const ListTile(

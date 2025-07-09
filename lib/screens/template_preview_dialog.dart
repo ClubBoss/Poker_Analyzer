@@ -18,34 +18,35 @@ class TemplatePreviewDialog extends StatelessWidget {
     final rest = template.hands.length - names.length;
     return AlertDialog(
       title: Text(template.name),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: colorFromHex(template.defaultColor),
-                  shape: BoxShape.circle,
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: colorFromHex(template.defaultColor),
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(translateCategory(template.category) ?? 'Без категории'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text('Тип: ${template.gameType}'),
-          Text('Версия: $version'),
-          if (template.author.isNotEmpty) Text('Автор: ${template.author}'),
-          const SizedBox(height: 8),
-          Text('${template.hands.length} раздач / ${template.tags.length} тегов'),
-          const SizedBox(height: 8),
-          for (final n in names) Text('• $n', overflow: TextOverflow.ellipsis),
-          if (rest > 0) Text('… +$rest'),
-        ],
+                const SizedBox(width: 8),
+                Text(translateCategory(template.category) ?? 'Без категории'),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('Тип: ${template.gameType}'),
+            Text('Версия: $version'),
+            if (template.author.isNotEmpty) Text('Автор: ${template.author}'),
+            const SizedBox(height: 8),
+            Text('${template.hands.length} раздач / ${template.tags.length} тегов'),
+            const SizedBox(height: 8),
+            for (final n in names) Text('• $n', overflow: TextOverflow.ellipsis),
+            if (rest > 0) Text('… +$rest'),
+          ],
+        ),
       ),
       actions: [
         TextButton(
