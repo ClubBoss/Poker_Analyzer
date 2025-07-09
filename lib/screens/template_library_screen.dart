@@ -535,6 +535,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Widget get _emptyTile => const ListTile(
+        title: Center(
+          child: Text(
+            'Нет подходящих паков',
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
@@ -574,6 +583,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     }
     final sortedVisible = _applySorting(visible);
     final hasResults = sortedVisible.isNotEmpty;
+    final filteringActive =
+        query.isNotEmpty || _filter != 'all' || _needsPractice || _favoritesOnly || _selectedTag != null;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
     for (final t in sortedVisible) {
@@ -775,20 +786,40 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                           builtInOther.isNotEmpty ||
                           user.isNotEmpty)
                         const Divider(),
+                    ]
+                    else if (filteringActive) ...[
+                      _emptyTile,
+                      if (sortedFav.isNotEmpty ||
+                          builtInStarter.isNotEmpty ||
+                          builtInOther.isNotEmpty ||
+                          user.isNotEmpty)
+                        const Divider(),
                     ],
                     if (sortedFav.isNotEmpty) ...[
                       const ListTile(title: Text('★ Favorites')),
                       for (final t in sortedFav) _item(t),
+                      if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
+                    ]
+                    else if (filteringActive) ...[
+                      _emptyTile,
                       if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ],
                     if (builtInStarter.isNotEmpty) ...[
                       const ListTile(title: Text('Стартовые паки')),
                       for (final t in builtInStarter) _item(t),
                       if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
+                    ]
+                    else if (filteringActive) ...[
+                      _emptyTile,
+                      if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ],
                     if (builtInOther.isNotEmpty) ...[
                       const ListTile(title: Text('Встроенные паки')),
                       for (final t in builtInOther) _item(t),
+                      if (user.isNotEmpty) const Divider(),
+                    ]
+                    else if (filteringActive) ...[
+                      _emptyTile,
                       if (user.isNotEmpty) const Divider(),
                     ],
                     if (user.isNotEmpty) ...[
@@ -798,6 +829,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             Text('Your Packs', style: Theme.of(context).textTheme.titleMedium),
                       ),
                       for (final t in user) _item(t),
+                    ]
+                    else if (filteringActive) ...[
+                      _emptyTile,
                     ],
                   ],
                 )
