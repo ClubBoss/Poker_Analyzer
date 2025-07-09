@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import '../asset_manifest.dart';
+import '../services/training_pack_asset_loader.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -27,7 +25,6 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   String _query = '';
   String? _difficultyFilter;
   final Set<String> _statusFilters = {};
-  static final _manifestFuture = AssetManifest.instance;
 
   List<TrainingPackTemplate> get _filtered => _packs.where((p) {
         final q = _query.toLowerCase();
@@ -62,18 +59,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   }
 
   Future<void> _load() async {
-    final manifest = await _manifestFuture;
-    final bundle = DefaultAssetBundle.of(context);
-    final paths = manifest.keys
-        .where((e) => e.startsWith('assets/packs/') && e.endsWith('.json'));
-    final list = <TrainingPackTemplate>[];
-    for (final p in paths) {
-      final json = jsonDecode(await bundle.loadString(p));
-      if (json is Map<String, dynamic>) {
-        final tpl = TrainingPackTemplate.fromJson(json);
-        list.add(tpl);
-      }
-    }
+    final list = TrainingPackAssetLoader.instance.getAll();
     list.sort((a, b) {
       final d1 = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
       final d2 = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
