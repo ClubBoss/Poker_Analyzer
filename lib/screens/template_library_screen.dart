@@ -292,6 +292,37 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return copy;
   }
 
+  Widget _buildSortButtons(AppLocalizations l) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Wrap(
+        spacing: 8,
+        children: [
+          ChoiceChip(
+            label: const Text('Newest'),
+            selected: _sort == kSortEdited,
+            onSelected: (_) => _setSort(kSortEdited),
+          ),
+          ChoiceChip(
+            label: const Text('Most Hands'),
+            selected: _sort == kSortSpots,
+            onSelected: (_) => _setSort(kSortSpots),
+          ),
+          ChoiceChip(
+            label: const Text('Name A-Z'),
+            selected: _sort == kSortName,
+            onSelected: (_) => _setSort(kSortName),
+          ),
+          ChoiceChip(
+            label: Text(l.sortProgress),
+            selected: _sort == kSortProgress,
+            onSelected: (_) => _setSort(kSortProgress),
+          ),
+        ],
+      ),
+    );
+  }
+
   bool _hasTag(TrainingPackTemplate t, String tag) =>
       t.tags.any((x) => x.toLowerCase() == tag);
 
@@ -1079,10 +1110,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         }
                       },
                     ),
-                  ),
+                ),
               ],
             ),
           ),
+        _buildSortButtons(l),
         if (_loadingNeedsPractice) const LinearProgressIndicator(minHeight: 2),
         Expanded(
           child: hasResults
