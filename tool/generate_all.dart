@@ -1,5 +1,9 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:path/path.dart' as p;
+import 'package:yaml/yaml.dart';
+import 'package:poker_analyzer/models/v2/training_pack_template.dart';
+import 'package:poker_analyzer/helpers/training_pack_validator.dart';
 
 Future<void> main() async {
   final dir = Directory('tool/example_spots');
@@ -25,7 +29,23 @@ Future<void> main() async {
       '--input=${file.path}',
       '--output=${name}.yaml'
     ]);
-    final ok = res.exitCode == 0;
+    var ok = res.exitCode == 0;
+    if (ok) {
+      final out = File(p.join('assets', 'packs', '$name.yaml'));
+      try {
+        final doc = loadYaml(out.readAsStringSync());
+        final map = jsonDecode(jsonEncode(doc)) as Map<String, dynamic>;
+        final tpl = TrainingPackTemplate.fromJson(map);
+        final issues = validateTrainingPackTemplate(tpl);
+        if (issues.isNotEmpty) {
+          ok = false;
+          stderr.writeln(issues.join('; '));
+        }
+      } catch (e) {
+        ok = false;
+        stderr.writeln(e.toString());
+      }
+    }
     stdout.writeln('[${index}/${files.length}] ${name}.yaml  –  ${ok ? 'OK' : '[ERROR]'}');
     if (!ok) {
       errors++;
