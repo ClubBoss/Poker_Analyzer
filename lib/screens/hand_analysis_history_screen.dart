@@ -16,6 +16,7 @@ class HandAnalysisHistoryScreen extends StatefulWidget {
 class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
   String _period = 'Все';
   String _result = 'Все';
+  bool _desc = true;
 
   List<HandAnalysisRecord> _filter(List<HandAnalysisRecord> all) {
     Duration? d;
@@ -25,12 +26,15 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
       d = const Duration(days: 30);
     }
     final now = DateTime.now();
-    return [
+    final list = [
       for (final r in all)
         if ((d == null || r.date.isAfter(now.subtract(d))) &&
             (_result == 'Все' || r.action == _result.toLowerCase()))
           r
     ];
+    list.sort((a, b) =>
+        _desc ? b.date.compareTo(a.date) : a.date.compareTo(b.date));
+    return list;
   }
 
   Widget _card(CardModel c) {
@@ -140,7 +144,16 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
     final records = context.watch<HandAnalysisHistoryService>().records;
     final data = _filter(records);
     return Scaffold(
-      appBar: AppBar(title: const Text('История анализов'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('История анализов'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () => setState(() => _desc = !_desc),
+            icon: Icon(_desc ? Icons.arrow_downward : Icons.arrow_upward),
+          ),
+        ],
+      ),
       backgroundColor: AppColors.background,
       body: records.isEmpty
           ? const Center(child: Text('История пуста', style: TextStyle(color: Colors.white70)))
