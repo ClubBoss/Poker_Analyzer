@@ -158,6 +158,19 @@ class TrainingSessionService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> reset() async {
+    _timer?.cancel();
+    _session = null;
+    _template = null;
+    _spots.clear();
+    _actions.clear();
+    _focusHandTypes.clear();
+    _handGoalTotal.clear();
+    _handGoalCount.clear();
+    if (_activeBox != null) await _activeBox!.delete('session');
+    notifyListeners();
+  }
+
   void _saveActive() {
     if (_session == null || _activeBox == null || _session!.authorPreview) return;
     if (_session!.completedAt != null) {

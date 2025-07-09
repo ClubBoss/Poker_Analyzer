@@ -13,6 +13,7 @@ import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
 import 'services/session_note_service.dart';
 import 'services/session_pin_service.dart';
+import 'services/session_manager.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
@@ -277,6 +278,13 @@ Future<void> main() async {
           create: (_) => TrainingPackPlayController()..load(),
         ),
         ChangeNotifierProvider(create: (_) => TrainingSessionService()..load()),
+        Provider(
+          create: (context) => SessionManager(
+            hands: context.read<SavedHandManagerService>(),
+            notes: context.read<SessionNoteService>(),
+            sessions: context.read<TrainingSessionService>(),
+          ),
+        ),
         ChangeNotifierProvider(
           create: (context) => SessionLogService(
             sessions: context.read<TrainingSessionService>(),
