@@ -38,6 +38,7 @@ import 'drill_history_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_overview_screen.dart';
 import 'mistake_repeat_screen.dart';
+import 'quick_hand_analysis_screen.dart';
 import 'achievements_screen.dart';
 import '../services/goals_service.dart';
 import '../widgets/focus_of_the_week_card.dart';
@@ -573,6 +574,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('➕ Новая раздача'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const QuickHandAnalysisScreen()),
+                );
+              },
+              child: const Text('⚡ Быстрый анализ'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
