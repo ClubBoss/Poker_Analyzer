@@ -35,6 +35,7 @@ import '../services/mistake_review_pack_service.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -637,6 +638,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final templates = context.watch<TemplateStorageService>().templates;
     final tagList = <String>{for (final t in templates) ...t.tags}.toList()..sort();
     final visible = _applyFilters(templates);
@@ -732,7 +734,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       body: Column(
         children: [
           SwitchListTile(
-            title: const Text('Избранное'),
+            title: Text(l.favorites),
             value: _favoritesOnly,
             onChanged: _setFavoritesOnly,
             activeColor: Colors.orange,
@@ -855,7 +857,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ? ListView(
                   children: [
                     if (sortedFav.isNotEmpty) ...[
-                      const ListTile(title: Text('★ Favorites')),
+                      ListTile(title: Text('★ ${l.favorites}')),
                       for (final t in sortedFav) _item(t),
                       if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ]
@@ -864,7 +866,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ],
                     if (featured.isNotEmpty) ...[
-                      const ListTile(title: Text('Рекомендовано')),
+                      ListTile(title: Text(l.recommended)),
                       for (final t in featured) _item(t),
                       if (builtInStarter.isNotEmpty ||
                           builtInOther.isNotEmpty ||
@@ -879,7 +881,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         const Divider(),
                     ],
                     if (builtInStarter.isNotEmpty) ...[
-                      const ListTile(title: Text('Стартовые паки')),
+                      ListTile(title: Text(l.starterPacks)),
                       for (final t in builtInStarter) _item(t),
                       if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ]
@@ -888,7 +890,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ],
                     if (builtInOther.isNotEmpty) ...[
-                      const ListTile(title: Text('Встроенные паки')),
+                      ListTile(title: Text(l.builtInPacks)),
                       for (final t in builtInOther) _item(t),
                       if (user.isNotEmpty) const Divider(),
                     ]
@@ -900,7 +902,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child:
-                            Text('Your Packs', style: Theme.of(context).textTheme.titleMedium),
+                            Text(l.yourPacks, style: Theme.of(context).textTheme.titleMedium),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
