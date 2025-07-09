@@ -14,6 +14,7 @@ import '../services/favorite_pack_service.dart';
 import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
+import '../widgets/combined_progress_bar.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
 
@@ -379,40 +380,47 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         ? Colors.orange
                         : Colors.red;
                   return ListTile(
-                  title: Row(
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: Text(t.name)),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
+                      Row(
                         children: [
-                          if (t.difficulty != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: t.difficulty == 'Beginner'
-                                    ? Colors.green
-                                    : t.difficulty == 'Intermediate'
-                                        ? Colors.orange
-                                        : t.difficulty == 'Advanced'
-                                            ? Colors.red
-                                            : Colors.grey,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                t.difficulty!,
-                                style: const TextStyle(fontSize: 10, color: Colors.white),
-                              ),
-                            ),
-                          if (isNew)
-                            Chip(
-                              label: const Text('NEW'),
-                              backgroundColor: Colors.amber,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                            ),
+                          Expanded(child: Text(t.name)),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: [
+                              if (t.difficulty != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: t.difficulty == 'Beginner'
+                                        ? Colors.green
+                                        : t.difficulty == 'Intermediate'
+                                            ? Colors.orange
+                                            : t.difficulty == 'Advanced'
+                                                ? Colors.red
+                                                : Colors.grey,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    t.difficulty!,
+                                    style: const TextStyle(fontSize: 10, color: Colors.white),
+                                  ),
+                                ),
+                              if (isNew)
+                                Chip(
+                                  label: const Text('NEW'),
+                                  backgroundColor: Colors.amber,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
+                      const SizedBox(height: 4),
+                      CombinedProgressBar(pct(evDone), pct(icmDone)),
                     ],
                   ),
                   subtitle: Column(
@@ -428,15 +436,6 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _StatChip(
-                        label: '${pct(evDone).round()} % EV',
-                        color: col(pct(evDone)),
-                      ),
-                      const SizedBox(width: 4),
-                      _StatChip(
-                        label: '${pct(icmDone).round()} % ICM',
-                        color: col(pct(icmDone)),
-                      ),
                       IconButton(
                         icon: Icon(
                           fav.isFavorite(t.id)
@@ -525,18 +524,3 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _StatChip({required this.label, required this.color});
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration:
-            BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: Colors.white),
-        ),
-      );
-}
