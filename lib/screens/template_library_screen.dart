@@ -214,6 +214,44 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   bool _isFeatured(TrainingPackTemplate t) => _hasTag(t, kFeaturedTag);
 
+  List<TrainingPackTemplate> _applyFilters(
+      List<TrainingPackTemplate> templates) {
+    var visible = templates;
+    if (_filter == 'tournament') {
+      visible = [
+        for (final t in visible)
+          if (t.gameType.toLowerCase().startsWith('tour')) t
+      ];
+    } else if (_filter == 'cash') {
+      visible = [
+        for (final t in visible)
+          if (t.gameType.toLowerCase().contains('cash')) t
+      ];
+    }
+    final query = _searchCtrl.text.trim().toLowerCase();
+    if (query.isNotEmpty) {
+      visible = [
+        for (final t in visible)
+          if (t.name.toLowerCase().contains(query) ||
+              t.tags.any((tag) => tag.toLowerCase().contains(query)))
+            t
+      ];
+    }
+    if (_needsPractice) {
+      visible = [
+        for (final t in visible)
+          if (_needsPracticeIds.contains(t.id)) t
+      ];
+    }
+    if (_favoritesOnly) {
+      visible = [for (final t in visible) if (_favorites.contains(t.id)) t];
+    }
+    if (_selectedTag != null) {
+      visible = [for (final t in visible) if (t.tags.contains(_selectedTag)) t];
+    }
+    return visible;
+  }
+
   Future<void> _importTemplate() async {
     if (_importing) return;
     _importing = true;
@@ -548,40 +586,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
     final tagList = <String>{for (final t in templates) ...t.tags}.toList()..sort();
-    List<TrainingPackTemplate> visible = templates;
-    if (_filter == 'tournament') {
-      visible = [
-        for (final t in templates)
-          if (t.gameType.toLowerCase().startsWith('tour')) t
-      ];
-    } else if (_filter == 'cash') {
-      visible = [
-        for (final t in templates)
-          if (t.gameType.toLowerCase().contains('cash')) t
-      ];
-    }
-    final query = _searchCtrl.text.trim().toLowerCase();
-    if (query.isNotEmpty) {
-      visible = [
-        for (final t in visible)
-          if (t.name.toLowerCase().contains(query) ||
-              t.tags.any((tag) => tag.toLowerCase().contains(query)))
-            t
-      ];
-    }
-    if (_needsPractice) {
-      visible = [
-        for (final t in visible)
-          if (_needsPracticeIds.contains(t.id)) t
-      ];
-    }
-    if (_favoritesOnly) {
-      visible = [for (final t in visible) if (_favorites.contains(t.id)) t];
-    }
-    if (_selectedTag != null) {
-      visible = [for (final t in visible) if (t.tags.contains(_selectedTag)) t];
-    }
+    final visible = _applyFilters(templates);
     final sortedVisible = _applySorting(visible);
+    final query = _searchCtrl.text.trim().toLowerCase();
     final hasResults = sortedVisible.isNotEmpty;
     final filteringActive =
         query.isNotEmpty || _filter != 'all' || _needsPractice || _favoritesOnly || _selectedTag != null;
