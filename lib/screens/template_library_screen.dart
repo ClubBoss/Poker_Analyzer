@@ -485,12 +485,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final parts = t.version.split('.');
     final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
     final tags = t.tags.take(3).toList();
-    return Card(
+    final card = Card(
       child: ListTile(
         leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_isStarter(t))
+              Row(
+                children: const [
+                  Icon(Icons.rocket_launch,
+                      size: 16, color: Colors.blueAccent),
+                  SizedBox(width: 4),
+                  Text('Starter',
+                      style: TextStyle(fontSize: 12, color: Colors.blueAccent)),
+                ],
+              ),
             Row(
               children: [
                 if (t.isBuiltIn) ...[
@@ -604,6 +614,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         },
       ),
     );
+    if (_isStarter(t)) {
+      return Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.blueAccent, width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: card,
+      );
+    }
+    return card;
   }
 
   Widget get _emptyTile => const ListTile(
