@@ -575,7 +575,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       }
     }
     final sortedFav = _applySorting(fav);
-    final builtIn = _applySorting([for (final t in nonFav) if (t.isBuiltIn) t]);
+    final builtInStarter =
+        _applySorting([for (final t in nonFav) if (t.isBuiltIn && t.tags.contains('starter')) t]);
+    final builtIn = _applySorting(
+        [for (final t in nonFav) if (t.isBuiltIn && !t.tags.contains('starter')) t]);
     final user = _applySorting([for (final t in nonFav) if (!t.isBuiltIn) t]);
     final scaffold = Scaffold(
       appBar: AppBar(
@@ -759,6 +762,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     if (builtIn.isNotEmpty) ...[
                       const ListTile(title: Text('Built-in Packs')),
                       for (final t in builtIn) _item(t),
+                      if (builtInStarter.isNotEmpty || user.isNotEmpty)
+                        const Divider(),
+                    ],
+                    if (builtInStarter.isNotEmpty) ...[
+                      const ListTile(title: Text('Starter Packs')),
+                      for (final t in builtInStarter) _item(t),
                       if (user.isNotEmpty) const Divider(),
                     ],
                     if (user.isNotEmpty) ...[
