@@ -6,6 +6,8 @@ import '../theme/app_colors.dart';
 import '../models/card_model.dart';
 import 'quick_hand_analysis_screen.dart';
 
+enum _SortField { date, result }
+
 class HandAnalysisHistoryScreen extends StatefulWidget {
   const HandAnalysisHistoryScreen({super.key});
 
@@ -19,6 +21,7 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
   String _period = 'Все';
   String _result = 'Все';
   bool _desc = true;
+  _SortField _field = _SortField.date;
 
   @override
   void initState() {
@@ -56,8 +59,20 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
             (_result == 'Все' || r.action == _result.toLowerCase()))
           r
     ];
-    list.sort((a, b) =>
-        _desc ? b.date.compareTo(a.date) : a.date.compareTo(b.date));
+    int compare(HandAnalysisRecord a, HandAnalysisRecord b) {
+      int r;
+      switch (_field) {
+        case _SortField.result:
+          r = a.action.compareTo(b.action);
+          if (r == 0) r = a.date.compareTo(b.date);
+          break;
+        case _SortField.date:
+        default:
+          r = a.date.compareTo(b.date);
+      }
+      return _desc ? -r : r;
+    }
+    list.sort(compare);
     return list;
   }
 
@@ -170,6 +185,17 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
         title: const Text('История анализов'),
         centerTitle: true,
         actions: [
+          PopupMenuButton<_SortField>(
+            icon: const Icon(Icons.sort),
+            onSelected: (v) {
+              setState(() => _field = v);
+              _update();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: _SortField.date, child: Text('По дате')),
+              PopupMenuItem(value: _SortField.result, child: Text('По результату')),
+            ],
+          ),
           IconButton(
             onPressed: () {
               setState(() => _desc = !_desc);
