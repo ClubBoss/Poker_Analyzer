@@ -552,7 +552,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final sortedFav = _applySorting(fav);
     final builtIn = _applySorting([for (final t in nonFav) if (t.isBuiltIn) t]);
     final user = _applySorting([for (final t in nonFav) if (!t.isBuiltIn) t]);
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
@@ -781,6 +781,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ),
         ],
       ),
+    );
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        scaffold,
+        if (_importing) ...[
+          const ModalBarrier(color: Colors.black54, dismissible: false),
+          const Center(child: CircularProgressIndicator()),
+        ],
+      ],
     );
   }
 }
