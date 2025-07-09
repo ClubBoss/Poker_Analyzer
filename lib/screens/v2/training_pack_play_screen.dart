@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/training_spot.dart';
 import '../../models/action_entry.dart';
 import '../../models/card_model.dart';
@@ -632,7 +633,30 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             ],
           ),
         ],
-        bottom: PreferredSize(preferredSize: const Size.fromHeight(4), child: LinearProgressIndicator(value: progress)),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(
+            widget.original.spots.length > widget.template.spots.length ? 32 : 4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.original.spots.length > widget.template.spots.length)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Chip(
+                    label: Text(
+                      AppLocalizations.of(context)!.reviewMistakesOnly,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    backgroundColor: Colors.orange,
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              LinearProgressIndicator(value: progress),
+            ],
+          ),
+        ),
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: Stack(
