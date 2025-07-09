@@ -62,6 +62,7 @@ import 'services/remote_config_service.dart';
 import 'services/theme_service.dart';
 import 'services/ab_test_engine.dart';
 import 'services/asset_sync_service.dart';
+import 'services/favorite_pack_service.dart';
 import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
 import 'app_bootstrap.dart';
@@ -185,6 +186,7 @@ Future<void> main() async {
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
           value: templateStorage,
         ),
+        Provider<FavoritePackService>.value(value: FavoritePackService.instance),
         ChangeNotifierProvider(
           create: (context) => CategoryUsageService(
             templates: context.read<TemplateStorageService>(),
