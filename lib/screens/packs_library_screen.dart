@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_pack_asset_loader.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -60,6 +62,16 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
   _SortMode _sortMode = _SortMode.name;
+  static const _PrefsKey = 'pack_library_state';
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreState().then((_) {
+      _loaded = true;
+      _load();
+    });
+  }
 
   List<TrainingPackTemplate> get _filtered {
     final fav = context.read<FavoritePackService>();
@@ -124,15 +136,6 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     return res;
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_loaded) {
-      _loaded = true;
-      _load();
-    }
-  }
-
   Future<void> _load() async {
     final list = TrainingPackAssetLoader.instance.getAll();
     list.sort((a, b) {
@@ -144,6 +147,45 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       return covB.compareTo(covA);
     });
     if (mounted) setState(() => _packs.addAll(list));
+  }
+
+  Future<void> _restoreState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString(_PrefsKey);
+    if (data == null) return;
+    try {
+      final json = jsonDecode(data) as Map<String, dynamic>;
+      setState(() {
+        _query = json['query'] as String? ?? '';
+        _difficultyFilter = json['difficulty'] as String?;
+        _statusFilters
+          ..clear()
+          ..addAll([for (final s in json['status'] as List? ?? []) s as String]);
+        _posFilters
+          ..clear()
+          ..addAll([for (final s in json['pos'] as List? ?? []) HeroPosition.values.byName(s as String)]);
+        _stackFilters
+          ..clear()
+          ..addAll([for (final i in json['stack'] as List? ?? []) _StackRange.values[i as int]]);
+        final sort = json['sort'] as int?;
+        if (sort != null && sort >= 0 && sort < _SortMode.values.length) {
+          _sortMode = _SortMode.values[sort];
+        }
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _saveState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final json = jsonEncode({
+      'query': _query,
+      'difficulty': _difficultyFilter,
+      'status': _statusFilters.toList(),
+      'pos': [for (final p in _posFilters) p.name],
+      'stack': [for (final r in _stackFilters) r.index],
+      'sort': _sortMode.index,
+    });
+    await prefs.setString(_PrefsKey, json);
   }
 
   Future<void> _import(TrainingPackTemplate tpl) async {
@@ -297,15 +339,24 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                                 ? null
                                 : IconButton(
                                     icon: const Icon(Icons.clear),
-                                    onPressed: () => setState(() => _query = ''),
+                                    onPressed: () {
+                                      setState(() => _query = '');
+                                      _saveState();
+                                    },
                                   ),
                           ),
-                          onChanged: (v) => setState(() => _query = v.trim()),
+                          onChanged: (v) {
+                            setState(() => _query = v.trim());
+                            _saveState();
+                          },
                         ),
                       ),
                       PopupMenuButton<_SortMode>(
                         icon: const Icon(Icons.sort),
-                        onSelected: (v) => setState(() => _sortMode = v),
+                        onSelected: (v) {
+                          setState(() => _sortMode = v);
+                          _saveState();
+                        },
                         itemBuilder: (_) => const [
                           PopupMenuItem(
                               value: _SortMode.name, child: Text('Name')),
@@ -331,10 +382,13 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           child: FilterChip(
                             label: Text(d),
                             selected: _difficultyFilter == d,
-                            onSelected: (_) => setState(() =>
-                                _difficultyFilter == d
-                                    ? _difficultyFilter = null
-                                    : _difficultyFilter = d),
+                            onSelected: (_) {
+                              setState(() =>
+                                  _difficultyFilter == d
+                                      ? _difficultyFilter = null
+                                      : _difficultyFilter = d);
+                              _saveState();
+                            },
                           ),
                         ),
                     ],
@@ -349,11 +403,14 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         FilterChip(
                           label: Text(s),
                           selected: _statusFilters.contains(s),
-                          onSelected: (_) => setState(() {
-                            _statusFilters.contains(s)
-                                ? _statusFilters.remove(s)
-                                : _statusFilters.add(s);
-                          }),
+                          onSelected: (_) {
+                            setState(() {
+                              _statusFilters.contains(s)
+                                  ? _statusFilters.remove(s)
+                                  : _statusFilters.add(s);
+                            });
+                            _saveState();
+                          },
                         ),
                     ],
                   ),
@@ -367,11 +424,14 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         FilterChip(
                           label: Text(p.label),
                           selected: _posFilters.contains(p),
-                          onSelected: (_) => setState(() {
-                            _posFilters.contains(p)
-                                ? _posFilters.remove(p)
-                                : _posFilters.add(p);
-                          }),
+                          onSelected: (_) {
+                            setState(() {
+                              _posFilters.contains(p)
+                                  ? _posFilters.remove(p)
+                                  : _posFilters.add(p);
+                            });
+                            _saveState();
+                          },
                         ),
                     ],
                   ),
@@ -385,11 +445,14 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         FilterChip(
                           label: Text(r.label),
                           selected: _stackFilters.contains(r),
-                          onSelected: (_) => setState(() {
-                            _stackFilters.contains(r)
-                                ? _stackFilters.remove(r)
-                                : _stackFilters.add(r);
-                          }),
+                          onSelected: (_) {
+                            setState(() {
+                              _stackFilters.contains(r)
+                                  ? _stackFilters.remove(r)
+                                  : _stackFilters.add(r);
+                            });
+                            _saveState();
+                          },
                         ),
                     ],
                   ),
