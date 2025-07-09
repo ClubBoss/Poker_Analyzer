@@ -4,11 +4,9 @@ import 'package:provider/provider.dart';
 import '../services/training_session_service.dart';
 import '../widgets/spot_quiz_widget.dart';
 import 'session_result_screen.dart';
-import 'training_session_summary_screen.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 import '../models/v2/training_session.dart';
 
 class _EndlessStats {
@@ -162,41 +160,6 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   }
 
   Future<void> _showSummary(TrainingSessionService service) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => TrainingSessionSummaryScreen(
-          correct: service.correctCount,
-          total: service.totalCount,
-          elapsed: service.elapsedTime,
-          onReview: () {
-            Navigator.pop(context);
-            final ids = service.results.keys
-                .where((k) => service.results[k] == false)
-                .toSet();
-            final spots =
-                service.spots.where((s) => ids.contains(s.id)).toList();
-            if (spots.isEmpty) return;
-            final tpl = service.template!.copyWith(
-              id: const Uuid().v4(),
-              name: 'Review mistakes',
-              spots: spots,
-            );
-            service.startSession(tpl, persist: false);
-            setState(() {
-              _selected = null;
-              _correct = null;
-              _summaryShown = false;
-            });
-          },
-          onBack: () {
-            Navigator.pop(context);
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    );
     final tpl = service.template;
     if (tpl != null) {
       final correct = service.correctCount;

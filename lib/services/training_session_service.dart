@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
-import '../screens/training_session_screen.dart';
+import '../screens/training_session_summary_screen.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -28,6 +28,11 @@ class TrainingSessionService extends ChangeNotifier {
   final List<FocusGoal> _focusHandTypes = [];
   final Map<String, int> _handGoalTotal = {};
   final Map<String, int> _handGoalCount = {};
+  double _preEvPct = 0;
+  double _preIcmPct = 0;
+
+  double get preEvPct => _preEvPct;
+  double get preIcmPct => _preIcmPct;
 
   bool get isPaused => _paused;
   List<FocusGoal> get focusHandTypes => List.unmodifiable(_focusHandTypes);
@@ -219,6 +224,9 @@ class TrainingSessionService extends ChangeNotifier {
   }) async {
     if (persist) await _openBox();
     _template = template;
+    final total = template.spots.length;
+    _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
+    _preIcmPct = total == 0 ? 0 : template.icmCovered * 100 / total;
     _spots = List<TrainingPackSpot>.from(template.spots);
     _actions.clear();
     _focusHandTypes
@@ -291,16 +299,18 @@ class TrainingSessionService extends ChangeNotifier {
   }
 
   Future<void> complete(BuildContext context) async {
-    if (results.values.any((v) => !v)) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => TrainingSessionScreen(
-            session: await startFromMistakes(),
-          ),
+    if (_session == null || _template == null) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingSessionSummaryScreen(
+          session: _session!,
+          template: _template!,
+          preEvPct: _preEvPct,
+          preIcmPct: _preIcmPct,
         ),
-      );
-    }
+      ),
+    );
   }
 
   Future<void> submitResult(
