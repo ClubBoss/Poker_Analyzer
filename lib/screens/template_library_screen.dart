@@ -493,6 +493,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final parts = t.version.split('.');
     final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
     final tags = t.tags.take(3).toList();
+    final isNew =
+        t.isBuiltIn && DateTime.now().difference(t.createdAt).inDays < 7;
     final card = Card(
       child: ListTile(
         leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
@@ -514,17 +516,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 if (t.isBuiltIn) ...[
                   const Icon(Icons.shield, size: 18, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      t.name,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                ],
+                Expanded(
+                  child: Text(
+                    t.name,
+                    style: t.isBuiltIn
+                        ? TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          )
+                        : null,
                   ),
-                ] else ...[
-                  Expanded(child: Text(t.name)),
+                ),
+                if (isNew) ...[
+                  const SizedBox(width: 4),
+                  const Text('New',
+                      style: TextStyle(color: Colors.red, fontSize: 12)),
                 ],
               ],
             ),
