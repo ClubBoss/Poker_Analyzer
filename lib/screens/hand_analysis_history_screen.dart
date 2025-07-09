@@ -99,6 +99,24 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
         },
       );
 
+  Widget _summary(List<HandAnalysisRecord> data) {
+    if (data.isEmpty) return const SizedBox.shrink();
+    final ev = data.map((e) => e.ev).reduce((a, b) => a + b) / data.length;
+    final icm = data.map((e) => e.icm).reduce((a, b) => a + b) / data.length;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        'Средний EV ${ev.toStringAsFixed(2)} BB • ICM ${icm.toStringAsFixed(2)}',
+        style: const TextStyle(color: Colors.white70),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final records = context.watch<HandAnalysisHistoryService>().records;
@@ -138,6 +156,7 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                     ],
                   ),
                 ),
+                _summary(data),
                 Expanded(
                   child: data.isEmpty
                       ? const Center(child: Text('Нет результатов', style: TextStyle(color: Colors.white70)))
