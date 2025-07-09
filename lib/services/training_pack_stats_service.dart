@@ -8,12 +8,28 @@ class TrainingPackStat {
   final double accuracy;
   final DateTime last;
   final int lastIndex;
-  TrainingPackStat({required this.accuracy, required this.last, this.lastIndex = 0});
+  final double preEvPct;
+  final double preIcmPct;
+  final double postEvPct;
+  final double postIcmPct;
+  TrainingPackStat({
+    required this.accuracy,
+    required this.last,
+    this.lastIndex = 0,
+    this.preEvPct = 0,
+    this.preIcmPct = 0,
+    this.postEvPct = 0,
+    this.postIcmPct = 0,
+  });
 
   Map<String, dynamic> toJson() => {
         'accuracy': accuracy,
         'last': last.millisecondsSinceEpoch,
         if (lastIndex > 0) 'idx': lastIndex,
+        if (preEvPct > 0) 'preEv': preEvPct,
+        if (preIcmPct > 0) 'preIcm': preIcmPct,
+        if (postEvPct > 0) 'postEv': postEvPct,
+        if (postIcmPct > 0) 'postIcm': postIcmPct,
       };
 
   factory TrainingPackStat.fromJson(Map<String, dynamic> j) => TrainingPackStat(
@@ -21,6 +37,10 @@ class TrainingPackStat {
         last: DateTime.fromMillisecondsSinceEpoch(
             (j['last'] as num?)?.toInt() ?? 0),
         lastIndex: (j['idx'] as num?)?.toInt() ?? 0,
+        preEvPct: (j['preEv'] as num?)?.toDouble() ?? 0,
+        preIcmPct: (j['preIcm'] as num?)?.toDouble() ?? 0,
+        postEvPct: (j['postEv'] as num?)?.toDouble() ?? 0,
+        postIcmPct: (j['postIcm'] as num?)?.toDouble() ?? 0,
       );
 }
 
@@ -28,12 +48,34 @@ class TrainingPackStatsService {
   static const _prefix = 'tpl_stat_';
 
   static Future<void> recordSession(
-      String templateId, int correct, int total) async {
+    String templateId,
+    int correct,
+    int total, {
+    required double preEvPct,
+    required double preIcmPct,
+    required double postEvPct,
+    required double postIcmPct,
+  }) async {
     if (templateId.isEmpty || total <= 0) return;
     final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('$_prefix$templateId');
+    int lastIndex = 0;
+    if (raw != null) {
+      try {
+        final data = jsonDecode(raw);
+        if (data is Map<String, dynamic>) {
+          lastIndex = (data['idx'] as num?)?.toInt() ?? 0;
+        }
+      } catch (_) {}
+    }
     final stat = TrainingPackStat(
       accuracy: correct / total,
       last: DateTime.now(),
+      lastIndex: lastIndex,
+      preEvPct: preEvPct,
+      preIcmPct: preIcmPct,
+      postEvPct: postEvPct,
+      postIcmPct: postIcmPct,
     );
     await prefs.setString('$_prefix$templateId', jsonEncode(stat.toJson()));
   }
@@ -45,7 +87,15 @@ class TrainingPackStatsService {
     try {
       final data = jsonDecode(raw);
       if (data is Map<String, dynamic>) {
-        return TrainingPackStat.fromJson(data);
+        final stat = TrainingPackStat.fromJson(data);
+        if (!data.containsKey('preEv') &&
+            !data.containsKey('postEv') &&
+            !data.containsKey('preIcm') &&
+            !data.containsKey('postIcm')) {
+          await prefs.setString(
+              '$_prefix$templateId', jsonEncode(stat.toJson()));
+        }
+        return stat;
       }
     } catch (_) {}
     return null;
@@ -73,6 +123,10 @@ class TrainingPackStatsService {
       accuracy: stat.accuracy,
       last: stat.last,
       lastIndex: index,
+      preEvPct: stat.preEvPct,
+      preIcmPct: stat.preIcmPct,
+      postEvPct: stat.postEvPct,
+      postIcmPct: stat.postIcmPct,
     );
     await prefs.setString('$_prefix$templateId', jsonEncode(stat.toJson()));
   }

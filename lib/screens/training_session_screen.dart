@@ -165,7 +165,19 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final correct = service.correctCount;
       final total = service.totalCount;
       final acc = total == 0 ? 0.0 : correct / total;
-      unawaited(TrainingPackStatsService.recordSession(tpl.id, correct, total));
+      final totalSpots = tpl.spots.length;
+      final evAfter = totalSpots == 0 ? 0.0 : tpl.evCovered * 100 / totalSpots;
+      final icmAfter =
+          totalSpots == 0 ? 0.0 : tpl.icmCovered * 100 / totalSpots;
+      unawaited(TrainingPackStatsService.recordSession(
+        tpl.id,
+        correct,
+        total,
+        preEvPct: service.preEvPct,
+        preIcmPct: service.preIcmPct,
+        postEvPct: evAfter,
+        postIcmPct: icmAfter,
+      ));
       if (acc >= 0.8) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('completed_tpl_${tpl.id}', true);
