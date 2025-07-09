@@ -89,6 +89,7 @@ class MistakeReviewPackService extends ChangeNotifier {
   DateTime? _date;
   Timer? _timer;
   final Map<String, Set<String>> _packSpots = {};
+  bool _busy = false;
 
   TrainingPack? get pack => _pack;
   int get progress => _progress;
@@ -184,22 +185,36 @@ class MistakeReviewPackService extends ChangeNotifier {
   bool hasMistakes(String templateId) =>
       _packSpots[templateId]?.isNotEmpty ?? false;
 
-  Future<void> review(BuildContext context, String templateId) async {
+  Future<TrainingPackTemplate?> review(
+      BuildContext context, String templateId) async {
+    if (_busy) return null;
+    _busy = true;
     final ids = _packSpots[templateId];
-    if (ids == null || ids.isEmpty) return;
+    if (ids == null || ids.isEmpty) {
+      _busy = false;
+      return null;
+    }
     final tpl = context
         .read<TemplateStorageService>()
         .templates
         .firstWhereOrNull((t) => t.id == templateId);
-    if (tpl == null) return;
+    if (tpl == null) {
+      _busy = false;
+      return null;
+    }
     final spots = [
       for (final s in tpl.spots)
         if (ids.contains(s.id)) TrainingPackSpot.fromJson(s.toJson())
     ];
-    if (spots.isEmpty) return;
+    if (spots.isEmpty) {
+      _busy = false;
+      return null;
+    }
     final reviewTpl = tpl.copyWith(id: const Uuid().v4(), spots: spots);
     setLatestTemplate(reviewTpl);
     _packSpots.remove(templateId);
+    _busy = false;
+    return reviewTpl;
   }
 
   Future<void> syncDown() async {
