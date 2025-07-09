@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fl_chart/fl_chart.dart';
 import '../services/streak_service.dart';
 import '../services/evaluation_executor_service.dart';
+import '../services/template_storage_service.dart';
+import '../services/training_pack_stats_service.dart';
+import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,6 +19,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late int _evaluated;
   late int _correct;
+  final List<MapEntry<TrainingPackStat, String>> _stats = [];
 
   void _load() {
     final service = EvaluationExecutorService();
@@ -22,15 +27,210 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _correct = service.totalCorrect;
   }
 
+  Future<void> _loadStats() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final recent = await TrainingPackStatsService.recentlyPractisedTemplates(
+      templates,
+      days: 30,
+    );
+    final list = <MapEntry<TrainingPackStat, String>>[];
+    for (final t in recent) {
+      final stat = await TrainingPackStatsService.getStats(t.id);
+      if (stat != null) list.add(MapEntry(stat, t.name));
+    }
+    list.sort((a, b) => b.key.last.compareTo(a.key.last));
+    if (list.length > 5) list.removeRange(5, list.length);
+    if (!mounted) return;
+    setState(() {
+      _stats
+        ..clear()
+        ..addAll(list);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadStats());
   }
 
   Future<void> _reset() async {
     await EvaluationExecutorService().resetAccuracy();
     setState(_load);
+  }
+
+  Widget _legendItem(Color color, String text) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration:
+                BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 4),
+          Text(text,
+              style: const TextStyle(color: Colors.white, fontSize: 10)),
+        ],
+      );
+
+  Widget _buildChart() {
+    if (_stats.isEmpty) {
+      return Container(
+        height: 200,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Text('Недостаточно данных',
+            style: TextStyle(color: Colors.white70)),
+      );
+    }
+    final preEv = <FlSpot>[];
+    final postEv = <FlSpot>[];
+    final preIcm = <FlSpot>[];
+    final postIcm = <FlSpot>[];
+    for (var i = 0; i < _stats.length; i++) {
+      final s = _stats[i].key;
+      preEv.add(FlSpot(i.toDouble(), s.preEvPct));
+      postEv.add(FlSpot(i.toDouble(), s.postEvPct));
+      preIcm.add(FlSpot(i.toDouble(), s.preIcmPct));
+      postIcm.add(FlSpot(i.toDouble(), s.postIcmPct));
+    }
+    final step = (_stats.length / 5).ceil();
+    final lines = [
+      LineChartBarData(
+        spots: preEv,
+        color: Colors.orangeAccent,
+        barWidth: 2,
+        isCurved: false,
+        dotData: FlDotData(show: true),
+      ),
+      LineChartBarData(
+        spots: postEv,
+        color: Colors.greenAccent,
+        barWidth: 2,
+        isCurved: false,
+        dotData: FlDotData(show: true),
+      ),
+      LineChartBarData(
+        spots: preIcm,
+        color: Colors.lightBlueAccent,
+        barWidth: 2,
+        isCurved: false,
+        dotData: FlDotData(show: true),
+      ),
+      LineChartBarData(
+        spots: postIcm,
+        color: Colors.purpleAccent,
+        barWidth: 2,
+        isCurved: false,
+        dotData: FlDotData(show: true),
+      ),
+    ];
+    return SizedBox(
+      height: 220,
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: LineChart(
+                LineChartData(
+                  minY: 0,
+                  maxY: 100,
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                      tooltipBgColor: Colors.black87,
+                      getTooltipItems: (spots) {
+                        final idx = spots.first.spotIndex;
+                        final e = _stats[idx];
+                        return [
+                          LineTooltipItem(
+                            '${e.value}\nEV ${e.key.preEvPct.toStringAsFixed(1)} → ${e.key.postEvPct.toStringAsFixed(1)}\nICM ${e.key.preIcmPct.toStringAsFixed(1)} → ${e.key.postIcmPct.toStringAsFixed(1)}',
+                            const TextStyle(color: Colors.white, fontSize: 12),
+                          )
+                        ];
+                      },
+                    ),
+                  ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: 20,
+                    getDrawingHorizontalLine: (value) =>
+                        FlLine(color: Colors.white24, strokeWidth: 1),
+                  ),
+                  titlesData: FlTitlesData(
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 20,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) => Text(
+                          value.toInt().toString(),
+                          style:
+                              const TextStyle(color: Colors.white, fontSize: 10),
+                        ),
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (index < 0 || index >= _stats.length) {
+                            return const SizedBox.shrink();
+                          }
+                          if (index % step != 0 && index != _stats.length - 1) {
+                            return const SizedBox.shrink();
+                          }
+                          final d = _stats[index].key.last;
+                          final label =
+                              '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                          return Text(label,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 10));
+                        },
+                      ),
+                    ),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: const Border(
+                      left: BorderSide(color: Colors.white24),
+                      bottom: BorderSide(color: Colors.white24),
+                    ),
+                  ),
+                  lineBarsData: lines,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            children: [
+              _legendItem(Colors.orangeAccent, 'Pre EV'),
+              _legendItem(Colors.greenAccent, 'Post EV'),
+              _legendItem(Colors.lightBlueAccent, 'Pre ICM'),
+              _legendItem(Colors.purpleAccent, 'Post ICM'),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -54,13 +254,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('Accuracy: ${(acc * 100).toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white, fontSize: 16)),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _reset,
-              child: const Text('Reset Accuracy'),
-            ),
-          ],
+        ElevatedButton(
+          onPressed: _reset,
+          child: const Text('Reset Accuracy'),
         ),
+        const SizedBox(height: 16),
+        _buildChart(),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
