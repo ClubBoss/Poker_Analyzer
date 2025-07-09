@@ -63,6 +63,8 @@ import 'services/ab_test_engine.dart';
 import 'services/asset_sync_service.dart';
 import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 import 'helpers/training_pack_storage.dart';
@@ -399,6 +401,23 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
                 displayColor: Colors.white,
               ),
             ),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('ru'),
+            ],
+            localeResolutionCallback: (locale, supportedLocales) {
+              if (locale == null) return const Locale('ru');
+              for (final l in supportedLocales) {
+                if (l.languageCode == locale.languageCode) return l;
+              }
+              return const Locale('ru');
+            },
             home: const MainNavigationScreen(),
           );
         },
