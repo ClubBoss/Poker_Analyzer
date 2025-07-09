@@ -110,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       LineChartBarData(
         spots: postEv,
-        color: Colors.greenAccent,
+        color: Colors.deepOrangeAccent,
         barWidth: 2,
         isCurved: false,
         dotData: FlDotData(show: true),
@@ -124,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       LineChartBarData(
         spots: postIcm,
-        color: Colors.purpleAccent,
+        color: Colors.blueAccent,
         barWidth: 2,
         isCurved: false,
         dotData: FlDotData(show: true),
@@ -223,9 +223,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             spacing: 8,
             children: [
               _legendItem(Colors.orangeAccent, 'Pre EV'),
-              _legendItem(Colors.greenAccent, 'Post EV'),
+              _legendItem(Colors.deepOrangeAccent, 'Post EV'),
               _legendItem(Colors.lightBlueAccent, 'Pre ICM'),
-              _legendItem(Colors.purpleAccent, 'Post ICM'),
+              _legendItem(Colors.blueAccent, 'Post ICM'),
             ],
           ),
         ],
