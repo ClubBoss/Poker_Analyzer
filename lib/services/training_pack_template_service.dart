@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../models/v2/training_pack_preset.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -8,14 +11,17 @@ import '../models/action_entry.dart';
 import 'pack_generator_service.dart';
 
 class TrainingPackTemplateService {
-  static final TrainingPackTemplate starterPushfold10bb = TrainingPackTemplate(
+  static final TrainingPackTemplate _starterPushfold10bb = TrainingPackTemplate(
     id: 'starter_pushfold_10bb',
     name: 'Push/Fold 10BB (No Ante)',
+    difficulty: '1',
+    createdAt: DateTime(2024, 7, 9),
     gameType: GameType.tournament,
     heroBbStack: 10,
     playerStacksBb: const [10, 10],
     heroPos: HeroPosition.sb,
-    tags: const ['starter'],
+    anteBb: 0,
+    tags: const ['starter', 'push', '10bb', 'no_ante'],
     isBuiltIn: true,
     spots: [
       TrainingPackSpot(
@@ -29,8 +35,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -45,7 +51,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 10, '1': 10},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.0)]
           },
         ),
       ),
@@ -60,8 +66,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'call', amount: 9.5),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'call', amount: 10, ev: 0.5),
             ]
           },
         ),
@@ -77,8 +83,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -94,8 +100,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -111,8 +117,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -128,8 +134,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -145,8 +151,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -161,7 +167,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 10, '1': 10},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.0)]
           },
         ),
       ),
@@ -176,9 +182,59 @@ class TrainingPackTemplateService {
           stacks: {'0': 10, '1': 10},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'call', amount: 9.5),
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'call', amount: 10, ev: 0.5),
             ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf10_11',
+        title: 'BTN A8s push',
+        hand: HandData(
+          heroCards: 'Ah 8h',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 3,
+          stacks: {'0': 10, '1': 10, '2': 10},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 2, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf10_12',
+        title: 'BTN KJo push call',
+        hand: HandData(
+          heroCards: 'Kh Jd',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 3,
+          stacks: {'0': 10, '1': 10, '2': 10},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 10, ev: 0.5),
+              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 2, 'call', amount: 10, ev: 0.5),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf10_13',
+        title: 'BTN Q9o fold',
+        hand: HandData(
+          heroCards: 'Qd 9c',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 3,
+          stacks: {'0': 10, '1': 10, '2': 10},
+          actions: {
+            0: [ActionEntry(0, 0, 'fold', ev: 0.0)]
           },
         ),
       ),
@@ -190,5 +246,15 @@ class TrainingPackTemplateService {
     return PackGeneratorService.generatePackFromPreset(preset);
   }
 
-  static List<TrainingPackTemplate> getAllTemplates() => [starterPushfold10bb];
+  static TrainingPackTemplate starterPushfold10bb([BuildContext? context]) {
+    if (context == null) return _starterPushfold10bb;
+    return _starterPushfold10bb.copyWith(
+      name: AppLocalizations.of(context)!.packPushFold10,
+    );
+  }
+
+  static List<TrainingPackTemplate> getAllTemplates([
+    BuildContext? context,
+    List<TrainingPackTemplate> user = const [],
+  ]) => [...user, starterPushfold10bb(context)];
 }
