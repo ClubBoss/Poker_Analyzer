@@ -63,6 +63,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<String> _statusFilters = {};
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
+  final Set<String> _tagFilters = {};
   _SortMode _sortMode = _SortMode.name;
   static const _PrefsKey = 'pack_library_state';
 
@@ -111,7 +112,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           }
         }
       }
-      return diffOk && textOk && statusOk && posOk && stackOk;
+      final tagOk = _tagFilters.isEmpty ||
+          p.tags.any((tag) => _tagFilters.contains(tag));
+      return diffOk && textOk && statusOk && posOk && stackOk && tagOk;
     }).toList();
     res.sort((a, b) {
       switch (_sortMode) {
@@ -169,6 +172,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         _stackFilters
           ..clear()
           ..addAll([for (final i in json['stack'] as List? ?? []) _StackRange.values[i as int]]);
+        _tagFilters
+          ..clear()
+          ..addAll([for (final s in json['tags'] as List? ?? []) s as String]);
         final sort = json['sort'] as int?;
         if (sort != null && sort >= 0 && sort < _SortMode.values.length) {
           _sortMode = _SortMode.values[sort];
@@ -185,6 +191,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       'status': _statusFilters.toList(),
       'pos': [for (final p in _posFilters) p.name],
       'stack': [for (final r in _stackFilters) r.index],
+      'tags': _tagFilters.toList(),
       'sort': _sortMode.index,
     });
     await prefs.setString(_PrefsKey, json);
@@ -500,6 +507,32 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     ],
                   ),
                 ),
+                if (_packs.any((p) => p.tags.isNotEmpty))
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Wrap(
+                      spacing: 8,
+                      children: [
+                        for (final tag in {
+                          ...{
+                            for (final p in _packs) ...p.tags
+                          }
+                        }.toList()..sort())
+                          FilterChip(
+                            label: Text(tag),
+                            selected: _tagFilters.contains(tag),
+                            onSelected: (_) {
+                              setState(() {
+                                _tagFilters.contains(tag)
+                                    ? _tagFilters.remove(tag)
+                                    : _tagFilters.add(tag);
+                              });
+                              _saveState();
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: StreamBuilder<Set<String>>(
