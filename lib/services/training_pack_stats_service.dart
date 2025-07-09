@@ -7,17 +7,20 @@ import '../models/session_log.dart';
 class TrainingPackStat {
   final double accuracy;
   final DateTime last;
-  TrainingPackStat({required this.accuracy, required this.last});
+  final int lastIndex;
+  TrainingPackStat({required this.accuracy, required this.last, this.lastIndex = 0});
 
   Map<String, dynamic> toJson() => {
         'accuracy': accuracy,
         'last': last.millisecondsSinceEpoch,
+        if (lastIndex > 0) 'idx': lastIndex,
       };
 
   factory TrainingPackStat.fromJson(Map<String, dynamic> j) => TrainingPackStat(
         accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
         last: DateTime.fromMillisecondsSinceEpoch(
             (j['last'] as num?)?.toInt() ?? 0),
+        lastIndex: (j['idx'] as num?)?.toInt() ?? 0,
       );
 }
 
@@ -46,6 +49,32 @@ class TrainingPackStatsService {
       }
     } catch (_) {}
     return null;
+  }
+
+  static Future<void> setLastIndex(String templateId, int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('$_prefix$templateId');
+    TrainingPackStat stat;
+    if (raw != null) {
+      try {
+        final data = jsonDecode(raw);
+        if (data is Map<String, dynamic>) {
+          stat = TrainingPackStat.fromJson(data);
+        } else {
+          stat = TrainingPackStat(accuracy: 0, last: DateTime.now());
+        }
+      } catch (_) {
+        stat = TrainingPackStat(accuracy: 0, last: DateTime.now());
+      }
+    } else {
+      stat = TrainingPackStat(accuracy: 0, last: DateTime.now());
+    }
+    stat = TrainingPackStat(
+      accuracy: stat.accuracy,
+      last: stat.last,
+      lastIndex: index,
+    );
+    await prefs.setString('$_prefix$templateId', jsonEncode(stat.toJson()));
   }
 
   static Future<List<TrainingPackTemplate>> recentlyPractisedTemplates(

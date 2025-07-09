@@ -26,6 +26,7 @@ import '../../services/streak_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/mistake_review_pack_service.dart';
 import 'training_pack_result_screen_v2.dart';
+import '../../services/training_pack_stats_service.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -192,6 +193,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     if (ts) {
       await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
     }
+    unawaited(TrainingPackStatsService.setLastIndex(widget.template.id, _index));
   }
 
   Future<void> _startNew() async {
