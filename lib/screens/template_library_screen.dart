@@ -563,10 +563,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (_selectedTag != null) {
       visible = [for (final t in visible) if (t.tags.contains(_selectedTag)) t];
     }
-    final hasResults = visible.isNotEmpty;
+    final sortedVisible = _applySorting(visible);
+    final hasResults = sortedVisible.isNotEmpty;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
-    for (final t in visible) {
+    for (final t in sortedVisible) {
       if (_favorites.contains(t.id)) {
         fav.add(t);
       } else {
@@ -770,7 +771,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     ],
                   ],
                 )
-              : const Center(child: Text('Нет подходящих паков')),
+              : Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.auto_awesome,
+                          size: 96, color: Colors.white30),
+                      const SizedBox(height: 24),
+                      const Text('Нет доступных паков'),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: _importStarterPacks,
+                        child: const Text('Импортировать паки'),
+                      ),
+                    ],
+                  ),
+                ),
         ),
         ],
       ),
