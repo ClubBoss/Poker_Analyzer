@@ -63,11 +63,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortSpots = 'spots';
   static const kSortName = 'name';
   static const kSortProgress = 'progress';
+  static const kSortInProgress = 'resume';
   static const _sortIcons = {
     kSortEdited: Icons.update,
     kSortSpots: Icons.format_list_numbered,
     kSortName: Icons.sort_by_alpha,
     kSortProgress: Icons.bar_chart,
+    kSortInProgress: Icons.play_arrow,
   };
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
@@ -283,6 +285,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           return cmp == 0 ? a.name.compareTo(b.name) : cmp;
         });
         break;
+      case kSortInProgress:
+        copy.sort((a, b) {
+          final ai = _stats[a.id]?.lastIndex ?? 0;
+          final bi = _stats[b.id]?.lastIndex ?? 0;
+          final cmp = bi.compareTo(ai);
+          return cmp == 0 ? a.name.compareTo(b.name) : cmp;
+        });
+        break;
       default:
         copy.sort((a, b) {
           final cmp = b.updatedAt.compareTo(a.updatedAt);
@@ -317,6 +327,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             label: Text(l.sortProgress),
             selected: _sort == kSortProgress,
             onSelected: (_) => _setSort(kSortProgress),
+          ),
+          ChoiceChip(
+            label: const Text('In Progress'),
+            selected: _sort == kSortInProgress,
+            onSelected: (_) => _setSort(kSortInProgress),
           ),
         ],
       ),
@@ -975,6 +990,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 PopupMenuItem(
                   value: kSortProgress,
                   child: Text(AppLocalizations.of(ctx)!.sortProgress),
+                ),
+                const PopupMenuItem(
+                  value: kSortInProgress,
+                  child: Text('In Progress'),
                 ),
               ],
             ),
