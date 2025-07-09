@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import '../services/mistake_review_pack_service.dart';
+import '../models/training_pack_template.dart';
 import 'v2/training_pack_play_screen.dart';
 
 class MistakeReviewScreen extends StatelessWidget {
-  const MistakeReviewScreen({super.key});
+  final TrainingPackTemplate template;
+  const MistakeReviewScreen({super.key, required this.template});
 
   @override
   Widget build(BuildContext context) {
-    final tpl = MistakeReviewPackService.cachedTemplate;
-    if (tpl == null) {
-      return const Scaffold(body: SizedBox.shrink());
-    }
-    return TrainingPackPlayScreen(template: tpl, original: tpl);
+    return TrainingPackPlayScreen(template: template, original: template);
   }
 }

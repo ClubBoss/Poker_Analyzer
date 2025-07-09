@@ -754,6 +754,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   void _showPackSheet(BuildContext context, TrainingPackTemplate t) {
     UserActionLogger.instance.logThrottled('sheet_open:${t.id}');
     final service = context.read<MistakeReviewPackService>();
+    final l = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -769,12 +770,23 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             showReview: service.hasMistakes(t.id),
             onReview: () async {
               Navigator.pop(context);
-              await service.review(context, t.id);
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const Center(child: CircularProgressIndicator()),
+              );
+              final tpl = await service.review(context, t.id);
               if (!context.mounted) return;
+              Navigator.pop(context);
+              if (tpl == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.noMistakesLeft)),
+                );
+                return;
+              }
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const MistakeReviewScreen()),
+                MaterialPageRoute(builder: (_) => MistakeReviewScreen(template: tpl)),
               );
             },
           ),
@@ -1244,7 +1256,7 @@ class _PackSheetContent extends StatelessWidget {
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: onReview,
-            child: const Text('Разобрать ошибки'),
+            child: Text(l.reviewMistakes),
           ),
         ],
       ],
