@@ -49,6 +49,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _favOnlyKey = 'lib_fav_only';
   static const _selTagKey = 'lib_sel_tag';
+  static String? _manifestCache;
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
   String _sort = 'edited';
@@ -310,31 +311,32 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _importInitialTemplates() async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool('imported_initial_templates') == true) return;
-    final manifest =
-        jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
-    final paths = manifest.keys.where((e) =>
-        e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
+    _manifestCache ??= await rootBundle.loadString('AssetManifest.json');
+    final manifest = jsonDecode(_manifestCache!) as Map;
+    final paths = manifest.keys.where(
+        (e) => e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
     final service = context.read<TemplateStorageService>();
     var added = 0;
     for (final p in paths) {
       try {
         final data = jsonDecode(await rootBundle.loadString(p));
         if (data is Map<String, dynamic>) {
-          final tpl =
-              TrainingPackTemplate.fromJson(Map<String, dynamic>.from(data));
-          final exists = service.templates
-              .any((t) => t.id == tpl.id || t.name == tpl.name);
-          if (!exists) {
+          final tpl = TrainingPackTemplate.fromJson(
+              Map<String, dynamic>.from(data))
+            ..isBuiltIn = true;
+          if (service.templates.every((t) => t.id != tpl.id)) {
             service.addTemplate(tpl);
             added++;
           }
         }
-      } catch (_) {}
+      } catch (e, st) {
+        debugPrint('🛑  Cannot import $p: $e\n$st');
+      }
     }
     await prefs.setBool('imported_initial_templates', true);
     if (!mounted) return;
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Added $added packs')));
+        .showSnackBar(SnackBar(content: Text('Добавлено $added паков')));
   }
 
   Future<TrainingPackTemplate?> _loadLastPack(BuildContext context) async {
