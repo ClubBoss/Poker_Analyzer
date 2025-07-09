@@ -64,6 +64,7 @@ import 'services/ab_test_engine.dart';
 import 'services/asset_sync_service.dart';
 import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
+import 'app_bootstrap.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,6 +76,7 @@ import 'core/error_logger.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppBootstrap.init();
   final registry = ServiceRegistry();
   final pluginManager = PluginManager();
   final loader = PluginLoader();
