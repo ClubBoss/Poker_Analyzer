@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import 'training_activity_by_weekday_screen.dart';
 import 'top_mistakes_overview_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../helpers/category_translations.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
@@ -20,7 +21,8 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
         .toList();
     final Map<String, _CategoryStats> map = {};
     for (final p in packs) {
-      final c = p.category.isNotEmpty ? p.category : 'Без категории';
+      final raw = p.category.isNotEmpty ? p.category : 'Без категории';
+      final c = translateCategory(raw);
       map.putIfAbsent(c, () => _CategoryStats()).add(p);
     }
     final stats = map.entries
