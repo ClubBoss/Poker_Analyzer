@@ -212,6 +212,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         }
       }
     }
+    await service.complete(context);
   }
 
   void _showEndlessSummary() {

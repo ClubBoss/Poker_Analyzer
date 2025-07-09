@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
+import '../screens/training_session_screen.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -247,6 +249,30 @@ class TrainingSessionService extends ChangeNotifier {
   Future<TrainingSession> startFromTemplate(TrainingPackTemplate template) async {
     await startSession(template, persist: false);
     return _session!;
+  }
+
+  Future<TrainingSession> startFromMistakes() async {
+    final ids = results.keys.where((k) => results[k] == false).toSet();
+    final spots = _spots.where((s) => ids.contains(s.id)).toList();
+    final tpl = _template!.copyWith(
+      id: const Uuid().v4(),
+      name: 'Retry mistakes',
+      spots: spots,
+    );
+    return startFromTemplate(tpl);
+  }
+
+  Future<void> complete(BuildContext context) async {
+    if (results.values.any((v) => !v)) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TrainingSessionScreen(
+            session: await startFromMistakes(),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> submitResult(
