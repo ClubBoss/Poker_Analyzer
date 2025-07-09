@@ -9,6 +9,7 @@ import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import '../models/v2/training_session.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -32,9 +33,11 @@ class _EndlessStats {
   }
 }
 
+
 class TrainingSessionScreen extends StatefulWidget {
   final VoidCallback? onSessionEnd;
-  const TrainingSessionScreen({super.key, this.onSessionEnd});
+  final TrainingSession? session;
+  const TrainingSessionScreen({super.key, this.onSessionEnd, this.session});
 
   @override
   State<TrainingSessionScreen> createState() => _TrainingSessionScreenState();

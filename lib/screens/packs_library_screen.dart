@@ -7,10 +7,11 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../models/v2/training_pack_template.dart';
 import '../services/template_storage_service.dart';
 import '../helpers/training_pack_storage.dart';
+import '../helpers/training_pack_validator.dart';
 import '../services/training_pack_author_service.dart' show TrainingPackAuthorService, PresetConfig;
 import '../models/v2/hero_position.dart';
 import 'v2/training_pack_template_editor_screen.dart';
-import 'v2/training_session_screen.dart';
+import 'training_session_screen.dart';
 
 class PacksLibraryScreen extends StatefulWidget {
   const PacksLibraryScreen({super.key});
@@ -347,6 +348,26 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         label: '${pct(icmDone).round()} % ICM',
                         color: col(pct(icmDone)),
                       ),
+                      if (validateTrainingPackTemplate(t).isEmpty &&
+                          !context.read<TemplateStorageService>().templates.any((e) => e.name == t.name))
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final newSession = await context
+                                  .read<TrainingSessionService>()
+                                  .startFromTemplate(t);
+                              if (!context.mounted) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => TrainingSessionScreen(session: newSession),
+                                ),
+                              );
+                            },
+                            child: const Text('Start'),
+                          ),
+                        ),
                       IconButton(
                         icon: const Icon(Icons.play_circle_fill),
                         tooltip: solvedAll ? 'All solved' : 'Resume',

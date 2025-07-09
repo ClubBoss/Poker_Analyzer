@@ -241,6 +241,11 @@ class TrainingSessionService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<TrainingSession> startFromTemplate(TrainingPackTemplate template) async {
+    await startSession(template, persist: false);
+    return _session!;
+  }
+
   Future<void> submitResult(
     String spotId,
     String action,
