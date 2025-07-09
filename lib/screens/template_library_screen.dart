@@ -50,6 +50,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _favOnlyKey = 'lib_fav_only';
   static const _selTagKey = 'lib_sel_tag';
+  static const kStarterTag = 'starter';
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
@@ -204,6 +205,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     }
     return copy;
   }
+
+  bool _isStarter(TrainingPackTemplate t) =>
+      t.tags.any((tag) => tag.toLowerCase() == kStarterTag);
 
   Future<void> _importTemplate() async {
     if (_importing) return;
@@ -568,17 +572,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
     for (final t in sortedVisible) {
-      if (_favorites.contains(t.id)) {
-        fav.add(t);
-      } else {
-        nonFav.add(t);
-      }
+      (_favorites.contains(t.id) ? fav : nonFav).add(t);
     }
     final sortedFav = _applySorting(fav);
     final builtInStarter =
-        _applySorting([for (final t in nonFav) if (t.isBuiltIn && t.tags.contains('starter')) t]);
-    final builtIn = _applySorting(
-        [for (final t in nonFav) if (t.isBuiltIn && !t.tags.contains('starter')) t]);
+        _applySorting([for (final t in nonFav) if (t.isBuiltIn && _isStarter(t)) t]);
+    final builtInOther = _applySorting(
+        [for (final t in nonFav) if (t.isBuiltIn && !_isStarter(t)) t]);
     final user = _applySorting([for (final t in nonFav) if (!t.isBuiltIn) t]);
     final scaffold = Scaffold(
       appBar: AppBar(
@@ -757,17 +757,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     if (sortedFav.isNotEmpty) ...[
                       const ListTile(title: Text('★ Favorites')),
                       for (final t in sortedFav) _item(t),
-                      if (builtIn.isNotEmpty || user.isNotEmpty) const Divider(),
-                    ],
-                    if (builtIn.isNotEmpty) ...[
-                      const ListTile(title: Text('Built-in Packs')),
-                      for (final t in builtIn) _item(t),
-                      if (builtInStarter.isNotEmpty || user.isNotEmpty)
-                        const Divider(),
+                      if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
                     ],
                     if (builtInStarter.isNotEmpty) ...[
                       const ListTile(title: Text('Starter Packs')),
                       for (final t in builtInStarter) _item(t),
+                      if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
+                    ],
+                    if (builtInOther.isNotEmpty) ...[
+                      const ListTile(title: Text('Built-in Packs')),
+                      for (final t in builtInOther) _item(t),
                       if (user.isNotEmpty) const Divider(),
                     ],
                     if (user.isNotEmpty) ...[
