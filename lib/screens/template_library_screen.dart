@@ -65,7 +65,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   void initState() {
     super.initState();
     _searchCtrl.addListener(() => setState(() {}));
-    _load();
+    _load().then((_) => _autoImport());
   }
 
   @override
@@ -307,6 +307,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Added $added packs')));
+  }
+
+  Future<void> _autoImport() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('imported_initial_templates') == true) return;
+    final list = context.read<TemplateStorageService>().templates;
+    if (list.isEmpty) {
+      await _importInitialTemplates();
+      if (mounted) setState(() {});
+    }
   }
 
   Future<void> _importInitialTemplates() async {
