@@ -35,6 +35,7 @@ import '../services/cloud_sync_service.dart';
 import '../services/bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
+import 'mistake_review_screen.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
@@ -752,6 +753,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   void _showPackSheet(BuildContext context, TrainingPackTemplate t) {
     UserActionLogger.instance.logThrottled('sheet_open:${t.id}');
+    final service = context.read<MistakeReviewPackService>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -762,7 +764,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       builder: (_) => SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: _PackSheetContent(template: t),
+          child: _PackSheetContent(
+            template: t,
+            showReview: service.hasMistakes(t.id),
+            onReview: () async {
+              Navigator.pop(context);
+              await service.review(context, t.id);
+              if (!context.mounted) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const MistakeReviewScreen()),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -1174,8 +1189,14 @@ class _ImportOverlay extends StatelessWidget {
 }
 
 class _PackSheetContent extends StatelessWidget {
-  const _PackSheetContent({required this.template});
+  const _PackSheetContent({
+    required this.template,
+    this.showReview = false,
+    this.onReview,
+  });
   final TrainingPackTemplate template;
+  final bool showReview;
+  final VoidCallback? onReview;
 
   @override
   Widget build(BuildContext context) {
@@ -1219,6 +1240,13 @@ class _PackSheetContent extends StatelessWidget {
           },
           child: Text(l.startTraining),
         ),
+        if (showReview) ...[
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: onReview,
+            child: const Text('Разобрать ошибки'),
+          ),
+        ],
       ],
     );
   }

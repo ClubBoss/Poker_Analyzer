@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
@@ -87,6 +88,7 @@ class MistakeReviewPackService extends ChangeNotifier {
   int _progress = 0;
   DateTime? _date;
   Timer? _timer;
+  final Map<String, Set<String>> _packSpots = {};
 
   TrainingPack? get pack => _pack;
   int get progress => _progress;
@@ -175,7 +177,29 @@ class MistakeReviewPackService extends ChangeNotifier {
 
   Future<void> addSpot(
       TrainingPackTemplate template, TrainingPackSpot spot) async {
+    (_packSpots[template.id] ??= <String>{}).add(spot.id);
     await addPack([spot.id], note: template.name);
+  }
+
+  bool hasMistakes(String templateId) =>
+      _packSpots[templateId]?.isNotEmpty ?? false;
+
+  Future<void> review(BuildContext context, String templateId) async {
+    final ids = _packSpots[templateId];
+    if (ids == null || ids.isEmpty) return;
+    final tpl = context
+        .read<TemplateStorageService>()
+        .templates
+        .firstWhereOrNull((t) => t.id == templateId);
+    if (tpl == null) return;
+    final spots = [
+      for (final s in tpl.spots)
+        if (ids.contains(s.id)) TrainingPackSpot.fromJson(s.toJson())
+    ];
+    if (spots.isEmpty) return;
+    final reviewTpl = tpl.copyWith(id: const Uuid().v4(), spots: spots);
+    setLatestTemplate(reviewTpl);
+    _packSpots.remove(templateId);
   }
 
   Future<void> syncDown() async {
