@@ -226,6 +226,31 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                 );
               },
             ),
+            Builder(
+              builder: (context) {
+                final service = context.watch<MistakeReviewPackService>();
+                if (!service.hasMistakes()) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final tpl = await service.buildPack(context);
+                      if (tpl == null) return;
+                      await context
+                          .read<TrainingSessionService>()
+                          .startSession(tpl, persist: false);
+                      if (!context.mounted) return;
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    },
+                    child: Text(l.repeatMistakes),
+                  ),
+                );
+              },
+            ),
             if (tip.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
