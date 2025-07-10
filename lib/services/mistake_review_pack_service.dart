@@ -12,6 +12,9 @@ import '../models/saved_hand.dart';
 import '../models/mistake_pack.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hand_data.dart';
+import '../models/action_entry.dart';
+import '../models/v2/hero_position.dart';
 import '../services/template_storage_service.dart';
 import 'package:uuid/uuid.dart';
 import 'saved_hand_manager_service.dart';
@@ -67,6 +70,41 @@ class MistakeReviewPackService extends ChangeNotifier {
 
   Future<TrainingPackTemplate?> buildPack(BuildContext context) =>
       MistakeReviewPackService.latestTemplate(context);
+
+  TrainingPackSpot _spotFromHand(SavedHand hand) {
+    final heroCards = hand.playerCards[hand.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
+    final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+    final stacks = <String, double>{
+      for (int i = 0; i < hand.numberOfPlayers; i++) '$i': (hand.stackSizes[i] ?? 0).toDouble(),
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: heroCards,
+        position: parseHeroPosition(hand.heroPosition),
+        heroIndex: hand.heroIndex,
+        playerCount: hand.numberOfPlayers,
+        stacks: stacks,
+        actions: {0: actions},
+        anteBb: hand.anteBb,
+      ),
+      tags: List<String>.from(hand.tags),
+    );
+  }
+
+  TrainingPackTemplate buildFromHands(List<SavedHand> hands) {
+    final spots = [for (final h in hands) _spotFromHand(h)];
+    final tpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Session Review',
+      createdAt: DateTime.now(),
+      spots: spots,
+    );
+    setLatestTemplate(tpl);
+    return tpl;
+  }
 
   void _trim() {
     _packs.sort((a, b) => b.createdAt.compareTo(a.createdAt));

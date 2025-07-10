@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import 'package:provider/provider.dart';
 import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
 import '../helpers/hand_utils.dart';
@@ -8,10 +9,30 @@ import '../services/push_fold_ev_service.dart';
 import '../services/icm_push_ev_service.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../theme/app_colors.dart';
+import '../services/mistake_review_pack_service.dart';
+import 'training_recommendation_screen.dart';
 
-class SessionAnalysisScreen extends StatelessWidget {
+class SessionAnalysisScreen extends StatefulWidget {
   final List<SavedHand> hands;
   const SessionAnalysisScreen({super.key, required this.hands});
+
+  @override
+  State<SessionAnalysisScreen> createState() => _SessionAnalysisScreenState();
+}
+
+class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MistakeReviewPackService>().buildFromHands(widget.hands);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const TrainingRecommendationScreen()),
+      );
+    });
+  }
 
   ActionEntry? _heroAction(SavedHand h) {
     for (final a in h.actions) {
@@ -69,7 +90,7 @@ class SessionAnalysisScreen extends StatelessWidget {
   }
 
   Widget _buildChart() {
-    final data = [...hands]..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+    final data = [...widget.hands]..sort((a, b) => a.savedAt.compareTo(b.savedAt));
     if (data.length < 2) return const SizedBox(height: 200);
     final evs = <double>[];
     final icms = <double>[];
@@ -172,7 +193,7 @@ class SessionAnalysisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final list = [...hands]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final list = [...widget.hands]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
     int correct = 0;
     int mistakes = 0;
     for (final h in list) {
