@@ -1,6 +1,7 @@
 import 'services/training_pack_asset_loader.dart';
 import 'services/favorite_pack_service.dart';
 import 'services/cloud_sync_service.dart';
+import 'services/session_note_service.dart';
 
 class AppBootstrap {
   const AppBootstrap._();
@@ -15,5 +16,6 @@ class AppBootstrap {
       await cloud.loadHands();
       cloud.watchChanges();
     }
+    await SessionNoteService(cloud: cloud).load();
   }
 }
