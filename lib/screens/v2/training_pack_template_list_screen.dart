@@ -1909,6 +1909,7 @@ class _TrainingPackTemplateListScreenState
   Future<void> _generate() async {
     final nameCtrl = TextEditingController();
     final heroStackCtrl = TextEditingController(text: '10');
+    final maxStackCtrl = TextEditingController();
     final playerStacksCtrl = TextEditingController(text: '10,10');
     final rangeCtrl = TextEditingController();
     final streetGoalCtrl = TextEditingController();
@@ -1945,7 +1946,13 @@ class _TrainingPackTemplateListScreenState
                   ),
                   TextField(
                     controller: heroStackCtrl,
-                    decoration: const InputDecoration(labelText: 'Hero Stack'),
+                    decoration: const InputDecoration(labelText: 'Min Stack'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: maxStackCtrl,
+                    decoration:
+                        const InputDecoration(labelText: 'Max Stack (optional)'),
                     keyboardType: TextInputType.number,
                   ),
                   TextField(
@@ -2111,22 +2118,35 @@ class _TrainingPackTemplateListScreenState
       final name =
           nameCtrl.text.trim().isEmpty ? 'New Pack' : nameCtrl.text.trim();
       final hero = int.tryParse(heroStackCtrl.text.trim()) ?? 0;
+      final maxHero = int.tryParse(maxStackCtrl.text.trim());
       final stacks = [
         for (final s in playerStacksCtrl.text.split(RegExp(r'[,/]+')))
           if (s.trim().isNotEmpty) int.tryParse(s.trim()) ?? hero
       ];
       if (stacks.isEmpty) stacks.add(hero);
       final range = selected.toList();
-      final template = await PackGeneratorService.generatePushFoldPack(
-        id: const Uuid().v4(),
-        name: name,
-        heroBbStack: hero,
-        playerStacksBb: stacks,
-        heroPos: pos,
-        heroRange: range,
-        bbCallPct: bbCall.round(),
-        createdAt: DateTime.now(),
-      );
+      final template = maxHero != null && maxHero > hero
+          ? PackGeneratorService.generatePushFoldRangePack(
+              id: const Uuid().v4(),
+              name: name,
+              minBb: hero,
+              maxBb: maxHero,
+              playerStacksBb: stacks,
+              heroPos: pos,
+              heroRange: range,
+              bbCallPct: bbCall.round(),
+              createdAt: DateTime.now(),
+            )
+          : PackGeneratorService.generatePushFoldPackSync(
+              id: const Uuid().v4(),
+              name: name,
+              heroBbStack: hero,
+              playerStacksBb: stacks,
+              heroPos: pos,
+              heroRange: range,
+              bbCallPct: bbCall.round(),
+              createdAt: DateTime.now(),
+            );
       template.targetStreet = street == 'any' ? null : street;
       template.streetGoal = int.tryParse(streetGoalCtrl.text) ?? 0;
       template.tags.add('auto');
@@ -2147,6 +2167,7 @@ class _TrainingPackTemplateListScreenState
     }
     nameCtrl.dispose();
     heroStackCtrl.dispose();
+    maxStackCtrl.dispose();
     playerStacksCtrl.dispose();
     rangeCtrl.dispose();
     streetGoalCtrl.dispose();

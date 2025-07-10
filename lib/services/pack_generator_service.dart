@@ -243,6 +243,58 @@ class PackGeneratorService {
     return tpl;
   }
 
+  static TrainingPackTemplate generatePushFoldRangePack({
+    required String id,
+    required String name,
+    required int minBb,
+    required int maxBb,
+    required List<int> playerStacksBb,
+    required HeroPosition heroPos,
+    required List<String> heroRange,
+    int anteBb = 0,
+    int bbCallPct = 20,
+    DateTime? createdAt,
+  }) {
+    final spots = <TrainingPackSpot>[];
+    final diffs = [
+      for (var i = 0; i < playerStacksBb.length; i++)
+        playerStacksBb[i] - playerStacksBb.first
+    ];
+    for (var bb = minBb; bb <= maxBb; bb++) {
+      final players = [for (final d in diffs) bb + d];
+      final tpl = generatePushFoldPackSync(
+        id: '${id}_${bb}bb',
+        name: name,
+        heroBbStack: bb,
+        playerStacksBb: players,
+        heroPos: heroPos,
+        heroRange: heroRange,
+        anteBb: anteBb,
+        bbCallPct: bbCallPct,
+        createdAt: createdAt,
+      );
+      spots.addAll(tpl.spots);
+    }
+    final tpl = TrainingPackTemplate(
+      id: id,
+      name: name,
+      gameType: GameType.tournament,
+      spots: spots,
+      heroBbStack: minBb,
+      playerStacksBb: List<int>.from(playerStacksBb),
+      heroPos: heroPos,
+      spotCount: spots.length,
+      bbCallPct: bbCallPct,
+      anteBb: anteBb,
+      heroRange: List<String>.from(heroRange),
+      createdAt: createdAt,
+      lastGeneratedAt: DateTime.now(),
+      meta: {'maxStack': maxBb},
+    );
+    TemplateCoverageUtils.recountAll(tpl);
+    return tpl;
+  }
+
   static String _firstCombo(String hand) {
     const suits = ['h', 'd', 'c', 's'];
     if (hand.length == 2) {
