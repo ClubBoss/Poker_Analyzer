@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
+import '../../theme/app_colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/pack_import_service.dart';
 import '../../models/v2/training_pack_template.dart';
@@ -512,7 +513,7 @@ class _TrainingPackTemplateListScreenState
                   strokeWidth: 8,
                   backgroundColor: Colors.white24,
                   valueColor:
-                      const AlwaysStoppedAnimation(Colors.orangeAccent),
+                      const AlwaysStoppedAnimation(AppColors.accent),
                 ),
                 Text('${(value * 100).round()}%',
                     style: const TextStyle(
@@ -802,7 +803,7 @@ class _TrainingPackTemplateListScreenState
                   strokeWidth: 3,
                   backgroundColor: Colors.white24,
                   valueColor:
-                      const AlwaysStoppedAnimation(Colors.orangeAccent),
+                      const AlwaysStoppedAnimation(AppColors.accent),
                 ),
               ),
             ),
@@ -2824,7 +2825,7 @@ class _TrainingPackTemplateListScreenState
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.insights, color: Colors.orangeAccent),
+                        const Icon(Icons.insights, color: AppColors.accent),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(

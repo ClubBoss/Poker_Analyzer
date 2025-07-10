@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 enum MistakeSeverity { high, medium, low }
 
@@ -8,7 +9,7 @@ extension MistakeSeverityColor on MistakeSeverity {
       case MistakeSeverity.high:
         return Colors.redAccent;
       case MistakeSeverity.medium:
-        return Colors.orangeAccent;
+        return AppColors.accent;
       case MistakeSeverity.low:
       default:
         return Colors.greenAccent;

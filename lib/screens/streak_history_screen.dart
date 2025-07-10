@@ -123,7 +123,7 @@ class StreakHistoryScreen extends StatelessWidget {
               extraLinesData: ExtraLinesData(horizontalLines: [
                 HorizontalLine(
                   y: target.toDouble(),
-                  color: Colors.orangeAccent,
+                  color: AppColors.accent,
                   strokeWidth: 2,
                   dashArray: [4, 4],
                 ),

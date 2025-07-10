@@ -48,7 +48,7 @@ class SessionVolumeAccuracyChart extends StatelessWidget {
     final accuracyLine = LineChartBarData(
       spots: accuracySpots,
       isCurved: true,
-      color: Colors.orangeAccent,
+      color: AppColors.accent,
       barWidth: 2,
       dotData: FlDotData(show: false),
     );

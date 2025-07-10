@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'chip_stack_moving_widget.dart';
 
 /// Animated stack of chips flying from the pot to a player's stack.
@@ -41,7 +42,7 @@ class PotCollectionChips extends StatelessWidget {
       start: start,
       end: end,
       amount: amount,
-      color: Colors.orangeAccent,
+      color: AppColors.accent,
       scale: scale,
       control: control,
       fadeStart: fadeStart,

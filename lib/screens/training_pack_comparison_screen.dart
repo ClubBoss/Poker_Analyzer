@@ -85,7 +85,7 @@ class _PackDataSource extends DataTableSource {
     final progressColor = progress < 0.5
         ? Colors.redAccent
         : progress < 0.8
-            ? Colors.orangeAccent
+            ? AppColors.accent
             : Colors.greenAccent;
     final selectedRow = selected.contains(s.pack);
     return DataRow(

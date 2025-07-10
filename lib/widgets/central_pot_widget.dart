@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'chip_trail.dart';
 
 /// Pot display widget positioned in the middle of the table.
@@ -39,13 +40,13 @@ class CentralPotWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (showChip) ...[
-              MiniChip(color: Colors.orangeAccent, size: 14 * scale),
+              MiniChip(color: AppColors.accent, size: 14 * scale),
               SizedBox(width: 6 * scale),
             ],
             Text(
               text,
               style: TextStyle(
-                color: Colors.orangeAccent,
+                color: AppColors.accent,
                 fontWeight: FontWeight.bold,
                 fontSize: 16 * scale,
               ),

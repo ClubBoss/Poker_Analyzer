@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../theme/app_colors.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import 'action_timer_ring.dart';
@@ -100,7 +101,7 @@ class PlayerInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     const stackStyle = TextStyle(color: Colors.white70, fontSize: 12);
     final borderColor = isActive
-        ? Colors.orangeAccent
+        ? AppColors.accent
         : isHero
             ? Colors.purpleAccent
             : null;
@@ -306,13 +307,13 @@ class PlayerInfoWidget extends StatelessWidget {
                   Icon(
                     Icons.circle,
                     size: 12,
-                    color: Colors.orangeAccent.withOpacity(0.8),
+                    color: AppColors.accent.withOpacity(0.8),
                   ),
                   const SizedBox(width: 2),
                   Text(
                     '$streetInvestment',
                     style: TextStyle(
-                      color: Colors.orangeAccent.withOpacity(0.8),
+                      color: AppColors.accent.withOpacity(0.8),
                       fontSize: 12,
                     ),
                   ),

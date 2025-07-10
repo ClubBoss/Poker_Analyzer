@@ -33,7 +33,7 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
           final color = progress < 0.5
               ? Colors.redAccent
               : progress < 0.8
-                  ? Colors.orangeAccent
+                  ? AppColors.accent
                   : Colors.greenAccent;
           return Container(
             padding: const EdgeInsets.all(12),

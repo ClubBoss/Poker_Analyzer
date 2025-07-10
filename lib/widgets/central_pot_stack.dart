@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'chip_stack_widget.dart';
 
 /// Animated chip stack visualization of the central pot.
@@ -28,7 +29,7 @@ class CentralPotStack extends StatelessWidget {
         key: ValueKey(amount),
         amount: amount,
         scale: scale,
-        color: Colors.orangeAccent,
+        color: AppColors.accent,
       ),
     );
   }

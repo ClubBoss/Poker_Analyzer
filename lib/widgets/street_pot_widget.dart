@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'chip_stack_widget.dart';
 
 /// Displays pot size for a specific street in the history panel.
@@ -42,7 +43,7 @@ class StreetPotWidget extends StatelessWidget {
                   ChipStackWidget(
                     amount: value,
                     scale: 0.6,
-                    color: Colors.orangeAccent,
+                    color: AppColors.accent,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -70,7 +71,7 @@ class StreetPotWidget extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: factor,
                   backgroundColor: Colors.white10,
-                  color: Colors.orangeAccent,
+                  color: AppColors.accent,
                   minHeight: 4,
                 ),
               ),

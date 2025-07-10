@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class BadgeIcon extends StatelessWidget {
   final IconData icon;
@@ -10,7 +11,7 @@ class BadgeIcon extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
-          color: Colors.orangeAccent.withOpacity(0.6),
+          color: AppColors.accent.withOpacity(0.6),
           blurRadius: 12,
           spreadRadius: 2,
         )

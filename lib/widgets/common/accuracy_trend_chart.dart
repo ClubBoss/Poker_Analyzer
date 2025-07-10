@@ -40,7 +40,7 @@ class AccuracyTrendChart extends StatelessWidget {
     final line = LineChartBarData(
       spots: spots,
       isCurved: true,
-      color: Colors.orangeAccent,
+      color: AppColors.accent,
       barWidth: 2,
       dotData: FlDotData(show: false),
     );

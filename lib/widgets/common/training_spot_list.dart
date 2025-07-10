@@ -1975,7 +1975,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
             constraints: const BoxConstraints(),
             icon: Icon(
               i <= spot.rating ? Icons.star : Icons.star_border,
-              color: highlight ? Colors.orangeAccent : Colors.amber,
+              color: highlight ? AppColors.accent : Colors.amber,
               size: 20,
             ),
             onPressed: () => _updateRating(spot, i),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 /// Displays the Stack-to-Pot Ratio (SPR) in the center of the table.
 class CentralSprWidget extends StatelessWidget {
@@ -35,7 +36,7 @@ class CentralSprWidget extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: Colors.orangeAccent,
+            color: AppColors.accent,
             fontWeight: FontWeight.bold,
             fontSize: 14 * scale,
           ),

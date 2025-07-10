@@ -1818,7 +1818,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         overlay,
         payouts,
         0,
-        Colors.orangeAccent,
+        AppColors.accent,
         highlight: true,
         fadeStart: 0.5,
       );
@@ -1845,7 +1845,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       payouts[_winnerIndex!] = _potSync.pots[currentStreet];
     }
     if (payouts.isNotEmpty) {
-      _distributeChips(payouts, color: Colors.orangeAccent, fadeStart: 0.5);
+      _distributeChips(payouts, color: AppColors.accent, fadeStart: 0.5);
     }
     _demoAnimations.showWinnerGlow(
       context: context,
@@ -2057,7 +2057,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Animate chips from the pot to one or more players.
   void _distributeChips(
     Map<int, int> targets, {
-    Color color = Colors.orangeAccent,
+    Color color = AppColors.accent,
     double scale = 1.0,
     double fadeStart = 0.3,
   }) {
@@ -2498,7 +2498,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         overlay,
         wins,
         delay,
-        Colors.orangeAccent,
+        AppColors.accent,
         highlight: true,
         fadeStart: 0.6,
       );
@@ -2508,7 +2508,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         overlay,
         {_winnerIndex!: _potSync.pots[currentStreet]},
         delay,
-        Colors.orangeAccent,
+        AppColors.accent,
         highlight: true,
         fadeStart: 0.6,
       );
@@ -5944,10 +5944,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     pow(centerY - (centerY + dy + bias + 12), 2)),
                 height: 1,
                 decoration: BoxDecoration(
-                  color: Colors.orangeAccent.withOpacity(0.9),
+                  color: AppColors.accent.withOpacity(0.9),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.orangeAccent.withOpacity(0.6),
+                      color: AppColors.accent.withOpacity(0.6),
                       blurRadius: 4,
                     )
                   ],
@@ -8305,7 +8305,7 @@ class _TotalPotTracker extends StatelessWidget {
       child: Text(
         'Total Pot: ${ActionFormattingHelper.formatAmount(totalPot)}',
         style: const TextStyle(
-          color: Colors.orangeAccent,
+          color: AppColors.accent,
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),

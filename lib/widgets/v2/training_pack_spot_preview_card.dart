@@ -7,6 +7,7 @@ import '../../models/v2/hero_position.dart';
 import '../../models/action_entry.dart';
 import '../../screens/v2/hand_editor_screen.dart';
 import '../../services/evaluation_executor_service.dart';
+import '../../theme/app_colors.dart';
 
 /// ***Only the new Stateful implementation below is kept.
 ///   The former Stateless version has been removed to avoid a duplicate-class error.***
@@ -261,7 +262,7 @@ class _TrainingPackSpotPreviewCardState
                           child: InkWell(
                             onTap: widget.onNewTap,
                             child: const Icon(Icons.fiber_new,
-                                color: Colors.orangeAccent),
+                                color: AppColors.accent),
                           ),
                         ),
                       if (widget.showDuplicate)
