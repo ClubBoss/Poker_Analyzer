@@ -18,6 +18,7 @@ class TrainingRecommendationScreen extends StatefulWidget {
 
 class _TrainingRecommendationScreenState extends State<TrainingRecommendationScreen> {
   final Map<String, TrainingPackStat?> _stats = {};
+  final Map<String, double?> _delta = {};
   late AdaptiveTrainingService _service;
   bool _loading = true;
   List<TrainingPackTemplate> _tpls = [];
@@ -46,10 +47,16 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     if (review != null) list.insert(0, review);
     final adjust = context.read<DynamicPackAdjustmentService>();
     final stats = <String, TrainingPackStat?>{};
+    final delta = <String, double?>{};
     final adjusted = <TrainingPackTemplate>[];
     for (final t in list) {
       stats[t.id] =
           _service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+      final hist = await TrainingPackStatsService.history(t.id);
+      if (hist.length >= 2) {
+        delta[t.id] =
+            (hist.last.accuracy - hist[hist.length - 2].accuracy) * 100;
+      }
       adjusted.add(await adjust.adjust(t));
     }
     if (!mounted) return;
@@ -58,6 +65,9 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
       _stats
         ..clear()
         ..addAll(stats);
+      _delta
+        ..clear()
+        ..addAll(delta);
       _loading = false;
     });
   }
@@ -99,16 +109,32 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
                     final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(tpl.id);
                     final diff = tpl.difficultyLevel;
                     final missCount = context.read<MistakeReviewPackService>().mistakeCount(tpl.id);
+                    final delta = _delta[tpl.id];
                     return Card(
                       color: Colors.grey[850],
                       margin: const EdgeInsets.only(bottom: 12),
                       child: ListTile(
                         title: Text(tpl.name, style: const TextStyle(color: Colors.white)),
-                        subtitle: Text(
-                          'LVL $diff • ${acc.toStringAsFixed(1)}% • EV ${ev.toStringAsFixed(1)}% • ICM ${icm.toStringAsFixed(1)}%'
-                          ' • ${tpl.heroBbStack}bb • R $rangePct%'
-                          '${missCount > 0 ? ' • $missCount ошиб.' : ''}${focus.isNotEmpty ? ' • $focus' : ''}',
-                          style: const TextStyle(color: Colors.white70),
+                        subtitle: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'LVL $diff • ${acc.toStringAsFixed(1)}% • EV ${ev.toStringAsFixed(1)}% • ICM ${icm.toStringAsFixed(1)}%'
+                                ' • ${tpl.heroBbStack}bb • R $rangePct%'
+                                '${missCount > 0 ? ' • $missCount ошиб.' : ''}${focus.isNotEmpty ? ' • $focus' : ''}',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                            if (delta != null) ...[
+                              Icon(delta >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                                  size: 14, color: delta >= 0 ? Colors.green : Colors.red),
+                              const SizedBox(width: 2),
+                              Text('${delta.abs().toStringAsFixed(1)}%',
+                                  style: TextStyle(
+                                      color: delta >= 0 ? Colors.green : Colors.red,
+                                      fontSize: 12)),
+                            ]
+                          ],
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
