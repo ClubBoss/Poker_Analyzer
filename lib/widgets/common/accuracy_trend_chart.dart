@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'animated_line_chart.dart';
 
 import '../../models/training_result.dart';
 import '../../theme/app_colors.dart';
@@ -53,8 +54,8 @@ class AccuracyTrendChart extends StatelessWidget {
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: LineChart(
-          LineChartData(
+        child: AnimatedLineChart(
+          data: LineChartData(
             minY: 0,
             maxY: 100,
             gridData: FlGridData(

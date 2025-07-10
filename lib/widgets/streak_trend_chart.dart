@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'common/animated_line_chart.dart';
 
 import '../services/streak_service.dart';
 import '../theme/app_colors.dart';
@@ -25,8 +26,8 @@ class StreakTrendChart extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: LineChart(
-        LineChartData(
+      child: AnimatedLineChart(
+        data: LineChartData(
           minY: 0,
           maxY: maxY,
           gridData: FlGridData(

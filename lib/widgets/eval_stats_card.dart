@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'common/animated_line_chart.dart';
 import 'package:provider/provider.dart';
 
 import '../services/training_stats_service.dart';
@@ -33,8 +34,8 @@ class EvalStatsCard extends StatelessWidget {
           if (spots.length > 1)
             SizedBox(
               height: 80,
-              child: LineChart(
-                LineChartData(
+              child: AnimatedLineChart(
+                data: LineChartData(
                   minY: 0,
                   maxY: 100,
                   gridData: FlGridData(show: false),
