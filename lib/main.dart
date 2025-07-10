@@ -287,6 +287,7 @@ Future<void> main() async {
           create: (_) => MixedDrillHistoryService()..load(),
         ),
         ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
+        Provider(create: (_) => const HandAnalyzerService()),
         ChangeNotifierProvider(
           create: (_) => TrainingPackPlayController()..load(),
         ),
