@@ -123,10 +123,17 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
   Future<void> _load() async {
     final service = context.read<AdaptiveTrainingService>();
     await service.refresh();
-    final list = service.recommended;
+    final list = service.recommended.toList();
+    final review = await MistakeReviewPackService.latestTemplate(context);
+    if (review != null) list.insert(0, review);
+    final stats = <String, TrainingPackStat?>{};
+    for (final t in list) {
+      stats[t.id] = service.statFor(t.id) ??
+          await TrainingPackStatsService.getStats(t.id);
+    }
     _stats
       ..clear()
-      ..addEntries(list.map((e) => MapEntry(e.id, service.statFor(e.id))));
+      ..addAll(stats);
     setState(() {
       _tpls = list;
       _loading = false;
