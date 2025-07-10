@@ -14,6 +14,7 @@ import '../models/v2/training_session.dart';
 import '../models/v2/hero_position.dart';
 import '../services/training_session_service.dart';
 import '../services/adaptive_training_service.dart';
+import '../services/weak_spot_recommendation_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/daily_tip_service.dart';
 import '../helpers/mistake_advice.dart';
@@ -46,6 +47,7 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
 
 class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScreen> {
   final _boundaryKey = GlobalKey();
+  TrainingPackTemplate? _weakPack;
 
   @override
   void initState() {
@@ -54,6 +56,14 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
       final s = context.read<NextStepEngine>().suggestion;
       if (s != null) _showNextStep(s);
     });
+    _loadWeakPack();
+  }
+
+  Future<void> _loadWeakPack() async {
+    final tpl =
+        await context.read<WeakSpotRecommendationService>().buildPack();
+    if (!mounted) return;
+    setState(() => _weakPack = tpl);
   }
 
   void _open(String route) {
@@ -178,7 +188,12 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                 final deltaIcm = icmPct - widget.preIcmPct;
                 adv.add('Прогресс EV ${deltaEv >= 0 ? '+' : ''}${deltaEv.toStringAsFixed(1)}%, ICM ${deltaIcm >= 0 ? '+' : ''}${deltaIcm.toStringAsFixed(1)}%');
                 final packs = context.watch<AdaptiveTrainingService>().recommended;
-                final list = packs.take(3).toList();
+                final list = <TrainingPackTemplate>[];
+                if (_weakPack != null) list.add(_weakPack!);
+                for (final p in packs) {
+                  if (list.length >= 3) break;
+                  list.add(p);
+                }
                 if (adv.isEmpty && list.isEmpty) return const SizedBox.shrink();
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
