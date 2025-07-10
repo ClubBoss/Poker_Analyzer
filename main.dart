@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:poker_analyzer/core/plugin_runtime.dart';
 
 import 'package:poker_analyzer/screens/poker_analyzer_screen.dart';
 import 'package:poker_analyzer/services/action_sync_service.dart';
@@ -22,7 +23,11 @@ import 'package:poker_analyzer/services/action_history_service.dart';
 import 'package:poker_analyzer/services/training_import_export_service.dart';
 import 'package:poker_analyzer/services/demo_playback_controller.dart';
 
-void main() {
+final PluginRuntime pluginRuntime = PluginRuntime();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await pluginRuntime.initialize();
   runApp(const PokerAnalyzerDemoApp());
 }
 
