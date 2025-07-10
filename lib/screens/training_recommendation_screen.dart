@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/personal_recommendation_service.dart';
 import '../services/adaptive_training_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_stats_service.dart';
@@ -19,30 +20,32 @@ class TrainingRecommendationScreen extends StatefulWidget {
 class _TrainingRecommendationScreenState extends State<TrainingRecommendationScreen> {
   final Map<String, TrainingPackStat?> _stats = {};
   final Map<String, double?> _delta = {};
-  late AdaptiveTrainingService _service;
+  late PersonalRecommendationService _service;
   bool _loading = true;
   List<TrainingPackTemplate> _tpls = [];
+  List<RecommendationTask> _tasks = [];
 
   @override
   void initState() {
     super.initState();
-    _service = context.read<AdaptiveTrainingService>();
-    _service.recommendedNotifier.addListener(_update);
+    _service = context.read<PersonalRecommendationService>();
+    _service.addListener(_update);
     _refresh();
   }
 
   @override
   void dispose() {
-    _service.recommendedNotifier.removeListener(_update);
+    _service.removeListener(_update);
     super.dispose();
   }
 
   Future<void> _refresh() async {
-    await _service.refresh();
+    await context.read<AdaptiveTrainingService>().refresh();
   }
 
   Future<void> _update() async {
-    final list = _service.recommendedNotifier.value.toList();
+    final list = _service.packs.toList();
+    final tasks = _service.tasks;
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
     final adjust = context.read<DynamicPackAdjustmentService>();
@@ -51,7 +54,8 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     final adjusted = <TrainingPackTemplate>[];
     for (final t in list) {
       stats[t.id] =
-          _service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+          context.read<AdaptiveTrainingService>().statFor(t.id) ??
+              await TrainingPackStatsService.getStats(t.id);
       final hist = await TrainingPackStatsService.history(t.id);
       if (hist.length >= 2) {
         delta[t.id] =
@@ -62,6 +66,7 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     if (!mounted) return;
     setState(() {
       _tpls = adjusted;
+      _tasks = tasks;
       _stats
         ..clear()
         ..addAll(stats);
@@ -91,13 +96,17 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _tpls.isEmpty
+          : _tpls.isEmpty && _tasks.isEmpty
               ? const Center(child: Text('Нет рекомендаций'))
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: _tpls.length,
+                  itemCount: _tasks.length + _tpls.length,
                   itemBuilder: (context, index) {
-                    final tpl = _tpls[index];
+                    if (index < _tasks.length) {
+                      final t = _tasks[index];
+                      return _TaskTile(task: t);
+                    }
+                    final tpl = _tpls[index - _tasks.length];
                     final stat = _stats[tpl.id];
                     final acc = (stat?.accuracy ?? 0) * 100;
                     final ev = stat?.postEvPct ?? 0;
@@ -162,3 +171,33 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     );
   }
 }
+
+class _TaskTile extends StatelessWidget {
+  final RecommendationTask task;
+  const _TaskTile({required this.task});
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = Theme.of(context).colorScheme.secondary;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(task.icon, color: accent),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Text(task.title,
+                  style: const TextStyle(color: Colors.white))),
+          Text('Еще ${task.remaining}',
+              style: const TextStyle(color: Colors.white70))
+        ],
+      ),
+    );
+  }
+}
+
