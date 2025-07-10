@@ -28,6 +28,7 @@ import '../../services/mistake_review_pack_service.dart';
 import 'training_pack_result_screen_v2.dart';
 import '../../services/training_pack_stats_service.dart';
 import 'package:uuid/uuid.dart';
+import '../../helpers/mistake_advice.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -39,8 +40,9 @@ class _SpotFeedback {
   final double? icmDiff;
   final bool correct;
   final bool repeated;
+  final String? advice;
   const _SpotFeedback(this.action, this.heroEv, this.evDiff, this.icmDiff,
-      this.correct, this.repeated);
+      this.correct, this.repeated, this.advice);
 }
 
 class TrainingPackPlayScreen extends StatefulWidget {
@@ -372,12 +374,14 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     );
   }
 
-  void _showFeedback(String action, double? heroEv, double? evDiff,
-      double? icmDiff, bool correct, bool repeated) {
+  void _showFeedback(TrainingPackSpot spot, String action, double? heroEv,
+      double? evDiff, double? icmDiff, bool correct, bool repeated) {
     _feedbackTimer?.cancel();
+    final advice =
+        spot.tags.isNotEmpty ? kMistakeAdvice[spot.tags.first] : null;
     setState(() {
-      _feedback =
-          _SpotFeedback(action, heroEv, evDiff, icmDiff, correct, repeated);
+      _feedback = _SpotFeedback(
+          action, heroEv, evDiff, icmDiff, correct, repeated, advice);
     });
     _feedbackTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) _hideFeedback();
@@ -589,7 +593,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ),
       );
       if (!mounted) return;
-      _showFeedback(_expected(spot) ?? '', heroEv, evDiff, icmDiff,
+      _showFeedback(spot, _expected(spot) ?? '', heroEv, evDiff, icmDiff,
           evaluation.correct, repeated);
     }
     if (!_autoAdvance) await _next();
@@ -864,6 +868,13 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                           "EV: ${_fmt(_feedback!.heroEv, ' BB')}  \u0394EV: ${_fmt(_feedback!.evDiff, ' BB')}${_feedback!.icmDiff != null ? '  \u0394ICM: ${_fmt(_feedback!.icmDiff)}' : ''}",
                           style: const TextStyle(color: Colors.white),
                         ),
+                        if (_feedback!.advice != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            _feedback!.advice!,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ],
                       ],
                     ),
                   ),
