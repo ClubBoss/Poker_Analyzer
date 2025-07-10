@@ -12,6 +12,7 @@ import 'saved_hand_manager_service.dart';
 import 'hand_analysis_history_service.dart';
 import 'xp_tracker_service.dart';
 import 'pack_generator_service.dart';
+import 'player_style_service.dart';
 
 class AdaptiveTrainingService extends ChangeNotifier {
   final TemplateStorageService templates;
@@ -20,6 +21,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
   final HandAnalysisHistoryService history;
   final XPTrackerService xp;
   final ProgressForecastService forecast;
+  final PlayerStyleService style;
   AdaptiveTrainingService({
     required this.templates,
     required this.mistakes,
@@ -27,6 +29,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
     required this.history,
     required this.xp,
     required this.forecast,
+    required this.style,
   }) {
     refresh();
     templates.addListener(refresh);
@@ -35,6 +38,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
     history.addListener(refresh);
     xp.addListener(refresh);
     forecast.addListener(refresh);
+    style.addListener(refresh);
   }
 
   List<TrainingPackTemplate> _recommended = [];
@@ -151,16 +155,39 @@ class AdaptiveTrainingService extends ChangeNotifier {
         best = p;
       }
     });
-    final stack = (10 + xp.level).clamp(5, 25);
+    var stack = (10 + xp.level).clamp(5, 25);
+    switch (style.style) {
+      case PlayerStyle.aggressive:
+        stack -= 2;
+        break;
+      case PlayerStyle.passive:
+        stack += 2;
+        break;
+      case PlayerStyle.neutral:
+        break;
+    }
+    stack = stack.clamp(5, 25);
     final rangeEntries = handLoss.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final range = <String>[];
     for (final e in rangeEntries.take(20)) {
       range.add(e.key);
     }
+    int pct;
+    switch (style.style) {
+      case PlayerStyle.aggressive:
+        pct = 15;
+        break;
+      case PlayerStyle.passive:
+        pct = 35;
+        break;
+      case PlayerStyle.neutral:
+        pct = 25;
+        break;
+    }
     if (range.length < 20) {
       range.addAll(
-        PackGeneratorService.topNHands(20)
+        PackGeneratorService.topNHands(pct)
             .where((h) => !range.contains(h))
             .take(20 - range.length),
       );
