@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
+import 'package:poker_solver/hand.dart';
 import '../widgets/poker_table_view.dart';
 import '../widgets/card_picker_widget.dart';
 import '../widgets/action_list_widget.dart';
