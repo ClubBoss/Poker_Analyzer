@@ -185,6 +185,8 @@ class MistakeReviewPackService extends ChangeNotifier {
   bool hasMistakes(String templateId) =>
       _packSpots[templateId]?.isNotEmpty ?? false;
 
+  int mistakeCount(String templateId) => _packSpots[templateId]?.length ?? 0;
+
   Future<TrainingPackTemplate?> review(
       BuildContext context, String templateId) async {
     if (_busy) return null;

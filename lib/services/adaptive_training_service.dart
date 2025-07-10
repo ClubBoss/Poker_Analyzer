@@ -37,10 +37,11 @@ class AdaptiveTrainingService extends ChangeNotifier {
       if (prefs.getBool('completed_tpl_${t.id}') ?? false) continue;
       final stat = await TrainingPackStatsService.getStats(t.id);
       stats[t.id] = stat;
+      final miss = mistakes.mistakeCount(t.id);
       var score = 1 - (stat?.accuracy ?? 0);
       score += 1 - (stat?.postEvPct ?? 0) / 100;
       score += 1 - (stat?.postIcmPct ?? 0) / 100;
-      if (mistakes.hasMistakes(t.id)) score += 1;
+      if (miss > 0) score += 1 + miss * .2;
       final diff = (t.difficultyLevel - level).abs();
       score += diff * 0.3;
       entries.add(MapEntry(t, score));
