@@ -44,7 +44,7 @@ class TrainingHistoryScreen extends StatefulWidget {
   State<TrainingHistoryScreen> createState() => _TrainingHistoryScreenState();
 }
 
-enum _SortOption { newest, oldest, position, mistakes }
+enum _SortOption { newest, oldest, position, mistakes, evDiff, icmDiff }
 
 enum _RatingFilter { all, pct40, pct60, pct80 }
 
@@ -1105,6 +1105,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           final bm = b.total - b.correct;
           if (am != bm) return bm.compareTo(am);
           return b.date.compareTo(a.date);
+        case _SortOption.evDiff:
+          final ae = a.evDiff ?? 0;
+          final be = b.evDiff ?? 0;
+          if (ae != be) return be.compareTo(ae);
+          return b.date.compareTo(a.date);
+        case _SortOption.icmDiff:
+          final ai = a.icmDiff ?? 0;
+          final bi = b.icmDiff ?? 0;
+          if (ai != bi) return bi.compareTo(ai);
+          return b.date.compareTo(a.date);
       }
     }
 
@@ -1810,6 +1820,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             accuracy: session.accuracy,
             tags: updated,
             notes: session.notes,
+            evDiff: session.evDiff,
+            icmDiff: session.icmDiff,
           );
         });
         await _saveHistory();
@@ -1864,6 +1876,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             accuracy: session.accuracy,
             tags: session.tags,
             notes: text.isEmpty ? null : text,
+            evDiff: session.evDiff,
+            icmDiff: session.icmDiff,
           );
         });
         await _saveHistory();
@@ -1919,6 +1933,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             tags: session.tags,
             notes: session.notes,
             comment: text.isEmpty ? null : text,
+            evDiff: session.evDiff,
+            icmDiff: session.icmDiff,
           );
         });
         await _saveHistory();
@@ -1999,6 +2015,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           accuracy: newAccuracy,
           tags: session.tags,
           notes: session.notes,
+          evDiff: session.evDiff,
+          icmDiff: session.icmDiff,
         );
       });
       await _saveHistory();
@@ -2033,6 +2051,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             accuracy: session.accuracy,
             tags: session.tags,
             notes: session.notes,
+            evDiff: session.evDiff,
+            icmDiff: session.icmDiff,
           );
         });
         await _saveHistory();
@@ -2498,6 +2518,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           DropdownMenuItem(
                               value: _SortOption.mistakes,
                               child: Text('Mistakes First')),
+                          DropdownMenuItem(
+                              value: _SortOption.evDiff,
+                              child: Text('EV Change')),
+                          DropdownMenuItem(
+                              value: _SortOption.icmDiff,
+                              child: Text('ICM Change')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
