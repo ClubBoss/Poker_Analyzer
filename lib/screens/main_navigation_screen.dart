@@ -27,6 +27,7 @@ import '../services/ab_test_engine.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
 import 'onboarding_screen.dart';
+import 'ev_icm_analytics_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -193,6 +194,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     MaterialPageRoute(builder: (_) => const OnboardingScreen()),
                   );
                   break;
+                case 'evicm':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EvIcmAnalyticsScreen(),
+                    ),
+                  );
+                  break;
                 case 'about':
                   showAboutDialog(context: context);
                   break;
@@ -202,6 +211,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               PopupMenuItem(value: 'settings', child: Text('⚙️ Settings')),
               PopupMenuItem(value: 'plugins', child: Text('🧩 Plugins')),
               PopupMenuItem(value: 'onboarding', child: Text('📖 Обучение')),
+              PopupMenuItem(value: 'evicm', child: Text('EV/ICM')),
               PopupMenuItem(value: 'about', child: Text('About')),
             ],
           ),
