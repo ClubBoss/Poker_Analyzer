@@ -9,6 +9,7 @@ import 'mistake_review_pack_service.dart';
 import 'saved_hand_manager_service.dart';
 import 'hand_analysis_history_service.dart';
 import 'xp_tracker_service.dart';
+import 'pack_generator_service.dart';
 
 class AdaptiveTrainingService extends ChangeNotifier {
   final TemplateStorageService templates;
@@ -90,5 +91,41 @@ class AdaptiveTrainingService extends ChangeNotifier {
     recommendedNotifier.value = List<TrainingPackTemplate>.from(_recommended);
     _stats = stats;
     notifyListeners();
+  }
+
+  Future<TrainingPackTemplate> buildAdaptivePack() async {
+    final posCounts = <HeroPosition, int>{};
+    for (final h in hands.hands.reversed.take(50)) {
+      final exp = h.expectedAction?.trim().toLowerCase();
+      final gto = h.gtoAction?.trim().toLowerCase();
+      if (exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto) {
+        final pos = parseHeroPosition(h.heroPosition);
+        posCounts[pos] = (posCounts[pos] ?? 0) + 1;
+      }
+    }
+    for (final r in history.records.take(50)) {
+      final order = getPositionList(r.playerCount);
+      if (r.heroIndex < order.length) {
+        final pos = parseHeroPosition(order[r.heroIndex]);
+        if (r.ev < 0) posCounts[pos] = (posCounts[pos] ?? 0) + 1;
+      }
+    }
+    var best = HeroPosition.sb;
+    var max = 0;
+    posCounts.forEach((p, c) {
+      if (c > max) {
+        max = c;
+        best = p;
+      }
+    });
+    final stack = (10 + xp.level).clamp(5, 25);
+    return PackGeneratorService.generatePushFoldPack(
+      id: 'adaptive_${DateTime.now().millisecondsSinceEpoch}',
+      name: 'Adaptive ${best.label}',
+      heroBbStack: stack,
+      playerStacksBb: [stack, stack],
+      heroPos: best,
+      heroRange: PackGeneratorService.topNHands(20).toList(),
+    );
   }
 }

@@ -8,6 +8,10 @@ import '../services/hand_analysis_history_service.dart';
 import '../models/hand_analysis_record.dart';
 import '../services/hand_analyzer_service.dart';
 import '../services/xp_tracker_service.dart';
+import '../services/adaptive_training_service.dart';
+import '../services/training_session_service.dart';
+import 'training_session_screen.dart';
+import '../models/v2/training_pack_template.dart';
 import '../theme/app_colors.dart';
 import '../helpers/hand_utils.dart';
 
@@ -171,6 +175,32 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
                   Text('ICM: ${_icm!.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
                   Text('Решение: $_action', style: const TextStyle(color: Colors.white)),
                   if (_hint != null) Text(_hint!, style: const TextStyle(color: Colors.white70)),
+                  ValueListenableBuilder<List<TrainingPackTemplate>>( 
+                    valueListenable: context.read<AdaptiveTrainingService>().recommendedNotifier,
+                    builder: (_, list, __) {
+                      if (list.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          const Text('Рекомендуемые паки:', style: TextStyle(color: Colors.white)),
+                          for (final t in list.take(3))
+                            TextButton(
+                              onPressed: () async {
+                                await context.read<TrainingSessionService>().startSession(t);
+                                if (context.mounted) {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                                  );
+                                }
+                              },
+                              child: Text(t.name),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
           ],

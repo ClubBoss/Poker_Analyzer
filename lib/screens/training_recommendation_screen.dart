@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import '../services/adaptive_training_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/training_session_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_template_detail_screen.dart';
+import 'training_session_screen.dart';
 
 class TrainingRecommendationScreen extends StatefulWidget {
   const TrainingRecommendationScreen({super.key});
@@ -59,6 +61,19 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Рекомендации')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final tpl = await _service.buildAdaptivePack();
+          await context.read<TrainingSessionService>().startSession(tpl);
+          if (context.mounted) {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+            );
+          }
+        },
+        child: const Icon(Icons.auto_mode),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _tpls.isEmpty
