@@ -52,6 +52,7 @@ import 'services/weak_spot_recommendation_service.dart';
 import 'services/player_progress_service.dart';
 import 'services/player_style_service.dart';
 import 'services/player_style_forecast_service.dart';
+import 'services/real_time_stack_range_service.dart';
 import 'services/progress_forecast_service.dart';
 import 'services/personal_recommendation_service.dart';
 import 'services/feedback_service.dart';
@@ -196,6 +197,11 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) =>
               PlayerStyleForecastService(hands: context.read<SavedHandManagerService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => RealTimeStackRangeService(
+            forecast: context.read<PlayerStyleForecastService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) =>
