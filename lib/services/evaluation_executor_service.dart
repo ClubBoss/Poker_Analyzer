@@ -15,6 +15,8 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/mistake_severity.dart';
+import '../helpers/hand_utils.dart';
+import 'push_fold_ev_service.dart';
 import 'goals_service.dart';
 import 'training_stats_service.dart';
 import '../models/v2/training_pack_template.dart';
@@ -118,8 +120,28 @@ class EvaluationExecutorService implements EvaluationExecutor {
 
   Future<EvalResult> _evaluate(EvalRequest request) async {
     final spot = request.spot;
-    final expectedAction =
-        spot.recommendedAction ?? _evaluatePushFold(spot) ?? _heroAction(spot) ?? '-';
+    String? expectedAction;
+    if (spot.recommendedAction != null) {
+      expectedAction = spot.recommendedAction;
+    } else {
+      final cards = spot.playerCards.length > spot.heroIndex
+          ? spot.playerCards[spot.heroIndex]
+          : <CardModel>[];
+      if (spot.boardCards.isEmpty && cards.length >= 2) {
+        final code = handCode('${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+        final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
+        if (code != null && stack <= 15) {
+          final ev = computePushEV(
+            heroBbStack: stack,
+            bbCount: spot.numberOfPlayers - 1,
+            heroHand: code,
+            anteBb: spot.anteBb,
+          );
+          expectedAction = ev >= 0 ? 'push' : 'fold';
+        }
+      }
+      expectedAction ??= _heroAction(spot) ?? '-';
+    }
     final normExpected = expectedAction.trim().toLowerCase();
     final normUser = request.action.trim().toLowerCase();
     final correct = normUser == normExpected;
