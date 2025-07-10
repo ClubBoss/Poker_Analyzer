@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/training_session_service.dart';
 import '../widgets/spot_quiz_widget.dart';
+import '../widgets/style_hint_bar.dart';
 import 'session_result_screen.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
@@ -320,6 +321,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         style: const TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 8),
+                      const StyleHintBar(),
                       Expanded(child: SpotQuizWidget(spot: spot)),
                       if (service.focusHandTypes.isNotEmpty)
                         Padding(

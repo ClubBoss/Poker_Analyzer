@@ -5,17 +5,21 @@ import 'pack_generator_service.dart';
 import 'evaluation_executor_service.dart';
 import 'saved_hand_manager_service.dart';
 import 'player_progress_service.dart';
+import 'player_style_forecast_service.dart';
+import 'player_style_service.dart';
 
 class DynamicPackAdjustmentService {
   final MistakeReviewPackService mistakes;
   final EvaluationExecutorService eval;
   final SavedHandManagerService hands;
   final PlayerProgressService progress;
+  final PlayerStyleForecastService forecast;
   const DynamicPackAdjustmentService({
     required this.mistakes,
     required this.eval,
     required this.hands,
     required this.progress,
+    required this.forecast,
   });
 
   Future<TrainingPackTemplate> adjust(TrainingPackTemplate tpl) async {
@@ -53,6 +57,16 @@ class DynamicPackAdjustmentService {
       return (stack - tpl.heroBbStack).abs() <= 2;
     }).length;
     if (posMist > 10) diff--;
+    switch (forecast.forecast) {
+      case PlayerStyle.aggressive:
+        diff--;
+        break;
+      case PlayerStyle.passive:
+        diff++;
+        break;
+      case PlayerStyle.neutral:
+        break;
+    }
     var stack = (tpl.heroBbStack + diff).clamp(5, 40);
     final base = tpl.heroRange ?? PackGeneratorService.topNHands(25).toList();
     var pct = (base.length * 100 / 169).round() + diff * 5;

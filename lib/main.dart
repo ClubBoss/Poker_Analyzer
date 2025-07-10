@@ -213,6 +213,7 @@ Future<void> main() async {
             eval: EvaluationExecutorService(),
             hands: context.read<SavedHandManagerService>(),
             progress: context.read<PlayerProgressService>(),
+            forecast: context.read<PlayerStyleForecastService>(),
           ),
         ),
         ChangeNotifierProvider(
