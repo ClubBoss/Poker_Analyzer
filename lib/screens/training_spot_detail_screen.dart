@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/training_session_controller.dart';
 import 'training_play_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrainingSpotDetailScreen extends StatelessWidget {
   final TrainingSpot spot;
@@ -28,9 +29,10 @@ class TrainingSpotDetailScreen extends StatelessWidget {
         ? spot.positions[spot.heroIndex]
         : '';
     final user = spot.userAction;
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Spot Details'),
+        title: Text(l.spotDetails),
         centerTitle: true,
         actions: [SyncStatusIcon.of(context)],
       ),
@@ -38,18 +40,18 @@ class TrainingSpotDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Hero position: $pos',
+          Text(l.heroPosition(pos),
               style: const TextStyle(color: Colors.white)),
       if (heroCards.isNotEmpty)
-        Text('Hero cards: $heroCards',
+        Text(l.heroCards(heroCards),
             style: const TextStyle(color: Colors.white)),
       if (board.isNotEmpty)
-        Text('Board: $board', style: const TextStyle(color: Colors.white)),
+        Text(l.boardLabel(board), style: const TextStyle(color: Colors.white)),
       const SizedBox(height: 16),
       ActionHistoryWidget(actions: spot.actions, playerPositions: _posMap()),
       if (user != null) ...[
         const SizedBox(height: 16),
-        Text('Your action: $user',
+        Text(l.yourAction(user),
             style: const TextStyle(color: Colors.white)),
       ],
       Builder(builder: (context) {
@@ -65,7 +67,7 @@ class TrainingSpotDetailScreen extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 8),
           child: Text(
-            'EV ${ev?.toStringAsFixed(2) ?? '-'}  ICM ${icm?.toStringAsFixed(2) ?? '-'}',
+            l.evIcm(ev?.toStringAsFixed(2) ?? '-', icm?.toStringAsFixed(2) ?? '-'),
             style: const TextStyle(color: Colors.white70),
           ),
         );

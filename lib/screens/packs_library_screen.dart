@@ -252,23 +252,24 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
             TrainingPackTemplateEditorScreen(template: tpl, templates: templates),
       ),
     );
+    final l = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Pack "${tpl.name}" created')));
+        .showSnackBar(SnackBar(content: Text(l.packCreated(tpl.name))));
   }
 
   Future<void> _resetPack(TrainingPackTemplate pack) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Reset progress for '${pack.name}'?"),
+        title: Text(l.resetPackPrompt(pack.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Reset'),
+            child: Text(l.reset),
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
@@ -243,6 +244,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: const Text('Pack Result')),
       backgroundColor: AppColors.background,
@@ -264,12 +266,12 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 8,
                 children: [
-                  Text("Spots: $_total", style: const TextStyle(color: Colors.white)),
+                  Text(l.spotsLabel('$_total'), style: const TextStyle(color: Colors.white)),
                   Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
-                  Text("Accuracy: ${_rate.toStringAsFixed(0)}%", style: const TextStyle(color: Colors.white)),
+                  Text(l.accuracyLabel(_rate.toStringAsFixed(0)), style: const TextStyle(color: Colors.white)),
                   Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
                   Text(
-                    "EV: ${_evSum >= 0 ? '+' : ''}${_evSum.toStringAsFixed(1)} BB",
+                    l.evBb("${_evSum >= 0 ? '+' : ''}${_evSum.toStringAsFixed(1)}"),
                     style: TextStyle(
                       color: _evSum > 0
                           ? Colors.greenAccent
@@ -279,7 +281,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                   if (_icmEvs.isNotEmpty) ...[
                     Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
                     Text(
-                      "ICM: ${_icmSum >= 0 ? '+' : ''}${_icmSum.toStringAsFixed(1)}",
+                      l.icmLabel("${_icmSum >= 0 ? '+' : ''}${_icmSum.toStringAsFixed(1)}"),
                       style: TextStyle(
                         color: _icmSum > 0
                             ? Colors.greenAccent

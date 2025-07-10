@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
@@ -2640,8 +2641,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final result = await showDialog<PlayerType>(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Тип игрока'),
+        builder: (context, setState) {
+          final l = AppLocalizations.of(context)!;
+          return AlertDialog(
+          title: Text(l.playerType),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: PlayerType.values.map((t) {
@@ -2656,14 +2659,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(l.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, selected),
-              child: const Text('OK'),
+              child: Text(l.ok),
             ),
           ],
-        ),
+        );
+        },
       ),
     );
     if (result != null) {
@@ -2748,6 +2752,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModal) {
+          final l = AppLocalizations.of(ctx)!;
           final bool needAmount = selected == 'bet' || selected == 'raise';
           return Padding(
             padding: MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
@@ -2761,7 +2766,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Fold'),
+                  child: Text(l.fold),
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton(
@@ -2779,7 +2784,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Call'),
+                  child: Text(l.call),
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton(
@@ -2797,7 +2802,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Raise'),
+                  child: Text(l.raise),
                 ),
                 if (needAmount) ...[
                   const SizedBox(height: 12),
@@ -2807,7 +2812,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: isDark ? Colors.white10 : Colors.black12,
-                      hintText: 'Amount',
+                      hintText: l.amount,
                       hintStyle: const TextStyle(color: Colors.white54),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -2831,7 +2836,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                           isDark ? Colors.blueGrey : Colors.blueAccent,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Confirm'),
+                  child: Text(l.confirm),
                   ),
                 ],
               ],
@@ -2849,19 +2854,20 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) {
+          final l = AppLocalizations.of(ctx)!;
           final needAmount = action == 'call' || action == 'raise';
           return AlertDialog(
-            title: const Text('Select Action'),
+            title: Text(l.selectAction),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButton<String>(
                   value: action,
-                  items: const [
-                    DropdownMenuItem(value: 'fold', child: Text('Fold')),
-                    DropdownMenuItem(value: 'call', child: Text('Call')),
-                    DropdownMenuItem(value: 'raise', child: Text('Raise')),
-                    DropdownMenuItem(value: 'push', child: Text('Push')),
+                  items: [
+                    DropdownMenuItem(value: 'fold', child: Text(l.fold)),
+                    DropdownMenuItem(value: 'call', child: Text(l.call)),
+                    DropdownMenuItem(value: 'raise', child: Text(l.raise)),
+                    DropdownMenuItem(value: 'push', child: Text(l.push)),
                   ],
                   onChanged: (v) => setState(() => action = v ?? action),
                 ),
@@ -2869,28 +2875,28 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   TextField(
                     controller: controller,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Amount'),
+                    decoration: InputDecoration(labelText: l.amount),
                   ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'),
+                child: Text(l.cancel),
               ),
               TextButton(
                 onPressed: () {
                   setLastAction(null, Colors.transparent, '', null);
                   Navigator.pop(ctx);
                 },
-                child: const Text('Clear'),
+                child: Text(l.clear),
               ),
               TextButton(
                 onPressed: () {
                   final amt = needAmount ? int.tryParse(controller.text) : null;
                   Navigator.pop(ctx, {'action': action, 'amount': amt});
                 },
-                child: const Text('OK'),
+                child: Text(l.ok),
               ),
             ],
           );
