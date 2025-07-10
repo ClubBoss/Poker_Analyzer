@@ -37,6 +37,7 @@ import 'training_history_screen.dart';
 import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
 import 'progress_screen.dart';
+import 'progress_overview_screen.dart';
 import 'drill_history_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_overview_screen.dart';
@@ -529,6 +530,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ProgressScreen()),
+          );
+        },
+      ),
+      _MenuItem(
+        icon: Icons.show_chart,
+        label: 'Прогресс',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProgressOverviewScreen()),
           );
         },
       ),
