@@ -1,4 +1,4 @@
-import "../models/v2/training_pack_spot.dart";
+import '../models/v2/training_pack_spot.dart';
 import '../models/template_snapshot.dart';
 
 class ChangeEntry {

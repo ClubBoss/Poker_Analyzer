@@ -9,7 +9,7 @@ import '../helpers/color_utils.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
 import '../theme/app_colors.dart';
-import "../widgets/progress_chip.dart";
+import '../widgets/progress_chip.dart';
 import '../widgets/color_picker_dialog.dart';
 import 'training_pack_screen.dart';
 import '../helpers/training_onboarding.dart';

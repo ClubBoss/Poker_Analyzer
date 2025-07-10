@@ -7,7 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
-import "package:flutter/rendering.dart";
+import 'package:flutter/rendering.dart';
 
 import '../models/summary_result.dart';
 import 'dart:io';

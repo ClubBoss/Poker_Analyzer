@@ -1,4 +1,4 @@
-import "evaluation_result.dart";
+import 'evaluation_result.dart';
 class ResultEntry {
   final String name;
   final String userAction;

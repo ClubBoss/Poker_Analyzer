@@ -18,7 +18,7 @@ import '../models/v2/hero_position.dart';
 import '../models/training_pack.dart';
 import 'saved_hand_storage_service.dart';
 import 'cloud_sync_service.dart';
-import "training_stats_service.dart";
+import 'training_stats_service.dart';
 
 class SavedHandManagerService extends ChangeNotifier {
   SavedHandManagerService({

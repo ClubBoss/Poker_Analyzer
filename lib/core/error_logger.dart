@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class ErrorLogger {
   ErrorLogger._();
   static final ErrorLogger instance = ErrorLogger._();
@@ -14,6 +16,6 @@ class ErrorLogger {
     if (recentErrors.length > 100) {
       recentErrors.removeRange(0, recentErrors.length - 100);
     }
-    print(entry);
+    debugPrint(entry);
   }
 }

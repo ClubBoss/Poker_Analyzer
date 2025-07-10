@@ -1,4 +1,4 @@
-import "../models/v2/hero_position.dart";
+import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_preset.dart';
 import '../models/training_spot.dart';
 import '../models/card_model.dart';

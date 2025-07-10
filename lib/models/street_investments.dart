@@ -1,4 +1,4 @@
-import "action_entry.dart";
+import 'action_entry.dart';
 
 class StreetInvestments {
   final Map<int, Map<int, int>> _investments = {};
