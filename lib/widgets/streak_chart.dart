@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../services/training_stats_service.dart';
 import '../theme/app_colors.dart';
 import 'badge_icon.dart';
+import 'common/animated_bar_chart.dart';
 
 class StreakChart extends StatelessWidget {
   const StreakChart({super.key});
@@ -94,8 +95,8 @@ class StreakChart extends StatelessWidget {
             color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: BarChart(
-            BarChartData(
+          child: AnimatedBarChart(
+            data: BarChartData(
               maxY: maxHands.toDouble(),
               minY: 0,
               alignment: BarChartAlignment.spaceBetween,
