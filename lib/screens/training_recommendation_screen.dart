@@ -10,6 +10,7 @@ import '../services/dynamic_pack_adjustment_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_template_detail_screen.dart';
 import 'training_session_screen.dart';
+import '../widgets/progress_forecast_card.dart';
 
 class TrainingRecommendationScreen extends StatefulWidget {
   const TrainingRecommendationScreen({super.key});
@@ -101,29 +102,26 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _tpls.isEmpty && _tasks.isEmpty
-              ? const Center(child: Text('Нет рекомендаций'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _tasks.length + _tpls.length,
-                  itemBuilder: (context, index) {
-                    if (index < _tasks.length) {
-                      final t = _tasks[index];
-                      return _TaskTile(task: t);
-                    }
-                    final tpl = _tpls[index - _tasks.length];
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                const ProgressForecastCard(),
+                if (_tpls.isEmpty && _tasks.isEmpty)
+                  const Center(child: Text('Нет рекомендаций'))
+                else ...[
+                  ..._tasks.map((t) => _TaskTile(task: t)),
+                  ..._tpls.map((tpl) {
                     final stat = _stats[tpl.id];
                     final acc = (stat?.accuracy ?? 0) * 100;
                     final ev = stat?.postEvPct ?? 0;
                     final icm = stat?.postIcmPct ?? 0;
                     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
                     final focus = tpl.handTypeSummary();
-                    final rangePct =
-                        ((tpl.heroRange?.length ?? 0) * 100 / 169).round();
-                    final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(tpl.id);
-                    final diff = tpl.difficultyLevel;
-                    final missCount = context.read<MistakeReviewPackService>().mistakeCount(tpl.id);
+                    final rangePct = ((tpl.heroRange?.length ?? 0) * 100 / 169).round();
+                    final missCount =
+                        context.read<MistakeReviewPackService>().mistakeCount(tpl.id);
                     final delta = _delta[tpl.id];
+                    final diff = tpl.difficultyLevel;
                     return Card(
                       color: Colors.grey[850],
                       margin: const EdgeInsets.only(bottom: 12),
@@ -171,8 +169,10 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
                         },
                       ),
                     );
-                  },
-                ),
+                  })
+                ]
+              ],
+            ),
     );
   }
 }
