@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
 import '../user_preferences.dart';
 import '../services/hand_history_file_service.dart';
@@ -20,6 +21,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _index = 0;
 
   Future<void> _finish() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('tutorial_completed', true);
     await UserPreferences.instance.setTutorialCompleted(true);
     if (mounted) Navigator.pop(context);
   }
@@ -78,6 +81,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final pages = [
       _page('Шаг 1', 'Импортируйте файлы Hand History для анализа'),
       _page('Шаг 2', 'Запустите базовый тренировочный пак'),
+      _page('Шаг 3', 'Разберите сессии и изучите EV и ICM каждой раздачи'),
+      _page('Шаг 4', 'Следите за ежедневными целями и достижениями'),
+      _page('Шаг 5', 'Подключите облачную синхронизацию для сохранения прогресса'),
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
