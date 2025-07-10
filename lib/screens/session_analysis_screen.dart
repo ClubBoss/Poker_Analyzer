@@ -38,7 +38,7 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
 
   Future<void> _compute() async {
     final executor = context.read<EvaluationExecutorService>();
-    final data = [...widget.hands]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final data = [...widget.hands]..sort((a, b) => a.savedAt.compareTo(b.savedAt));
     final evs = <double>[];
     final icms = <double>[];
     for (final h in data) {
@@ -189,7 +189,7 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final list = [...widget.hands]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final list = [...widget.hands]..sort((a, b) => a.savedAt.compareTo(b.savedAt));
     int correct = 0;
     int mistakes = 0;
     for (final h in list) {
@@ -250,7 +250,7 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
           Builder(
             builder: (context) => ElevatedButton(
               onPressed: () async {
-                final tpl = await context.read<MistakeReviewPackService>().buildPack(context);
+                final tpl = await MistakeReviewPackService.latestTemplate(context);
                 if (tpl == null) return;
                 await context.read<TrainingSessionService>().startSession(tpl, persist: false);
                 if (!context.mounted) return;
