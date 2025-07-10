@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/training_pack_storage_service.dart';
+import '../services/training_pack_cloud_sync_service.dart';
+import '../helpers/date_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -23,11 +25,31 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
         centerTitle: true,
         actions: [SyncStatusIcon.of(context)],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: packs.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: ValueListenableBuilder<DateTime?>(
+              valueListenable:
+                  context.read<TrainingPackCloudSyncService>().lastSync,
+              builder: (context, value, child) {
+                final text = value == null
+                    ? 'Последняя синхр.: -'
+                    : 'Последняя синхр.: ${formatDateTime(value.toLocal())}';
+                return Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(text,
+                      style: const TextStyle(color: Colors.white70)),
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: packs.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
           final p = packs[index];
           final progress = p.pctComplete;
           final color = progress < 0.5
@@ -43,8 +65,8 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                children: [
+                  Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -69,7 +91,10 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
           );
         },
       ),
-    );
+    ),
+          ],
+        ),
+      );
   }
 }
 

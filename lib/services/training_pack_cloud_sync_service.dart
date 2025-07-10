@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cloud_retry_policy.dart';
 
 import '../models/training_pack.dart';
 import '../models/training_pack_template_model.dart';
+import '../services/training_pack_stats_service.dart';
 import 'training_pack_storage_service.dart';
 import 'training_pack_template_storage_service.dart';
 
@@ -14,6 +17,13 @@ class TrainingPackCloudSyncService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   String? get _uid => FirebaseAuth.instance.currentUser?.uid;
   StreamSubscription? _sub;
+  final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
+
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ts = prefs.getString('pack_sync_ts');
+    if (ts != null) lastSync.value = DateTime.tryParse(ts);
+  }
 
   Future<List<TrainingPack>> loadPacks() async {
     if (_uid == null) return [];
@@ -118,6 +128,9 @@ class TrainingPackCloudSyncService {
     final remote = await loadTemplates();
     storage.merge(remote);
     await storage.saveAll();
+    lastSync.value = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
   }
 
   Future<void> syncUpTemplates(TrainingPackTemplateStorageService storage) async {
@@ -127,6 +140,74 @@ class TrainingPackCloudSyncService {
       final batch = _db.batch();
       for (final t in storage.templates) {
         batch.set(col.doc(t.id), t.toJson());
+      }
+      await batch.commit();
+    });
+    await syncUpStats();
+    lastSync.value = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
+  }
+
+  Future<Map<String, TrainingPackStat>> loadStats() async {
+    if (_uid == null) return {};
+    final snap = await _db
+        .collection('packs')
+        .doc(_uid)
+        .collection('stats')
+        .get();
+    return {
+      for (final d in snap.docs) d.id: TrainingPackStat.fromJson(d.data())
+    };
+  }
+
+  Future<Map<String, TrainingPackStat>> _localStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final map = <String, TrainingPackStat>{};
+    for (final k in prefs.getKeys()) {
+      if (!k.startsWith('tpl_stat_')) continue;
+      final raw = prefs.getString(k);
+      if (raw == null) continue;
+      try {
+        final data = jsonDecode(raw);
+        if (data is Map<String, dynamic>) {
+          map[k.substring(9)] = TrainingPackStat.fromJson(data);
+        }
+      } catch (_) {}
+    }
+    return map;
+  }
+
+  Future<void> _saveLocalStats(Map<String, TrainingPackStat> stats) async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final e in stats.entries) {
+      await prefs.setString('tpl_stat_${e.key}', jsonEncode(e.value.toJson()));
+    }
+  }
+
+  Future<void> syncDownStats() async {
+    final remote = await loadStats();
+    final local = await _localStats();
+    for (final e in remote.entries) {
+      final l = local[e.key];
+      if (l == null || e.value.last.isAfter(l.last)) {
+        local[e.key] = e.value;
+      }
+    }
+    await _saveLocalStats(local);
+    lastSync.value = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
+  }
+
+  Future<void> syncUpStats() async {
+    if (_uid == null) return;
+    final stats = await _localStats();
+    await CloudRetryPolicy.execute<void>(() async {
+      final col = _db.collection('packs').doc(_uid).collection('stats');
+      final batch = _db.batch();
+      for (final e in stats.entries) {
+        batch.set(col.doc(e.key), e.value.toJson());
       }
       await batch.commit();
     });
