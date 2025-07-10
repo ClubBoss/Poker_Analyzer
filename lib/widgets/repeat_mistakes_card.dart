@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../screens/training_pack_review_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RepeatMistakesCard extends StatelessWidget {
   const RepeatMistakesCard({super.key});
@@ -14,6 +15,7 @@ class RepeatMistakesCard extends StatelessWidget {
     final progress = service.progress;
     final total = pack.hands.length;
     final accent = Theme.of(context).colorScheme.secondary;
+    final l = AppLocalizations.of(context)!;
     final value = (progress / total).clamp(0.0, 1.0);
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -30,8 +32,8 @@ class RepeatMistakesCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Repeat Mistakes',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(l.repeatMistakes,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -61,7 +63,7 @@ class RepeatMistakesCard extends StatelessWidget {
                 ),
               ).then((_) => service.setProgress(0));
             },
-            child: const Text('Start'),
+            child: Text(l.startTraining),
           ),
         ],
       ),

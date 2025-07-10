@@ -47,7 +47,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
           )
     ].where((s) => s.id.isNotEmpty).toList();
     return Scaffold(
-      appBar: AppBar(title: const Text('Training Summary')),
+      appBar: AppBar(title: Text(l.trainingSummary)),
       backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -112,8 +112,8 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                         ),
                       if (list.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        const Text('Рекомендуемые паки:',
-                            style: TextStyle(color: Colors.white)),
+                        Text(l.recommendedPacks,
+                            style: const TextStyle(color: Colors.white)),
                         const SizedBox(height: 4),
                         for (final p in list)
                           Text(p.name,
@@ -143,10 +143,10 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                 ),
               )
             else
-              const Expanded(
+              Expanded(
                   child: Center(
-                      child: Text('No mistakes',
-                          style: TextStyle(color: Colors.white70)))),
+                      child: Text(l.noMistakes,
+                          style: const TextStyle(color: Colors.white70)))),
             const SizedBox(height: 16),
             if (mistakes.isNotEmpty) ...[
               ElevatedButton(
@@ -183,7 +183,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text('Repeat Mistakes'),
+                    child: Text(l.repeatMistakes),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -191,7 +191,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () =>
                         Navigator.of(context).popUntil((r) => r.isFirst),
-                    child: const Text('Back to Library'),
+                    child: Text(l.backToLibrary),
                   ),
                 ),
               ],

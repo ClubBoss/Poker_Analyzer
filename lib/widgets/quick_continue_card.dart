@@ -6,6 +6,7 @@ import '../services/spot_of_the_day_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/weekly_challenge_service.dart';
 import '../services/training_pack_storage_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../screens/training_pack_review_screen.dart';
 import '../screens/training_pack_screen.dart';
 import '../screens/training_screen.dart';
@@ -49,6 +50,7 @@ class _QuickContinueCardState extends State<QuickContinueCard> {
     final challenge = context.read<WeeklyChallengeService>();
     final packs = context.read<TrainingPackStorageService>().packs;
     final prefs = await SharedPreferences.getInstance();
+    final l = AppLocalizations.of(context)!;
     final items = <_ContinueItem>[];
     if (spot != null && spotResult == null) {
       items.add(
@@ -65,7 +67,7 @@ class _QuickContinueCardState extends State<QuickContinueCard> {
     if (mPack != null && mistake.progress < mPack.hands.length) {
       items.add(
         _ContinueItem(
-          title: 'Repeat Mistakes',
+          title: l.repeatMistakes,
           progress: mistake.progress,
           total: mPack.hands.length,
           date: DateTime.now(),

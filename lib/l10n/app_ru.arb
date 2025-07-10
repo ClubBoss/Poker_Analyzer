@@ -28,4 +28,12 @@
   "packPushFold15": "Пуш/Фолд 15ББ (без анте)",
   "packPushFold10": "Пуш/Фолд 10ББ (без анте)"
   ,"packPushFold20": "Пуш/Фолд 20ББ (без анте)"
+  ,"generateSpots": "Сгенерировать раздачи"
+  ,"noContent": "Нет контента"
+  ,"startTrainingSessionPrompt": "Начать тренировку сейчас?"
+  ,"trainingSummary": "Результаты тренировки"
+  ,"noMistakes": "Ошибок нет"
+  ,"repeatMistakes": "Повторить ошибки"
+  ,"backToLibrary": "Назад в библиотеку"
+  ,"recommendedPacks": "Рекомендуемые паки"
 }

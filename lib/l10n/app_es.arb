@@ -28,4 +28,12 @@
   "packPushFold15": "Push/Fold 15BB (Sin Ante)",
   "packPushFold10": "Push/Fold 10BB (Sin Ante)",
   "packPushFold20": "Push/Fold 20BB (Sin Ante)"
+  ,"generateSpots": "Generar manos"
+  ,"noContent": "Sin contenido"
+  ,"startTrainingSessionPrompt": "¿Iniciar sesión de entrenamiento ahora?"
+  ,"trainingSummary": "Resumen de entrenamiento"
+  ,"noMistakes": "Sin errores"
+  ,"repeatMistakes": "Repetir errores"
+  ,"backToLibrary": "Volver a la biblioteca"
+  ,"recommendedPacks": "Paquetes recomendados"
 }
