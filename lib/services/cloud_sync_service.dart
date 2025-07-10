@@ -13,7 +13,9 @@ import '../models/saved_hand.dart';
 import '../models/session_log.dart';
 
 class CloudSyncService {
-  CloudSyncService();
+  CloudSyncService({FirebaseFirestore? firestore, FirebaseAuth? auth})
+      : _db = firestore ?? FirebaseFirestore.instance,
+        _auth = auth ?? FirebaseAuth.instance;
 
   static const _cols = [
     'training_spots',
@@ -26,7 +28,8 @@ class CloudSyncService {
     'evaluation_queue',
   ];
 
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFirestore _db;
+  final FirebaseAuth _auth;
   late SharedPreferences _prefs;
   Box? _box;
   static bool get isLocal => kIsWeb ||
@@ -34,7 +37,7 @@ class CloudSyncService {
           defaultTargetPlatform == TargetPlatform.linux ||
           defaultTargetPlatform == TargetPlatform.macOS));
   bool get _local => CloudSyncService.isLocal;
-  String? get uid => FirebaseAuth.instance.currentUser?.uid;
+  String? get uid => _auth.currentUser?.uid;
   final List<Map<String, dynamic>> _pending = [];
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
   final ValueNotifier<double> progress = ValueNotifier(0);
