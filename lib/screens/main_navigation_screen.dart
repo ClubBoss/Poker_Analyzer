@@ -27,6 +27,7 @@ import '../widgets/resume_training_card.dart';
 import '../services/ab_test_engine.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
+import 'community_plugin_screen.dart';
 import 'onboarding_screen.dart';
 import 'ev_icm_analytics_screen.dart';
 import 'progress_dashboard_screen.dart';
@@ -191,6 +192,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     ),
                   );
                   break;
+                case 'community_plugins':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CommunityPluginScreen(),
+                    ),
+                  );
+                  break;
                 case 'onboarding':
                   Navigator.push(
                     context,
@@ -221,6 +230,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             itemBuilder: (context) => const [
               PopupMenuItem(value: 'settings', child: Text('⚙️ Settings')),
               PopupMenuItem(value: 'plugins', child: Text('🧩 Plugins')),
+              PopupMenuItem(value: 'community_plugins', child: Text('🌐 Community')),
               PopupMenuItem(value: 'onboarding', child: Text('📖 Обучение')),
               PopupMenuItem(value: 'evicm', child: Text('EV/ICM')),
               PopupMenuItem(value: 'dashboard', child: Text('📈 Dashboard')),
