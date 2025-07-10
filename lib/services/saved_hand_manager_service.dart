@@ -8,6 +8,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:csv/csv.dart';
 import 'package:uuid/uuid.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 import '../helpers/date_utils.dart';
 
 import '../models/saved_hand.dart';
@@ -194,6 +196,7 @@ class SavedHandManagerService extends ChangeNotifier {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/all_saved_hands.pdf');
     await file.writeAsBytes(bytes);
+    await _shareFile(file);
     return file.path;
   }
 
@@ -386,6 +389,7 @@ class SavedHandManagerService extends ChangeNotifier {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/training_summary.pdf');
     await file.writeAsBytes(bytes);
+    await _shareFile(file);
     return file.path;
   }
 
@@ -1294,5 +1298,12 @@ class SavedHandManagerService extends ChangeNotifier {
       createdAt: DateTime.now(),
     );
     return tpl;
+  }
+
+  Future<void> _shareFile(File file) async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      await Permission.storage.request();
+    }
+    await Share.shareXFiles([XFile(file.path)]);
   }
 }

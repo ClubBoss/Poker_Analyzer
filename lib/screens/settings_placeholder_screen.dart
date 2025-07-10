@@ -73,9 +73,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     final manager = context.read<SavedHandManagerService>();
     final notes = context.read<SessionNoteService>().notes;
     final path = await manager.exportAllSessionsPdf(notes);
-    if (path == null) return;
-    await Share.shareXFiles([XFile(path)], text: 'training_summary.pdf');
-    if (!context.mounted) return;
+    if (path == null || !context.mounted) return;
     final name = path.split(Platform.pathSeparator).last;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));

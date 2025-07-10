@@ -141,9 +141,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
 
   Future<void> _shareBundle(TrainingPack pack) async {
     final tpl = _templateFromPack(pack);
-    final file = await PackExportService.exportBundle(tpl);
-    if (!mounted) return;
-    await Share.shareXFiles([XFile(file.path)]);
+    await PackExportService.exportBundle(tpl);
   }
 
   Future<void> _exportPack(TrainingPack pack) async {

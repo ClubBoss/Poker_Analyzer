@@ -7,6 +7,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:archive/archive.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/saved_hand.dart';
@@ -64,6 +66,7 @@ class PackExportService {
     }
     final file = File(path);
     await file.writeAsString(csvStr);
+    await _shareFile(file);
     return file;
   }
 
@@ -119,6 +122,7 @@ class PackExportService {
     }
     final file = File(path);
     await file.writeAsBytes(bytes, flush: true);
+    await _shareFile(file);
     return file;
   }
 
@@ -138,6 +142,7 @@ class PackExportService {
     }
     final file = File(path);
     await file.writeAsBytes(bytes, flush: true);
+    await _shareFile(file);
     return file;
   }
 
@@ -168,6 +173,7 @@ class PackExportService {
     }
     final file = File(path);
     await file.writeAsString(csvStr);
+    await _shareFile(file);
     return file;
   }
 
@@ -244,6 +250,7 @@ class PackExportService {
     }
     final file = File(path);
     await file.writeAsBytes(bytes, flush: true);
+    await _shareFile(file);
     return file;
   }
 
@@ -277,6 +284,13 @@ class PackExportService {
       }
     }
     return buffer.toString().trimRight();
+  }
+
+  static Future<void> _shareFile(File file) async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      await Permission.storage.request();
+    }
+    await Share.shareXFiles([XFile(file.path)]);
   }
 
   static String _toSnakeCase(String input) {

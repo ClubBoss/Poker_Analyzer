@@ -199,9 +199,8 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
     try {
       final list = [...widget.hands]
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
-      final file = await PackExportService.exportSessionCsv(list, _evs, _icms);
       if (!mounted) return;
-      await Share.shareXFiles([XFile(file.path)]);
+      await PackExportService.exportSessionCsv(list, _evs, _icms);
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('CSV exported')));
     } catch (e) {
@@ -216,9 +215,8 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
     try {
       final list = [...widget.hands]
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
-      final file = await PackExportService.exportSessionPdf(list, _evs, _icms);
       if (!mounted) return;
-      await FileSaverService.instance.sharePdf(file.path);
+      await PackExportService.exportSessionPdf(list, _evs, _icms);
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('PDF exported')));
     } catch (e) {
