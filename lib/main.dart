@@ -19,6 +19,7 @@ import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
 import 'services/template_storage_service.dart';
 import 'services/training_pack_template_storage_service.dart';
+import 'services/adaptive_training_service.dart';
 import 'services/goal_progress_cloud_service.dart';
 import 'services/xp_tracker_cloud_service.dart';
 import 'services/daily_hand_service.dart';
@@ -184,6 +185,11 @@ Future<void> main() async {
         Provider<MistakePackCloudService>.value(value: mistakeCloud),
         Provider<XPTrackerCloudService>.value(value: xpCloud),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
+        ChangeNotifierProvider(
+          create: (context) => AdaptiveTrainingService(
+            templates: context.read<TemplateStorageService>(),
+          ),
+        ),
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
           value: templateStorage,
         ),

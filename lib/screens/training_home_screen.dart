@@ -9,6 +9,7 @@ import '../models/v2/training_pack_template.dart';
 import '../services/training_session_service.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/adaptive_training_service.dart';
 import '../utils/template_priority.dart';
 import 'training_session_screen.dart';
 
@@ -108,19 +109,12 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final templates = context
-        .read<TemplateStorageService>()
-        .templates
-        .where((t) => t.isBuiltIn)
-        .sortedByPriority()
-        .take(3);
-    final list = <TrainingPackTemplate>[];
-    for (final t in templates) {
-      final done = prefs.getBool('completed_tpl_${t.id}') ?? false;
-      if (!done) list.add(t);
-      _stats[t.id] = await TrainingPackStatsService.getStats(t.id);
-    }
+    final service = context.read<AdaptiveTrainingService>();
+    await service.refresh();
+    final list = service.recommended;
+    _stats
+      ..clear()
+      ..addEntries(list.map((e) => MapEntry(e.id, service.statFor(e.id))));
     setState(() {
       _tpls = list;
       _loading = false;
