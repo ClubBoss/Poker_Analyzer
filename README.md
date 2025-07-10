@@ -5,6 +5,11 @@
 
 Poker AI Analyzer helps analyze and train poker decision making. The app lets you create hands, play training packs and track statistics.
 
+## Project Vision
+
+Poker Analyzer aims to be a universal tool for improving decision making at the table. It analyzes push/fold situations with EV and ICM metrics, provides targeted training packs and shows mistakes after each session. A streamlined interface with dynamic progress charts and achievement goals keeps players motivated. Cloud sync, data export and mobile support let users train anywhere. Whether a beginner or seasoned pro, the app adapts to individual weaknesses and tracks growth over time.
+
+
 ## Getting Started
 
 1. Install Flutter 3.0 or higher.
