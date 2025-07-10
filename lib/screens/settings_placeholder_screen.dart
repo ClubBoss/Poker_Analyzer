@@ -81,6 +81,18 @@ class SettingsPlaceholderScreen extends StatelessWidget {
         .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
   }
 
+  Future<void> _exportSummaryCsv(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final notes = context.read<SessionNoteService>().notes;
+    final path = await manager.exportAllSessionsCsv(notes);
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'training_summary.csv');
+    if (!context.mounted) return;
+    final name = path.split(Platform.pathSeparator).last;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final reminder = context.watch<ReminderService>();
@@ -196,6 +208,13 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => _exportSummary(context),
               child: const Text('Export Training Summary'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ElevatedButton(
+              onPressed: () => _exportSummaryCsv(context),
+              child: const Text('Export Summary CSV'),
             ),
           ),
           Padding(
