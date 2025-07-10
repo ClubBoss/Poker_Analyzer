@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:csv/csv.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -97,6 +98,12 @@ class PackImportService {
       spots: spots,
       createdAt: DateTime.now(),
     );
+  }
+
+  static TrainingPackTemplate importFromShareLink(String data) {
+    final jsonStr = utf8.decode(base64Url.decode(data.trim()));
+    final map = jsonDecode(jsonStr) as Map<String, dynamic>;
+    return TrainingPackTemplate.fromJson(map);
   }
 
   static String _cell(List row, int? i) {

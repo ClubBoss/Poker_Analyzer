@@ -144,6 +144,16 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     await PackExportService.exportBundle(tpl);
   }
 
+  Future<void> _copyShareLink(TrainingPack pack) async {
+    final tpl = _templateFromPack(pack);
+    final link = PackExportService.exportShareLink(tpl);
+    await Clipboard.setData(ClipboardData(text: link));
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Link copied')));
+    }
+  }
+
   Future<void> _exportPack(TrainingPack pack) async {
     final file = await context.read<TrainingPackStorageService>().exportPack(pack);
     if (!mounted || file == null) return;
@@ -274,6 +284,18 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     if (mounted) _clearSelection();
   }
 
+  Future<void> _copySelectedLinks() async {
+    final service = context.read<TrainingPackStorageService>();
+    final list = [for (final p in service.packs) if (_selectedIds.contains(p.id)) p];
+    final links = <String>[];
+    for (final p in list) {
+      final tpl = _templateFromPack(p);
+      links.add(PackExportService.exportShareLink(tpl));
+    }
+    await Clipboard.setData(ClipboardData(text: links.join('\n')));
+    if (mounted) _clearSelection();
+  }
+
   Future<void> _editSelected() async {
     final result = await showBulkEditDialog(context);
     if (result == null) return;
@@ -354,6 +376,14 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
               onTap: () async {
                 Navigator.pop(context);
                 await _shareBundle(pack);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.link, color: Colors.white),
+              title: const Text('Copy Share Link', style: TextStyle(color: Colors.white)),
+              onTap: () async {
+                Navigator.pop(context);
+                await _copyShareLink(pack);
               },
             ),
           ListTile(
@@ -467,6 +497,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                   icon: const Icon(Icons.delete),
                 ),
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
+                IconButton(onPressed: _copySelectedLinks, icon: const Icon(Icons.link)),
                 IconButton(onPressed: _shareSelected, icon: const Icon(Icons.share)),
                 IconButton(onPressed: _shareSelectedBundle, icon: const Icon(Icons.archive)),
                 IconButton(onPressed: _editSelected, icon: const Icon(Icons.edit)),

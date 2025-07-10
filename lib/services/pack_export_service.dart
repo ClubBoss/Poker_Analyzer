@@ -146,6 +146,11 @@ class PackExportService {
     return file;
   }
 
+  static String exportShareLink(TrainingPackTemplate tpl) {
+    final jsonStr = jsonEncode(tpl.toJson());
+    return base64Url.encode(utf8.encode(jsonStr));
+  }
+
   static Future<File> exportSessionCsv(
       List<SavedHand> hands, List<double> evs, List<double> icms) async {
     final rows = <List<dynamic>>[
