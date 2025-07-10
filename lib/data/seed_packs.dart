@@ -93,6 +93,39 @@ final TrainingPackTemplate autoPushFold15bbBtn =
   createdAt: DateTime.now(),
 );
 
+final TrainingPackTemplate btnPushFold12bb =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'btn_pushfold_12bb',
+  name: 'BTN 12bb push/fold',
+  heroBbStack: 12,
+  playerStacksBb: [12, 12, 12],
+  heroPos: HeroPosition.btn,
+  heroRange: PackGeneratorService.topNHands(15).toList(),
+  createdAt: DateTime.now(),
+);
+
+final TrainingPackTemplate coPushFold10bb =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'co_pushfold_10bb',
+  name: 'CO 10bb push/fold',
+  heroBbStack: 10,
+  playerStacksBb: [10, 10, 10, 10],
+  heroPos: HeroPosition.co,
+  heroRange: PackGeneratorService.topNHands(10).toList(),
+  createdAt: DateTime.now(),
+);
+
+final TrainingPackTemplate hjPushFold15bb =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'hj_pushfold_15bb',
+  name: 'HJ 15bb push/fold',
+  heroBbStack: 15,
+  playerStacksBb: [15, 15, 15, 15, 15, 15],
+  heroPos: HeroPosition.mp,
+  heroRange: PackGeneratorService.topNHands(12).toList(),
+  createdAt: DateTime.now(),
+);
+
 final List<TrainingPackTemplate> seedPacks = [
   autoPushFold10bb,
   autoPushFold12bbSb,
@@ -100,6 +133,9 @@ final List<TrainingPackTemplate> seedPacks = [
   autoPushFold10bbBtn,
   autoPushFold12bbBtn,
   autoPushFold15bbBtn,
+  btnPushFold12bb,
+  coPushFold10bb,
+  hjPushFold15bb,
   TrainingPackTemplate(
     id: 'sb_vs_bb_10bb',
     name: 'SB vs BB 10bb',
