@@ -122,6 +122,7 @@ Future<void> main() async {
   final packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
   final packCloud = TrainingPackCloudSyncService();
+  await packCloud.init();
   final mistakeCloud = MistakePackCloudService();
   final goalCloud = GoalProgressCloudService();
   final xpCloud = XPTrackerCloudService();
@@ -132,6 +133,7 @@ Future<void> main() async {
   await templateStorage.load();
   await packCloud.syncDown(packStorage);
   await packCloud.syncDownTemplates(templateStorage);
+  await packCloud.syncDownStats();
   await packCloud.syncUpTemplates(templateStorage);
   unawaited(
     AssetSyncService.instance.syncIfNeeded().catchError(

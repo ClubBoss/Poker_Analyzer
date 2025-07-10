@@ -8,6 +8,7 @@ import 'achievements_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/auth_service.dart';
+import '../services/training_pack_cloud_sync_service.dart';
 import '../widgets/sync_status_widget.dart';
 import 'evaluation_settings_screen.dart';
 
@@ -189,6 +190,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       final ok = await auth.signInWithGoogle();
                       if (ok) {
                         await context.read<CloudSyncService>().syncDown();
+                        await context
+                            .read<TrainingPackCloudSyncService>()
+                            .syncDownStats();
                       }
                     } else {
                       await auth.signOut();
