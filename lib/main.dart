@@ -365,16 +365,6 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     });
   }
 
-  Future<void> _maybeShowOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('has_seen_onboarding') == true) return;
-    final ctx = navigatorKey.currentContext;
-    if (ctx == null) return;
-    await Navigator.push(
-      ctx,
-      MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-    );
-  }
 
   Future<void> _maybeResumeTraining() async {
     final prefs = await SharedPreferences.getInstance();
@@ -440,7 +430,6 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeResumeTraining();
       _maybeShowIntroOverlay();
-      _maybeShowOnboarding();
     });
   }
 

@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
+import '../user_preferences.dart';
+import '../services/hand_history_file_service.dart';
+import '../services/saved_hand_manager_service.dart';
+import '../services/training_pack_template_service.dart';
+import '../helpers/pack_spot_utils.dart';
+import 'training_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -14,9 +20,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _index = 0;
 
   Future<void> _finish() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('has_seen_onboarding', true);
+    await UserPreferences.instance.setTutorialCompleted(true);
     if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _importHands() async {
+    final manager = Provider.of<SavedHandManagerService>(context, listen: false);
+    final service = await HandHistoryFileService.create(manager);
+    await service.importFromFiles(context);
+  }
+
+  void _startStarterPack() {
+    final tpl = TrainingPackTemplateService.starterPushfold10bb(context);
+    final hands = [for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)];
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingScreen.drill(
+          hands: hands,
+          templateId: tpl.id,
+          templateName: tpl.name,
+          minEvForCorrect: tpl.minEvForCorrect,
+          anteBb: tpl.anteBb,
+        ),
+      ),
+    );
   }
 
   Widget _page(String title, String text) {
@@ -48,9 +76,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      _page('Создание паков', 'Формируйте собственные наборы рук для тренировки'),
-      _page('Импорт сессий', 'Загружайте файлы раздач и анализируйте каждую руку'),
-      _page('Повтор ошибок', 'Возвращайтесь к ошибкам и улучшайте результаты'),
+      _page('Шаг 1', 'Импортируйте файлы Hand History для анализа'),
+      _page('Шаг 2', 'Запустите базовый тренировочный пак'),
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _page('Готово', 'Вы готовы начать тренировку'),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: _importHands,
+            child: const Text('Импортировать Hand History'),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: _startStarterPack,
+            child: const Text('Стартовый пак'),
+          ),
+        ],
+      ),
     ];
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -64,6 +107,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 16),
+          Text(
+            'Шаг ${_index + 1} из ${pages.length}',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: LinearProgressIndicator(
+              value: (_index + 1) / pages.length,
+              color: Colors.orange,
+              backgroundColor: Colors.white24,
+            ),
+          ),
           Expanded(
             child: PageView(
               controller: _controller,
