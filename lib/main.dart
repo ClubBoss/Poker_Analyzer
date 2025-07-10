@@ -62,6 +62,7 @@ import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
 import 'services/mistake_streak_service.dart';
 import 'services/mistake_hint_service.dart';
+import 'services/dynamic_pack_adjustment_service.dart';
 import 'services/remote_config_service.dart';
 import 'services/theme_service.dart';
 import 'services/ab_test_engine.dart';
@@ -181,6 +182,11 @@ Future<void> main() async {
             hands: context.read<SavedHandManagerService>(),
             cloud: mistakeCloud,
           )..load(),
+        ),
+        Provider(
+          create: (context) => DynamicPackAdjustmentService(
+            mistakes: context.read<MistakeReviewPackService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (_) => MistakeStreakService()..load(),
