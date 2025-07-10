@@ -20,11 +20,18 @@ class PluginManagerScreen extends StatefulWidget {
 class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Map<String, bool> _config = <String, bool>{};
   List<String> _files = <String>[];
+  final TextEditingController _urlCtr = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _urlCtr.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -88,38 +95,33 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
   }
 
   Future<void> _download() async {
-    final urlController = TextEditingController();
-    final checksumController = TextEditingController();
-    final result = await showDialog<List<String>?>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Download Plugin'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: urlController, autofocus: true),
-            const SizedBox(height: 12),
-            TextField(controller: checksumController, decoration: const InputDecoration(hintText: 'Checksum (optional)')),
+    final url = _urlCtr.text.trim();
+    if (url.isEmpty) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final controller = messenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            SizedBox(width: 24, height: 24, child: CircularProgressIndicator()),
+            SizedBox(width: 16),
+            Text('Downloading...'),
           ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, [urlController.text.trim(), checksumController.text.trim()]), child: const Text('OK')),
-        ],
+        duration: const Duration(days: 1),
       ),
     );
-    if (result == null || result.first.isEmpty) return;
-    final url = result.first;
-    final checksum = result.last.isEmpty ? null : result.last;
     try {
-      await PluginLoader().downloadFromUrl(url, checksum: checksum);
+      await PluginLoader().downloadFromUrl(url);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin downloaded')));
+        messenger.showSnackBar(const SnackBar(content: Text('Plugin downloaded')));
       }
+      _urlCtr.clear();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Download failed: $e')));
+        messenger.showSnackBar(SnackBar(content: Text('Download failed: $e')));
       }
+    } finally {
+      controller.close();
     }
     await _load();
   }
@@ -158,6 +160,22 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _urlCtr,
+                        decoration: const InputDecoration(hintText: 'Plugin URL'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: _download,
+                      child: const Text('Download'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: _reload,
                   child: const Text('Reload Plugins'),
@@ -166,11 +184,6 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
                 ElevatedButton(
                   onPressed: _reset,
                   child: const Text('Reset Plugins'),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: _download,
-                  child: const Text('Download Plugin'),
                 ),
               ],
             ),
