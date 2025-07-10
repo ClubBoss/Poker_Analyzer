@@ -13,6 +13,7 @@ import '../helpers/poker_street_helper.dart';
 import '../widgets/spot_viewer_dialog.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
+import 'v2/training_pack_play_screen.dart';
 
 class TrainingSessionSummaryScreen extends StatelessWidget {
   final TrainingSession session;
@@ -145,6 +146,23 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                       child: Text('No mistakes',
                           style: TextStyle(color: Colors.white70)))),
             const SizedBox(height: 16),
+            if (mistakes.isNotEmpty) ...[
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TrainingPackPlayScreen(
+                        template: MistakeReviewPackService.cachedTemplate!,
+                        original: null,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Review Mistakes'),
+              ),
+              const SizedBox(height: 8),
+            ],
             Row(
               children: [
                 Expanded(

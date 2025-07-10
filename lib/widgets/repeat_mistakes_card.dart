@@ -59,7 +59,7 @@ class RepeatMistakesCard extends StatelessWidget {
                     mistakenNames: {for (final h in pack.hands) h.name},
                   ),
                 ),
-              ).then((_) => service.setProgress(total));
+              ).then((_) => service.setProgress(0));
             },
             child: const Text('Start'),
           ),

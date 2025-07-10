@@ -86,6 +86,11 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.template.id == MistakeReviewPackService.cachedTemplate?.id) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<MistakeReviewPackService>().setProgress(0);
+      });
+    }
     final achieved = _correct == _total;
     SharedPreferences.getInstance()
         .then((p) => p.setBool('tpl_goal_${widget.original.id}', achieved));

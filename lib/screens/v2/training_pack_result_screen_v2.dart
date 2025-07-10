@@ -2,10 +2,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
+import '../../services/mistake_review_pack_service.dart';
 
 class TrainingPackResultScreenV2 extends StatelessWidget {
   final TrainingPackTemplate template;
@@ -78,6 +80,11 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (template.id == MistakeReviewPackService.cachedTemplate?.id) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<MistakeReviewPackService>().setProgress(0);
+      });
+    }
     final spots = template.spots;
     if (spots.isEmpty) return _emptyResultState();
     int correct = 0;
