@@ -3,6 +3,7 @@ import 'hero_position.dart';
 import 'focus_goal.dart';
 import '../game_type.dart';
 import '../training_pack.dart' show parseGameType;
+import 'training_pack_variant.dart';
 import '../../services/pack_generator_service.dart';
 import '../../helpers/poker_position_helper.dart';
 import '../../utils/template_coverage_utils.dart';

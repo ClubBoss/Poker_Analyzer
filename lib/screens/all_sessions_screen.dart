@@ -7,6 +7,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../helpers/date_utils.dart';

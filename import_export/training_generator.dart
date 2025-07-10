@@ -1,5 +1,6 @@
 import 'package:poker_analyzer/models/saved_hand.dart';
 import 'package:poker_analyzer/models/training_spot.dart';
+import 'package:poker_analyzer/models/player_model.dart';
 
 /// Generates [TrainingSpot]s from [SavedHand] instances.
 class TrainingGenerator {
