@@ -10,6 +10,7 @@ import '../services/training_session_service.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/adaptive_training_service.dart';
+import '../services/mistake_review_pack_service.dart';
 import '../utils/template_priority.dart';
 import 'training_session_screen.dart';
 
@@ -23,6 +24,7 @@ import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
 import '../widgets/progress_summary_box.dart';
 import 'training_progress_analytics_screen.dart';
+import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -54,6 +56,16 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const TrainingProgressAnalyticsScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.star),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TrainingRecommendationScreen()),
               );
             },
           ),
@@ -236,6 +248,11 @@ class _PackCard extends StatelessWidget {
             ? 'Продолжить'
             : 'Начать';
     final color = completed ? Colors.green : Colors.orange;
+    final hasMistakes =
+        context.read<MistakeReviewPackService>().hasMistakes(template.id);
+    final ev = stat?.postEvPct ?? 0;
+    final icm = stat?.postIcmPct ?? 0;
+    final focus = template.handTypeSummary();
     return Container(
       width: 120,
       height: 120,
@@ -247,13 +264,19 @@ class _PackCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.shield, color: color),
+          Icon(hasMistakes ? Icons.error : Icons.shield, color: color),
           const Spacer(),
           Text(
             template.name,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
+          if (focus.isNotEmpty)
+            Text(focus,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    const TextStyle(fontSize: 12, color: Colors.white70)),
           const SizedBox(height: 4),
           TweenAnimationBuilder<double>(
             curve: Curves.easeOutCubic,
@@ -270,6 +293,9 @@ class _PackCard extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 2),
+          Text('EV ${ev.toStringAsFixed(0)}%  ICM ${icm.toStringAsFixed(0)}%',
+              style: const TextStyle(fontSize: 10, color: Colors.white70)),
           const SizedBox(height: 4),
           ElevatedButton.icon(
             onPressed: completed
