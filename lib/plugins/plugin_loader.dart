@@ -169,7 +169,7 @@ class PluginLoader {
     return null;
   }
 
-  Future<void> downloadFromUrl(String url) async {
+  Future<void> downloadFromUrl(String url, {String? checksum}) async {
     final uri = Uri.parse(url);
     final name = p.basename(uri.path);
     if (!name.endsWith(_suffix)) {
@@ -187,10 +187,14 @@ class PluginLoader {
       }
       final bytes = await response.fold<BytesBuilder>(BytesBuilder(), (b, d) => b..add(d)).then((b) => b.takeBytes());
       await file.writeAsBytes(bytes);
-      final checksum = sha256.convert(bytes).toString();
+      final digest = sha256.convert(await file.readAsBytes()).toString();
+      if (checksum != null && checksum.toLowerCase() != digest) {
+        await file.delete();
+        throw Exception('Checksum mismatch');
+      }
       final cache = await _loadCache() ?? <String, dynamic>{};
       final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ?? <String, String>{};
-      checksums[name] = checksum;
+      checksums[name] = digest;
       cache['checksums'] = checksums;
       final f = await _cacheFile();
       await f.writeAsString(jsonEncode(cache));

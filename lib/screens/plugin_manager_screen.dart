@@ -88,21 +88,31 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
   }
 
   Future<void> _download() async {
-    final controller = TextEditingController();
-    final url = await showDialog<String>(
+    final urlController = TextEditingController();
+    final checksumController = TextEditingController();
+    final result = await showDialog<List<String>?>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Download Plugin'),
-        content: TextField(controller: controller, autofocus: true),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: urlController, autofocus: true),
+            const SizedBox(height: 12),
+            TextField(controller: checksumController, decoration: const InputDecoration(hintText: 'Checksum (optional)')),
+          ],
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('OK')),
+          TextButton(onPressed: () => Navigator.pop(context, [urlController.text.trim(), checksumController.text.trim()]), child: const Text('OK')),
         ],
       ),
     );
-    if (url == null || url.isEmpty) return;
+    if (result == null || result.first.isEmpty) return;
+    final url = result.first;
+    final checksum = result.last.isEmpty ? null : result.last;
     try {
-      await PluginLoader().downloadFromUrl(url);
+      await PluginLoader().downloadFromUrl(url, checksum: checksum);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin downloaded')));
       }
