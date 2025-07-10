@@ -188,6 +188,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => AdaptiveTrainingService(
             templates: context.read<TemplateStorageService>(),
+            mistakes: context.read<MistakeReviewPackService>(),
           ),
         ),
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
