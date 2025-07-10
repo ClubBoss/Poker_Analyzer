@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:math' as math;
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../helpers/date_utils.dart';
@@ -1294,6 +1295,21 @@ body { font-family: sans-serif; padding: 16px; }
     final correct = _results.where((r) => r.correct).length;
     final mistakes = _results.where((r) => !r.correct).toList();
     final accuracy = total > 0 ? (correct * 100 / total).toStringAsFixed(1) : '0';
+    final evs = <double>[];
+    final icms = <double>[];
+    for (final r in _results) {
+      final ev = r.evaluation.ev;
+      if (ev != null) evs.add(ev);
+      final icm = r.evaluation.icmEv;
+      if (icm != null) icms.add(icm);
+    }
+    if (evs.isEmpty && icms.isEmpty) {
+      evs.addAll([for (final h in _sessionHands) if (h.heroEv != null) h.heroEv!]);
+      icms.addAll([for (final h in _sessionHands) if (h.heroIcmEv != null) h.heroIcmEv!]);
+    }
+    final avgPair = context.read<TrainingStatsService>().sessionEvIcmAvg(_sessionHands);
+    final evAvg = evs.isNotEmpty ? evs.reduce((a, b) => a + b) / evs.length : avgPair.key;
+    final icmAvg = icms.isNotEmpty ? icms.reduce((a, b) => a + b) / icms.length : avgPair.value;
 
     return Center(
       child: SingleChildScrollView(
@@ -1344,7 +1360,12 @@ body { font-family: sans-serif; padding: 16px; }
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            if (evs.length + icms.length >= 2) ...[
+              const SizedBox(height: 16),
+              _EvIcmLineChart(evs: evs, icms: icms),
+              const SizedBox(height: 24),
+            ] else
+              const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _openAnalysis,
               child: const Text('Детальный анализ'),
@@ -1359,6 +1380,8 @@ body { font-family: sans-serif; padding: 16px; }
             Text('Верные действия: $correct'),
             Text('Ошибок: ${total - correct}'),
             Text('Точность: $accuracy%'),
+            Text('EV avg: ${evAvg.toStringAsFixed(1)}'),
+            Text('ICM avg: ${icmAvg.toStringAsFixed(3)}'),
             Builder(
               builder: (context) {
                 final stats = context.watch<TrainingStatsService>();
@@ -2484,6 +2507,118 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
         child: ElevatedButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Назад'),
+        ),
+      ),
+    );
+  }
+}
+
+class _EvIcmLineChart extends StatelessWidget {
+  final List<double> evs;
+  final List<double> icms;
+  const _EvIcmLineChart({required this.evs, required this.icms});
+
+  @override
+  Widget build(BuildContext context) {
+    final len = math.max(evs.length, icms.length);
+    if (len < 2) return const SizedBox.shrink();
+    final evSpots = <FlSpot>[];
+    final icmSpots = <FlSpot>[];
+    double minY = 0;
+    double maxY = 0;
+    for (var i = 0; i < evs.length; i++) {
+      final v = evs[i];
+      if (v < minY) minY = v;
+      if (v > maxY) maxY = v;
+      evSpots.add(FlSpot(i.toDouble(), v));
+    }
+    for (var i = 0; i < icms.length; i++) {
+      final v = icms[i];
+      if (v < minY) minY = v;
+      if (v > maxY) maxY = v;
+      icmSpots.add(FlSpot(i.toDouble(), v));
+    }
+    if (minY == maxY) {
+      minY -= 1;
+      maxY += 1;
+    }
+    final interval = (maxY - minY) / 4;
+    final step = (len / 6).ceil();
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: LineChart(
+        LineChartData(
+          minY: minY,
+          maxY: maxY,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (v) =>
+                FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: interval,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final i = value.toInt();
+                  if (i < 0 || i >= len) return const SizedBox.shrink();
+                  if (i % step != 0 && i != len - 1) {
+                    return const SizedBox.shrink();
+                  }
+                  return Text(
+                    '${i + 1}',
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          lineBarsData: [
+            if (evSpots.isNotEmpty)
+              LineChartBarData(
+                spots: evSpots,
+                color: AppColors.evPre,
+                barWidth: 2,
+                isCurved: false,
+                dotData: FlDotData(show: false),
+              ),
+            if (icmSpots.isNotEmpty)
+              LineChartBarData(
+                spots: icmSpots,
+                color: AppColors.icmPre,
+                barWidth: 2,
+                isCurved: false,
+                dotData: FlDotData(show: false),
+              ),
+          ],
         ),
       ),
     );

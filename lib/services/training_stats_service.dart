@@ -151,6 +151,28 @@ class TrainingStatsService extends ChangeNotifier {
     return _groupWeeklyAvg(daily);
   }
 
+  MapEntry<double, double> sessionEvIcmAvg(Iterable<SavedHand> hands) {
+    double evSum = 0;
+    int evCount = 0;
+    double icmSum = 0;
+    int icmCount = 0;
+    for (final h in hands) {
+      final ev = h.heroEv;
+      if (ev != null) {
+        evSum += ev;
+        evCount++;
+      }
+      final icm = h.heroIcmEv;
+      if (icm != null) {
+        icmSum += icm;
+        icmCount++;
+      }
+    }
+    final evAvg = evCount > 0 ? evSum / evCount : 0.0;
+    final icmAvg = icmCount > 0 ? icmSum / icmCount : 0.0;
+    return MapEntry(evAvg, icmAvg);
+  }
+
   List<MapEntry<DateTime, int>> _groupWeekly(List<MapEntry<DateTime, int>> daily) {
     final Map<DateTime, int> grouped = {};
     for (final e in daily) {
