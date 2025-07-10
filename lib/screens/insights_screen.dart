@@ -98,7 +98,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
             LineChartBarData(
               spots: spots,
               isCurved: false,
-              color: Colors.orangeAccent,
+              color: AppColors.accent,
               barWidth: 2,
               dotData: FlDotData(show: false),
             )

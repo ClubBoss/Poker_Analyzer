@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../theme/app_colors.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
@@ -1700,11 +1701,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       padding: EdgeInsets.symmetric(
                           horizontal: 4 * widget.scale, vertical: 2 * widget.scale),
                       decoration: BoxDecoration(
-                        color: Colors.orangeAccent,
+                        color: AppColors.accent,
                         borderRadius: BorderRadius.circular(6 * widget.scale),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.orangeAccent.withOpacity(0.6),
+                            color: AppColors.accent.withOpacity(0.6),
                             blurRadius: 4 * widget.scale,
                           ),
                         ],
@@ -2122,7 +2123,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                             vertical: 2 * widget.scale,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.orangeAccent,
+                            color: AppColors.accent,
                             borderRadius:
                                 BorderRadius.circular(8 * widget.scale),
                             boxShadow: const [
@@ -2156,7 +2157,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                           vertical: 2 * widget.scale,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orangeAccent,
+                          color: AppColors.accent,
                           borderRadius: BorderRadius.circular(8 * widget.scale),
                           boxShadow: const [
                             BoxShadow(
@@ -2334,11 +2335,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   padding: EdgeInsets.symmetric(
                       horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
                   decoration: BoxDecoration(
-                    color: Colors.orangeAccent,
+                    color: AppColors.accent,
                     borderRadius: BorderRadius.circular(8 * widget.scale),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.orangeAccent.withOpacity(0.6),
+                        color: AppColors.accent.withOpacity(0.6),
                         blurRadius: 6 * widget.scale,
                       ),
                     ],
@@ -2453,10 +2454,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       result = Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14 * widget.scale),
-          border: Border.all(color: Colors.orangeAccent, width: 2 * widget.scale),
+          border: Border.all(color: AppColors.accent, width: 2 * widget.scale),
           boxShadow: [
             BoxShadow(
-              color: Colors.orangeAccent.withOpacity(0.7),
+              color: AppColors.accent.withOpacity(0.7),
               blurRadius: 12 * widget.scale,
               spreadRadius: 2 * widget.scale,
             ),
@@ -3007,7 +3008,7 @@ class _FoldChipOverlay extends StatelessWidget {
                       height: 24,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.orangeAccent,
+                        color: AppColors.accent,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.5),
@@ -3596,7 +3597,7 @@ class _ChipWinOverlay extends StatelessWidget {
                       height: 24,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.orangeAccent,
+                        color: AppColors.accent,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.5),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class WinnerFlyingChip extends StatefulWidget {
   final Offset start;
@@ -91,7 +92,7 @@ class _WinnerFlyingChipState extends State<WinnerFlyingChip>
         height: 24,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.orangeAccent,
+          color: AppColors.accent,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.5),

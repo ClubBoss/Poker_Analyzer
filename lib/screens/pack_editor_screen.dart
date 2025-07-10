@@ -3250,7 +3250,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                               message: 'New',
                               child: InkWell(
                                 onTap: _selectAllNew,
-                                child: const Icon(Icons.fiber_new, color: Colors.orangeAccent),
+                                child: const Icon(Icons.fiber_new, color: AppColors.accent),
                               ),
                             ),
                           PopupMenuButton<String>(
@@ -3362,7 +3362,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (hand.isDuplicate)
-                            const Icon(Icons.warning, color: Colors.orangeAccent),
+                            const Icon(Icons.warning, color: AppColors.accent),
                           IconButton(
                             icon: const Text('✏️'),
                             onPressed: () => _editComment(hand),

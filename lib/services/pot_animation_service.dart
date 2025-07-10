@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../theme/app_colors.dart';
 
 import '../helpers/table_geometry_helper.dart';
 import '../models/player_model.dart';
@@ -87,7 +88,7 @@ class PotAnimationService {
         end: end,
         amount: amount,
         playerIndex: player,
-        color: Colors.orangeAccent,
+        color: AppColors.accent,
         scale: scale,
       ));
       registerResetAnimation();
@@ -171,7 +172,7 @@ class PotAnimationService {
             end: end,
             amount: amount,
             playerIndex: player,
-            color: Colors.orangeAccent,
+            color: AppColors.accent,
             scale: scale,
           ));
           registerResetAnimation();

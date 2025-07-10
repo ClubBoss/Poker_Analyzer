@@ -30,7 +30,7 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
 
   Color _color(int count, int target) {
     if (count >= target) return Colors.greenAccent;
-    if (count > 0) return Colors.orangeAccent;
+    if (count > 0) return AppColors.accent;
     return Colors.white24;
   }
 
@@ -224,7 +224,7 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Colors.orangeAccent, Colors.redAccent],
+                        colors: [AppColors.accent, Colors.redAccent],
                       ),
                       borderRadius: BorderRadius.circular(8),
                     ),

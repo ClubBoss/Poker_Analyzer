@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'chip_widget.dart';
 import 'chip_trail.dart';
 
@@ -63,7 +64,7 @@ class _PotAnimationWidgetState extends State<PotAnimationWidget>
         count,
         (index) => Padding(
           padding: EdgeInsets.symmetric(horizontal: 1 * scale),
-          child: MiniChip(color: Colors.orangeAccent, size: 10 * scale),
+          child: MiniChip(color: AppColors.accent, size: 10 * scale),
         ),
       ),
     );

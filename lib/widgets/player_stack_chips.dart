@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 /// Displays a small pile of chips representing the player's remaining stack.
 class PlayerStackChips extends StatelessWidget {
@@ -20,7 +21,7 @@ class PlayerStackChips extends StatelessWidget {
 
   Color _colorForStack() {
     if (stack >= 50) return Colors.redAccent;
-    if (stack >= 10) return Colors.orangeAccent;
+    if (stack >= 10) return AppColors.accent;
     return Colors.blueAccent;
   }
 

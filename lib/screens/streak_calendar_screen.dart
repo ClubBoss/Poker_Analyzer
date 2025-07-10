@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_stats_service.dart';
 import '../widgets/sync_status_widget.dart';
+import '../theme/app_colors.dart';
 
 class StreakCalendarScreen extends StatelessWidget {
   const StreakCalendarScreen({super.key});
@@ -77,7 +78,7 @@ class StreakCalendarScreen extends StatelessWidget {
           final borderColor = currentStreak.contains(key)
               ? Colors.greenAccent
               : longestStreak.contains(key)
-                  ? Colors.orangeAccent
+                  ? AppColors.accent
                   : Colors.transparent;
           return Container(
             alignment: Alignment.center,

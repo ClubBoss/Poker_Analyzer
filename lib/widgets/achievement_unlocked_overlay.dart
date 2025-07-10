@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class AchievementUnlockedOverlay extends StatefulWidget {
   final IconData icon;
@@ -71,7 +72,7 @@ class _AchievementUnlockedOverlayState extends State<AchievementUnlockedOverlay>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(widget.icon, color: Colors.orangeAccent),
+                    Icon(widget.icon, color: AppColors.accent),
                     const SizedBox(width: 8),
                     Column(
                       mainAxisSize: MainAxisSize.min,

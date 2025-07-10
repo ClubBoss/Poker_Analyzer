@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 /// Displays the current remaining stack with a chip icon.
 class PlayerStackValue extends StatefulWidget {
@@ -84,7 +85,7 @@ class _PlayerStackValueState extends State<PlayerStackValue>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.casino, size: iconSize, color: Colors.orangeAccent),
+              Icon(Icons.casino, size: iconSize, color: AppColors.accent),
               SizedBox(width: 4 * widget.scale),
               Text(
                 _formatStack(widget.stack),

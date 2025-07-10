@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 /// Displays the hero's strategy range in a 13x13 hand grid.
 class HeroRangeGridWidget extends StatelessWidget {
@@ -33,7 +34,7 @@ class HeroRangeGridWidget extends StatelessWidget {
   Color _cellColor(double freq) {
     final clamped = freq.clamp(0.0, 1.0);
     if (clamped >= 0.5) {
-      return Colors.orangeAccent;
+      return AppColors.accent;
     }
     if (clamped >= 0.2) {
       return Colors.red.shade900;

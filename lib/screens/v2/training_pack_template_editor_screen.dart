@@ -5126,7 +5126,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.orangeAccent.withOpacity(.2),
+                            color: AppColors.accent.withOpacity(.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
@@ -5217,7 +5217,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(.2),
+                    color: AppColors.accent.withOpacity(.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(

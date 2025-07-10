@@ -11,6 +11,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import '../asset_manifest.dart';
+import '../theme/app_colors.dart';
 
 import '../helpers/color_utils.dart';
 import '../services/template_storage_service.dart';
@@ -1079,7 +1080,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 child: Card(
                   child: ListTile(
                     leading:
-                        const Icon(Icons.error, color: Colors.orangeAccent),
+                        const Icon(Icons.error, color: AppColors.accent),
                     title: Text(l.reviewMistakes),
                     onTap: () async {
                       final tpl = await service.buildPack(context);

@@ -124,7 +124,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: Colors.orangeAccent,
+              color: AppColors.accent,
               barWidth: 2,
               dotData: FlDotData(show: false),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 /// Displays player's remaining stack as a thin progress bar.
 class StackBarWidget extends StatelessWidget {
@@ -56,7 +57,7 @@ class StackBarWidget extends StatelessWidget {
                 ? BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.orangeAccent.withOpacity(glow),
+                        color: AppColors.accent.withOpacity(glow),
                         blurRadius: 8 * glow * scale,
                         spreadRadius: 2 * glow * scale,
                       ),
