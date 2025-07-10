@@ -6,6 +6,8 @@ class TrainingResult {
   final List<String> tags;
   final String? notes;
   final String? comment;
+  final double? evDiff;
+  final double? icmDiff;
 
   TrainingResult({
     required this.date,
@@ -15,6 +17,8 @@ class TrainingResult {
     List<String>? tags,
     this.notes,
     this.comment,
+    this.evDiff,
+    this.icmDiff,
   }) : tags = tags ?? const [];
 
   Map<String, dynamic> toJson() => {
@@ -25,6 +29,8 @@ class TrainingResult {
         if (tags.isNotEmpty) 'tags': tags,
         if (notes != null && notes!.isNotEmpty) 'notes': notes,
         if (comment != null && comment!.isNotEmpty) 'comment': comment,
+        if (evDiff != null) 'evDiff': evDiff,
+        if (icmDiff != null) 'icmDiff': icmDiff,
       };
 
   factory TrainingResult.fromJson(Map<String, dynamic> json) => TrainingResult(
@@ -35,5 +41,7 @@ class TrainingResult {
         tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
         notes: json['notes'] as String?,
         comment: json['comment'] as String?,
+        evDiff: (json['evDiff'] as num?)?.toDouble(),
+        icmDiff: (json['icmDiff'] as num?)?.toDouble(),
       );
 }
