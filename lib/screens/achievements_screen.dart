@@ -1,5 +1,12 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+
 import '../services/achievement_engine.dart';
 import '../services/user_action_logger.dart';
 import '../widgets/sync_status_widget.dart';
@@ -12,6 +19,26 @@ class AchievementsScreen extends StatefulWidget {
 }
 
 class _AchievementsScreenState extends State<AchievementsScreen> {
+  final _boundaryKey = GlobalKey();
+
+  Future<void> _share() async {
+    final boundary =
+        _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) return;
+    final image = await boundary.toImage(pixelRatio: 3);
+    final data =
+        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    if (data == null) return;
+    final bytes = data.buffer.asUint8List();
+    final png = img.encodePng(
+      img.Image.fromBytes(image.width, image.height, bytes),
+    );
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/achievements_${DateTime.now().millisecondsSinceEpoch}.png');
+    await file.writeAsBytes(png, flush: true);
+    await Share.shareXFiles([XFile(file.path)]);
+  }
   @override
   void initState() {
     super.initState();
@@ -25,16 +52,21 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   Widget build(BuildContext context) {
     final engine = context.watch<AchievementEngine>();
     final accent = Theme.of(context).colorScheme.secondary;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Achievements'),
-        centerTitle: true,
-        actions: [SyncStatusIcon.of(context)],
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: engine.achievements.length,
-        itemBuilder: (context, index) {
+    return RepaintBoundary(
+      key: _boundaryKey,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Achievements'),
+          centerTitle: true,
+          actions: [
+            IconButton(onPressed: _share, icon: const Icon(Icons.share)),
+            SyncStatusIcon.of(context)
+          ],
+        ),
+        body: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: engine.achievements.length,
+          itemBuilder: (context, index) {
           final a = engine.achievements[index];
           final done = a.completed;
           return Container(
