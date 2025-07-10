@@ -267,6 +267,15 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     if (mounted) _clearSelection();
   }
 
+  Future<void> _shareSelectedBundle() async {
+    final service = context.read<TrainingPackStorageService>();
+    final list = [for (final p in service.packs) if (_selectedIds.contains(p.id)) p];
+    for (final p in list) {
+      await _shareBundle(p);
+    }
+    if (mounted) _clearSelection();
+  }
+
   Future<void> _editSelected() async {
     final result = await showBulkEditDialog(context);
     if (result == null) return;
@@ -461,6 +470,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                 ),
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
                 IconButton(onPressed: _shareSelected, icon: const Icon(Icons.share)),
+                IconButton(onPressed: _shareSelectedBundle, icon: const Icon(Icons.archive)),
                 IconButton(onPressed: _editSelected, icon: const Icon(Icons.edit)),
               ]
             : [
