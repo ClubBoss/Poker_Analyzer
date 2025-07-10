@@ -40,4 +40,22 @@ class RemoteConfigService extends ChangeNotifier {
       } catch (_) {}
     }
   }
+
+  Future<void> reload() async {
+    try {
+      final doc = await CloudRetryPolicy.execute(
+        () => FirebaseFirestore.instance.collection('config').doc('public').get(),
+      );
+      if (doc.exists) {
+        final prefs = await SharedPreferences.getInstance();
+        final now = DateTime.now();
+        _data = doc.data() ?? {};
+        data.value = Map.from(_data);
+        await prefs.setString('remote_config_json', jsonEncode(_data));
+        await prefs.setInt('remote_config_ts', now.millisecondsSinceEpoch);
+        _lastFetch = now;
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
 }
