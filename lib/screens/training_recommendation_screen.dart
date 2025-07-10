@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/personal_recommendation_service.dart';
@@ -21,6 +22,7 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
   final Map<String, TrainingPackStat?> _stats = {};
   final Map<String, double?> _delta = {};
   late PersonalRecommendationService _service;
+  late VoidCallback _listener;
   bool _loading = true;
   List<TrainingPackTemplate> _tpls = [];
   List<RecommendationTask> _tasks = [];
@@ -29,13 +31,14 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
   void initState() {
     super.initState();
     _service = context.read<PersonalRecommendationService>();
-    _service.addListener(_update);
+    _listener = () => unawaited(_update());
+    _service.addListener(_listener);
     _refresh();
   }
 
   @override
   void dispose() {
-    _service.removeListener(_update);
+    _service.removeListener(_listener);
     super.dispose();
   }
 
@@ -83,7 +86,9 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
       appBar: AppBar(title: const Text('Рекомендации')),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final tpl = await _service.buildAdaptivePack();
+          final tpl = await context
+              .read<AdaptiveTrainingService>()
+              .buildAdaptivePack();
           await context.read<TrainingSessionService>().startSession(tpl);
           if (context.mounted) {
             await Navigator.push(
