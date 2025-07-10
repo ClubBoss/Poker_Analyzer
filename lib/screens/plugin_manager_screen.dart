@@ -87,6 +87,33 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     await _load();
   }
 
+  Future<void> _download() async {
+    final controller = TextEditingController();
+    final url = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Download Plugin'),
+        content: TextField(controller: controller, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('OK')),
+        ],
+      ),
+    );
+    if (url == null || url.isEmpty) return;
+    try {
+      await PluginLoader().downloadFromUrl(url);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin downloaded')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Download failed: $e')));
+      }
+    }
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
@@ -129,6 +156,11 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
                 ElevatedButton(
                   onPressed: _reset,
                   child: const Text('Reset Plugins'),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: _download,
+                  child: const Text('Download Plugin'),
                 ),
               ],
             ),
