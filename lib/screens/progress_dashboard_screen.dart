@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../widgets/common/animated_line_chart.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -58,8 +59,8 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: LineChart(
-        LineChartData(
+      child: AnimatedLineChart(
+        data: LineChartData(
           minY: minY,
           maxY: maxY,
           gridData: FlGridData(
