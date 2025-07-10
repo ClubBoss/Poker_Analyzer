@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import '../helpers/poker_position_helper.dart';
+import '../helpers/hand_utils.dart';
 import 'template_storage_service.dart';
 import 'training_pack_stats_service.dart';
 import 'mistake_review_pack_service.dart';
@@ -45,13 +46,17 @@ class AdaptiveTrainingService extends ChangeNotifier {
     final level = xp.level;
     final posCounts = <HeroPosition, int>{};
     final posLoss = <HeroPosition, double>{};
+    final posIcmLoss = <HeroPosition, double>{};
     for (final h in hands.hands.reversed.take(50)) {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
       if (exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto) {
         final pos = parseHeroPosition(h.heroPosition);
         posCounts[pos] = (posCounts[pos] ?? 0) + 1;
-        posLoss[pos] = (posLoss[pos] ?? 0) + (h.evLoss ?? 0);
+        final ev = h.evLoss ?? (h.heroEv != null && h.heroEv! < 0 ? -h.heroEv! : 0);
+        if (ev > 0) posLoss[pos] = (posLoss[pos] ?? 0) + ev;
+        final icm = h.heroIcmEv;
+        if (icm != null && icm < 0) posIcmLoss[pos] = (posIcmLoss[pos] ?? 0) + icm.abs();
       }
     }
     for (final r in history.records.take(50)) {
@@ -60,6 +65,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
         final pos = parseHeroPosition(order[r.heroIndex]);
         posCounts[pos] = (posCounts[pos] ?? 0) + 1;
         if (r.ev < 0) posLoss[pos] = (posLoss[pos] ?? 0) + r.ev.abs();
+        if (r.icm < 0) posIcmLoss[pos] = (posIcmLoss[pos] ?? 0) + r.icm.abs();
       }
     }
     final entries = <MapEntry<TrainingPackTemplate, double>>[];
@@ -72,6 +78,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
       final miss = mistakes.mistakeCount(t.id);
       final posMiss = posCounts[t.heroPos] ?? 0;
       final loss = posLoss[t.heroPos] ?? 0;
+      final icmLoss = posIcmLoss[t.heroPos] ?? 0;
       var score = 1 - (stat?.accuracy ?? 0);
       score += 1 - (stat?.postEvPct ?? 0) / 100;
       score += 1 - (stat?.postIcmPct ?? 0) / 100;
@@ -82,6 +89,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
       if (miss > 0) score += 2 + miss * .5;
       if (posMiss > 0) score += 1 + posMiss * .3;
       if (loss > 0) score += loss * .1;
+      if (icmLoss > 0) score += icmLoss * .1;
       final diff = (t.difficultyLevel - level).abs();
       score += diff * 0.3;
       entries.add(MapEntry(t, score));
@@ -95,12 +103,22 @@ class AdaptiveTrainingService extends ChangeNotifier {
 
   Future<TrainingPackTemplate> buildAdaptivePack() async {
     final posCounts = <HeroPosition, int>{};
+    final handLoss = <String, double>{};
     for (final h in hands.hands.reversed.take(50)) {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
       if (exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto) {
         final pos = parseHeroPosition(h.heroPosition);
         posCounts[pos] = (posCounts[pos] ?? 0) + 1;
+        if (h.playerCards.length > h.heroIndex && h.playerCards[h.heroIndex].length >= 2) {
+          final c1 = h.playerCards[h.heroIndex][0];
+          final c2 = h.playerCards[h.heroIndex][1];
+          final code = handCode('${c1.rank}${c1.suit} ${c2.rank}${c2.suit}');
+          final loss = h.evLoss ?? (h.heroEv != null && h.heroEv! < 0 ? -h.heroEv! : 0);
+          if (code != null && loss > 0) {
+            handLoss[code] = (handLoss[code] ?? 0) + loss;
+          }
+        }
       }
     }
     for (final r in history.records.take(50)) {
@@ -108,6 +126,10 @@ class AdaptiveTrainingService extends ChangeNotifier {
       if (r.heroIndex < order.length) {
         final pos = parseHeroPosition(order[r.heroIndex]);
         if (r.ev < 0) posCounts[pos] = (posCounts[pos] ?? 0) + 1;
+        final code = handCode('${r.card1} ${r.card2}');
+        if (code != null && r.ev < 0) {
+          handLoss[code] = (handLoss[code] ?? 0) + r.ev.abs();
+        }
       }
     }
     var best = HeroPosition.sb;
@@ -119,13 +141,26 @@ class AdaptiveTrainingService extends ChangeNotifier {
       }
     });
     final stack = (10 + xp.level).clamp(5, 25);
+    final rangeEntries = handLoss.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final range = <String>[];
+    for (final e in rangeEntries.take(20)) {
+      range.add(e.key);
+    }
+    if (range.length < 20) {
+      range.addAll(
+        PackGeneratorService.topNHands(20)
+            .where((h) => !range.contains(h))
+            .take(20 - range.length),
+      );
+    }
     return PackGeneratorService.generatePushFoldPack(
       id: 'adaptive_${DateTime.now().millisecondsSinceEpoch}',
       name: 'Adaptive ${best.label}',
       heroBbStack: stack,
       playerStacksBb: [stack, stack],
       heroPos: best,
-      heroRange: PackGeneratorService.topNHands(20).toList(),
+      heroRange: range,
     );
   }
 }
