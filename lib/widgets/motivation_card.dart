@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/goal_engine.dart';
 import '../services/achievement_engine.dart';
-import '../screens/achievements_screen.dart';
+import '../screens/motivation_screen.dart';
 import '../models/user_goal.dart';
 import '../models/achievement.dart';
 
@@ -49,7 +49,7 @@ class MotivationCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+          MaterialPageRoute(builder: (_) => const MotivationScreen()),
         );
       },
       child: Container(
