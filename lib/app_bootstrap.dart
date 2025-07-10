@@ -10,7 +10,9 @@ class AppBootstrap {
     await FavoritePackService.instance.init();
     if (cloud != null) {
       await cloud.init();
+      await cloud.syncUp();
       await cloud.syncDown();
+      await cloud.loadHands();
       cloud.watchChanges();
     }
   }

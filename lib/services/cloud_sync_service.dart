@@ -239,12 +239,12 @@ class CloudSyncService {
 
   Future<List<SavedHand>> downloadHands() async {
     if (uid == null) return [];
-    final snap = await _db
-        .collection('users')
-        .doc(uid)
-        .collection('saved_hands')
-        .doc('main')
-        .get();
+    final snap = await CloudRetryPolicy.execute(() =>
+        _db.collection('users')
+            .doc(uid)
+            .collection('saved_hands')
+            .doc('main')
+            .get());
     if (!snap.exists) return [];
     final data = snap.data();
     final list = data?['hands'];
@@ -275,12 +275,12 @@ class CloudSyncService {
           DateTime.fromMillisecondsSinceEpoch(0);
     }
     if (uid == null) return hands;
-    final snap = await _db
-        .collection('users')
-        .doc(uid)
-        .collection('saved_hands')
-        .doc('main')
-        .get();
+    final snap = await CloudRetryPolicy.execute(() =>
+        _db.collection('users')
+            .doc(uid)
+            .collection('saved_hands')
+            .doc('main')
+            .get());
     if (snap.exists) {
       final remote = snap.data()!;
       final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
