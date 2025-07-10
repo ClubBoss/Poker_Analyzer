@@ -94,12 +94,13 @@ class _TournamentInfoSectionState extends State<_TournamentInfoSection> {
   }
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final summary = <Widget>[];
     if (widget.idController.text.isNotEmpty) summary.add(_summaryRow('ID', widget.idController.text));
     if (widget.buyInController.text.isNotEmpty) summary.add(_summaryRow('Buy-In', widget.buyInController.text));
     if (widget.prizePoolController.text.isNotEmpty) summary.add(_summaryRow('Prize Pool', widget.prizePoolController.text));
-    if (widget.entrantsController.text.isNotEmpty) summary.add(_summaryRow('Entrants', widget.entrantsController.text));
-    if (widget.gameTypeController.text.isNotEmpty) summary.add(_summaryRow('Game', widget.gameTypeController.text));
+    if (widget.entrantsController.text.isNotEmpty) summary.add(_summaryRow(l.entrants, widget.entrantsController.text));
+    if (widget.gameTypeController.text.isNotEmpty) summary.add(_summaryRow(l.gameType, widget.gameTypeController.text));
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -177,23 +178,23 @@ class _TournamentInfoSectionState extends State<_TournamentInfoSection> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Entrants',
-                        labelStyle: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: l.entrants,
+                        labelStyle: const TextStyle(color: Colors.white),
                       ),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       value: widget.gameTypeController.text.isEmpty ? null : widget.gameTypeController.text,
-                      decoration: const InputDecoration(
-                        labelText: 'Game Type',
-                        labelStyle: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: l.gameType,
+                        labelStyle: const TextStyle(color: Colors.white),
                       ),
                       dropdownColor: Colors.grey[900],
-                      items: const [
-                        DropdownMenuItem(value: "Hold'em NL", child: Text("Hold'em NL")),
-                        DropdownMenuItem(value: 'Omaha PL', child: Text('Omaha PL')),
-                        DropdownMenuItem(value: 'Other', child: Text('Other')),
+                      items: [
+                        DropdownMenuItem(value: "Hold'em NL", child: Text(l.holdemNl)),
+                        DropdownMenuItem(value: 'Omaha PL', child: Text(l.omahaPl)),
+                        DropdownMenuItem(value: 'Other', child: Text(l.otherGameType)),
                       ],
                       onChanged: (v) => setState(() => widget.gameTypeController.text = v ?? ''),
                     ),

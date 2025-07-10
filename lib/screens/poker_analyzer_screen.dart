@@ -22,6 +22,7 @@ import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
 import '../services/board_reveal_service.dart';
 import '../widgets/player_zone_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../screens/result_screen.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/action_history_overlay.dart';

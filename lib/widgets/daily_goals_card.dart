@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/daily_goals_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DailyGoalsCard extends StatelessWidget {
   const DailyGoalsCard({super.key});
@@ -40,6 +41,7 @@ class DailyGoalsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final service = context.watch<DailyGoalsService>();
+    final l = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.all(12),
@@ -50,13 +52,13 @@ class DailyGoalsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Daily Goals',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(l.dailyGoals,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          _bar(context, 'Sessions', service.progressSessions.toDouble(), service.targetSessions.toDouble()),
-          _bar(context, 'Accuracy %', service.progressAccuracy, service.targetAccuracy),
-          _bar(context, 'EV', service.progressEv, service.targetEv, decimals: 1),
-          _bar(context, 'ICM', service.progressIcm, service.targetIcm, decimals: 2),
+          _bar(context, l.sessions, service.progressSessions.toDouble(), service.targetSessions.toDouble()),
+          _bar(context, l.accuracyPercent, service.progressAccuracy, service.targetAccuracy),
+          _bar(context, l.ev, service.progressEv, service.targetEv, decimals: 1),
+          _bar(context, l.icm, service.progressIcm, service.targetIcm, decimals: 2),
         ],
       ),
     );
