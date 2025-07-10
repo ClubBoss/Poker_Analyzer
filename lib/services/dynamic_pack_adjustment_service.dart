@@ -4,15 +4,18 @@ import 'mistake_review_pack_service.dart';
 import 'pack_generator_service.dart';
 import 'evaluation_executor_service.dart';
 import 'saved_hand_manager_service.dart';
+import 'player_progress_service.dart';
 
 class DynamicPackAdjustmentService {
   final MistakeReviewPackService mistakes;
   final EvaluationExecutorService eval;
   final SavedHandManagerService hands;
+  final PlayerProgressService progress;
   const DynamicPackAdjustmentService({
     required this.mistakes,
     required this.eval,
     required this.hands,
+    required this.progress,
   });
 
   Future<TrainingPackTemplate> adjust(TrainingPackTemplate tpl) async {
@@ -35,6 +38,11 @@ class DynamicPackAdjustmentService {
     if (acc < 0.5) diff--;
     final mc = mistakes.mistakeCount(tpl.id);
     if (mc > 5) diff--;
+    final pos = progress.progress[tpl.heroPos];
+    if (pos != null) {
+      if (pos.accuracy > 0.85) diff++;
+      if (pos.accuracy < 0.6) diff--;
+    }
     final posMist = hands.hands.where((h) {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
