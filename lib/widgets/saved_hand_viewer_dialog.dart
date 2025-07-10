@@ -12,6 +12,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../helpers/training_pack_storage.dart';
+import '../services/adaptive_training_service.dart';
 import 'package:uuid/uuid.dart';
 
 class SavedHandViewerDialog extends StatelessWidget {
@@ -97,6 +98,55 @@ class SavedHandViewerDialog extends StatelessWidget {
     );
   }
 
+  Widget _evCard() {
+    final ev = hand.heroEv;
+    final icm = hand.heroIcmEv;
+    if (ev == null && icm == null) return const SizedBox.shrink();
+    final rows = <Widget>[];
+    if (ev != null) {
+      rows.add(Text(
+        'EV: ${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB',
+        style: const TextStyle(color: Colors.white),
+      ));
+    }
+    if (icm != null) {
+      rows.add(Text(
+        'ICM EV: ${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(3)}',
+        style: const TextStyle(color: Colors.white70),
+      ));
+    }
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade800,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+    );
+  }
+
+  Widget _recCard(BuildContext context) {
+    final list = context.watch<AdaptiveTrainingService>().recommended.take(3);
+    if (list.isEmpty) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade800,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Рекомендуемые паки:', style: TextStyle(color: Colors.white)),
+          const SizedBox(height: 4),
+          for (final p in list) Text(p.name, style: const TextStyle(color: Colors.white70)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final spot = TrainingSpot.fromSavedHand(hand);
@@ -125,6 +175,8 @@ class SavedHandViewerDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ActionHistoryWidget(actions: _actions(), playerPositions: _posMap()),
+            _evCard(),
+            _recCard(context),
           ],
         ),
       ),

@@ -38,12 +38,14 @@ class AdaptiveTrainingService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final level = xp.level;
     final posCounts = <HeroPosition, int>{};
+    final posLoss = <HeroPosition, double>{};
     for (final h in hands.hands.reversed.take(50)) {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
       if (exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto) {
         final pos = parseHeroPosition(h.heroPosition);
         posCounts[pos] = (posCounts[pos] ?? 0) + 1;
+        posLoss[pos] = (posLoss[pos] ?? 0) + (h.evLoss ?? 0);
       }
     }
     final entries = <MapEntry<TrainingPackTemplate, double>>[];
@@ -55,6 +57,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
       stats[t.id] = stat;
       final miss = mistakes.mistakeCount(t.id);
       final posMiss = posCounts[t.heroPos] ?? 0;
+      final loss = posLoss[t.heroPos] ?? 0;
       var score = 1 - (stat?.accuracy ?? 0);
       score += 1 - (stat?.postEvPct ?? 0) / 100;
       score += 1 - (stat?.postIcmPct ?? 0) / 100;
@@ -64,6 +67,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
       score -= dIcm * .05;
       if (miss > 0) score += 2 + miss * .5;
       if (posMiss > 0) score += 1 + posMiss * .3;
+      if (loss > 0) score += loss * .1;
       final diff = (t.difficultyLevel - level).abs();
       score += diff * 0.3;
       entries.add(MapEntry(t, score));

@@ -619,5 +619,23 @@ class SavedHand {
       sessionId: sessionId,
     );
   }
+
+  double? get heroEv {
+    for (final a in actions) {
+      if (a.street == 0 && a.playerIndex == heroIndex && a.ev != null) {
+        return a.ev;
+      }
+    }
+    return null;
+  }
+
+  double? get heroIcmEv {
+    for (final a in actions) {
+      if (a.street == 0 && a.playerIndex == heroIndex && a.icmEv != null) {
+        return a.icmEv;
+      }
+    }
+    return null;
+  }
 }
 
