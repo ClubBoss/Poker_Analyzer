@@ -9,6 +9,8 @@ import 'package:share_plus/share_plus.dart';
 
 import '../services/achievement_engine.dart';
 import '../services/user_action_logger.dart';
+import '../services/xp_tracker_service.dart';
+import '../models/level_stage.dart';
 import '../widgets/sync_status_widget.dart';
 
 class AchievementsScreen extends StatefulWidget {
@@ -51,6 +53,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   @override
   Widget build(BuildContext context) {
     final engine = context.watch<AchievementEngine>();
+    final xp = context.watch<XPTrackerService>();
+    final stage = stageForLevel(xp.level);
     final accent = Theme.of(context).colorScheme.secondary;
     return RepaintBoundary(
       key: _boundaryKey,
@@ -65,9 +69,45 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         ),
         body: ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: engine.achievements.length,
+          itemCount: engine.achievements.length + 1,
           itemBuilder: (context, index) {
-          final a = engine.achievements[index];
+          if (index == 0) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[850],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${stage.label} Level ${xp.level}',
+                    style: TextStyle(
+                      color: stage.color,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text('${xp.xp} / ${xp.nextLevelXp} XP',
+                      style: const TextStyle(color: Colors.white)),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: xp.progress.clamp(0.0, 1.0),
+                      backgroundColor: Colors.white24,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(stage.color),
+                      minHeight: 6,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          final a = engine.achievements[index - 1];
           final done = a.completed;
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
