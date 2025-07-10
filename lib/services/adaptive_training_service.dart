@@ -13,6 +13,7 @@ import 'hand_analysis_history_service.dart';
 import 'xp_tracker_service.dart';
 import 'pack_generator_service.dart';
 import 'player_style_service.dart';
+import 'player_style_forecast_service.dart';
 
 class AdaptiveTrainingService extends ChangeNotifier {
   final TemplateStorageService templates;
@@ -22,6 +23,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
   final XPTrackerService xp;
   final ProgressForecastService forecast;
   final PlayerStyleService style;
+  final PlayerStyleForecastService styleForecast;
   AdaptiveTrainingService({
     required this.templates,
     required this.mistakes,
@@ -30,6 +32,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
     required this.xp,
     required this.forecast,
     required this.style,
+    required this.styleForecast,
   }) {
     refresh();
     templates.addListener(refresh);
@@ -39,6 +42,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
     xp.addListener(refresh);
     forecast.addListener(refresh);
     style.addListener(refresh);
+    styleForecast.addListener(refresh);
   }
 
   List<TrainingPackTemplate> _recommended = [];
@@ -156,7 +160,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
       }
     });
     var stack = (10 + xp.level).clamp(5, 25);
-    switch (style.style) {
+    switch (styleForecast.forecast) {
       case PlayerStyle.aggressive:
         stack -= 2;
         break;
@@ -174,7 +178,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
       range.add(e.key);
     }
     int pct;
-    switch (style.style) {
+    switch (styleForecast.forecast) {
       case PlayerStyle.aggressive:
         pct = 15;
         break;

@@ -6,6 +6,7 @@ import 'adaptive_training_service.dart';
 import 'achievement_engine.dart';
 import 'weak_spot_recommendation_service.dart';
 import 'player_style_service.dart';
+import 'player_style_forecast_service.dart';
 
 class RecommendationTask {
   final String title;
@@ -19,16 +20,19 @@ class PersonalRecommendationService extends ChangeNotifier {
   final AdaptiveTrainingService adaptive;
   final WeakSpotRecommendationService weak;
   final PlayerStyleService style;
+  final PlayerStyleForecastService forecast;
   PersonalRecommendationService({
     required this.achievements,
     required this.adaptive,
     required this.weak,
     required this.style,
+    required this.forecast,
   }) {
     achievements.addListener(() => unawaited(_update()));
     adaptive.recommendedNotifier.addListener(() => unawaited(_update()));
     weak.addListener(() => unawaited(_update()));
     style.addListener(() => unawaited(_update()));
+    forecast.addListener(() => unawaited(_update()));
     unawaited(_update());
   }
 
@@ -49,7 +53,7 @@ class PersonalRecommendationService extends ChangeNotifier {
         final remain = a.nextTarget - a.progress;
         return RecommendationTask(title: a.title, icon: a.icon, remaining: remain);
       }).where((t) => t.remaining > 0));
-    switch (style.style) {
+    switch (forecast.forecast) {
       case PlayerStyle.aggressive:
         _tasks.insert(
           0,
