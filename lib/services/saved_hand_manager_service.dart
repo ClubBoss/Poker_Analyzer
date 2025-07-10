@@ -27,6 +27,15 @@ class SavedHandManagerService extends ChangeNotifier {
   final TrainingStatsService? _stats;
   final CloudSyncService? _cloud;
 
+  Future<void> _sync() async {
+    if (_cloud == null) return;
+    await _cloud!.queueMutation('saved_hands', 'main', {
+      'hands': [for (final h in hands) h.toJson()],
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+    unawaited(_cloud!.syncUp());
+  }
+
   List<SavedHand> get hands => _storage.hands;
 
   Set<String> tagFilters = {};
@@ -42,9 +51,7 @@ class SavedHandManagerService extends ChangeNotifier {
     }
     final withSession = hand.copyWith(sessionId: sessionId);
     await _storage.add(withSession);
-    if (_cloud != null) {
-      unawaited(_cloud.syncUp());
-    }
+    await _sync();
     _stats?.incrementHands();
     if (sessionId != last?.sessionId) {
       _stats?.incrementSessions();
@@ -63,6 +70,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<void> update(int index, SavedHand hand) async {
     final old = _storage.hands[index];
     await _storage.update(index, hand);
+    await _sync();
     final oldExp = old.expectedAction?.trim().toLowerCase();
     final oldGto = old.gtoAction?.trim().toLowerCase();
     final newExp = hand.expectedAction?.trim().toLowerCase();
@@ -74,6 +82,7 @@ class SavedHandManagerService extends ChangeNotifier {
 
   Future<void> removeAt(int index) async {
     await _storage.removeAt(index);
+    await _sync();
   }
 
   /// Remove all hands belonging to the given session id and return them in
@@ -87,6 +96,7 @@ class SavedHandManagerService extends ChangeNotifier {
         await _storage.removeAt(i);
       }
     }
+    await _sync();
     notifyListeners();
     return removed.reversed.toList();
   }
@@ -96,6 +106,7 @@ class SavedHandManagerService extends ChangeNotifier {
     for (final hand in hands) {
       await _storage.add(hand);
     }
+    await _sync();
     notifyListeners();
   }
 
