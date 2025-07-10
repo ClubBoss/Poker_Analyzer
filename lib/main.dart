@@ -158,7 +158,9 @@ Future<void> main() async {
                 ..load(),
         ),
         ChangeNotifierProvider(
-          create: (_) => SavedHandStorageService()..load(),
+          create: (context) =>
+              SavedHandStorageService(cloud: context.read<CloudSyncService>())
+                ..load(),
         ),
         ChangeNotifierProvider(
           create: (context) => SavedHandManagerService(
@@ -176,8 +178,14 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => MistakeStreakService()..load(),
         ),
-        ChangeNotifierProvider(create: (_) => SessionNoteService()..load()),
-        ChangeNotifierProvider(create: (_) => SessionPinService()..load()),
+        ChangeNotifierProvider(
+            create: (context) =>
+                SessionNoteService(cloud: context.read<CloudSyncService>())
+                  ..load()),
+        ChangeNotifierProvider(
+            create: (context) =>
+                SessionPinService(cloud: context.read<CloudSyncService>())
+                  ..load()),
         ChangeNotifierProvider<TrainingPackStorageService>.value(
           value: packStorage,
         ),
@@ -302,6 +310,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => SessionLogService(
             sessions: context.read<TrainingSessionService>(),
+            cloud: context.read<CloudSyncService>(),
           )..load(),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
