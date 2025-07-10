@@ -21,9 +21,8 @@ class MyAchievementsScreen extends StatelessWidget {
           final service = context.watch<GoalsService>();
           final completed = service.achievements
               .where((a) => a.completed)
-              .toList();
-
-          // TODO: sort achievements by completion date when available
+              .toList()
+            ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
 
           if (completed.isEmpty) {
             return const Center(child: Text('Достижения еще не получены'));

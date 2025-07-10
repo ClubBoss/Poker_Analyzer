@@ -18,21 +18,24 @@ class Achievement {
   final IconData icon;
   final int progress;
   final int target;
+  final DateTime? completedAt;
 
   const Achievement({
     required this.title,
     required this.icon,
     required this.progress,
     required this.target,
+    this.completedAt,
   });
 
   bool get completed => progress >= target;
 
-  Achievement copyWith({int? progress}) => Achievement(
+  Achievement copyWith({int? progress, DateTime? completedAt}) => Achievement(
         title: title,
         icon: icon,
         progress: progress ?? this.progress,
         target: target,
+        completedAt: completedAt ?? this.completedAt,
       );
 }
 
@@ -395,6 +398,14 @@ class GoalsService extends ChangeNotifier {
     await prefs.setBool('$_achievementShownPrefix$index', true);
   }
 
+  Achievement _withProgress(Achievement a, int progress) {
+    DateTime? date = a.completedAt;
+    if (date == null && progress >= a.target) {
+      date = DateTime.now();
+    }
+    return a.copyWith(progress: progress, completedAt: date);
+  }
+
   Future<void> _saveHistory(int index) async {
     if (index < 0 || index >= _history.length) return;
     final prefs = await SharedPreferences.getInstance();
@@ -508,13 +519,13 @@ class GoalsService extends ChangeNotifier {
     bool changed = false;
     final count = _goals.where((g) => g.progress >= g.target).length;
     if (_achievements[4].progress != count) {
-      _achievements[4] = _achievements[4].copyWith(progress: count);
+      _achievements[4] = _withProgress(_achievements[4], count);
       changed = true;
     }
     if (_achievements.length > 6) {
       final all = count == _goals.length ? 1 : 0;
       if (_achievements[6].progress != all) {
-        _achievements[6] = _achievements[6].copyWith(progress: all);
+        _achievements[6] = _withProgress(_achievements[6], all);
         changed = true;
       }
     }
@@ -595,7 +606,7 @@ class GoalsService extends ChangeNotifier {
     await _saveMistakeReviewStreak();
     if (_achievements.length > 5) {
       final progress = _mistakeReviewStreak > 5 ? 5 : _mistakeReviewStreak;
-      _achievements[5] = _achievements[5].copyWith(progress: progress);
+      _achievements[5] = _withProgress(_achievements[5], progress);
     }
     notifyListeners();
     if (context != null) _checkAchievements(context);
@@ -618,10 +629,10 @@ class GoalsService extends ChangeNotifier {
       _errorFreeStreak = next;
     }
     if (_achievements.length > 3) {
-      _achievements[3] = _achievements[3].copyWith(progress: _errorFreeStreak);
+      _achievements[3] = _withProgress(_achievements[3], _errorFreeStreak);
     }
     if (_achievements.length > 7) {
-      _achievements[7] = _achievements[7].copyWith(progress: _errorFreeStreak);
+      _achievements[7] = _withProgress(_achievements[7], _errorFreeStreak);
     }
     await _saveErrorFreeStreak();
     notifyListeners();
@@ -644,7 +655,7 @@ class GoalsService extends ChangeNotifier {
       goalCompleted ? 1 : 0,
     ];
     for (var i = 0; i < _achievements.length && i < values.length; i++) {
-      final updated = _achievements[i].copyWith(progress: values[i]);
+      final updated = _withProgress(_achievements[i], values[i]);
       if (_achievements[i].progress != updated.progress) {
         changed = true;
         _achievements[i] = updated;
@@ -652,18 +663,18 @@ class GoalsService extends ChangeNotifier {
     }
     if (_achievements.length > 8 &&
         _achievements[8].progress != streakDays) {
-      _achievements[8] = _achievements[8].copyWith(progress: streakDays);
+      _achievements[8] = _withProgress(_achievements[8], streakDays);
       changed = true;
     }
     if (_achievements.length > 4 &&
         _achievements[4].progress != completedGoals) {
-      _achievements[4] = _achievements[4].copyWith(progress: completedGoals);
+      _achievements[4] = _withProgress(_achievements[4], completedGoals);
       changed = true;
     }
     if (_achievements.length > 6) {
       final all = completedGoals == _goals.length ? 1 : 0;
       if (_achievements[6].progress != all) {
-        _achievements[6] = _achievements[6].copyWith(progress: all);
+        _achievements[6] = _withProgress(_achievements[6], all);
         changed = true;
       }
     }
@@ -682,7 +693,7 @@ class GoalsService extends ChangeNotifier {
       if (avg >= 0.8) value = 1;
     }
     if (_achievements[9].progress != value) {
-      _achievements[9] = _achievements[9].copyWith(progress: value);
+      _achievements[9] = _withProgress(_achievements[9], value);
     }
   }
 
