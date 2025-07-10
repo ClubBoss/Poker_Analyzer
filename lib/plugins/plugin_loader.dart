@@ -19,6 +19,7 @@ import 'converters/simple_hand_history_converter.dart';
 import 'converters/pokerstars_hand_history_converter.dart';
 import 'converters/ggpoker_hand_history_converter.dart';
 import 'converters/winamax_hand_history_converter.dart';
+import 'poker_stars_converter_plugin.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -100,6 +101,8 @@ class PluginLoader {
           GGPokerHandHistoryConverter(),
           WinamaxHandHistoryConverter(),
         ]);
+      case 'PokerStarsConverterPlugin':
+        return PokerStarsConverterPlugin();
     }
     return null;
   }
@@ -165,10 +168,18 @@ class PluginLoader {
   }) async {
     final builtIn = loadBuiltInPlugins();
     final support = await getApplicationSupportDirectory();
-    final dir = Directory(p.join(support.path, 'plugins'));
+    final supportDir = Directory(p.join(support.path, 'plugins'));
     final files = <File>[];
-    if (await dir.exists()) {
-      await for (final entity in dir.list()) {
+    if (await supportDir.exists()) {
+      await for (final entity in supportDir.list()) {
+        if (entity is File && entity.path.endsWith(_suffix)) {
+          files.add(entity);
+        }
+      }
+    }
+    final rootDir = Directory('plugins');
+    if (await rootDir.exists()) {
+      await for (final entity in rootDir.list()) {
         if (entity is File && entity.path.endsWith(_suffix)) {
           files.add(entity);
         }

@@ -39,6 +39,14 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
         }
       }
     }
+    final rootDir = Directory('plugins');
+    if (await rootDir.exists()) {
+      await for (final entity in rootDir.list()) {
+        if (entity is File && entity.path.endsWith('.dart')) {
+          files.add(p.basename(entity.path));
+        }
+      }
+    }
     setState(() {
       _config = Map<String, bool>.from(config);
       _files = files;
