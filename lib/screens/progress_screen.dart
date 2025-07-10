@@ -28,6 +28,7 @@ import 'daily_spot_history_calendar_screen.dart';
 import 'achievements_screen.dart';
 import 'drill_history_screen.dart';
 import 'goal_drill_screen.dart';
+import 'weekly_progress_screen.dart';
 import '../widgets/sync_status_widget.dart';
 
 class ProgressScreen extends StatefulWidget {
@@ -850,6 +851,17 @@ class _ProgressScreenState extends State<ProgressScreen>
                   );
                 },
                 child: const Text('История тренировок'),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const WeeklyProgressScreen()),
+                  );
+                },
+                child: const Text('Прогресс 7д'),
               ),
             ],
           ),
