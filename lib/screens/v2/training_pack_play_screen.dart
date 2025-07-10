@@ -465,7 +465,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           spots: [for (final s in widget.template.spots) if (ids.contains(s.id)) s],
         );
         MistakeReviewPackService.setLatestTemplate(template);
-        await context.read<MistakeReviewPackService>().addPack(ids);
+        await context
+            .read<MistakeReviewPackService>()
+            .addPack(ids, templateId: widget.original.id);
         final start = await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(

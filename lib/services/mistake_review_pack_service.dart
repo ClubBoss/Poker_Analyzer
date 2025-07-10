@@ -73,7 +73,7 @@ class MistakeReviewPackService extends ChangeNotifier {
     final seen = <String>{};
     final result = <MistakePack>[];
     for (final p in _packs) {
-      final key = (p.spotIds.toSet().toList()..sort()).join(',');
+      final key = '${p.templateId}_${(p.spotIds.toSet().toList()..sort()).join(',')}';
       if (seen.add(key)) {
         result.add(p);
         if (result.length >= 50) break;
@@ -90,6 +90,8 @@ class MistakeReviewPackService extends ChangeNotifier {
   Timer? _timer;
   final Map<String, Set<String>> _packSpots = {};
   bool _busy = false;
+
+  Map<String, Set<String>> get templateMistakes => _packSpots;
 
   TrainingPack? get pack => _pack;
   int get progress => _progress;
@@ -115,6 +117,11 @@ class MistakeReviewPackService extends ChangeNotifier {
       ..clear()
       ..addAll(list.map((e) =>
           MistakePack.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+    _packSpots.clear();
+    for (final p in _packs) {
+      final set = _packSpots.putIfAbsent(p.templateId, () => <String>{});
+      set.addAll(p.spotIds);
+    }
     _trim();
     _generate();
     _schedule();
@@ -169,8 +176,10 @@ class MistakeReviewPackService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addPack(List<String> spotIds, {String note = ''}) async {
-    _packs.add(MistakePack(spotIds: spotIds, note: note));
+  Future<void> addPack(List<String> spotIds,
+      {required String templateId, String note = ''}) async {
+    (_packSpots[templateId] ??= <String>{}).addAll(spotIds);
+    _packs.add(MistakePack(templateId: templateId, spotIds: spotIds, note: note));
     await _save();
     await syncUp();
     _generate();
@@ -178,8 +187,7 @@ class MistakeReviewPackService extends ChangeNotifier {
 
   Future<void> addSpot(
       TrainingPackTemplate template, TrainingPackSpot spot) async {
-    (_packSpots[template.id] ??= <String>{}).add(spot.id);
-    await addPack([spot.id], note: template.name);
+    await addPack([spot.id], templateId: template.id, note: template.name);
   }
 
   bool hasMistakes(String templateId) =>

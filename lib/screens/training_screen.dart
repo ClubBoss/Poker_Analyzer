@@ -236,10 +236,11 @@ class _TrainingScreenState extends State<TrainingScreen> {
       wrongSpotIds: [for (final id in _wrongIds) if (id.isNotEmpty) id],
     );
     await context.read<DrillHistoryService>().add(result);
-    if (_wrongIds.isNotEmpty) {
+    if (_wrongIds.isNotEmpty && widget.templateId != null) {
       await context
           .read<MistakeReviewPackService>()
-          .addPack([for (final id in _wrongIds) if (id.isNotEmpty) id]);
+          .addPack([for (final id in _wrongIds) if (id.isNotEmpty) id],
+              templateId: widget.templateId!);
     }
     if (!mounted) return;
     if (repeat == true && widget.templateId != null) {
