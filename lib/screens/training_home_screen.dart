@@ -11,6 +11,7 @@ import '../services/template_storage_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/adaptive_training_service.dart';
 import '../services/mistake_review_pack_service.dart';
+import '../services/dynamic_pack_adjustment_service.dart';
 import '../utils/template_priority.dart';
 import 'training_session_screen.dart';
 
@@ -128,16 +129,19 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
     final list = service.recommended.toList();
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
+    final adjust = context.read<DynamicPackAdjustmentService>();
     final stats = <String, TrainingPackStat?>{};
+    final adjusted = <TrainingPackTemplate>[];
     for (final t in list) {
-      stats[t.id] = service.statFor(t.id) ??
-          await TrainingPackStatsService.getStats(t.id);
+      stats[t.id] =
+          service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+      adjusted.add(await adjust.adjust(t));
     }
     _stats
       ..clear()
       ..addAll(stats);
     setState(() {
-      _tpls = list;
+      _tpls = adjusted;
       _loading = false;
     });
   }
@@ -263,6 +267,8 @@ class _PackCard extends StatelessWidget {
     final icm = stat?.postIcmPct ?? 0;
     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
     final focus = template.handTypeSummary();
+    final rangePct =
+        ((template.heroRange?.length ?? 0) * 100 / 169).round();
     return Container(
       width: 120,
       height: 120,
@@ -281,6 +287,8 @@ class _PackCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
+          Text('Stack ${template.heroBbStack}bb • R $rangePct%',
+              style: const TextStyle(fontSize: 10, color: Colors.white70)),
           if (focus.isNotEmpty)
             Text(focus,
                 maxLines: 1,
