@@ -55,7 +55,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final engine = context.watch<AchievementEngine>();
     final xp = context.watch<XPTrackerService>();
     final stage = stageForLevel(xp.level);
-    final accent = Theme.of(context).colorScheme.secondary;
     return RepaintBoundary(
       key: _boundaryKey,
       child: Scaffold(
@@ -119,7 +118,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(a.icon, color: accent),
+                Icon(a.icon, color: a.stage.color),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -128,13 +127,15 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       Text(a.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
                       Text(a.description, style: const TextStyle(color: Colors.white70)),
+                      const SizedBox(height: 4),
+                      Text(a.stage.label, style: TextStyle(color: a.stage.color)),
                       const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: (a.progress / a.target).clamp(0.0, 1.0),
                           backgroundColor: Colors.white24,
-                          valueColor: AlwaysStoppedAnimation<Color>(accent),
+                          valueColor: AlwaysStoppedAnimation<Color>(a.stage.color),
                           minHeight: 6,
                         ),
                       ),
@@ -145,6 +146,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 Column(
                   children: [
                     Text(done ? '✅' : '⏳'),
+                    const SizedBox(height: 4),
+                    Text(a.stage.label, style: TextStyle(color: a.stage.color)),
                     const SizedBox(height: 4),
                     Text('${a.progress}/${a.target}')
                   ],
