@@ -17,10 +17,18 @@ class DynamicPackAdjustmentService {
 
   Future<TrainingPackTemplate> adjust(TrainingPackTemplate tpl) async {
     final stat = await TrainingPackStatsService.getStats(tpl.id);
+    final hist = await TrainingPackStatsService.history(tpl.id);
     var diff = 0;
     if (stat != null) {
       if (stat.accuracy > 0.85 && stat.postEvPct >= stat.preEvPct) diff++;
       if (stat.accuracy < 0.6 || stat.postEvPct < stat.preEvPct) diff--;
+    }
+    if (hist.length >= 2) {
+      final prev = hist[hist.length - 2];
+      final last = hist.last;
+      final dAcc = last.accuracy - prev.accuracy;
+      if (dAcc > 0.05) diff++;
+      if (dAcc < -0.05) diff--;
     }
     final acc = eval.accuracy;
     if (acc > 0.8) diff++;

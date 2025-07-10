@@ -115,6 +115,7 @@ class _RecommendedCarousel extends StatefulWidget {
 class _RecommendedCarouselState extends State<_RecommendedCarousel> {
   List<TrainingPackTemplate> _tpls = [];
   final Map<String, TrainingPackStat?> _stats = {};
+  final Map<String, double?> _delta = {};
   bool _loading = true;
 
   @override
@@ -131,15 +132,24 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
     if (review != null) list.insert(0, review);
     final adjust = context.read<DynamicPackAdjustmentService>();
     final stats = <String, TrainingPackStat?>{};
+    final delta = <String, double?>{};
     final adjusted = <TrainingPackTemplate>[];
     for (final t in list) {
       stats[t.id] =
           service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+      final hist = await TrainingPackStatsService.history(t.id);
+      if (hist.length >= 2) {
+        delta[t.id] =
+            (hist.last.accuracy - hist[hist.length - 2].accuracy) * 100;
+      }
       adjusted.add(await adjust.adjust(t));
     }
     _stats
       ..clear()
       ..addAll(stats);
+    _delta
+      ..clear()
+      ..addAll(delta);
     setState(() {
       _tpls = adjusted;
       _loading = false;
@@ -166,6 +176,7 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
               key: ValueKey(_tpls[i].id),
               template: _tpls[i],
               stat: _stats[_tpls[i].id],
+              delta: _delta[_tpls[i].id],
               onDone: _load,
             ),
             separatorBuilder: (_, __) => const SizedBox(width: 12),
@@ -180,11 +191,13 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
 class _PackCard extends StatelessWidget {
   final TrainingPackTemplate template;
   final TrainingPackStat? stat;
+  final double? delta;
   final VoidCallback onDone;
   const _PackCard(
       {super.key,
       required this.template,
       required this.stat,
+      required this.delta,
       required this.onDone});
 
   Future<void> _onDone(BuildContext context) async {
@@ -313,8 +326,21 @@ class _PackCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text('EV ${ev.toStringAsFixed(0)}%  ICM ${icm.toStringAsFixed(0)}%',
-              style: const TextStyle(fontSize: 10, color: Colors.white70)),
+          Row(
+            children: [
+              Text('EV ${ev.toStringAsFixed(0)}%  ICM ${icm.toStringAsFixed(0)}%',
+                  style: const TextStyle(fontSize: 10, color: Colors.white70)),
+              if (delta != null) ...[
+                const SizedBox(width: 4),
+                Icon(delta! >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                    size: 12, color: delta! >= 0 ? Colors.green : Colors.red),
+                Text('${delta!.abs().toStringAsFixed(1)}%',
+                    style: TextStyle(
+                        fontSize: 10,
+                        color: delta! >= 0 ? Colors.green : Colors.red)),
+              ]
+            ],
+          ),
           const SizedBox(height: 4),
           ElevatedButton.icon(
             onPressed: completed

@@ -54,6 +54,7 @@ class TrainingPackStat {
 
 class TrainingPackStatsService {
   static const _prefix = 'tpl_stat_';
+  static const _histPrefix = 'tpl_hist_';
 
   static Future<void> recordSession(
     String templateId,
@@ -90,6 +91,21 @@ class TrainingPackStatsService {
       icmSum: icmSum,
     );
     await prefs.setString('$_prefix$templateId', jsonEncode(stat.toJson()));
+    final histRaw = prefs.getString('$_histPrefix$templateId');
+    final list = <Map<String, dynamic>>[];
+    if (histRaw != null) {
+      try {
+        final data = jsonDecode(histRaw);
+        if (data is List) {
+          list.addAll(data.map((e) => Map<String, dynamic>.from(e as Map)));
+        }
+      } catch (_) {}
+    }
+    list.add(stat.toJson());
+    while (list.length > 20) {
+      list.removeAt(0);
+    }
+    await prefs.setString('$_histPrefix$templateId', jsonEncode(list));
   }
 
   static Future<TrainingPackStat?> getStats(String templateId) async {
@@ -188,5 +204,22 @@ class TrainingPackStatsService {
     });
     if (limit < list.length) return list.sublist(0, limit);
     return list;
+  }
+
+  static Future<List<TrainingPackStat>> history(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('$_histPrefix$id');
+    if (raw == null) return [];
+    try {
+      final data = jsonDecode(raw);
+      if (data is List) {
+        return [
+          for (final e in data)
+            if (e is Map)
+              TrainingPackStat.fromJson(Map<String, dynamic>.from(e as Map))
+        ];
+      }
+    } catch (_) {}
+    return [];
   }
 }
