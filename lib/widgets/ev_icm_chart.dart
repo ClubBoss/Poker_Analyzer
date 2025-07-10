@@ -13,13 +13,6 @@ class EvIcmChart extends StatelessWidget {
   final List<SavedHand> hands;
   const EvIcmChart({super.key, required this.hands});
 
-  ActionEntry? _heroAction(SavedHand h) {
-    for (final a in h.actions) {
-      if (a.playerIndex == h.heroIndex) return a;
-    }
-    return null;
-  }
-
   String? _handCode(SavedHand h) {
     if (h.playerCards.length <= h.heroIndex) return null;
     final cards = h.playerCards[h.heroIndex];
@@ -28,7 +21,7 @@ class EvIcmChart extends StatelessWidget {
   }
 
   double? _ev(SavedHand h) {
-    final act = _heroAction(h);
+    final act = heroAction(h);
     if (act == null) return null;
     var ev = act.ev;
     if (ev == null && act.action.toLowerCase() == 'push') {
@@ -47,7 +40,7 @@ class EvIcmChart extends StatelessWidget {
   }
 
   double? _icm(SavedHand h, double? ev) {
-    final act = _heroAction(h);
+    final act = heroAction(h);
     if (act == null) return null;
     var icm = act.icmEv;
     if (icm == null && act.action.toLowerCase() == 'push') {

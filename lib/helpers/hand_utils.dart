@@ -1,3 +1,6 @@
+import '../models/saved_hand.dart';
+import '../models/action_entry.dart';
+
 int _rankVal(String r) {
   const order = [
     '2',
@@ -30,4 +33,11 @@ String? handCode(String twoCardString) {
   final low = firstHigh ? r2 : r1;
   final suited = s1 == s2;
   return '$high$low${suited ? 's' : 'o'}';
+}
+
+ActionEntry? heroAction(SavedHand hand) {
+  for (final a in hand.actions) {
+    if (a.playerIndex == hand.heroIndex) return a;
+  }
+  return null;
 }

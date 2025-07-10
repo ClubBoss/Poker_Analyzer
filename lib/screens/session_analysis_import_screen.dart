@@ -73,7 +73,7 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     final executor = EvaluationExecutorService();
     final evaluated = <SavedHand>[];
     for (final h in parsed) {
-      final act = _heroAction(h);
+      final act = heroAction(h);
       if (act == null) continue;
       final spot = TrainingSpot.fromSavedHand(h);
       final req = EvalRequest(hash: const Uuid().v4(), spot: spot, action: act.action);
@@ -96,15 +96,8 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     });
   }
 
-  ActionEntry? _heroAction(SavedHand h) {
-    for (final a in h.actions) {
-      if (a.playerIndex == h.heroIndex) return a;
-    }
-    return null;
-  }
-
   double? _ev(SavedHand h) {
-    final act = _heroAction(h);
+    final act = heroAction(h);
     if (act == null) return null;
     var ev = act.ev;
     if (ev == null && act.action.toLowerCase() == 'push') {
@@ -118,7 +111,7 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
   }
 
   double? _icm(SavedHand h, double? ev) {
-    final act = _heroAction(h);
+    final act = heroAction(h);
     if (act == null) return null;
     var icm = act.icmEv;
     if (icm == null && act.action.toLowerCase() == 'push') {
