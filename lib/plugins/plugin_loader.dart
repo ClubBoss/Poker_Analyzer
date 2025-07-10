@@ -23,6 +23,7 @@ import 'converters/winamax_hand_history_converter.dart';
 import 'converters/partypoker_hand_history_converter.dart';
 import 'converters/wpn_hand_history_converter.dart';
 import 'poker_stars_converter_plugin.dart';
+import 'gg_poker_converter_plugin.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -112,6 +113,8 @@ class PluginLoader {
         ]);
       case 'PokerStarsConverterPlugin':
         return PokerStarsConverterPlugin();
+      case 'GGPokerConverterPlugin':
+        return GGPokerConverterPlugin();
     }
     return null;
   }
