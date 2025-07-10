@@ -48,6 +48,7 @@ import 'services/reminder_service.dart';
 import 'services/daily_reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
+import 'services/weak_spot_recommendation_service.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
 import 'services/hand_analysis_history_service.dart';
@@ -314,6 +315,12 @@ Future<void> main() async {
           create: (context) => DrillSuggestionEngine(
             hands: context.read<SavedHandManagerService>(),
             packs: context.read<TrainingPackStorageService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => WeakSpotRecommendationService(
+            hands: context.read<SavedHandManagerService>(),
+            eval: EvaluationExecutorService(),
           ),
         ),
         ChangeNotifierProvider(create: (_) => DrillHistoryService()..load()),
