@@ -47,6 +47,20 @@ import '../services/goals_service.dart';
 import '../widgets/focus_of_the_week_card.dart';
 import '../widgets/sync_status_widget.dart';
 
+class _MenuItem {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Key? key;
+
+  _MenuItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.key,
+  });
+}
+
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
 
@@ -472,6 +486,110 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     }
   }
 
+  List<_MenuItem> _buildMenuItems(BuildContext context) {
+    return [
+      _MenuItem(
+        icon: Icons.sports_esports,
+        label: 'Тренировка',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TrainingPacksScreen()),
+          );
+        },
+        key: _trainingButtonKey,
+      ),
+      _MenuItem(
+        icon: Icons.add_circle,
+        label: 'Новая раздача',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PlayerInputScreen()),
+          );
+        },
+        key: _newHandButtonKey,
+      ),
+      _MenuItem(
+        icon: Icons.history,
+        label: 'История',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AllSessionsScreen()),
+          );
+        },
+        key: _historyButtonKey,
+      ),
+      _MenuItem(
+        icon: Icons.bar_chart,
+        label: 'Аналитика',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProgressScreen()),
+          );
+        },
+      ),
+      _MenuItem(
+        icon: Icons.folder,
+        label: 'Раздачи',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SavedHandsScreen()),
+          );
+        },
+      ),
+      _MenuItem(
+        icon: Icons.settings,
+        label: 'Настройки',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsScreen()),
+          );
+        },
+      ),
+    ];
+  }
+
+  Widget _buildMenuGrid(BuildContext context) {
+    final items = _buildMenuItems(context);
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.2,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return GestureDetector(
+          key: item.key,
+          onTap: item.onTap,
+          child: Card(
+            color: Colors.grey[850],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(item.icon, size: 48, color: Colors.orange),
+                const SizedBox(height: 8),
+                Text(item.label),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _startTutorial() {
     final flow = TutorialFlow([
       TutorialStep(
@@ -551,297 +669,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             _buildDailyGoalCard(context),
             const FocusOfTheWeekCard(),
             _buildProgressCard(context),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const GoalsOverviewScreen()),
-                );
-              },
-              child: const Text('🎯 Мои цели'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AchievementsScreen()),
-                );
-              },
-              child: const Text('🏆 Достижения'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const MistakeRepeatScreen()),
-                );
-              },
-              child: const Text('🔁 Повторы ошибок'),
-            ),
-            const SizedBox(height: 16),
             _buildSpotOfDaySection(context),
-            ElevatedButton(
-              key: _newHandButtonKey,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PlayerInputScreen()),
-                );
-              },
-              child: const Text('➕ Новая раздача'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const QuickHandAnalysisScreen()),
-                );
-              },
-              child: const Text('⚡ Быстрый анализ'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HandAnalysisHistoryScreen()),
-                );
-              },
-              child: const Text('🕓 История анализов'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DailyHandScreen()),
-                );
-              },
-              child: const Text('🃏 Ежедневная раздача'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SpotOfTheDayScreen()),
-                );
-              },
-              child: const Text('🎲 Спот дня'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SavedHandsScreen()),
-                );
-              },
-              child: const Text('📂 Сохранённые раздачи'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              key: _trainingButtonKey,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingPacksScreen()),
-                );
-              },
-              child: const Text('🎯 Тренировка'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CreatePackScreen(),
-                  ),
-                );
-              },
-              child: const Text('📦 Создать тренировку'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const EditPackScreen(),
-                  ),
-                );
-              },
-              child: const Text('✏️ Редактировать тренировку'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => openTrainingTemplates(context),
-              child: const Text('📑 Шаблоны'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const MyTrainingPacksScreen()),
-                );
-              },
-              child: const Text('🗂️ Мои паки'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const StartTrainingFromPackScreen()),
-                );
-              },
-              child: const Text('📦 Packs'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              key: _historyButtonKey,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AllSessionsScreen()),
-                );
-              },
-              child: const Text('📈 История тренировок'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const MyTrainingHistoryScreen()),
-                );
-              },
-              child: const Text('📒 Мои тренировки'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DrillHistoryScreen()),
-                );
-              },
-              child: const Text('📊 Drill History'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingHistoryScreen()),
-                );
-              },
-              child: const Text('🗓️ Training History'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SessionStatsScreen()),
-                );
-              },
-              child: const Text('📊 Статистика сессий'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingStatsScreen()),
-                );
-              },
-              child: const Text('📈 Training Stats'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProgressScreen()),
-                );
-              },
-              child: const Text('📊 Прогресс'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const CloudTrainingHistoryScreen()),
-                );
-              },
-              child: const Text('☁️ Cloud History'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RemoteSessionsScreen()),
-                );
-              },
-              child: const Text('☁️ Remote Sessions'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const PlayerZoneDemoScreen()),
-                );
-              },
-              child: const Text('🧪 Player Zone Demo'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const PokerTableDemoScreen()),
-                );
-              },
-              child: const Text('🧪 Poker Table Demo'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HandEditorScreen()),
-                );
-              },
-              child: const Text('✍️ Hand Editor'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              },
-              child: const Text('⚙️ Settings'),
-            ),
+            _buildMenuGrid(context),
             const SizedBox(height: 16),
             SwitchListTile(
               value: _demoMode,
