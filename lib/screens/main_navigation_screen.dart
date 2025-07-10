@@ -10,6 +10,7 @@ import 'goal_overview_screen.dart';
 import 'pack_overview_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
+import '../widgets/active_goals_card.dart';
 import '../widgets/next_step_card.dart';
 import '../widgets/suggested_drill_card.dart';
 import '../widgets/today_progress_banner.dart';
@@ -133,6 +134,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           child: const Text('View History'),
         ),
         const MotivationCard(),
+        const ActiveGoalsCard(),
         const NextStepCard(),
         const SuggestedDrillCard(),
         const Expanded(child: AnalyzerTab()),
