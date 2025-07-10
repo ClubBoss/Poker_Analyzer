@@ -850,6 +850,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SessionAnalysisImportScreen()),
+                );
+              },
+              child: const Text('Анализ сессии EV/ICM'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
               onPressed: () async {
                 final manager = Provider.of<SavedHandManagerService>(context,
                     listen: false);
