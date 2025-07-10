@@ -11,6 +11,7 @@ import 'player_zone_demo_screen.dart';
 import 'poker_table_demo_screen.dart';
 import 'hand_editor_screen.dart';
 import 'settings_screen.dart';
+import '../utils/responsive.dart';
 import 'remote_sessions_screen.dart';
 import 'global_evaluation_screen.dart';
 import 'daily_hand_screen.dart';
@@ -176,8 +177,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       clipBehavior: Clip.none,
       children: [
         Container(
-          margin: const EdgeInsets.only(bottom: 24),
-          padding: const EdgeInsets.all(12),
+          margin: EdgeInsets.only(bottom: responsiveSize(context, 24)),
+          padding: responsiveAll(context, 12),
           decoration: BoxDecoration(
             color: highlight ? Colors.orange[700] : Colors.grey[850],
             borderRadius: BorderRadius.circular(8),
@@ -266,8 +267,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     final spot = _spotOfDay;
     if (spot == null) return const SizedBox.shrink();
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: responsiveSize(context, 24)),
+      padding: responsiveAll(context, 12),
       decoration: BoxDecoration(
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(8),
@@ -391,8 +392,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: responsiveSize(context, 24)),
+      padding: responsiveAll(context, 12),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(8),
@@ -448,8 +449,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         );
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: responsiveSize(context, 24)),
+      padding: responsiveAll(context, 12),
       decoration: BoxDecoration(
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(8),
@@ -556,35 +557,40 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
   Widget _buildMenuGrid(BuildContext context) {
     final items = _buildMenuItems(context);
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.2,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return GestureDetector(
-          key: item.key,
-          onTap: item.onTap,
-          child: Card(
-            color: Colors.grey[850],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item.icon, size: 48, color: Colors.orange),
-                const SizedBox(height: 8),
-                Text(item.label),
-              ],
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 360;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: compact ? 1 : 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.2,
           ),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
+            return GestureDetector(
+              key: item.key,
+              onTap: item.onTap,
+              child: Card(
+                color: Colors.grey[850],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(item.icon, size: 48, color: Colors.orange),
+                    const SizedBox(height: 8),
+                    Text(item.label),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

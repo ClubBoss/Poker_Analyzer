@@ -6,6 +6,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/streak_service.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/responsive.dart';
 
 class AchievementsCatalogScreen extends StatelessWidget {
   const AchievementsCatalogScreen({super.key});
@@ -36,16 +37,19 @@ class AchievementsCatalogScreen extends StatelessWidget {
 
           final data = goals.achievements;
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: data.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.2,
-            ),
-            itemBuilder: (context, index) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 360;
+              return GridView.builder(
+                padding: responsiveAll(context, 16),
+                itemCount: data.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: compact ? 1 : 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.2,
+                ),
+                itemBuilder: (context, index) {
               final item = data[index];
               final completed = item.completed;
               final color = completed ? Colors.white : Colors.white54;
@@ -61,7 +65,7 @@ class AchievementsCatalogScreen extends StatelessWidget {
                 );
               }
               Widget card = Container(
-                padding: const EdgeInsets.all(12),
+                padding: responsiveAll(context, 12),
                 decoration: BoxDecoration(
                   color: Colors.grey[850],
                   borderRadius: BorderRadius.circular(8),
