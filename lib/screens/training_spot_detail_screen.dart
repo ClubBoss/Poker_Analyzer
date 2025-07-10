@@ -40,22 +40,40 @@ class TrainingSpotDetailScreen extends StatelessWidget {
         children: [
           Text('Hero position: $pos',
               style: const TextStyle(color: Colors.white)),
-          if (heroCards.isNotEmpty)
-            Text('Hero cards: $heroCards',
-                style: const TextStyle(color: Colors.white)),
-          if (board.isNotEmpty)
-            Text('Board: $board', style: const TextStyle(color: Colors.white)),
-          const SizedBox(height: 16),
-          ActionHistoryWidget(actions: spot.actions, playerPositions: _posMap()),
-          if (user != null) ...[
-            const SizedBox(height: 16),
-            Text('Your action: $user',
-                style: const TextStyle(color: Colors.white)),
-          ],
-          if (spot.recommendedAction != null) ...[
-            const SizedBox(height: 8),
-            EvalResultView(spot: spot, action: user ?? ''),
-          ],
+      if (heroCards.isNotEmpty)
+        Text('Hero cards: $heroCards',
+            style: const TextStyle(color: Colors.white)),
+      if (board.isNotEmpty)
+        Text('Board: $board', style: const TextStyle(color: Colors.white)),
+      const SizedBox(height: 16),
+      ActionHistoryWidget(actions: spot.actions, playerPositions: _posMap()),
+      if (user != null) ...[
+        const SizedBox(height: 16),
+        Text('Your action: $user',
+            style: const TextStyle(color: Colors.white)),
+      ],
+      Builder(builder: (context) {
+        double? ev;
+        double? icm;
+        for (final a in spot.actions) {
+          if (a.playerIndex == spot.heroIndex && a.street == 0) {
+            ev ??= a.ev;
+            icm ??= a.icmEv;
+          }
+        }
+        if (ev == null && icm == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(
+            'EV ${ev?.toStringAsFixed(2) ?? '-'}  ICM ${icm?.toStringAsFixed(2) ?? '-'}',
+            style: const TextStyle(color: Colors.white70),
+          ),
+        );
+      }),
+      if (spot.recommendedAction != null) ...[
+        const SizedBox(height: 8),
+        EvalResultView(spot: spot, action: user ?? ''),
+      ],
         ],
       ),
       floatingActionButton: FloatingActionButton(
