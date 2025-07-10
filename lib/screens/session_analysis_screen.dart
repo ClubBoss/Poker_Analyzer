@@ -14,6 +14,8 @@ import '../services/file_saver_service.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
+import '../theme/constants.dart';
+import '../services/session_note_service.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -32,10 +34,17 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
   final List<double> _evs = [];
   final List<double> _icms = [];
   bool _loading = true;
+  late TextEditingController _noteController;
+
+  int get _sessionId =>
+      widget.hands.isNotEmpty ? widget.hands.first.sessionId : 0;
 
   @override
   void initState() {
     super.initState();
+    final notes = context.read<SessionNoteService>();
+    _noteController = TextEditingController(text: notes.noteFor(_sessionId))
+      ..addListener(() => notes.setNote(_sessionId, _noteController.text));
     WidgetsBinding.instance.addPostFrameCallback((_) => _compute());
   }
 
@@ -63,6 +72,12 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         ..addAll(icms);
       _loading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
   }
 
   HeroPosition _posFromString(String s) {
@@ -227,6 +242,30 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
     }
   }
 
+  Widget _buildNoteField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.padding16, vertical: 8),
+      child: Card(
+        color: AppColors.cardBackground,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            controller: _noteController,
+            minLines: 3,
+            maxLines: null,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Заметка о сессии',
+              hintStyle: TextStyle(color: Colors.white54),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final list = [...widget.hands]
@@ -326,6 +365,8 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                _buildNoteField(),
                 const SizedBox(height: 16),
                 for (var i = 0; i < list.length; i++) ...[
                   Container(
