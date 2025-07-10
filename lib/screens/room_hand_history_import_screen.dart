@@ -543,6 +543,21 @@ class _RoomHandHistoryImportScreenState
                                       children: [
                                         Text('${h.heroPosition} • ${h.numberOfPlayers}p',
                                             style: const TextStyle(color: Colors.white70)),
+                                        Builder(builder: (_) {
+                                          final hero = h.playerCards.length > h.heroIndex
+                                              ? h.playerCards[h.heroIndex]
+                                                  .map((c) => c.toString())
+                                                  .join(' ')
+                                              : '';
+                                          final board = h.boardCards.map((c) => c.toString()).join(' ');
+                                          if (hero.isEmpty && board.isEmpty) return const SizedBox.shrink();
+                                          final text = hero.isEmpty ? board : '$hero  $board';
+                                          return Padding(
+                                            padding: const EdgeInsets.only(top: 2),
+                                            child: Text(text,
+                                                style: const TextStyle(color: Colors.white70)),
+                                          );
+                                        }),
                                         if (h.tags.isNotEmpty)
                                           Padding(
                                             padding: const EdgeInsets.only(top: 4),
