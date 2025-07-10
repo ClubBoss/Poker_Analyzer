@@ -27,6 +27,7 @@ import '../../services/notification_service.dart';
 import '../../services/mistake_review_pack_service.dart';
 import 'training_pack_result_screen_v2.dart';
 import '../../services/training_pack_stats_service.dart';
+import 'package:uuid/uuid.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -312,6 +313,18 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return best;
   }
 
+  List<String> _wrongIds() {
+    final ids = <String>[];
+    for (final s in widget.template.spots) {
+      final exp = _expected(s);
+      final ans = _results[s.id];
+      if (exp != null && ans != null && ans != 'false' && exp.toLowerCase() != ans.toLowerCase()) {
+        ids.add(s.id);
+      }
+    }
+    return ids;
+  }
+
   TrainingSpot _toSpot(TrainingPackSpot spot) {
     final hand = spot.hand;
     final heroCards = hand.heroCards
@@ -440,6 +453,43 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       await prefs.setString('last_training_day',
           DateTime.now().toIso8601String().split('T').first);
       await NotificationService.scheduleDailyReminder(context);
+      final ids = _wrongIds();
+      if (ids.isNotEmpty) {
+        final template = widget.template.copyWith(
+          id: const Uuid().v4(),
+          name: 'Review mistakes',
+          spots: [for (final s in widget.template.spots) if (ids.contains(s.id)) s],
+        );
+        MistakeReviewPackService.setLatestTemplate(template);
+        await context.read<MistakeReviewPackService>().addPack(ids);
+        final start = await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Review mistakes now?'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(_, false),
+                  child: const Text('Later')),
+              TextButton(
+                  onPressed: () => Navigator.pop(_, true),
+                  child: const Text('Start')),
+            ],
+          ),
+        );
+        if (!mounted) return;
+        if (start == true) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TrainingPackPlayScreen(
+                template: MistakeReviewPackService.cachedTemplate!,
+                original: null,
+              ),
+            ),
+          );
+          return;
+        }
+      }
       await _showCompletion();
     }
   }
