@@ -23,6 +23,7 @@ class CloudSyncService {
     'session_notes',
     'session_logs',
     'pinned_sessions',
+    'evaluation_queue',
   ];
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -334,5 +335,25 @@ class CloudSyncService {
     final list = data?['ids'];
     if (list is List) return {for (final i in list) (i as num).toInt()};
     return {};
+  }
+
+  Future<void> uploadQueue(Map<String, dynamic> queue) async {
+    await queueMutation('evaluation_queue', 'main', {
+      ...queue,
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+    await syncUp();
+  }
+
+  Future<Map<String, dynamic>?> downloadQueue() async {
+    if (uid == null) return null;
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('evaluation_queue')
+        .doc('main')
+        .get();
+    if (!snap.exists) return null;
+    return snap.data();
   }
 }

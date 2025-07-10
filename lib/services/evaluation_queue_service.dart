@@ -12,6 +12,7 @@ import '../models/action_evaluation_request.dart';
 import 'backup_manager_service.dart';
 import 'debug_snapshot_service.dart';
 import 'retry_evaluation_service.dart';
+import 'cloud_sync_service.dart';
 
 class EvaluationQueueService {
   final List<ActionEvaluationRequest> pending = [];
@@ -28,8 +29,11 @@ class EvaluationQueueService {
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
+  static const _timeKey = 'evaluation_queue_updated';
 
   bool snapshotRetentionEnabled = true;
+
+  final CloudSyncService? cloud;
 
   // Cached application documents directory path to avoid repeated lookups.
   late final String _documentsDirPath;
@@ -57,6 +61,7 @@ class EvaluationQueueService {
     this.debugPanelCallback,
     this.backupManager,
     this.debugSnapshotService,
+    this.cloud,
   }) {
     _retryService = retryService ?? RetryEvaluationService();
     _initFuture = _initialize();
@@ -164,6 +169,15 @@ class EvaluationQueueService {
           [for (final e in failed) _queueEntryId(e)]);
       await _sharedPrefs.setStringList(_completedOrderKey,
           [for (final e in completed) _queueEntryId(e)]);
+      await _sharedPrefs.setString(
+          _timeKey, DateTime.now().toIso8601String());
+      if (cloud != null) {
+        await cloud!.uploadQueue({
+          'pending': [for (final e in pending) e.toJson()],
+          'failed': [for (final e in failed) e.toJson()],
+          'completed': [for (final e in completed) e.toJson()],
+        });
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Persist error: $e');
@@ -266,6 +280,7 @@ class EvaluationQueueService {
         await file.delete();
       } catch (_) {}
     }
+    await syncDown();
     return resumed;
   }
 
@@ -409,6 +424,47 @@ class EvaluationQueueService {
       completed.sort(_compareEvaluationRequests);
     });
     await _persist();
+  }
+
+  Future<void> syncUp() async {
+    if (cloud == null) return;
+    await cloud!.uploadQueue(await state());
+  }
+
+  Future<void> syncDown() async {
+    if (cloud == null) return;
+    await _initFuture;
+    final remote = await cloud!.downloadQueue();
+    if (remote == null) return;
+    final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+        DateTime.fromMillisecondsSinceEpoch(0);
+    final localAt =
+        DateTime.tryParse(_sharedPrefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+    if (remoteAt.isAfter(localAt)) {
+      final queues = _decodeQueues(remote);
+      await _queueLock.synchronized(() {
+        pending
+          ..clear()
+          ..addAll(queues['pending']!);
+      });
+      failed
+        ..clear()
+        ..addAll(queues['failed']!);
+      completed
+        ..clear()
+        ..addAll(queues['completed']!);
+      await _sharedPrefs.setStringList(
+          _pendingOrderKey, [for (final e in pending) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(
+          _failedOrderKey, [for (final e in failed) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(
+          _completedOrderKey, [for (final e in completed) _queueEntryId(e)]);
+      await _sharedPrefs.setString(_timeKey, remoteAt.toIso8601String());
+      await _persist();
+    } else if (localAt.isAfter(remoteAt)) {
+      await syncUp();
+    }
   }
 
 
