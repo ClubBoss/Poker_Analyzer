@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'
     show PipelineOwner, RenderObjectToWidgetAdapter, RenderPositionedBox, RenderRepaintBoundary, RenderView;
@@ -68,6 +70,27 @@ class PngExporter {
 
   static Future<Uint8List?> exportTemplatePreview(TrainingPackTemplate template) {
     return _capture(_TemplatePreview(template));
+  }
+
+  static Future<Uint8List?> captureBoundary(RenderRepaintBoundary boundary) async {
+    final view = WidgetsBinding.instance.platformDispatcher.implicitView!;
+    final image = await boundary.toImage(pixelRatio: view.devicePixelRatio);
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+    return data?.buffer.asUint8List();
+  }
+
+  static Future<Uint8List> imagesToPdf(List<Uint8List> images) async {
+    final pdf = pw.Document();
+    for (final img in images) {
+      final mem = pw.MemoryImage(img);
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (ctx) => pw.Center(child: pw.Image(mem)),
+        ),
+      );
+    }
+    return pdf.save();
   }
 }
 
