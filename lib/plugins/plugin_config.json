@@ -1,4 +1,8 @@
 {
   "SampleLoggingPlugin": true,
-  "ConverterDiscoveryPlugin": true
+  "ConverterDiscoveryPlugin": true,
+  "PokerAnalyzerJsonConverter": true,
+  "SimpleHandHistoryConverter": true,
+  "PokerStarsHandHistoryConverter": true,
+  "WinamaxHandHistoryConverter": true
 }

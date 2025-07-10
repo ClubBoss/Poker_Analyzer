@@ -73,30 +73,39 @@ class PluginLoader {
   }
 
   /// Returns all built-in plug-ins included with the application.
-  List<Plugin> loadBuiltInPlugins() {
-    final converters = <ConverterPlugin>[
-      PokerAnalyzerJsonConverter(),
-      SimpleHandHistoryConverter(),
-      PokerStarsHandHistoryConverter(),
-      WinamaxHandHistoryConverter(),
+  List<Plugin> loadBuiltInPlugins({bool includeDisabled = false}) {
+    final names = <String>[
+      'SampleLoggingPlugin',
+      'ConverterDiscoveryPlugin',
     ];
-    return <Plugin>[
-      SampleLoggingPlugin(),
-      ConverterDiscoveryPlugin(converters),
-    ];
+    final plugins = <Plugin>[];
+    for (final name in names) {
+      final plugin = _createByName(name, ignoreConfig: includeDisabled);
+      if (plugin != null) plugins.add(plugin);
+    }
+    return plugins;
   }
 
-  Plugin? _createByName(String name) {
+  Plugin? _createByName(String name, {bool ignoreConfig = false}) {
+    final cfg = ignoreConfig ? <String, bool>{} : (_config ?? <String, bool>{});
     switch (name) {
       case 'SampleLoggingPlugin':
+        if (cfg['SampleLoggingPlugin'] == false) return null;
         return SampleLoggingPlugin();
       case 'ConverterDiscoveryPlugin':
-        return ConverterDiscoveryPlugin(<ConverterPlugin>[
-          PokerAnalyzerJsonConverter(),
-          SimpleHandHistoryConverter(),
-          PokerStarsHandHistoryConverter(),
-          WinamaxHandHistoryConverter(),
-        ]);
+        if (cfg['ConverterDiscoveryPlugin'] == false) return null;
+        final converters = <ConverterPlugin>[
+          if (cfg['PokerAnalyzerJsonConverter'] ?? true)
+            PokerAnalyzerJsonConverter(),
+          if (cfg['SimpleHandHistoryConverter'] ?? true)
+            SimpleHandHistoryConverter(),
+          if (cfg['PokerStarsHandHistoryConverter'] ?? true)
+            PokerStarsHandHistoryConverter(),
+          if (cfg['WinamaxHandHistoryConverter'] ?? true)
+            WinamaxHandHistoryConverter(),
+        ];
+        if (converters.isEmpty) return null;
+        return ConverterDiscoveryPlugin(converters);
     }
     return null;
   }
@@ -160,6 +169,7 @@ class PluginLoader {
     void Function(double progress)? onProgress,
     BuildContext? context,
   }) async {
+    final config = await loadConfig();
     final builtIn = loadBuiltInPlugins();
     final support = await getApplicationSupportDirectory();
     final dir = Directory(p.join(support.path, 'plugins'));
@@ -171,7 +181,6 @@ class PluginLoader {
         }
       }
     }
-    final config = await loadConfig();
     final cached = await _loadCache();
     final cachedFiles =
         (cached?['files'] as List?)?.cast<String>() ?? <String>[];

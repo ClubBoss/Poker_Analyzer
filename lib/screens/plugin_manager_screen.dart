@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:poker_analyzer/plugins/plugin_loader.dart';
 import 'package:poker_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_analyzer/plugins/converter_discovery_plugin.dart';
 import '../services/service_registry.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -19,7 +20,7 @@ class PluginManagerScreen extends StatefulWidget {
 
 class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Map<String, bool> _config = <String, bool>{};
-  List<String> _files = <String>[];
+  List<String> _entries = <String>[];
 
   @override
   void initState() {
@@ -30,18 +31,23 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Future<void> _load() async {
     final loader = PluginLoader();
     final config = await loader.loadConfig();
+    final builtIn = loader.loadBuiltInPlugins(includeDisabled: true);
+    final names = <String>[for (final p in builtIn)
+      if (p is ConverterDiscoveryPlugin)
+        ...[for (final c in p.plugins) c.runtimeType.toString()]
+      else
+        p.runtimeType.toString()];
     final dir = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
-    final files = <String>[];
     if (await dir.exists()) {
       await for (final entity in dir.list()) {
         if (entity is File && entity.path.endsWith('.dart')) {
-          files.add(p.basename(entity.path));
+          names.add(p.basename(entity.path));
         }
       }
     }
     setState(() {
       _config = Map<String, bool>.from(config);
-      _files = files;
+      _entries = names;
     });
   }
 
@@ -93,9 +99,9 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: _files.length,
+              itemCount: _entries.length,
               itemBuilder: (context, index) {
-                final file = _files[index];
+                final file = _entries[index];
                 final enabled = _config[file] ?? true;
                 return ListTile(
                   title: Text(file),
