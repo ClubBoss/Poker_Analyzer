@@ -50,6 +50,7 @@ import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/weak_spot_recommendation_service.dart';
 import 'services/player_progress_service.dart';
+import 'services/personal_recommendation_service.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
 import 'services/hand_analysis_history_service.dart';
@@ -298,6 +299,12 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) =>
               GoalEngine(stats: context.read<TrainingStatsService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PersonalRecommendationService(
+            achievements: context.read<AchievementEngine>(),
+            adaptive: context.read<AdaptiveTrainingService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) => ReminderService(
