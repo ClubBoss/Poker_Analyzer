@@ -20,9 +20,9 @@ double computePushEV({
   final key = '$heroBbStack|$bbCount|$heroHand|$anteBb';
   return _evCache.putIfAbsent(key, () {
     final eq = _equity[heroHand] ?? 0.5;
-    final pot = (bbCount * anteBb) + 1.5 + anteBb;
+    final pot = (bbCount + 1) * anteBb + 1.5;
     final bet = heroBbStack.toDouble();
-    return eq * pot - (1 - eq) * bet;
+    return eq * (pot + bet) - (1 - eq) * bet;
   });
 }
 
