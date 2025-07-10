@@ -24,7 +24,7 @@ class CreatePackScreen extends StatefulWidget {
 class _CreatePackScreenState extends State<CreatePackScreen> {
   final _nameController = TextEditingController();
   final _tagsController = TextEditingController();
-  final _stackController = TextEditingController(text: '10');
+  final _stackController = TextEditingController(text: '10 10');
   final _playersController = TextEditingController(text: '2');
   final _rangeController = TextEditingController();
   int _difficulty = 1;
@@ -120,14 +120,21 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
-    final stack = int.tryParse(_stackController.text.trim()) ?? 10;
+    final stackParts = _stackController.text.split(RegExp('[,\s]+')).where((e) => e.isNotEmpty).toList();
+    final heroStack = int.tryParse(stackParts.isNotEmpty ? stackParts.first : '') ?? 10;
     final count = int.tryParse(_playersController.text.trim()) ?? 2;
+    final players = [
+      for (var i = 0; i < count; i++)
+        i < stackParts.length
+            ? int.tryParse(stackParts[i]) ?? heroStack
+            : heroStack
+    ];
     final range = PackGeneratorService.parseRangeString(_rangeController.text);
     if (range.isEmpty) return;
     final tplSpots = await PackGeneratorService.autoGenerateSpots(
       id: const Uuid().v4(),
-      stack: stack,
-      players: [for (var i = 0; i < count; i++) stack],
+      stack: heroStack,
+      players: players,
       pos: HeroPosition.sb,
       count: range.length,
       range: range.toList(),
@@ -190,9 +197,10 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                       const SizedBox(height: 12),
                       TextField(
                         controller: _stackController,
-                        decoration:
-                            const InputDecoration(labelText: 'Stack (BB)'),
-                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Stacks (BB)',
+                          hintText: '10 10 10',
+                        ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
