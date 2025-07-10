@@ -3929,6 +3929,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final eval = EvaluationSettingsService.instance;
     final thresholdCtr =
         TextEditingController(text: eval.evThreshold.toStringAsFixed(2));
+    final endpointCtr = TextEditingController(text: eval.remoteEndpoint);
     bool icm = eval.useIcm;
     final formKey = GlobalKey<FormState>();
     final ok = await showModalBottomSheet<bool>(
@@ -4046,6 +4047,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 onChanged: (v) => set(() {
                   icm = v;
                   eval.update(icm: v);
+                  this.setState(() {});
+                }),
+              ),
+              TextFormField(
+                controller: endpointCtr,
+                decoration:
+                    const InputDecoration(labelText: 'EV API Endpoint'),
+                onChanged: (v) => set(() {
+                  eval.update(endpoint: v);
                   this.setState(() {});
                 }),
               ),
