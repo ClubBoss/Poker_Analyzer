@@ -2,76 +2,194 @@ import 'package:flutter/material.dart';
 
 import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
+import '../models/v2/hand_data.dart';
+import '../models/v2/hero_position.dart';
+import '../models/v2/training_pack_spot.dart';
 import '../helpers/hand_utils.dart';
-import '../services/push_fold_ev_service.dart';
-import '../services/icm_push_ev_service.dart';
+import '../services/evaluation_executor_service.dart';
+import '../services/mistake_review_pack_service.dart';
+import '../services/training_session_service.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
-import '../widgets/ev_icm_chart.dart';
+import '../widgets/common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'training_session_screen.dart';
 
-class SessionAnalysisScreen extends StatelessWidget {
+class SessionAnalysisScreen extends StatefulWidget {
   final List<SavedHand> hands;
   const SessionAnalysisScreen({super.key, required this.hands});
 
-  ActionEntry? _heroAction(SavedHand h) {
-    for (final a in h.actions) {
-      if (a.playerIndex == h.heroIndex) return a;
-    }
-    return null;
+  @override
+  State<SessionAnalysisScreen> createState() => _SessionAnalysisScreenState();
+}
+
+class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
+  final List<double> _evs = [];
+  final List<double> _icms = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _compute());
   }
 
-  String? _handCode(SavedHand h) {
-    if (h.playerCards.length <= h.heroIndex) return null;
-    final cards = h.playerCards[h.heroIndex];
-    if (cards.length < 2) return null;
-    return handCode('${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+  Future<void> _compute() async {
+    final executor = context.read<EvaluationExecutorService>();
+    final data = [...widget.hands]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final evs = <double>[];
+    final icms = <double>[];
+    for (final h in data) {
+      final spot = _spotFromHand(h);
+      try {
+        await executor.evaluateSingle(spot, anteBb: h.anteBb);
+      } catch (_) {}
+      evs.add(spot.heroEv ?? 0);
+      icms.add(spot.heroIcmEv ?? 0);
+    }
+    if (!mounted) return;
+    setState(() {
+      _evs
+        ..clear()
+        ..addAll(evs);
+      _icms
+        ..clear()
+        ..addAll(icms);
+      _loading = false;
+    });
   }
 
-  double? _ev(SavedHand h) {
-    final act = _heroAction(h);
-    if (act == null) return null;
-    var ev = act.ev;
-    if (ev == null && act.action.toLowerCase() == 'push') {
-      final code = _handCode(h);
-      final stack = h.stackSizes[h.heroIndex];
-      if (code != null && stack != null) {
-        ev = computePushEV(
-          heroBbStack: stack,
-          bbCount: h.numberOfPlayers - 1,
-          heroHand: code,
-          anteBb: h.anteBb,
-        );
-      }
-    }
-    return ev;
+  HeroPosition _posFromString(String s) {
+    final p = s.toUpperCase();
+    if (p.startsWith('SB')) return HeroPosition.sb;
+    if (p.startsWith('BB')) return HeroPosition.bb;
+    if (p.startsWith('BTN')) return HeroPosition.btn;
+    if (p.startsWith('CO')) return HeroPosition.co;
+    if (p.startsWith('MP') || p.startsWith('HJ')) return HeroPosition.mp;
+    if (p.startsWith('UTG')) return HeroPosition.utg;
+    return HeroPosition.unknown;
   }
 
-  double? _icm(SavedHand h, double? ev) {
-    final act = _heroAction(h);
-    if (act == null) return null;
-    var icm = act.icmEv;
-    if (icm == null && act.action.toLowerCase() == 'push') {
-      final code = _handCode(h);
-      if (code != null && ev != null) {
-        final stacks = [
-          for (int i = 0; i < h.numberOfPlayers; i++)
-            h.stackSizes[i] ?? 0
-        ];
-        icm = computeIcmPushEV(
-          chipStacksBb: stacks,
-          heroIndex: h.heroIndex,
-          heroHand: code,
-          chipPushEv: ev,
-        );
-      }
+  TrainingPackSpot _spotFromHand(SavedHand h) {
+    final heroCards = h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final actions = <ActionEntry>[for (final a in h.actions) if (a.street == 0) a];
+    final stacks = <String, double>{
+      for (int i = 0; i < h.numberOfPlayers; i++) '$i': (h.stackSizes[i] ?? 0).toDouble()
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: heroCards,
+        position: _posFromString(h.heroPosition),
+        heroIndex: h.heroIndex,
+        playerCount: h.numberOfPlayers,
+        stacks: stacks,
+        actions: {0: actions},
+        anteBb: h.anteBb,
+      ),
+    );
+  }
+
+  Widget _buildChart() {
+    if (_evs.length < 2) return const SizedBox.shrink();
+    final spotsEv = <FlSpot>[];
+    final spotsIcm = <FlSpot>[];
+    double maxAbs = 0;
+    for (var i = 0; i < _evs.length; i++) {
+      final ev = _evs[i];
+      final icm = _icms[i];
+      if (ev.abs() > maxAbs) maxAbs = ev.abs();
+      if (icm.abs() > maxAbs) maxAbs = icm.abs();
+      spotsEv.add(FlSpot(i.toDouble(), ev));
+      spotsIcm.add(FlSpot(i.toDouble(), icm));
     }
-    return icm;
+    if (maxAbs < 0.1) maxAbs = 0.1;
+    final interval = (maxAbs / 5).ceilToDouble();
+    final step = (_evs.length / 6).ceil();
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: AnimatedLineChart(
+        data: LineChartData(
+          minY: -maxAbs,
+          maxY: maxAbs,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: interval,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final i = value.toInt();
+                  if (i < 0 || i >= _evs.length) return const SizedBox.shrink();
+                  if (i % step != 0 && i != _evs.length - 1) {
+                    return const SizedBox.shrink();
+                  }
+                  return Text(
+                    '${i + 1}',
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spotsEv,
+              color: AppColors.evPre,
+              barWidth: 2,
+              isCurved: false,
+              dotData: FlDotData(show: false),
+            ),
+            LineChartBarData(
+              spots: spotsIcm,
+              color: AppColors.icmPre,
+              barWidth: 2,
+              isCurved: false,
+              dotData: FlDotData(show: false),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
 
   @override
   Widget build(BuildContext context) {
-    final list = [...hands]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final list = [...widget.hands]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
     int correct = 0;
     int mistakes = 0;
     for (final h in list) {
@@ -88,12 +206,18 @@ class SessionAnalysisScreen extends StatelessWidget {
     final accuracy = correct + mistakes > 0
         ? correct * 100 / (correct + mistakes)
         : 0.0;
+    final preEv = _evs.isNotEmpty ? _evs.first : 0.0;
+    final postEv = _evs.isNotEmpty ? _evs.last : 0.0;
+    final preIcm = _icms.isNotEmpty ? _icms.first : 0.0;
+    final postIcm = _icms.isNotEmpty ? _icms.last : 0.0;
     return Scaffold(
       appBar: AppBar(title: const Text('Session Analysis')),
       backgroundColor: AppColors.background,
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -111,13 +235,35 @@ class SessionAnalysisScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text('Mistakes: $mistakes',
                     style: const TextStyle(color: Colors.white)),
+                const SizedBox(height: 4),
+                Text('EV: ${preEv.toStringAsFixed(2)} ➜ ${postEv.toStringAsFixed(2)}',
+                    style: const TextStyle(color: Colors.white)),
+                const SizedBox(height: 4),
+                Text('ICM: ${preIcm.toStringAsFixed(2)} ➜ ${postIcm.toStringAsFixed(2)}',
+                    style: const TextStyle(color: Colors.white)),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          EvIcmChart(hands: hands),
+          _buildChart(),
           const SizedBox(height: 16),
-          for (final h in list) ...[
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                final tpl = await context.read<MistakeReviewPackService>().buildPack(context);
+                if (tpl == null) return;
+                await context.read<TrainingSessionService>().startSession(tpl, persist: false);
+                if (!context.mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                );
+              },
+              child: const Text('Review Mistakes'),
+            ),
+          ),
+          const SizedBox(height: 16),
+          for (var i = 0; i < list.length; i++) ...[
             Container(
               margin: const EdgeInsets.symmetric(vertical: 4),
               decoration: BoxDecoration(
@@ -125,22 +271,13 @@ class SessionAnalysisScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ListTile(
-                title: Text(h.name, style: const TextStyle(color: Colors.white)),
-                subtitle: Builder(
-                  builder: (context) {
-                    final ev = _ev(h);
-                    final icm = _icm(h, ev);
-                    final evStr = ev == null
-                        ? '--'
-                        : ev.toStringAsFixed(2);
-                    final icmStr = icm == null
-                        ? '--'
-                        : icm.toStringAsFixed(2);
-                    return Text('EV: $evStr • ICM: $icmStr',
-                        style: const TextStyle(color: Colors.white70));
-                  },
+                title:
+                    Text(list[i].name, style: const TextStyle(color: Colors.white)),
+                subtitle: Text(
+                  'EV: ${_evs[i].toStringAsFixed(2)} • ICM: ${_icms[i].toStringAsFixed(2)}',
+                  style: const TextStyle(color: Colors.white70),
                 ),
-                onTap: () => showSavedHandViewerDialog(context, h),
+                onTap: () => showSavedHandViewerDialog(context, list[i]),
               ),
             ),
           ],
