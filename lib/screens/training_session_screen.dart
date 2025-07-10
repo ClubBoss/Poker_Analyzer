@@ -177,6 +177,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         preIcmPct: service.preIcmPct,
         postEvPct: evAfter,
         postIcmPct: icmAfter,
+        evSum: 0,
+        icmSum: 0,
       ));
       if (acc >= 0.8) {
         final prefs = await SharedPreferences.getInstance();
