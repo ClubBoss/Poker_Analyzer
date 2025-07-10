@@ -184,6 +184,14 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(
+          create: (context) =>
+              PlayerProgressService(hands: context.read<SavedHandManagerService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              ProgressForecastService(hands: context.read<SavedHandManagerService>()),
+        ),
+        ChangeNotifierProvider(
           create: (context) => MistakeReviewPackService(
             hands: context.read<SavedHandManagerService>(),
             cloud: mistakeCloud,
@@ -223,6 +231,7 @@ Future<void> main() async {
             hands: context.read<SavedHandManagerService>(),
             history: context.read<HandAnalysisHistoryService>(),
             xp: context.read<XPTrackerService>(),
+            forecast: context.read<ProgressForecastService>(),
           ),
         ),
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
@@ -337,14 +346,6 @@ Future<void> main() async {
             hands: context.read<SavedHandManagerService>(),
             packs: context.read<TrainingPackStorageService>(),
           ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              PlayerProgressService(hands: context.read<SavedHandManagerService>()),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              ProgressForecastService(hands: context.read<SavedHandManagerService>()),
         ),
         ChangeNotifierProvider(
           create: (context) => WeakSpotRecommendationService(

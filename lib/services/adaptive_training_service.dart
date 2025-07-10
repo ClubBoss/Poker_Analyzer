@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'progress_forecast_service.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import '../helpers/poker_position_helper.dart';
@@ -18,12 +19,14 @@ class AdaptiveTrainingService extends ChangeNotifier {
   final SavedHandManagerService hands;
   final HandAnalysisHistoryService history;
   final XPTrackerService xp;
+  final ProgressForecastService forecast;
   AdaptiveTrainingService({
     required this.templates,
     required this.mistakes,
     required this.hands,
     required this.history,
     required this.xp,
+    required this.forecast,
   }) {
     refresh();
     templates.addListener(refresh);
@@ -31,6 +34,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
     hands.addListener(refresh);
     history.addListener(refresh);
     xp.addListener(refresh);
+    forecast.addListener(refresh);
   }
 
   List<TrainingPackTemplate> _recommended = [];
@@ -43,7 +47,14 @@ class AdaptiveTrainingService extends ChangeNotifier {
 
   Future<void> refresh() async {
     final prefs = await SharedPreferences.getInstance();
-    final level = xp.level;
+    var level = xp.level;
+    final f = forecast.forecast;
+    if (f.accuracy < 0.6) level -= 2;
+    else if (f.accuracy < 0.75) level -= 1;
+    if (f.ev < 0) level -= 1;
+    if (f.icm < 0) level -= 1;
+    if (f.accuracy > 0.9 && f.ev > 0 && f.icm > 0) level += 1;
+    level = level.clamp(1, 40);
     final posCounts = <HeroPosition, int>{};
     final posLoss = <HeroPosition, double>{};
     final posIcmLoss = <HeroPosition, double>{};
