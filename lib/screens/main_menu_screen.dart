@@ -31,6 +31,7 @@ import '../main_demo.dart';
 import '../widgets/training_spot_preview.dart';
 import '../tutorial/tutorial_flow.dart';
 import '../tutorial/tutorial_completion_screen.dart';
+import 'onboarding_screen.dart';
 import 'training_history_screen.dart';
 import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
@@ -109,6 +110,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       if (mounted) {
         context.read<StreakService>().updateStreak();
         context.read<GoalsService>().ensureDailyGoal();
+        _maybeShowOnboarding();
       }
     });
   }
@@ -119,6 +121,20 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     if (mounted) {
       setState(() => _spotOfDay = spot);
     }
+  }
+
+  void _maybeShowOnboarding() {
+    if (UserPreferences.instance.tutorialCompleted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+      );
+      if (mounted) {
+        setState(() => _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
+      }
+    });
   }
 
   void _onStreakChanged() {
