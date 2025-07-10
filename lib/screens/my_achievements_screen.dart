@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../utils/responsive.dart';
 
 import '../services/goals_service.dart';
 import '../widgets/sync_status_widget.dart';
@@ -28,57 +29,62 @@ class MyAchievementsScreen extends StatelessWidget {
             return const Center(child: Text('Достижения еще не получены'));
           }
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: completed.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.2,
-            ),
-            itemBuilder: (context, index) {
-              final item = completed[index];
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(8),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 360;
+              return GridView.builder(
+                padding: responsiveAll(context, 16),
+                itemCount: completed.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: compact ? 1 : 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.2,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(item.icon, size: 40, color: accent),
-                    const SizedBox(height: 8),
-                    Text(
-                      item.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                itemBuilder: (context, index) {
+                  final item = completed[index];
+                  return Container(
+                    padding: responsiveAll(context, 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const Spacer(),
-                    Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: 1.0,
-                              backgroundColor: Colors.white24,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(accent),
-                              minHeight: 6,
-                            ),
+                        Icon(item.icon, size: 40, color: accent),
+                        const SizedBox(height: 8),
+                        Text(
+                          item.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text('${item.target}/${item.target}'),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: 1.0,
+                                  backgroundColor: Colors.white24,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(accent),
+                                  minHeight: 6,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text('${item.target}/${item.target}'),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Icon(Icons.check_circle, color: Colors.green),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    const Icon(Icons.check_circle, color: Colors.green),
-                  ],
-                ),
+                  );
+                },
               );
             },
           );
