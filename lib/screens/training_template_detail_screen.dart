@@ -16,6 +16,8 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
     final accuracy = (stat?.accuracy ?? 0) * 100;
     final ev = stat?.postEvPct ?? 0;
     final icm = stat?.postIcmPct ?? 0;
+    final dEv = ev - (stat?.preEvPct ?? 0);
+    final dIcm = icm - (stat?.preIcmPct ?? 0);
     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
     final focus = template.handTypeSummary();
     final diff = template.difficultyLevel;
@@ -41,6 +43,11 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
             Text('Difficulty: $diff', style: const TextStyle(color: Colors.white)),
             Text('EV ${ev.toStringAsFixed(1)}%  ICM ${icm.toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white)),
+            if (stat != null)
+              Text(
+                'ΔEV ${dEv >= 0 ? '+' : ''}${dEv.toStringAsFixed(1)}%  ΔICM ${dIcm >= 0 ? '+' : ''}${dIcm.toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.white70),
+              ),
             if (focus.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),

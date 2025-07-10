@@ -58,6 +58,10 @@ class AdaptiveTrainingService extends ChangeNotifier {
       var score = 1 - (stat?.accuracy ?? 0);
       score += 1 - (stat?.postEvPct ?? 0) / 100;
       score += 1 - (stat?.postIcmPct ?? 0) / 100;
+      final dEv = (stat?.postEvPct ?? 0) - (stat?.preEvPct ?? 0);
+      final dIcm = (stat?.postIcmPct ?? 0) - (stat?.preIcmPct ?? 0);
+      score -= dEv * .05;
+      score -= dIcm * .05;
       if (miss > 0) score += 2 + miss * .5;
       if (posMiss > 0) score += 1 + posMiss * .3;
       final diff = (t.difficultyLevel - level).abs();
