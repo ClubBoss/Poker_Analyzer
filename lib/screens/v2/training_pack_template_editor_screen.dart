@@ -2600,11 +2600,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final hasFold =
         widget.template.spots.any((s) => s.tags.contains('fold'));
     if (!(hasPush && hasFold)) return;
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        content: const Text('Start training session now?'),
+        content: Text(l.startTrainingSessionPrompt),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

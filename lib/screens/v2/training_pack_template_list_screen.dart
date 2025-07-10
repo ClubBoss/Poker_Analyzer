@@ -845,6 +845,7 @@ class _TrainingPackTemplateListScreenState
 
   Widget _buildTemplateTile(TrainingPackTemplate t, bool narrow,
       {int? index}) {
+    final l = AppLocalizations.of(context)!;
     final total = t.spots.length;
     final allEv = total > 0 && t.evCovered >= total;
     final allIcm = total > 0 && t.icmCovered >= total;
@@ -1078,17 +1079,17 @@ class _TrainingPackTemplateListScreenState
           t.hasPlayableContent()
               ? IconButton(
                   icon: const Icon(Icons.play_arrow),
-                  tooltip: 'Start training',
+                  tooltip: l.startTraining,
                   onPressed: () => _chooseVariant(t),
                 )
-              : const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: Text('Нет контента',
-                      style: TextStyle(color: Colors.white54)),
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(l.noContent,
+                      style: const TextStyle(color: Colors.white54)),
                 ),
           IconButton(
             icon: const Icon(Icons.auto_fix_high),
-            tooltip: 'Generate spots',
+            tooltip: l.generateSpots,
             onPressed: () async {
               final service = TrainingPackTemplateUiService();
               final generated =
@@ -1217,17 +1218,17 @@ class _TrainingPackTemplateListScreenState
             t.hasPlayableContent()
                 ? IconButton(
                     icon: const Icon(Icons.play_arrow),
-                    tooltip: 'Start training',
+                    tooltip: l.startTraining,
                     onPressed: () => _chooseVariant(t),
                   )
-                : const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child:
-                        Text('Нет контента', style: TextStyle(color: Colors.white54)),
+                        Text(l.noContent, style: const TextStyle(color: Colors.white54)),
                   ),
             IconButton(
               icon: const Icon(Icons.auto_fix_high),
-              tooltip: 'Generate spots',
+              tooltip: l.generateSpots,
               onPressed: () async {
                 final service = TrainingPackTemplateUiService();
                 final generated =
@@ -2899,15 +2900,15 @@ class _TrainingPackTemplateListScreenState
                               : tpl.hasPlayableContent()
                                   ? IconButton(
                                       icon: const Icon(Icons.play_arrow),
-                                      tooltip: 'Start training',
+                                      tooltip: l.startTraining,
                                       onPressed: () => _chooseVariant(tpl),
                                     )
-                                  : const Padding(
+                                  : Padding(
                                       padding:
-                                          EdgeInsets.symmetric(horizontal: 8),
-                                      child: Text('Нет контента',
+                                          const EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text(l.noContent,
                                           style:
-                                              TextStyle(color: Colors.white54)),
+                                              const TextStyle(color: Colors.white54)),
                                     ),
                           onTap: () {
                             final tpl =
