@@ -4,7 +4,12 @@ import '../widgets/combined_progress_bar.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_session.dart';
+import '../models/v2/hero_position.dart';
 import '../services/training_session_service.dart';
+import '../services/adaptive_training_service.dart';
+import '../services/mistake_review_pack_service.dart';
+import '../helpers/mistake_advice.dart';
+import '../helpers/poker_street_helper.dart';
 import '../widgets/spot_viewer_dialog.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
@@ -61,6 +66,62 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
             const SizedBox(height: 4),
             CombinedProgressBar(evPct, icmPct),
             const SizedBox(height: 16),
+            Builder(
+              builder: (context) {
+                final adv = <String>{};
+                for (final m in mistakes) {
+                  for (final t in m.tags) {
+                    final a = kMistakeAdvice[t];
+                    if (a != null) adv.add(a);
+                  }
+                  final pos = m.hand.position.label;
+                  final pAdv = kMistakeAdvice[pos];
+                  if (pAdv != null) adv.add(pAdv);
+                  int street = 0;
+                  final b = m.hand.board.length;
+                  if (b >= 5) street = 3;
+                  else if (b == 4) street = 2;
+                  else if (b == 3) street = 1;
+                  final sAdv = kMistakeAdvice[streetName(street)];
+                  if (sAdv != null) adv.add(sAdv);
+                }
+                final deltaEv = evPct - preEvPct;
+                final deltaIcm = icmPct - preIcmPct;
+                adv.add('Прогресс EV ${deltaEv >= 0 ? '+' : ''}${deltaEv.toStringAsFixed(1)}%, ICM ${deltaIcm >= 0 ? '+' : ''}${deltaIcm.toStringAsFixed(1)}%');
+                final packs = context.watch<AdaptiveTrainingService>().recommended;
+                final list = packs.take(3).toList();
+                if (adv.isEmpty && list.isEmpty) return const SizedBox.shrink();
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final a in adv)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child:
+                              Text(a, style: const TextStyle(color: Colors.white)),
+                        ),
+                      if (list.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        const Text('Рекомендуемые паки:',
+                            style: TextStyle(color: Colors.white)),
+                        const SizedBox(height: 4),
+                        for (final p in list)
+                          Text(p.name,
+                              style:
+                                  const TextStyle(color: Colors.white70)),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
             if (mistakes.isNotEmpty)
               Expanded(
                 child: ListView.builder(
