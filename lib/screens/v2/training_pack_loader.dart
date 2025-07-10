@@ -3,7 +3,9 @@ import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_variant.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../services/training_pack_play_service.dart';
+import '../../services/dynamic_pack_adjustment_service.dart';
 import 'training_pack_play_screen.dart';
+import 'package:provider/provider.dart';
 
 class TrainingPackLoader extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -36,8 +38,10 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
 
   Future<void> _load() async {
     final service = TrainingPackPlayService();
+    final adjust = context.read<DynamicPackAdjustmentService>();
+    final tpl = await adjust.adjust(widget.template);
     final List<TrainingPackSpot> spots = await service.loadSpots(
-      widget.template,
+      tpl,
       widget.variant,
       forceReload: widget.forceReload,
     );
@@ -50,7 +54,12 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
       );
       return;
     }
-    final playTpl = widget.template.copyWith(spots: spots);
+    final playTpl = tpl.copyWith(spots: spots);
+    ScaffoldMessenger.of(rootCtx).showSnackBar(
+      SnackBar(
+        content: Text('Stack ${tpl.heroBbStack}bb • Range ${tpl.heroRange?.length ?? 0}'),
+      ),
+    );
     Navigator.pushReplacement(
       rootCtx,
       MaterialPageRoute(

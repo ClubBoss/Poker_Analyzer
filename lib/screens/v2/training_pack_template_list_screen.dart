@@ -47,6 +47,7 @@ import '../../services/pack_runtime_builder.dart';
 import '../../services/range_library_service.dart';
 import '../../services/theme_service.dart';
 import '../../services/session_log_service.dart';
+import '../../services/training_pack_stats_service.dart';
 import 'new_training_pack_template_dialog.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
@@ -103,6 +104,7 @@ class _TrainingPackTemplateListScreenState
   final Map<String, int> _streetProgress = {};
   final Map<String, Map<String, int>> _handGoalProgress = {};
   final Map<String, Map<String, int>> _handGoalTotal = {};
+  final Map<String, TrainingPackStat?> _stats = {};
   final Set<String> _favorites = {};
   bool _showFavoritesOnly = false;
   bool _showNeedsEvalOnly = false;
@@ -214,6 +216,7 @@ class _TrainingPackTemplateListScreenState
     final streetMap = <String, int>{};
     final handMap = <String, Map<String, int>>{};
     final handTotalMap = <String, Map<String, int>>{};
+    final statsMap = <String, TrainingPackStat?>{};
     for (final t in _templates) {
       final v = prefs.getInt('tpl_prog_${t.id}');
       if (v != null) map[t.id] = v;
@@ -249,6 +252,7 @@ class _TrainingPackTemplateListScreenState
         }
         handTotalMap[t.id] = totals;
       }
+      statsMap[t.id] = await TrainingPackStatsService.getStats(t.id);
     }
     if (!mounted) return;
     setState(() {
@@ -256,6 +260,7 @@ class _TrainingPackTemplateListScreenState
       _streetProgress..clear()..addAll(streetMap);
       _handGoalProgress..clear()..addAll(handMap);
       _handGoalTotal..clear()..addAll(handTotalMap);
+      _stats..clear()..addAll(statsMap);
     });
     _maybeShowStreetReminder();
     await _maybeShowContinueReminder();
@@ -1034,6 +1039,13 @@ class _TrainingPackTemplateListScreenState
         if (t.focusHandTypes.isNotEmpty) {
           items.add(Text(
             '🃏 Hand Goal: ${t.focusHandTypes.join(', ')}',
+            style: const TextStyle(fontSize: 12, color: Colors.white70),
+          ));
+        }
+        final stat = _stats[t.id];
+        if (stat != null) {
+          items.add(Text(
+            'Accuracy ${(stat.accuracy * 100).toStringAsFixed(0)}% • EV ${stat.evSum.toStringAsFixed(1)} • ICM ${stat.icmSum.toStringAsFixed(1)}',
             style: const TextStyle(fontSize: 12, color: Colors.white70),
           ));
         }
