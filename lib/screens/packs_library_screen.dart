@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -375,6 +376,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pack Library'),
@@ -536,13 +538,13 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         },
                         itemBuilder: (_) => const [
                           PopupMenuItem(
-                              value: _SortMode.name, child: Text('Name')),
+                              value: _SortMode.name, child: Text(l.sortName)),
                           PopupMenuItem(
-                              value: _SortMode.newest, child: Text('Newest')),
+                              value: _SortMode.newest, child: Text(l.sortNewest)),
                           PopupMenuItem(
-                              value: _SortMode.progress, child: Text('Progress')),
+                              value: _SortMode.progress, child: Text(l.sortProgress)),
                           PopupMenuItem(
-                              value: _SortMode.favorite, child: Text('Favorites')),
+                              value: _SortMode.favorite, child: Text(l.favorites)),
                         ],
                       ),
                     ],
@@ -820,7 +822,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                                 ),
                               );
                             },
-                            child: const Text('Review Mistakes'),
+                            child: Text(l.reviewMistakes),
                           ),
                         ),
                       IconButton(
