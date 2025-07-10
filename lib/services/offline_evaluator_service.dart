@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/v2/training_pack_spot.dart';
 import 'push_fold_ev_service.dart';
 import 'remote_ev_service.dart';
+import 'evaluation_settings_service.dart';
 
 class OfflineEvaluatorService {
   OfflineEvaluatorService({
@@ -13,9 +14,9 @@ class OfflineEvaluatorService {
 
   final PushFoldEvService offline;
   final RemoteEvService remote;
-  static bool _offline = false;
-  static bool get isOffline => _offline;
-  static set isOffline(bool v) => _offline = v;
+  static bool get isOffline => EvaluationSettingsService.instance.offline;
+  static set isOffline(bool v) =>
+      EvaluationSettingsService.instance.update(offline: v);
   Box<dynamic>? _box;
 
   Future<void> _open() async {
