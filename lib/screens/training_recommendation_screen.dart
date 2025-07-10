@@ -14,26 +14,38 @@ class TrainingRecommendationScreen extends StatefulWidget {
 }
 
 class _TrainingRecommendationScreenState extends State<TrainingRecommendationScreen> {
-  List<TrainingPackTemplate> _tpls = [];
   final Map<String, TrainingPackStat?> _stats = {};
+  late AdaptiveTrainingService _service;
   bool _loading = true;
+  List<TrainingPackTemplate> _tpls = [];
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _service = context.read<AdaptiveTrainingService>();
+    _service.recommendedNotifier.addListener(_update);
+    _refresh();
   }
 
-  Future<void> _load() async {
-    final service = context.read<AdaptiveTrainingService>();
-    await service.refresh();
-    final list = service.recommended.toList();
+  @override
+  void dispose() {
+    _service.recommendedNotifier.removeListener(_update);
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    await _service.refresh();
+  }
+
+  Future<void> _update() async {
+    final list = _service.recommendedNotifier.value.toList();
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
     final stats = <String, TrainingPackStat?>{};
     for (final t in list) {
-      stats[t.id] = service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+      stats[t.id] = _service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
     }
+    if (!mounted) return;
     setState(() {
       _tpls = list;
       _stats
@@ -63,14 +75,16 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
                     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
                     final focus = tpl.handTypeSummary();
                     final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(tpl.id);
+                    final diff = tpl.difficultyLevel;
+                    final missCount = context.read<MistakeReviewPackService>().mistakeCount(tpl.id);
                     return Card(
                       color: Colors.grey[850],
                       margin: const EdgeInsets.only(bottom: 12),
                       child: ListTile(
                         title: Text(tpl.name, style: const TextStyle(color: Colors.white)),
                         subtitle: Text(
-                          '${acc.toStringAsFixed(1)}% • EV ${ev.toStringAsFixed(1)}% • ICM ${icm.toStringAsFixed(1)}%'
-                          '${hasMistakes ? ' • ошибки' : ''}${focus.isNotEmpty ? ' • $focus' : ''}',
+                          'LVL $diff • ${acc.toStringAsFixed(1)}% • EV ${ev.toStringAsFixed(1)}% • ICM ${icm.toStringAsFixed(1)}%'
+                          '${missCount > 0 ? ' • $missCount ошиб.' : ''}${focus.isNotEmpty ? ' • $focus' : ''}',
                           style: const TextStyle(color: Colors.white70),
                         ),
                         trailing: Row(
