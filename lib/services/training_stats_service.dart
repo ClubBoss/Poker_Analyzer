@@ -239,6 +239,29 @@ class TrainingStatsService extends ChangeNotifier {
     return _groupMonthly(daily);
   }
 
+  List<List<dynamic>> progressRows({bool weekly = false, int count = 30}) {
+    final sessions = weekly ? sessionsWeekly(count) : sessionsDaily(count);
+    final hands = weekly ? handsWeekly(count) : handsDaily(count);
+    final mistakes = weekly ? mistakesWeekly(count) : mistakesDaily(count);
+    final sMap = {for (final e in sessions) e.key: e.value};
+    final hMap = {for (final e in hands) e.key: e.value};
+    final mMap = {for (final e in mistakes) e.key: e.value};
+    final dates = {
+      ...sMap.keys,
+      ...hMap.keys,
+      ...mMap.keys,
+    }.toList()
+      ..sort();
+    final rows = <List<dynamic>>[
+      ['Date', 'Sessions', 'Hands', 'Mistakes']
+    ];
+    for (final d in dates) {
+      final key = d.toIso8601String().split('T').first;
+      rows.add([key, sMap[d] ?? 0, hMap[d] ?? 0, mMap[d] ?? 0]);
+    }
+    return rows;
+  }
+
   Map<String, int> _loadMap(SharedPreferences prefs, String key) {
     final raw = prefs.getString(key);
     if (raw == null) return {};
