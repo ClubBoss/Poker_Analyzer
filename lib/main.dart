@@ -337,14 +337,14 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(
-          create: (context) => WeakSpotRecommendationService(
-            hands: context.read<SavedHandManagerService>(),
-            eval: EvaluationExecutorService(),
-          ),
-        ),
-        ChangeNotifierProvider(
           create: (context) =>
               PlayerProgressService(hands: context.read<SavedHandManagerService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => WeakSpotRecommendationService(
+            hands: context.read<SavedHandManagerService>(),
+            progress: context.read<PlayerProgressService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) => FeedbackService(

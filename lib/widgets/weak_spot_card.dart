@@ -29,7 +29,8 @@ class WeakSpotCard extends StatelessWidget {
                 const Text('Рекомендация',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text('${rec.position} — ${rec.mistakes} ошибок',
+                Text(
+                    '${rec.position.label} — ${(rec.accuracy * 100).toStringAsFixed(1)}%',
                     style: const TextStyle(color: Colors.white)),
               ],
             ),
