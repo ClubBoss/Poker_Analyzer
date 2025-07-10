@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/player_style_service.dart';
+import '../services/player_style_forecast_service.dart';
 
 class PlayerStyleCard extends StatelessWidget {
   const PlayerStyleCard({super.key});
@@ -8,6 +9,7 @@ class PlayerStyleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = context.watch<PlayerStyleService>().style;
+    final forecast = context.watch<PlayerStyleForecastService>().forecast;
     String label;
     String hint;
     IconData icon;
@@ -28,6 +30,18 @@ class PlayerStyleCard extends StatelessWidget {
         icon = Icons.balance;
         break;
     }
+    String forecastText;
+    switch (forecast) {
+      case PlayerStyle.aggressive:
+        forecastText = 'Ожидается рост агрессии';
+        break;
+      case PlayerStyle.passive:
+        forecastText = 'Ожидается снижение агрессии';
+        break;
+      case PlayerStyle.neutral:
+        forecastText = 'Стиль стабилен';
+        break;
+    }
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.all(12),
@@ -46,6 +60,8 @@ class PlayerStyleCard extends StatelessWidget {
                 Text('Стиль: $label',
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(forecastText, style: const TextStyle(color: Colors.white70)),
                 const SizedBox(height: 4),
                 Text(hint, style: const TextStyle(color: Colors.white70)),
               ],

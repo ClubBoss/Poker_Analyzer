@@ -51,6 +51,7 @@ import 'services/drill_suggestion_engine.dart';
 import 'services/weak_spot_recommendation_service.dart';
 import 'services/player_progress_service.dart';
 import 'services/player_style_service.dart';
+import 'services/player_style_forecast_service.dart';
 import 'services/progress_forecast_service.dart';
 import 'services/personal_recommendation_service.dart';
 import 'services/feedback_service.dart';
@@ -194,6 +195,10 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (context) =>
+              PlayerStyleForecastService(hands: context.read<SavedHandManagerService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
               ProgressForecastService(hands: context.read<SavedHandManagerService>()),
         ),
         ChangeNotifierProvider(
@@ -238,6 +243,7 @@ Future<void> main() async {
             xp: context.read<XPTrackerService>(),
             forecast: context.read<ProgressForecastService>(),
             style: context.read<PlayerStyleService>(),
+            styleForecast: context.read<PlayerStyleForecastService>(),
           ),
         ),
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
@@ -323,6 +329,7 @@ Future<void> main() async {
             adaptive: context.read<AdaptiveTrainingService>(),
             weak: context.read<WeakSpotRecommendationService>(),
             style: context.read<PlayerStyleService>(),
+            forecast: context.read<PlayerStyleForecastService>(),
           ),
         ),
         ChangeNotifierProvider(
