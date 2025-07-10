@@ -54,6 +54,7 @@ import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
 import 'services/weekly_challenge_service.dart';
+import 'services/daily_challenge_service.dart';
 import 'services/session_log_service.dart';
 import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
@@ -223,6 +224,13 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
         ChangeNotifierProvider(create: (_) => XPTrackerService(cloud: xpCloud)..load()),
+        ChangeNotifierProvider(
+          create: (context) => DailyChallengeService(
+            adaptive: context.read<AdaptiveTrainingService>(),
+            templates: context.read<TemplateStorageService>(),
+            xp: context.read<XPTrackerService>(),
+          )..load(),
+        ),
         ChangeNotifierProvider(
           create: (context) => WeeklyChallengeService(
             stats: context.read<TrainingStatsService>(),

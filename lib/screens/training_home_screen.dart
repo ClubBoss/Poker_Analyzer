@@ -20,6 +20,7 @@ import '../widgets/streak_chart.dart';
 import '../widgets/daily_progress_ring.dart';
 import '../widgets/repeat_mistakes_card.dart';
 import '../widgets/weekly_challenge_card.dart';
+import '../widgets/daily_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
 import '../widgets/progress_summary_box.dart';
@@ -79,6 +80,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const ProgressSummaryBox(),
           const StreakChart(),
           const DailyProgressRing(),
+          const DailyChallengeCard(),
           const WeeklyChallengeCard(),
           const XPProgressBar(),
           const RepeatMistakesCard(),
