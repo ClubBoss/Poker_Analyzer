@@ -20,7 +20,7 @@ import 'push_fold_ev_service.dart';
 import 'goals_service.dart';
 import 'training_stats_service.dart';
 import '../models/v2/training_pack_template.dart';
-import 'bulk_evaluator_service.dart';
+import 'remote_ev_service.dart';
 import '../utils/template_coverage_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../services/evaluation_logic_service.dart';
@@ -394,11 +394,27 @@ class EvaluationExecutorService implements EvaluationExecutor {
     int anteBb = 0,
     EvaluationMode mode = EvaluationMode.ev,
   }) async {
-    await BulkEvaluatorService().generateMissing(spot, anteBb: anteBb);
+    final prevEv = spot.heroEv;
+    final prevIcm = spot.heroIcmEv;
+    final settings = EvaluationSettingsService.instance;
+    if (!settings.offline) {
+      try {
+        await const RemoteEvService().evaluateIcm(spot, anteBb: anteBb);
+      } catch (_) {}
+    }
+    if (spot.heroEv == null) {
+      await const PushFoldEvService().evaluate(spot, anteBb: anteBb);
+    }
+    if (spot.heroIcmEv == null) {
+      await const PushFoldEvService().evaluateIcm(spot, anteBb: anteBb);
+    }
+    if ((prevEv == null && spot.heroEv != null) ||
+        (prevIcm == null && spot.heroIcmEv != null)) {
+      spot.dirty = true;
+    }
     final prev = spot.evalResult;
     final prevAction = spot.correctAction;
     final prevExpl = spot.explanation;
-    final settings = EvaluationSettingsService.instance;
     spot.evalResult = EvaluationLogicService.evaluateDecision(
       spot,
       evThreshold: settings.evThreshold,
