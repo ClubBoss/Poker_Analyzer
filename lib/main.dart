@@ -68,6 +68,7 @@ import 'services/favorite_pack_service.dart';
 import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
 import 'widgets/first_launch_overlay.dart';
+import 'screens/onboarding_screen.dart';
 import 'app_bootstrap.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -346,6 +347,17 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     });
   }
 
+  Future<void> _maybeShowOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('has_seen_onboarding') == true) return;
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+    await Navigator.push(
+      ctx,
+      MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+    );
+  }
+
   Future<void> _maybeResumeTraining() async {
     final prefs = await SharedPreferences.getInstance();
     String? id;
@@ -410,6 +422,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeResumeTraining();
       _maybeShowIntroOverlay();
+      _maybeShowOnboarding();
     });
   }
 
