@@ -9,8 +9,9 @@ class WeakSpotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rec = context.watch<WeakSpotRecommendationService>().recommendation;
-    if (rec == null) return const SizedBox.shrink();
+    final service = context.watch<WeakSpotRecommendationService>();
+    final recs = service.recommendations;
+    if (recs.isEmpty) return const SizedBox.shrink();
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.all(12),
@@ -18,41 +19,51 @@ class WeakSpotCard extends StatelessWidget {
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.school, color: Colors.orange),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Рекомендация',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(
-                    '${rec.position.label} — ${(rec.accuracy * 100).toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Colors.white)),
-              ],
-            ),
+          const Row(
+            children: [
+              Icon(Icons.school, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Слабые места',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
           ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () async {
-              final tpl = await context
-                  .read<WeakSpotRecommendationService>()
-                  .buildPack();
-              if (tpl == null) return;
-              await context.read<TrainingSessionService>().startSession(tpl);
-              if (context.mounted) {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
-                );
-              }
-            },
-            child: const Text('Тренировать'),
-          ),
+          const SizedBox(height: 8),
+          for (final r in recs)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${r.position.label} • ${(r.accuracy * 100).toStringAsFixed(1)}% • EV ${r.ev.toStringAsFixed(1)} • ICM ${r.icm.toStringAsFixed(1)}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final tpl =
+                          await service.buildPack(r.position);
+                      if (tpl == null) return;
+                      await context
+                          .read<TrainingSessionService>()
+                          .startSession(tpl);
+                      if (context.mounted) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const TrainingSessionScreen()),
+                        );
+                      }
+                    },
+                    child: const Text('Тренировать'),
+                  ),
+                ],
+              ),
+            )
         ],
       ),
     );
