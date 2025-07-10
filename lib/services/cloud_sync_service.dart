@@ -9,9 +9,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'cloud_retry_policy.dart';
+import '../models/saved_hand.dart';
+import '../models/session_log.dart';
 
 class CloudSyncService {
   CloudSyncService();
+
+  static const _cols = [
+    'training_spots',
+    'training_stats',
+    'preferences',
+    'saved_hands',
+    'session_notes',
+    'session_logs',
+    'pinned_sessions',
+  ];
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   late SharedPreferences _prefs;
@@ -116,7 +128,7 @@ class CloudSyncService {
     try {
       await CloudRetryPolicy.execute<void>(() async {
         final user = _db.collection('users').doc(uid);
-        for (final col in ['training_spots', 'training_stats', 'preferences']) {
+        for (final col in _cols) {
           final snap = await user.collection(col).doc('main').get();
           if (!snap.exists) continue;
           final remote = snap.data()!;
@@ -164,7 +176,7 @@ class CloudSyncService {
 
   void watchChanges() {
     if (_local || uid == null) return;
-    for (final col in ['training_spots', 'training_stats', 'preferences']) {
+    for (final col in _cols) {
       _db
           .collection('users')
           .doc(uid)
@@ -214,5 +226,113 @@ class CloudSyncService {
       }
     } catch (_) {}
     return local;
+  }
+
+  Future<void> uploadHands(List<SavedHand> hands) async {
+    await queueMutation('saved_hands', 'main', {
+      'hands': [for (final h in hands) h.toJson()],
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+    await syncUp();
+  }
+
+  Future<List<SavedHand>> downloadHands() async {
+    if (uid == null) return [];
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('saved_hands')
+        .doc('main')
+        .get();
+    if (!snap.exists) return [];
+    final data = snap.data();
+    final list = data?['hands'];
+    if (list is List) {
+      return [
+        for (final e in list)
+          if (e is Map)
+            SavedHand.fromJson(Map<String, dynamic>.from(e as Map))
+      ];
+    }
+    return [];
+  }
+
+  Future<void> uploadSessionNotes(Map<int, String> notes) async {
+    await queueMutation('session_notes', 'main', {
+      'notes': {for (final e in notes.entries) e.key.toString(): e.value},
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+    await syncUp();
+  }
+
+  Future<Map<int, String>> downloadSessionNotes() async {
+    if (uid == null) return {};
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('session_notes')
+        .doc('main')
+        .get();
+    if (!snap.exists) return {};
+    final data = snap.data();
+    final map = <int, String>{};
+    if (data?['notes'] is Map) {
+      (data!['notes'] as Map).forEach((k, v) {
+        map[int.parse(k as String)] = v as String;
+      });
+    }
+    return map;
+  }
+
+  Future<void> uploadSessionLogs(List<SessionLog> logs) async {
+    await queueMutation('session_logs', 'main', {
+      'logs': [for (final l in logs) l.toJson()],
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+    await syncUp();
+  }
+
+  Future<List<SessionLog>> downloadSessionLogs() async {
+    if (uid == null) return [];
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('session_logs')
+        .doc('main')
+        .get();
+    if (!snap.exists) return [];
+    final data = snap.data();
+    final list = data?['logs'];
+    if (list is List) {
+      return [
+        for (final e in list)
+          if (e is Map)
+            SessionLog.fromJson(Map<String, dynamic>.from(e as Map))
+      ];
+    }
+    return [];
+  }
+
+  Future<void> uploadPinned(Set<int> ids) async {
+    await queueMutation('pinned_sessions', 'main', {
+      'ids': [for (final i in ids) i],
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+    await syncUp();
+  }
+
+  Future<Set<int>> downloadPinned() async {
+    if (uid == null) return {};
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('pinned_sessions')
+        .doc('main')
+        .get();
+    if (!snap.exists) return {};
+    final data = snap.data();
+    final list = data?['ids'];
+    if (list is List) return {for (final i in list) (i as num).toInt()};
+    return {};
   }
 }

@@ -2,18 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'cloud_sync_service.dart';
 
 import '../models/session_log.dart';
 import 'training_session_service.dart';
 
 class SessionLogService extends ChangeNotifier {
-  SessionLogService({required TrainingSessionService sessions})
+  SessionLogService({required TrainingSessionService sessions, this.cloud})
       : _sessions = sessions {
     _listener = _handle;
     _sessions.addListener(_listener!);
   }
 
   final TrainingSessionService _sessions;
+  final CloudSyncService? cloud;
+  static const _timeKey = 'session_logs_updated';
   Box<dynamic>? _box;
   VoidCallback? _listener;
   final List<SessionLog> _logs = [];
@@ -34,12 +37,44 @@ class SessionLogService extends ChangeNotifier {
           (e) => SessionLog.fromJson(Map<String, dynamic>.from(e))))
       ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
     _logged.addAll(_logs.map((e) => e.sessionId));
+    if (cloud != null) {
+      final remote = cloud!.getCached('session_logs');
+      if (remote != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        if (remoteAt.isAfter(localAt)) {
+          final list = remote['logs'];
+          if (list is List) {
+            _logs
+              ..clear()
+              ..addAll(list.map((e) => SessionLog.fromJson(Map<String, dynamic>.from(e as Map))))
+              ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+            _logged
+              ..clear()
+              ..addAll(_logs.map((e) => e.sessionId));
+            await _persist();
+          }
+        } else if (localAt.isAfter(remoteAt)) {
+          await cloud!.uploadSessionLogs(_logs);
+        }
+      }
+    }
     notifyListeners();
   }
 
   Future<void> _save(SessionLog log) async {
     _logs.insert(0, log);
     await _box!.put(log.sessionId, log.toJson());
+    await _persist();
+  }
+
+  Future<void> _persist() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_timeKey, DateTime.now().toIso8601String());
+    if (cloud != null) {
+      await cloud!.uploadSessionLogs(_logs);
+    }
     notifyListeners();
   }
 

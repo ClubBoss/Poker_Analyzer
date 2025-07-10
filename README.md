@@ -82,7 +82,7 @@ while returning `null` allows the export to proceed.
 
 ## Future plans
 
-Cloud sync for saved hands and sessions will be added later.
+The app now syncs saved hands and session data with Firestore.
 
 ## Branch naming
 
