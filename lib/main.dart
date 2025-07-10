@@ -60,6 +60,7 @@ import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
 import 'services/mistake_streak_service.dart';
+import 'services/mistake_hint_service.dart';
 import 'services/remote_config_service.dart';
 import 'services/theme_service.dart';
 import 'services/ab_test_engine.dart';
@@ -142,6 +143,7 @@ Future<void> main() async {
     ),
   );
   await EvaluationSettingsService.instance.load();
+  await MistakeHintService.instance.load();
   runApp(
     MultiProvider(
       providers: [

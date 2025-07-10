@@ -16,8 +16,10 @@ import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/mistake_severity.dart';
 import '../helpers/hand_utils.dart';
+import '../helpers/mistake_advice.dart';
 import 'push_fold_ev_service.dart';
 import 'goals_service.dart';
+import 'mistake_hint_service.dart';
 import 'training_stats_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'remote_ev_service.dart';
@@ -184,12 +186,24 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final userEquity = correct
         ? expectedEquity
         : (expectedEquity - 0.1).clamp(0.0, 1.0);
+    String? hint;
+    if (!correct) {
+      for (final t in spot.tags) {
+        final adv = kMistakeAdvice[t];
+        if (adv != null && !MistakeHintService.instance.isShown(t)) {
+          hint = adv;
+          unawaited(MistakeHintService.instance.markShown(t));
+          break;
+        }
+      }
+      hint ??= 'Пересмотри диапазон пуша';
+    }
     final result = EvaluationResult(
       correct: correct,
       expectedAction: expectedAction,
       userEquity: userEquity,
       expectedEquity: expectedEquity,
-      hint: correct ? null : 'Пересмотри диапазон пуша',
+      hint: hint,
     );
 
     final goals = GoalsService.instance;
