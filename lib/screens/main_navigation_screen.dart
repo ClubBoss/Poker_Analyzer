@@ -13,6 +13,7 @@ import '../widgets/motivation_card.dart';
 import '../widgets/active_goals_card.dart';
 import '../widgets/next_step_card.dart';
 import '../widgets/suggested_drill_card.dart';
+import '../widgets/feedback_banner.dart';
 import '../widgets/today_progress_banner.dart';
 import '../widgets/streak_mini_card.dart';
 import '../widgets/streak_chart.dart';
@@ -138,6 +139,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         ),
         const MotivationCard(),
         const ActiveGoalsCard(),
+        const FeedbackBanner(),
         const NextStepCard(),
         const SuggestedDrillCard(),
         const Expanded(child: AnalyzerTab()),

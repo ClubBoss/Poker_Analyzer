@@ -51,6 +51,7 @@ import 'services/drill_suggestion_engine.dart';
 import 'services/weak_spot_recommendation_service.dart';
 import 'services/player_progress_service.dart';
 import 'services/personal_recommendation_service.dart';
+import 'services/feedback_service.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
 import 'services/hand_analysis_history_service.dart';
@@ -344,6 +345,13 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) =>
               PlayerProgressService(hands: context.read<SavedHandManagerService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FeedbackService(
+            achievements: context.read<AchievementEngine>(),
+            progress: context.read<PlayerProgressService>(),
+            next: context.read<NextStepEngine>(),
+          ),
         ),
         ChangeNotifierProvider(create: (_) => DrillHistoryService()..load()),
         ChangeNotifierProvider(
