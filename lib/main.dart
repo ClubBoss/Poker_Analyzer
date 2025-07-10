@@ -305,6 +305,7 @@ Future<void> main() async {
           create: (context) => PersonalRecommendationService(
             achievements: context.read<AchievementEngine>(),
             adaptive: context.read<AdaptiveTrainingService>(),
+            weak: context.read<WeakSpotRecommendationService>(),
           ),
         ),
         ChangeNotifierProvider(

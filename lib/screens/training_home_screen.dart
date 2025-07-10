@@ -14,6 +14,7 @@ import '../services/mistake_review_pack_service.dart';
 import '../services/dynamic_pack_adjustment_service.dart';
 import '../utils/template_priority.dart';
 import 'training_session_screen.dart';
+import '../services/weak_spot_recommendation_service.dart';
 
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/spot_of_the_day_card.dart';
@@ -136,6 +137,8 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
     final service = context.read<AdaptiveTrainingService>();
     await service.refresh();
     final list = service.recommended.toList();
+    final weak = await context.read<WeakSpotRecommendationService>().buildPack();
+    if (weak != null) list.insert(0, weak);
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
     final adjust = context.read<DynamicPackAdjustmentService>();
