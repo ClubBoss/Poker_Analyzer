@@ -128,7 +128,7 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                 style: const TextStyle(color: Colors.white),
               ),
               subtitle: Text(
-                '${r.action} • $label',
+                '${r.action} • $label\n${r.hint}',
                 style: const TextStyle(color: Colors.white70),
               ),
               onTap: () {

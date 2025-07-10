@@ -322,6 +322,27 @@ class _PackCard extends StatelessWidget {
             ),
             label: Text(label),
           ),
+          if (hasMistakes)
+            OutlinedButton(
+              onPressed: () async {
+                final review = await context
+                    .read<MistakeReviewPackService>()
+                    .review(context, template.id);
+                if (review != null && context.mounted) {
+                  await context
+                      .read<TrainingSessionService>()
+                      .startSession(review);
+                  if (context.mounted) {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const TrainingSessionScreen()),
+                    );
+                  }
+                }
+              },
+              child: const Text('Ошибки', style: TextStyle(fontSize: 12)),
+            ),
         ],
       ),
     );
