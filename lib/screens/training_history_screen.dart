@@ -17,6 +17,7 @@ import '../helpers/color_utils.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import '../services/progress_export_service.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -704,6 +705,30 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: $fileName')),
+      );
+    }
+  }
+
+  Future<void> _exportProgressCsv({bool weekly = false}) async {
+    final service = ProgressExportService(
+        stats: context.read<TrainingStatsService>());
+    final file = await service.exportCsv(weekly: weekly);
+    _lastCsvPath = file.path;
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
+      );
+    }
+  }
+
+  Future<void> _exportProgressPdf({bool weekly = false}) async {
+    final service = ProgressExportService(
+        stats: context.read<TrainingStatsService>());
+    final file = await service.exportPdf(weekly: weekly);
+    _lastPdfPath = file.path;
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
       );
     }
   }
@@ -3088,20 +3113,36 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       child: const Text('Экспорт CSV'),
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _getFilteredHistory().isEmpty
-                          ? null
-                          : _exportVisiblePdf,
-                      child: const Text('Экспорт PDF'),
-                    ),
-                  ],
-                ),
+                  ElevatedButton(
+                    onPressed: _getFilteredHistory().isEmpty
+                        ? null
+                        : _exportVisiblePdf,
+                    child: const Text('Экспорт PDF'),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _exportProgressCsv(weekly: false),
+                    child: const Text('Прогресс CSV'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () => _exportProgressPdf(weekly: false),
+                    child: const Text('Прогресс PDF'),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
                     ElevatedButton(
                       onPressed: _openLatestExport,
                       child: const Text('Открыть'),
