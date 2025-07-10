@@ -72,6 +72,9 @@ class _TrainingPackTemplateListScreenState
   static const _prefsMixedAutoKey = 'tpl_mixed_auto';
   static const _prefsEndlessKey = 'tpl_endless_drill';
   static const _prefsFavoritesKey = 'tpl_favorites';
+  static const _prefsStackKey = 'tpl_stack_filter';
+  static const _prefsPosKey = 'tpl_pos_filter';
+  static const _stackRanges = ['0-9', '10-15', '16-25', '26+'];
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -106,6 +109,8 @@ class _TrainingPackTemplateListScreenState
   bool _autoEvalRunning = false;
   Timer? _autoEvalTimer;
   bool _autoEvalQueued = false;
+  String? _stackFilter;
+  HeroPosition? _posFilter;
 
   Future<void> refreshFromStorage() async {
     final list = await TrainingPackStorage.load();
@@ -428,6 +433,60 @@ class _TrainingPackTemplateListScreenState
     await _saveFavorites();
   }
 
+  Future<void> _loadStackFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) setState(() => _stackFilter = prefs.getString(_prefsStackKey));
+  }
+
+  Future<void> _setStackFilter(String? value) async {
+    setState(() => _stackFilter = value);
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_prefsStackKey);
+    } else {
+      await prefs.setString(_prefsStackKey, value);
+    }
+  }
+
+  Future<void> _loadPosFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString(_prefsPosKey);
+    if (mounted) {
+      setState(() => _posFilter = name == null
+          ? null
+          : HeroPosition.values.firstWhere(
+              (e) => e.name == name,
+              orElse: () => HeroPosition.sb,
+            ));
+    }
+  }
+
+  Future<void> _setPosFilter(HeroPosition? value) async {
+    setState(() => _posFilter = value);
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_prefsPosKey);
+    } else {
+      await prefs.setString(_prefsPosKey, value.name);
+    }
+  }
+
+  bool _matchStack(int stack) {
+    final r = _stackFilter;
+    if (r == null) return true;
+    if (r.endsWith('+')) {
+      final min = int.tryParse(r.substring(0, r.length - 1)) ?? 0;
+      return stack >= min;
+    }
+    final parts = r.split('-');
+    if (parts.length == 2) {
+      final min = int.tryParse(parts[0]) ?? 0;
+      final max = int.tryParse(parts[1]) ?? 0;
+      return stack >= min && stack <= max;
+    }
+    return true;
+  }
+
   String _streetLabel(String? street) {
     switch (street) {
       case 'preflop':
@@ -569,10 +628,16 @@ class _TrainingPackTemplateListScreenState
     final icmFiltered = !_icmOnly
         ? filtered
         : [for (final t in filtered) if (_isIcmTemplate(t)) t];
-    final evalFiltered = !_showNeedsEvalOnly
+    final stackFiltered = _stackFilter == null
         ? icmFiltered
+        : [for (final t in icmFiltered) if (_matchStack(t.heroBbStack)) t];
+    final posFiltered = _posFilter == null
+        ? stackFiltered
+        : [for (final t in stackFiltered) if (t.heroPos == _posFilter) t];
+    final evalFiltered = !_showNeedsEvalOnly
+        ? posFiltered
         : [
-            for (final t in icmFiltered)
+            for (final t in posFiltered)
               if (t.evCovered < t.spots.length ||
                   t.icmCovered < t.spots.length)
                 t
@@ -1266,6 +1331,8 @@ class _TrainingPackTemplateListScreenState
       _loadGroupByStreet();
       _loadGroupByType();
       _loadFavorites();
+      _loadStackFilter();
+      _loadPosFilter();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -2290,6 +2357,28 @@ class _TrainingPackTemplateListScreenState
                 selected: _icmOnly,
                 onSelected: (_) => setState(() => _icmOnly = !_icmOnly),
               ),
+              DropdownButton<String>(
+                value: _stackFilter ?? 'any',
+                dropdownColor: Colors.grey[900],
+                hint: const Text('Any Stack'),
+                onChanged: (v) => _setStackFilter(v == 'any' ? null : v),
+                items: [
+                  const DropdownMenuItem(value: 'any', child: Text('Any Stack')),
+                  for (final r in _stackRanges)
+                    DropdownMenuItem(value: r, child: Text('${r}bb')),
+                ],
+              ),
+              DropdownButton<HeroPosition?>(
+                value: _posFilter,
+                dropdownColor: Colors.grey[900],
+                hint: const Text('Any Pos'),
+                onChanged: (v) => _setPosFilter(v),
+                items: [
+                  const DropdownMenuItem(value: null, child: Text('Any Pos')),
+                  for (final p in HeroPosition.values)
+                    DropdownMenuItem(value: p, child: Text(p.label)),
+                ],
+              ),
               if (tags.isNotEmpty) ...[
                 ChoiceChip(
                   label: const Text('All Tags'),
@@ -2591,10 +2680,16 @@ class _TrainingPackTemplateListScreenState
             for (final t in filtered)
               if (_isIcmTemplate(t)) t
           ];
-    final evalFiltered = !_showNeedsEvalOnly
+    final stackFiltered = _stackFilter == null
         ? icmFiltered
+        : [for (final t in icmFiltered) if (_matchStack(t.heroBbStack)) t];
+    final posFiltered = _posFilter == null
+        ? stackFiltered
+        : [for (final t in stackFiltered) if (t.heroPos == _posFilter) t];
+    final evalFiltered = !_showNeedsEvalOnly
+        ? posFiltered
         : [
-            for (final t in icmFiltered)
+            for (final t in posFiltered)
               if (t.evCovered < t.spots.length ||
                   t.icmCovered < t.spots.length)
                 t
@@ -2903,6 +2998,28 @@ class _TrainingPackTemplateListScreenState
                           selected: _icmOnly,
                           onSelected: (_) =>
                               setState(() => _icmOnly = !_icmOnly),
+                        ),
+                        DropdownButton<String>(
+                          value: _stackFilter ?? 'any',
+                          dropdownColor: Colors.grey[900],
+                          hint: const Text('Any Stack'),
+                          onChanged: (v) => _setStackFilter(v == 'any' ? null : v),
+                          items: [
+                            const DropdownMenuItem(value: 'any', child: Text('Any Stack')),
+                            for (final r in _stackRanges)
+                              DropdownMenuItem(value: r, child: Text('${r}bb')),
+                          ],
+                        ),
+                        DropdownButton<HeroPosition?>(
+                          value: _posFilter,
+                          dropdownColor: Colors.grey[900],
+                          hint: const Text('Any Pos'),
+                          onChanged: (v) => _setPosFilter(v),
+                          items: [
+                            const DropdownMenuItem(value: null, child: Text('Any Pos')),
+                            for (final p in HeroPosition.values)
+                              DropdownMenuItem(value: p, child: Text(p.label)),
+                          ],
                         ),
                         if (tags.isNotEmpty) ...[
                           ChoiceChip(
