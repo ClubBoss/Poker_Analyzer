@@ -109,6 +109,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           }
           final a = engine.achievements[index - 1];
           final done = a.completed;
+          final stage = a.level;
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
@@ -132,9 +133,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
-                          value: (a.progress / a.target).clamp(0.0, 1.0),
+                          value: a.pct,
                           backgroundColor: Colors.white24,
-                          valueColor: AlwaysStoppedAnimation<Color>(accent),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(stage.color),
                           minHeight: 6,
                         ),
                       ),
@@ -144,9 +146,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 const SizedBox(width: 12),
                 Column(
                   children: [
-                    Text(done ? '✅' : '⏳'),
+                    Text(stage.label, style: TextStyle(color: stage.color)),
                     const SizedBox(height: 4),
-                    Text('${a.progress}/${a.target}')
+                    Text('${a.progress}/${a.nextTarget}')
                   ],
                 )
               ],

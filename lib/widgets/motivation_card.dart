@@ -27,7 +27,7 @@ class MotivationCard extends StatelessWidget {
     Achievement? bestAch;
     int achRemain = 1 << 30;
     for (final a in achievements) {
-      final remain = a.target - a.progress;
+      final remain = a.nextTarget - a.progress;
       if (remain > 0 && remain < achRemain) {
         bestAch = a;
         achRemain = remain;
@@ -42,8 +42,8 @@ class MotivationCard extends StatelessWidget {
     final title = showGoal ? bestGoal.title : bestAch!.title;
     final icon = showGoal ? Icons.flag : bestAch!.icon;
     final progress = showGoal ? engine.progress(bestGoal) : bestAch!.progress;
-    final target = showGoal ? bestGoal.target : bestAch!.target;
-    final accent = Theme.of(context).colorScheme.secondary;
+    final target = showGoal ? bestGoal.target : bestAch!.nextTarget;
+    final accent = showGoal ? Theme.of(context).colorScheme.secondary : bestAch!.level.color;
 
     return GestureDetector(
       onTap: () {

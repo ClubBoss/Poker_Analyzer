@@ -19,7 +19,7 @@ class AchievementEngine extends ChangeNotifier {
   }
 
   final List<Achievement> _achievements = [];
-  final Map<String, bool> _shown = {};
+  final Map<String, int> _shown = {};
   int _unseen = 0;
 
   List<Achievement> get achievements => List.unmodifiable(_achievements);
@@ -36,14 +36,14 @@ class AchievementEngine extends ChangeNotifier {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     for (final k in ['s', 'h', 'm']) {
-      _shown[k] = prefs.getBool('ach_shown_$k') ?? false;
+      _shown[k] = prefs.getInt('ach_level_$k') ?? 0;
     }
     _unseen = prefs.getInt('ach_unseen') ?? 0;
   }
 
-  Future<void> _save(String key) async {
+  Future<void> _save(String key, int level) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('ach_shown_$key', true);
+    await prefs.setInt('ach_level_$key', level);
     await prefs.setInt('ach_unseen', _unseen);
   }
 
@@ -57,25 +57,25 @@ class AchievementEngine extends ChangeNotifier {
       ..clear()
       ..addAll([
         Achievement(
-          title: '10 тренировок',
-          description: 'Завершите 10 тренировочных сессий',
+          title: 'Тренировки',
+          description: 'Завершайте тренировочные сессии',
           icon: Icons.play_circle_fill,
           progress: stats.sessionsCompleted,
-          target: 10,
+          thresholds: const [10, 30, 60, 100, 150],
         ),
         Achievement(
-          title: '50 раздач разобрано',
-          description: 'Разберите 50 раздач',
+          title: 'Разбор раздач',
+          description: 'Разбирайте сыгранные раздачи',
           icon: Icons.menu_book,
           progress: stats.handsReviewed,
-          target: 50,
+          thresholds: const [50, 150, 300, 600, 1000],
         ),
         Achievement(
-          title: '10 ошибок исправлено',
-          description: 'Исправьте 10 ошибок',
+          title: 'Исправление ошибок',
+          description: 'Исправляйте найденные ошибки',
           icon: Icons.build,
           progress: stats.mistakesFixed,
-          target: 10,
+          thresholds: const [10, 25, 50, 100, 200],
         ),
       ]);
     notifyListeners();
@@ -85,16 +85,17 @@ class AchievementEngine extends ChangeNotifier {
     _sync();
     final index = {'s': 0, 'h': 1, 'm': 2}[key]!;
     final ach = _achievements[index];
-    if (!_shown[key]! && ach.completed) {
-      _shown[key] = true;
+    final level = ach.levelIndex;
+    if ((_shown[key] ?? 0) < level) {
+      _shown[key] = level;
       _unseen += 1;
-      _save(key);
-      UserActionLogger.instance.log('unlocked_achievement:${ach.title}');
+      _save(key, level);
+      UserActionLogger.instance.log('unlocked_achievement:${ach.title}_$level');
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
         showConfettiOverlay(ctx);
         ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text('Achievement unlocked: ${ach.title}')),
+          SnackBar(content: Text('Achievement level up: ${ach.title}')), 
         );
       }
     }
