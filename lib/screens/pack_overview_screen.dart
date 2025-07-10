@@ -17,6 +17,13 @@ import '../widgets/selectable_list_item.dart';
 import '../widgets/bulk_edit_dialog.dart';
 import 'pack_editor_screen.dart';
 import 'training_pack_screen.dart';
+import '../models/saved_hand.dart';
+import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hand_data.dart';
+import '../models/v2/hero_position.dart';
+import '../services/pack_export_service.dart';
+import 'package:uuid/uuid.dart';
 
 class PackOverviewScreen extends StatefulWidget {
   const PackOverviewScreen({super.key});
@@ -94,6 +101,48 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     if (!mounted || file == null) return;
     await Share.shareXFiles([XFile(file.path)], text: 'Check out my Poker Analyzer pack!');
     if (await file.exists()) await file.delete();
+  }
+
+  HeroPosition _pos(String s) => parseHeroPosition(s);
+
+  TrainingPackSpot _spotFromHand(SavedHand h) {
+    final cards = h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final acts = [for (final a in h.actions) if (a.street == 0) a];
+    final stacks = {
+      for (int i = 0; i < h.numberOfPlayers; i++) '$i': (h.stackSizes[i] ?? 0).toDouble()
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: cards,
+        position: _pos(h.heroPosition),
+        heroIndex: h.heroIndex,
+        playerCount: h.numberOfPlayers,
+        stacks: stacks,
+        actions: {0: acts},
+        anteBb: h.anteBb,
+      ),
+      tags: List<String>.from(h.tags),
+    );
+  }
+
+  TrainingPackTemplate _templateFromPack(TrainingPack p) {
+    return TrainingPackTemplate(
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      gameType: p.gameType,
+      spots: [for (final h in p.hands) _spotFromHand(h)],
+      tags: List<String>.from(p.tags),
+      isBuiltIn: p.isBuiltIn,
+    );
+  }
+
+  Future<void> _shareBundle(TrainingPack pack) async {
+    final tpl = _templateFromPack(pack);
+    final file = await PackExportService.exportBundle(tpl);
+    if (!mounted) return;
+    await Share.shareXFiles([XFile(file.path)]);
   }
 
   Future<void> _exportPack(TrainingPack pack) async {
@@ -289,6 +338,14 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
               onTap: () async {
                 Navigator.pop(context);
                 await _sharePack(pack);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.archive, color: Colors.white),
+              title: const Text('Share Pack', style: TextStyle(color: Colors.white)),
+              onTap: () async {
+                Navigator.pop(context);
+                await _shareBundle(pack);
               },
             ),
           ListTile(
