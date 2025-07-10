@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_goal.dart';
 import '../widgets/confetti_overlay.dart';
 import '../main.dart';
 import 'training_stats_service.dart';
+import 'xp_tracker_service.dart';
 
 class GoalEngine extends ChangeNotifier {
   static const _prefsKey = 'user_goals';
@@ -63,6 +66,12 @@ class GoalEngine extends ChangeNotifier {
           showConfettiOverlay(ctx);
           ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(content: Text('Goal completed: ${g.title}')),
+          );
+          unawaited(
+            ctx.read<XPTrackerService>().add(
+                  xp: XPTrackerService.achievementXp,
+                  source: 'goal',
+                ),
           );
         }
       }
