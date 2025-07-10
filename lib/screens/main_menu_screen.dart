@@ -43,6 +43,7 @@ import 'mistake_repeat_screen.dart';
 import 'quick_hand_analysis_screen.dart';
 import 'hand_analysis_history_screen.dart';
 import 'achievements_screen.dart';
+import 'achievement_progress_screen.dart';
 import '../services/goals_service.dart';
 import '../widgets/focus_of_the_week_card.dart';
 import '../widgets/sync_status_widget.dart';
@@ -570,6 +571,15 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('🏆 Достижения'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AchievementProgressScreen()),
+                );
+              },
+              child: const Text('📈 Прогресс достижений'),
             ),
             ElevatedButton(
               onPressed: () {
