@@ -392,6 +392,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       description: widget.pack.description,
       category: widget.pack.category,
       difficulty: widget.pack.difficulty,
+      rating: 0,
       filters: filters,
       isTournament: widget.pack.gameType == GameType.tournament,
     );

@@ -9,6 +9,7 @@ class TrainingPackTemplateModel {
   final bool isFavorite;
   final DateTime createdAt;
   final DateTime? lastGeneratedAt;
+  final double rating;
 
   int get difficultyLevel => difficulty;
 
@@ -23,6 +24,7 @@ class TrainingPackTemplateModel {
     this.isFavorite = false,
     DateTime? createdAt,
     this.lastGeneratedAt,
+    this.rating = 0,
   })  : filters = filters ?? const {},
         createdAt = createdAt ?? DateTime.now();
 
@@ -37,6 +39,7 @@ class TrainingPackTemplateModel {
     bool? isFavorite,
     DateTime? createdAt,
     DateTime? lastGeneratedAt,
+    double? rating,
   }) {
     return TrainingPackTemplateModel(
       id: id ?? this.id,
@@ -49,6 +52,7 @@ class TrainingPackTemplateModel {
       isFavorite: isFavorite ?? this.isFavorite,
       createdAt: createdAt ?? this.createdAt,
       lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
+      rating: rating ?? this.rating,
     );
   }
 
@@ -66,6 +70,7 @@ class TrainingPackTemplateModel {
           DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
       lastGeneratedAt:
           DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
+      rating: (json['rating'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -81,6 +86,7 @@ class TrainingPackTemplateModel {
         'createdAt': createdAt.toIso8601String(),
         if (lastGeneratedAt != null)
           'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
+        'rating': rating,
       };
 }
 

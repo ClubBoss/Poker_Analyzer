@@ -10,6 +10,7 @@ class TrainingPackTemplateRepository {
         description: 'Starter set',
         category: 'Basic',
         difficulty: 1,
+        rating: 0,
       ),
       const TrainingPackTemplateModel(
         id: '2',
@@ -17,6 +18,7 @@ class TrainingPackTemplateRepository {
         description: 'For pros',
         category: 'Pro',
         difficulty: 3,
+        rating: 0,
       ),
     ];
   }

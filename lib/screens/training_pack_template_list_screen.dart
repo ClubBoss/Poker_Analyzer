@@ -170,6 +170,7 @@ class _TrainingPackTemplateListScreenState
       category: '',
       filters: const {},
       createdAt: DateTime.now(),
+      rating: 0,
     );
     await service.add(model);
     final result = await Navigator.push<TrainingPackTemplateModel>(
