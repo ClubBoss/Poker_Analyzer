@@ -76,6 +76,8 @@ delegates to the plug-in's optional `validate` method. Returning a string from
 `validate` will reject the hand for export and surface the message to the user,
 while returning `null` allows the export to proceed.
 
+Подробнее о подключении сторонних модулей описано в [docs/plugins](docs/plugins/README.md).
+
 ![screenshot](flutter_01.png)
 
 ## Future plans
