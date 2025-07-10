@@ -6,6 +6,9 @@ import '../services/streak_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/auth_service.dart';
+import '../services/cloud_sync_service.dart';
+import '../services/training_pack_cloud_sync_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -252,15 +255,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('Accuracy: ${(acc * 100).toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white, fontSize: 16)),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _reset,
-              child: const Text('Reset Accuracy'),
-            ),
-            const SizedBox(height: 16),
-            _buildChart(),
-          ],
-        ),
+          ElevatedButton(
+            onPressed: _reset,
+            child: const Text('Reset Accuracy'),
+          ),
+          const SizedBox(height: 16),
+          _buildChart(),
+          const SizedBox(height: 16),
+          Consumer<AuthService>(
+            builder: (context, auth, child) {
+              final email = auth.email;
+              final text = email != null
+                  ? 'Sign Out ($email)'
+                  : 'Sign In with Google';
+              return ElevatedButton(
+                onPressed: () async {
+                  if (!auth.isSignedIn) {
+                    final ok = await auth.signInWithGoogle();
+                    if (ok) {
+                      final cloud = context.read<CloudSyncService>();
+                      await cloud.syncDown();
+                      await context
+                          .read<TrainingPackCloudSyncService>()
+                          .syncDownStats();
+                    }
+                  } else {
+                    await auth.signOut();
+                  }
+                },
+                child: Text(text),
+              );
+            },
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

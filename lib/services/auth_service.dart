@@ -29,16 +29,38 @@ class AuthService extends ChangeNotifier {
 
   Future<bool> signInWithGoogle() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return false;
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      final user = await _googleSignIn.signIn();
+      if (user == null) return false;
+      final auth = await user.authentication;
+      final cred = GoogleAuthProvider.credential(
+        accessToken: auth.accessToken,
+        idToken: auth.idToken,
       );
-      await _auth.signInWithCredential(credential);
+      await _auth.signInWithCredential(cred);
       notifyListeners();
       return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> signInWithEmail(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        try {
+          await _auth.createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+          notifyListeners();
+          return true;
+        } catch (_) {}
+      }
+      return false;
     } catch (_) {
       return false;
     }
