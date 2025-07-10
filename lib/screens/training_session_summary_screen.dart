@@ -1,6 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import '../services/png_exporter.dart';
+import 'package:flutter/rendering.dart';
 import '../widgets/combined_progress_bar.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template.dart';
@@ -18,6 +24,7 @@ import 'training_session_screen.dart';
 import 'v2/training_pack_play_screen.dart';
 
 class TrainingSessionSummaryScreen extends StatelessWidget {
+  final _boundaryKey = GlobalKey();
   final TrainingSession session;
   final TrainingPackTemplate template;
   final double preEvPct;
@@ -29,6 +36,19 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
     required this.preEvPct,
     required this.preIcmPct,
   });
+
+  Future<void> _share(BuildContext context) async {
+    final boundary =
+        _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) return;
+    final bytes = await PngExporter.captureBoundary(boundary);
+    if (bytes == null) return;
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/summary_${DateTime.now().millisecondsSinceEpoch}.png');
+    await file.writeAsBytes(bytes, flush: true);
+    await Share.shareXFiles([XFile(file.path)]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +68,14 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
             orElse: () => TrainingPackSpot(id: ''),
           )
     ].where((s) => s.id.isNotEmpty).toList();
-    return Scaffold(
-      appBar: AppBar(title: Text(l.trainingSummary)),
-      backgroundColor: AppColors.background,
+    return RepaintBoundary(
+      key: _boundaryKey,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l.trainingSummary),
+          actions: [IconButton(onPressed: () => _share(context), icon: const Icon(Icons.share))],
+        ),
+        backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
