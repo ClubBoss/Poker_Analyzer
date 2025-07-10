@@ -1,4 +1,5 @@
-import 'dart:math';
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -13,6 +14,9 @@ import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
 import 'training_pack_template_editor_screen.dart';
 import '../../services/mistake_review_pack_service.dart';
+import '../../services/training_pack_stats_service.dart';
+import '../../services/training_pack_template_storage_service.dart';
+import '../../widgets/common/animated_line_chart.dart';
 
 class TrainingPackResultScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -37,6 +41,46 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       if (a.playerIndex == s.hand.heroIndex) return a.action;
     }
     return null;
+  }
+
+  double? _actionEv(TrainingPackSpot s, String act) {
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex &&
+          a.action.toLowerCase() == act.toLowerCase()) {
+        return a.ev;
+      }
+    }
+    return null;
+  }
+
+  double? _actionIcmEv(TrainingPackSpot s, String act) {
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex &&
+          a.action.toLowerCase() == act.toLowerCase()) {
+        return a.icmEv;
+      }
+    }
+    return null;
+  }
+
+  double? _bestEv(TrainingPackSpot s) {
+    double? best;
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex && a.ev != null) {
+        best = best == null ? a.ev! : math.max(best!, a.ev!);
+      }
+    }
+    return best;
+  }
+
+  double? _bestIcmEv(TrainingPackSpot s) {
+    double? best;
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex && a.icmEv != null) {
+        best = best == null ? a.icmEv! : math.max(best!, a.icmEv!);
+      }
+    }
+    return best;
   }
 
   int get _correct {
@@ -70,6 +114,53 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
 
   double get _evSum => _evs.fold(0.0, (a, b) => a + b);
   double get _icmSum => _icmEvs.fold(0.0, (a, b) => a + b);
+
+  List<double> get _evDeltas {
+    final list = <double>[];
+    for (final s in widget.template.spots) {
+      final ans = widget.results[s.id];
+      if (ans == null) continue;
+      final hero = _actionEv(s, ans);
+      final best = _bestEv(s);
+      if (hero != null && best != null) list.add(hero - best);
+    }
+    return list;
+  }
+
+  List<double> get _icmDeltas {
+    final list = <double>[];
+    for (final s in widget.template.spots) {
+      final ans = widget.results[s.id];
+      if (ans == null) continue;
+      final hero = _actionIcmEv(s, ans);
+      final best = _bestIcmEv(s);
+      if (hero != null && best != null) list.add(hero - best);
+    }
+    return list;
+  }
+
+  List<double> get _evCumulative {
+    final list = <double>[];
+    double sum = 0;
+    for (final d in _evDeltas) {
+      sum += d;
+      list.add(sum);
+    }
+    return list;
+  }
+
+  List<double> get _icmCumulative {
+    final list = <double>[];
+    double sum = 0;
+    for (final d in _icmDeltas) {
+      sum += d;
+      list.add(sum);
+    }
+    return list;
+  }
+
+  double get _evDeltaSum => _evDeltas.fold(0.0, (a, b) => a + b);
+  double get _icmDeltaSum => _icmDeltas.fold(0.0, (a, b) => a + b);
 
   List<TrainingPackSpot> get _mistakeSpots => widget.template.spots
       .where((s) {
@@ -121,6 +212,22 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
         );
       }
     }
+    final total = widget.template.spots.length;
+    final preEv = total == 0 ? 0.0 : widget.original.evCovered * 100 / total;
+    final preIcm = total == 0 ? 0.0 : widget.original.icmCovered * 100 / total;
+    final postEv = total == 0 ? 0.0 : widget.template.evCovered * 100 / total;
+    final postIcm = total == 0 ? 0.0 : widget.template.icmCovered * 100 / total;
+    unawaited(TrainingPackStatsService.recordSession(
+      widget.original.id,
+      _correct,
+      _total,
+      preEvPct: preEv,
+      preIcmPct: preIcm,
+      postEvPct: postEv,
+      postIcmPct: postIcm,
+      evSum: _evDeltaSum,
+      icmSum: _icmDeltaSum,
+    ));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _firstKey.currentContext;
       if (ctx != null) {
@@ -198,12 +305,10 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
             const SizedBox(height: 8),
             Text('Accuracy: ${_mistakes == 0 ? '100' : _rate.toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white70)),
-            if (_evs.length >= 2)
+            if (_evCumulative.length + _icmCumulative.length >= 4) ...[
               const SizedBox(height: 16),
-            if (_evs.length >= 2)
-              _EvChart(evs: _evs)
-            else
-              const SizedBox.shrink(),
+              _DeltaChart(ev: _evCumulative, icm: _icmCumulative),
+            ],
             if (_mistakeSpots.isNotEmpty) ...[
               const SizedBox(height: 16),
               const Align(
@@ -345,53 +450,45 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
   }
 }
 
-class _EvChart extends StatelessWidget {
-  final List<double> evs;
-  const _EvChart({required this.evs});
+class _DeltaChart extends StatelessWidget {
+  final List<double> ev;
+  final List<double> icm;
+  const _DeltaChart({required this.ev, required this.icm});
 
   @override
   Widget build(BuildContext context) {
-    if (evs.length < 2) return const SizedBox.shrink();
-    final maxEv = evs.reduce(max);
-    final minEv = evs.reduce(min);
-    final limit = max(maxEv.abs(), minEv.abs());
-    final groups = <BarChartGroupData>[];
-    for (var i = 0; i < evs.length; i++) {
-      final ev = evs[i];
-      final color = ev >= 0 ? Colors.greenAccent : Colors.redAccent;
-      groups.add(
-        BarChartGroupData(
-          x: i,
-          barRods: [
-            BarChartRodData(
-              toY: ev,
-              width: 14,
-              borderRadius: BorderRadius.circular(4),
-              gradient: LinearGradient(
-                colors: [color.withOpacity(0.7), color],
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-              ),
-            ),
-          ],
-        ),
-      );
+    final len = math.max(ev.length, icm.length);
+    if (len < 2) return const SizedBox.shrink();
+    final evSpots = <FlSpot>[];
+    final icmSpots = <FlSpot>[];
+    double minY = 0;
+    double maxY = 0;
+    for (var i = 0; i < ev.length; i++) {
+      final v = ev[i];
+      if (v < minY) minY = v;
+      if (v > maxY) maxY = v;
+      evSpots.add(FlSpot(i.toDouble(), v));
     }
-    var interval = limit == 0 ? 1.0 : (limit / 5).ceilToDouble();
-    return Tooltip(
-      message: 'Only spots you actually answered',
-      child: Container(
-        height: 200,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: BarChart(
-        BarChartData(
-          maxY: limit,
-          minY: -limit,
-          alignment: BarChartAlignment.spaceBetween,
+    for (var i = 0; i < icm.length; i++) {
+      final v = icm[i];
+      if (v < minY) minY = v;
+      if (v > maxY) maxY = v;
+      icmSpots.add(FlSpot(i.toDouble(), v));
+    }
+    final range = maxY - minY;
+    final interval = range > 0 ? (range / 5).ceilToDouble() : 1.0;
+    final step = (len / 6).ceil();
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: AnimatedLineChart(
+        data: LineChartData(
+          minY: minY,
+          maxY: maxY,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -418,7 +515,8 @@ class _EvChart extends StatelessWidget {
                 interval: 1,
                 getTitlesWidget: (value, meta) {
                   final i = value.toInt();
-                  if (i < 0 || i >= evs.length) return const SizedBox.shrink();
+                  if (i < 0 || i >= len) return const SizedBox.shrink();
+                  if (i % step != 0 && i != len - 1) return const SizedBox.shrink();
                   return Text('${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 10));
                 },
               ),
@@ -431,7 +529,24 @@ class _EvChart extends StatelessWidget {
               bottom: BorderSide(color: Colors.white24),
             ),
           ),
-          barGroups: groups,
+          lineBarsData: [
+            if (evSpots.isNotEmpty)
+              LineChartBarData(
+                spots: evSpots,
+                color: Colors.greenAccent,
+                barWidth: 2,
+                isCurved: false,
+                dotData: FlDotData(show: false),
+              ),
+            if (icmSpots.isNotEmpty)
+              LineChartBarData(
+                spots: icmSpots,
+                color: Colors.lightBlueAccent,
+                barWidth: 2,
+                isCurved: false,
+                dotData: FlDotData(show: false),
+              ),
+          ],
         ),
       ),
     );
