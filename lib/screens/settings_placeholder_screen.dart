@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -6,14 +7,18 @@ import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../helpers/date_utils.dart';
 import '../services/reminder_service.dart';
 import '../services/daily_reminder_service.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
+import '../services/saved_hand_manager_service.dart';
+import '../services/session_note_service.dart';
 import '../widgets/sync_status_widget.dart';
 import 'notification_settings_screen.dart';
+import 'goal_overview_screen.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -51,6 +56,29 @@ class SettingsPlaceholderScreen extends StatelessWidget {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
     }
+  }
+
+  Future<void> _exportHands(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final path = await manager.exportSessionsArchive();
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
+    if (!context.mounted) return;
+    final name = path.split(Platform.pathSeparator).last;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+  }
+
+  Future<void> _exportSummary(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final notes = context.read<SessionNoteService>().notes;
+    final path = await manager.exportAllSessionsPdf(notes);
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'training_summary.pdf');
+    if (!context.mounted) return;
+    final name = path.split(Platform.pathSeparator).last;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
   }
 
   @override
@@ -138,15 +166,40 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             activeColor: Colors.orange,
             onChanged: (v) => dailyTarget.setTarget(v.round()),
           ),
-          const SizedBox(height: 32),
-          const Center(
+          const Padding(
+            padding: EdgeInsets.all(16),
             child: Text(
-              'Настройки будут доступны позже',
-              style: TextStyle(color: Colors.white70),
+              'Data Export',
+              style: TextStyle(color: Colors.white70, fontSize: 18),
             ),
           ),
-          const SizedBox(height: 16),
-          Center(
+          ListTile(
+            title: const Text('Goal Overview',
+                style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const GoalOverviewScreen()),
+              );
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ElevatedButton(
+              onPressed: () => _exportHands(context),
+              child: const Text('Export Hands Archive'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ElevatedButton(
+              onPressed: () => _exportSummary(context),
+              child: const Text('Export Training Summary'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ElevatedButton(
               onPressed: () => _exportLog(context),
               child: const Text('Export Activity Log'),
