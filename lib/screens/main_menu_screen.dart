@@ -11,6 +11,7 @@ import 'player_zone_demo_screen.dart';
 import 'poker_table_demo_screen.dart';
 import 'hand_editor_screen.dart';
 import 'settings_screen.dart';
+import 'remote_sessions_screen.dart';
 import 'global_evaluation_screen.dart';
 import 'daily_hand_screen.dart';
 import 'spot_of_the_day_screen.dart';
@@ -772,6 +773,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('☁️ Cloud History'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RemoteSessionsScreen()),
+                );
+              },
+              child: const Text('☁️ Remote Sessions'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
