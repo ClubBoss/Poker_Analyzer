@@ -75,6 +75,8 @@ dev_dependencies:
   yaml: ^3.1.1
   crypto: ^3.0.2
   pedantic: ^1.11.1
+  fake_cloud_firestore: ^3.1.0
+  firebase_auth_mocks: ^0.14.2
 
 flutter:
 
