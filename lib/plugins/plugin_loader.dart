@@ -20,6 +20,8 @@ import 'converters/simple_hand_history_converter.dart';
 import 'converters/pokerstars_hand_history_converter.dart';
 import 'converters/ggpoker_hand_history_converter.dart';
 import 'converters/winamax_hand_history_converter.dart';
+import 'converters/partypoker_hand_history_converter.dart';
+import 'converters/wpn_hand_history_converter.dart';
 import 'poker_stars_converter_plugin.dart';
 
 /// Prototype loader for built-in plug-ins.
@@ -85,6 +87,8 @@ class PluginLoader {
       PokerStarsHandHistoryConverter(),
       GGPokerHandHistoryConverter(),
       WinamaxHandHistoryConverter(),
+      PartyPokerHandHistoryConverter(),
+      WpnHandHistoryConverter(),
     ];
     return <Plugin>[
       SampleLoggingPlugin(),
@@ -103,6 +107,8 @@ class PluginLoader {
           PokerStarsHandHistoryConverter(),
           GGPokerHandHistoryConverter(),
           WinamaxHandHistoryConverter(),
+          PartyPokerHandHistoryConverter(),
+          WpnHandHistoryConverter(),
         ]);
       case 'PokerStarsConverterPlugin':
         return PokerStarsConverterPlugin();

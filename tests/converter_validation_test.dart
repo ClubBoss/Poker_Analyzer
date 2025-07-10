@@ -48,6 +48,36 @@ void main() {
               'Seat 2: Player2 (\$1 in chips)',
             ].join('\n');
             break;
+          case 'ggpoker_hand_history':
+            sample = [
+              'Hand #1 - Holdem NL (0.01/0.02)',
+              "Table 'Alpha' 6-max",
+              'Seat 1: P1 (1)',
+              'Seat 2: P2 (1)',
+            ].join('\n');
+            break;
+          case 'partypoker_hand_history':
+            sample = [
+              'PartyPoker Hand #1',
+              'Seat 1: Hero (1)',
+              'Seat 2: Villain (1)',
+              '*** HOLE CARDS ***',
+              'Dealt to Hero [Ah Kh]',
+              'Hero raises 2 to 2',
+              'Villain folds',
+            ].join('\n');
+            break;
+          case 'wpn_hand_history':
+            sample = [
+              'Winning Poker Network Hand #1',
+              'Seat 1: Hero (1)',
+              'Seat 2: Villain (1)',
+              '*** HOLE CARDS ***',
+              'Dealt to Hero [Ah Kh]',
+              'Hero raises to 2',
+              'Villain folds',
+            ].join('\n');
+            break;
           case 'winamax_hand_history':
             sample = [
               'Winamax Poker - Tournament',
