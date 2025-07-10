@@ -3,9 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../models/training_pack.dart';
 import '../models/training_spot.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hero_position.dart';
+import '../models/card_model.dart';
+import '../models/player_model.dart';
+import '../models/action_entry.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/training_spot_storage_service.dart';
+import '../services/pack_generator_service.dart';
 import '../widgets/sync_status_widget.dart';
+import 'package:uuid/uuid.dart';
 
 class CreatePackScreen extends StatefulWidget {
   const CreatePackScreen({super.key});
@@ -17,6 +24,9 @@ class CreatePackScreen extends StatefulWidget {
 class _CreatePackScreenState extends State<CreatePackScreen> {
   final _nameController = TextEditingController();
   final _tagsController = TextEditingController();
+  final _stackController = TextEditingController(text: '10');
+  final _playersController = TextEditingController(text: '2');
+  final _rangeController = TextEditingController();
   int _difficulty = 1;
   List<TrainingSpot> _spots = [];
   final Set<TrainingSpot> _selected = {};
@@ -27,6 +37,16 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
     super.initState();
     _storage = context.read<TrainingSpotStorageService>();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _tagsController.dispose();
+    _stackController.dispose();
+    _playersController.dispose();
+    _rangeController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -44,23 +64,86 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
     });
   }
 
+  TrainingSpot _toSpot(TrainingPackSpot spot) {
+    final hand = spot.hand;
+    final heroCards = hand.heroCards
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty)
+        .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
+        .toList();
+    final playerCards = [
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+    ];
+    if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
+      playerCards[hand.heroIndex] = heroCards;
+    }
+    final boardCards = [
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+    ];
+    final actions = <ActionEntry>[];
+    for (final list in hand.actions.values) {
+      for (final a in list) {
+        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
+            amount: a.amount,
+            generated: a.generated,
+            manualEvaluation: a.manualEvaluation,
+            customLabel: a.customLabel));
+      }
+    }
+    final stacks = [
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0
+    ];
+    final positions = List.generate(hand.playerCount, (_) => '');
+    if (hand.heroIndex < positions.length) {
+      positions[hand.heroIndex] = hand.position.label;
+    }
+    return TrainingSpot(
+      playerCards: playerCards,
+      boardCards: boardCards,
+      actions: actions,
+      heroIndex: hand.heroIndex,
+      numberOfPlayers: hand.playerCount,
+      playerTypes: List.generate(hand.playerCount, (_) => PlayerType.unknown),
+      positions: positions,
+      stacks: stacks,
+      tags: List.from(spot.tags),
+      createdAt: DateTime.now(),
+    );
+  }
+
   Future<void> _save() async {
     final name = _nameController.text.trim();
-    if (name.isEmpty || _selected.isEmpty) return;
+    if (name.isEmpty) return;
     final tags = _tagsController.text
         .split(',')
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
+    final stack = int.tryParse(_stackController.text.trim()) ?? 10;
+    final count = int.tryParse(_playersController.text.trim()) ?? 2;
+    final range = PackGeneratorService.parseRangeString(_rangeController.text);
+    if (range.isEmpty) return;
+    final tplSpots = await PackGeneratorService.autoGenerateSpots(
+      id: const Uuid().v4(),
+      stack: stack,
+      players: [for (var i = 0; i < count; i++) stack],
+      pos: HeroPosition.sb,
+      count: range.length,
+      range: range.toList(),
+    );
+    final spots = [for (final s in tplSpots) _toSpot(s)];
     final pack = TrainingPack(
       name: name,
       description: '',
       tags: tags,
       hands: const [],
-      spots: _selected.toList(),
+      spots: spots,
       difficulty: _difficulty,
     );
-    await context.read<TrainingPackStorageService>().addPack(pack);
+    final service = context.read<TrainingPackStorageService>();
+    await service.addPack(pack);
+    await service.save();
     if (mounted) Navigator.pop(context, true);
   }
 
@@ -103,6 +186,26 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                           DropdownMenuItem(value: 3, child: Text('Advanced')),
                         ],
                         onChanged: (v) => setState(() => _difficulty = v ?? 1),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _stackController,
+                        decoration:
+                            const InputDecoration(labelText: 'Stack (BB)'),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _playersController,
+                        decoration:
+                            const InputDecoration(labelText: 'Players'),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _rangeController,
+                        decoration:
+                            const InputDecoration(labelText: 'Range'),
                       ),
                     ],
                   ),
