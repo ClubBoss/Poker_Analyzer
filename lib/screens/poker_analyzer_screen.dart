@@ -109,6 +109,7 @@ import '../services/backup_manager_service.dart';
 import '../services/debug_snapshot_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/undo_redo_service.dart';
+import '../services/diff_snapshot_service.dart';
 import '../services/action_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/transition_history_service.dart';
@@ -2780,9 +2781,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final beforeStacks = {
       for (int i = 0; i < numberOfPlayers; i++) i: _stackService.getStackForPlayer(i)
     };
-    _undoRedoService.recordSnapshot();
     _actionTagService.clear();
     _boardManager.reverseStreet();
+    _undoRedoService.recordSnapshot();
     final afterStacks = {
       for (int i = 0; i < numberOfPlayers; i++) i: _stackService.getStackForPlayer(i)
     };
@@ -2798,9 +2799,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _advanceStreet() {
     if (lockService.isLocked || !_boardManager.canAdvanceStreet()) return;
-    _undoRedoService.recordSnapshot();
     _actionTagService.clear();
     _boardManager.advanceStreet();
+    _undoRedoService.recordSnapshot();
   }
 
   void _changeStreet(int street) {
@@ -3474,6 +3475,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       potSync: _potSync,
       lockService: lockService,
       transitionHistory: _transitionHistory,
+      diffService: DiffSnapshotService(),
     ));
     _undoRedoService = _serviceRegistry.get<UndoRedoService>();
 
@@ -4786,9 +4788,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _previousStreet() {
     if (lockService.isLocked || !_boardManager.canReverseStreet()) return;
     lockService.safeSetState(this, () {
-      _undoRedoService.recordSnapshot();
       _actionTagService.clear();
       _boardManager.reverseStreet();
+      _undoRedoService.recordSnapshot();
     });
     _debugPanelSetState?.call(() {});
   }
@@ -4796,9 +4798,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _nextStreet() {
     if (lockService.isLocked || !_boardManager.canAdvanceStreet()) return;
     lockService.safeSetState(this, () {
-      _undoRedoService.recordSnapshot();
       _actionTagService.clear();
       _boardManager.advanceStreet();
+      _undoRedoService.recordSnapshot();
     });
     _debugPanelSetState?.call(() {});
   }
@@ -5687,8 +5689,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       onStreetChanged: (index) {
         if (lockService.isLocked) return;
         lockService.safeSetState(this, () {
-          _undoRedoService.recordSnapshot();
           _changeStreet(index);
+          _undoRedoService.recordSnapshot();
         });
       },
             ),

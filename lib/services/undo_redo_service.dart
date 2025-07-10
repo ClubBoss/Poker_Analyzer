@@ -2,6 +2,7 @@ import '../models/action_entry.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/saved_hand.dart';
+import 'diff_snapshot_service.dart';
 import 'action_sync_service.dart';
 import 'board_manager_service.dart';
 import 'board_reveal_service.dart';
@@ -31,6 +32,7 @@ class UndoRedoService {
   final PotSyncService potSync;
   final TransitionLockService lockService;
   final TransitionHistoryService transitionHistory;
+  final DiffSnapshotService diffService;
 
   UndoRedoService({
     required this.actionSync,
@@ -46,10 +48,12 @@ class UndoRedoService {
     required this.potSync,
     required this.lockService,
     required this.transitionHistory,
+    required this.diffService,
   });
 
-  final List<SavedHand> _undoStack = [];
-  final List<SavedHand> _redoStack = [];
+  late SavedHand _lastSnapshot = _currentSnapshot();
+  final List<SnapshotDiff> _undoDiffs = [];
+  final List<SnapshotDiff> _redoDiffs = [];
 
   SavedHand _currentSnapshot() {
     final stackService = playbackManager.stackService;
@@ -96,14 +100,18 @@ class UndoRedoService {
   }
 
   void recordSnapshot() {
-    _undoStack.add(_currentSnapshot());
-    _redoStack.clear();
+    final current = _currentSnapshot();
+    final diff = diffService.compute(_lastSnapshot, current);
+    _undoDiffs.add(diff);
+    _redoDiffs.clear();
+    _lastSnapshot = current;
     transitionHistory.recordSnapshot();
   }
 
   void resetHistory() {
-    _undoStack.clear();
-    _redoStack.clear();
+    _undoDiffs.clear();
+    _redoDiffs.clear();
+    _lastSnapshot = _currentSnapshot();
     transitionHistory.resetHistory();
   }
 
@@ -142,16 +150,20 @@ class UndoRedoService {
   }
 
   void undo() {
-    if (_undoStack.isEmpty) return;
-    final snap = _undoStack.removeLast();
-    _redoStack.add(_currentSnapshot());
+    if (_undoDiffs.isEmpty) return;
+    final diff = _undoDiffs.removeLast();
+    final snap = diffService.apply(_lastSnapshot, diff.backward);
+    _redoDiffs.add(diff);
+    _lastSnapshot = snap;
     transitionHistory.undo(() => _applySnapshot(snap));
   }
 
   void redo() {
-    if (_redoStack.isEmpty) return;
-    final snap = _redoStack.removeLast();
-    _undoStack.add(_currentSnapshot());
+    if (_redoDiffs.isEmpty) return;
+    final diff = _redoDiffs.removeLast();
+    final snap = diffService.apply(_lastSnapshot, diff.forward);
+    _undoDiffs.add(diff);
+    _lastSnapshot = snap;
     transitionHistory.redo(() => _applySnapshot(snap));
   }
 }

@@ -66,9 +66,6 @@ class ActionEditingService {
       entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
           amount: entry.amount, generated: entry.generated);
     }
-    if (recordHistory) {
-      undoRedo.recordSnapshot();
-    }
     actionSync.analyzerActions.insert(index, entry);
     if (recordHistory) {
       actionSync.recordHistory(ActionHistoryEntry(ActionChangeType.add, index,
@@ -98,6 +95,9 @@ class ActionEditingService {
     }
     playbackManager.updatePlaybackState();
     _autoAdvanceStreetIfComplete(entry.street);
+    if (recordHistory) {
+      undoRedo.recordSnapshot();
+    }
   }
 
   /// Replace the action at [index] with [entry].
@@ -106,9 +106,6 @@ class ActionEditingService {
     if (entry.street != currentStreet) {
       entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
           amount: entry.amount, generated: entry.generated);
-    }
-    if (recordHistory) {
-      undoRedo.recordSnapshot();
     }
     final previous = actions[index];
     actionSync.analyzerActions[index] = entry;
@@ -142,14 +139,14 @@ class ActionEditingService {
     actionHistory.updateHistory(actionSync.analyzerActions,
         visibleCount: playbackManager.playbackIndex);
     _autoAdvanceStreetIfComplete(entry.street);
+    if (recordHistory) {
+      undoRedo.recordSnapshot();
+    }
   }
 
   /// Remove the action at [index].
   void deleteAction(int index, {bool recordHistory = true}) {
     if (index < 0 || index >= actions.length) return;
-    if (recordHistory) {
-      undoRedo.recordSnapshot();
-    }
     final removed = actions[index];
     actionSync.analyzerActions.removeAt(index);
     if (recordHistory) {
@@ -170,6 +167,9 @@ class ActionEditingService {
         visibleCount: playbackManager.playbackIndex);
     actionHistory.autoCollapseStreets(actions);
     playbackManager.updatePlaybackState();
+    if (recordHistory) {
+      undoRedo.recordSnapshot();
+    }
   }
 
   /// Move an action from [oldIndex] to [newIndex].
@@ -177,7 +177,6 @@ class ActionEditingService {
     if (oldIndex < 0 || oldIndex >= actions.length) return;
     if (newIndex > oldIndex) newIndex -= 1;
     if (newIndex < 0 || newIndex >= actions.length) newIndex = actions.length - 1;
-    undoRedo.recordSnapshot();
     final entry = actionSync.analyzerActions.removeAt(oldIndex);
     actionSync.analyzerActions.insert(newIndex, entry);
     actionTag.recompute(actionSync.analyzerActions);
@@ -187,6 +186,7 @@ class ActionEditingService {
     actionHistory.updateHistory(actionSync.analyzerActions,
         visibleCount: playbackManager.playbackIndex);
     actionHistory.autoCollapseStreets(actions);
+    undoRedo.recordSnapshot();
   }
 
   /// Remove all future actions for [playerIndex] starting from [fromIndex]
@@ -219,8 +219,8 @@ class ActionEditingService {
     if (street != currentStreet || street >= 3) return;
     if (!_isStreetComplete(street)) return;
     if (!boardManager.canAdvanceStreet()) return;
-    undoRedo.recordSnapshot();
     boardManager.advanceStreet();
+    undoRedo.recordSnapshot();
   }
 
   void _removeFutureActionsForPlayer(
