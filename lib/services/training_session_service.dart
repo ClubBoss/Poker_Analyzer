@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../helpers/hand_utils.dart';
@@ -8,6 +9,9 @@ import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../screens/training_session_summary_screen.dart';
 import 'mistake_review_pack_service.dart';
+import 'cloud_training_history_service.dart';
+import '../models/result_entry.dart';
+import '../models/evaluation_result.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -316,6 +320,9 @@ class TrainingSessionService extends ChangeNotifier {
           .read<MistakeReviewPackService>()
           .addPack(ids, templateId: _template!.id);
     }
+    unawaited(context
+        .read<CloudTrainingHistoryService>()
+        .saveSession(_buildResults()));
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -408,6 +415,36 @@ class TrainingSessionService extends ChangeNotifier {
       if (_matchHandTypeLabel(spot, g.label)) return true;
     }
     return false;
+  }
+
+  String? _expectedAction(TrainingPackSpot spot) {
+    final acts = spot.hand.actions.isNotEmpty ? spot.hand.actions[0] : [];
+    for (final a in acts) {
+      if (a.playerIndex == spot.hand.heroIndex) return a.action;
+    }
+    return null;
+  }
+
+  List<ResultEntry> _buildResults() {
+    return [
+      for (final a in _actions)
+        (() {
+          final spot =
+              _spots.firstWhere((s) => s.id == a.spotId, orElse: () => TrainingPackSpot(id: ''));
+          if (spot.id.isEmpty) return null;
+          final eval = EvaluationResult(
+            correct: a.isCorrect,
+            expectedAction: _expectedAction(spot) ?? '',
+            userEquity: 0,
+            expectedEquity: 0,
+          );
+          return ResultEntry(
+            name: spot.title.isNotEmpty ? spot.title : spot.id,
+            userAction: a.chosenAction,
+            evaluation: eval,
+          );
+        })()
+    ].whereType<ResultEntry>().toList();
   }
 
   @override

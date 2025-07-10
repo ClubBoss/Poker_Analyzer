@@ -159,7 +159,7 @@ Future<void> main() async {
         ChangeNotifierProvider<AbTestEngine>.value(value: ab),
         ChangeNotifierProvider(create: (_) => ThemeService()..load()),
         Provider<CloudSyncService>.value(value: cloud),
-        Provider(create: (_) => CloudTrainingHistoryService()),
+        Provider(create: (_) => CloudTrainingHistoryService()..init()),
         ChangeNotifierProvider(
           create: (context) => TrainingSpotStorageService(
             cloud: context.read<CloudSyncService>(),

@@ -1,5 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/session_log.dart';
+import 'session_log_service.dart';
 
 import '../models/result_entry.dart';
 import '../models/cloud_training_session.dart';
@@ -7,6 +11,13 @@ import '../models/cloud_training_session.dart';
 class CloudTrainingHistoryService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   String? get _uid => FirebaseAuth.instance.currentUser?.uid;
+  final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
+
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ts = prefs.getString('history_sync_ts');
+    if (ts != null) lastSync.value = DateTime.tryParse(ts);
+  }
 
   Future<void> saveSession(List<ResultEntry> results) async {
     if (_uid == null) return;
@@ -40,6 +51,24 @@ class CloudTrainingHistoryService {
         .collection('training_sessions')
         .doc(id)
         .delete();
+  }
+
+  Future<void> download(SessionLogService logs) async {
+    final sessions = await loadSessions();
+    for (final s in sessions) {
+      final log = SessionLog(
+        sessionId: s.path,
+        templateId: '-',
+        startedAt: s.date,
+        completedAt: s.date,
+        correctCount: s.correct,
+        mistakeCount: s.mistakes,
+      );
+      await logs.addLog(log);
+    }
+    lastSync.value = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('history_sync_ts', lastSync.value!.toIso8601String());
   }
 
   Future<void> updateSession(
