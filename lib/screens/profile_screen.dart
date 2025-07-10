@@ -264,26 +264,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           Consumer<AuthService>(
             builder: (context, auth, child) {
-              final email = auth.email;
-              final text = email != null
-                  ? 'Sign Out ($email)'
-                  : 'Sign In with Google';
-              return ElevatedButton(
-                onPressed: () async {
-                  if (!auth.isSignedIn) {
-                    final ok = await auth.signInWithGoogle();
-                    if (ok) {
-                      final cloud = context.read<CloudSyncService>();
-                      await cloud.syncDown();
-                      await context
-                          .read<TrainingPackCloudSyncService>()
-                          .syncDownStats();
-                    }
-                  } else {
-                    await auth.signOut();
-                  }
-                },
-                child: Text(text),
+              if (auth.isSignedIn) {
+                final email = auth.email;
+                return ElevatedButton(
+                  onPressed: auth.signOut,
+                  child: Text('Sign Out ($email)'),
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      final ok = await auth.signInWithGoogle();
+                      if (ok) {
+                        final cloud = context.read<CloudSyncService>();
+                        await cloud.syncDown();
+                        await context
+                            .read<TrainingPackCloudSyncService>()
+                            .syncDownStats();
+                      }
+                    },
+                    child: const Text('Sign In with Google'),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final ok = await auth.signInWithApple();
+                      if (ok) {
+                        final cloud = context.read<CloudSyncService>();
+                        await cloud.syncDown();
+                        await context
+                            .read<TrainingPackCloudSyncService>()
+                            .syncDownStats();
+                      }
+                    },
+                    child: const Text('Sign In with Apple'),
+                  ),
+                ],
               );
             },
           ),
