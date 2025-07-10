@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../theme/app_colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/pack_import_service.dart';
@@ -1083,6 +1084,10 @@ class _TrainingPackTemplateListScreenState
             onPressed: () => _duplicate(t),
           ),
           IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () => _shareLink(t),
+          ),
+          IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () => _delete(t),
           ),
@@ -1222,6 +1227,10 @@ class _TrainingPackTemplateListScreenState
               onPressed: () => _duplicate(t),
             ),
             IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () => _shareLink(t),
+            ),
+            IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () => _delete(t),
             ),
@@ -1266,6 +1275,7 @@ class _TrainingPackTemplateListScreenState
       _loadGroupByStreet();
       _loadGroupByType();
       _loadFavorites();
+      _checkIncomingUri();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1365,6 +1375,59 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
+  }
+
+  Future<void> _shareLink(TrainingPackTemplate t) async {
+    final jsonStr = jsonEncode(t.toJson());
+    final data = base64Url.encode(utf8.encode(jsonStr));
+    final uri = Uri(scheme: 'pa', host: 'tpl', path: data);
+    final link = uri.toString();
+    try {
+      await Share.share(link);
+    } catch (_) {}
+    await Clipboard.setData(ClipboardData(text: link));
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Link copied')));
+    }
+  }
+
+  Future<void> _checkIncomingUri() async {
+    final uri = Uri.base;
+    final data = uri.queryParameters['tpl'] ??
+        (uri.pathSegments.length == 2 && uri.pathSegments.first == 'tpl'
+            ? uri.pathSegments[1]
+            : null);
+    if (data == null || data.isEmpty) return;
+    try {
+      final jsonStr = utf8.decode(base64Url.decode(data));
+      final map = jsonDecode(jsonStr);
+      if (map is! Map<String, dynamic>) return;
+      final tpl = TrainingPackTemplate.fromJson(map);
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Import "${tpl.name}"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Import'),
+            ),
+          ],
+        ),
+      );
+      if (ok == true) {
+        setState(() {
+          _templates.add(tpl);
+          _sortTemplates();
+        });
+        TrainingPackStorage.save(_templates);
+      }
+    } catch (_) {}
   }
 
   Future<void> _generateMissing(TrainingPackTemplate t) async {
