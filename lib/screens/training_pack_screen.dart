@@ -1219,7 +1219,10 @@ body { font-family: sans-serif; padding: 16px; }
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingAnalysisScreen(results: List.from(_results)),
+        builder: (_) => TrainingAnalysisScreen(
+          results: List.from(_results),
+          pack: _pack,
+        ),
       ),
     );
   }
@@ -2149,8 +2152,13 @@ body { font-family: sans-serif; padding: 16px; }
 
 class TrainingAnalysisScreen extends StatefulWidget {
   final List<ResultEntry> results;
+  final TrainingPack pack;
 
-  const TrainingAnalysisScreen({super.key, required this.results});
+  const TrainingAnalysisScreen({
+    super.key,
+    required this.results,
+    required this.pack,
+  });
 
   @override
   State<TrainingAnalysisScreen> createState() => _TrainingAnalysisScreenState();
@@ -2286,6 +2294,15 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
     await Share.shareXFiles([XFile(file.path)], text: 'session_mistakes.pdf');
   }
 
+  Future<void> _sharePack() async {
+    final file = await context
+        .read<TrainingPackStorageService>()
+        .exportPackTemp(widget.pack);
+    if (!mounted || file == null) return;
+    await Share.shareXFiles([XFile(file.path)], text: 'Check out my Poker Analyzer pack!');
+    if (await file.exists()) await file.delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     final results = _onlyErrors
@@ -2312,11 +2329,16 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
       appBar: AppBar(
         title: const Text('Анализ тренировки'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.save_alt),
             tooltip: 'Экспорт',
             onPressed: () => _exportMarkdown(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: 'Поделиться',
+            onPressed: widget.pack.isBuiltIn ? null : _sharePack,
           ),
         ],
       ),
