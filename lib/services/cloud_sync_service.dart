@@ -258,6 +258,54 @@ class CloudSyncService {
     return [];
   }
 
+  Future<List<SavedHand>> loadHands() async {
+    final cached = getCached('saved_hands');
+    var hands = <SavedHand>[];
+    var localAt = DateTime.fromMillisecondsSinceEpoch(0);
+    if (cached != null) {
+      final list = cached['hands'];
+      if (list is List) {
+        hands = [
+          for (final e in list)
+            if (e is Map)
+              SavedHand.fromJson(Map<String, dynamic>.from(e as Map))
+        ];
+      }
+      localAt = DateTime.tryParse(cached['updatedAt'] as String? ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    if (uid == null) return hands;
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('saved_hands')
+        .doc('main')
+        .get();
+    if (snap.exists) {
+      final remote = snap.data()!;
+      final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      if (remoteAt.isAfter(localAt)) {
+        final list = remote['hands'];
+        if (list is List) {
+          hands = [
+            for (final e in list)
+              if (e is Map)
+                SavedHand.fromJson(Map<String, dynamic>.from(e as Map))
+          ];
+          if (_local) {
+            await _box!.put('cached_saved_hands', remote);
+          } else {
+            await _prefs.setString('cached_saved_hands', jsonEncode(remote));
+          }
+        }
+      } else if (localAt.isAfter(remoteAt)) {
+        await uploadHands(hands);
+      }
+    }
+    return hands;
+  }
+
   Future<void> uploadSessionNotes(Map<int, String> notes) async {
     await queueMutation('session_notes', 'main', {
       'notes': {for (final e in notes.entries) e.key.toString(): e.value},

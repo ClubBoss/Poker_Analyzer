@@ -83,7 +83,24 @@ import 'core/error_logger.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppBootstrap.init();
+  final auth = AuthService();
+  final rc = RemoteConfigService();
+  if (!CloudSyncService.isLocal) {
+    await Firebase.initializeApp();
+    await NotificationService.init();
+    await rc.load();
+    if (!auth.isSignedIn) {
+      final uid = await auth.signInAnonymously();
+      if (uid != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('anon_uid_log', uid);
+      }
+    }
+  }
+  final ab = AbTestEngine(remote: rc);
+  await ab.init();
+  final cloud = CloudSyncService();
+  await AppBootstrap.init(cloud: cloud);
   final registry = ServiceRegistry();
   final pluginManager = PluginManager();
   final loader = PluginLoader();
@@ -102,26 +119,6 @@ Future<void> main() async {
     pluginManager.load(p);
   }
   pluginManager.initializeAll(registry);
-  final auth = AuthService();
-  final rc = RemoteConfigService();
-  if (!CloudSyncService.isLocal) {
-    await Firebase.initializeApp();
-    await NotificationService.init();
-    await rc.load();
-    if (!auth.isSignedIn) {
-      final uid = await auth.signInAnonymously();
-      if (uid != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('anon_uid_log', uid);
-      }
-    }
-  }
-  final ab = AbTestEngine(remote: rc);
-  await ab.init();
-  final cloud = CloudSyncService();
-  await cloud.init();
-  await cloud.syncDown();
-  cloud.watchChanges();
   final packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
   final packCloud = TrainingPackCloudSyncService();
