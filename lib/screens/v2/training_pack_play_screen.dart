@@ -573,7 +573,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         builder: (ctx) => Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16 * scale),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -583,10 +583,11 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 correctAction: expected,
                 explanation: explanation,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16 * scale),
               ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Continue'),
+                child:
+                    Text('Continue', style: TextStyle(fontSize: 14 * scale)),
               ),
             ],
           ),
@@ -604,6 +605,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    final width = MediaQuery.of(context).size.width;
+    final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _spots[_index];
     final progress = (_index + 1) / _spots.length;
     final actions = _heroActions(spot);
@@ -698,18 +701,18 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             children: [
               if (widget.original.spots.length > widget.template.spots.length)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: EdgeInsets.only(bottom: 4 * scale),
                   child: Chip(
                     label: Text(
                       AppLocalizations.of(context)!.reviewMistakesOnly,
-                      style: const TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize: 12 * scale),
                     ),
                     backgroundColor: Colors.orange,
                     visualDensity: VisualDensity.compact,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
-              LinearProgressIndicator(value: progress),
+              LinearProgressIndicator(value: progress, minHeight: 4 * scale),
             ],
           ),
         ),
@@ -718,63 +721,86 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16 * scale),
             child: Column(
               children: [
             if (widget.template.focusTags.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: EdgeInsets.only(bottom: 8 * scale),
                 child: Text(
                   '🎯 Focus: ${widget.template.focusTags.join(', ')}',
-                  style: const TextStyle(color: Colors.white70),
+                  style: TextStyle(color: Colors.white70, fontSize: 14 * scale),
                 ),
               ),
             if (widget.template.focusHandTypes.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: EdgeInsets.only(bottom: 8 * scale),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('🎯 Hand Goals',
-                        style: TextStyle(color: Colors.white70)),
+                    Text('🎯 Hand Goals',
+                        style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
                     for (final g in widget.template.focusHandTypes)
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: LinearProgressIndicator(
-                                value: _handTotals[g.label] != null && _handTotals[g.label]! > 0
-                                    ? (_handCounts[g.label]?.clamp(0, _handTotals[g.label]!) ?? 0) /
-                                        _handTotals[g.label]!
-                                    : 0,
-                                color: Colors.purpleAccent,
-                                backgroundColor:
-                                    Colors.purpleAccent.withOpacity(0.3),
+                        padding: EdgeInsets.only(top: 4 * scale),
+                        child: LayoutBuilder(builder: (context, c) {
+                          if (c.maxWidth < 320) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                LinearProgressIndicator(
+                                  value: _handTotals[g.label] != null && _handTotals[g.label]! > 0
+                                      ? (_handCounts[g.label]?.clamp(0, _handTotals[g.label]!) ?? 0) /
+                                          _handTotals[g.label]!
+                                      : 0,
+                                  color: Colors.purpleAccent,
+                                  backgroundColor: Colors.purpleAccent.withOpacity(0.3),
+                                  minHeight: 6 * scale,
+                                ),
+                                SizedBox(height: 4 * scale),
+                                Text(
+                                  '${g.label}: ${_handCounts[g.label] ?? 0}/${_handTotals[g.label] ?? 0}',
+                                  style: TextStyle(color: Colors.white70, fontSize: 14 * scale),
+                                ),
+                              ],
+                            );
+                          }
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: LinearProgressIndicator(
+                                  value: _handTotals[g.label] != null && _handTotals[g.label]! > 0
+                                      ? (_handCounts[g.label]?.clamp(0, _handTotals[g.label]!) ?? 0) /
+                                          _handTotals[g.label]!
+                                      : 0,
+                                  color: Colors.purpleAccent,
+                                  backgroundColor: Colors.purpleAccent.withOpacity(0.3),
+                                  minHeight: 6 * scale,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${g.label}: ${_handCounts[g.label] ?? 0}/${_handTotals[g.label] ?? 0}',
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                          ],
-                        ),
+                              SizedBox(width: 8 * scale),
+                              Text(
+                                '${g.label}: ${_handCounts[g.label] ?? 0}/${_handTotals[g.label] ?? 0}',
+                                style: TextStyle(color: Colors.white70, fontSize: 14 * scale),
+                              ),
+                            ],
+                          );
+                        }),
                       ),
                   ],
                 ),
               ),
             if (widget.template.heroRange != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: EdgeInsets.only(bottom: 8 * scale),
                 child: Text(
                   widget.template.handTypeSummary(),
-                  style: const TextStyle(color: Colors.white54),
+                  style: TextStyle(color: Colors.white54, fontSize: 14 * scale),
                 ),
               ),
             Text('Spot ${_index + 1} of ${_spots.length}',
-                style: const TextStyle(color: Colors.white70)),
-            const SizedBox(height: 8),
+                style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+            SizedBox(height: 8 * scale),
             Expanded(
               child: GestureDetector(
                 onHorizontalDragEnd: (d) {
@@ -800,7 +826,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                   key: ValueKey(_index),
                   children: [
                     SpotQuizWidget(spot: spot),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16 * scale),
                     Wrap(
                       spacing: 8,
                       alignment: WrapAlignment.center,
@@ -815,11 +841,13 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.accent),
                                   onPressed: () => _choose(a),
-                                  child: Text(a.toUpperCase()),
+                                  child: Text(a.toUpperCase(),
+                                      style: TextStyle(fontSize: 14 * scale)),
                                 )
                               : OutlinedButton(
                                   onPressed: () => _choose(a),
-                                  child: Text(a.toUpperCase()),
+                                  child: Text(a.toUpperCase(),
+                                      style: TextStyle(fontSize: 14 * scale)),
                                 ),
                       ],
                     ),
@@ -832,47 +860,49 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ),
           if (_feedback != null)
             Positioned(
-              top: 16,
-              left: 16,
-              right: 16,
+              top: 16 * scale,
+              left: 16 * scale,
+              right: 16 * scale,
               child: GestureDetector(
                 onTap: _hideFeedback,
                 child: Card(
                   color: _feedback!.correct ? Colors.green : Colors.red,
                   child: Padding(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8 * scale),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (_feedback!.repeated)
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            padding: EdgeInsets.symmetric(vertical: 2 * scale),
                             color: Colors.redAccent,
-                            child: const Text(
+                            child: Text(
                               'Repeated Mistake',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14 * scale),
                             ),
                           ),
                         Text(
                           'Correct: ${_feedback!.action.toUpperCase()}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14 * scale),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4 * scale),
                         Text(
                           "EV: ${_fmt(_feedback!.heroEv, ' BB')}  \u0394EV: ${_fmt(_feedback!.evDiff, ' BB')}${_feedback!.icmDiff != null ? '  \u0394ICM: ${_fmt(_feedback!.icmDiff)}' : ''}",
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.white, fontSize: 14 * scale),
                         ),
                         if (_feedback!.advice != null) ...[
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4 * scale),
                           Text(
                             _feedback!.advice!,
-                            style: const TextStyle(color: Colors.white70),
+                            style: TextStyle(color: Colors.white70, fontSize: 14 * scale),
                           ),
                         ],
                       ],

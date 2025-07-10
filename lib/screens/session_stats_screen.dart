@@ -229,16 +229,29 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Сессии с точностью > 80%',
-                  style:
-                      TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-              Text('$good из $total',
-                  style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-            ],
-          ),
+          LayoutBuilder(builder: (context, constraints) {
+            if (constraints.maxWidth < 360) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Сессии с точностью > 80%',
+                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                  SizedBox(height: 4 * scale),
+                  Text('$good из $total',
+                      style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                ],
+              );
+            }
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Сессии с точностью > 80%',
+                    style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                Text('$good из $total',
+                    style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+              ],
+            );
+          }),
           SizedBox(height: 4 * scale),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -262,18 +275,31 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text('Цель месяца: 10 сессий с точностью > 90%',
-                    style:
-                        TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-              ),
-              Text('$good из 10',
-                  style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-            ],
-          ),
+          LayoutBuilder(builder: (context, constraints) {
+            if (constraints.maxWidth < 360) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Цель месяца: 10 сессий с точностью > 90%',
+                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                  SizedBox(height: 4 * scale),
+                  Text('$good из 10',
+                      style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                ],
+              );
+            }
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text('Цель месяца: 10 сессий с точностью > 90%',
+                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                ),
+                Text('$good из 10',
+                    style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+              ],
+            );
+          }),
           SizedBox(height: 4 * scale),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
