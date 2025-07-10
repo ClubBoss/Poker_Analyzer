@@ -659,6 +659,19 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     }
   }
 
+  Future<void> _exportCsv(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final notes = context.read<SessionNoteService>().notes;
+    final path = await manager.exportAllSessionsCsv(notes);
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'training_summary.csv');
+    if (context.mounted) {
+      final name = path.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    }
+  }
+
   Future<void> _showExportOptions() async {
     final result = await showModalBottomSheet<String>(
       context: context,
@@ -670,6 +683,11 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
               leading: const Icon(Icons.description),
               title: const Text('Markdown'),
               onTap: () => Navigator.pop(ctx, 'md'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart),
+              title: const Text('CSV'),
+              onTap: () => Navigator.pop(ctx, 'csv'),
             ),
             ListTile(
               leading: const Icon(Icons.picture_as_pdf),
@@ -685,6 +703,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       await _exportMarkdown(context);
     } else if (result == 'pdf') {
       await _exportPdf(context);
+    } else if (result == 'csv') {
+      await _exportCsv(context);
     }
   }
 

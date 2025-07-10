@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import 'package:csv/csv.dart';
 import '../helpers/date_utils.dart';
 
 import '../models/saved_hand.dart';
@@ -562,6 +563,150 @@ class SavedHandManagerService extends ChangeNotifier {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/training_summary_filtered.pdf');
     await file.writeAsBytes(bytes);
+    return file.path;
+  }
+
+  Future<String?> exportAllSessionsCsv(Map<int, String> notes) async {
+    if (hands.isEmpty) return null;
+
+    String _durToStr(Duration d) {
+      final h = d.inHours;
+      final m = d.inMinutes.remainder(60);
+      final parts = <String>[];
+      if (h > 0) parts.add('${h}ч');
+      parts.add('${m}м');
+      return parts.join(' ');
+    }
+
+    final grouped = handsBySession().entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    final rows = <List<dynamic>>[
+      ['Дата', 'Длительность', 'Раздач', 'Верно', 'EV', 'ICM']
+    ];
+
+    for (final entry in grouped) {
+      final list = List<SavedHand>.from(entry.value)
+        ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+      if (list.isEmpty) continue;
+      final start = list.first.savedAt;
+      final end = list.last.savedAt;
+      int correct = 0;
+      int incorrect = 0;
+      double evSum = 0;
+      double icmSum = 0;
+      int evCount = 0;
+      int icmCount = 0;
+      for (final h in list) {
+        final expected = h.expectedAction;
+        final gto = h.gtoAction;
+        if (expected != null && gto != null) {
+          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
+            correct++;
+          } else {
+            incorrect++;
+          }
+        }
+        final ev = h.heroEv;
+        if (ev != null) {
+          evSum += ev;
+          evCount++;
+        }
+        final icm = h.heroIcmEv;
+        if (icm != null) {
+          icmSum += icm;
+          icmCount++;
+        }
+      }
+      final evAvg = evCount > 0 ? (evSum / evCount).toStringAsFixed(1) : '';
+      final icmAvg = icmCount > 0 ? (icmSum / icmCount).toStringAsFixed(3) : '';
+      rows.add([
+        formatDateTime(end),
+        _durToStr(end.difference(start)),
+        list.length,
+        correct,
+        evAvg,
+        icmAvg
+      ]);
+    }
+
+    final csv = const ListToCsvConverter(fieldDelimiter: ';')
+        .convert(rows, eol: '\r\n');
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_summary.csv');
+    await file.writeAsString(csv);
+    return file.path;
+  }
+
+  Future<String?> exportSessionsCsv(
+      List<int> sessionIds, Map<int, String> notes) async {
+    if (sessionIds.isEmpty) return null;
+
+    String _durToStr(Duration d) {
+      final h = d.inHours;
+      final m = d.inMinutes.remainder(60);
+      final parts = <String>[];
+      if (h > 0) parts.add('${h}ч');
+      parts.add('${m}м');
+      return parts.join(' ');
+    }
+
+    final grouped = handsBySession();
+    final ids = List<int>.from(sessionIds)..sort();
+    final rows = <List<dynamic>>[
+      ['Дата', 'Длительность', 'Раздач', 'Верно', 'EV', 'ICM']
+    ];
+
+    for (final id in ids) {
+      final sessionHands = grouped[id];
+      if (sessionHands == null || sessionHands.isEmpty) continue;
+      final list = List<SavedHand>.from(sessionHands)
+        ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+      final start = list.first.savedAt;
+      final end = list.last.savedAt;
+      int correct = 0;
+      int incorrect = 0;
+      double evSum = 0;
+      double icmSum = 0;
+      int evCount = 0;
+      int icmCount = 0;
+      for (final h in list) {
+        final expected = h.expectedAction;
+        final gto = h.gtoAction;
+        if (expected != null && gto != null) {
+          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
+            correct++;
+          } else {
+            incorrect++;
+          }
+        }
+        final ev = h.heroEv;
+        if (ev != null) {
+          evSum += ev;
+          evCount++;
+        }
+        final icm = h.heroIcmEv;
+        if (icm != null) {
+          icmSum += icm;
+          icmCount++;
+        }
+      }
+      final evAvg = evCount > 0 ? (evSum / evCount).toStringAsFixed(1) : '';
+      final icmAvg = icmCount > 0 ? (icmSum / icmCount).toStringAsFixed(3) : '';
+      rows.add([
+        formatDateTime(end),
+        _durToStr(end.difference(start)),
+        list.length,
+        correct,
+        evAvg,
+        icmAvg
+      ]);
+    }
+
+    final csv = const ListToCsvConverter(fieldDelimiter: ';')
+        .convert(rows, eol: '\r\n');
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_summary_filtered.csv');
+    await file.writeAsString(csv);
     return file.path;
   }
 
