@@ -3,6 +3,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/v2/training_session.dart';
+import '../models/saved_hand.dart';
+import '../services/saved_hand_manager_service.dart';
+import 'session_analysis_screen.dart';
+import 'package:provider/provider.dart';
 
 class SessionHistoryScreen extends StatefulWidget {
   const SessionHistoryScreen({super.key});
@@ -89,6 +93,21 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                       ],
                     ),
                   ),
+                  onTap: () {
+                    final allHands = context.read<SavedHandManagerService>().hands;
+                    final List<SavedHand> sessionHands = [];
+                    for (final h in allHands) {
+                      final afterStart = !h.savedAt.isBefore(s.startedAt);
+                      final beforeEnd = s.completedAt == null || !h.savedAt.isAfter(s.completedAt!);
+                      if (afterStart && beforeEnd) sessionHands.add(h);
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SessionAnalysisScreen(hands: sessionHands),
+                      ),
+                    );
+                  },
                 );
               },
             ),
