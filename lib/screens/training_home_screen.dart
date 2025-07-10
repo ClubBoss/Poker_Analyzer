@@ -18,6 +18,7 @@ import 'training_session_screen.dart';
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/spot_of_the_day_card.dart';
 import '../widgets/streak_chart.dart';
+import '../widgets/daily_goals_card.dart';
 import '../widgets/daily_progress_ring.dart';
 import '../widgets/repeat_mistakes_card.dart';
 import '../widgets/weekly_challenge_card.dart';
@@ -85,6 +86,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const PositionProgressCard(),
           const StreakChart(),
           const DailyProgressRing(),
+          const DailyGoalsCard(),
           const DailyChallengeCard(),
           const WeeklyChallengeCard(),
           const XPProgressBar(),
