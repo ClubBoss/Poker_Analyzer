@@ -22,9 +22,12 @@ import '../widgets/spot_viewer_dialog.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
 import 'v2/training_pack_play_screen.dart';
+import '../services/next_step_engine.dart';
+import 'mistake_repeat_screen.dart';
+import 'goals_overview_screen.dart';
+import 'spot_of_the_day_screen.dart';
 
-class TrainingSessionSummaryScreen extends StatelessWidget {
-  final _boundaryKey = GlobalKey();
+class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
   final TrainingPackTemplate template;
   final double preEvPct;
@@ -36,6 +39,62 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
     required this.preEvPct,
     required this.preIcmPct,
   });
+
+  @override
+  State<TrainingSessionSummaryScreen> createState() => _TrainingSessionSummaryScreenState();
+}
+
+class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScreen> {
+  final _boundaryKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final s = context.read<NextStepEngine>().suggestion;
+      if (s != null) _showNextStep(s);
+    });
+  }
+
+  void _open(String route) {
+    switch (route) {
+      case '/mistake_repeat':
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const MistakeRepeatScreen()));
+        break;
+      case '/goals':
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()));
+        break;
+      case '/spot_of_the_day':
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const SpotOfTheDayScreen()));
+        break;
+    }
+  }
+
+  void _showNextStep(NextStepSuggestion s) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(s.icon, color: Theme.of(context).colorScheme.secondary),
+            const SizedBox(width: 8),
+            Text(s.title),
+          ],
+        ),
+        content: Text(s.message),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Later')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _open(s.targetRoute);
+            },
+            child: const Text('Go'),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<void> _share(BuildContext context) async {
     final boundary =
@@ -54,16 +113,16 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final tip = context.watch<DailyTipService>().tip;
-    final total = session.results.length;
-    final correct = session.results.values.where((e) => e).length;
+    final total = widget.session.results.length;
+    final correct = widget.session.results.values.where((e) => e).length;
     final accuracy = total == 0 ? 0.0 : correct * 100 / total;
-    final tTotal = template.spots.length;
-    final evPct = tTotal == 0 ? 0.0 : template.evCovered * 100 / tTotal;
-    final icmPct = tTotal == 0 ? 0.0 : template.icmCovered * 100 / tTotal;
+    final tTotal = widget.template.spots.length;
+    final evPct = tTotal == 0 ? 0.0 : widget.template.evCovered * 100 / tTotal;
+    final icmPct = tTotal == 0 ? 0.0 : widget.template.icmCovered * 100 / tTotal;
     final mistakes = [
-      for (final id in session.results.keys)
-        if (session.results[id] == false)
-          template.spots.firstWhere(
+      for (final id in widget.session.results.keys)
+        if (widget.session.results[id] == false)
+          widget.template.spots.firstWhere(
             (s) => s.id == id,
             orElse: () => TrainingPackSpot(id: ''),
           )
@@ -92,7 +151,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            CombinedProgressBar(preEvPct, preIcmPct),
+            CombinedProgressBar(widget.preEvPct, widget.preIcmPct),
             const SizedBox(height: 4),
             CombinedProgressBar(evPct, icmPct),
             const SizedBox(height: 16),
@@ -115,8 +174,8 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                   final sAdv = kMistakeAdvice[streetName(street)];
                   if (sAdv != null) adv.add(sAdv);
                 }
-                final deltaEv = evPct - preEvPct;
-                final deltaIcm = icmPct - preIcmPct;
+                final deltaEv = evPct - widget.preEvPct;
+                final deltaIcm = icmPct - widget.preIcmPct;
                 adv.add('Прогресс EV ${deltaEv >= 0 ? '+' : ''}${deltaEv.toStringAsFixed(1)}%, ICM ${deltaIcm >= 0 ? '+' : ''}${deltaIcm.toStringAsFixed(1)}%');
                 final packs = context.watch<AdaptiveTrainingService>().recommended;
                 final list = packs.take(3).toList();
