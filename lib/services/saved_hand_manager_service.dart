@@ -7,9 +7,15 @@ import 'package:archive/archive.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:csv/csv.dart';
+import 'package:uuid/uuid.dart';
 import '../helpers/date_utils.dart';
 
 import '../models/saved_hand.dart';
+import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hand_data.dart';
+import '../models/v2/hero_position.dart';
+import '../models/training_pack.dart';
 import 'saved_hand_storage_service.dart';
 import 'cloud_sync_service.dart';
 import "training_stats_service.dart";
@@ -1251,5 +1257,42 @@ class SavedHandManagerService extends ChangeNotifier {
 
     // Only completed streaks are returned, so the trailing streak is ignored.
     return streaks.reversed.toList();
+  }
+
+  TrainingPackTemplate createPack(String name, List<SavedHand> selected) {
+    HeroPosition _pos(String s) => parseHeroPosition(s);
+
+    TrainingPackSpot spotFromHand(SavedHand h) {
+      final cards =
+          h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+      final stacks = {
+        for (int i = 0; i < h.numberOfPlayers; i++)
+          '$i': (h.stackSizes[i] ?? 0).toDouble()
+      };
+      final acts = [for (final a in h.actions) if (a.street == 0) a];
+      return TrainingPackSpot(
+        id: const Uuid().v4(),
+        hand: HandData(
+          heroCards: cards,
+          position: _pos(h.heroPosition),
+          heroIndex: h.heroIndex,
+          playerCount: h.numberOfPlayers,
+          stacks: stacks,
+          actions: {0: acts},
+          anteBb: h.anteBb,
+        ),
+        tags: List<String>.from(h.tags),
+      );
+    }
+
+    final tpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: name,
+      gameType: parseGameType(selected.isNotEmpty ? selected.first.gameType : ''),
+      spots: [for (final h in selected) spotFromHand(h)],
+      tags: {for (final h in selected) ...h.tags}.toList(),
+      createdAt: DateTime.now(),
+    );
+    return tpl;
   }
 }
