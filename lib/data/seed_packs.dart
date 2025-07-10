@@ -38,8 +38,68 @@ final TrainingPackTemplate autoPushFold10bb =
   createdAt: DateTime.now(),
 );
 
+final TrainingPackTemplate autoPushFold12bbSb =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'auto_12bb_sb',
+  name: 'Auto SB 12bb push/fold',
+  heroBbStack: 12,
+  playerStacksBb: [12, 12],
+  heroPos: HeroPosition.sb,
+  heroRange: PackGeneratorService.topNHands(15).toList(),
+  createdAt: DateTime.now(),
+);
+
+final TrainingPackTemplate autoPushFold15bbSb =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'auto_15bb_sb',
+  name: 'Auto SB 15bb push/fold',
+  heroBbStack: 15,
+  playerStacksBb: [15, 15],
+  heroPos: HeroPosition.sb,
+  heroRange: PackGeneratorService.topNHands(18).toList(),
+  createdAt: DateTime.now(),
+);
+
+final TrainingPackTemplate autoPushFold10bbBtn =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'auto_10bb_btn',
+  name: 'Auto BTN 10bb push/fold',
+  heroBbStack: 10,
+  playerStacksBb: [10, 10, 10],
+  heroPos: HeroPosition.btn,
+  heroRange: PackGeneratorService.topNHands(12).toList(),
+  createdAt: DateTime.now(),
+);
+
+final TrainingPackTemplate autoPushFold12bbBtn =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'auto_12bb_btn',
+  name: 'Auto BTN 12bb push/fold',
+  heroBbStack: 12,
+  playerStacksBb: [12, 12, 12],
+  heroPos: HeroPosition.btn,
+  heroRange: PackGeneratorService.topNHands(15).toList(),
+  createdAt: DateTime.now(),
+);
+
+final TrainingPackTemplate autoPushFold15bbBtn =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'auto_15bb_btn',
+  name: 'Auto BTN 15bb push/fold',
+  heroBbStack: 15,
+  playerStacksBb: [15, 15, 15],
+  heroPos: HeroPosition.btn,
+  heroRange: PackGeneratorService.topNHands(18).toList(),
+  createdAt: DateTime.now(),
+);
+
 final List<TrainingPackTemplate> seedPacks = [
   autoPushFold10bb,
+  autoPushFold12bbSb,
+  autoPushFold15bbSb,
+  autoPushFold10bbBtn,
+  autoPushFold12bbBtn,
+  autoPushFold15bbBtn,
   TrainingPackTemplate(
     id: 'sb_vs_bb_10bb',
     name: 'SB vs BB 10bb',
