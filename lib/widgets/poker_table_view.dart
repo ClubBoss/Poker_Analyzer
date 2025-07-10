@@ -23,7 +23,7 @@ const playerActionColors = {
   PlayerAction.post: Colors.brown,
 };
 
-enum TableTheme { green, carbon, blue }
+enum TableTheme { green, carbon, blue, dark }
 
 class PokerTableView extends StatefulWidget {
   final int heroIndex;
@@ -62,7 +62,7 @@ class PokerTableView extends StatefulWidget {
     this.heroCards = const [],
     this.revealedCards = const [],
     this.scale = 1.0,
-    this.theme = TableTheme.green,
+    this.theme = TableTheme.dark,
     this.onThemeChanged,
   });
 

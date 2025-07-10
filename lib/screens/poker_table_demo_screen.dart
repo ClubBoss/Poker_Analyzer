@@ -20,7 +20,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   late List<double> _bets;
   int _heroIndex = 0;
   double _pot = 0.0;
-  TableTheme _theme = TableTheme.green;
+  TableTheme _theme = TableTheme.dark;
   final _history = TableEditHistory();
 
   TableState get _state => TableState(

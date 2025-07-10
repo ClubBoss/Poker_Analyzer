@@ -44,6 +44,12 @@ class PokerTablePainter extends CustomPainter {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
+      case TableTheme.dark:
+        return const LinearGradient(
+          colors: [Color(0xFF1A1A1A), Color(0xFF000000)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
     }
   }
 
@@ -55,6 +61,8 @@ class PokerTablePainter extends CustomPainter {
         return Colors.grey;
       case TableTheme.blue:
         return Colors.lightBlueAccent;
+      case TableTheme.dark:
+        return Colors.orangeAccent;
     }
   }
 
