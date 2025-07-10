@@ -103,6 +103,14 @@ class TrainingPackCloudSyncService {
     ];
   }
 
+  Future<List<TrainingPackTemplateModel>> loadPublicTemplates() async {
+    final snap = await _db.collection('public_templates').get();
+    return [
+      for (final d in snap.docs)
+        TrainingPackTemplateModel.fromJson({...d.data(), 'id': d.id})
+    ];
+  }
+
   Future<void> saveTemplate(TrainingPackTemplateModel tpl) async {
     if (_uid == null) return;
     await _db

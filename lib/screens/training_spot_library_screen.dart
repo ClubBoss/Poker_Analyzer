@@ -190,6 +190,7 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
       description: '',
       category: '',
       difficulty: 1,
+      rating: 0,
       filters: filters,
       isTournament: true,
     );

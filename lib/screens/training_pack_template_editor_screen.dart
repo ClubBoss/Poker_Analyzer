@@ -103,6 +103,7 @@ class _TrainingPackTemplateEditorScreenState
       description: _desc.text.trim(),
       category: _category.text.trim(),
       difficulty: _difficulty,
+      rating: widget.initial?.rating ?? 0,
       filters: filters,
       isTournament: widget.initial?.isTournament ?? false,
       createdAt: widget.initial?.createdAt,
