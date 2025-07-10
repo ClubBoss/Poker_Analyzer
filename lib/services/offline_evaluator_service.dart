@@ -2,11 +2,17 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/v2/training_pack_spot.dart';
 import 'push_fold_ev_service.dart';
+import 'remote_ev_service.dart';
 
 class OfflineEvaluatorService {
-  OfflineEvaluatorService({this.remote = const PushFoldEvService()});
+  OfflineEvaluatorService({
+    PushFoldEvService? offline,
+    RemoteEvService? remote,
+  })  : offline = offline ?? const PushFoldEvService(),
+        remote = remote ?? RemoteEvService();
 
-  final PushFoldEvService remote;
+  final PushFoldEvService offline;
+  final RemoteEvService remote;
   static bool _offline = false;
   static bool get isOffline => _offline;
   static set isOffline(bool v) => _offline = v;
@@ -42,6 +48,7 @@ class OfflineEvaluatorService {
           }
         }
       }
+      await offline.evaluate(spot, anteBb: anteBb);
       return;
     }
     await remote.evaluate(spot, anteBb: anteBb);
@@ -69,6 +76,7 @@ class OfflineEvaluatorService {
           }
         }
       }
+      await offline.evaluateIcm(spot, anteBb: anteBb);
       return;
     }
     await remote.evaluateIcm(spot, anteBb: anteBb);
