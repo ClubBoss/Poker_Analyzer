@@ -67,6 +67,7 @@ import 'services/asset_sync_service.dart';
 import 'services/favorite_pack_service.dart';
 import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
+import 'widgets/first_launch_overlay.dart';
 import 'app_bootstrap.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -332,6 +333,17 @@ class PokerAIAnalyzerApp extends StatefulWidget {
 class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   late final ConnectivitySyncController _sync;
 
+  Future<void> _maybeShowIntroOverlay() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('seen_intro_overlay') == true) return;
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+    showFirstLaunchOverlay(ctx, () async {
+      final p = await SharedPreferences.getInstance();
+      await p.setBool('seen_intro_overlay', true);
+    });
+  }
+
   Future<void> _maybeResumeTraining() async {
     final prefs = await SharedPreferences.getInstance();
     String? id;
@@ -393,7 +405,10 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     _sync = ConnectivitySyncController(cloud: context.read<CloudSyncService>());
     context.read<UserActionLogger>().log('opened_app');
     unawaited(NotificationService.scheduleDailyReminder(context));
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeResumeTraining());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeResumeTraining();
+      _maybeShowIntroOverlay();
+    });
   }
 
   @override
