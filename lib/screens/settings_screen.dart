@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/sync_status_widget.dart';
+import 'evaluation_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -163,6 +164,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Режим тренера (Coach Mode)'),
               onChanged: _toggleCoachMode,
               activeColor: Colors.orange,
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const EvaluationSettingsScreen(),
+                  ),
+                );
+              },
+              child: const Text('Evaluation Settings'),
             ),
             Consumer<AuthService>(
               builder: (context, auth, child) {
