@@ -12,6 +12,8 @@ class TrainingPackStat {
   final double preIcmPct;
   final double postEvPct;
   final double postIcmPct;
+  final double evSum;
+  final double icmSum;
   TrainingPackStat({
     required this.accuracy,
     required this.last,
@@ -20,6 +22,8 @@ class TrainingPackStat {
     this.preIcmPct = 0,
     this.postEvPct = 0,
     this.postIcmPct = 0,
+    this.evSum = 0,
+    this.icmSum = 0,
   });
 
   Map<String, dynamic> toJson() => {
@@ -30,6 +34,8 @@ class TrainingPackStat {
         if (preIcmPct > 0) 'preIcm': preIcmPct,
         if (postEvPct > 0) 'postEv': postEvPct,
         if (postIcmPct > 0) 'postIcm': postIcmPct,
+        if (evSum != 0) 'evSum': evSum,
+        if (icmSum != 0) 'icmSum': icmSum,
       };
 
   factory TrainingPackStat.fromJson(Map<String, dynamic> j) => TrainingPackStat(
@@ -41,6 +47,8 @@ class TrainingPackStat {
         preIcmPct: (j['preIcm'] as num?)?.toDouble() ?? 0,
         postEvPct: (j['postEv'] as num?)?.toDouble() ?? 0,
         postIcmPct: (j['postIcm'] as num?)?.toDouble() ?? 0,
+        evSum: (j['evSum'] as num?)?.toDouble() ?? 0,
+        icmSum: (j['icmSum'] as num?)?.toDouble() ?? 0,
       );
 }
 
@@ -55,6 +63,8 @@ class TrainingPackStatsService {
     required double preIcmPct,
     required double postEvPct,
     required double postIcmPct,
+    double evSum = 0,
+    double icmSum = 0,
   }) async {
     if (templateId.isEmpty || total <= 0) return;
     final prefs = await SharedPreferences.getInstance();
@@ -76,6 +86,8 @@ class TrainingPackStatsService {
       preIcmPct: preIcmPct,
       postEvPct: postEvPct,
       postIcmPct: postIcmPct,
+      evSum: evSum,
+      icmSum: icmSum,
     );
     await prefs.setString('$_prefix$templateId', jsonEncode(stat.toJson()));
   }
@@ -127,6 +139,8 @@ class TrainingPackStatsService {
       preIcmPct: stat.preIcmPct,
       postEvPct: stat.postEvPct,
       postIcmPct: stat.postIcmPct,
+      evSum: stat.evSum,
+      icmSum: stat.icmSum,
     );
     await prefs.setString('$_prefix$templateId', jsonEncode(stat.toJson()));
   }
