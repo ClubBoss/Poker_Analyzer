@@ -7,6 +7,7 @@ import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../screens/training_session_summary_screen.dart';
+import 'mistake_review_pack_service.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -300,6 +301,19 @@ class TrainingSessionService extends ChangeNotifier {
 
   Future<void> complete(BuildContext context) async {
     if (_session == null || _template == null) return;
+    final ids = [
+      for (final e in _session!.results.entries)
+        if (!e.value) e.key
+    ];
+    if (ids.isNotEmpty) {
+      final tpl = _template!.copyWith(
+        id: const Uuid().v4(),
+        name: 'Review mistakes',
+        spots: [for (final s in _template!.spots) if (ids.contains(s.id)) s],
+      );
+      MistakeReviewPackService.setLatestTemplate(tpl);
+      await context.read<MistakeReviewPackService>().addPack(ids);
+    }
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
