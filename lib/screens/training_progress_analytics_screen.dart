@@ -110,9 +110,9 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
               for (final a in achievements)
                 Column(
                   children: [
-                    Icon(a.icon, color: accent),
+                    Icon(a.icon, color: a.level.color),
                     const SizedBox(height: 4),
-                    Text('${a.progress}/${a.target}')
+                    Text('${a.progress}/${a.nextTarget}')
                   ],
                 )
             ],
