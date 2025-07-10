@@ -305,6 +305,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         _progressBar(service),
                         const SizedBox(height: 4),
                         Text(
+                          'Accuracy ${(service.results.isEmpty ? 0 : service.results.values.where((e) => e).length * 100 / service.results.length).toStringAsFixed(0)}%',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
                           '${service.session!.index + 1} / ${service.template!.spots.length}',
                           style: const TextStyle(color: Colors.white70),
                         ),

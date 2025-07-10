@@ -4,6 +4,7 @@ import '../services/adaptive_training_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/training_session_service.dart';
+import '../services/dynamic_pack_adjustment_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_template_detail_screen.dart';
 import 'training_session_screen.dart';
@@ -43,13 +44,17 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     final list = _service.recommendedNotifier.value.toList();
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
+    final adjust = context.read<DynamicPackAdjustmentService>();
     final stats = <String, TrainingPackStat?>{};
+    final adjusted = <TrainingPackTemplate>[];
     for (final t in list) {
-      stats[t.id] = _service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+      stats[t.id] =
+          _service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+      adjusted.add(await adjust.adjust(t));
     }
     if (!mounted) return;
     setState(() {
-      _tpls = list;
+      _tpls = adjusted;
       _stats
         ..clear()
         ..addAll(stats);
@@ -89,6 +94,8 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
                     final icm = stat?.postIcmPct ?? 0;
                     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
                     final focus = tpl.handTypeSummary();
+                    final rangePct =
+                        ((tpl.heroRange?.length ?? 0) * 100 / 169).round();
                     final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(tpl.id);
                     final diff = tpl.difficultyLevel;
                     final missCount = context.read<MistakeReviewPackService>().mistakeCount(tpl.id);
@@ -99,6 +106,7 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
                         title: Text(tpl.name, style: const TextStyle(color: Colors.white)),
                         subtitle: Text(
                           'LVL $diff • ${acc.toStringAsFixed(1)}% • EV ${ev.toStringAsFixed(1)}% • ICM ${icm.toStringAsFixed(1)}%'
+                          ' • ${tpl.heroBbStack}bb • R $rangePct%'
                           '${missCount > 0 ? ' • $missCount ошиб.' : ''}${focus.isNotEmpty ? ' • $focus' : ''}',
                           style: const TextStyle(color: Colors.white70),
                         ),

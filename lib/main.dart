@@ -186,6 +186,8 @@ Future<void> main() async {
         Provider(
           create: (context) => DynamicPackAdjustmentService(
             mistakes: context.read<MistakeReviewPackService>(),
+            eval: EvaluationExecutorService(),
+            hands: context.read<SavedHandManagerService>(),
           ),
         ),
         ChangeNotifierProvider(
