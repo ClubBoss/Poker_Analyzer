@@ -544,18 +544,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _shareBundle() async {
-    final path = await _exportBundle(notify: false);
-    if (path == null || !mounted) return;
-    try {
-      await Share.shareXFiles([XFile(path)]);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bundle shared')),
-      );
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Не удалось поделиться пакетом')),
-      );
-    }
+    if (!mounted) return;
+    await PackExportService.exportBundle(widget.template);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Bundle shared')));
   }
 
   Future<void> _exportPackBundle() async {
@@ -579,9 +571,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _exportCsv() async {
     try {
-      final file = await PackExportService.exportToCsv(widget.template);
       if (!mounted) return;
-      await Share.shareXFiles([XFile(file.path)]);
+      await PackExportService.exportToCsv(widget.template);
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('CSV exported')));
     } catch (e) {
@@ -3772,10 +3763,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () async {
               try {
-                final file =
-                    await PackExportService.exportToPdf(widget.template);
                 if (!mounted) return;
-                await FileSaverService.instance.sharePdf(file.path);
+                await PackExportService.exportToPdf(widget.template);
                 ScaffoldMessenger.of(context)
                     .showSnackBar(const SnackBar(content: Text('PDF exported')));
               } catch (e) {
