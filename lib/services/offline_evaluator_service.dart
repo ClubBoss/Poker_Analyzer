@@ -57,6 +57,7 @@ class OfflineEvaluatorService {
     if (ev != null) {
       final map = cached ?? <String, dynamic>{};
       map['ev'] = ev;
+      map['ts'] = DateTime.now().toIso8601String();
       await _box!.put(key, map);
     }
   }
@@ -87,6 +88,7 @@ class OfflineEvaluatorService {
       final map = cached ?? <String, dynamic>{};
       if (ev != null) map['ev'] = ev;
       if (icm != null) map['icm'] = icm;
+      map['ts'] = DateTime.now().toIso8601String();
       await _box!.put(key, map);
     }
   }
