@@ -4,6 +4,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import '../services/png_exporter.dart';
+import 'package:flutter/rendering.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,6 +57,12 @@ class _ProgressScreenState extends State<ProgressScreen>
   int _dailyMonthCount = 0;
   bool _weeklyStreak = false;
   late final ConfettiController _weeklyConfetti;
+  final _pieKey = GlobalKey();
+  final _weeklyAccKey = GlobalKey();
+  final _evLossKey = GlobalKey();
+  final _streakKey = GlobalKey();
+  final _mistakeKey = GlobalKey();
+  final _heatmapKey = GlobalKey();
 
   @override
   void initState() {
@@ -769,6 +779,32 @@ class _ProgressScreenState extends State<ProgressScreen>
     );
   }
 
+  Future<Uint8List?> _capture(GlobalKey key) async {
+    final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) return null;
+    return PngExporter.captureBoundary(boundary);
+  }
+
+  Future<void> _exportChartsPdf() async {
+    final list = <Uint8List>[];
+    final keys = [_pieKey, _weeklyAccKey, _evLossKey, _streakKey, _mistakeKey, _heatmapKey];
+    for (final k in keys) {
+      final img = await _capture(k);
+      if (img != null) list.add(img);
+    }
+    if (list.isEmpty) return;
+    final bytes = await PngExporter.imagesToPdf(list);
+    final dir = await getTemporaryDirectory();
+    var path = '${dir.path}/progress.pdf';
+    if (await File(path).exists()) {
+      path = '${dir.path}/progress_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    }
+    final file = File(path);
+    await file.writeAsBytes(bytes, flush: true);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Saved: $path')));
+  }
+
   @override
   void dispose() {
     context.read<GoalsService>().removeListener(_onGoalsChanged);
@@ -812,6 +848,11 @@ class _ProgressScreenState extends State<ProgressScreen>
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'PDF',
             onPressed: _exportPdf,
+          ),
+          IconButton(
+            icon: const Icon(Icons.camera_alt),
+            tooltip: 'Charts PDF',
+            onPressed: _exportChartsPdf,
           ),
           IconButton(
             icon: const Text('🏆', style: TextStyle(fontSize: 20)),
@@ -874,7 +915,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             ),
           ),
           const SizedBox(height: 12),
-          _buildPieChart(),
+          RepaintBoundary(key: _pieKey, child: _buildPieChart()),
           const SizedBox(height: 12),
           const EvalStatsCard(),
           const SizedBox(height: 8),
@@ -907,7 +948,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             ),
           ),
           const SizedBox(height: 12),
-          _buildWeeklyAccuracyChart(),
+          RepaintBoundary(key: _weeklyAccKey, child: _buildWeeklyAccuracyChart()),
           const SizedBox(height: 24),
           const Text(
             '💸 Потеря EV за неделю',
@@ -918,7 +959,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             ),
           ),
           const SizedBox(height: 12),
-          _buildEvLossChart(),
+          RepaintBoundary(key: _evLossKey, child: _buildEvLossChart()),
           const SizedBox(height: 24),
           const Text(
             'История стрика',
@@ -929,7 +970,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             ),
           ),
           const SizedBox(height: 12),
-          _buildStreakChart(),
+          RepaintBoundary(key: _streakKey, child: _buildStreakChart()),
           const SizedBox(height: 24),
           const Text(
             'Ошибки по дням',
@@ -940,7 +981,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             ),
           ),
           const SizedBox(height: 12),
-          _buildMistakePerDayChart(),
+          RepaintBoundary(key: _mistakeKey, child: _buildMistakePerDayChart()),
           const SizedBox(height: 24),
           const Text(
             'Ошибки по позициям и улицам',
@@ -951,7 +992,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             ),
           ),
           const SizedBox(height: 12),
-          MistakeHeatmap(data: _heatmapData),
+          RepaintBoundary(key: _heatmapKey, child: MistakeHeatmap(data: _heatmapData)),
           const SizedBox(height: 24),
           Text(
             'Выполнено целей: $completedGoals',
