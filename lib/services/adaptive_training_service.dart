@@ -22,6 +22,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
 
   Future<void> refresh() async {
     final prefs = await SharedPreferences.getInstance();
+    final level = ((prefs.getInt('xp_total') ?? 0) ~/ 100) + 1;
     final entries = <MapEntry<TrainingPackTemplate, double>>[];
     final stats = <String, TrainingPackStat?>{};
     for (final t in templates.templates) {
@@ -33,6 +34,8 @@ class AdaptiveTrainingService extends ChangeNotifier {
       score += 1 - (stat?.postEvPct ?? 0) / 100;
       score += 1 - (stat?.postIcmPct ?? 0) / 100;
       if (mistakes.hasMistakes(t.id)) score += 1;
+      final diff = (t.difficultyLevel - level).abs();
+      score += diff * 0.3;
       entries.add(MapEntry(t, score));
     }
     entries.sort((a, b) => b.value.compareTo(a.value));

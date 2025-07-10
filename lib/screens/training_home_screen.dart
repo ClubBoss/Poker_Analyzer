@@ -252,6 +252,7 @@ class _PackCard extends StatelessWidget {
         context.read<MistakeReviewPackService>().hasMistakes(template.id);
     final ev = stat?.postEvPct ?? 0;
     final icm = stat?.postIcmPct ?? 0;
+    final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
     final focus = template.handTypeSummary();
     return Container(
       width: 120,
@@ -277,6 +278,7 @@ class _PackCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style:
                     const TextStyle(fontSize: 12, color: Colors.white70)),
+          Row(children:[for(var i=0;i<rating;i++)const Icon(Icons.star,color:Colors.amber,size:12)]),
           const SizedBox(height: 4),
           TweenAnimationBuilder<double>(
             curve: Curves.easeOutCubic,
