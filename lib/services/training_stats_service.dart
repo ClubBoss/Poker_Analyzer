@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
 import '../models/training_stats.dart';
+import '../models/saved_hand.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/streak_service.dart';
@@ -89,6 +90,65 @@ class TrainingStatsService extends ChangeNotifier {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, now.day).subtract(Duration(days: days - 1));
     return [for (final e in _entries(_mistakesPerDay)) if (!e.key.isBefore(start)) e];
+  }
+
+  List<MapEntry<DateTime, double>> evDaily(List<SavedHand> hands, [int days = 7]) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day).subtract(Duration(days: days - 1));
+    final Map<DateTime, List<double>> map = {};
+    for (final h in hands) {
+      final v = h.heroEv;
+      if (v == null) continue;
+      final d = DateTime(h.date.year, h.date.month, h.date.day);
+      if (d.isBefore(start)) continue;
+      map.putIfAbsent(d, () => []).add(v);
+    }
+    final entries = map.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return [
+      for (final e in entries)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+    ];
+  }
+
+  List<MapEntry<DateTime, double>> icmDaily(List<SavedHand> hands, [int days = 7]) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day).subtract(Duration(days: days - 1));
+    final Map<DateTime, List<double>> map = {};
+    for (final h in hands) {
+      final v = h.heroIcmEv;
+      if (v == null) continue;
+      final d = DateTime(h.date.year, h.date.month, h.date.day);
+      if (d.isBefore(start)) continue;
+      map.putIfAbsent(d, () => []).add(v);
+    }
+    final entries = map.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return [
+      for (final e in entries)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+    ];
+  }
+
+  List<MapEntry<DateTime, double>> _groupWeeklyAvg(List<MapEntry<DateTime, double>> daily) {
+    final Map<DateTime, List<double>> grouped = {};
+    for (final e in daily) {
+      final w = e.key.subtract(Duration(days: e.key.weekday - 1));
+      grouped.putIfAbsent(w, () => []).add(e.value);
+    }
+    final entries = grouped.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return [
+      for (final e in entries)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+    ];
+  }
+
+  List<MapEntry<DateTime, double>> evWeekly(List<SavedHand> hands, [int weeks = 4]) {
+    final daily = evDaily(hands, weeks * 7);
+    return _groupWeeklyAvg(daily);
+  }
+
+  List<MapEntry<DateTime, double>> icmWeekly(List<SavedHand> hands, [int weeks = 4]) {
+    final daily = icmDaily(hands, weeks * 7);
+    return _groupWeeklyAvg(daily);
   }
 
   List<MapEntry<DateTime, int>> _groupWeekly(List<MapEntry<DateTime, int>> daily) {
