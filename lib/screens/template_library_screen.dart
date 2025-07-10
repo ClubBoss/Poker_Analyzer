@@ -1111,7 +1111,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 onSelected: (v) => _updateNeedsPractice(v),
               ),
               FilterChip(
-                label: const Text('Favorites'),
+                label: Text(l.favorites),
                 selected: _favoritesOnly,
                 onSelected: (v) => _setFavoritesOnly(v),
               ),

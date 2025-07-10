@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../widgets/combined_progress_bar.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -30,6 +31,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final total = session.results.length;
     final correct = session.results.values.where((e) => e).length;
     final accuracy = total == 0 ? 0.0 : correct * 100 / total;
@@ -159,7 +161,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text('Review Mistakes'),
+                child: Text(l.reviewMistakes),
               ),
               const SizedBox(height: 8),
             ],
