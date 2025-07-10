@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:crypto/crypto.dart';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
@@ -49,12 +50,14 @@ class PluginLoader {
     List<String> files,
     Map<String, bool> config,
     List<String> plugins,
+    Map<String, String> checksums,
   ) async {
     final file = await _cacheFile();
     await file.writeAsString(jsonEncode(<String, dynamic>{
       'files': files,
       'config': config,
       'plugins': plugins,
+      'checksums': checksums,
     }));
   }
 
@@ -160,6 +163,37 @@ class PluginLoader {
     return null;
   }
 
+  Future<void> downloadFromUrl(String url) async {
+    final uri = Uri.parse(url);
+    final name = p.basename(uri.path);
+    if (!name.endsWith(_suffix)) {
+      throw Exception('Invalid plugin file');
+    }
+    final dir = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    await dir.create(recursive: true);
+    final file = File(p.join(dir.path, name));
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(uri);
+      final response = await request.close();
+      if (response.statusCode != HttpStatus.ok) {
+        throw Exception('HTTP ${response.statusCode}');
+      }
+      final bytes = await response.fold<BytesBuilder>(BytesBuilder(), (b, d) => b..add(d)).then((b) => b.takeBytes());
+      await file.writeAsBytes(bytes);
+      final checksum = sha256.convert(bytes).toString();
+      final cache = await _loadCache() ?? <String, dynamic>{};
+      final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ?? <String, String>{};
+      checksums[name] = checksum;
+      cache['checksums'] = checksums;
+      final f = await _cacheFile();
+      await f.writeAsString(jsonEncode(cache));
+      _cache = cache;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
   Future<void> loadAll(
     ServiceRegistry registry,
     PluginManager manager, {
@@ -216,10 +250,16 @@ class PluginLoader {
           loadedPlugins.add(plugin);
         }
       }
+      final checksums = <String, String>{};
+      for (final file in files) {
+        final bytes = await file.readAsBytes();
+        checksums[p.basename(file.path)] = sha256.convert(bytes).toString();
+      }
       await _saveCache(
         [for (final f in files) p.basename(f.path)],
         config,
         pluginNames,
+        checksums,
       );
     }
 
