@@ -58,11 +58,29 @@ class TrainingPackCloudSyncService {
         .delete();
   }
 
+  Future<void> syncUp(TrainingPackStorageService storage) async {
+    if (_uid == null) return;
+    await CloudRetryPolicy.execute<void>(() async {
+      final col = _db.collection('users').doc(_uid).collection('training_packs');
+      final batch = _db.batch();
+      for (final p in storage.packs.where((e) => !e.isBuiltIn)) {
+        batch.set(col.doc(p.id), p.toJson());
+      }
+      await batch.commit();
+    });
+    lastSync.value = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
+  }
+
   Future<void> syncDown(TrainingPackStorageService storage) async {
     final remote = await loadPacks();
     storage.merge(remote);
     storage.notifyListeners();
     storage.schedulePersist();
+    lastSync.value = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
   }
 
   StreamSubscription? watch(TrainingPackStorageService storage) {

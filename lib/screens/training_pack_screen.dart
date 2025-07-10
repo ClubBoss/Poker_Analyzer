@@ -68,6 +68,7 @@ import '../services/cloud_training_history_service.dart';
 import '../helpers/color_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
+import '../services/training_pack_cloud_sync_service.dart';
 
 
 class _SessionSummary {
@@ -1526,6 +1527,18 @@ body { font-family: sans-serif; padding: 16px; }
                       ? Colors.amber
                       : Colors.red,
               minHeight: 6,
+            ),
+            const SizedBox(height: 4),
+            ValueListenableBuilder<DateTime?>(
+              valueListenable:
+                  context.read<TrainingPackCloudSyncService>().lastSync,
+              builder: (context, value, child) {
+                final t = value == null
+                    ? '-'
+                    : formatDateTime(value.toLocal());
+                return Text('Синхр.: $t',
+                    style: const TextStyle(fontSize: 12, color: Colors.white70));
+              },
             ),
           ],
         ),
