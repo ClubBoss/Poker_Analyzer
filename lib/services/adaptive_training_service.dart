@@ -2,27 +2,32 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
+import '../helpers/poker_position_helper.dart';
 import 'template_storage_service.dart';
 import 'training_pack_stats_service.dart';
 import 'mistake_review_pack_service.dart';
 import 'saved_hand_manager_service.dart';
+import 'hand_analysis_history_service.dart';
 import 'xp_tracker_service.dart';
 
 class AdaptiveTrainingService extends ChangeNotifier {
   final TemplateStorageService templates;
   final MistakeReviewPackService mistakes;
   final SavedHandManagerService hands;
+  final HandAnalysisHistoryService history;
   final XPTrackerService xp;
   AdaptiveTrainingService({
     required this.templates,
     required this.mistakes,
     required this.hands,
+    required this.history,
     required this.xp,
   }) {
     refresh();
     templates.addListener(refresh);
     mistakes.addListener(refresh);
     hands.addListener(refresh);
+    history.addListener(refresh);
     xp.addListener(refresh);
   }
 
@@ -46,6 +51,14 @@ class AdaptiveTrainingService extends ChangeNotifier {
         final pos = parseHeroPosition(h.heroPosition);
         posCounts[pos] = (posCounts[pos] ?? 0) + 1;
         posLoss[pos] = (posLoss[pos] ?? 0) + (h.evLoss ?? 0);
+      }
+    }
+    for (final r in history.records.take(50)) {
+      final order = getPositionList(r.playerCount);
+      if (r.heroIndex < order.length) {
+        final pos = parseHeroPosition(order[r.heroIndex]);
+        posCounts[pos] = (posCounts[pos] ?? 0) + 1;
+        if (r.ev < 0) posLoss[pos] = (posLoss[pos] ?? 0) + r.ev.abs();
       }
     }
     final entries = <MapEntry<TrainingPackTemplate, double>>[];

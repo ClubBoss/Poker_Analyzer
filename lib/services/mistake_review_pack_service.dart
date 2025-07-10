@@ -122,16 +122,16 @@ class MistakeReviewPackService extends ChangeNotifier {
   }
 
   List<SavedHand> _mistakes() {
-    final list = <SavedHand>[];
-    for (final h in hands.hands.reversed) {
-      final exp = h.expectedAction?.trim().toLowerCase();
-      final gto = h.gtoAction?.trim().toLowerCase();
-      if (exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto) {
-        list.add(h);
-        if (list.length >= 10) break;
-      }
-    }
-    return list.reversed.toList();
+    final list = [
+      for (final h in hands.hands)
+        if (h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ];
+    list.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    return list.take(10).toList();
   }
 
   void _generate() {
