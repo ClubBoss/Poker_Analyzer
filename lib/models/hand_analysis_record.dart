@@ -9,6 +9,7 @@ class HandAnalysisRecord {
   final double ev;
   final double icm;
   final String action;
+  final String hint;
   final DateTime date;
 
   HandAnalysisRecord({
@@ -20,6 +21,7 @@ class HandAnalysisRecord {
     required this.ev,
     required this.icm,
     required this.action,
+    required this.hint,
     DateTime? date,
   }) : date = date ?? DateTime.now();
 
@@ -37,6 +39,7 @@ class HandAnalysisRecord {
         'ev': ev,
         'icm': icm,
         'action': action,
+        'hint': hint,
         'date': date.toIso8601String(),
       };
 
@@ -49,6 +52,7 @@ class HandAnalysisRecord {
         ev: (j['ev'] as num?)?.toDouble() ?? 0,
         icm: (j['icm'] as num?)?.toDouble() ?? 0,
         action: j['action'] as String? ?? '',
+        hint: j['hint'] as String? ?? '',
         date: DateTime.tryParse(j['date'] as String? ?? '') ?? DateTime.now(),
       );
 }

@@ -4,14 +4,21 @@ import '../models/v2/training_pack_template.dart';
 import 'template_storage_service.dart';
 import 'training_pack_stats_service.dart';
 import 'mistake_review_pack_service.dart';
+import 'xp_tracker_service.dart';
 
 class AdaptiveTrainingService extends ChangeNotifier {
   final TemplateStorageService templates;
   final MistakeReviewPackService mistakes;
-  AdaptiveTrainingService({required this.templates, required this.mistakes}) {
+  final XPTrackerService xp;
+  AdaptiveTrainingService({
+    required this.templates,
+    required this.mistakes,
+    required this.xp,
+  }) {
     refresh();
     templates.addListener(refresh);
     mistakes.addListener(refresh);
+    xp.addListener(refresh);
   }
 
   List<TrainingPackTemplate> _recommended = [];
@@ -22,7 +29,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
 
   Future<void> refresh() async {
     final prefs = await SharedPreferences.getInstance();
-    final level = ((prefs.getInt('xp_total') ?? 0) ~/ 100) + 1;
+    final level = xp.level;
     final entries = <MapEntry<TrainingPackTemplate, double>>[];
     final stats = <String, TrainingPackStat?>{};
     for (final t in templates.templates) {

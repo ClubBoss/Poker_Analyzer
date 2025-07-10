@@ -7,6 +7,7 @@ import '../services/push_fold_ev_service.dart';
 import '../services/hand_analysis_history_service.dart';
 import '../models/hand_analysis_record.dart';
 import '../services/hand_analyzer_service.dart';
+import '../services/xp_tracker_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/hand_utils.dart';
 
@@ -27,6 +28,7 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
   double? _ev;
   double? _icm;
   String? _action;
+  String? _hint;
   Timer? _debounce;
 
   @override
@@ -41,6 +43,7 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
       _ev = r.ev;
       _icm = r.icm;
       _action = r.action;
+      _hint = r.hint;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) => _analyze());
   }
@@ -54,17 +57,20 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
 
   Future<void> _analyze() async {
     final stack = int.tryParse(_stackController.text) ?? 10;
+    final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
       cards: _cards,
       stack: stack,
       playerCount: _playerCount,
       heroIndex: _heroIndex,
+      level: level,
     );
     if (record == null) return;
     setState(() {
       _ev = record.ev;
       _icm = record.icm;
       _action = record.action;
+      _hint = record.hint;
     });
   }
 
@@ -75,11 +81,13 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
 
   Future<void> _save() async {
     final stack = int.tryParse(_stackController.text) ?? 10;
+    final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
       cards: _cards,
       stack: stack,
       playerCount: _playerCount,
       heroIndex: _heroIndex,
+      level: level,
     );
     if (record == null) return;
     context.read<HandAnalysisHistoryService>().add(record);
@@ -87,6 +95,7 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
       _ev = record.ev;
       _icm = record.icm;
       _action = record.action;
+      _hint = record.hint;
     });
   }
 
@@ -161,6 +170,7 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
                   Text('EV: ${_ev!.toStringAsFixed(2)} BB', style: const TextStyle(color: Colors.white)),
                   Text('ICM: ${_icm!.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
                   Text('Решение: $_action', style: const TextStyle(color: Colors.white)),
+                  if (_hint != null) Text(_hint!, style: const TextStyle(color: Colors.white70)),
                 ],
               ),
           ],
