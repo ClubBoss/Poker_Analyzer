@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import '../models/card_model.dart';
 import '../widgets/card_picker_widget.dart';
 import '../services/push_fold_ev_service.dart';
 import '../services/hand_analysis_history_service.dart';
 import '../models/hand_analysis_record.dart';
+import '../services/hand_analyzer_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/hand_utils.dart';
 
@@ -25,6 +27,7 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
   double? _ev;
   double? _icm;
   String? _action;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -39,39 +42,51 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
       _icm = r.icm;
       _action = r.action;
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _analyze());
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _stackController.dispose();
     super.dispose();
   }
 
   Future<void> _analyze() async {
-    if (_cards.length < 2) return;
-    final hand = handCode('${_cards[0].rank}${_cards[0].suit} ${_cards[1].rank}${_cards[1].suit}');
-    if (hand == null) return;
     final stack = int.tryParse(_stackController.text) ?? 10;
-    final ev = computePushEV(heroBbStack: stack, bbCount: _playerCount - 1, heroHand: hand, anteBb: 0);
-    final stacks = List.filled(_playerCount, stack);
-    final icm = computeIcmPushEV(chipStacksBb: stacks, heroIndex: _heroIndex, heroHand: hand, chipPushEv: ev);
-    final action = ev >= 0 ? 'push' : 'fold';
-    context.read<HandAnalysisHistoryService>().add(
-          HandAnalysisRecord(
-            card1: '${_cards[0].rank}${_cards[0].suit}',
-            card2: '${_cards[1].rank}${_cards[1].suit}',
-            stack: stack,
-            playerCount: _playerCount,
-            heroIndex: _heroIndex,
-            ev: ev,
-            icm: icm,
-            action: action,
-          ),
-        );
+    final record = context.read<HandAnalyzerService>().analyzePush(
+      cards: _cards,
+      stack: stack,
+      playerCount: _playerCount,
+      heroIndex: _heroIndex,
+    );
+    if (record == null) return;
     setState(() {
-      _ev = ev;
-      _icm = icm;
-      _action = action;
+      _ev = record.ev;
+      _icm = record.icm;
+      _action = record.action;
+    });
+  }
+
+  void _scheduleAnalysis() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), _analyze);
+  }
+
+  Future<void> _save() async {
+    final stack = int.tryParse(_stackController.text) ?? 10;
+    final record = context.read<HandAnalyzerService>().analyzePush(
+      cards: _cards,
+      stack: stack,
+      playerCount: _playerCount,
+      heroIndex: _heroIndex,
+    );
+    if (record == null) return;
+    context.read<HandAnalysisHistoryService>().add(record);
+    setState(() {
+      _ev = record.ev;
+      _icm = record.icm;
+      _action = record.action;
     });
   }
 
@@ -87,20 +102,26 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
           children: [
             const Text('Карты героя', style: TextStyle(color: Colors.white)),
             const SizedBox(height: 8),
-            CardPickerWidget(cards: _cards, onChanged: (i, c) { setState(() {
-              if (_cards.length > i) {
-                _cards[i] = c;
-              } else {
-                _cards.add(c);
-              }
-            }); }, disabledCards: const {},),
+            CardPickerWidget(cards: _cards, onChanged: (i, c) {
+              setState(() {
+                if (_cards.length > i) {
+                  _cards[i] = c;
+                } else {
+                  _cards.add(c);
+                }
+              });
+              _scheduleAnalysis();
+            }, disabledCards: const {},),
             const SizedBox(height: 16),
             const Text('Позиция', style: TextStyle(color: Colors.white)),
             DropdownButton<int>(
               value: _heroIndex,
               dropdownColor: Colors.black,
               items: List.generate(_playerCount, (i) => DropdownMenuItem(value: i, child: Text('P${i + 1}', style: const TextStyle(color: Colors.white)))),
-              onChanged: (v) => setState(() => _heroIndex = v ?? 0),
+              onChanged: (v) {
+                setState(() => _heroIndex = v ?? 0);
+                _scheduleAnalysis();
+              },
             ),
             const SizedBox(height: 16),
             const Text('Стек (BB)', style: TextStyle(color: Colors.white)),
@@ -109,6 +130,7 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               keyboardType: TextInputType.number,
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(border: OutlineInputBorder()),
+              onChanged: (_) => _scheduleAnalysis(),
             ),
             const SizedBox(height: 16),
             const Text('Количество игроков', style: TextStyle(color: Colors.white)),
@@ -116,13 +138,19 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               value: _playerCount,
               dropdownColor: Colors.black,
               items: _players.map((e) => DropdownMenuItem(value: e, child: Text('$e', style: const TextStyle(color: Colors.white)))).toList(),
-              onChanged: (v) => setState(() { _playerCount = v ?? 6; if (_heroIndex >= _playerCount) _heroIndex = 0; }),
+              onChanged: (v) {
+                setState(() {
+                  _playerCount = v ?? 6;
+                  if (_heroIndex >= _playerCount) _heroIndex = 0;
+                });
+                _scheduleAnalysis();
+              },
             ),
             const SizedBox(height: 24),
             Center(
               child: ElevatedButton(
-                onPressed: _analyze,
-                child: const Text('Анализировать'),
+                onPressed: _save,
+                child: const Text('Сохранить'),
               ),
             ),
             const SizedBox(height: 24),
