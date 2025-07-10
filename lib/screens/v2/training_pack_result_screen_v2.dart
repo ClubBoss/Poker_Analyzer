@@ -1,8 +1,13 @@
 import 'dart:math';
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:csv/csv.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../theme/app_colors.dart';
@@ -39,11 +44,31 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
     return null;
   }
 
+  double? _actionIcmEv(TrainingPackSpot s, String action) {
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex &&
+          a.action.toLowerCase() == action.toLowerCase()) {
+        return a.icmEv;
+      }
+    }
+    return null;
+  }
+
   double? _bestEv(TrainingPackSpot s) {
     double? best;
     for (final a in s.hand.actions[0] ?? []) {
       if (a.playerIndex == s.hand.heroIndex && a.ev != null) {
         best = best == null ? a.ev! : max(best!, a.ev!);
+      }
+    }
+    return best;
+  }
+
+  double? _bestIcmEv(TrainingPackSpot s) {
+    double? best;
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex && a.icmEv != null) {
+        best = best == null ? a.icmEv! : max(best!, a.icmEv!);
       }
     }
     return best;
@@ -76,6 +101,37 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
   Widget _emptyResultState() => const Center(
         child: Text('Нет данных', style: TextStyle(color: Colors.white70)),
       );
+
+  Future<void> _exportCsv(BuildContext context) async {
+    final rows = <List<dynamic>>[
+      ['Title', 'Your', 'Correct', 'EV diff', 'ICM diff']
+    ];
+    for (final s in template.spots) {
+      final ans = results[s.id];
+      final exp = _expected(s);
+      if (ans == null || exp == null) continue;
+      final heroEv = _actionEv(s, ans);
+      final bestEv = _bestEv(s);
+      final heroIcm = _actionIcmEv(s, ans);
+      final bestIcm = _bestIcmEv(s);
+      final evDiff = heroEv != null && bestEv != null ? heroEv - bestEv : null;
+      final icmDiff =
+          heroIcm != null && bestIcm != null ? heroIcm - bestIcm : null;
+      rows.add([
+        s.title,
+        ans,
+        exp,
+        evDiff?.toStringAsFixed(2) ?? '',
+        icmDiff?.toStringAsFixed(3) ?? ''
+      ]);
+    }
+    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/pack_result_${DateTime.now().millisecondsSinceEpoch}.csv');
+    await file.writeAsString(csvStr, encoding: utf8);
+    await Share.shareXFiles([XFile(file.path)], text: 'pack_result.csv');
+  }
 
 
   @override
@@ -111,7 +167,16 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
         return false;
       },
       child: Scaffold(
-      appBar: AppBar(title: const Text('Результаты')),
+      appBar: AppBar(
+        title: const Text('Результаты'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.table_chart),
+            tooltip: 'Export CSV',
+            onPressed: () => _exportCsv(context),
+          ),
+        ],
+      ),
       backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16),
