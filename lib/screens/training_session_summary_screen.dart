@@ -9,6 +9,7 @@ import '../models/v2/hero_position.dart';
 import '../services/training_session_service.dart';
 import '../services/adaptive_training_service.dart';
 import '../services/mistake_review_pack_service.dart';
+import '../services/daily_tip_service.dart';
 import '../helpers/mistake_advice.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/spot_viewer_dialog.dart';
@@ -32,6 +33,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final tip = context.watch<DailyTipService>().tip;
     final total = session.results.length;
     final correct = session.results.values.where((e) => e).length;
     final accuracy = total == 0 ? 0.0 : correct * 100 / total;
@@ -125,6 +127,33 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
                 );
               },
             ),
+            if (tip.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Dismissible(
+                  key: const ValueKey('dailyTip'),
+                  direction: DismissDirection.up,
+                  onDismissed: (_) =>
+                      context.read<DailyTipService>().ensureTodayTip(),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.lightbulb, color: Colors.greenAccent),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(tip,
+                              style: const TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             if (mistakes.isNotEmpty)
               Expanded(
                 child: ListView.builder(
