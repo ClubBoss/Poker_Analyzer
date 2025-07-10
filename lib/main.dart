@@ -60,6 +60,7 @@ import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
 import 'services/weekly_challenge_service.dart';
 import 'services/daily_challenge_service.dart';
+import 'services/daily_goals_service.dart';
 import 'services/session_log_service.dart';
 import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
@@ -257,6 +258,12 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(create: (_) => SpotOfTheDayService()..load()),
+        ChangeNotifierProvider(
+          create: (context) => DailyGoalsService(
+            stats: context.read<TrainingStatsService>(),
+            hands: context.read<SavedHandManagerService>(),
+          )..load(),
+        ),
         ChangeNotifierProvider(create: (_) => AllInPlayersService()),
         ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
         ChangeNotifierProvider(
@@ -305,6 +312,7 @@ Future<void> main() async {
             spot: context.read<SpotOfTheDayService>(),
             target: context.read<DailyTargetService>(),
             stats: context.read<TrainingStatsService>(),
+            goals: context.read<DailyGoalsService>(),
           )..load(),
         ),
         ChangeNotifierProvider(

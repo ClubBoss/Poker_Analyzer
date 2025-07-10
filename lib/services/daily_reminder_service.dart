@@ -8,6 +8,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'spot_of_the_day_service.dart';
 import 'daily_target_service.dart';
 import 'training_stats_service.dart';
+import 'daily_goals_service.dart';
 
 class DailyReminderService extends ChangeNotifier {
   static const _enabledKey = 'daily_reminder_enabled';
@@ -17,6 +18,7 @@ class DailyReminderService extends ChangeNotifier {
   final SpotOfTheDayService spot;
   final DailyTargetService target;
   final TrainingStatsService stats;
+  final DailyGoalsService goals;
 
   final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
 
@@ -28,7 +30,12 @@ class DailyReminderService extends ChangeNotifier {
   bool get enabled => _enabled;
   int get hour => _hour;
 
-  DailyReminderService({required this.spot, required this.target, required this.stats});
+  DailyReminderService({
+    required this.spot,
+    required this.target,
+    required this.stats,
+    required this.goals,
+  });
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -36,6 +43,7 @@ class DailyReminderService extends ChangeNotifier {
     _hour = prefs.getInt(_hourKey) ?? 20;
     await _initPlugin();
     spot.addListener(_schedule);
+    goals.addListener(_schedule);
     _handsSub = stats.handsStream.listen((_) => _schedule());
     _schedule();
     _scheduleMidnight();
@@ -87,14 +95,17 @@ class DailyReminderService extends ChangeNotifier {
     if (!_enabled) return;
     final needSpot = spot.result == null;
     final needTarget = _progress < target.target;
-    if (!needSpot && !needTarget) return;
+    final needGoals = goals.anyIncomplete;
+    if (!needSpot && !needTarget && !needGoals) return;
     final now = DateTime.now();
     var when = tz.TZDateTime.local(now.year, now.month, now.day, _hour);
     if (when.isBefore(tz.TZDateTime.now(tz.local))) return;
     await _plugin.zonedSchedule(
       _id,
       'Poker Analyzer',
-      needSpot ? "Don't forget today's Spot!" : 'Finish your daily hands!',
+      needSpot
+          ? "Don't forget today's Spot!"
+          : 'Finish your daily goals!',
       when,
       const NotificationDetails(
         android: AndroidNotificationDetails('daily_reminder', 'Daily Reminder', importance: Importance.defaultImportance),
@@ -111,6 +122,7 @@ class DailyReminderService extends ChangeNotifier {
     _timer?.cancel();
     _handsSub?.cancel();
     spot.removeListener(_schedule);
+    goals.removeListener(_schedule);
     super.dispose();
   }
 }
