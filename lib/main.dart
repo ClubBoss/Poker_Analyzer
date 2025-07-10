@@ -292,6 +292,7 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (context) => ReminderService(
+            context: context,
             spotService: context.read<SpotOfTheDayService>(),
             goalEngine: context.read<GoalEngine>(),
             streakService: context.read<StreakService>(),

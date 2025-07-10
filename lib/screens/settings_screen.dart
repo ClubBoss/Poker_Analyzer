@@ -11,6 +11,7 @@ import '../services/auth_service.dart';
 import '../services/training_pack_cloud_sync_service.dart';
 import '../widgets/sync_status_widget.dart';
 import 'evaluation_settings_screen.dart';
+import '../services/notification_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _showWinnerCelebration;
   late bool _showActionHints;
   late bool _coachMode;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
 
   @override
   void initState() {
@@ -35,6 +37,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showWinnerCelebration = prefs.showWinnerCelebration;
     _showActionHints = prefs.showActionHints;
     _coachMode = prefs.coachMode;
+    NotificationService.getReminderTime(context)
+        .then((t) => setState(() => _reminderTime = t));
   }
 
   Future<void> _togglePotAnimation(bool value) async {
@@ -60,6 +64,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleCoachMode(bool value) async {
     setState(() => _coachMode = value);
     await UserPreferences.instance.setCoachMode(value);
+  }
+
+  Future<void> _pickReminderTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+    );
+    if (picked != null) {
+      await NotificationService.updateReminderTime(context, picked);
+      setState(() => _reminderTime = picked);
+    }
   }
 
   @override
@@ -165,6 +180,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Режим тренера (Coach Mode)'),
               onChanged: _toggleCoachMode,
               activeColor: Colors.orange,
+            ),
+            ListTile(
+              title: const Text('Reminder Time'),
+              subtitle: Text(_reminderTime.format(context)),
+              onTap: _pickReminderTime,
             ),
             const SizedBox(height: 8),
             ElevatedButton(
