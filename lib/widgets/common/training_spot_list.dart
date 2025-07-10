@@ -286,7 +286,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                           if (oldIndex < staticCount || newIndex <= staticCount) {
                             return;
                           }
-                          var localOld = oldIndex - staticCount;
+                          final localOld = oldIndex - staticCount;
                           var localNew = newIndex - staticCount;
                           if (localNew > localOld) localNew--;
                           final moved = customEntries.removeAt(localOld);

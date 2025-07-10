@@ -1,6 +1,6 @@
-import "package:uuid/uuid.dart";
-import "saved_hand.dart";
-import "view_preset.dart";
+import 'package:uuid/uuid.dart';
+import 'saved_hand.dart';
+import 'view_preset.dart';
 
 class PackEditorSnapshot {
   final String id;

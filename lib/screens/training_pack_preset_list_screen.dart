@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import '../models/v2/training_pack_preset.dart';
-import "../models/game_type.dart";
+import '../models/game_type.dart';
 import '../services/pack_generator_service.dart';
 import '../repositories/training_pack_preset_repository.dart';
 import '../models/training_pack_template_model.dart';

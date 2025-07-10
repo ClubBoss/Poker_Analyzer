@@ -1,5 +1,5 @@
-import "dart:async";
-import "package:flutter/widgets.dart";
+import 'dart:async';
+import 'package:flutter/widgets.dart';
 
 /// Coordinates board transition locking across services and widgets.
 class TransitionLockService {

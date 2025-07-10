@@ -1,4 +1,4 @@
-import "result_entry.dart";
+import 'result_entry.dart';
 
 class CloudTrainingSession {
   final String path;
