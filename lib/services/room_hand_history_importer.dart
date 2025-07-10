@@ -2,6 +2,9 @@ import '../models/saved_hand.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
+import '../plugins/converters/pokerstars_hand_history_converter.dart';
+import '../plugins/converters/simple_hand_history_converter.dart';
+import '../plugins/converters/winamax_hand_history_converter.dart';
 
 class RoomHandHistoryImporter {
   RoomHandHistoryImporter();
@@ -12,7 +15,27 @@ class RoomHandHistoryImporter {
 
 
   List<SavedHand> parse(String text) {
-    return [];
+    final parts = _split(text);
+    final stars = PokerStarsHandHistoryConverter();
+    final simple = SimpleHandHistoryConverter();
+    final winamax = WinamaxHandHistoryConverter();
+    final result = <SavedHand>[];
+    for (final part in parts) {
+      final trimmed = part.trimLeft();
+      SavedHand? hand;
+      if (trimmed.startsWith('PokerStars Hand #')) {
+        hand = stars.convertFrom(part);
+      } else if (trimmed.startsWith('GGPoker Hand #') ||
+          trimmed.startsWith('Hand #')) {
+        hand = _parseGg(part);
+      } else if (trimmed.toLowerCase().contains('winamax')) {
+        hand = winamax.convertFrom(part);
+      } else {
+        hand = simple.convertFrom(part);
+      }
+      if (hand != null) result.add(hand);
+    }
+    return result;
   }
 
   List<String> _split(String text) {
