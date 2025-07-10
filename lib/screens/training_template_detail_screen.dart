@@ -19,7 +19,9 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
     final focus = template.handTypeSummary();
     final diff = template.difficultyLevel;
-    final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(template.id);
+    final hasMistakes = context.watch<MistakeReviewPackService>().hasMistakes(template.id);
+    final missCount = context.watch<MistakeReviewPackService>().mistakeCount(template.id);
+    final level = context.watch<XPTrackerService>().level;
     return Scaffold(
       appBar: AppBar(title: Text(template.name)),
       body: Padding(
@@ -39,6 +41,7 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
               ),
             const SizedBox(height: 8),
             Text('Difficulty: $diff', style: const TextStyle(color: Colors.white)),
+            Text('Уровень игрока: $level', style: const TextStyle(color: Colors.white70)),
             Text('EV ${ev.toStringAsFixed(1)}%  ICM ${icm.toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white)),
             if (focus.isNotEmpty)
@@ -46,10 +49,11 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(focus, style: const TextStyle(color: Colors.white70)),
               ),
-            if (hasMistakes)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text('Есть ошибки', style: TextStyle(color: Colors.orange)),
+            if (missCount > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text('Ошибок: $missCount',
+                    style: const TextStyle(color: Colors.orange)),
               ),
             const Spacer(),
             Row(

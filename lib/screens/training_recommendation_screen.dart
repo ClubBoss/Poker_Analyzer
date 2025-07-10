@@ -14,6 +14,7 @@ class TrainingRecommendationScreen extends StatefulWidget {
 }
 
 class _TrainingRecommendationScreenState extends State<TrainingRecommendationScreen> {
+  late AdaptiveTrainingService _service;
   List<TrainingPackTemplate> _tpls = [];
   final Map<String, TrainingPackStat?> _stats = {};
   bool _loading = true;
@@ -21,18 +22,25 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
   @override
   void initState() {
     super.initState();
+    _service = context.read<AdaptiveTrainingService>();
+    _service.addListener(_load);
     _load();
   }
 
+  @override
+  void dispose() {
+    _service.removeListener(_load);
+    super.dispose();
+  }
+
   Future<void> _load() async {
-    final service = context.read<AdaptiveTrainingService>();
-    await service.refresh();
-    final list = service.recommended.toList();
+    await _service.refresh();
+    final list = _service.recommended.toList();
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
     final stats = <String, TrainingPackStat?>{};
     for (final t in list) {
-      stats[t.id] = service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+      stats[t.id] = _service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
     }
     setState(() {
       _tpls = list;

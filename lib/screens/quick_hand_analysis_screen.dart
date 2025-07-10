@@ -8,6 +8,9 @@ import '../services/hand_analysis_history_service.dart';
 import '../models/hand_analysis_record.dart';
 import '../services/hand_analyzer_service.dart';
 import '../services/xp_tracker_service.dart';
+import '../models/v2/training_pack_template.dart';
+import '../services/adaptive_training_service.dart';
+import '../services/training_pack_stats_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/hand_utils.dart';
 
@@ -30,6 +33,9 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
   String? _action;
   String? _hint;
   Timer? _debounce;
+  List<TrainingPackTemplate> _recommended = [];
+  final Map<String, TrainingPackStat?> _recStats = {};
+  bool _recLoading = true;
 
   @override
   void initState() {
@@ -45,7 +51,10 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
       _action = r.action;
       _hint = r.hint;
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) => _analyze());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _analyze();
+      _loadRec();
+    });
   }
 
   @override
@@ -79,6 +88,24 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     _debounce = Timer(const Duration(milliseconds: 300), _analyze);
   }
 
+  Future<void> _loadRec() async {
+    final service = context.read<AdaptiveTrainingService>();
+    await service.refresh();
+    final list = service.recommended.take(3).toList();
+    final stats = <String, TrainingPackStat?>{};
+    for (final t in list) {
+      stats[t.id] = service.statFor(t.id) ?? await TrainingPackStatsService.getStats(t.id);
+    }
+    if (!mounted) return;
+    setState(() {
+      _recommended = list;
+      _recStats
+        ..clear()
+        ..addAll(stats);
+      _recLoading = false;
+    });
+  }
+
   Future<void> _save() async {
     final stack = int.tryParse(_stackController.text) ?? 10;
     final level = context.read<XPTrackerService>().level;
@@ -97,6 +124,7 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
       _action = record.action;
       _hint = record.hint;
     });
+    _loadRec();
   }
 
   @override
@@ -163,19 +191,40 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            if (_ev != null)
+          if (_ev != null)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('EV: ${_ev!.toStringAsFixed(2)} BB', style: const TextStyle(color: Colors.white)),
+                Text('ICM: ${_icm!.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
+                Text('Решение: $_action', style: const TextStyle(color: Colors.white)),
+                if (_hint != null) Text(_hint!, style: const TextStyle(color: Colors.white70)),
+              ],
+            ),
+            const SizedBox(height: 24),
+            if (!_recLoading && _recommended.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('EV: ${_ev!.toStringAsFixed(2)} BB', style: const TextStyle(color: Colors.white)),
-                  Text('ICM: ${_icm!.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
-                  Text('Решение: $_action', style: const TextStyle(color: Colors.white)),
-                  if (_hint != null) Text(_hint!, style: const TextStyle(color: Colors.white70)),
+                  const Text('Рекомендуем тренировки', style: TextStyle(color: Colors.white)),
+                  const SizedBox(height: 8),
+                  for (final t in _recommended)
+                    Card(
+                      color: Colors.grey[850],
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        title: Text(t.name, style: const TextStyle(color: Colors.white)),
+                        subtitle: Text(
+                          'EV ${( _recStats[t.id]?.postEvPct ?? 0).toStringAsFixed(1)}% • ICM ${( _recStats[t.id]?.postIcmPct ?? 0).toStringAsFixed(1)}%',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                    ),
                 ],
               ),
-          ],
-        ),
+        ],
       ),
-    );
+    ),
+  );
   }
 }

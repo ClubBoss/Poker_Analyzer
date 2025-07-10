@@ -193,11 +193,14 @@ Future<void> main() async {
         Provider<MistakePackCloudService>.value(value: mistakeCloud),
         Provider<XPTrackerCloudService>.value(value: xpCloud),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
+        ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
+        Provider(create: (_) => const HandAnalyzerService()),
         ChangeNotifierProvider(
           create: (context) => AdaptiveTrainingService(
             templates: context.read<TemplateStorageService>(),
             mistakes: context.read<MistakeReviewPackService>(),
             xp: context.read<XPTrackerService>(),
+            history: context.read<HandAnalysisHistoryService>(),
           ),
         ),
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
@@ -295,8 +298,6 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => MixedDrillHistoryService()..load(),
         ),
-        ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
-        Provider(create: (_) => const HandAnalyzerService()),
         ChangeNotifierProvider(
           create: (_) => TrainingPackPlayController()..load(),
         ),
