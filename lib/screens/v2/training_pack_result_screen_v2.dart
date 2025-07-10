@@ -39,11 +39,31 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
     return null;
   }
 
+  double? _actionIcmEv(TrainingPackSpot s, String action) {
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex &&
+          a.action.toLowerCase() == action.toLowerCase()) {
+        return a.icmEv;
+      }
+    }
+    return null;
+  }
+
   double? _bestEv(TrainingPackSpot s) {
     double? best;
     for (final a in s.hand.actions[0] ?? []) {
       if (a.playerIndex == s.hand.heroIndex && a.ev != null) {
         best = best == null ? a.ev! : max(best!, a.ev!);
+      }
+    }
+    return best;
+  }
+
+  double? _bestIcmEv(TrainingPackSpot s) {
+    double? best;
+    for (final a in s.hand.actions[0] ?? []) {
+      if (a.playerIndex == s.hand.heroIndex && a.icmEv != null) {
+        best = best == null ? a.icmEv! : max(best!, a.icmEv!);
       }
     }
     return best;
@@ -89,6 +109,7 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
     if (spots.isEmpty) return _emptyResultState();
     int correct = 0;
     final diffs = <double>[];
+    final icmDiffs = <double>[];
     final mistakes = <_MistakeData>[];
     for (final s in spots) {
       final ans = results[s.id];
@@ -96,11 +117,15 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
       if (ans == null || exp == null) continue;
       final heroEv = _actionEv(s, ans);
       final bestEv = _bestEv(s);
+      final heroIcm = _actionIcmEv(s, ans);
+      final bestIcm = _bestIcmEv(s);
       if (heroEv != null && bestEv != null) diffs.add(heroEv - bestEv);
+      if (heroIcm != null && bestIcm != null) icmDiffs.add(heroIcm - bestIcm);
       if (ans.toLowerCase() == exp.toLowerCase()) {
         correct++;
       } else {
-        mistakes.add(_MistakeData(s, ans, exp, heroEv, bestEv));
+        mistakes.add(
+            _MistakeData(s, ans, exp, heroEv, bestEv, heroIcm, bestIcm));
       }
     }
     final total = spots.length;
@@ -131,6 +156,10 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
             if (diffs.length >= 2) ...[
               const SizedBox(height: 16),
               _EvDiffChart(diffs: diffs),
+            ],
+            if (icmDiffs.length >= 2) ...[
+              const SizedBox(height: 16),
+              _IcmDiffChart(diffs: icmDiffs),
             ],
             if (mistakes.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -298,11 +327,109 @@ class _EvDiffChart extends StatelessWidget {
   }
 }
 
+class _IcmDiffChart extends StatelessWidget {
+  final List<double> diffs;
+  const _IcmDiffChart({required this.diffs});
+
+  @override
+  Widget build(BuildContext context) {
+    if (diffs.isEmpty) return const SizedBox.shrink();
+    final limit = diffs.map((e) => e.abs()).reduce(max);
+    final maxY = limit == 0 ? 1.0 : limit;
+    final groups = <BarChartGroupData>[];
+    for (var i = 0; i < diffs.length; i++) {
+      final d = diffs[i];
+      final color = d > 0
+          ? Colors.greenAccent
+          : d < 0
+              ? Colors.redAccent
+              : Colors.blueGrey;
+      groups.add(
+        BarChartGroupData(x: i, barRods: [
+          BarChartRodData(
+            toY: d,
+            width: 14,
+            borderRadius: BorderRadius.circular(4),
+            gradient: LinearGradient(
+              colors: [color.withOpacity(0.7), color],
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+            ),
+          ),
+        ]),
+      );
+    }
+    final interval = maxY / 5;
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: BarChart(
+        BarChartData(
+          maxY: maxY,
+          minY: -maxY,
+          alignment: BarChartAlignment.spaceBetween,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: interval,
+                reservedSize: 48,
+                getTitlesWidget: (value, _) => Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, _) {
+                  final i = value.toInt();
+                  if (i < 0 || i >= diffs.length) {
+                    return const SizedBox.shrink();
+                  }
+                  return Text('${i + 1}',
+                      style: const TextStyle(color: Colors.white, fontSize: 10));
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          barGroups: groups,
+        ),
+      ),
+    );
+  }
+}
+
 class _MistakeData {
   final TrainingPackSpot spot;
   final String ans;
   final String exp;
   final double? heroEv;
   final double? bestEv;
-  const _MistakeData(this.spot, this.ans, this.exp, this.heroEv, this.bestEv);
+  final double? heroIcmEv;
+  final double? bestIcmEv;
+  const _MistakeData(this.spot, this.ans, this.exp, this.heroEv, this.bestEv,
+      this.heroIcmEv, this.bestIcmEv);
 }
