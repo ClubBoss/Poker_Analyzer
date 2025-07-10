@@ -12,6 +12,7 @@ import '../services/training_pack_cloud_sync_service.dart';
 import '../widgets/sync_status_widget.dart';
 import 'evaluation_settings_screen.dart';
 import '../services/notification_service.dart';
+import '../services/remote_config_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -221,6 +222,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Text(text),
                 );
               },
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () =>
+                  context.read<RemoteConfigService>().reload(),
+              child: const Text('Reload Remote Config'),
             ),
             const SizedBox(height: 12),
             ValueListenableBuilder<DateTime?>(
