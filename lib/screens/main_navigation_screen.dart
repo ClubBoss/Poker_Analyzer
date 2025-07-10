@@ -25,6 +25,7 @@ import '../widgets/resume_training_card.dart';
 import '../services/ab_test_engine.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
+import 'onboarding_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -184,6 +185,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     ),
                   );
                   break;
+                case 'onboarding':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+                  );
+                  break;
                 case 'about':
                   showAboutDialog(context: context);
                   break;
@@ -192,6 +199,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             itemBuilder: (context) => const [
               PopupMenuItem(value: 'settings', child: Text('⚙️ Settings')),
               PopupMenuItem(value: 'plugins', child: Text('🧩 Plugins')),
+              PopupMenuItem(value: 'onboarding', child: Text('📖 Обучение')),
               PopupMenuItem(value: 'about', child: Text('About')),
             ],
           ),
