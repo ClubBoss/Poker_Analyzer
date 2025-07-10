@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'animated_line_chart.dart';
 
 import 'package:intl/intl.dart';
 
@@ -142,8 +143,8 @@ class MistakeTrendChart extends StatelessWidget {
       return lines.join('\n');
     }
 
-    Widget chart = LineChart(
-      LineChartData(
+    Widget chart = AnimatedLineChart(
+      data: LineChartData(
         minY: 0,
         maxY: maxCount.toDouble(),
         lineTouchData: LineTouchData(
