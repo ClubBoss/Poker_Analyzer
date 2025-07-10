@@ -116,6 +116,47 @@ class TrainingStatsService extends ChangeNotifier {
     return _groupWeekly(daily);
   }
 
+  List<MapEntry<DateTime, int>> _groupMonthly(
+      List<MapEntry<DateTime, int>> daily) {
+    final Map<DateTime, int> grouped = {};
+    for (final e in daily) {
+      final m = DateTime(e.key.year, e.key.month);
+      grouped.update(m, (v) => v + e.value, ifAbsent: () => e.value);
+    }
+    final list = grouped.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return list;
+  }
+
+  List<MapEntry<DateTime, int>> handsMonthly([int months = 12]) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - months + 1);
+    final daily = [
+      for (final e in _entries(_handsPerDay))
+        if (!e.key.isBefore(start)) e
+    ];
+    return _groupMonthly(daily);
+  }
+
+  List<MapEntry<DateTime, int>> sessionsMonthly([int months = 12]) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - months + 1);
+    final daily = [
+      for (final e in _entries(_sessionsPerDay))
+        if (!e.key.isBefore(start)) e
+    ];
+    return _groupMonthly(daily);
+  }
+
+  List<MapEntry<DateTime, int>> mistakesMonthly([int months = 12]) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - months + 1);
+    final daily = [
+      for (final e in _entries(_mistakesPerDay))
+        if (!e.key.isBefore(start)) e
+    ];
+    return _groupMonthly(daily);
+  }
+
   Map<String, int> _loadMap(SharedPreferences prefs, String key) {
     final raw = prefs.getString(key);
     if (raw == null) return {};
