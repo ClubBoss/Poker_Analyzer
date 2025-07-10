@@ -50,6 +50,15 @@ class SavedHandManagerService extends ChangeNotifier {
     }
   }
 
+  Future<void> addHands(List<SavedHand> hands) async {
+    if (hands.isEmpty) return;
+    final sorted = List<SavedHand>.from(hands)
+      ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+    for (final hand in sorted) {
+      await add(hand);
+    }
+  }
+
   Future<void> update(int index, SavedHand hand) async {
     final old = _storage.hands[index];
     await _storage.update(index, hand);
