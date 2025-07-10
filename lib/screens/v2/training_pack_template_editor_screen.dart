@@ -67,6 +67,7 @@ import '../spot_solve_screen.dart';
 import '../../models/training_spot.dart';
 import '../../models/card_model.dart';
 import '../../models/player_model.dart';
+import 'editor/template_preview_widgets.dart';
 
 part 'training_pack_template_editor_screen_old.dart';
 part 'spot_list_section.dart';
