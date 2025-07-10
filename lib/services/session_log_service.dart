@@ -43,6 +43,13 @@ class SessionLogService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> addLog(SessionLog log) async {
+    if (_box == null) await load();
+    if (_logged.contains(log.sessionId)) return;
+    _logged.add(log.sessionId);
+    await _save(log);
+  }
+
   void _handle() {
     final s = _sessions.session;
     if (s == null || s.completedAt == null) return;
