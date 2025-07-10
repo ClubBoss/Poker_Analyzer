@@ -19,7 +19,7 @@ class _TableBackgroundSection extends StatelessWidget {
 
 class _BetStacksOverlaySection extends StatelessWidget {
   final double scale;
-  final _PokerAnalyzerScreenState state;
+  final PokerAnalyzerScreenState state;
   const _BetStacksOverlaySection({required this.scale, required this.state});
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class _BetStacksOverlaySection extends StatelessWidget {
 
 class _ActionBetStackOverlaySection extends StatelessWidget {
   final double scale;
-  final _PokerAnalyzerScreenState state;
+  final PokerAnalyzerScreenState state;
   const _ActionBetStackOverlaySection({required this.scale, required this.state});
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class _ActionBetStackOverlaySection extends StatelessWidget {
 
 class _InvestedChipsOverlaySection extends StatelessWidget {
   final double scale;
-  final _PokerAnalyzerScreenState state;
+  final PokerAnalyzerScreenState state;
   const _InvestedChipsOverlaySection({required this.scale, required this.state});
   @override
   Widget build(BuildContext context) {

@@ -123,6 +123,9 @@ import 'package:poker_analyzer/plugins/plugin_manager.dart';
 import 'package:poker_analyzer/plugins/plugin_loader.dart';
 import 'package:poker_analyzer/plugins/plugin.dart';
 import '../services/demo_playback_controller.dart';
+import 'poker_analyzer/board_controls_widget.dart';
+import 'poker_analyzer/action_editor_widget.dart';
+import 'poker_analyzer/evaluation_panel_widget.dart';
 
 part 'poker_analyzer/board_widgets.dart';
 part 'poker_analyzer/playback_panel.dart';
@@ -194,10 +197,10 @@ class PokerAnalyzerScreen extends StatefulWidget {
   });
 
   @override
-  State<PokerAnalyzerScreen> createState() => _PokerAnalyzerScreenState();
+  State<PokerAnalyzerScreen> createState() => PokerAnalyzerScreenState();
 }
 
-class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
+class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
   late SavedHandManagerService _handManager;
   late SavedHandImportExportService _handImportExportService;
@@ -5443,7 +5446,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final hint = _validationHint;
 
-    return Scaffold(
+    return Provider<PokerAnalyzerScreenState>.value(
+      value: this,
+      child: Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
@@ -5480,158 +5485,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
-            Expanded(
+            const Expanded(
               flex: 7,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Stack(
-                  children: [
-                  _TableBackgroundSection(scale: scale),
-                  AbsorbPointer(
-                    absorbing: lockService.isLocked,
-                    child: BoardEditor(
-                      key: _boardKey,
-                      scale: scale,
-                      currentStreet: currentStreet,
-                      boardCards: boardCards,
-                      revealedBoardCards: _boardReveal.revealedBoardCards,
-                      onCardSelected: selectBoardCard,
-                      onCardLongPress: _removeBoardCard,
-                      canEditBoard: (i) => _boardEditing.canEditBoard(context, i),
-                      usedCards: _boardEditing.usedCardKeys(),
-                      editingDisabled: lockService.isLocked,
-                      potSync: _potSync,
-                      boardReveal: widget.boardReveal,
-                      showPot: false,
-                    ),
-                  ),
-                  PlayerZone(
-                    numberOfPlayers: numberOfPlayers,
-                    scale: scale,
-                    playerPositions: playerPositions,
-                    opponentCardRow: AbsorbPointer(
-                      absorbing: lockService.isLocked,
-                      child: _OpponentCardRowSection(
-                        scale: scale,
-                        players: players,
-                        activePlayerIndex: activePlayerIndex,
-                        opponentIndex: opponentIndex,
-                        onCardTap:
-                            lockService.isLocked ? null : _onOpponentCardTap,
-                      ),
-                    ),
-                    playerBuilder: _buildPlayerWidgets,
-                    chipTrailBuilder: _buildChipTrail,
-                  ),
-                  _BetStacksOverlaySection(
-                    scale: scale,
-                    state: this,
-                  ),
-                  _ActionBetStackOverlaySection(
-                    scale: scale,
-                    state: this,
-                  ),
-                  _InvestedChipsOverlaySection(
-                    scale: scale,
-                    state: this,
-                  ),
-                  StackDisplay(
-                    scale: scale,
-                    numberOfPlayers: numberOfPlayers,
-                    currentStreet: currentStreet,
-                    viewIndex: viewIndex,
-                    actions: actions,
-                    pots: _potSync.pots,
-                    sidePots: _sidePots,
-                    playbackManager: _playbackManager,
-                    centerChipAction: _centerChipAction,
-                    showCenterChip: _showCenterChip,
-                    centerChipOrigin: _centerChipOrigin,
-                    centerChipController: _centerChipController,
-                    potGrowth: _potGrowthAnimation,
-                    potCount: _potCountAnimation,
-                    currentPot: _currentPot,
-                    sprValue: sprValue,
-                    centerBets: _centerBetStacks,
-                    actionColor: ActionFormattingHelper.actionColor,
-                  ),
-                  _ChipFlightOverlay(
-                    flights: _chipFlights,
-                    onRemove: _removeChipFlight,
-                  ),
-                  _ActionHistorySection(
-                    actionHistory: _actionHistory,
-                    playerPositions: playerPositions,
-                    expandedStreets: _expandedHistoryStreets,
-                    onToggleStreet: (index) {
-                      lockService.safeSetState(this, () {
-                        _actionHistory.toggleStreet(index);
-                      });
-                    },
-                    onEdit: _editAction,
-                    onDelete: _deleteAction,
-                    onReorder: _reorderAction,
-                    isLocked: lockService.isLocked,
-                  ),
-                  _PerspectiveSwitchButton(
-                    isPerspectiveSwitched: isPerspectiveSwitched,
-                    onToggle: () => lockService.safeSetState(this,
-                        () => isPerspectiveSwitched = !isPerspectiveSwitched),
-                  ),
-                  ValueListenableBuilder<String?>(
-                    valueListenable: _demoAnimations.narration,
-                    builder: (_, demoText, __) {
-                      final text = demoText ?? _playbackNarration;
-                      return _PlaybackNarrationOverlay(text: text);
-                    },
-                  ),
-                  StreetIndicator(street: currentStreet),
-                  _HudOverlaySection(
-                    streetName:
-                        ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
-                    potText: ActionFormattingHelper
-                        .formatAmount(_potSync.pots[currentStreet]),
-                    stackText:
-                        ActionFormattingHelper.formatAmount(effectiveStack),
-                    sprText: sprValue != null
-                        ? 'SPR: ${sprValue.toStringAsFixed(1)}'
-                        : null,
-                  ),
-                if (lockService.isLocked)
-                  const _BoardTransitionBusyIndicator(),
-                _RevealAllCardsButton(
-                  showAllRevealedCards: _debugPrefs.showAllRevealedCards,
-                  onToggle: () async {
-                    await _debugPrefs.setShowAllRevealedCards(
-                        !_debugPrefs.showAllRevealedCards);
-                    lockService.safeSetState(this, () {});
-                  },
-                ),
-                _FinishHandButtonOverlay(
-                  onPressed: _finishHand,
-                  disabled: lockService.isLocked,
-                  visible: _showFinishHandButton,
-                ),
-                if (widget.demoMode)
-                  _ReplayDemoButtonOverlay(
-                    onPressed: _replayDemo,
-                    visible: _showReplayDemoButton,
-                  ),
-                _HandCompleteOverlay(
-                  visible: _showHandCompleteIndicator,
-                ),
-                if (_showNextHandButton)
-                  _NextHandButtonOverlay(
-                    onPressed: _onNextHandPressed,
-                  ),
-                if (_trainingMode)
-                  _FoldAllButtonOverlay(
-                    onPressed: _foldAllOpponents,
-                  ),
-              ],
-        ),
-      ),
-    ),
+              child: BoardControls(),
+            ),
     _TotalPotTracker(
       potSync: _potSync,
       currentStreet: currentStreet,
@@ -5753,31 +5610,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 disabled: _transitionHistory.isLocked,
               ),
             ),
-            Expanded(
-              child: AbsorbPointer(
-                absorbing: lockService.isLocked,
-                child: _HandEditorSection(
-                  actionHistory: _actionHistory,
-                  playerPositions: playerPositions,
-                  heroIndex: heroIndex,
-                  commentController: _handContext.commentController,
-                  tagsController: _handContext.tagsController,
-                  tournamentIdController: _handContext.tournamentIdController,
-                  buyInController: _handContext.buyInController,
-                  prizePoolController: _handContext.totalPrizePoolController,
-                  entrantsController: _handContext.numberOfEntrantsController,
-                  gameTypeController: _handContext.gameTypeController,
-                  currentStreet: currentStreet,
-                  pots: _potSync.pots,
-                  stackSizes: _stackService.currentStacks,
-                  onEdit: _editAction,
-                  onDelete: _deleteAction,
-                  visibleCount: _playbackManager.playbackIndex,
-                  evaluateActionQuality: _evaluateActionQuality,
-                  onAnalyze: () {},
-                ),
-              ),
-            ),
+            const Expanded(child: ActionEditor()),
+            const Expanded(child: EvaluationPanel()),
           ],
           ),
         ),
@@ -5821,6 +5655,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ),
               ],
             ),
+        ),
+      ),
+    ),
     );
   }
 
@@ -6831,7 +6668,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                       )
                   ],
                   onChanged: (v) =>
-                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
+                      ctx.findAncestorStateOfType<PokerAnalyzerScreenState>()?
                           .lockService.safeSetState(this, () => setState(() => p = v ?? p)),
                 ),
                 const SizedBox(height: 8),
@@ -6845,7 +6682,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                     DropdownMenuItem(value: 'raise', child: Text('raise')),
                   ],
                   onChanged: (v) =>
-                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
+                      ctx.findAncestorStateOfType<PokerAnalyzerScreenState>()?
                           .lockService.safeSetState(this, () => setState(() => act = v ?? act)),
                 ),
                 if (need)
@@ -6900,7 +6737,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                         'Player ${i + 1}'),
                   )
               ],
-              onChanged: (v) => context.findAncestorStateOfType<_PokerAnalyzerScreenState>()?.lockService.safeSetState(this, () => _player = v ?? _player),
+              onChanged: (v) => context.findAncestorStateOfType<PokerAnalyzerScreenState>()?.lockService.safeSetState(this, () => _player = v ?? _player),
             ),
             const SizedBox(width: 8),
             DropdownButton<String>(
@@ -6912,7 +6749,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                 DropdownMenuItem(value: 'bet', child: Text('bet')),
                 DropdownMenuItem(value: 'raise', child: Text('raise')),
               ],
-              onChanged: (v) => context.findAncestorStateOfType<_PokerAnalyzerScreenState>()?.lockService.safeSetState(this, () => _action = v ?? _action),
+              onChanged: (v) => context.findAncestorStateOfType<PokerAnalyzerScreenState>()?.lockService.safeSetState(this, () => _action = v ?? _action),
             ),
             const SizedBox(width: 8),
             if (_needAmount)
@@ -6962,7 +6799,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
 }
 
 class _DebugPanelDialog extends StatefulWidget {
-  final _PokerAnalyzerScreenState parent;
+  final PokerAnalyzerScreenState parent;
 
   const _DebugPanelDialog({required this.parent});
 
@@ -6971,7 +6808,7 @@ class _DebugPanelDialog extends StatefulWidget {
 }
 
 class _DebugPanelDialogState extends State<_DebugPanelDialog> {
-  _PokerAnalyzerScreenState get s => widget.parent;
+  PokerAnalyzerScreenState get s => widget.parent;
 
   static const _vGap = SizedBox(height: 12);
   static const _hGap = SizedBox(width: 8);
@@ -7023,7 +6860,7 @@ class _QueueTools extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     final bool noQueues = s._queueService.pending.isEmpty &&
         s._queueService.failed.isEmpty &&
         s._queueService.completed.isEmpty;
@@ -7084,7 +6921,7 @@ class _SnapshotControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return state._buttonsColumn({
       'Retry Failed Evaluations':
           s._queueService.failed.isEmpty
@@ -7182,7 +7019,7 @@ class _ProcessingControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     final disabled = s._queueService.pending.isEmpty;
     return state._buttonsWrap({
       'Process Next':
@@ -7230,7 +7067,7 @@ class _QueueDisplaySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -7358,7 +7195,7 @@ class _EvaluationResultsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     final results = s._queueService.completed.length > 50
         ? s._queueService.completed
             .sublist(s._queueService.completed.length - 50)
@@ -7397,7 +7234,7 @@ class _PlaybackDiagnosticsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -7423,7 +7260,7 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
     final hudPotText =
         ActionFormattingHelper.formatAmount(s._potSync.pots[s.currentStreet]);
@@ -7456,7 +7293,7 @@ class _StreetTransitionDiagnosticsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -7484,7 +7321,7 @@ class _ChipTrailDiagnosticsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -7502,7 +7339,7 @@ class _EvaluationQueueDiagnosticsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -7528,7 +7365,7 @@ class _ExportConsistencySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     final hand = s._currentSavedHand();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -7598,7 +7435,7 @@ class _InternalStateFlagsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -7640,7 +7477,7 @@ class _CollapsedStreetsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -7664,7 +7501,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
+    final PokerAnalyzerScreenState s = state.s;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
