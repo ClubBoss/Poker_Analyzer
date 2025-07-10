@@ -158,7 +158,9 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     final template = TrainingPackTemplate(id: const Uuid().v4(), name: 'Review Imported', spots: spots);
     context.read<TemplateStorageService>().addTemplate(template);
     MistakeReviewPackService.setLatestTemplate(template);
-    await context.read<MistakeReviewPackService>().addPack([for (final s in spots) s.id]);
+    await context
+        .read<MistakeReviewPackService>()
+        .addPack([for (final s in spots) s.id], templateId: template.id);
     if (!mounted) return;
     Navigator.push(
       context,

@@ -384,7 +384,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                     spots: [for (final s in widget.template.spots) if (_mistakeIds.contains(s.id)) s],
                   );
                   MistakeReviewPackService.setLatestTemplate(template);
-                  await context.read<MistakeReviewPackService>().addPack(_mistakeIds);
+                  await context
+                      .read<MistakeReviewPackService>()
+                      .addPack(_mistakeIds, templateId: widget.template.id);
                   if (!mounted) return;
                   Navigator.push(
                     context,

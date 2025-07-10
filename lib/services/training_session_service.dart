@@ -312,7 +312,9 @@ class TrainingSessionService extends ChangeNotifier {
         spots: [for (final s in _template!.spots) if (ids.contains(s.id)) s],
       );
       MistakeReviewPackService.setLatestTemplate(tpl);
-      await context.read<MistakeReviewPackService>().addPack(ids);
+      await context
+          .read<MistakeReviewPackService>()
+          .addPack(ids, templateId: _template!.id);
     }
     Navigator.pushReplacement(
       context,
