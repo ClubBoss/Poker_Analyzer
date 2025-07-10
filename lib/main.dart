@@ -197,6 +197,7 @@ Future<void> main() async {
           create: (context) => AdaptiveTrainingService(
             templates: context.read<TemplateStorageService>(),
             mistakes: context.read<MistakeReviewPackService>(),
+            hands: context.read<SavedHandManagerService>(),
             xp: context.read<XPTrackerService>(),
           ),
         ),
