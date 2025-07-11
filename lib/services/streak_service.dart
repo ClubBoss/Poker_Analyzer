@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'reward_service.dart';
 
 import 'cloud_retry_policy.dart';
 import 'cloud_sync_service.dart';
@@ -29,6 +30,9 @@ class StreakService extends ChangeNotifier {
 
   static const _trainingCountKey = 'training_streak_count';
   static const _trainingDateKey = 'training_streak_date';
+  static const _weekStartKey = 'weekly_chest_start';
+  static const _weekDaysKey = 'weekly_chest_days';
+  static const _weekClaimedKey = 'weekly_chest_claimed';
 
   DateTime? _lastOpen;
   int _count = 0;
@@ -37,11 +41,17 @@ class StreakService extends ChangeNotifier {
   Map<String, int> _history = {};
   final ValueNotifier<int> streak = ValueNotifier(0);
   DateTime? _lastTrainingDate;
+  DateTime _weekStart = DateTime.now();
+  final Set<String> _weekDays = {};
+  bool _weekClaimed = false;
 
   int get count => _count;
   bool get hasBonus => _count >= bonusThreshold;
   bool get increased => _increased;
   int get errorFreeStreak => _errorFreeStreak;
+  int get weeklyActiveDays => _weekDays.length;
+  bool get weeklyChestAvailable => !_weekClaimed && weeklyActiveDays >= 5;
+  bool get weeklyChestClaimed => _weekClaimed;
   List<MapEntry<DateTime, int>> get history {
     final list = _history.entries
         .map((e) => MapEntry(DateTime.parse(e.key), e.value))
@@ -72,6 +82,14 @@ class StreakService extends ChangeNotifier {
     streak.value = prefs.getInt(_trainingCountKey) ?? 0;
     final tStr = prefs.getString(_trainingDateKey);
     _lastTrainingDate = tStr != null ? DateTime.tryParse(tStr) : null;
+    final startStr = prefs.getString(_weekStartKey);
+    _weekStart = startStr != null
+        ? DateTime.tryParse(startStr) ?? _currentWeekStart()
+        : _currentWeekStart();
+    final list = prefs.getStringList(_weekDaysKey);
+    if (list != null) _weekDays..clear()..addAll(list);
+    _weekClaimed = prefs.getBool(_weekClaimedKey) ?? false;
+    await _checkWeekReset();
     _verifyTrainingStreak();
     if (cloud != null && cloud!.uid != null) {
       try {
@@ -103,6 +121,7 @@ class StreakService extends ChangeNotifier {
     await prefs.setInt(_countKey, _count);
     await prefs.setInt(_errorKey, _errorFreeStreak);
     await prefs.setString(_historyKey, jsonEncode(_history));
+    await _saveWeek();
   }
 
   Future<void> _saveTraining() async {
@@ -138,6 +157,28 @@ class StreakService extends ChangeNotifier {
         streak.value = 0;
         unawaited(xp.add(xp: 0, source: 'streak_update', streak: 0));
       }
+    }
+  }
+
+  DateTime _currentWeekStart() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
+  }
+
+  Future<void> _saveWeek() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_weekStartKey, _weekStart.toIso8601String());
+    await prefs.setStringList(_weekDaysKey, _weekDays.toList());
+    await prefs.setBool(_weekClaimedKey, _weekClaimed);
+  }
+
+  Future<void> _checkWeekReset() async {
+    final start = _currentWeekStart();
+    if (start != _weekStart) {
+      _weekStart = start;
+      _weekDays.clear();
+      _weekClaimed = false;
+      await _saveWeek();
     }
   }
 
@@ -197,6 +238,8 @@ class StreakService extends ChangeNotifier {
   Future<void> onFinish() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    await _checkWeekReset();
+    _weekDays.add(today.toIso8601String().split('T').first);
     if (_lastTrainingDate != null) {
       final last = DateTime(
           _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
@@ -212,6 +255,17 @@ class StreakService extends ChangeNotifier {
     unawaited(xp.add(xp: 0, source: 'streak_update', streak: streak.value));
     _lastTrainingDate = today;
     await _saveTraining();
+    await _saveWeek();
     notifyListeners();
+  }
+
+  Future<String?> claimWeeklyChest(RewardService rewards) async {
+    if (!weeklyChestAvailable) return null;
+    _weekClaimed = true;
+    await _saveWeek();
+    final reward = rewards.randomReward();
+    await rewards.setReward(reward);
+    notifyListeners();
+    return reward;
   }
 }

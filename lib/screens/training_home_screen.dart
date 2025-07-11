@@ -23,6 +23,7 @@ import '../widgets/daily_goals_card.dart';
 import '../widgets/daily_progress_ring.dart';
 import '../widgets/repeat_mistakes_card.dart';
 import '../widgets/weekly_challenge_card.dart';
+import '../widgets/weekly_chest_card.dart';
 import '../widgets/daily_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
@@ -94,6 +95,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const DailyGoalsCard(),
           const DailyChallengeCard(),
           const WeeklyChallengeCard(),
+          const WeeklyChestCard(),
           const XPProgressBar(),
           const WeakSpotCard(),
           const ReviewPastMistakesCard(),
