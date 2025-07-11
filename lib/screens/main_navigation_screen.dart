@@ -31,6 +31,7 @@ import 'community_plugin_screen.dart';
 import 'onboarding_screen.dart';
 import 'ev_icm_analytics_screen.dart';
 import 'progress_dashboard_screen.dart';
+import 'weakness_overview_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
@@ -61,7 +62,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Future<void> _loadIndex() async {
     final prefs = await SharedPreferences.getInstance();
     var idx = prefs.getInt(_indexKey) ?? 0;
-    if (_simpleNavigation && idx > 2) idx = 0;
+    if (_simpleNavigation && idx > 3) idx = 0;
     setState(() => _currentIndex = idx);
   }
 
@@ -181,6 +182,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             _home(),
             const SpotOfTheDayScreen(),
             const SettingsPlaceholderScreen(),
+            const WeaknessOverviewScreen(),
           ]
         : [
             _home(),
@@ -288,6 +290,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     BottomNavigationBarItem(
                       icon: Icon(Icons.more_horiz),
                       label: 'Ещё',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.analytics_outlined),
+                      label: 'Аналитика',
                     ),
                   ]
                 : const [
