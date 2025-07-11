@@ -206,6 +206,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       evLossTotal += s.evLoss;
       evLossRecovered += s.recovered;
     }
+    MapEntry<String, _CatStat>? weakest;
+    double maxUnrec = -1;
+    for (final e in entries) {
+      final loss = e.value.evLoss - e.value.recovered;
+      if (loss > maxUnrec) {
+        maxUnrec = loss;
+        weakest = e;
+      }
+    }
     final progress =
         evLossTotal > 0 ? (evLossRecovered / evLossTotal).clamp(0.0, 1.0) : 0.0;
     final percent = (progress * 100).round();
@@ -248,6 +257,59 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                 label: const Text('Drill из топ-3 категорий'),
               ),
             if (showTopDrill) const SizedBox(height: 16),
+            if (weakest != null && maxUnrec > 0)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Ваша слабейшая категория',
+                              style: TextStyle(color: Colors.white70)),
+                          const SizedBox(height: 4),
+                          Text(
+                            translateCategory(weakest!.key).isEmpty
+                                ? 'Без категории'
+                                : translateCategory(weakest!.key),
+                            style: const TextStyle(
+                                color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '-${maxUnrec.toStringAsFixed(2)} EV',
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final tpl = await TrainingPackService.createDrillFromCategory(
+                            context, weakest!.key);
+                        if (tpl == null) return;
+                        await context
+                            .read<TrainingSessionService>()
+                            .startSession(tpl);
+                        if (context.mounted) {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const TrainingSessionScreen()),
+                          );
+                        }
+                      },
+                      child: const Text('Drill по ней'),
+                    )
+                  ],
+                ),
+              ),
             if (evLossTotal > 0) ...[
               const Text('Слабые места исправлены',
                   style: TextStyle(color: Colors.white)),
