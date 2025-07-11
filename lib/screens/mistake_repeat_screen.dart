@@ -23,6 +23,7 @@ class MistakeRepeatScreen extends StatefulWidget {
 }
 
 class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
+  String _categoryFilter = 'All';
 
   @override
   void initState() {
@@ -181,7 +182,15 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
-    final grouped = _groupMistakes(hands);
+    final categories = {
+      for (final h in hands)
+        if (h.category != null && h.category!.isNotEmpty) h.category!
+    };
+    final filtered = [
+      for (final h in hands)
+        if (_categoryFilter == 'All' || h.category == _categoryFilter) h
+    ];
+    final grouped = _groupMistakes(filtered);
     final streak = context.watch<MistakeStreakService>().count;
 
     final entries = grouped.entries
@@ -279,6 +288,18 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold)),
               ],
+            ),
+          ),
+        if (categories.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: DropdownButton<String>(
+              value: _categoryFilter,
+              dropdownColor: const Color(0xFF2A2B2E),
+              onChanged: (v) => setState(() => _categoryFilter = v ?? 'All'),
+              items: ['All', ...categories]
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
             ),
           ),
         Expanded(child: list),
