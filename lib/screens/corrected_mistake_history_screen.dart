@@ -79,6 +79,16 @@ class CorrectedMistakeHistoryScreen extends StatelessWidget {
                             ],
                           ),
                         ),
+                        if (DateTime.now().difference(h.savedAt) <
+                            const Duration(hours: 24))
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: const Text(
+                              'Новая',
+                              style: TextStyle(
+                                  color: Colors.lightGreenAccent, fontSize: 12),
+                            ),
+                          ),
                         const Icon(Icons.chevron_right, color: Colors.white),
                       ],
                     ),
