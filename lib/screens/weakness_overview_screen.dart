@@ -12,6 +12,7 @@ import '../helpers/category_translations.dart';
 import 'training_session_screen.dart';
 import 'mistake_review_screen.dart';
 import 'mistake_detail_screen.dart';
+import 'corrected_mistake_history_screen.dart';
 
 class WeaknessOverviewScreen extends StatefulWidget {
   static const route = '/weakness_overview';
@@ -232,6 +233,17 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
               ),
             ),
           ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CorrectedMistakeHistoryScreen(),
+              ),
+            );
+          },
+          child: const Text('Показать всё'),
+        ),
       ],
     );
   }
