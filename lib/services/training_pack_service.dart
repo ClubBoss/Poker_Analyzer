@@ -34,6 +34,9 @@ class TrainingPackService {
     final stacks = <String, double>{
       for (final e in h.stackSizes.entries) '${e.key}': e.value.toDouble()
     };
+    final tags = List<String>.from(h.tags);
+    final cat = h.category;
+    if (cat != null && cat.isNotEmpty) tags.add('cat:$cat');
     return TrainingPackSpot(
       id: const Uuid().v4(),
       title: h.name,
@@ -47,7 +50,7 @@ class TrainingPackService {
         stacks: stacks,
         anteBb: h.anteBb,
       ),
-      tags: List<String>.from(h.tags),
+      tags: tags,
     );
   }
 
