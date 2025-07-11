@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:collection/collection.dart';
 
 import '../models/saved_hand.dart';
 import '../models/v2/training_pack_template.dart';
@@ -108,6 +109,17 @@ class TrainingPackService {
       id: const Uuid().v4(),
       name: 'Комбо Drill: топ ошибки',
       spots: spots,
+    );
+  }
+  static Future<TrainingPackTemplate?> createRepeatForCorrected(BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final hand = hands.reversed.firstWhereOrNull((h) => h.corrected);
+    if (hand == null) return null;
+    final spot = _spotFromHand(hand);
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Repeat Corrected',
+      spots: [spot],
     );
   }
 }
