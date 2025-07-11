@@ -1,3 +1,4 @@
+import 'push_fold_ev_service.dart';
 
 double computeIcmPushEV({
   required List<int> chipStacksBb,
@@ -32,5 +33,25 @@ double computeIcmPushEV({
   stacks[heroIndex] = (stacks[heroIndex] + chipPushEv).clamp(0, double.infinity);
   final post = icmValue(stacks, heroIndex);
   return post - pre;
+}
+
+double computeLocalIcmPushEV({
+  required List<int> chipStacksBb,
+  required int heroIndex,
+  required String heroHand,
+  required int anteBb,
+}) {
+  final ev = computePushEV(
+    heroBbStack: chipStacksBb[heroIndex],
+    bbCount: chipStacksBb.length - 1,
+    heroHand: heroHand,
+    anteBb: anteBb,
+  );
+  return computeIcmPushEV(
+    chipStacksBb: chipStacksBb,
+    heroIndex: heroIndex,
+    heroHand: heroHand,
+    chipPushEv: ev,
+  );
 }
 
