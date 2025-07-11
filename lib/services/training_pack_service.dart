@@ -73,4 +73,38 @@ class TrainingPackService {
       spots: spots,
     );
   }
+
+  static Future<TrainingPackTemplate?> createDrillFromTopCategories(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final byCat = <String, List<SavedHand>>{};
+    final ev = <String, double>{};
+    for (final h in hands) {
+      final cat = h.category;
+      final exp = h.expectedAction;
+      final gto = h.gtoAction;
+      if (cat == null || cat.isEmpty) continue;
+      if (exp == null || gto == null) continue;
+      if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
+      byCat.putIfAbsent(cat, () => []).add(h);
+      ev[cat] = (ev[cat] ?? 0) + (h.evLoss ?? 0);
+    }
+    if (ev.length < 3) return null;
+    final cats = ev.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final spots = <TrainingPackSpot>[];
+    for (final e in cats.take(3)) {
+      final list = byCat[e.key]!..sort(
+          (a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+      for (final h in list.take(5)) {
+        spots.add(_spotFromHand(h));
+      }
+    }
+    if (spots.isEmpty) return null;
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Комбо Drill: топ ошибки',
+      spots: spots,
+    );
+  }
 }
