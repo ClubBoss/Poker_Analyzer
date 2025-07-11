@@ -11,9 +11,26 @@ import '../services/training_session_service.dart';
 import '../helpers/category_translations.dart';
 import 'training_session_screen.dart';
 
-class WeaknessOverviewScreen extends StatelessWidget {
+class WeaknessOverviewScreen extends StatefulWidget {
   static const route = '/weakness_overview';
-  const WeaknessOverviewScreen({super.key});
+  final bool autoExport;
+  const WeaknessOverviewScreen({super.key, this.autoExport = false});
+
+  @override
+  State<WeaknessOverviewScreen> createState() => _WeaknessOverviewScreenState();
+}
+
+class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autoExport) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await _exportPdf(context);
+        if (mounted) Navigator.pop(context);
+      });
+    }
+  }
 
   List<MapEntry<String, _CatStat>> _entries(BuildContext context) {
     final hands = context.read<SavedHandManagerService>().hands;
