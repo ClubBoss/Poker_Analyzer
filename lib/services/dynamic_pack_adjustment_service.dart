@@ -7,6 +7,7 @@ import 'saved_hand_manager_service.dart';
 import 'player_progress_service.dart';
 import 'player_style_forecast_service.dart';
 import 'player_style_service.dart';
+import 'real_time_stack_range_service.dart';
 
 class DynamicPackAdjustmentService {
   final MistakeReviewPackService mistakes;
@@ -14,12 +15,14 @@ class DynamicPackAdjustmentService {
   final SavedHandManagerService hands;
   final PlayerProgressService progress;
   final PlayerStyleForecastService forecast;
+  final RealTimeStackRangeService realtime;
   const DynamicPackAdjustmentService({
     required this.mistakes,
     required this.eval,
     required this.hands,
     required this.progress,
     required this.forecast,
+    required this.realtime,
   });
 
   Future<TrainingPackTemplate> adjust(TrainingPackTemplate tpl) async {
@@ -67,9 +70,8 @@ class DynamicPackAdjustmentService {
       case PlayerStyle.neutral:
         break;
     }
-    var stack = (tpl.heroBbStack + diff).clamp(5, 40);
-    final base = tpl.heroRange ?? PackGeneratorService.topNHands(25).toList();
-    var pct = (base.length * 100 / 169).round() + diff * 5;
+    var stack = (realtime.stack + diff).clamp(5, 40);
+    var pct = (realtime.range.length * 100 / 169).round() + diff * 5;
     pct = pct.clamp(5, 100);
     final range = PackGeneratorService.topNHands(pct).toList();
     return tpl.copyWith(heroBbStack: stack, heroRange: range);

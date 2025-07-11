@@ -12,6 +12,7 @@ import 'training_template_detail_screen.dart';
 import 'training_session_screen.dart';
 import '../widgets/progress_forecast_card.dart';
 import '../widgets/player_style_card.dart';
+import '../widgets/stack_range_bar.dart';
 
 class TrainingRecommendationScreen extends StatefulWidget {
   const TrainingRecommendationScreen({super.key});
@@ -108,6 +109,7 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
               children: [
                 const ProgressForecastCard(),
                 const PlayerStyleCard(),
+                const StackRangeBar(),
                 if (_tpls.isEmpty && _tasks.isEmpty)
                   const Center(child: Text('Нет рекомендаций'))
                 else ...[

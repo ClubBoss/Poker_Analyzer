@@ -30,6 +30,7 @@ import '../widgets/progress_summary_box.dart';
 import '../widgets/position_progress_card.dart';
 import '../widgets/progress_forecast_card.dart';
 import '../widgets/player_style_card.dart';
+import '../widgets/stack_range_bar.dart';
 import '../widgets/review_past_mistakes_card.dart';
 import '../widgets/weak_spot_card.dart';
 import 'training_progress_analytics_screen.dart';
@@ -89,6 +90,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const PositionProgressCard(),
           const ProgressForecastCard(),
           const PlayerStyleCard(),
+          const StackRangeBar(),
           const StreakChart(),
           const DailyProgressRing(),
           const DailyGoalsCard(),
