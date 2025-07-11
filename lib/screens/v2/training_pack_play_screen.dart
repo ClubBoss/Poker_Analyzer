@@ -28,6 +28,9 @@ import '../../services/notification_service.dart';
 import '../../services/mistake_review_pack_service.dart';
 import 'training_pack_result_screen_v2.dart';
 import '../../services/training_pack_stats_service.dart';
+import '../../services/mistake_categorization_engine.dart';
+import '../../models/mistake.dart';
+import '../../widgets/poker_table_view.dart' show PlayerAction;
 import 'package:uuid/uuid.dart';
 import '../../helpers/mistake_advice.dart';
 
@@ -316,6 +319,23 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return best;
   }
 
+  PlayerAction _parseAction(String a) {
+    switch (a.toLowerCase()) {
+      case 'fold':
+        return PlayerAction.fold;
+      case 'call':
+        return PlayerAction.call;
+      case 'push':
+        return PlayerAction.push;
+      case 'raise':
+      case 'bet':
+        return PlayerAction.raise;
+      case 'post':
+        return PlayerAction.post;
+    }
+    return PlayerAction.none;
+  }
+
   List<String> _wrongIds() {
     final ids = <String>[];
     for (final s in widget.template.spots) {
@@ -542,6 +562,17 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           (evDiff != null && evDiff < 0) ||
           (icmDiff != null && icmDiff < 0) ||
           !evaluation.correct;
+      String? category;
+      if (incorrect) {
+        final engine = const MistakeCategorizationEngine();
+        final strength = engine.computeHandStrength(spot.hand.heroCards);
+        final m = Mistake(
+          spot: spot,
+          action: _parseAction(act),
+          handStrength: strength,
+        );
+        category = engine.categorize(m);
+      }
       final repeated = incorrect &&
           context
               .read<MistakeReviewPackService>()
@@ -587,6 +618,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 selectedAction: act,
                 correctAction: expected,
                 explanation: explanation,
+                category: category,
               ),
               SizedBox(height: 16 * scale),
               ElevatedButton(
