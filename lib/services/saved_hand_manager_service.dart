@@ -1269,6 +1269,20 @@ class SavedHandManagerService extends ChangeNotifier {
     return streaks.reversed.toList();
   }
 
+  List<SavedHand> filterByCategory(String category) {
+    final result = [
+      for (final h in hands)
+        if (h.category == category &&
+            h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ];
+    result.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    return result;
+  }
+
   TrainingPackTemplate createPack(String name, List<SavedHand> selected) {
     HeroPosition _pos(String s) => parseHeroPosition(s);
 

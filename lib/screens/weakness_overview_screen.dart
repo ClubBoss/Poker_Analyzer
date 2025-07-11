@@ -10,6 +10,7 @@ import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../helpers/category_translations.dart';
 import 'training_session_screen.dart';
+import 'mistake_review_screen.dart';
 
 class WeaknessOverviewScreen extends StatefulWidget {
   static const route = '/weakness_overview';
@@ -282,23 +283,41 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                     ],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final tpl = await TrainingPackService.createDrillFromCategory(
-                        context, e.key);
-                    if (tpl == null) return;
-                    await context
-                        .read<TrainingSessionService>()
-                        .startSession(tpl);
-                    if (context.mounted) {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
-                      );
-                    }
-                  },
-                  child: const Text('Тренироваться'),
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final tpl = await TrainingPackService.createDrillFromCategory(
+                            context, e.key);
+                        if (tpl == null) return;
+                        await context
+                            .read<TrainingSessionService>()
+                            .startSession(tpl);
+                        if (context.mounted) {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const TrainingSessionScreen()),
+                          );
+                        }
+                      },
+                      child: const Text('Тренироваться'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        final manager = context.read<SavedHandManagerService>();
+                        final list = manager.filterByCategory(e.key);
+                        if (list.isEmpty) return;
+                        final tpl = manager.createPack('Ошибки', list);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => MistakeReviewScreen(template: tpl)),
+                        );
+                      },
+                      child: const Text('Все ошибки этой категории'),
+                    ),
+                  ],
                 )
               ],
             ),
