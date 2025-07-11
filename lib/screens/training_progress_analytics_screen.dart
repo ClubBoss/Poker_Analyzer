@@ -6,6 +6,7 @@ import '../services/training_stats_service.dart';
 import '../services/achievement_engine.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
+import '../widgets/session_progress_chart.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
@@ -123,6 +124,8 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
           _chart(stats.sessionsMonthly(12), Colors.greenAccent),
           const SizedBox(height: 12),
           _chart(stats.mistakesMonthly(12), Colors.redAccent),
+          const SizedBox(height: 12),
+          const SessionProgressChart(),
         ],
       ),
     );

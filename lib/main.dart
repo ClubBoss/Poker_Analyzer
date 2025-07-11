@@ -54,6 +54,7 @@ import 'services/player_style_service.dart';
 import 'services/player_style_forecast_service.dart';
 import 'services/real_time_stack_range_service.dart';
 import 'services/progress_forecast_service.dart';
+import 'services/dynamic_progress_service.dart';
 import 'services/personal_recommendation_service.dart';
 import 'services/feedback_service.dart';
 import 'services/drill_history_service.dart';
@@ -202,6 +203,10 @@ Future<void> main() async {
           create: (context) => RealTimeStackRangeService(
             forecast: context.read<PlayerStyleForecastService>(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              DynamicProgressService(hands: context.read<SavedHandManagerService>()),
         ),
         ChangeNotifierProvider(
           create: (context) =>
