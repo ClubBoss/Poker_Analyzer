@@ -204,8 +204,10 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(
-          create: (context) =>
-              ProgressForecastService(hands: context.read<SavedHandManagerService>()),
+          create: (context) => ProgressForecastService(
+            hands: context.read<SavedHandManagerService>(),
+            style: context.read<PlayerStyleService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) => MistakeReviewPackService(

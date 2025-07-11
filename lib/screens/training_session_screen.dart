@@ -5,6 +5,7 @@ import '../services/training_session_service.dart';
 import '../widgets/spot_quiz_widget.dart';
 import '../widgets/style_hint_bar.dart';
 import '../widgets/stack_range_bar.dart';
+import '../widgets/dynamic_progress_row.dart';
 import 'session_result_screen.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
@@ -324,6 +325,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                       const SizedBox(height: 8),
                       const StyleHintBar(),
                       const StackRangeBar(),
+                      const DynamicProgressRow(),
                       Expanded(child: SpotQuizWidget(spot: spot)),
                       if (service.focusHandTypes.isNotEmpty)
                         Padding(

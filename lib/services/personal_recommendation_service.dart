@@ -7,6 +7,7 @@ import 'achievement_engine.dart';
 import 'weak_spot_recommendation_service.dart';
 import 'player_style_service.dart';
 import 'player_style_forecast_service.dart';
+import 'progress_forecast_service.dart';
 
 class RecommendationTask {
   final String title;
@@ -21,18 +22,21 @@ class PersonalRecommendationService extends ChangeNotifier {
   final WeakSpotRecommendationService weak;
   final PlayerStyleService style;
   final PlayerStyleForecastService forecast;
+  final ProgressForecastService progress;
   PersonalRecommendationService({
     required this.achievements,
     required this.adaptive,
     required this.weak,
     required this.style,
     required this.forecast,
+    required this.progress,
   }) {
     achievements.addListener(() => unawaited(_update()));
     adaptive.recommendedNotifier.addListener(() => unawaited(_update()));
     weak.addListener(() => unawaited(_update()));
     style.addListener(() => unawaited(_update()));
     forecast.addListener(() => unawaited(_update()));
+    progress.addListener(() => unawaited(_update()));
     unawaited(_update());
   }
 
@@ -74,6 +78,30 @@ class PersonalRecommendationService extends ChangeNotifier {
         break;
       case PlayerStyle.neutral:
         break;
+    }
+    final prog = progress.forecast;
+    if (prog.accuracy < 0.7) {
+      _tasks.insert(
+        0,
+        const RecommendationTask(
+            title: 'Работайте над точностью',
+            icon: Icons.bar_chart,
+            remaining: 1),
+      );
+    }
+    if (prog.ev < 0) {
+      _tasks.insert(
+        0,
+        const RecommendationTask(
+            title: 'Улучшите EV', icon: Icons.show_chart, remaining: 1),
+      );
+    }
+    if (prog.icm < 0) {
+      _tasks.insert(
+        0,
+        const RecommendationTask(
+            title: 'Улучшите ICM', icon: Icons.pie_chart, remaining: 1),
+      );
     }
     notifyListeners();
   }
