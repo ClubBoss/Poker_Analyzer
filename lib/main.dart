@@ -9,6 +9,7 @@ import 'package:poker_analyzer/plugins/plugin_loader.dart';
 import 'package:poker_analyzer/plugins/plugin_manager.dart';
 import 'services/service_registry.dart';
 import 'screens/main_navigation_screen.dart';
+import 'screens/weakness_overview_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
 import 'services/session_note_service.dart';
@@ -578,6 +579,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
               Locale('en'),
               Locale('ru'),
             ],
+            routes: {
+              WeaknessOverviewScreen.route: (_) => const WeaknessOverviewScreen(),
+            },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');
               for (final l in supportedLocales) {

@@ -690,15 +690,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             _buildSpotOfDaySection(context),
             _buildMenuGrid(context),
             ListTile(
-              leading: const Icon(Icons.insights, color: Colors.white),
+              leading: const Icon(Icons.analytics, color: Colors.white),
               trailing: const Icon(Icons.chevron_right),
-              title: const Text('Анализ слабых мест'),
+              title: const Text('Анализ ошибок'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const WeaknessOverviewScreen()),
-                );
+                Navigator.pushNamed(context, WeaknessOverviewScreen.route);
               },
             ),
             const SizedBox(height: 16),

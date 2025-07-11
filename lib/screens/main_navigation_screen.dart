@@ -164,6 +164,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         const FeedbackBanner(),
         const NextStepCard(),
         const SuggestedDrillCard(),
+        ElevatedButton.icon(
+          onPressed: () =>
+              Navigator.pushNamed(context, WeaknessOverviewScreen.route),
+          icon: const Icon(Icons.analytics),
+          label: const Text('Анализ ошибок'),
+        ),
         const Expanded(child: AnalyzerTab()),
       ],
     );
