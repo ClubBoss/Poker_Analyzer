@@ -16,13 +16,21 @@ class CategoryDrillCard extends StatefulWidget {
 
 class _CategoryDrillCardState extends State<CategoryDrillCard> {
   static const _key = 'top_mistake_drill_done';
+  static const _tsKey = 'category_drill_last_time';
   bool _done = false;
 
   @override
   void initState() {
     super.initState();
     SharedPreferences.getInstance().then((p) {
-      if (mounted) setState(() => _done = p.getBool(_key) ?? false);
+      final done = p.getBool(_key) ?? false;
+      final ts = p.getInt(_tsKey);
+      final hide = ts != null &&
+          DateTime.now()
+                  .difference(DateTime.fromMillisecondsSinceEpoch(ts))
+                  .inDays <
+              7;
+      if (mounted) setState(() => _done = done && !hide);
     });
   }
 
@@ -76,6 +84,10 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
                   context, entry.key);
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
+              final p = await SharedPreferences.getInstance();
+              await p.setInt(
+                  _tsKey, DateTime.now().millisecondsSinceEpoch);
+              if (mounted) setState(() => _done = false);
               if (context.mounted) {
                 await Navigator.push(
                   context,
