@@ -94,6 +94,15 @@ class SavedHandManagerService extends ChangeNotifier {
     }
   }
 
+  Future<void> save(SavedHand hand) async {
+    final index = hands.indexWhere((h) => h.savedAt == hand.savedAt);
+    if (index >= 0) {
+      await update(index, hand);
+    } else {
+      await add(hand);
+    }
+  }
+
   Future<void> removeAt(int index) async {
     await _storage.removeAt(index);
     await _sync();
