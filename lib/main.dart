@@ -61,6 +61,7 @@ import 'services/mixed_drill_history_service.dart';
 import 'services/hand_analysis_history_service.dart';
 import 'services/training_pack_play_controller.dart';
 import 'services/notification_service.dart';
+import 'services/adaptive_focus_service.dart';
 import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
@@ -372,6 +373,11 @@ Future<void> main() async {
           create: (context) => WeakSpotRecommendationService(
             hands: context.read<SavedHandManagerService>(),
             progress: context.read<PlayerProgressService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AdaptiveFocusService(
+            hands: context.read<SavedHandManagerService>(),
           ),
         ),
         ChangeNotifierProvider(
