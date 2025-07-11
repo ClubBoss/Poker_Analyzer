@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
+import '../helpers/category_translations.dart';
 import 'training_session_screen.dart';
 
 class WeaknessOverviewScreen extends StatelessWidget {
@@ -36,6 +37,7 @@ class WeaknessOverviewScreen extends StatelessWidget {
         itemCount: entries.length,
         itemBuilder: (context, index) {
           final e = entries[index];
+          final name = translateCategory(e.key);
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
@@ -49,7 +51,7 @@ class WeaknessOverviewScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(e.key,
+                      Text(name.isEmpty ? 'Без категории' : name,
                           style: const TextStyle(
                               color: Colors.white, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
