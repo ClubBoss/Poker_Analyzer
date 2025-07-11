@@ -11,6 +11,7 @@ import '../services/training_session_service.dart';
 import '../helpers/category_translations.dart';
 import 'training_session_screen.dart';
 import 'mistake_review_screen.dart';
+import 'mistake_detail_screen.dart';
 
 class WeaknessOverviewScreen extends StatefulWidget {
   static const route = '/weakness_overview';
@@ -160,6 +161,79 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         ),
       );
     }
+  }
+
+  Widget _recentFixes(BuildContext context) {
+    final hands = context.watch<SavedHandManagerService>().hands;
+    final recent = [for (final h in hands) if (h.corrected) h]
+      ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    if (recent.isEmpty) return const SizedBox.shrink();
+    final list = recent.take(3).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        const Text('Последние исправленные ошибки',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        for (final h in list)
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MistakeDetailScreen(hand: h),
+                ),
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[850],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(h.heroPosition,
+                            style: const TextStyle(color: Colors.white)),
+                        if (h.evLossRecovered != null)
+                          Text(
+                            '+${h.evLossRecovered!.toStringAsFixed(2)} EV',
+                            style: const TextStyle(
+                                color: Colors.greenAccent, fontSize: 12),
+                          ),
+                        if (h.tags.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Wrap(
+                              spacing: 4,
+                              children: [
+                                for (final t in h.tags)
+                                  Chip(
+                                    label: Text(t),
+                                    backgroundColor: const Color(0xFF3A3B3E),
+                                    labelStyle:
+                                        const TextStyle(color: Colors.white),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.white),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   @override
@@ -333,8 +407,11 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
             Expanded(
               child: ListView.builder(
                 controller: _ctrl,
-                itemCount: entries.length,
+                itemCount: entries.length + 1,
                 itemBuilder: (context, index) {
+                  if (index == entries.length) {
+                    return _recentFixes(context);
+                  }
                   final e = entries[index];
           final name = translateCategory(e.key);
           return Container(
