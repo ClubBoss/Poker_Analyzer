@@ -15,6 +15,7 @@ import '../widgets/next_step_card.dart';
 import '../widgets/suggested_drill_card.dart';
 import '../widgets/feedback_banner.dart';
 import '../widgets/today_progress_banner.dart';
+import '../widgets/ev_goal_banner.dart';
 import '../widgets/streak_mini_card.dart';
 import '../widgets/streak_chart.dart';
 import '../widgets/spot_of_the_day_card.dart';
@@ -161,6 +162,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         ),
         const MotivationCard(),
         const ActiveGoalsCard(),
+        const EVGoalBanner(),
         const FeedbackBanner(),
         const NextStepCard(),
         const SuggestedDrillCard(),
