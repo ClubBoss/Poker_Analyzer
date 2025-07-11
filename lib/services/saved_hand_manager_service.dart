@@ -61,6 +61,12 @@ class SavedHandManagerService extends ChangeNotifier {
     await _storage.add(withSession);
     await _sync();
     _stats?.incrementHands();
+    final cat = withSession.category;
+    final ev = withSession.heroEv;
+    final exp = withSession.expectedAction?.trim().toLowerCase();
+    final gto = withSession.gtoAction?.trim().toLowerCase();
+    final miss = exp != null && gto != null && exp != gto;
+    _stats?.updateSkill(cat, ev, miss);
     if (sessionId != last?.sessionId) {
       _stats?.incrementSessions();
     }

@@ -64,6 +64,7 @@ class TrainingImportExportService {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
+      category: null,
       tags: const [],
       difficulty: 3,
       createdAt: DateTime.now(),

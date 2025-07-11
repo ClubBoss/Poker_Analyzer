@@ -32,6 +32,7 @@ import '../widgets/progress_summary_box.dart';
 import '../widgets/position_progress_card.dart';
 import '../widgets/progress_forecast_card.dart';
 import '../widgets/player_style_card.dart';
+import '../widgets/skill_progress_card.dart';
 import '../widgets/review_past_mistakes_card.dart';
 import '../widgets/weak_spot_card.dart';
 import '../widgets/achievements_card.dart';
@@ -91,6 +92,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const SpotOfTheDayCard(),
           const ProgressSummaryBox(),
           const PositionProgressCard(),
+          const SkillProgressCard(),
           const ProgressForecastCard(),
           const PlayerStyleCard(),
           const StreakChart(),

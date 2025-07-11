@@ -33,6 +33,7 @@ class TrainingGenerator {
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
       anteBb: hand.anteBb,
+      category: hand.category,
       tags: List<String>.from(hand.tags),
       actionHistory: null,
       difficulty: 3,
