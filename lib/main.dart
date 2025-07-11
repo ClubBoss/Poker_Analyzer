@@ -345,8 +345,10 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(
-          create: (context) =>
-              AchievementEngine(stats: context.read<TrainingStatsService>()),
+          create: (context) => AchievementEngine(
+            stats: context.read<TrainingStatsService>(),
+            goals: context.read<GoalsService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) =>
