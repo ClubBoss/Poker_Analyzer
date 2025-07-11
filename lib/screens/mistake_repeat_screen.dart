@@ -14,6 +14,9 @@ import '../widgets/saved_hand_tile.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/mistake_streak_service.dart';
+import '../services/training_pack_service.dart';
+import '../services/training_session_service.dart';
+import 'training_session_screen.dart';
 
 class MistakeRepeatScreen extends StatefulWidget {
   const MistakeRepeatScreen({super.key});
@@ -300,6 +303,32 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
               items: ['All', ...categories]
                   .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                   .toList(),
+            ),
+          ),
+        if (_categoryFilter != 'All' &&
+            filtered.any((h) =>
+                h.expectedAction != null &&
+                h.gtoAction != null &&
+                h.expectedAction!.trim().toLowerCase() !=
+                    h.gtoAction!.trim().toLowerCase()))
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                final tpl = await TrainingPackService.createDrillFromCategory(
+                    context, _categoryFilter);
+                if (tpl == null) return;
+                await context.read<TrainingSessionService>().startSession(tpl);
+                if (context.mounted) {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const TrainingSessionScreen()),
+                  );
+                }
+              },
+              icon: const Icon(Icons.fitness_center),
+              label: const Text('Тренироваться на этой категории'),
             ),
           ),
         Expanded(child: list),
