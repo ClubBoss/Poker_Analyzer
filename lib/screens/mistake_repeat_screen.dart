@@ -198,6 +198,17 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
       for (final h in hands)
         if (h.category != null && h.category!.isNotEmpty) h.category!
     };
+    final lossMap = <String, double>{};
+    for (final h in hands) {
+      final cat = h.category;
+      final loss = h.evLoss;
+      if (cat != null && cat.isNotEmpty && loss != null) {
+        lossMap[cat] = (lossMap[cat] ?? 0) + loss;
+      }
+    }
+    final topLoss = lossMap.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    final topThree = topLoss.take(3).toList();
     final filtered = [
       for (final h in hands)
         if (_categoryFilter == 'All' || h.category == _categoryFilter) h
@@ -309,6 +320,26 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                 Text('Streak: $streak',
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        if (topThree.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < topThree.length; i++) ...[
+                  Text(
+                    '${['🥇', '🥈', '🥉'][i]} ${topThree[i].key}: '
+                    '${topThree[i].value >= 0 ? '+' : ''}${topThree[i].value.toStringAsFixed(2)} EV',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.amberAccent,
+                    ),
+                  ),
+                  if (i < topThree.length - 1) const SizedBox(height: 4),
+                ],
               ],
             ),
           ),
