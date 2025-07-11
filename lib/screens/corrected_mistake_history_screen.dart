@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'mistake_detail_screen.dart';
+import '../helpers/category_translations.dart';
 
 class CorrectedMistakeHistoryScreen extends StatefulWidget {
-  const CorrectedMistakeHistoryScreen({super.key});
+  final String? category;
+  const CorrectedMistakeHistoryScreen({super.key, this.category});
 
   @override
   State<CorrectedMistakeHistoryScreen> createState() =>
@@ -22,7 +24,7 @@ class _CorrectedMistakeHistoryScreenState
     final hands = context.watch<SavedHandManagerService>().hands;
     final all = [
       for (final h in hands)
-        if (h.corrected) h
+        if (h.corrected && (widget.category == null || h.category == widget.category)) h
     ]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
     final filtered = _evOnly
         ? [
@@ -30,9 +32,15 @@ class _CorrectedMistakeHistoryScreenState
               if (h.evLossRecovered != null && h.evLossRecovered! > 0) h
           ]
         : all;
+    final title = widget.category == null
+        ? 'Исправленные ошибки'
+        : 'Исправленные ошибки: ' +
+            (translateCategory(widget.category).isEmpty
+                ? 'Без категории'
+                : translateCategory(widget.category));
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Исправленные ошибки'),
+        title: Text(title),
         centerTitle: true,
       ),
       body: all.isEmpty
