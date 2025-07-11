@@ -17,6 +17,7 @@ import '../widgets/feedback_banner.dart';
 import '../widgets/recent_unlocks_banner.dart';
 import '../widgets/today_progress_banner.dart';
 import '../widgets/ev_goal_banner.dart';
+import '../widgets/repeat_last_corrected_card.dart';
 import '../widgets/streak_mini_card.dart';
 import '../widgets/streak_chart.dart';
 import '../widgets/spot_of_the_day_card.dart';
@@ -164,6 +165,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         const MotivationCard(),
         const ActiveGoalsCard(),
         const EVGoalBanner(),
+        const RepeatLastCorrectedCard(),
         const FeedbackBanner(),
         const RecentUnlocksBanner(),
         const NextStepCard(),
