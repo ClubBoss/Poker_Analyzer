@@ -37,18 +37,27 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
   }
 
   Map<String, List<SavedHand>> _groupMistakes(List<SavedHand> hands) {
+    final mistakes = [
+      for (final h in hands)
+        if (h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ]
+      ..sort((a, b) {
+        final av = a.evLoss;
+        final bv = b.evLoss;
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return bv.compareTo(av);
+      });
+
     final Map<String, List<SavedHand>> grouped = {};
-    for (final h in hands) {
-      final expected = h.expectedAction?.trim().toLowerCase();
-      final gto = h.gtoAction?.trim().toLowerCase();
-      if (expected != null &&
-          gto != null &&
-          expected.isNotEmpty &&
-          gto.isNotEmpty &&
-          expected != gto) {
-        for (final tag in h.tags) {
-          grouped.putIfAbsent(tag, () => []).add(h);
-        }
+    for (final h in mistakes) {
+      for (final tag in h.tags) {
+        grouped.putIfAbsent(tag, () => []).add(h);
       }
     }
     return grouped;
@@ -199,7 +208,17 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     final entries = grouped.entries
         .where((e) => e.value.length > 1)
         .toList()
-      ..sort((a, b) => b.value.length.compareTo(a.value.length));
+      ..sort((a, b) {
+        final av = a.value.first.evLoss;
+        final bv = b.value.first.evLoss;
+        if (av == null && bv == null) {
+          return b.value.length.compareTo(a.value.length);
+        }
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        final cmp = bv.compareTo(av);
+        return cmp != 0 ? cmp : b.value.length.compareTo(a.value.length);
+      });
 
     final list = entries.isEmpty
         ? const Center(
