@@ -163,6 +163,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                     selectedAction: _selectedAction ?? '',
                     correctAction: error.correctAction,
                     explanation: error.aiExplanation,
+                    evLoss: null,
                   ),
                 ],
               ],
