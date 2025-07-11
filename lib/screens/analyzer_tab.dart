@@ -23,6 +23,7 @@ import '../services/training_import_export_service.dart';
 import '../widgets/repeat_last_incorrect_card.dart';
 import '../widgets/top_mistake_drill_card.dart';
 import '../widgets/category_drill_card.dart';
+import '../widgets/last_mistake_drill_card.dart';
 
 class AnalyzerTab extends StatelessWidget {
   const AnalyzerTab({super.key});
@@ -109,6 +110,7 @@ class AnalyzerTab extends StatelessWidget {
                 const RepeatLastIncorrectCard(),
                 const TopMistakeDrillCard(),
                 const CategoryDrillCard(),
+                const LastMistakeDrillCard(),
                 Expanded(
                   child: PokerAnalyzerScreen(
                     actionSync: context.read<ActionSyncService>(),
