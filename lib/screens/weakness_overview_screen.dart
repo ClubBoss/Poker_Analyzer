@@ -38,8 +38,32 @@ class WeaknessOverviewScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: entries.length,
+        itemCount: entries.length + (entries.length >= 3 ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == entries.length && entries.length >= 3) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ElevatedButton(
+                onPressed: () async {
+                  final tpl =
+                      await TrainingPackService.createDrillFromTopCategories(
+                          context);
+                  if (tpl == null) return;
+                  await context
+                      .read<TrainingSessionService>()
+                      .startSession(tpl);
+                  if (context.mounted) {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const TrainingSessionScreen()),
+                    );
+                  }
+                },
+                child: const Text('Создать Drill из топ-3 категорий'),
+              ),
+            );
+          }
           final e = entries[index];
           final name = translateCategory(e.key);
           return Container(
