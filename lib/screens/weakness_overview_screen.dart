@@ -200,6 +200,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         ..clear()
         ..addAll(List.generate(entries.length, (_) => GlobalKey()));
     }
+    double evLossTotal = 0;
+    double evLossRecovered = 0;
+    for (final s in stats.values) {
+      evLossTotal += s.evLoss;
+      evLossRecovered += s.recovered;
+    }
+    final progress =
+        evLossTotal > 0 ? (evLossRecovered / evLossTotal).clamp(0.0, 1.0) : 0.0;
+    final percent = (progress * 100).round();
     final showTopDrill = entries.length >= 3;
     return Scaffold(
       appBar: AppBar(
@@ -239,6 +248,26 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                 label: const Text('Drill из топ-3 категорий'),
               ),
             if (showTopDrill) const SizedBox(height: 16),
+            if (evLossTotal > 0) ...[
+              const Text('Слабые места исправлены',
+                  style: TextStyle(color: Colors.white)),
+              const SizedBox(height: 4),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.white24,
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+                  minHeight: 6,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text('Исправлено $percent% EV',
+                  style:
+                      const TextStyle(color: Colors.greenAccent, fontSize: 12)),
+              const SizedBox(height: 24),
+            ],
             Expanded(
               child: ListView.builder(
                 controller: _ctrl,
