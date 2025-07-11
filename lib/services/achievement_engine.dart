@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement.dart';
 import '../widgets/confetti_overlay.dart';
 import 'training_stats_service.dart';
+import 'goals_service.dart';
 import '../main.dart';
 import 'user_action_logger.dart';
 
@@ -12,8 +13,9 @@ class AchievementEngine extends ChangeNotifier {
   static AchievementEngine get instance => _instance!;
 
   final TrainingStatsService stats;
+  final GoalsService goals;
 
-  AchievementEngine({required this.stats}) {
+  AchievementEngine({required this.stats, required this.goals}) {
     _instance = this;
     _init();
   }
@@ -28,14 +30,15 @@ class AchievementEngine extends ChangeNotifier {
   Future<void> _init() async {
     await _load();
     _sync();
-    stats.sessionsStream.listen((_) => _onUpdate('s')); 
+    stats.sessionsStream.listen((_) => _onUpdate('s'));
     stats.handsStream.listen((_) => _onUpdate('h'));
     stats.mistakesStream.listen((_) => _onUpdate('m'));
+    goals.addListener(() => _onUpdate('w'));
   }
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    for (final k in ['s', 'h', 'm']) {
+    for (final k in ['s', 'h', 'm', 'w']) {
       _shown[k] = prefs.getInt('ach_level_$k') ?? 0;
     }
     _unseen = prefs.getInt('ach_unseen') ?? 0;
@@ -77,13 +80,20 @@ class AchievementEngine extends ChangeNotifier {
           progress: stats.mistakesFixed,
           thresholds: const [10, 25, 50, 100, 200],
         ),
+        Achievement(
+          title: 'Точность недели',
+          description: 'Достигайте точности за неделю',
+          icon: Icons.show_chart,
+          progress: goals.weeklyAccuracyProgress().round(),
+          thresholds: [goals.weeklyAccuracyTarget.round()],
+        ),
       ]);
     notifyListeners();
   }
 
   void _onUpdate(String key) {
     _sync();
-    final index = {'s': 0, 'h': 1, 'm': 2}[key]!;
+    final index = {'s': 0, 'h': 1, 'm': 2, 'w': 3}[key]!;
     final ach = _achievements[index];
     final level = ach.levelIndex;
     if ((_shown[key] ?? 0) < level) {
