@@ -344,6 +344,20 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         evLossTotal > 0 ? (evLossRecovered / evLossTotal).clamp(0.0, 1.0) : 0.0;
     final percent = (progress * 100).round();
     final showTopDrill = entries.length >= 3;
+    final topList = entries
+        .toList()
+      ..sort((a, b) =>
+          (b.value.evLoss - b.value.recovered)
+              .compareTo(a.value.evLoss - a.value.recovered));
+    final topCats = topList.take(3).toList();
+    final topLoss = topCats.fold<double>(
+        0, (p, e) => p + e.value.evLoss - e.value.recovered);
+    final topNames = [
+      for (final e in topCats)
+        translateCategory(e.key).isEmpty
+            ? 'Без категории'
+            : translateCategory(e.key)
+    ].join(', ');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Слабые места'),
@@ -394,28 +408,6 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                   ),
                 ),
               ),
-            if (showTopDrill)
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final tpl =
-                      await TrainingPackService.createDrillFromTopCategories(
-                          context);
-                  if (tpl == null) return;
-                  await context
-                      .read<TrainingSessionService>()
-                      .startSession(tpl);
-                  if (context.mounted) {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const TrainingSessionScreen()),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.auto_fix_high),
-                label: const Text('Drill из топ-3 категорий'),
-              ),
-            if (showTopDrill) const SizedBox(height: 16),
             if (evLossTotal > 0) ...[
               const Text('Слабые места исправлены',
                   style: TextStyle(color: Colors.white)),
@@ -531,62 +523,126 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         },
       ),
       ),
-      bottomNavigationBar: drillCat != null && drillLoss > 0
+      bottomNavigationBar: (drillCat != null && drillLoss > 0) ||
+              (showTopDrill && topLoss > 0)
           ? SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[850],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (drillCat != null && drillLoss > 0)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[850],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
                           children: [
-                            const Text('Тренировка по самой слабой категории',
-                                style: TextStyle(color: Colors.white70)),
-                            const SizedBox(height: 4),
-                            Text(
-                              translateCategory(drillCat!.key).isEmpty
-                                  ? 'Без категории'
-                                  : translateCategory(drillCat!.key),
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                      'Тренировка по самой слабой категории',
+                                      style: TextStyle(color: Colors.white70)),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    translateCategory(drillCat!.key).isEmpty
+                                        ? 'Без категории'
+                                        : translateCategory(drillCat!.key),
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '-${drillLoss.toStringAsFixed(2)} EV',
+                                    style:
+                                        const TextStyle(color: Colors.redAccent),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '-${drillLoss.toStringAsFixed(2)} EV',
-                              style:
-                                  const TextStyle(color: Colors.redAccent),
-                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final tpl =
+                                    await TrainingPackService.createDrillFromCategory(
+                                        context, drillCat!.key);
+                                if (tpl == null) return;
+                                await context
+                                    .read<TrainingSessionService>()
+                                    .startSession(tpl);
+                                if (context.mounted) {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const TrainingSessionScreen()),
+                                  );
+                                }
+                              },
+                              child: const Text('Начать'),
+                            )
                           ],
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final tpl = await TrainingPackService.createDrillFromCategory(
-                              context, drillCat!.key);
-                          if (tpl == null) return;
-                          await context
-                              .read<TrainingSessionService>()
-                              .startSession(tpl);
-                          if (context.mounted) {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const TrainingSessionScreen()),
-                            );
-                          }
-                        },
-                        child: const Text('Начать'),
-                      )
-                    ],
-                  ),
+                    if (showTopDrill && topLoss > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[850],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Drill из топ-3 категорий',
+                                        style:
+                                            TextStyle(color: Colors.white70)),
+                                    const SizedBox(height: 4),
+                                    Text(topNames,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4),
+                                    Text('-${topLoss.toStringAsFixed(2)} EV',
+                                        style: const TextStyle(
+                                            color: Colors.redAccent)),
+                                  ],
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final tpl =
+                                      await TrainingPackService.createDrillFromTopCategories(
+                                          context);
+                                  if (tpl == null) return;
+                                  await context
+                                      .read<TrainingSessionService>()
+                                      .startSession(tpl);
+                                  if (context.mounted) {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const TrainingSessionScreen()),
+                                    );
+                                  }
+                                },
+                                child: const Text('Начать'),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             )
