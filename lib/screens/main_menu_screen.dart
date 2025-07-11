@@ -48,6 +48,7 @@ import 'achievements_screen.dart';
 import '../services/goals_service.dart';
 import '../widgets/focus_of_the_week_card.dart';
 import '../widgets/sync_status_widget.dart';
+import 'weakness_overview_screen.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -688,6 +689,18 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             _buildProgressCard(context),
             _buildSpotOfDaySection(context),
             _buildMenuGrid(context),
+            ListTile(
+              leading: const Icon(Icons.insights, color: Colors.white),
+              trailing: const Icon(Icons.chevron_right),
+              title: const Text('Анализ слабых мест'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const WeaknessOverviewScreen()),
+                );
+              },
+            ),
             const SizedBox(height: 16),
             SwitchListTile(
               value: _demoMode,

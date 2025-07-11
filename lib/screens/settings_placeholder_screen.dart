@@ -19,6 +19,7 @@ import '../services/session_note_service.dart';
 import '../widgets/sync_status_widget.dart';
 import 'notification_settings_screen.dart';
 import 'goal_overview_screen.dart';
+import 'weakness_overview_screen.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -191,6 +192,18 @@ class SettingsPlaceholderScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const GoalOverviewScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.insights, color: Colors.white),
+            trailing: const Icon(Icons.chevron_right),
+            title: const Text('Анализ слабых мест'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const WeaknessOverviewScreen()),
               );
             },
           ),
