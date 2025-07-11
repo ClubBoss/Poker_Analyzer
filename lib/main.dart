@@ -220,6 +220,7 @@ Future<void> main() async {
             hands: context.read<SavedHandManagerService>(),
             progress: context.read<PlayerProgressService>(),
             forecast: context.read<PlayerStyleForecastService>(),
+            style: context.read<PlayerStyleService>(),
           ),
         ),
         ChangeNotifierProvider(
