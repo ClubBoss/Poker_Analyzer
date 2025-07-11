@@ -26,6 +26,7 @@ import '../widgets/weekly_challenge_card.dart';
 import '../widgets/daily_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
+import '../widgets/daily_focus_recap_card.dart';
 import '../widgets/progress_summary_box.dart';
 import '../widgets/position_progress_card.dart';
 import '../widgets/progress_forecast_card.dart';
@@ -84,6 +85,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
         children: [
           const _RecommendedCarousel(),
           const QuickContinueCard(),
+          const DailyFocusRecapCard(),
           const SpotOfTheDayCard(),
           const ProgressSummaryBox(),
           const PositionProgressCard(),

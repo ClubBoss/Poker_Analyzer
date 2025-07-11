@@ -49,6 +49,7 @@ import 'services/daily_reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/weak_spot_recommendation_service.dart';
+import 'services/daily_focus_recap_service.dart';
 import 'services/player_progress_service.dart';
 import 'services/player_style_service.dart';
 import 'services/player_style_forecast_service.dart';
@@ -373,6 +374,12 @@ Future<void> main() async {
             hands: context.read<SavedHandManagerService>(),
             progress: context.read<PlayerProgressService>(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DailyFocusRecapService(
+            hands: context.read<SavedHandManagerService>(),
+            weak: context.read<WeakSpotRecommendationService>(),
+          )..load(),
         ),
         ChangeNotifierProvider(
           create: (context) => FeedbackService(
