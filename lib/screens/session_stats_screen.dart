@@ -11,6 +11,8 @@ import 'dart:io';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
+import '../services/progress_export_service.dart';
+import '../services/training_stats_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
 import '../widgets/common/mistake_by_street_chart.dart';
@@ -80,6 +82,15 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     } else {
       await prefs.setString(_activeTagPrefsKey, _activeTag!);
     }
+  }
+
+  List<SavedHand> _filteredHands(SavedHandManagerService manager) {
+    final hands = (_activeTag == null
+            ? manager.hands
+            : manager.hands.where((h) => h.tags.contains(_activeTag)).toList())
+        .where((h) => _selectedStreets.contains(h.boardStreet.clamp(0, 3)))
+        .toList();
+    return hands;
   }
 
   String _formatDuration(Duration d) {
@@ -747,6 +758,34 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     }
   }
 
+  Future<void> _exportEvIcmCsv(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final stats = context.read<TrainingStatsService>();
+    final hands = _filteredHands(manager);
+    final service = ProgressExportService(stats: stats);
+    final file = await service.exportEvIcmCsv(hands);
+    await Share.shareXFiles([XFile(file.path)], text: file.path.split('/').last);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
+      );
+    }
+  }
+
+  Future<void> _exportEvIcmPdf(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final stats = context.read<TrainingStatsService>();
+    final hands = _filteredHands(manager);
+    final service = ProgressExportService(stats: stats);
+    final file = await service.exportEvIcmPdf(hands);
+    await Share.shareXFiles([XFile(file.path)], text: file.path.split('/').last);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
+      );
+    }
+  }
+
   Future<void> _showExportOptions() async {
     final result = await showModalBottomSheet<String>(
       context: context,
@@ -769,6 +808,16 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
               title: const Text('PDF'),
               onTap: () => Navigator.pop(ctx, 'pdf'),
             ),
+            ListTile(
+              leading: const Icon(Icons.table_chart),
+              title: const Text('EV/ICM CSV'),
+              onTap: () => Navigator.pop(ctx, 'evcsv'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf),
+              title: const Text('EV/ICM PDF'),
+              onTap: () => Navigator.pop(ctx, 'evpdf'),
+            ),
           ],
         ),
       ),
@@ -780,6 +829,10 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       await _exportPdf(context);
     } else if (result == 'csv') {
       await _exportCsv(context);
+    } else if (result == 'evcsv') {
+      await _exportEvIcmCsv(context);
+    } else if (result == 'evpdf') {
+      await _exportEvIcmPdf(context);
     }
   }
 
