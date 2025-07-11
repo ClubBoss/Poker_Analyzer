@@ -13,6 +13,8 @@ class WeaknessOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
+    final catProgress =
+        context.watch<TrainingSessionService>().getCategoryStats();
     final stats = <String, _CatStat>{};
     for (final h in hands) {
       final cat = h.category;
@@ -103,6 +105,11 @@ class WeaknessOverviewScreen extends StatelessWidget {
                           'Исправлено: ${e.value.corrected} из ${e.value.count} (${(e.value.corrected * 100 / e.value.count).round()}%) • +${e.value.recovered.toStringAsFixed(2)} EV',
                           style: const TextStyle(
                               fontSize: 11, color: Colors.greenAccent),
+                        ),
+                      if (catProgress[e.key] != null && catProgress[e.key]!.played > 0)
+                        Text(
+                          'Тренировок: ${catProgress[e.key]!.played} • ${((catProgress[e.key]!.correct * 100 / catProgress[e.key]!.played).round())}% верно • +${catProgress[e.key]!.evSaved.toStringAsFixed(2)} EV',
+                          style: const TextStyle(fontSize: 11, color: Colors.blueAccent),
                         ),
                     ],
                   ),
