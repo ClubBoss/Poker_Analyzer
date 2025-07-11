@@ -619,6 +619,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 correctAction: expected,
                 explanation: explanation,
                 category: category,
+                evLoss: evDiff != null && evDiff < 0 ? -evDiff : null,
               ),
               SizedBox(height: 16 * scale),
               ElevatedButton(

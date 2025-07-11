@@ -5,6 +5,7 @@ class ExplanationText extends StatelessWidget {
   final String correctAction;
   final String explanation;
   final String? category;
+  final double? evLoss;
 
   const ExplanationText({
     super.key,
@@ -12,6 +13,7 @@ class ExplanationText extends StatelessWidget {
     required this.correctAction,
     required this.explanation,
     this.category,
+    this.evLoss,
   });
 
   @override
@@ -28,6 +30,15 @@ class ExplanationText extends StatelessWidget {
           const SizedBox(height: 8),
           Text('Категория: $category',
               style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          if (evLoss != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                'Утечка EV: -${evLoss!.toStringAsFixed(2)}',
+                style:
+                    const TextStyle(fontSize: 12, color: Colors.redAccent),
+              ),
+            ),
         ],
         const SizedBox(height: 4),
         Text(
