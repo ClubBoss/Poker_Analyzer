@@ -30,7 +30,17 @@ class WeaknessOverviewScreen extends StatelessWidget {
       }
     }
     final entries = stats.entries.toList()
-      ..sort((a, b) => b.value.evLoss.compareTo(a.value.evLoss));
+      ..sort((a, b) {
+        final at = a.value.evLoss;
+        final bt = b.value.evLoss;
+        if (at == 0 && bt == 0) return 0;
+        if (at == 0) return 1;
+        if (bt == 0) return -1;
+        final ar = 1 - (a.value.recovered / at);
+        final br = 1 - (b.value.recovered / bt);
+        final cmp = br.compareTo(ar);
+        return cmp == 0 ? bt.compareTo(at) : cmp;
+      });
     return Scaffold(
       appBar: AppBar(
         title: const Text('Слабые места'),
