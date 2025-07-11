@@ -78,6 +78,11 @@ class TrainingPackService {
     );
   }
 
+  static Future<TrainingPackTemplate?> createDrillForCategory(
+      BuildContext context, String category) {
+    return createDrillFromCategory(context, category);
+  }
+
   static Future<TrainingPackTemplate?> createDrillFromTopCategories(
       BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
