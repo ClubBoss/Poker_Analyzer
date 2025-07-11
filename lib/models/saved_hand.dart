@@ -651,5 +651,12 @@ class SavedHand {
     }
     return null;
   }
+
+  SavedHand markAsCorrected() {
+    return copyWith(
+      corrected: true,
+      evLossRecovered: evLoss ?? 0,
+    );
+  }
 }
 
