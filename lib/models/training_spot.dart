@@ -27,6 +27,7 @@ class TrainingSpot {
   final int? numberOfEntrants;
   final String? gameType;
   final int anteBb;
+  final String? category;
   final List<String> tags;
   final int difficulty;
   final int rating;
@@ -55,6 +56,7 @@ class TrainingSpot {
     this.numberOfEntrants,
     this.gameType,
     this.anteBb = 0,
+    this.category,
     List<String>? tags,
     this.userAction,
     this.userComment,
@@ -95,6 +97,7 @@ class TrainingSpot {
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
       anteBb: hand.anteBb,
+      category: hand.category,
       tags: List<String>.from(hand.tags),
       userAction: null,
       userComment: hand.comment,
@@ -140,6 +143,7 @@ class TrainingSpot {
         if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
         if (gameType != null) 'gameType': gameType,
         'anteBb': anteBb,
+        if (category != null) 'category': category,
         if (tags.isNotEmpty) 'tags': tags,
         if (strategyAdvice != null) 'strategyAdvice': strategyAdvice,
         'difficulty': difficulty,
@@ -252,6 +256,7 @@ class TrainingSpot {
       numberOfEntrants: (json['numberOfEntrants'] as num?)?.toInt(),
       gameType: json['gameType'] as String?,
       anteBb: json['anteBb'] as int? ?? 0,
+      category: json['category'] as String?,
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
       rating: (json['rating'] as num?)?.toInt() ?? 0,
@@ -269,6 +274,7 @@ class TrainingSpot {
     int? difficulty,
     int? rating,
     List<String>? tags,
+    String? category,
     String? userAction,
     String? userComment,
     String? actionHistory,
@@ -298,6 +304,7 @@ class TrainingSpot {
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
       anteBb: anteBb ?? this.anteBb,
+      category: category ?? this.category,
       tags: tags ?? List<String>.from(this.tags),
       difficulty: difficulty ?? this.difficulty,
       rating: rating ?? this.rating,

@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
 import '../models/training_stats.dart';
 import '../models/saved_hand.dart';
+import '../models/skill_stat.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/streak_service.dart';
@@ -29,6 +30,7 @@ class TrainingStatsService extends ChangeNotifier {
   static const _evalTotalKey = 'stats_eval_total';
   static const _evalCorrectKey = 'stats_eval_correct';
   static const _evalHistoryKey = 'stats_eval_history';
+  static const _skillStatsKey = 'stats_skill_stats';
 
   int _sessions = 0;
   int _hands = 0;
@@ -44,6 +46,7 @@ class TrainingStatsService extends ChangeNotifier {
   Map<String, int> _sessionsPerDay = {};
   Map<String, int> _handsPerDay = {};
   Map<String, int> _mistakesPerDay = {};
+  Map<String, SkillStat> _skillStats = {};
 
   Map<DateTime, int> get handsPerDay =>
       {for (final e in _handsPerDay.entries) DateTime.parse(e.key): e.value};
@@ -62,6 +65,7 @@ class TrainingStatsService extends ChangeNotifier {
   double get evalAccuracy =>
       _evalTotal > 0 ? _evalCorrect / _evalTotal : 0.0;
   List<double> get evalHistory => List.unmodifiable(_evalHistory);
+  Map<String, SkillStat> get skillStats => _skillStats;
 
   Stream<int> get sessionsStream => _sessionController.stream;
   Stream<int> get handsStream => _handsController.stream;
@@ -346,6 +350,14 @@ class TrainingStatsService extends ChangeNotifier {
       for (final s in prefs.getStringList(_evalHistoryKey) ?? [])
         double.tryParse(s) ?? 0
     ];
+    final skillsRaw = prefs.getString(_skillStatsKey);
+    if (skillsRaw != null) {
+      final data = jsonDecode(skillsRaw) as Map<String, dynamic>;
+      _skillStats = {
+        for (final e in data.entries)
+          e.key: SkillStat.fromJson(Map<String, dynamic>.from(e.value))
+      };
+    }
     _currentStreak = prefs.getInt(_currentStreakKey) ?? 0;
     _bestStreak = prefs.getInt(_bestStreakKey) ?? 0;
     await _updateStreaks();
@@ -364,6 +376,9 @@ class TrainingStatsService extends ChangeNotifier {
         'evalTotal': _evalTotal,
         'evalCorrect': _evalCorrect,
         'evalHistory': _evalHistory,
+        'skills': {
+          for (final e in _skillStats.entries) e.key: e.value.toJson()
+        },
         'updatedAt': DateTime.now().toIso8601String(),
       };
 
@@ -381,6 +396,10 @@ class TrainingStatsService extends ChangeNotifier {
         _evalHistoryKey, [for (final v in _evalHistory) v.toString()]);
     await prefs.setInt(_currentStreakKey, _currentStreak);
     await prefs.setInt(_bestStreakKey, _bestStreak);
+    await prefs.setString(
+      _skillStatsKey,
+      jsonEncode({for (final e in _skillStats.entries) e.key: e.value.toJson()}),
+    );
     if (cloud != null) {
       final data = _toMap();
       await cloud!.queueMutation('training_stats', 'main', data);
@@ -418,6 +437,25 @@ class TrainingStatsService extends ChangeNotifier {
     await _save();
     notifyListeners();
     _mistakeController.add(_mistakes);
+  }
+
+  Future<void> updateSkill(String? category, double? ev, bool mistake) async {
+    if (category == null || category.isEmpty) return;
+    final prev = _skillStats[category];
+    final hands = (prev?.handsPlayed ?? 0) + 1;
+    final evAvg = ev != null
+        ? (((prev?.evAvg ?? 0) * (prev?.handsPlayed ?? 0) + ev) / hands)
+        : (prev?.evAvg ?? 0);
+    final m = (prev?.mistakes ?? 0) + (mistake ? 1 : 0);
+    _skillStats[category] = SkillStat(
+      category: category,
+      handsPlayed: hands,
+      evAvg: evAvg,
+      mistakes: m,
+      lastUpdated: DateTime.now(),
+    );
+    await _save();
+    notifyListeners();
   }
 
   Future<void> addEvalResult(double score) async {
