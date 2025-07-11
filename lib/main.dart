@@ -522,6 +522,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     _sync = ConnectivitySyncController(cloud: context.read<CloudSyncService>());
     context.read<UserActionLogger>().log('opened_app');
     unawaited(NotificationService.scheduleDailyReminder(context));
+    unawaited(NotificationService.scheduleDailyProgress(context));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeResumeTraining();
       _maybeShowIntroOverlay();

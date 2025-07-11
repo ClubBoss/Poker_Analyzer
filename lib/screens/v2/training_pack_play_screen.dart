@@ -454,10 +454,12 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _save();
       await context.read<StreakService>().onFinish();
       await NotificationService.cancel(101);
+      await NotificationService.cancel(102);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('last_training_day',
           DateTime.now().toIso8601String().split('T').first);
       await NotificationService.scheduleDailyReminder(context);
+      await NotificationService.scheduleDailyProgress(context);
       final ids = _wrongIds();
       if (ids.isNotEmpty) {
         final template = widget.template.copyWith(
