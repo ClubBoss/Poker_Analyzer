@@ -18,6 +18,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_session.dart';
 import '../models/v2/training_action.dart';
 import '../models/v2/focus_goal.dart';
+import '../models/category_progress.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -35,6 +36,7 @@ class TrainingSessionService extends ChangeNotifier {
   final Map<String, int> _handGoalCount = {};
   double _preEvPct = 0;
   double _preIcmPct = 0;
+  final Map<String, CategoryProgress> _categoryStats = {};
 
   double get preEvPct => _preEvPct;
   double get preIcmPct => _preIcmPct;
@@ -43,6 +45,8 @@ class TrainingSessionService extends ChangeNotifier {
   List<FocusGoal> get focusHandTypes => List.unmodifiable(_focusHandTypes);
   Map<String, int> get handGoalTotal => Map.unmodifiable(_handGoalTotal);
   Map<String, int> get handGoalCount => Map.unmodifiable(_handGoalCount);
+  Map<String, CategoryProgress> getCategoryStats() =>
+      Map.unmodifiable(_categoryStats);
 
   TrainingSession? get currentSession => _session;
   bool get isCompleted => _session?.completedAt != null;
@@ -171,6 +175,15 @@ class TrainingSessionService extends ChangeNotifier {
           } else if (countRaw is int && _focusHandTypes.isNotEmpty) {
             _handGoalCount[_focusHandTypes.first.label] = countRaw;
           }
+          final catRaw = data['categoryStats'];
+          if (catRaw is Map) {
+            _categoryStats
+              ..clear()
+              ..addAll(catRaw.map((k, v) => MapEntry(
+                  k as String,
+                  CategoryProgress.fromJson(
+                      Map<String, dynamic>.from(v as Map))));
+          }
           if (_focusHandTypes.isNotEmpty && _handGoalTotal.isEmpty) {
             for (final g in _focusHandTypes) {
               _handGoalTotal[g.label] =
@@ -211,6 +224,7 @@ class TrainingSessionService extends ChangeNotifier {
     _focusHandTypes.clear();
     _handGoalTotal.clear();
     _handGoalCount.clear();
+    _categoryStats.clear();
     if (_activeBox != null) await _activeBox!.delete('session');
     notifyListeners();
   }
@@ -228,6 +242,10 @@ class TrainingSessionService extends ChangeNotifier {
           'focusHandTypes': [for (final g in _focusHandTypes) g.toString()],
         if (_handGoalTotal.isNotEmpty) 'handGoalTotal': _handGoalTotal,
         if (_handGoalCount.isNotEmpty) 'handGoalProgress': _handGoalCount,
+        if (_categoryStats.isNotEmpty)
+          'categoryStats': {
+            for (final e in _categoryStats.entries) e.key: e.value.toJson()
+          },
         'preEvPct': _preEvPct,
         'preIcmPct': _preIcmPct
       });
@@ -270,6 +288,7 @@ class TrainingSessionService extends ChangeNotifier {
       ..addAll(template.focusHandTypes);
     _handGoalTotal.clear();
     _handGoalCount.clear();
+    _categoryStats.clear();
     for (final g in _focusHandTypes) {
       _handGoalTotal[g.label] =
           _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
@@ -382,8 +401,25 @@ class TrainingSessionService extends ChangeNotifier {
         isCorrect: isCorrect,
       ),
     );
+    final spot =
+        _spots.firstWhere((e) => e.id == spotId, orElse: () => TrainingPackSpot(id: ''));
+    if (spot.id.isNotEmpty) {
+      for (final t in spot.tags.where((t) => t.startsWith('cat:'))) {
+        final cat = t.substring(4);
+        final stat = _categoryStats.putIfAbsent(cat, () => CategoryProgress());
+        if (first) stat.played += 1;
+        if (first && isCorrect) stat.correct += 1;
+        final ev = spot.heroEv;
+        if (ev != null && first) {
+          if (isCorrect) {
+            stat.evSaved += ev.abs();
+          } else {
+            stat.evLost += ev.abs();
+          }
+        }
+      }
+    }
     if (first && _focusHandTypes.isNotEmpty) {
-      final spot = _spots.firstWhere((e) => e.id == spotId, orElse: () => TrainingPackSpot(id: ''));
       if (spot.id.isNotEmpty) {
         for (final g in _focusHandTypes) {
           if (_matchHandTypeLabel(spot, g.label)) {
