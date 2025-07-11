@@ -22,6 +22,7 @@ import 'services/action_history_service.dart';
 import 'services/ignored_mistake_service.dart';
 import 'services/training_import_export_service.dart';
 import 'services/demo_playback_controller.dart';
+import 'screens/weakness_overview_screen.dart';
 
 final GlobalKey analyzerKey = GlobalKey();
 
@@ -163,6 +164,9 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                       displayColor: Colors.white,
                     ),
               ),
+              routes: {
+                WeaknessOverviewScreen.route: (_) => const WeaknessOverviewScreen(),
+              },
               builder: (context, child) {
                 return Stack(
                   children: [
