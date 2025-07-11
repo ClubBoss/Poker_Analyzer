@@ -72,7 +72,7 @@ class TrainingPackService {
     final spots = [for (final h in selected) _spotFromHand(h)];
     return TrainingPackTemplate(
       id: const Uuid().v4(),
-      name: category,
+      name: 'Авто Drill: $category',
       spots: spots,
     );
   }
