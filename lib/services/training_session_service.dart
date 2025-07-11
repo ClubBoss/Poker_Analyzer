@@ -71,6 +71,33 @@ class TrainingSessionService extends ChangeNotifier {
   Map<String, bool> get results => _session?.results ?? {};
   int get correctCount => results.values.where((e) => e).length;
   int get totalCount => results.length;
+  double get evAverage {
+    double sum = 0;
+    int count = 0;
+    for (final id in results.keys) {
+      final s = _spots.firstWhere((e) => e.id == id, orElse: () => TrainingPackSpot(id: ''));
+      final ev = s.heroEv;
+      if (ev != null) {
+        sum += ev;
+        count++;
+      }
+    }
+    return count > 0 ? sum / count : 0;
+  }
+
+  double get icmAverage {
+    double sum = 0;
+    int count = 0;
+    for (final id in results.keys) {
+      final s = _spots.firstWhere((e) => e.id == id, orElse: () => TrainingPackSpot(id: ''));
+      final icm = s.heroIcmEv;
+      if (icm != null) {
+        sum += icm;
+        count++;
+      }
+    }
+    return count > 0 ? sum / count : 0;
+  }
   List<TrainingAction> get actionLog => List.unmodifiable(_actions);
   List<TrainingPackSpot> get spots => List.unmodifiable(_spots);
   TrainingPackTemplate? get template => _template;
@@ -367,6 +394,7 @@ class TrainingSessionService extends ChangeNotifier {
     }
     if (_box != null) await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
+    notifyListeners();
   }
 
   TrainingPackSpot? nextSpot() {

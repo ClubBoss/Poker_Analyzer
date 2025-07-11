@@ -313,6 +313,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
+                          'EV ${service.evAverage.toStringAsFixed(2)} • ICM ${service.icmAverage.toStringAsFixed(2)}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
                           '${service.session!.index + 1} / ${service.template!.spots.length}',
                           style: const TextStyle(color: Colors.white70),
                         ),

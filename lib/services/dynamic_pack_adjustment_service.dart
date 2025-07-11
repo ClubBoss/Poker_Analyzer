@@ -14,12 +14,14 @@ class DynamicPackAdjustmentService {
   final SavedHandManagerService hands;
   final PlayerProgressService progress;
   final PlayerStyleForecastService forecast;
+  final PlayerStyleService style;
   const DynamicPackAdjustmentService({
     required this.mistakes,
     required this.eval,
     required this.hands,
     required this.progress,
     required this.forecast,
+    required this.style,
   });
 
   Future<TrainingPackTemplate> adjust(TrainingPackTemplate tpl) async {
@@ -57,6 +59,22 @@ class DynamicPackAdjustmentService {
       return (stack - tpl.heroBbStack).abs() <= 2;
     }).length;
     if (posMist > 10) diff--;
+    if (pos != null) {
+      if (pos.ev > 0) diff++;
+      if (pos.ev < 0) diff--;
+      if (pos.icm > 0) diff++;
+      if (pos.icm < 0) diff--;
+    }
+    switch (style.style) {
+      case PlayerStyle.aggressive:
+        diff--;
+        break;
+      case PlayerStyle.passive:
+        diff++;
+        break;
+      case PlayerStyle.neutral:
+        break;
+    }
     switch (forecast.forecast) {
       case PlayerStyle.aggressive:
         diff--;
