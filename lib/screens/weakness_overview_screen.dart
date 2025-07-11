@@ -21,15 +21,34 @@ class WeaknessOverviewScreen extends StatefulWidget {
 }
 
 class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
+  final ScrollController _ctrl = ScrollController();
+  final _keys = <GlobalKey>[];
+  int? _highlight;
   @override
   void initState() {
     super.initState();
-    if (widget.autoExport) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final list = _entries(context);
+    if (list.isNotEmpty) {
+      double max = -1;
+      int idx = 0;
+      for (var i = 0; i < list.length; i++) {
+        final v = list[i].value;
+        final u = v.evLoss - v.recovered;
+        if (u > max) {
+          max = u;
+          idx = i;
+        }
+      }
+      _highlight = idx;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.autoExport) {
         await _exportPdf(context);
         if (mounted) Navigator.pop(context);
-      });
-    }
+      } else {
+        _scrollToIndex();
+      }
+    });
   }
 
   List<MapEntry<String, _CatStat>> _entries(BuildContext context) {
@@ -63,6 +82,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         return cmp == 0 ? bt.compareTo(at) : cmp;
       });
     return list;
+  }
+
+  void _scrollToIndex() {
+    if (_highlight == null) return;
+    if (_highlight! >= _keys.length) return;
+    final ctx = _keys[_highlight!].currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
+    }
   }
 
   Future<void> _exportPdf(BuildContext context) async {
@@ -166,6 +194,11 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         final cmp = br.compareTo(ar);
         return cmp == 0 ? bt.compareTo(at) : cmp;
       });
+    if (_keys.length != entries.length) {
+      _keys
+        ..clear()
+        ..addAll(List.generate(entries.length, (_) => GlobalKey()));
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Слабые места'),
@@ -179,6 +212,7 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         ],
       ),
       body: ListView.builder(
+        controller: _ctrl,
         padding: const EdgeInsets.all(16),
         itemCount: entries.length + (entries.length >= 3 ? 1 : 0),
         itemBuilder: (context, index) {
@@ -209,11 +243,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
           final e = entries[index];
           final name = translateCategory(e.key);
           return Container(
+            key: _keys[index],
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey[850],
+              color: index == _highlight ? Colors.red.shade900 : Colors.grey[850],
               borderRadius: BorderRadius.circular(8),
+              border: index == _highlight
+                  ? Border.all(color: Colors.red)
+                  : null,
             ),
             child: Row(
               children: [
