@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
+import '../models/v2/hand_data.dart';
+import '../models/v2/hero_position.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../services/evaluation_executor_service.dart';
+import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
 
 class SavedHandEditorScreen extends StatefulWidget {
@@ -37,10 +44,79 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
     setState(() => _actions[s]!.removeAt(i));
   }
 
-  void _save() {
+  HeroPosition _posFromString(String s) {
+    final p = s.toUpperCase();
+    if (p.startsWith('SB')) return HeroPosition.sb;
+    if (p.startsWith('BB')) return HeroPosition.bb;
+    if (p.startsWith('BTN')) return HeroPosition.btn;
+    if (p.startsWith('CO')) return HeroPosition.co;
+    if (p.startsWith('MP') || p.startsWith('HJ')) return HeroPosition.mp;
+    if (p.startsWith('UTG')) return HeroPosition.utg;
+    return HeroPosition.unknown;
+  }
+
+  TrainingPackSpot _spotFromHand(SavedHand h) {
+    final hero = h.playerCards[h.heroIndex]
+        .map((c) => '${c.rank}${c.suit}').join(' ');
+    final actions = <int, List<ActionEntry>>{for (var s = 0; s < 4; s++) s: []};
+    for (final a in h.actions) {
+      actions[a.street]!.add(a);
+    }
+    final stacks = <String, double>{
+      for (int i = 0; i < h.numberOfPlayers; i++)
+        '$i': (h.stackSizes[i] ?? 0).toDouble()
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: hero,
+        position: _posFromString(h.heroPosition),
+        heroIndex: h.heroIndex,
+        playerCount: h.numberOfPlayers,
+        stacks: stacks,
+        board: [for (final c in h.boardCards) '${c.rank}${c.suit}'],
+        actions: actions,
+        anteBb: h.anteBb,
+      ),
+    );
+  }
+
+  Future<void> _save() async {
     final list = <ActionEntry>[];
     for (int s = 0; s < 4; s++) list.addAll(_actions[s]!);
-    Navigator.pop(context, widget.hand.copyWith(actions: list));
+    var hand = widget.hand.copyWith(actions: list);
+    final heroCards = hand.playerCards.length > hand.heroIndex
+        ? hand.playerCards[hand.heroIndex]
+        : <dynamic>[];
+    final complete =
+        heroCards.length >= 2 && hand.boardCards.isNotEmpty && list.isNotEmpty;
+    if (complete) {
+      final spot = _spotFromHand(hand);
+      await context
+          .read<EvaluationExecutorService>()
+          .evaluateSingle(spot, anteBb: hand.anteBb);
+      final evalActs = <ActionEntry>[];
+      for (final l in spot.hand.actions.values) {
+        evalActs.addAll(l);
+      }
+      hand = hand.copyWith(
+        actions: evalActs,
+        gtoAction: spot.correctAction,
+      );
+      await context.read<SavedHandManagerService>().save(hand);
+      final ev = spot.heroEv;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Saved ${ev != null ? ev.toStringAsFixed(2) : '--'} BB'),
+          ),
+        );
+      }
+      if (mounted) Navigator.pop(context, hand);
+    } else {
+      Navigator.pop(context, hand);
+    }
   }
 
   @override
