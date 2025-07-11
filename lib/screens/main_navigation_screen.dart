@@ -33,6 +33,7 @@ import 'ev_icm_analytics_screen.dart';
 import 'progress_dashboard_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/sync_status_widget.dart';
+import '../user_preferences.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -44,21 +45,40 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   static const _indexKey = 'main_nav_index';
   int _currentIndex = 0;
+  bool _simpleNavigation = false;
+  bool _tutorialCompleted = false;
 
   @override
   void initState() {
     super.initState();
+    final prefs = UserPreferences.instance;
+    _simpleNavigation = prefs.simpleNavigation;
+    _tutorialCompleted = prefs.tutorialCompleted;
     _loadIndex();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowOnboarding());
   }
 
   Future<void> _loadIndex() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => _currentIndex = prefs.getInt(_indexKey) ?? 0);
+    var idx = prefs.getInt(_indexKey) ?? 0;
+    if (_simpleNavigation && idx > 2) idx = 0;
+    setState(() => _currentIndex = idx);
   }
 
   Future<void> _saveIndex(int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_indexKey, value);
+  }
+
+  Future<void> _maybeShowOnboarding() async {
+    if (!_simpleNavigation || _tutorialCompleted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+    );
+    if (mounted) {
+      setState(() => _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
+    }
   }
 
   Future<void> _setDailyGoal() async {
@@ -150,23 +170,27 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   void _onTap(int index) {
     UserActionLogger.instance.log('nav_$index');
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
     _saveIndex(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      _home(),
-      const SpotOfTheDayScreen(),
-      const SpotOfTheDayHistoryScreen(),
-      const GoalOverviewScreen(),
-      const PackOverviewScreen(),
-      const InsightsScreen(),
-      const SettingsPlaceholderScreen(),
-    ];
+    final pages = _simpleNavigation
+        ? [
+            _home(),
+            const SpotOfTheDayScreen(),
+            const SettingsPlaceholderScreen(),
+          ]
+        : [
+            _home(),
+            const SpotOfTheDayScreen(),
+            const SpotOfTheDayHistoryScreen(),
+            const GoalOverviewScreen(),
+            const PackOverviewScreen(),
+            const InsightsScreen(),
+            const SettingsPlaceholderScreen(),
+          ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
@@ -251,33 +275,48 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             currentIndex: _currentIndex,
             onTap: _onTap,
             type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.assessment),
-                label: 'Раздачи',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.today),
-                label: 'Спот дня',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.history),
-                label: 'История',
-              ),
-              BottomNavigationBarItem(icon: Icon(Icons.flag), label: 'Goal'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.backpack),
-                label: 'My Packs',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.insights),
-                label: '📊 Insights',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.more_horiz),
-                label: 'Ещё',
-              ),
-            ],
+            items: _simpleNavigation
+                ? const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.assessment),
+                      label: 'Раздачи',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.today),
+                      label: 'Спот дня',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.more_horiz),
+                      label: 'Ещё',
+                    ),
+                  ]
+                : const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.assessment),
+                      label: 'Раздачи',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.today),
+                      label: 'Спот дня',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.history),
+                      label: 'История',
+                    ),
+                    BottomNavigationBarItem(icon: Icon(Icons.flag), label: 'Goal'),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.backpack),
+                      label: 'My Packs',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.insights),
+                      label: '📊 Insights',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.more_horiz),
+                      label: 'Ещё',
+                    ),
+                  ],
           ),
         ],
       ),
