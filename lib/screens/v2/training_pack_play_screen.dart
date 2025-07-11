@@ -621,6 +621,27 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 category: category,
                 evLoss: evDiff != null && evDiff < 0 ? -evDiff : null,
               ),
+              if (category != null) ...[
+                SizedBox(height: 12 * scale),
+                ElevatedButton(
+                  onPressed: () async {
+                    final tpl = await TrainingPackService.createDrillFromCategory(
+                        context, category!);
+                    if (tpl == null) return;
+                    await context.read<TrainingSessionService>().startSession(tpl);
+                    if (context.mounted) {
+                      Navigator.pop(ctx);
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    }
+                  },
+                  child: Text('Тренироваться на похожих',
+                      style: TextStyle(fontSize: 14 * scale)),
+                ),
+              ],
               SizedBox(height: 16 * scale),
               ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
