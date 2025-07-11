@@ -159,6 +159,7 @@ class ReminderService extends ChangeNotifier {
     }
     if (!needSpot && activeGoal == null) return;
     await NotificationService.scheduleDailyReminder(context);
+    await NotificationService.scheduleDailyProgress(context);
   }
 }
 
