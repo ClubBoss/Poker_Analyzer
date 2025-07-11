@@ -20,6 +20,7 @@ import '../services/stack_manager_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/action_history_service.dart';
 import '../services/training_import_export_service.dart';
+import '../widgets/repeat_last_incorrect_card.dart';
 
 class AnalyzerTab extends StatelessWidget {
   const AnalyzerTab({super.key});
@@ -101,25 +102,35 @@ class AnalyzerTab extends StatelessWidget {
                 ),
               ),
             ],
-            child: PokerAnalyzerScreen(
-              actionSync: context.read<ActionSyncService>(),
-              foldedPlayersService: context.read<FoldedPlayersService>(),
-              allInPlayersService: context.read<AllInPlayersService>(),
-              handContext: CurrentHandContextService(),
-              playbackManager: context.read<PlaybackManagerService>(),
-              stackService: context.read<PlaybackManagerService>().stackService,
-              potSyncService: context.read<PlaybackManagerService>().potSync,
-              boardManager: context.read<BoardManagerService>(),
-              boardSync: context.read<BoardSyncService>(),
-              boardEditing: context.read<BoardEditingService>(),
-              playerEditing: context.read<PlayerEditingService>(),
-              playerManager: context.read<PlayerManagerService>(),
-              playerProfile: context.read<PlayerProfileService>(),
-              actionTagService: context.read<PlayerProfileService>().actionTagService,
-              boardReveal: boardReveal,
-              lockService: lockService,
-              actionHistory: context.read<ActionHistoryService>(),
-              demoMode: false,
+            child: Column(
+              children: [
+                const RepeatLastIncorrectCard(),
+                Expanded(
+                  child: PokerAnalyzerScreen(
+                    actionSync: context.read<ActionSyncService>(),
+                    foldedPlayersService: context.read<FoldedPlayersService>(),
+                    allInPlayersService: context.read<AllInPlayersService>(),
+                    handContext: CurrentHandContextService(),
+                    playbackManager: context.read<PlaybackManagerService>(),
+                    stackService:
+                        context.read<PlaybackManagerService>().stackService,
+                    potSyncService:
+                        context.read<PlaybackManagerService>().potSync,
+                    boardManager: context.read<BoardManagerService>(),
+                    boardSync: context.read<BoardSyncService>(),
+                    boardEditing: context.read<BoardEditingService>(),
+                    playerEditing: context.read<PlayerEditingService>(),
+                    playerManager: context.read<PlayerManagerService>(),
+                    playerProfile: context.read<PlayerProfileService>(),
+                    actionTagService:
+                        context.read<PlayerProfileService>().actionTagService,
+                    boardReveal: boardReveal,
+                    lockService: lockService,
+                    actionHistory: context.read<ActionHistoryService>(),
+                    demoMode: false,
+                  ),
+                ),
+              ],
             ),
           );
         },

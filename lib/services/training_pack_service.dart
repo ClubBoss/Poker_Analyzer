@@ -122,4 +122,21 @@ class TrainingPackService {
       spots: [spot],
     );
   }
+
+  static Future<TrainingPackTemplate?> createRepeatForIncorrect(BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final hand = hands.reversed.firstWhereOrNull((h) {
+      final ev = h.evLoss ?? 0.0;
+      final exp = h.expectedAction?.trim().toLowerCase();
+      final gto = h.gtoAction?.trim().toLowerCase();
+      return ev.abs() >= 1.0 && !h.corrected && exp != null && gto != null && exp != gto;
+    });
+    if (hand == null) return null;
+    final spot = _spotFromHand(hand);
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Repeat Incorrect',
+      spots: [spot],
+    );
+  }
 }
