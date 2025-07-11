@@ -63,6 +63,8 @@ class SavedHand {
   final String? rangeGroup;
   final String? feedbackText;
   final double? evLoss;
+  final bool corrected;
+  final double? evLossRecovered;
   final Map<String, int>? effectiveStacksPerStreet;
   final Map<String, String>? validationNotes;
   final List<int>? collapsedHistoryStreets;
@@ -127,6 +129,8 @@ class SavedHand {
     this.rangeGroup,
     this.feedbackText,
     this.evLoss,
+    this.corrected = false,
+    this.evLossRecovered,
     this.effectiveStacksPerStreet,
     this.validationNotes,
     this.collapsedHistoryStreets,
@@ -190,6 +194,8 @@ class SavedHand {
     String? rangeGroup,
     String? feedbackText,
     double? evLoss,
+    bool? corrected,
+    double? evLossRecovered,
     Map<String, int>? effectiveStacksPerStreet,
     Map<String, String>? validationNotes,
     List<int>? collapsedHistoryStreets,
@@ -256,6 +262,8 @@ class SavedHand {
       rangeGroup: rangeGroup ?? this.rangeGroup,
       feedbackText: feedbackText ?? this.feedbackText,
       evLoss: evLoss ?? this.evLoss,
+      corrected: corrected ?? this.corrected,
+      evLossRecovered: evLossRecovered ?? this.evLossRecovered,
       effectiveStacksPerStreet:
           effectiveStacksPerStreet ?? this.effectiveStacksPerStreet,
       validationNotes: validationNotes ?? this.validationNotes,
@@ -374,6 +382,8 @@ class SavedHand {
         if (rangeGroup != null) 'rangeGroup': rangeGroup,
         if (feedbackText != null) 'feedbackText': feedbackText,
         if (evLoss != null) 'evLoss': evLoss,
+        'corrected': corrected,
+        if (evLossRecovered != null) 'evLossRecovered': evLossRecovered,
         if (effectiveStacksPerStreet != null)
           'effectiveStacksPerStreet': effectiveStacksPerStreet,
         if (validationNotes != null) 'validationNotes': validationNotes,
@@ -546,6 +556,8 @@ class SavedHand {
     final revealStreet = json['revealStreet'] as int? ?? boardStreet;
     final commentCursor = json['commentCursor'] as int?;
     final tagsCursor = json['tagsCursor'] as int?;
+    final corrected = json['corrected'] as bool? ?? false;
+    final evLossRecovered = (json['evLossRecovered'] as num?)?.toDouble();
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -603,6 +615,8 @@ class SavedHand {
       rangeGroup: json['rangeGroup'] as String?,
       feedbackText: json['feedbackText'] as String?,
       evLoss: (json['evLoss'] as num?)?.toDouble(),
+      corrected: corrected,
+      evLossRecovered: evLossRecovered,
       effectiveStacksPerStreet: effStacks,
       validationNotes: notes,
       collapsedHistoryStreets: collapsed,

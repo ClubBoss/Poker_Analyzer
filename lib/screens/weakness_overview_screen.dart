@@ -24,6 +24,10 @@ class WeaknessOverviewScreen extends StatelessWidget {
       final s = stats.putIfAbsent(cat, () => _CatStat());
       s.count += 1;
       s.evLoss += h.evLoss ?? 0;
+      if (h.corrected) {
+        s.corrected += 1;
+        s.recovered += h.evLossRecovered ?? 0;
+      }
     }
     final entries = stats.entries.toList()
       ..sort((a, b) => b.value.evLoss.compareTo(a.value.evLoss));
@@ -60,6 +64,12 @@ class WeaknessOverviewScreen extends StatelessWidget {
                         style:
                             const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
+                      if (e.value.count > 0)
+                        Text(
+                          'Исправлено: ${e.value.corrected} из ${e.value.count} (${(e.value.corrected * 100 / e.value.count).round()}%) • +${e.value.recovered.toStringAsFixed(2)} EV',
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.greenAccent),
+                        ),
                     ],
                   ),
                 ),
@@ -93,4 +103,6 @@ class WeaknessOverviewScreen extends StatelessWidget {
 class _CatStat {
   int count = 0;
   double evLoss = 0;
+  int corrected = 0;
+  double recovered = 0;
 }
