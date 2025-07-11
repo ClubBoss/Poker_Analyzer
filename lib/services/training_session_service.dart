@@ -120,12 +120,14 @@ class TrainingSessionService extends ChangeNotifier {
             for (final e in (spots as List? ?? []))
               TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
           ];
-          _focusHandTypes
-            ..clear()
-            ..addAll([
-              for (final t in (data['focusHandTypes'] as List? ?? []))
-                FocusGoal.fromJson(t)
-            ]);
+      _focusHandTypes
+        ..clear()
+        ..addAll([
+          for (final t in (data['focusHandTypes'] as List? ?? []))
+            FocusGoal.fromJson(t)
+        ]);
+          _preEvPct = (data['preEvPct'] as num?)?.toDouble() ?? 0;
+          _preIcmPct = (data['preIcmPct'] as num?)?.toDouble() ?? 0;
           final totalRaw = data['handGoalTotal'];
           if (totalRaw is Map) {
             _handGoalTotal
@@ -198,7 +200,9 @@ class TrainingSessionService extends ChangeNotifier {
         if (_focusHandTypes.isNotEmpty)
           'focusHandTypes': [for (final g in _focusHandTypes) g.toString()],
         if (_handGoalTotal.isNotEmpty) 'handGoalTotal': _handGoalTotal,
-        if (_handGoalCount.isNotEmpty) 'handGoalProgress': _handGoalCount
+        if (_handGoalCount.isNotEmpty) 'handGoalProgress': _handGoalCount,
+        'preEvPct': _preEvPct,
+        'preIcmPct': _preIcmPct
       });
     }
   }
