@@ -11,6 +11,7 @@ class UserPreferencesService extends ChangeNotifier {
   static const _coachModeKey = 'coach_mode';
   static const _demoModeKey = 'demo_mode';
   static const _tutorialCompletedKey = 'tutorial_completed';
+  static const _simpleNavKey = 'simple_navigation';
 
   bool _showPotAnimation = true;
   bool _showCardReveal = true;
@@ -19,6 +20,7 @@ class UserPreferencesService extends ChangeNotifier {
   bool _coachMode = false;
   bool _demoMode = false;
   bool _tutorialCompleted = false;
+  bool _simpleNavigation = false;
   final CloudSyncService? cloud;
 
   UserPreferencesService({this.cloud});
@@ -30,6 +32,7 @@ class UserPreferencesService extends ChangeNotifier {
   bool get coachMode => _coachMode;
   bool get demoMode => _demoMode;
   bool get tutorialCompleted => _tutorialCompleted;
+  bool get simpleNavigation => _simpleNavigation;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -40,6 +43,7 @@ class UserPreferencesService extends ChangeNotifier {
     _coachMode = prefs.getBool(_coachModeKey) ?? false;
     _demoMode = prefs.getBool(_demoModeKey) ?? false;
     _tutorialCompleted = prefs.getBool(_tutorialCompletedKey) ?? false;
+    _simpleNavigation = prefs.getBool(_simpleNavKey) ?? false;
     notifyListeners();
   }
 
@@ -51,6 +55,7 @@ class UserPreferencesService extends ChangeNotifier {
         'coachMode': _coachMode,
         'demoMode': _demoMode,
         'tutorialCompleted': _tutorialCompleted,
+        'simpleNavigation': _simpleNavigation,
         'updatedAt': DateTime.now().toIso8601String(),
       };
 
@@ -103,6 +108,13 @@ class UserPreferencesService extends ChangeNotifier {
     if (_demoMode == value) return;
     _demoMode = value;
     await _save(_demoModeKey, value);
+    notifyListeners();
+  }
+
+  Future<void> setSimpleNavigation(bool value) async {
+    if (_simpleNavigation == value) return;
+    _simpleNavigation = value;
+    await _save(_simpleNavKey, value);
     notifyListeners();
   }
 

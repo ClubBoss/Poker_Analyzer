@@ -27,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _showWinnerCelebration;
   late bool _showActionHints;
   late bool _coachMode;
+  late bool _simpleNavigation;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
 
   @override
@@ -38,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showWinnerCelebration = prefs.showWinnerCelebration;
     _showActionHints = prefs.showActionHints;
     _coachMode = prefs.coachMode;
+    _simpleNavigation = prefs.simpleNavigation;
     NotificationService.getReminderTime(context)
         .then((t) => setState(() => _reminderTime = t));
   }
@@ -65,6 +67,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleCoachMode(bool value) async {
     setState(() => _coachMode = value);
     await UserPreferences.instance.setCoachMode(value);
+  }
+
+  Future<void> _toggleSimpleNavigation(bool value) async {
+    setState(() => _simpleNavigation = value);
+    await UserPreferences.instance.setSimpleNavigation(value);
   }
 
   Future<void> _pickReminderTime() async {
@@ -180,6 +187,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _coachMode,
               title: const Text('Режим тренера (Coach Mode)'),
               onChanged: _toggleCoachMode,
+              activeColor: Colors.orange,
+            ),
+            SwitchListTile(
+              value: _simpleNavigation,
+              title: const Text('Простой режим'),
+              onChanged: _toggleSimpleNavigation,
               activeColor: Colors.orange,
             ),
             ListTile(

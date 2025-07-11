@@ -18,6 +18,7 @@ class UserPreferences {
   bool get coachMode => service.coachMode;
   bool get demoMode => service.demoMode;
   bool get tutorialCompleted => service.tutorialCompleted;
+  bool get simpleNavigation => service.simpleNavigation;
 
   Future<void> setShowPotAnimation(bool value) => service.setShowPotAnimation(value);
   Future<void> setShowCardReveal(bool value) => service.setShowCardReveal(value);
@@ -25,5 +26,6 @@ class UserPreferences {
   Future<void> setShowActionHints(bool value) => service.setShowActionHints(value);
   Future<void> setCoachMode(bool value) => service.setCoachMode(value);
   Future<void> setDemoMode(bool value) => service.setDemoMode(value);
+  Future<void> setSimpleNavigation(bool value) => service.setSimpleNavigation(value);
   Future<void> setTutorialCompleted(bool value) => service.setTutorialCompleted(value);
 }
