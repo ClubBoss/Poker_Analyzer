@@ -21,6 +21,7 @@ import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/training_pack_variant.dart';
 import '../../widgets/spot_quiz_widget.dart';
 import '../../widgets/common/explanation_text.dart';
+import '../../widgets/dynamic_progress_row.dart';
 import '../../theme/app_colors.dart';
 import '../../services/streak_service.dart';
 import '../../services/notification_service.dart';
@@ -802,6 +803,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
               ),
             Text('Spot ${_index + 1} of ${_spots.length}',
                 style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+            SizedBox(height: 8 * scale),
+            const DynamicProgressRow(),
             SizedBox(height: 8 * scale),
             Expanded(
               child: GestureDetector(

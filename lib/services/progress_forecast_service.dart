@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/saved_hand.dart';
 import 'saved_hand_manager_service.dart';
+import 'player_style_service.dart';
 
 class ProgressEntry {
   final DateTime date;
@@ -28,15 +29,17 @@ class ProgressForecast {
 
 class ProgressForecastService extends ChangeNotifier {
   final SavedHandManagerService hands;
+  final PlayerStyleService style;
   List<ProgressEntry> _history = const [];
   ProgressForecast _forecast = const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
 
   List<ProgressEntry> get history => List.unmodifiable(_history);
   ProgressForecast get forecast => _forecast;
 
-  ProgressForecastService({required this.hands}) {
+  ProgressForecastService({required this.hands, required this.style}) {
     _update();
     hands.addListener(_update);
+    style.addListener(_update);
   }
 
   void _update() {
@@ -74,7 +77,26 @@ class ProgressForecastService extends ChangeNotifier {
       hist.add(ProgressEntry(date: e.key, accuracy: acc, ev: avgEv, icm: avgIcm));
     }
     _history = hist;
-    _forecast = _calcForecast(hist);
+    var f = _calcForecast(hist);
+    switch (style.style) {
+      case PlayerStyle.aggressive:
+        f = ProgressForecast(
+          accuracy: (f.accuracy - 0.05).clamp(0.0, 1.0),
+          ev: f.ev - 0.5,
+          icm: f.icm - 0.5,
+        );
+        break;
+      case PlayerStyle.passive:
+        f = ProgressForecast(
+          accuracy: (f.accuracy - 0.02).clamp(0.0, 1.0),
+          ev: f.ev - 0.2,
+          icm: f.icm - 0.2,
+        );
+        break;
+      case PlayerStyle.neutral:
+        break;
+    }
+    _forecast = f;
     notifyListeners();
   }
 
@@ -117,6 +139,7 @@ class ProgressForecastService extends ChangeNotifier {
   @override
   void dispose() {
     hands.removeListener(_update);
+    style.removeListener(_update);
     super.dispose();
   }
 }
