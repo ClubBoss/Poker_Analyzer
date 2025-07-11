@@ -4,12 +4,14 @@ class ExplanationText extends StatelessWidget {
   final String selectedAction;
   final String correctAction;
   final String explanation;
+  final String? category;
 
   const ExplanationText({
     super.key,
     required this.selectedAction,
     required this.correctAction,
     required this.explanation,
+    this.category,
   });
 
   @override
@@ -22,6 +24,11 @@ class ExplanationText extends StatelessWidget {
           'Your Action: $selectedAction',
           style: const TextStyle(color: Colors.red),
         ),
+        if (category != null) ...[
+          const SizedBox(height: 8),
+          Text('Категория: $category',
+              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        ],
         const SizedBox(height: 4),
         Text(
           isCorrect ? '✅ Correct' : '❌ Mistake',
