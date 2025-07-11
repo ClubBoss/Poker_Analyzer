@@ -149,4 +149,13 @@ class TrainingPackService {
       spots: [spot],
     );
   }
+
+  static TrainingPackTemplate createDrillFromHand(SavedHand hand) {
+    final spot = _spotFromHand(hand);
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Drill: ${hand.name}',
+      spots: [spot],
+    );
+  }
 }
