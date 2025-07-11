@@ -27,6 +27,7 @@ import '../services/next_step_engine.dart';
 import 'mistake_repeat_screen.dart';
 import 'goals_overview_screen.dart';
 import 'spot_of_the_day_screen.dart';
+import 'weakness_overview_screen.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
@@ -348,6 +349,18 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const WeaknessOverviewScreen(autoExport: true),
+                  ),
+                );
+              },
+              child: Text(l.exportWeaknessReport),
             ),
           ],
         ),
