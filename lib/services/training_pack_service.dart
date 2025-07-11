@@ -111,6 +111,11 @@ class TrainingPackService {
       spots: spots,
     );
   }
+
+  static Future<TrainingPackTemplate?> createTopMistakeDrill(
+      BuildContext context) async {
+    return createDrillFromTopCategories(context);
+  }
   static Future<TrainingPackTemplate?> createRepeatForCorrected(BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
     final hand = hands.reversed.firstWhereOrNull((h) => h.corrected);
