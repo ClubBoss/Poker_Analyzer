@@ -9,6 +9,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../helpers/category_translations.dart';
+import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
 import 'mistake_review_screen.dart';
 import 'mistake_detail_screen.dart';
@@ -292,6 +293,14 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       evLossTotal += s.evLoss;
       evLossRecovered += s.recovered;
     }
+    MapEntry<String, _CatStat>? mainError;
+    double maxEvLoss = -1;
+    for (final e in entries) {
+      if (e.value.evLoss > maxEvLoss) {
+        maxEvLoss = e.value.evLoss;
+        mainError = e;
+      }
+    }
     MapEntry<String, _CatStat>? weakest;
     double maxUnrec = -1;
     for (final e in entries) {
@@ -321,6 +330,40 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            if (mainError != null && maxEvLoss > 0)
+              Card(
+                color: AppColors.cardBackground,
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Главная ошибка',
+                                style: TextStyle(color: Colors.white70)),
+                            const SizedBox(height: 4),
+                            Text(
+                              translateCategory(mainError!.key).isEmpty
+                                  ? 'Без категории'
+                                  : translateCategory(mainError!.key),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '-${maxEvLoss.toStringAsFixed(2)} EV',
+                        style: const TextStyle(color: Colors.redAccent),
+                      )
+                    ],
+                  ),
+                ),
+              ),
             if (showTopDrill)
               ElevatedButton.icon(
                 onPressed: () async {
