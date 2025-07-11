@@ -44,6 +44,7 @@ import 'services/hand_analyzer_service.dart';
 import 'services/achievement_engine.dart';
 import 'services/goal_engine.dart';
 import 'services/streak_service.dart';
+import 'services/achievement_service.dart';
 import 'services/reminder_service.dart';
 import 'services/daily_reminder_service.dart';
 import 'services/next_step_engine.dart';
@@ -321,6 +322,14 @@ Future<void> main() async {
             cloud: context.read<CloudSyncService>(),
             xp: context.read<XPTrackerService>(),
           )..load(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AchievementService(
+            stats: context.read<TrainingStatsService>(),
+            hands: context.read<SavedHandManagerService>(),
+            streak: context.read<StreakService>(),
+            xp: context.read<XPTrackerService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) =>

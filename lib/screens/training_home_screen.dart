@@ -32,6 +32,7 @@ import '../widgets/progress_forecast_card.dart';
 import '../widgets/player_style_card.dart';
 import '../widgets/review_past_mistakes_card.dart';
 import '../widgets/weak_spot_card.dart';
+import '../widgets/achievements_card.dart';
 import 'training_progress_analytics_screen.dart';
 import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
@@ -95,6 +96,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const DailyChallengeCard(),
           const WeeklyChallengeCard(),
           const XPProgressBar(),
+          const AchievementsCard(),
           const WeakSpotCard(),
           const ReviewPastMistakesCard(),
           const RepeatMistakesCard(),
