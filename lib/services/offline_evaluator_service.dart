@@ -4,6 +4,8 @@ import '../models/v2/training_pack_spot.dart';
 import 'push_fold_ev_service.dart';
 import 'remote_ev_service.dart';
 import 'evaluation_settings_service.dart';
+import '../helpers/hand_utils.dart';
+import 'icm_push_ev_service.dart';
 
 class OfflineEvaluatorService {
   OfflineEvaluatorService({
@@ -78,7 +80,36 @@ class OfflineEvaluatorService {
           }
         }
       }
-      await offline.evaluateIcm(spot, anteBb: anteBb);
+      final hero = spot.hand.heroIndex;
+      final code = handCode(spot.hand.heroCards);
+      if (code != null) {
+        final stacks = [
+          for (var i = 0; i < spot.hand.playerCount; i++)
+            spot.hand.stacks['$i']?.round() ?? 0
+        ];
+        final ev = computePushEV(
+          heroBbStack: stacks[hero],
+          bbCount: stacks.length - 1,
+          heroHand: code,
+          anteBb: anteBb,
+        );
+        final icm = computeLocalIcmPushEV(
+          chipStacksBb: stacks,
+          heroIndex: hero,
+          heroHand: code,
+          anteBb: anteBb,
+        );
+        final acts = spot.hand.actions[0] ?? [];
+        for (final a in acts) {
+          if (a.playerIndex == hero && a.action == 'push') {
+            a.ev = ev;
+            a.icmEv = icm;
+            break;
+          }
+        }
+      } else {
+        await offline.evaluateIcm(spot, anteBb: anteBb);
+      }
       return;
     }
     await remote.evaluateIcm(spot, anteBb: anteBb);
