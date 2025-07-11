@@ -72,6 +72,8 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       if (h.corrected) {
         s.corrected += 1;
         s.recovered += h.evLossRecovered ?? 0;
+      } else {
+        s.uncorrected += h.evLoss ?? 0;
       }
     }
     final list = stats.entries.toList()
@@ -286,6 +288,8 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       if (h.corrected) {
         s.corrected += 1;
         s.recovered += h.evLossRecovered ?? 0;
+      } else {
+        s.uncorrected += h.evLoss ?? 0;
       }
     }
     final entries = stats.entries.toList()
@@ -326,6 +330,14 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       if (loss > maxUnrec) {
         maxUnrec = loss;
         weakest = e;
+      }
+    }
+    MapEntry<String, _CatStat>? drillCat;
+    double drillLoss = -1;
+    for (final e in entries) {
+      if (e.value.uncorrected > drillLoss) {
+        drillLoss = e.value.uncorrected;
+        drillCat = e;
       }
     }
     final progress =
@@ -404,59 +416,6 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                 label: const Text('Drill из топ-3 категорий'),
               ),
             if (showTopDrill) const SizedBox(height: 16),
-            if (weakest != null && maxUnrec > 0)
-              Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Ваша слабейшая категория',
-                              style: TextStyle(color: Colors.white70)),
-                          const SizedBox(height: 4),
-                          Text(
-                            translateCategory(weakest!.key).isEmpty
-                                ? 'Без категории'
-                                : translateCategory(weakest!.key),
-                            style: const TextStyle(
-                                color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '-${maxUnrec.toStringAsFixed(2)} EV',
-                            style: const TextStyle(color: Colors.redAccent),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final tpl = await TrainingPackService.createDrillFromCategory(
-                            context, weakest!.key);
-                        if (tpl == null) return;
-                        await context
-                            .read<TrainingSessionService>()
-                            .startSession(tpl);
-                        if (context.mounted) {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const TrainingSessionScreen()),
-                          );
-                        }
-                      },
-                      child: const Text('Drill по ней'),
-                    )
-                  ],
-                ),
-              ),
             if (evLossTotal > 0) ...[
               const Text('Слабые места исправлены',
                   style: TextStyle(color: Colors.white)),
@@ -571,6 +530,67 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
           );
         },
       ),
+      ),
+      bottomNavigationBar: drillCat != null && drillLoss > 0
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Тренировка по самой слабой категории',
+                                style: TextStyle(color: Colors.white70)),
+                            const SizedBox(height: 4),
+                            Text(
+                              translateCategory(drillCat!.key).isEmpty
+                                  ? 'Без категории'
+                                  : translateCategory(drillCat!.key),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '-${drillLoss.toStringAsFixed(2)} EV',
+                              style:
+                                  const TextStyle(color: Colors.redAccent),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final tpl = await TrainingPackService.createDrillFromCategory(
+                              context, drillCat!.key);
+                          if (tpl == null) return;
+                          await context
+                              .read<TrainingSessionService>()
+                              .startSession(tpl);
+                          if (context.mounted) {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const TrainingSessionScreen()),
+                            );
+                          }
+                        },
+                        child: const Text('Начать'),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }
@@ -580,4 +600,5 @@ class _CatStat {
   double evLoss = 0;
   int corrected = 0;
   double recovered = 0;
+  double uncorrected = 0;
 }
