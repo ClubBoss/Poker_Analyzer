@@ -25,6 +25,7 @@ import '../theme/app_colors.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/mistake_heatmap.dart';
 import '../widgets/eval_stats_card.dart';
+import '../widgets/ev_icm_history_chart.dart';
 import 'goals_history_screen.dart';
 import 'daily_spot_screen.dart';
 import 'daily_spot_history_screen.dart';
@@ -60,6 +61,7 @@ class _ProgressScreenState extends State<ProgressScreen>
   final _pieKey = GlobalKey();
   final _weeklyAccKey = GlobalKey();
   final _evLossKey = GlobalKey();
+  final _evIcmKey = GlobalKey();
   final _streakKey = GlobalKey();
   final _mistakeKey = GlobalKey();
   final _heatmapKey = GlobalKey();
@@ -787,7 +789,15 @@ class _ProgressScreenState extends State<ProgressScreen>
 
   Future<void> _exportChartsPdf() async {
     final list = <Uint8List>[];
-    final keys = [_pieKey, _weeklyAccKey, _evLossKey, _streakKey, _mistakeKey, _heatmapKey];
+    final keys = [
+      _pieKey,
+      _weeklyAccKey,
+      _evLossKey,
+      _evIcmKey,
+      _streakKey,
+      _mistakeKey,
+      _heatmapKey
+    ];
     for (final k in keys) {
       final img = await _capture(k);
       if (img != null) list.add(img);
@@ -960,6 +970,17 @@ class _ProgressScreenState extends State<ProgressScreen>
           ),
           const SizedBox(height: 12),
           RepaintBoundary(key: _evLossKey, child: _buildEvLossChart()),
+          const SizedBox(height: 24),
+          const Text(
+            'EV/ICM история',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          RepaintBoundary(key: _evIcmKey, child: EvIcmHistoryChart()),
           const SizedBox(height: 24),
           const Text(
             'История стрика',

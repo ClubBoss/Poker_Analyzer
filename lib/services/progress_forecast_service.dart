@@ -35,6 +35,10 @@ class ProgressForecastService extends ChangeNotifier {
 
   List<ProgressEntry> get history => List.unmodifiable(_history);
   ProgressForecast get forecast => _forecast;
+  List<MapEntry<DateTime, double>> get evSeries =>
+      [for (final e in _history) MapEntry(e.date, e.ev)];
+  List<MapEntry<DateTime, double>> get icmSeries =>
+      [for (final e in _history) MapEntry(e.date, e.icm)];
 
   ProgressForecastService({required this.hands, required this.style}) {
     _update();
