@@ -200,6 +200,7 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         ..clear()
         ..addAll(List.generate(entries.length, (_) => GlobalKey()));
     }
+    final showTopDrill = entries.length >= 3;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Слабые места'),
@@ -212,15 +213,12 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
           )
         ],
       ),
-      body: ListView.builder(
-        controller: _ctrl,
+      body: Padding(
         padding: const EdgeInsets.all(16),
-        itemCount: entries.length + (entries.length >= 3 ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == entries.length && entries.length >= 3) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: ElevatedButton(
+        child: Column(
+          children: [
+            if (showTopDrill)
+              ElevatedButton.icon(
                 onPressed: () async {
                   final tpl =
                       await TrainingPackService.createDrillFromTopCategories(
@@ -237,11 +235,16 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                     );
                   }
                 },
-                child: const Text('Создать Drill из топ-3 категорий'),
+                icon: const Icon(Icons.auto_fix_high),
+                label: const Text('Drill из топ-3 категорий'),
               ),
-            );
-          }
-          final e = entries[index];
+            if (showTopDrill) const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                controller: _ctrl,
+                itemCount: entries.length,
+                itemBuilder: (context, index) {
+                  final e = entries[index];
           final name = translateCategory(e.key);
           return Container(
             key: _keys[index],
