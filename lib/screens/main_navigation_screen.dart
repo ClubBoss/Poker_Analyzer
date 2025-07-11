@@ -8,6 +8,7 @@ import 'settings_placeholder_screen.dart';
 import 'insights_screen.dart';
 import 'goal_overview_screen.dart';
 import 'pack_overview_screen.dart';
+import 'weakness_overview_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
 import '../widgets/active_goals_card.dart';
@@ -163,6 +164,26 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         const FeedbackBanner(),
         const NextStepCard(),
         const SuggestedDrillCard(),
+        Container(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          decoration: BoxDecoration(
+            color: Colors.grey[850],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ListTile(
+            leading: const Icon(Icons.insights, color: Colors.white),
+            trailing: const Icon(Icons.chevron_right),
+            title: const Text('Анализ слабых мест',
+                style: TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const WeaknessOverviewScreen()),
+              );
+            },
+          ),
+        ),
         const Expanded(child: AnalyzerTab()),
       ],
     );
