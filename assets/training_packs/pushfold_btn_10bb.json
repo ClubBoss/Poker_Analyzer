@@ -1,0 +1,24 @@
+{
+  "name": "Push/Fold BTN 10bb",
+  "description": "Common push spots from Button at 10bb",
+  "category": "Push-Fold",
+  "gameType": "Tournament",
+  "isBuiltIn": true,
+  "hands": [
+    {
+      "name": "BTN shove 10bb",
+      "heroIndex": 0,
+      "heroPosition": "BTN",
+      "numberOfPlayers": 2,
+      "playerCards": [
+        [{"rank": "A", "suit": "♣"}, {"rank": "J", "suit": "♣"}],
+        [{"rank": "8", "suit": "♦"}, {"rank": "8", "suit": "♠"}]
+      ],
+      "boardCards": [],
+      "boardStreet": 0,
+      "actions": [],
+      "stackSizes": {"0": 10, "1": 10},
+      "playerPositions": {"0": "BTN", "1": "BB"}
+    }
+  ]
+}

@@ -139,6 +139,7 @@ Future<void> main() async {
   pluginManager.initializeAll(registry);
   packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
+  await packStorage.loadBuiltInPacks();
   packCloud = TrainingPackCloudSyncService();
   await packCloud.init();
   mistakeCloud = MistakePackCloudService();
