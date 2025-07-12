@@ -90,6 +90,7 @@ import 'widgets/sync_status_widget.dart';
 import 'widgets/first_launch_overlay.dart';
 import 'screens/onboarding_screen.dart';
 import 'app_bootstrap.dart';
+import 'app_providers.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -101,8 +102,8 @@ import 'core/error_logger.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final auth = AuthService();
-  final rc = RemoteConfigService();
+  auth = AuthService();
+  rc = RemoteConfigService();
   if (!CloudSyncService.isLocal) {
     await Firebase.initializeApp();
     await NotificationService.init();
@@ -115,7 +116,7 @@ Future<void> main() async {
       }
     }
   }
-  final ab = AbTestEngine(remote: rc);
+  ab = AbTestEngine(remote: rc);
   await ab.init();
   final cloud = CloudSyncService();
   await AppBootstrap.init(cloud: cloud);
@@ -137,14 +138,14 @@ Future<void> main() async {
     pluginManager.load(p);
   }
   pluginManager.initializeAll(registry);
-  final packStorage = TrainingPackStorageService(cloud: cloud);
+  packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
-  final packCloud = TrainingPackCloudSyncService();
+  packCloud = TrainingPackCloudSyncService();
   await packCloud.init();
-  final mistakeCloud = MistakePackCloudService();
-  final goalCloud = GoalProgressCloudService();
-  final xpCloud = XPTrackerCloudService();
-  final templateStorage = TrainingPackTemplateStorageService(
+  mistakeCloud = MistakePackCloudService();
+  goalCloud = GoalProgressCloudService();
+  xpCloud = XPTrackerCloudService();
+  templateStorage = TrainingPackTemplateStorageService(
     cloud: packCloud,
     goals: goalCloud,
   );
@@ -162,281 +163,7 @@ Future<void> main() async {
   await MistakeHintService.instance.load();
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AuthService>.value(value: auth),
-        ChangeNotifierProvider<RemoteConfigService>.value(value: rc),
-        ChangeNotifierProvider<AbTestEngine>.value(value: ab),
-        ChangeNotifierProvider(create: (_) => ThemeService()..load()),
-        Provider<CloudSyncService>.value(value: cloud),
-        Provider(create: (_) => CloudTrainingHistoryService()..init()),
-        ChangeNotifierProvider(
-          create: (context) => TrainingSpotStorageService(
-            cloud: context.read<CloudSyncService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              TrainingStatsService(cloud: context.read<CloudSyncService>())
-                ..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              SavedHandStorageService(cloud: context.read<CloudSyncService>())
-                ..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => SavedHandManagerService(
-            storage: context.read<SavedHandStorageService>(),
-            cloud: context.read<CloudSyncService>(),
-            stats: context.read<TrainingStatsService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              PlayerProgressService(hands: context.read<SavedHandManagerService>()),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              PlayerStyleService(hands: context.read<SavedHandManagerService>()),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              PlayerStyleForecastService(hands: context.read<SavedHandManagerService>()),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => RealTimeStackRangeService(
-            forecast: context.read<PlayerStyleForecastService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ProgressForecastService(
-            hands: context.read<SavedHandManagerService>(),
-            style: context.read<PlayerStyleService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => MistakeReviewPackService(
-            hands: context.read<SavedHandManagerService>(),
-            cloud: mistakeCloud,
-          )..load(),
-        ),
-        Provider(
-          create: (context) => DynamicPackAdjustmentService(
-            mistakes: context.read<MistakeReviewPackService>(),
-            eval: EvaluationExecutorService(),
-            hands: context.read<SavedHandManagerService>(),
-            progress: context.read<PlayerProgressService>(),
-            forecast: context.read<PlayerStyleForecastService>(),
-            style: context.read<PlayerStyleService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => MistakeStreakService()..load(),
-        ),
-        ChangeNotifierProvider(
-            create: (context) =>
-                SessionNoteService(cloud: context.read<CloudSyncService>())
-                  ..load()),
-        ChangeNotifierProvider(
-            create: (context) =>
-                SessionPinService(cloud: context.read<CloudSyncService>())
-                  ..load()),
-        ChangeNotifierProvider<TrainingPackStorageService>.value(
-          value: packStorage,
-        ),
-        Provider<TrainingPackCloudSyncService>.value(value: packCloud),
-        Provider<MistakePackCloudService>.value(value: mistakeCloud),
-        Provider<XPTrackerCloudService>.value(value: xpCloud),
-        ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
-        ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
-        ChangeNotifierProvider(
-          create: (context) => AdaptiveTrainingService(
-            templates: context.read<TemplateStorageService>(),
-            mistakes: context.read<MistakeReviewPackService>(),
-            hands: context.read<SavedHandManagerService>(),
-            history: context.read<HandAnalysisHistoryService>(),
-            xp: context.read<XPTrackerService>(),
-            forecast: context.read<ProgressForecastService>(),
-            style: context.read<PlayerStyleService>(),
-            styleForecast: context.read<PlayerStyleForecastService>(),
-          ),
-        ),
-        ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
-          value: templateStorage,
-        ),
-        Provider<FavoritePackService>.value(value: FavoritePackService.instance),
-        ChangeNotifierProvider(
-          create: (context) => CategoryUsageService(
-            templates: context.read<TemplateStorageService>(),
-            packs: context.read<TrainingPackStorageService>(),
-          ),
-        ),
-        ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
-        ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
-        ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
-        ChangeNotifierProvider(create: (_) => XPTrackerService(cloud: xpCloud)..load()),
-        ChangeNotifierProvider(create: (_) => RewardService()..load()),
-        ChangeNotifierProvider(
-          create: (context) => GoalsTrackerService(
-            rewards: context.read<RewardService>(),
-            stats: context.read<TrainingStatsService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => DailyChallengeService(
-            adaptive: context.read<AdaptiveTrainingService>(),
-            templates: context.read<TemplateStorageService>(),
-            xp: context.read<XPTrackerService>(),
-          )..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => WeeklyChallengeService(
-            stats: context.read<TrainingStatsService>(),
-            xp: context.read<XPTrackerService>(),
-            packs: context.read<TrainingPackStorageService>(),
-          )..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => StreakCounterService(
-            stats: context.read<TrainingStatsService>(),
-            target: context.read<DailyTargetService>(),
-            xp: context.read<XPTrackerService>(),
-          ),
-        ),
-        ChangeNotifierProvider(create: (_) => SpotOfTheDayService()..load()),
-        ChangeNotifierProvider(
-          create: (context) => DailyGoalsService(
-            stats: context.read<TrainingStatsService>(),
-            hands: context.read<SavedHandManagerService>(),
-          )..load(),
-        ),
-        ChangeNotifierProvider(create: (_) => AllInPlayersService()),
-        ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
-        ChangeNotifierProvider(
-          create: (context) => ActionSyncService(
-            foldedPlayers: context.read<FoldedPlayersService>(),
-            allInPlayers: context.read<AllInPlayersService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) {
-            final service = UserPreferencesService(
-              cloud: context.read<CloudSyncService>(),
-            );
-            UserPreferences.init(service);
-            service.load();
-            return service;
-          },
-        ),
-        ChangeNotifierProvider(create: (_) => TagService()..load()),
-        ChangeNotifierProvider(create: (_) => IgnoredMistakeService()..load()),
-        ChangeNotifierProvider(create: (_) => GoalsService()..load()),
-        ChangeNotifierProvider(
-          create: (context) => StreakService(
-            cloud: context.read<CloudSyncService>(),
-            xp: context.read<XPTrackerService>(),
-          )..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => AchievementService(
-            stats: context.read<TrainingStatsService>(),
-            hands: context.read<SavedHandManagerService>(),
-            streak: context.read<StreakService>(),
-            xp: context.read<XPTrackerService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => AchievementEngine(
-            stats: context.read<TrainingStatsService>(),
-            goals: context.read<GoalsService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              GoalEngine(stats: context.read<TrainingStatsService>()),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => PersonalRecommendationService(
-            achievements: context.read<AchievementEngine>(),
-            adaptive: context.read<AdaptiveTrainingService>(),
-            weak: context.read<WeakSpotRecommendationService>(),
-            style: context.read<PlayerStyleService>(),
-            forecast: context.read<PlayerStyleForecastService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ReminderService(
-            context: context,
-            spotService: context.read<SpotOfTheDayService>(),
-            goalEngine: context.read<GoalEngine>(),
-            streakService: context.read<StreakService>(),
-          )..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => DailyReminderService(
-            spot: context.read<SpotOfTheDayService>(),
-            target: context.read<DailyTargetService>(),
-            stats: context.read<TrainingStatsService>(),
-            goals: context.read<DailyGoalsService>(),
-          )..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => NextStepEngine(
-            hands: context.read<SavedHandManagerService>(),
-            goals: context.read<GoalEngine>(),
-            streak: context.read<StreakService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => DrillSuggestionEngine(
-            hands: context.read<SavedHandManagerService>(),
-            packs: context.read<TrainingPackStorageService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => WeakSpotRecommendationService(
-            hands: context.read<SavedHandManagerService>(),
-            progress: context.read<PlayerProgressService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => DailyFocusRecapService(
-            hands: context.read<SavedHandManagerService>(),
-            weak: context.read<WeakSpotRecommendationService>(),
-          )..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => FeedbackService(
-            achievements: context.read<AchievementEngine>(),
-            progress: context.read<PlayerProgressService>(),
-            next: context.read<NextStepEngine>(),
-          ),
-        ),
-        ChangeNotifierProvider(create: (_) => DrillHistoryService()..load()),
-        ChangeNotifierProvider(
-          create: (_) => MixedDrillHistoryService()..load(),
-        ),
-        Provider(create: (_) => const HandAnalyzerService()),
-        ChangeNotifierProvider(
-          create: (_) => TrainingPackPlayController()..load(),
-        ),
-        ChangeNotifierProvider(create: (_) => TrainingSessionService()..load()),
-        Provider(
-          create: (context) => SessionManager(
-            hands: context.read<SavedHandManagerService>(),
-            notes: context.read<SessionNoteService>(),
-            sessions: context.read<TrainingSessionService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => SessionLogService(
-            sessions: context.read<TrainingSessionService>(),
-            cloud: context.read<CloudSyncService>(),
-          )..load(),
-        ),
-        Provider(create: (_) => EvaluationExecutorService()),
-        ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
-      ],
+      providers: buildAppProviders(cloud),
       child: const PokerAIAnalyzerApp(),
     ),
   );
