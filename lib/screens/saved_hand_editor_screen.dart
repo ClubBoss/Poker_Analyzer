@@ -94,7 +94,7 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
       final spot = _spotFromHand(hand);
       await context
           .read<EvaluationExecutorService>()
-          .evaluateSingle(spot, anteBb: hand.anteBb);
+          .evaluateSingle(context, spot, hand: hand, anteBb: hand.anteBb);
       final evalActs = <ActionEntry>[];
       for (final l in spot.hand.actions.values) {
         evalActs.addAll(l);

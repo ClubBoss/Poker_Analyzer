@@ -453,7 +453,7 @@ class _TrainingPackSpotPreviewCardState
                               setState(() => spot.tags.add('Mistake'));
                               await context
                                   .read<EvaluationExecutorService>()
-                                  .evaluateSingle(spot);
+                                  .evaluateSingle(context, spot);
                               widget.onPersist?.call();
                             }
                           }
@@ -516,7 +516,7 @@ class _TrainingPackSpotPreviewCardState
                         onPressed: () async {
                           await context
                               .read<EvaluationExecutorService>()
-                              .evaluateSingle(widget.spot);
+                              .evaluateSingle(context, widget.spot);
                           if (mounted) setState(() {});
                         },
                       ),

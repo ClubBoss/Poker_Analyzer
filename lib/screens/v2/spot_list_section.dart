@@ -189,6 +189,7 @@ part of 'training_pack_template_editor_screen.dart';
       await context
           .read<EvaluationExecutorService>()
           .evaluateSingle(
+            context,
             spot,
             template: widget.template,
             anteBb: widget.template.anteBb,
@@ -458,6 +459,7 @@ part of 'training_pack_template_editor_screen.dart';
       hand: HandData.fromSimpleInput(cards, pos, stack),
     );
     await context.read<EvaluationExecutorService>().evaluateSingle(
+      context,
       spot,
       template: widget.template,
       anteBb: widget.template.anteBb,
@@ -513,6 +515,7 @@ part of 'training_pack_template_editor_screen.dart';
         await context
             .read<EvaluationExecutorService>()
             .evaluateSingle(
+              context,
               spot,
               template: widget.template,
               anteBb: widget.template.anteBb,

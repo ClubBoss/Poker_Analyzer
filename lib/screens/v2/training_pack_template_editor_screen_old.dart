@@ -4766,6 +4766,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                               try {
                                                 spot.dirty = false;
                                                 await context.read<EvaluationExecutorService>().evaluateSingle(
+                                                      context,
                                                       spot,
                                                       template: widget.template,
                                                       anteBb: widget.template.anteBb,
@@ -9990,6 +9991,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                               try {
                                                 spot.dirty = false;
                                                 await context.read<EvaluationExecutorService>().evaluateSingle(
+                                                      context,
                                                       spot,
                                                       template: widget.template,
                                                       anteBb: widget.template.anteBb,
