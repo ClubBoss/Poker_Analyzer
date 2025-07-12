@@ -17,6 +17,8 @@ import '../models/player_model.dart';
 import '../models/mistake_severity.dart';
 import '../helpers/hand_utils.dart';
 import '../helpers/mistake_advice.dart';
+import 'mistake_categorizer.dart';
+import 'saved_hand_manager_service.dart';
 import 'push_fold_ev_service.dart';
 import 'goals_service.dart';
 import 'mistake_hint_service.dart';
@@ -404,10 +406,12 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }
 
   Future<void> evaluateSingle(
+    BuildContext context,
     TrainingPackSpot spot, {
     TrainingPackTemplate? template,
     int anteBb = 0,
     EvaluationMode mode = EvaluationMode.ev,
+    SavedHand? hand,
   }) async {
     final prevEv = spot.heroEv;
     final prevIcm = spot.heroIcmEv;
@@ -473,11 +477,28 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final heroPushEv = spot.heroEv ?? 0;
     const foldEv = 0.0;
     spot.correctAction = heroPushEv >= foldEv ? 'push' : 'fold';
-    spot.explanation = spot.correctAction == 'push'
-        ? '+${(heroPushEv - foldEv).toStringAsFixed(2)} BB vs fold'
-        : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
-    if (template != null) {
-      TemplateCoverageUtils.recountAll(template);
+      spot.explanation = spot.correctAction == 'push'
+          ? '+${(heroPushEv - foldEv).toStringAsFixed(2)} BB vs fold'
+          : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
+      if (hand != null) {
+        final act = heroAction(hand)?.action.trim().toLowerCase();
+        if (act != null) {
+          final bestEv = spot.correctAction == 'push' ? heroPushEv : foldEv;
+          final heroEv = act == 'push' ? heroPushEv : foldEv;
+          double loss = bestEv - heroEv;
+          var updated = hand.copyWith(
+            gtoAction: spot.correctAction,
+            evLoss: loss,
+          );
+          if (updated.category == null || updated.category!.isEmpty) {
+            final cat = const MistakeCategorizer().classify(updated);
+            updated = updated.copyWith(category: cat);
+          }
+          await context.read<SavedHandManagerService>().save(updated);
+        }
+      }
+      if (template != null) {
+        TemplateCoverageUtils.recountAll(template);
       final changed = prev == null ||
           !const DeepCollectionEquality().equals(
             prev.toJson(),

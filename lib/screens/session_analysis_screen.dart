@@ -57,7 +57,7 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
     for (final h in data) {
       final spot = _spotFromHand(h);
       try {
-        await executor.evaluateSingle(spot, anteBb: h.anteBb);
+        await executor.evaluateSingle(context, spot, hand: h, anteBb: h.anteBb);
       } catch (_) {}
       evs.add(spot.heroEv ?? 0);
       icms.add(spot.heroIcmEv ?? 0);
