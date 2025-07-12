@@ -135,6 +135,18 @@ class TrainingStatsService extends ChangeNotifier {
     ];
   }
 
+  List<MapEntry<DateTime, double>> getDailyEvLossData(List<SavedHand> hands) {
+    final map = <DateTime, double>{};
+    for (final h in hands) {
+      final loss = h.evLoss;
+      if (loss == null) continue;
+      final d = DateTime(h.savedAt.year, h.savedAt.month, h.savedAt.day);
+      map.update(d, (v) => v + loss, ifAbsent: () => loss);
+    }
+    final entries = map.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return [for (final e in entries) MapEntry(e.key, e.value)];
+  }
+
   List<MapEntry<DateTime, double>> _groupWeeklyAvg(List<MapEntry<DateTime, double>> daily) {
     final Map<DateTime, List<double>> grouped = {};
     for (final e in daily) {
