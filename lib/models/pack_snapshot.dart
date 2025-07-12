@@ -1,6 +1,10 @@
 import 'package:uuid/uuid.dart';
 import 'saved_hand.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'pack_snapshot.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 class PackSnapshot {
   final String id;
   final String comment;
@@ -20,24 +24,7 @@ class PackSnapshot {
         date = date ?? DateTime.now(),
         tags = tags ?? const [];
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'comment': comment,
-        'date': date.toIso8601String(),
-        'hands': [for (final h in hands) h.toJson()],
-        'tags': tags,
-        'orderHash': orderHash,
-      };
-
-  factory PackSnapshot.fromJson(Map<String, dynamic> json) => PackSnapshot(
-        id: json['id'] as String?,
-        comment: json['comment'] as String? ?? '',
-        date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
-        hands: [
-          for (final h in (json['hands'] as List? ?? []))
-            SavedHand.fromJson(Map<String, dynamic>.from(h as Map))
-        ],
-        tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
-        orderHash: (json['orderHash'] as num?)?.toInt() ?? 0,
-      );
+  factory PackSnapshot.fromJson(Map<String, dynamic> json) =>
+      _$PackSnapshotFromJson(json);
+  Map<String, dynamic> toJson() => _$PackSnapshotToJson(this);
 }

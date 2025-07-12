@@ -1,6 +1,10 @@
 /// Represents an action queued for evaluation by the analysis engine.
 import 'package:uuid/uuid.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'action_evaluation_request.g.dart';
+
+@JsonSerializable()
 class ActionEvaluationRequest {
   final String id;
   final int street;
@@ -20,29 +24,8 @@ class ActionEvaluationRequest {
     this.attempts = 0,
   }) : id = id ?? const Uuid().v4();
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'street': street,
-        'playerIndex': playerIndex,
-        'action': action,
-        if (amount != null) 'amount': amount,
-        if (metadata != null) 'metadata': metadata,
-        'attempts': attempts,
-      };
-
-  factory ActionEvaluationRequest.fromJson(Map<String, dynamic> json) {
-    final id = json['id'] as String?;
-    return ActionEvaluationRequest(
-      id: id ?? const Uuid().v4(),
-      street: json['street'] as int? ?? 0,
-      playerIndex: json['playerIndex'] as int? ?? 0,
-      action: json['action'] as String? ?? '',
-      amount: (json['amount'] as num?)?.toDouble(),
-      metadata: json['metadata'] != null
-          ? Map<String, dynamic>.from(json['metadata'] as Map)
-          : null,
-      attempts: json['attempts'] as int? ?? 0,
-    );
-  }
+  factory ActionEvaluationRequest.fromJson(Map<String, dynamic> json) =>
+      _$ActionEvaluationRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$ActionEvaluationRequestToJson(this);
 }
 

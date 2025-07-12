@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'session_task_result.g.dart';
+
+@JsonSerializable()
 class SessionTaskResult {
   final String question;
   final String selectedAnswer;
@@ -11,17 +16,7 @@ class SessionTaskResult {
     required this.correct,
   });
 
-  Map<String, dynamic> toJson() => {
-        'question': question,
-        'selectedAnswer': selectedAnswer,
-        'correctAnswer': correctAnswer,
-        'correct': correct,
-      };
-
-  factory SessionTaskResult.fromJson(Map<String, dynamic> json) => SessionTaskResult(
-        question: json['question'] as String? ?? '',
-        selectedAnswer: json['selectedAnswer'] as String? ?? '',
-        correctAnswer: json['correctAnswer'] as String? ?? '',
-        correct: json['correct'] as bool? ?? false,
-      );
+  factory SessionTaskResult.fromJson(Map<String, dynamic> json) =>
+      _$SessionTaskResultFromJson(json);
+  Map<String, dynamic> toJson() => _$SessionTaskResultToJson(this);
 }
