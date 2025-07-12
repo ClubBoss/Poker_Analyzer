@@ -264,8 +264,7 @@ class TrainingPackService {
     final hands = context.read<SavedHandManagerService>().hands;
     final list = [
       for (final h in hands)
-        if (!h.corrected &&
-            (h.evLoss?.abs() ?? 0) >= 1.0 &&
+        if ((h.evLoss ?? 0) >= 1.0 &&
             h.expectedAction != null &&
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() !=
