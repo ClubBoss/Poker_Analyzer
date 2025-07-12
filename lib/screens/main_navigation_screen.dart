@@ -36,6 +36,7 @@ import 'onboarding_screen.dart';
 import 'ev_icm_analytics_screen.dart';
 import 'progress_dashboard_screen.dart';
 import 'weakness_overview_screen.dart';
+import 'notification_settings_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
@@ -262,6 +263,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     ),
                   );
                   break;
+                case 'notifications':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationSettingsScreen(),
+                    ),
+                  );
+                  break;
                 case 'about':
                   showAboutDialog(context: context);
                   break;
@@ -269,6 +278,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             },
             itemBuilder: (context) => const [
               PopupMenuItem(value: 'settings', child: Text('⚙️ Settings')),
+              PopupMenuItem(value: 'notifications', child: Text('🔔 Notifications')),
               PopupMenuItem(value: 'plugins', child: Text('🧩 Plugins')),
               PopupMenuItem(value: 'community_plugins', child: Text('🌐 Community')),
               PopupMenuItem(value: 'onboarding', child: Text('📖 Обучение')),
