@@ -26,6 +26,7 @@ import '../helpers/hand_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/ev_icm_chart.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
+import '../plugins/converters/888poker_hand_history_converter.dart';
 import 'v2/training_pack_play_screen.dart';
 
 class SessionAnalysisImportScreen extends StatefulWidget {
@@ -40,6 +41,7 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
   final List<SavedHand> _hands = [];
   SummaryResult? _summary;
   bool _loading = false;
+  String _format = 'auto';
 
   Future<void> _paste() async {
     final data = await Clipboard.getData('text/plain');
@@ -68,8 +70,18 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
       _hands.clear();
       _summary = null;
     });
-    final importer = await RoomHandHistoryImporter.create();
-    final parsed = importer.parse(text);
+    List<SavedHand> parsed;
+    if (_format == '888') {
+      final converter = Poker888HandHistoryConverter();
+      final parts = text.split(RegExp(r'\n\s*\n'));
+      parsed = [
+        for (final p in parts)
+          if (converter.convertFrom(p) != null) converter.convertFrom(p)!
+      ];
+    } else {
+      final importer = await RoomHandHistoryImporter.create();
+      parsed = importer.parse(text);
+    }
     final executor = EvaluationExecutorService();
     final evaluated = <SavedHand>[];
     for (final h in parsed) {
@@ -185,6 +197,15 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
               minLines: 6,
               maxLines: null,
               decoration: const InputDecoration(labelText: 'Hand history'),
+            ),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: _format,
+              items: const [
+                DropdownMenuItem(value: 'auto', child: Text('Auto')),
+                DropdownMenuItem(value: '888', child: Text('888Poker')),
+              ],
+              onChanged: (v) => setState(() => _format = v ?? 'auto'),
             ),
             const SizedBox(height: 8),
             ElevatedButton(onPressed: _parse, child: const Text('Parse & Analyze')),
