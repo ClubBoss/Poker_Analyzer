@@ -100,6 +100,17 @@ void main() {
               'Villain folds',
             ].join('\n');
             break;
+          case 'ipoker_hand_history':
+            sample = [
+              'iPoker Hand #1',
+              'Seat 1: Hero (1)',
+              'Seat 2: Villain (1)',
+              '*** HOLE CARDS ***',
+              'Dealt to Hero [Ah Kh]',
+              'Hero raises to 2',
+              'Villain folds',
+            ].join('\n');
+            break;
           default:
             sample = '';
         }

@@ -24,8 +24,10 @@ import 'converters/winamax_hand_history_converter.dart';
 import 'converters/partypoker_hand_history_converter.dart';
 import 'converters/wpn_hand_history_converter.dart';
 import 'converters/888poker_hand_history_converter.dart';
+import 'converters/ipoker_hand_history_converter.dart';
 import 'poker_stars_converter_plugin.dart';
 import 'gg_poker_converter_plugin.dart';
+import 'ipoker_converter_plugin.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -78,6 +80,7 @@ class PluginLoader {
       PartyPokerHandHistoryConverter(),
       WpnHandHistoryConverter(),
       Poker888HandHistoryConverter(),
+      IpokerHandHistoryConverter(),
     ];
     return <Plugin>[
       SampleLoggingPlugin(),
@@ -99,11 +102,14 @@ class PluginLoader {
           PartyPokerHandHistoryConverter(),
           WpnHandHistoryConverter(),
           Poker888HandHistoryConverter(),
+          IpokerHandHistoryConverter(),
         ]);
       case 'PokerStarsConverterPlugin':
         return PokerStarsConverterPlugin();
       case 'GGPokerConverterPlugin':
         return GGPokerConverterPlugin();
+      case 'IpokerConverterPlugin':
+        return IpokerConverterPlugin();
     }
     return null;
   }
