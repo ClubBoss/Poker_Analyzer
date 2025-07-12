@@ -20,6 +20,7 @@ import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../helpers/mistake_advice.dart';
 import '../widgets/sync_status_widget.dart';
+import 'saved_hand_editor_screen.dart';
 
 /// Displays a saved hand with simple playback controls.
 /// Shows GTO recommendation and range group when available.
@@ -35,6 +36,7 @@ class HandHistoryReviewScreen extends StatefulWidget {
 class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
   String? _selectedAction;
   late TextEditingController _commentController;
+  late SavedHand _hand;
 
   void _showExportOptions() {
     showModalBottomSheet(
@@ -67,11 +69,12 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
   @override
   void initState() {
     super.initState();
-    _commentController = TextEditingController(text: widget.hand.comment ?? '');
+    _hand = widget.hand;
+    _commentController = TextEditingController(text: _hand.comment ?? '');
     final service = Provider.of<GoalsService>(context, listen: false);
     final goal = service.dailyGoal;
-    final action = widget.hand.expectedAction?.trim().toLowerCase();
-    final gto = widget.hand.gtoAction?.trim().toLowerCase();
+    final action = _hand.expectedAction?.trim().toLowerCase();
+    final gto = _hand.gtoAction?.trim().toLowerCase();
     final isMistake = action != null && gto != null && action != gto;
     final dailyMistake =
         goal != null && service.dailyGoalIndex == 0 && isMistake;
@@ -93,17 +96,18 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
 
   Future<void> _saveComment(String text) async {
     final manager = context.read<SavedHandManagerService>();
-    final index = manager.hands.indexOf(widget.hand);
+    final index = manager.hands.indexOf(_hand);
     if (index >= 0) {
-      final updated = widget.hand.copyWith(
+      final updated = _hand.copyWith(
         comment: text.trim().isNotEmpty ? text.trim() : null,
       );
       await manager.update(index, updated);
+      _hand = updated;
     }
   }
 
   Future<void> _exportMarkdown() async {
-    final hand = widget.hand;
+    final hand = _hand;
     final heroCards = hand.playerCards[hand.heroIndex].join(' ');
     final board = hand.boardCards.map((c) => c.toString()).join(' ');
     final stack = hand.stackSizes[hand.heroIndex] ?? 0;
@@ -141,7 +145,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
-    final hand = widget.hand;
+    final hand = _hand;
     final heroCards = hand.playerCards[hand.heroIndex].join(' ');
     final board = hand.boardCards.map((c) => c.toString()).join(' ');
     final stack = hand.stackSizes[hand.heroIndex] ?? 0;
@@ -196,14 +200,14 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     }
   }
 
-  String? _playerAction() => _selectedAction ?? widget.hand.expectedAction;
+  String? _playerAction() => _selectedAction ?? _hand.expectedAction;
 
   String? _deriveAdvice() {
-    for (final t in widget.hand.tags) {
+    for (final t in _hand.tags) {
       if (kMistakeAdvice.containsKey(t)) return kMistakeAdvice[t];
     }
-    if (kMistakeAdvice.containsKey(widget.hand.heroPosition)) {
-      return kMistakeAdvice[widget.hand.heroPosition];
+    if (kMistakeAdvice.containsKey(_hand.heroPosition)) {
+      return kMistakeAdvice[_hand.heroPosition];
     }
     return null;
   }
@@ -288,7 +292,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
       ),
     );
     if (selected == null) return;
-    final spot = _spotFromHand(widget.hand);
+    final spot = _spotFromHand(_hand);
     selected.spots.add(spot);
     await TrainingPackStorage.save(templates);
     if (mounted) {
@@ -336,17 +340,35 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final spot = TrainingGenerator().generateFromSavedHand(widget.hand);
-    final gto = widget.hand.gtoAction;
-    final group = widget.hand.rangeGroup;
+    final spot = TrainingGenerator().generateFromSavedHand(_hand);
+    final gto = _hand.gtoAction;
+    final group = _hand.rangeGroup;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${widget.hand.name} \u2022 ${formatLongDate(widget.hand.savedAt)}',
+          '${_hand.name} \u2022 ${formatLongDate(_hand.savedAt)}',
         ),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              final result = await Navigator.push<SavedHand>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SavedHandEditorScreen(hand: _hand),
+                ),
+              );
+              if (result != null && mounted) {
+                final manager = context.read<SavedHandManagerService>();
+                final idx = manager.hands.indexOf(_hand);
+                if (idx >= 0) await manager.update(idx, result);
+                setState(() => _hand = result);
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: _showExportOptions,
@@ -365,7 +387,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
               _playerAction()!.trim().toLowerCase() !=
                   gto.trim().toLowerCase()) ...[
             _buildMistakeCard(
-              widget.hand.feedbackText ??
+              _hand.feedbackText ??
                   'Ваше действие отличается от GTO',
               advice: _deriveAdvice(),
             ),
@@ -377,7 +399,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
                   style: TextStyle(color: Colors.white70)),
               const SizedBox(width: 8),
               Chip(
-                label: Text(widget.hand.heroPosition),
+                label: Text(_hand.heroPosition),
                 backgroundColor:
                     Theme.of(context).colorScheme.secondary,
                 labelStyle: const TextStyle(
@@ -388,10 +410,10 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
           const SizedBox(height: 12),
           ReplaySpotWidget(
             spot: spot,
-            expectedAction: widget.hand.expectedAction,
-            gtoAction: widget.hand.gtoAction,
-            evLoss: widget.hand.evLoss,
-            feedbackText: widget.hand.feedbackText,
+            expectedAction: _hand.expectedAction,
+            gtoAction: _hand.gtoAction,
+            evLoss: _hand.evLoss,
+            feedbackText: _hand.feedbackText,
           ),
           const SizedBox(height: 12),
             if ((gto != null && gto.isNotEmpty) ||
