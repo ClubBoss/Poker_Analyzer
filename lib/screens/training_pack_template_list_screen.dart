@@ -17,6 +17,9 @@ import 'training_pack_template_editor_screen.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../services/theme_service.dart';
+import '../services/training_pack_service.dart';
+import '../services/training_session_service.dart';
+import 'training_session_screen.dart';
 
 enum _SortOption { name, category, difficulty, createdAt }
 
@@ -669,6 +672,21 @@ class _TrainingPackTemplateListScreenState
             heroTag: 'addTplFab',
             onPressed: _add,
             child: const Icon(Icons.add),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'randomMistakeTplFab',
+            label: const Text('Случайная ошибка'),
+            onPressed: () async {
+              final tpl = await TrainingPackService.createSingleRandomMistakeDrill(context);
+              if (tpl == null) return;
+              await context.read<TrainingSessionService>().startSession(tpl);
+              if (!mounted) return;
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+              );
+            },
           ),
         ],
       ),
