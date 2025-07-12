@@ -49,6 +49,7 @@ import '../../services/range_library_service.dart';
 import '../../services/theme_service.dart';
 import '../../services/session_log_service.dart';
 import '../../services/training_pack_stats_service.dart';
+import '../../services/training_pack_service.dart';
 import 'new_training_pack_template_dialog.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
@@ -3295,6 +3296,22 @@ class _TrainingPackTemplateListScreenState
             heroTag: 'addTplFab',
             onPressed: _add,
             child: const Icon(Icons.add),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'repeatIncorrectTplFab',
+            label: const Text('Повторить ошибку'),
+            onPressed: () async {
+              final tpl = await TrainingPackService.createRepeatForIncorrect(context);
+              if (tpl == null) return;
+              await context.read<TrainingSessionService>().startSession(tpl);
+              if (context.mounted) {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                );
+              }
+            },
           ),
         ],
       ),
