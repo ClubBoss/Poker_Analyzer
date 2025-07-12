@@ -311,6 +311,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _autoShowdownTriggered = false;
   bool _showHandCompleteIndicator = false;
   Timer? _autoNextHandTimer;
+  double _uiScale = 1.0;
 
   bool get _isHandEmpty =>
       actions.isEmpty &&
@@ -5453,12 +5454,16 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: AnimatedPadding(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: Column(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final narrow = constraints.maxWidth < 600;
+            _uiScale = narrow ? 0.8 : 1.0;
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: Column(
             children: [
             _HandHeaderSection(
               handName: _handContext.currentHandName ?? 'New Hand',
@@ -5486,9 +5491,13 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
-            const Expanded(
+            Expanded(
               flex: 7,
-              child: BoardControls(),
+              child: Transform.scale(
+                scale: _uiScale,
+                alignment: Alignment.topCenter,
+                child: const BoardControls(),
+              ),
             ),
     _TotalPotTracker(
       potSync: _potSync,
