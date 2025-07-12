@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -410,23 +411,20 @@ class EvaluationExecutorService implements EvaluationExecutor {
           for (var i = 0; i < spot.hand.playerCount; i++)
             spot.hand.stacks['$i']?.round() ?? 0
         ];
-        final ev = computePushEV(
-          heroBbStack: stacks[hero],
-          bbCount: stacks.length - 1,
-          heroHand: code,
-          anteBb: anteBb,
-        );
-        final icm = computeLocalIcmPushEV(
-          chipStacksBb: stacks,
-          heroIndex: hero,
-          heroHand: code,
-          anteBb: anteBb,
+        final res = await compute(
+          _computeEv,
+          {
+            'stacks': stacks,
+            'hero': hero,
+            'hand': code,
+            'ante': anteBb,
+          },
         );
         final acts = spot.hand.actions[0] ?? [];
         for (final a in acts) {
           if (a.playerIndex == hero && a.action == 'push') {
-            a.ev = ev;
-            a.icmEv = icm;
+            a.ev = res['ev'] as double;
+            a.icmEv = res['icm'] as double;
             break;
           }
         }
@@ -533,4 +531,24 @@ class _QueueItem {
   final EvalRequest request;
   final Completer<EvalResult> completer;
   _QueueItem(this.request, this.completer);
+}
+
+Map<String, double> _computeEv(Map<String, dynamic> args) {
+  final stacks = List<int>.from(args['stacks'] as List);
+  final hero = args['hero'] as int;
+  final hand = args['hand'] as String;
+  final ante = args['ante'] as int;
+  final ev = computePushEV(
+    heroBbStack: stacks[hero],
+    bbCount: stacks.length - 1,
+    heroHand: hand,
+    anteBb: ante,
+  );
+  final icm = computeLocalIcmPushEV(
+    chipStacksBb: stacks,
+    heroIndex: hero,
+    heroHand: hand,
+    anteBb: ante,
+  );
+  return {'ev': ev, 'icm': icm};
 }
