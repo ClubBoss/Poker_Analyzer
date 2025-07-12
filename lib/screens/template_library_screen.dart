@@ -36,6 +36,7 @@ import '../services/cloud_sync_service.dart';
 import '../services/bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
+import '../services/training_pack_service.dart';
 import 'mistake_review_screen.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
@@ -604,6 +605,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         return builtIn[Random().nextInt(builtIn.length)];
       }()
     );
+    if (tpl == null) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
+  Future<void> _top3CategoriesDrill() async {
+    final tpl = await TrainingPackService.createDrillFromTop3Categories(context);
     if (tpl == null) return;
     await context.read<TrainingSessionService>().startSession(tpl);
     if (!mounted) return;
@@ -1260,6 +1272,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             onPressed: _quickPractice,
             label: const Text('Quick Practice'),
             icon: const Icon(Icons.play_arrow),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'top3CatFab',
+            onPressed: _top3CategoriesDrill,
+            label: const Text('Top 3 категории'),
+            icon: const Icon(Icons.leaderboard),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
