@@ -48,7 +48,8 @@ class PushFoldEvService {
     }
   }
 
-  Future<void> evaluateIcm(TrainingPackSpot spot, {int anteBb = 0}) async {
+  Future<void> evaluateIcm(TrainingPackSpot spot,
+      {int anteBb = 0, List<double> payouts = const [0.5, 0.3, 0.2]}) async {
     final hero = spot.hand.heroIndex;
     final hand = handCode(spot.hand.heroCards);
     final stack = spot.hand.stacks['$hero']?.round();
@@ -71,6 +72,7 @@ class PushFoldEvService {
           heroIndex: hero,
           heroHand: hand,
           chipPushEv: chipEv,
+          payouts: payouts,
         );
         break;
       }

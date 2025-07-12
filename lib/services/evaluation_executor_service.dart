@@ -414,6 +414,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
             'hero': hero,
             'hand': code,
             'ante': anteBb,
+            'payouts': settings.payouts,
           },
         );
         final acts = spot.hand.actions[0] ?? [];
@@ -430,7 +431,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
       await const PushFoldEvService().evaluate(spot, anteBb: anteBb);
     }
     if (spot.heroIcmEv == null) {
-      await const PushFoldEvService().evaluateIcm(spot, anteBb: anteBb);
+      await const PushFoldEvService()
+          .evaluateIcm(spot, anteBb: anteBb, payouts: settings.payouts);
     }
     if ((prevEv == null && spot.heroEv != null) ||
         (prevIcm == null && spot.heroIcmEv != null)) {
@@ -534,6 +536,7 @@ Map<String, double> _computeEv(Map<String, dynamic> args) {
   final hero = args['hero'] as int;
   final hand = args['hand'] as String;
   final ante = args['ante'] as int;
+  final payouts = List<double>.from(args['payouts'] as List);
   final ev = computePushEV(
     heroBbStack: stacks[hero],
     bbCount: stacks.length - 1,
@@ -545,6 +548,7 @@ Map<String, double> _computeEv(Map<String, dynamic> args) {
     heroIndex: hero,
     heroHand: hand,
     anteBb: ante,
+    payouts: payouts,
   );
   return {'ev': ev, 'icm': icm};
 }

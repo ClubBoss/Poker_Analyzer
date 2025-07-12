@@ -12,6 +12,7 @@ class EvaluationSettingsScreen extends StatefulWidget {
 class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
   late bool _offline;
   late TextEditingController _endpoint;
+  late TextEditingController _payouts;
 
   @override
   void initState() {
@@ -19,6 +20,7 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
     final s = EvaluationSettingsService.instance;
     _offline = s.offline;
     _endpoint = TextEditingController(text: s.remoteEndpoint);
+    _payouts = TextEditingController(text: s.payouts.join(','));
   }
 
   Future<void> _setOffline(bool v) async {
@@ -31,9 +33,21 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
     await EvaluationSettingsService.instance.update(endpoint: v);
   }
 
+  Future<void> _setPayouts(String v) async {
+    final p = v
+        .split(',')
+        .map((e) => double.tryParse(e.trim()))
+        .whereType<double>()
+        .toList();
+    if (p.isNotEmpty) {
+      await EvaluationSettingsService.instance.update(payouts: p);
+    }
+  }
+
   @override
   void dispose() {
     _endpoint.dispose();
+    _payouts.dispose();
     super.dispose();
   }
 
@@ -58,6 +72,12 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
             controller: _endpoint,
             decoration: const InputDecoration(labelText: 'EV API Endpoint'),
             onChanged: _setEndpoint,
+          ),
+          TextField(
+            controller: _payouts,
+            decoration:
+                const InputDecoration(labelText: 'ICM Payouts (comma)'),
+            onChanged: _setPayouts,
           ),
         ],
       ),

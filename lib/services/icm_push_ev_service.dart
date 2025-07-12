@@ -5,9 +5,9 @@ double computeIcmPushEV({
   required int heroIndex,
   required String heroHand,
   required double chipPushEv,
+  List<double> payouts = const [0.5, 0.3, 0.2],
 }) {
   double icmValue(List<double> stacks, int idx) {
-    final payouts = [0.5, 0.3, 0.2];
     double prob(int rank, List<double> s, int hero) {
       final total = s.fold<double>(0, (p, e) => p + e);
       if (rank == 1) return s[hero] / total;
@@ -40,6 +40,7 @@ double computeLocalIcmPushEV({
   required int heroIndex,
   required String heroHand,
   required int anteBb,
+  List<double> payouts = const [0.5, 0.3, 0.2],
 }) {
   final ev = computePushEV(
     heroBbStack: chipStacksBb[heroIndex],
@@ -52,6 +53,7 @@ double computeLocalIcmPushEV({
     heroIndex: heroIndex,
     heroHand: heroHand,
     chipPushEv: ev,
+    payouts: payouts,
   );
 }
 
