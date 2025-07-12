@@ -688,6 +688,21 @@ class _TrainingPackTemplateListScreenState
               );
             },
           ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'weakestCategoryTplFab',
+            label: const Text('Слабейшая категория'),
+            onPressed: () async {
+              final tpl = await TrainingPackService.createDrillFromWeakestCategory(context);
+              if (tpl == null) return;
+              await context.read<TrainingSessionService>().startSession(tpl);
+              if (!mounted) return;
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+              );
+            },
+          ),
         ],
       ),
       body: templates.isEmpty
