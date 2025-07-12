@@ -132,14 +132,20 @@ class CloudSyncService {
     try {
       await CloudRetryPolicy.execute<void>(() async {
         final user = _db.collection('users').doc(uid);
-        for (final col in _cols) {
-          final snap = await user.collection(col).doc('main').get();
+        final futures = [for (final c in _cols) user.collection(c).doc('main').get()];
+        final snaps = await Future.wait(futures);
+        for (var i = 0; i < snaps.length; i++) {
+          final col = _cols[i];
+          final snap = snaps[i];
           if (!snap.exists) continue;
           final remote = snap.data()!;
           final localStr = _prefs.getString('cached_$col');
-          final local = localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
-          final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-          final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final local =
+              localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
+          final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+              DateTime.fromMillisecondsSinceEpoch(0);
+          final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ??
+              DateTime.fromMillisecondsSinceEpoch(0);
           if (remoteAt.isAfter(localAt)) {
             await _prefs.setString('cached_$col', jsonEncode(remote));
           }
