@@ -22,4 +22,13 @@ class ConverterDiscoveryPlugin implements Plugin {
       converterRegistry.register(plugin);
     }
   }
+
+  @override
+  String get name => 'Converter Discovery';
+
+  @override
+  String get description => 'Registers converters into a registry';
+
+  @override
+  String get version => '1.0.0';
 }

@@ -9,5 +9,14 @@ class GGPokerConverterPlugin extends GGPokerHandHistoryConverter implements Plug
     registry.registerIfAbsent<ConverterRegistry>(ConverterRegistry());
     registry.get<ConverterRegistry>().register(this);
   }
+
+  @override
+  String get name => 'GGPoker Converter';
+
+  @override
+  String get description => 'Adds GGPoker hand history conversion';
+
+  @override
+  String get version => '1.0.0';
 }
 

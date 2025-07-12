@@ -148,7 +148,7 @@ class PluginLoader {
       }
       if (plugin != null) {
         ErrorLogger.instance.logError('Plugin loaded: $name');
-        await manager.logStatus(name, 'loaded');
+        await manager.logStatus(name, 'loaded', plugin: plugin);
         return plugin;
       }
       ErrorLogger.instance.logError('Plugin failed: $name');

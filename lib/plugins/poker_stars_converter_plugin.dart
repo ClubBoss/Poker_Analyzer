@@ -9,4 +9,13 @@ class PokerStarsConverterPlugin extends PokerStarsHandHistoryConverter implement
     registry.registerIfAbsent<ConverterRegistry>(ConverterRegistry());
     registry.get<ConverterRegistry>().register(this);
   }
+
+  @override
+  String get name => 'PokerStars Converter';
+
+  @override
+  String get description => 'Adds PokerStars hand history conversion';
+
+  @override
+  String get version => '1.0.0';
 }
