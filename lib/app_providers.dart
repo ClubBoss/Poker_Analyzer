@@ -81,14 +81,19 @@ late final GoalProgressCloudService goalCloud;
 late final XPTrackerCloudService xpCloud;
 late final TrainingPackTemplateStorageService templateStorage;
 
-List<SingleChildWidget> buildAppProviders(CloudSyncService cloud) {
+List<SingleChildWidget> buildCoreProviders(CloudSyncService cloud) {
   return [
-          ChangeNotifierProvider<AuthService>.value(value: auth),
-          ChangeNotifierProvider<RemoteConfigService>.value(value: rc),
-          ChangeNotifierProvider<AbTestEngine>.value(value: ab),
-          ChangeNotifierProvider(create: (_) => ThemeService()..load()),
-          Provider<CloudSyncService>.value(value: cloud),
-          Provider(create: (_) => CloudTrainingHistoryService()..init()),
+    ChangeNotifierProvider<AuthService>.value(value: auth),
+    ChangeNotifierProvider<RemoteConfigService>.value(value: rc),
+    ChangeNotifierProvider<AbTestEngine>.value(value: ab),
+    ChangeNotifierProvider(create: (_) => ThemeService()..load()),
+    Provider<CloudSyncService>.value(value: cloud),
+  ];
+}
+
+List<SingleChildWidget> buildTrainingProviders() {
+  return [
+    Provider(create: (_) => CloudTrainingHistoryService()..init()),
           ChangeNotifierProvider(
             create: (context) => TrainingSpotStorageService(
               cloud: context.read<CloudSyncService>(),
@@ -354,7 +359,20 @@ List<SingleChildWidget> buildAppProviders(CloudSyncService cloud) {
               cloud: context.read<CloudSyncService>(),
             )..load(),
           ),
-          Provider(create: (_) => EvaluationExecutorService()),
-          ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
+  ];
+}
+
+List<SingleChildWidget> buildAnalyticsProviders() {
+  return [
+    Provider(create: (_) => EvaluationExecutorService()),
+    ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
+  ];
+}
+
+List<SingleChildWidget> buildAppProviders(CloudSyncService cloud) {
+  return [
+    ...buildCoreProviders(cloud),
+    ...buildTrainingProviders(),
+    ...buildAnalyticsProviders(),
   ];
 }
