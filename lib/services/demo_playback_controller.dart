@@ -20,26 +20,39 @@ class DemoPlaybackController {
   final TrainingImportExportService importExportService;
   final PotSyncService potSync;
 
+  void playSpot({
+    required TrainingSpot spot,
+    required void Function(TrainingSpot spot) loadSpot,
+    required VoidCallback playAll,
+    required void Function(Map<int, int> winnings) announceWinner,
+  }) {
+    loadSpot(spot);
+    Future.delayed(const Duration(seconds: 1), () {
+      playAll();
+      void listener() {
+        if (playbackManager.playbackIndex == spot.actions.length) {
+          playbackManager.removeListener(listener);
+          final pot = potSync.pots[boardManager.boardStreet];
+          announceWinner({spot.heroIndex: pot});
+        }
+      }
+      playbackManager.addListener(listener);
+    });
+  }
+
   /// Starts the demo using the provided callbacks for screen interaction.
   void startDemo({
     required void Function(TrainingSpot spot) loadSpot,
     required VoidCallback playAll,
     required void Function(Map<int, int> winnings) announceWinner,
   }) {
-    final spot =
-        TrainingSpot.fromJson(Map<String, dynamic>.from(_demoData));
-    loadSpot(spot);
-    Future.delayed(const Duration(seconds: 1), () {
-        playAll();
-        void listener() {
-          if (playbackManager.playbackIndex == spot.actions.length) {
-            playbackManager.removeListener(listener);
-            final pot = potSync.pots[boardManager.boardStreet];
-            announceWinner({spot.heroIndex: pot});
-          }
-        }
-        playbackManager.addListener(listener);
-    });
+    final spot = TrainingSpot.fromJson(Map<String, dynamic>.from(_demoData));
+    playSpot(
+      spot: spot,
+      loadSpot: loadSpot,
+      playAll: playAll,
+      announceWinner: announceWinner,
+    );
   }
 
   /// Static demo spot data.
