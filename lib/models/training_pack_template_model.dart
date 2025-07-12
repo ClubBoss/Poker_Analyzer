@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'training_pack_template_model.g.dart';
+
+@JsonSerializable()
 class TrainingPackTemplateModel {
   final String id;
   final String name;
@@ -56,37 +61,9 @@ class TrainingPackTemplateModel {
     );
   }
 
-  factory TrainingPackTemplateModel.fromJson(Map<String, dynamic> json) {
-    return TrainingPackTemplateModel(
-      id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      description: json['description'] as String? ?? '',
-      category: json['category'] as String? ?? '',
-      difficulty: (json['difficulty'] as num?)?.toInt() ?? 1,
-      filters: Map<String, dynamic>.from(json['filters'] as Map? ?? {}),
-      isTournament: json['isTournament'] as bool? ?? false,
-      isFavorite: json['isFavorite'] as bool? ?? false,
-      createdAt:
-          DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
-      lastGeneratedAt:
-          DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
-      rating: (json['rating'] as num?)?.toDouble() ?? 0,
-    );
-  }
+  factory TrainingPackTemplateModel.fromJson(Map<String, dynamic> json) =>
+      _$TrainingPackTemplateModelFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'category': category,
-        'difficulty': difficulty,
-        'filters': filters,
-        'isTournament': isTournament,
-        'isFavorite': isFavorite,
-        'createdAt': createdAt.toIso8601String(),
-        if (lastGeneratedAt != null)
-          'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
-        'rating': rating,
-      };
+  Map<String, dynamic> toJson() => _$TrainingPackTemplateModelToJson(this);
 }
 
