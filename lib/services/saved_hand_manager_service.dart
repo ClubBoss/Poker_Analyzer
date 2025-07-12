@@ -20,7 +20,27 @@ import '../models/v2/hero_position.dart';
 import '../models/training_pack.dart';
 import 'saved_hand_storage_service.dart';
 import 'cloud_sync_service.dart';
+
 import 'training_stats_service.dart';
+
+class _SessionStats {
+  _SessionStats(this.start, this.end, this.count, this.correct, this.incorrect,
+      {this.evAvg, this.icmAvg});
+
+  final DateTime start;
+  final DateTime end;
+  final int count;
+  final int correct;
+  final int incorrect;
+  final double? evAvg;
+  final double? icmAvg;
+
+  Duration get duration => end.difference(start);
+  double? get winrate {
+    final total = correct + incorrect;
+    return total > 0 ? correct / total * 100 : null;
+  }
+}
 
 class SavedHandManagerService extends ChangeNotifier {
   SavedHandManagerService({
@@ -240,32 +260,16 @@ class SavedHandManagerService extends ChangeNotifier {
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (sessionHands.isEmpty) continue;
 
-      final start = sessionHands.first.savedAt;
-      final end = sessionHands.last.savedAt;
-      final duration = end.difference(start);
-      int correct = 0;
-      int incorrect = 0;
-      for (final h in sessionHands) {
-        final expected = h.expectedAction;
-        final gto = h.gtoAction;
-        if (expected != null && gto != null) {
-          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
-            correct++;
-          } else {
-            incorrect++;
-          }
-        }
-      }
-      final total = correct + incorrect;
-      final winrate = total > 0 ? (correct / total * 100) : null;
+      final stats = _sessionStats(sessionHands);
       final note = notes[id];
 
       buffer.writeln('## Сессия $id');
-      buffer.writeln('- Дата: ${formatDateTime(end)}');
-      buffer.writeln('- Длительность: ${_durToStr(duration)}');
-      buffer.writeln('- Раздач: ${sessionHands.length}');
-      buffer.writeln('- Верно: $correct');
-      buffer.writeln('- Ошибки: $incorrect');
+      buffer.writeln('- Дата: ${formatDateTime(stats.end)}');
+      buffer.writeln('- Длительность: ${_durToStr(stats.duration)}');
+      buffer.writeln('- Раздач: ${stats.count}');
+      buffer.writeln('- Верно: ${stats.correct}');
+      buffer.writeln('- Ошибки: ${stats.incorrect}');
+      final winrate = stats.winrate;
       if (winrate != null) {
         buffer.writeln('- Winrate: ${winrate.toStringAsFixed(1)}%');
       }
@@ -331,40 +335,21 @@ class SavedHandManagerService extends ChangeNotifier {
                 final id = entry.key;
                 final sessionHands = List<SavedHand>.from(entry.value)
                   ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
-                final start = sessionHands.first.savedAt;
-                final end = sessionHands.last.savedAt;
-                final duration = end.difference(start);
-                int correct = 0;
-                int incorrect = 0;
-                for (final h in sessionHands) {
-                  final expected = h.expectedAction;
-                  final gto = h.gtoAction;
-                  if (expected != null && gto != null) {
-                    if (expected.trim().toLowerCase() ==
-                        gto.trim().toLowerCase()) {
-                      correct++;
-                    } else {
-                      incorrect++;
-                    }
-                  }
-                }
-                final total = correct + incorrect;
-                final winrate =
-                    total > 0 ? (correct / total * 100).toStringAsFixed(1) : null;
+                final stats = _sessionStats(sessionHands);
                 final note = notes[id];
 
                 return [
                   pw.Text('Сессия $id',
                       style: pw.TextStyle(font: boldFont, fontSize: 20)),
                   pw.SizedBox(height: 4),
-                  pw.Text('Дата: ${formatDateTime(end)}',
+                  pw.Text('Дата: ${formatDateTime(stats.end)}',
                       style: pw.TextStyle(font: regularFont)),
-                  pw.Text('Длительность: ${_durToStr(duration)}',
+                  pw.Text('Длительность: ${_durToStr(stats.duration)}',
                       style: pw.TextStyle(font: regularFont)),
-                  pw.Text('Раздач: ${sessionHands.length} • Верно: $correct • Ошибки: $incorrect',
+                  pw.Text('Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
                       style: pw.TextStyle(font: regularFont)),
-                  if (winrate != null)
-                    pw.Text('Winrate: $winrate%',
+                  if (stats.winrate != null)
+                    pw.Text('Winrate: ${stats.winrate!.toStringAsFixed(1)}%',
                         style: pw.TextStyle(font: regularFont)),
                   if (note != null && note.trim().isNotEmpty)
                     pw.Text('Заметка: ${note.trim()}',
@@ -434,32 +419,16 @@ class SavedHandManagerService extends ChangeNotifier {
       if (sessionHands == null || sessionHands.isEmpty) continue;
       final handsList = List<SavedHand>.from(sessionHands)
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
-      final start = handsList.first.savedAt;
-      final end = handsList.last.savedAt;
-      final duration = end.difference(start);
-      int correct = 0;
-      int incorrect = 0;
-      for (final h in handsList) {
-        final expected = h.expectedAction;
-        final gto = h.gtoAction;
-        if (expected != null && gto != null) {
-          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
-            correct++;
-          } else {
-            incorrect++;
-          }
-        }
-      }
-      final total = correct + incorrect;
-      final winrate = total > 0 ? (correct / total * 100) : null;
+      final stats = _sessionStats(handsList);
       final note = notes[id];
 
       buffer.writeln('## Сессия $id');
-      buffer.writeln('- Дата: ${formatDateTime(end)}');
-      buffer.writeln('- Длительность: ${_durToStr(duration)}');
-      buffer.writeln('- Раздач: ${handsList.length}');
-      buffer.writeln('- Верно: $correct');
-      buffer.writeln('- Ошибки: $incorrect');
+      buffer.writeln('- Дата: ${formatDateTime(stats.end)}');
+      buffer.writeln('- Длительность: ${_durToStr(stats.duration)}');
+      buffer.writeln('- Раздач: ${stats.count}');
+      buffer.writeln('- Верно: ${stats.correct}');
+      buffer.writeln('- Ошибки: ${stats.incorrect}');
+      final winrate = stats.winrate;
       if (winrate != null) {
         buffer.writeln('- Winrate: ${winrate.toStringAsFixed(1)}%');
       }
@@ -527,41 +496,22 @@ class SavedHandManagerService extends ChangeNotifier {
                 () {
                   final handsList = List<SavedHand>.from(grouped[id]!)
                     ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
-                  final start = handsList.first.savedAt;
-                  final end = handsList.last.savedAt;
-                  final duration = end.difference(start);
-                  int correct = 0;
-                  int incorrect = 0;
-                  for (final h in handsList) {
-                    final expected = h.expectedAction;
-                    final gto = h.gtoAction;
-                    if (expected != null && gto != null) {
-                      if (expected.trim().toLowerCase() ==
-                          gto.trim().toLowerCase()) {
-                        correct++;
-                      } else {
-                        incorrect++;
-                      }
-                    }
-                  }
-                  final total = correct + incorrect;
-                  final winrate =
-                      total > 0 ? (correct / total * 100).toStringAsFixed(1) : null;
+                  final stats = _sessionStats(handsList);
                   final note = notes[id];
 
                   return [
                     pw.Text('Сессия $id',
                         style: pw.TextStyle(font: boldFont, fontSize: 20)),
                     pw.SizedBox(height: 4),
-                    pw.Text('Дата: ${formatDateTime(end)}',
+                  pw.Text('Дата: ${formatDateTime(stats.end)}',
                         style: pw.TextStyle(font: regularFont)),
-                    pw.Text('Длительность: ${_durToStr(duration)}',
+                  pw.Text('Длительность: ${_durToStr(stats.duration)}',
                         style: pw.TextStyle(font: regularFont)),
-                    pw.Text('Раздач: ${handsList.length} • Верно: $correct • Ошибки: $incorrect',
+                  pw.Text('Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
                         style: pw.TextStyle(font: regularFont)),
-                    if (winrate != null)
-                      pw.Text('Winrate: $winrate%',
-                          style: pw.TextStyle(font: regularFont)),
+                  if (stats.winrate != null)
+                    pw.Text('Winrate: ${stats.winrate!.toStringAsFixed(1)}%',
+                        style: pw.TextStyle(font: regularFont)),
                     if (note != null && note.trim().isNotEmpty)
                       pw.Text('Заметка: ${note.trim()}',
                           style: pw.TextStyle(font: regularFont)),
@@ -624,42 +574,14 @@ class SavedHandManagerService extends ChangeNotifier {
       final list = List<SavedHand>.from(entry.value)
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (list.isEmpty) continue;
-      final start = list.first.savedAt;
-      final end = list.last.savedAt;
-      int correct = 0;
-      int incorrect = 0;
-      double evSum = 0;
-      double icmSum = 0;
-      int evCount = 0;
-      int icmCount = 0;
-      for (final h in list) {
-        final expected = h.expectedAction;
-        final gto = h.gtoAction;
-        if (expected != null && gto != null) {
-          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
-            correct++;
-          } else {
-            incorrect++;
-          }
-        }
-        final ev = h.heroEv;
-        if (ev != null) {
-          evSum += ev;
-          evCount++;
-        }
-        final icm = h.heroIcmEv;
-        if (icm != null) {
-          icmSum += icm;
-          icmCount++;
-        }
-      }
-      final evAvg = evCount > 0 ? (evSum / evCount).toStringAsFixed(1) : '';
-      final icmAvg = icmCount > 0 ? (icmSum / icmCount).toStringAsFixed(3) : '';
+      final stats = _sessionStats(list);
+      final evAvg = stats.evAvg != null ? stats.evAvg!.toStringAsFixed(1) : '';
+      final icmAvg = stats.icmAvg != null ? stats.icmAvg!.toStringAsFixed(3) : '';
       rows.add([
-        formatDateTime(end),
-        _durToStr(end.difference(start)),
-        list.length,
-        correct,
+        formatDateTime(stats.end),
+        _durToStr(stats.duration),
+        stats.count,
+        stats.correct,
         evAvg,
         icmAvg
       ]);
@@ -697,42 +619,14 @@ class SavedHandManagerService extends ChangeNotifier {
       if (sessionHands == null || sessionHands.isEmpty) continue;
       final list = List<SavedHand>.from(sessionHands)
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
-      final start = list.first.savedAt;
-      final end = list.last.savedAt;
-      int correct = 0;
-      int incorrect = 0;
-      double evSum = 0;
-      double icmSum = 0;
-      int evCount = 0;
-      int icmCount = 0;
-      for (final h in list) {
-        final expected = h.expectedAction;
-        final gto = h.gtoAction;
-        if (expected != null && gto != null) {
-          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
-            correct++;
-          } else {
-            incorrect++;
-          }
-        }
-        final ev = h.heroEv;
-        if (ev != null) {
-          evSum += ev;
-          evCount++;
-        }
-        final icm = h.heroIcmEv;
-        if (icm != null) {
-          icmSum += icm;
-          icmCount++;
-        }
-      }
-      final evAvg = evCount > 0 ? (evSum / evCount).toStringAsFixed(1) : '';
-      final icmAvg = icmCount > 0 ? (icmSum / icmCount).toStringAsFixed(3) : '';
+      final stats = _sessionStats(list);
+      final evAvg = stats.evAvg != null ? stats.evAvg!.toStringAsFixed(1) : '';
+      final icmAvg = stats.icmAvg != null ? stats.icmAvg!.toStringAsFixed(3) : '';
       rows.add([
-        formatDateTime(end),
-        _durToStr(end.difference(start)),
-        list.length,
-        correct,
+        formatDateTime(stats.end),
+        _durToStr(stats.duration),
+        stats.count,
+        stats.correct,
         evAvg,
         icmAvg
       ]);
@@ -1343,6 +1237,44 @@ class SavedHandManagerService extends ChangeNotifier {
       createdAt: DateTime.now(),
     );
     return tpl;
+  }
+
+  _SessionStats _sessionStats(List<SavedHand> hands) {
+    final list = List<SavedHand>.from(hands)
+      ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+    final start = list.first.savedAt;
+    final end = list.last.savedAt;
+    int correct = 0;
+    int incorrect = 0;
+    double evSum = 0;
+    double icmSum = 0;
+    int evCount = 0;
+    int icmCount = 0;
+    for (final h in list) {
+      final expected = h.expectedAction;
+      final gto = h.gtoAction;
+      if (expected != null && gto != null) {
+        if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
+          correct++;
+        } else {
+          incorrect++;
+        }
+      }
+      final ev = h.heroEv;
+      if (ev != null) {
+        evSum += ev;
+        evCount++;
+      }
+      final icm = h.heroIcmEv;
+      if (icm != null) {
+        icmSum += icm;
+        icmCount++;
+      }
+    }
+    final evAvg = evCount > 0 ? evSum / evCount : null;
+    final icmAvg = icmCount > 0 ? icmSum / icmCount : null;
+    return _SessionStats(start, end, list.length, correct, incorrect,
+        evAvg: evAvg, icmAvg: icmAvg);
   }
 
   Future<void> _shareFile(File file) async {
