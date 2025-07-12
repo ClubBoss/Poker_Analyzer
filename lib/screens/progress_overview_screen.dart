@@ -6,6 +6,7 @@ import '../models/training_result.dart';
 import '../widgets/ev_icm_trend_chart.dart';
 import '../widgets/common/accuracy_chart.dart';
 import '../widgets/common/average_accuracy_chart.dart';
+import '../widgets/common/ev_icm_trend_chart.dart' as common;
 import '../widgets/sync_status_widget.dart';
 import '../theme/app_colors.dart';
 
@@ -73,6 +74,9 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
           const SizedBox(height: 16),
           if (hasData) AccuracyChart(sessions: sessions) else _placeholder(),
           if (hasData) AverageAccuracyChart(sessions: sessions),
+          if (hasData)
+            common.EvIcmTrendChart(
+                data: context.watch<ProgressForecastService>().evIcmSeries),
         ],
       ),
     );
