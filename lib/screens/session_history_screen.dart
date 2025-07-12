@@ -5,8 +5,11 @@ import '../helpers/date_utils.dart';
 import '../models/v2/training_session.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/session_note_service.dart';
+import '../services/training_stats_service.dart';
 import 'session_analysis_screen.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
 class SessionHistoryScreen extends StatefulWidget {
   const SessionHistoryScreen({super.key});
@@ -50,10 +53,29 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     });
   }
 
+  Future<void> _exportNotes() async {
+    final notes = context.read<SessionNoteService>();
+    final stats = context.read<TrainingStatsService>();
+    final path = await notes.exportAsPdf(stats);
+    if (path == null || !mounted) return;
+    final name = path.split(Platform.pathSeparator).last;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Session History')),
+      appBar: AppBar(
+        title: const Text('Session History'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Export',
+            onPressed: _exportNotes,
+          ),
+        ],
+      ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: _sessions.isEmpty
           ? const Center(
