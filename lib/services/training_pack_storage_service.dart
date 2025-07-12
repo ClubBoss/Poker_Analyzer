@@ -83,18 +83,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       } catch (_) {}
     }
     if (_packs.isEmpty) {
-      try {
-        final manifest = await _manifestFuture;
-        final packPaths = manifest.keys
-            .where((e) => e.startsWith('assets/training_packs/') && e.endsWith('.json'));
-        for (final p in packPaths) {
-          final data = jsonDecode(await rootBundle.loadString(p));
-          if (data is Map<String, dynamic>) {
-            _packs.add(TrainingPack.fromJson(data));
-          }
-        }
-        await _persist();
-      } catch (_) {}
+      await loadBuiltInPacks();
     }
 
     notifyListeners();
@@ -121,6 +110,24 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   void schedulePersist() => _persistDebounced();
+
+  Future<void> loadBuiltInPacks() async {
+    try {
+      final manifest = await _manifestFuture;
+      final paths = manifest.keys
+          .where((e) => e.startsWith('assets/training_packs/') && e.endsWith('.json'));
+      for (final p in paths) {
+        final data = jsonDecode(await rootBundle.loadString(p));
+        if (data is Map<String, dynamic>) {
+          final pack = TrainingPack.fromJson(data);
+          if (_packs.every((x) => x.name != pack.name)) {
+            _packs.add(pack);
+          }
+        }
+      }
+      await _persist();
+    } catch (_) {}
+  }
 
   Future<void> addPack(TrainingPack pack) async {
     _packs.add(pack);

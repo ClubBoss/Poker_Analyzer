@@ -1,0 +1,24 @@
+{
+  "name": "Push/Fold SB 10bb",
+  "description": "Common push spots from Small Blind at 10bb",
+  "category": "Push-Fold",
+  "gameType": "Tournament",
+  "isBuiltIn": true,
+  "hands": [
+    {
+      "name": "SB shove 10bb",
+      "heroIndex": 0,
+      "heroPosition": "SB",
+      "numberOfPlayers": 2,
+      "playerCards": [
+        [{"rank": "K", "suit": "♠"}, {"rank": "Q", "suit": "♠"}],
+        [{"rank": "9", "suit": "♣"}, {"rank": "9", "suit": "♦"}]
+      ],
+      "boardCards": [],
+      "boardStreet": 0,
+      "actions": [],
+      "stackSizes": {"0": 10, "1": 10},
+      "playerPositions": {"0": "SB", "1": "BB"}
+    }
+  ]
+}
