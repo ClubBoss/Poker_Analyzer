@@ -26,6 +26,7 @@ import 'converters/ipoker_hand_history_converter.dart';
 import 'poker_stars_converter_plugin.dart';
 import 'gg_poker_converter_plugin.dart';
 import 'ipoker_converter_plugin.dart';
+import 'partypoker_converter_plugin.dart';
 
 class PluginLoader {
   static const String _suffix = 'Plugin.dart';
@@ -91,7 +92,7 @@ class PluginLoader {
       PokerStarsHandHistoryConverter(),
       GGPokerHandHistoryConverter(),
       WinamaxHandHistoryConverter(),
-      PartyPokerHandHistoryConverter(),
+      PartypokerHandHistoryConverter(),
       WpnHandHistoryConverter(),
       Poker888HandHistoryConverter(),
       IpokerHandHistoryConverter(),
@@ -113,7 +114,7 @@ class PluginLoader {
           PokerStarsHandHistoryConverter(),
           GGPokerHandHistoryConverter(),
           WinamaxHandHistoryConverter(),
-          PartyPokerHandHistoryConverter(),
+          PartypokerHandHistoryConverter(),
           WpnHandHistoryConverter(),
           Poker888HandHistoryConverter(),
           IpokerHandHistoryConverter(),
@@ -122,6 +123,8 @@ class PluginLoader {
         return PokerStarsConverterPlugin();
       case 'GGPokerConverterPlugin':
         return GGPokerConverterPlugin();
+      case 'PartyPokerConverterPlugin':
+        return PartyPokerConverterPlugin();
       case 'IpokerConverterPlugin':
         return IpokerConverterPlugin();
     }

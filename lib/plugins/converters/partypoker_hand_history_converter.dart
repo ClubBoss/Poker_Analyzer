@@ -5,8 +5,8 @@ import 'package:poker_analyzer/models/card_model.dart';
 import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/models/player_model.dart';
 
-class PartyPokerHandHistoryConverter extends ConverterPlugin {
-  PartyPokerHandHistoryConverter()
+class PartypokerHandHistoryConverter extends ConverterPlugin {
+  PartypokerHandHistoryConverter()
       : super(
           formatId: 'partypoker_hand_history',
           description: 'PartyPoker hand history format',
