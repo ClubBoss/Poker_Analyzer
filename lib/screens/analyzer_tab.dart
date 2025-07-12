@@ -22,6 +22,7 @@ import '../services/action_history_service.dart';
 import '../services/training_import_export_service.dart';
 import '../widgets/repeat_last_incorrect_card.dart';
 import '../widgets/top_mistake_drill_card.dart';
+import '../widgets/top_categories_drill_card.dart';
 import '../widgets/category_drill_card.dart';
 import '../widgets/last_mistake_drill_card.dart';
 
@@ -109,6 +110,7 @@ class AnalyzerTab extends StatelessWidget {
               children: [
                 const RepeatLastIncorrectCard(),
                 const TopMistakeDrillCard(),
+                const TopCategoriesDrillCard(),
                 const CategoryDrillCard(),
                 const LastMistakeDrillCard(),
                 Expanded(
