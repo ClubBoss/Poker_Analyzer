@@ -118,4 +118,34 @@ class TrainingPack {
             TrainingSessionResult.fromJson(r as Map<String, dynamic>)
         ],
       );
+
+  TrainingPack copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? category,
+    GameType? gameType,
+    String? colorTag,
+    bool? isBuiltIn,
+    List<String>? tags,
+    List<SavedHand>? hands,
+    List<TrainingSpot>? spots,
+    int? difficulty,
+    List<TrainingSessionResult>? history,
+  }) {
+    return TrainingPack(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      gameType: gameType ?? this.gameType,
+      colorTag: colorTag ?? this.colorTag,
+      isBuiltIn: isBuiltIn ?? this.isBuiltIn,
+      tags: tags ?? List<String>.from(this.tags),
+      hands: hands ?? List<SavedHand>.from(this.hands),
+      spots: spots ?? List<TrainingSpot>.from(this.spots),
+      difficulty: difficulty ?? this.difficulty,
+      history: history ?? List<TrainingSessionResult>.from(this.history),
+    );
+  }
 }
