@@ -15,6 +15,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../helpers/poker_position_helper.dart';
 import '../helpers/training_pack_storage.dart';
 import 'pack_generator_service.dart';
+import '../helpers/category_translations.dart';
 import '../main.dart';
 
 class TrainingPackService {
@@ -182,6 +183,38 @@ class TrainingPackService {
     return TrainingPackTemplate(
       id: const Uuid().v4(),
       name: 'Авто Drill: $cat',
+      spots: spots,
+    );
+  }
+
+  static Future<TrainingPackTemplate?> createDrillFromWorstCategory(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final byCat = <String, List<SavedHand>>{};
+    for (final h in hands) {
+      final cat = h.category;
+      final exp = h.expectedAction;
+      final gto = h.gtoAction;
+      if (cat == null || cat.isEmpty) continue;
+      if (exp == null || gto == null) continue;
+      if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
+      if (h.corrected) continue;
+      byCat.putIfAbsent(cat, () => []).add(h);
+    }
+    if (byCat.isEmpty) return null;
+    final entry = byCat.entries
+        .reduce((a, b) => a.value.length >= b.value.length ? a : b);
+    final list = entry.value
+      ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    final rng = Random();
+    final count = min(list.length, 5 + rng.nextInt(4));
+    final spots = [for (final h in list.take(count)) _spotFromHand(h)];
+    final title = translateCategory(entry.key).isEmpty
+        ? entry.key
+        : translateCategory(entry.key);
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: title,
       spots: spots,
     );
   }
