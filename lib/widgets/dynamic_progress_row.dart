@@ -10,19 +10,19 @@ class DynamicProgressRow extends StatelessWidget {
     final service = context.watch<ProgressForecastService>();
     final hist = service.history;
     final forecast = service.forecast;
+    double prevAcc = forecast.accuracy;
     double lastAcc = forecast.accuracy;
-    double prevAcc = lastAcc;
+    double prevEv = forecast.ev;
     double lastEv = forecast.ev;
-    double prevEv = lastEv;
+    double prevIcm = forecast.icm;
     double lastIcm = forecast.icm;
-    double prevIcm = lastIcm;
     if (hist.length >= 2) {
-      lastAcc = hist.last.accuracy;
       prevAcc = hist[hist.length - 2].accuracy;
-      lastEv = hist.last.ev;
+      lastAcc = hist.last.accuracy;
       prevEv = hist[hist.length - 2].ev;
-      lastIcm = hist.last.icm;
+      lastEv = hist.last.ev;
       prevIcm = hist[hist.length - 2].icm;
+      lastIcm = hist.last.icm;
     }
     final accUp = lastAcc >= prevAcc;
     final evUp = lastEv >= prevEv;
@@ -35,18 +35,22 @@ class DynamicProgressRow extends StatelessWidget {
           children: [
             Text(label, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 14, color: color),
-                const SizedBox(width: 4),
-                Text(
-                  label == 'Acc'
-                      ? '${(value * 100).toStringAsFixed(1)}%'
-                      : value.toStringAsFixed(2),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: value),
+              duration: const Duration(milliseconds: 600),
+              builder: (_, v, __) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 14, color: color),
+                  const SizedBox(width: 4),
+                  Text(
+                    label == 'Acc'
+                        ? '${(v * 100).toStringAsFixed(1)}%'
+                        : v.toStringAsFixed(2),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
