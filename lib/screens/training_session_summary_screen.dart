@@ -50,6 +50,7 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
 class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScreen> {
   final _shareBoundaryKey = GlobalKey();
   TrainingPackTemplate? _weakPack;
+  bool _autoReview = true;
 
   @override
   void initState() {
@@ -324,6 +325,14 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                 child: Text(l.reviewMistakes),
               ),
               const SizedBox(height: 8),
+              SwitchListTile(
+                value: _autoReview,
+                onChanged: (v) => setState(() => _autoReview = v),
+                title: const Text('Auto review mistakes',
+                    style: TextStyle(color: Colors.white)),
+                activeColor: Colors.orange,
+                contentPadding: EdgeInsets.zero,
+              ),
             ],
             Row(
               children: [
@@ -349,9 +358,29 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () =>
-                        Navigator.of(context).popUntil((r) => r.isFirst),
-                    child: Text(l.backToLibrary),
+                    onPressed: () async {
+                      final reviewService =
+                          context.read<MistakeReviewPackService>();
+                      if (_autoReview && reviewService.hasMistakes()) {
+                        final tpl = await reviewService.buildPack(context);
+                        if (tpl != null) {
+                          await context
+                              .read<TrainingSessionService>()
+                              .startSession(tpl, persist: false);
+                          if (!context.mounted) return;
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const TrainingSessionScreen()),
+                          );
+                          return;
+                        }
+                      }
+                      if (mounted) {
+                        Navigator.of(context).popUntil((r) => r.isFirst);
+                      }
+                    },
+                    child: const Text('Finish'),
                   ),
                 ),
               ],
