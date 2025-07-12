@@ -20,6 +20,7 @@ class PluginManagerScreen extends StatefulWidget {
 class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Map<String, bool> _config = <String, bool>{};
   List<String> _files = <String>[];
+  Map<String, String> _status = <String, String>{};
   final TextEditingController _urlCtr = TextEditingController();
 
   @override
@@ -37,6 +38,8 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Future<void> _load() async {
     final loader = PluginLoader();
     final config = await loader.loadConfig();
+    final manager = PluginManager();
+    final status = await manager.loadStatus();
     final dir = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     final files = <String>[];
     if (await dir.exists()) {
@@ -57,6 +60,7 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     setState(() {
       _config = Map<String, bool>.from(config);
       _files = files;
+      _status = Map<String, String>.from(status);
     });
   }
 
@@ -80,6 +84,7 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
     }
+    await _load();
   }
 
   Future<void> _reset() async {
@@ -126,6 +131,30 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     await _load();
   }
 
+  Future<void> _retry(String file) async {
+    final loader = PluginLoader();
+    final manager = PluginManager();
+    final support = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    File f = File(p.join(support.path, file));
+    if (!await f.exists()) {
+      f = File(p.join('plugins', file));
+    }
+    final plugin = await loader.loadFromFile(f, manager);
+    if (plugin != null) {
+      final registry = ServiceRegistry();
+      manager.load(plugin);
+      manager.initializeAll(registry);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin loaded')));
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin failed')));
+      }
+    }
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
@@ -144,12 +173,27 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
               itemBuilder: (context, index) {
                 final file = _files[index];
                 final enabled = _config[file] ?? true;
+                final status = _status[file];
                 return ListTile(
                   title: Text(file),
-                  trailing: Switch(
-                    value: enabled,
-                    activeColor: accent,
-                    onChanged: (v) => _toggle(file, v),
+                  subtitle: status != null && status != 'loaded'
+                      ? Text(status, style: const TextStyle(color: Colors.red))
+                      : null,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (status == 'failed' || status == 'duplicate')
+                        IconButton(
+                          icon: const Icon(Icons.refresh),
+                          color: accent,
+                          onPressed: () => _retry(file),
+                        ),
+                      Switch(
+                        value: enabled,
+                        activeColor: accent,
+                        onChanged: (v) => _toggle(file, v),
+                      ),
+                    ],
                   ),
                 );
               },

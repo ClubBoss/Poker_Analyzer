@@ -127,7 +127,7 @@ Future<void> main() async {
   if (await dir.exists()) {
     await for (final entity in dir.list()) {
       if (entity is File && entity.path.endsWith('.dart')) {
-        final plugin = await loader.loadFromFile(entity);
+        final plugin = await loader.loadFromFile(entity, pluginManager);
         if (plugin != null) {
           pluginManager.load(plugin);
         }
