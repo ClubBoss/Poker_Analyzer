@@ -23,6 +23,7 @@ class PersonalRecommendationService extends ChangeNotifier {
   final PlayerStyleService style;
   final PlayerStyleForecastService forecast;
   final ProgressForecastService progress;
+  Timer? _debounce;
   PersonalRecommendationService({
     required this.achievements,
     required this.adaptive,
@@ -46,7 +47,7 @@ class PersonalRecommendationService extends ChangeNotifier {
   List<RecommendationTask> get tasks => List.unmodifiable(_tasks);
   List<TrainingPackTemplate> get packs => List.unmodifiable(_packs);
 
-  Future<void> _update() async {
+  Future<void> _performUpdate() async {
     final list = adaptive.recommendedNotifier.value.toList();
     final weakPack = await weak.buildPack();
     if (weakPack != null) list.insert(0, weakPack);
@@ -104,5 +105,16 @@ class PersonalRecommendationService extends ChangeNotifier {
       );
     }
     notifyListeners();
+  }
+
+  Future<void> _update() async {
+    _debounce?.cancel();
+    final completer = Completer<void>();
+    _debounce = Timer(const Duration(milliseconds: 100), () async {
+      _debounce = null;
+      await _performUpdate();
+      completer.complete();
+    });
+    return completer.future;
   }
 }
