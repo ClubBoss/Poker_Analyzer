@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -205,6 +207,29 @@ class TrainingPackService {
     return TrainingPackTemplate(
       id: const Uuid().v4(),
       name: 'Repeat Incorrect',
+      spots: [spot],
+    );
+  }
+
+  static Future<TrainingPackTemplate?> createSingleRandomMistakeDrill(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final list = [
+      for (final h in hands)
+        if (!h.corrected &&
+            (h.evLoss?.abs() ?? 0) >= 1.0 &&
+            h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ];
+    if (list.isEmpty) return null;
+    final hand = list[Random().nextInt(list.length)];
+    final spot = _spotFromHand(hand);
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Random Mistake',
       spots: [spot],
     );
   }
