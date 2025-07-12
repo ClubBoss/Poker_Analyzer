@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:crypto/crypto.dart';
+import 'package:collection/collection.dart';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
@@ -35,7 +36,8 @@ class PluginLoader {
   Map<String, dynamic>? _cache;
 
   Future<File> _cacheFile() async {
-    return File(p.join((await getApplicationSupportDirectory()).path, 'plugin_cache.json'));
+    return File(p.join(
+        (await getApplicationSupportDirectory()).path, 'plugin_cache.json'));
   }
 
   Future<Map<String, dynamic>?> _loadCache() async {
@@ -62,22 +64,6 @@ class PluginLoader {
       'plugins': plugins,
       'checksums': checksums,
     }));
-  }
-
-  bool _listEquals(List<String> a, List<String> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
-
-  bool _mapEquals(Map<String, bool> a, Map<String, dynamic> b) {
-    if (a.length != b.length) return false;
-    for (final key in a.keys) {
-      if (a[key] != (b[key] == true)) return false;
-    }
-    return true;
   }
 
   /// Returns all built-in plug-ins included with the application.
@@ -178,7 +164,8 @@ class PluginLoader {
     if (!name.endsWith(_suffix)) {
       throw Exception('Invalid plugin file');
     }
-    final dir = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final dir = Directory(
+        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, name));
     final client = HttpClient();
@@ -188,7 +175,9 @@ class PluginLoader {
       if (response.statusCode != HttpStatus.ok) {
         throw Exception('HTTP ${response.statusCode}');
       }
-      final bytes = await response.fold<BytesBuilder>(BytesBuilder(), (b, d) => b..add(d)).then((b) => b.takeBytes());
+      final bytes = await response
+          .fold<BytesBuilder>(BytesBuilder(), (b, d) => b..add(d))
+          .then((b) => b.takeBytes());
       await file.writeAsBytes(bytes);
       final digest = sha256.convert(await file.readAsBytes()).toString();
       if (checksum != null && checksum.toLowerCase() != digest) {
@@ -196,7 +185,8 @@ class PluginLoader {
         throw Exception('Checksum mismatch');
       }
       final cache = await _loadCache() ?? <String, dynamic>{};
-      final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ?? <String, String>{};
+      final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+          <String, String>{};
       checksums[name] = digest;
       cache['checksums'] = checksums;
       final f = await _cacheFile();
@@ -236,19 +226,23 @@ class PluginLoader {
     final cached = await _loadCache();
     final cachedFiles =
         (cached?['files'] as List?)?.cast<String>() ?? <String>[];
-    final cachedConfig =
-        (cached?['config'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
-    final match = _listEquals(
+    final cachedConfig = (cached?['config'] as Map?)?.cast<String, dynamic>() ??
+        <String, dynamic>{};
+    final match = const DeepCollectionEquality().equals(
           cachedFiles,
           [for (final f in files) p.basename(f.path)],
         ) &&
-        _mapEquals(config, cachedConfig);
+        const DeepCollectionEquality().equals(
+          config,
+          cachedConfig.map((k, v) => MapEntry(k, v == true)),
+        );
 
     final pluginNames = <String>[];
     final loadedPlugins = <Plugin>[];
 
     if (match) {
-      pluginNames.addAll((cached?['plugins'] as List?)?.cast<String>() ?? <String>[]);
+      pluginNames
+          .addAll((cached?['plugins'] as List?)?.cast<String>() ?? <String>[]);
       for (final name in pluginNames) {
         final plugin = _createByName(name);
         if (plugin != null) {
@@ -294,7 +288,8 @@ class PluginLoader {
       }
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
+          SnackBar(
+              content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
         );
       }
     }
