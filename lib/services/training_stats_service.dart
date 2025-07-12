@@ -184,6 +184,40 @@ class TrainingStatsService extends ChangeNotifier {
     return _groupMonthlyAvg(daily);
   }
 
+  List<MapEntry<DateTime, double>> categoryEvSeries(
+      List<SavedHand> hands, String cat) {
+    final Map<DateTime, List<double>> map = {};
+    for (final h in hands) {
+      if (h.category != cat) continue;
+      final ev = h.heroEv;
+      if (ev == null) continue;
+      final d = DateTime(h.date.year, h.date.month, h.date.day);
+      map.putIfAbsent(d, () => []).add(ev);
+    }
+    final entries = map.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return [
+      for (final e in entries)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+    ];
+  }
+
+  List<MapEntry<DateTime, double>> categoryIcmSeries(
+      List<SavedHand> hands, String cat) {
+    final Map<DateTime, List<double>> map = {};
+    for (final h in hands) {
+      if (h.category != cat) continue;
+      final v = h.heroIcmEv;
+      if (v == null) continue;
+      final d = DateTime(h.date.year, h.date.month, h.date.day);
+      map.putIfAbsent(d, () => []).add(v);
+    }
+    final entries = map.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return [
+      for (final e in entries)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+    ];
+  }
+
   MapEntry<double, double> sessionEvIcmAvg(Iterable<SavedHand> hands) {
     double evSum = 0;
     int evCount = 0;

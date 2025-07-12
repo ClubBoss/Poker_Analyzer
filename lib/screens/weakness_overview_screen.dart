@@ -16,6 +16,7 @@ import 'mistake_review_screen.dart';
 import 'mistake_detail_screen.dart';
 import 'corrected_mistake_history_screen.dart';
 import 'category_recovery_screen.dart';
+import 'category_analytics_screen.dart';
 
 class WeaknessOverviewScreen extends StatefulWidget {
   static const route = '/weakness_overview';
@@ -270,6 +271,23 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
     );
   }
 
+  Widget _analyticsButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: TextButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const CategoryAnalyticsScreen()),
+          );
+        },
+        icon: const Icon(Icons.show_chart),
+        label: const Text('Динамика категории'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
@@ -436,12 +454,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
             Expanded(
               child: ListView.builder(
                 controller: _ctrl,
-                itemCount: entries.length + 2,
+                itemCount: entries.length + 3,
                 itemBuilder: (context, index) {
                   if (index == entries.length) {
-                    return _historyButton(context);
+                    return _analyticsButton(context);
                   }
                   if (index == entries.length + 1) {
+                    return _historyButton(context);
+                  }
+                  if (index == entries.length + 2) {
                     return _recentFixes(context);
                   }
                   final e = entries[index];
