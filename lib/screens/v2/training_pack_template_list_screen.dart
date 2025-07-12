@@ -3365,6 +3365,22 @@ class _TrainingPackTemplateListScreenState
               }
             },
           ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'topCategoriesTplFab',
+            label: const Text('Топ ошибки'),
+            onPressed: () async {
+              final tpl = await TrainingPackService.createTopMistakeDrill(context);
+              if (tpl == null) return;
+              await context.read<TrainingSessionService>().startSession(tpl);
+              if (context.mounted) {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                );
+              }
+            },
+          ),
         ],
       ),
     );
