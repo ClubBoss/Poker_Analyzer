@@ -14,7 +14,8 @@ Poker Analyzer aims to be a universal tool for improving decision making at the 
 
 1. Install Flutter 3.0 or higher.
 2. Run `flutter pub get` to install dependencies.
-3. Launch with `flutter run`.
+3. Run `flutter gen-l10n` to generate localization files.
+4. Launch with `flutter run`.
 
 ## Demo Build
 
