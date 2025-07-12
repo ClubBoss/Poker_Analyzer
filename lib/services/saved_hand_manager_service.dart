@@ -11,6 +11,7 @@ import 'package:uuid/uuid.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import '../helpers/date_utils.dart';
+import '../helpers/export_utils.dart';
 
 import '../models/saved_hand.dart';
 import '../models/v2/training_pack_template.dart';
@@ -162,22 +163,7 @@ class SavedHandManagerService extends ChangeNotifier {
     if (hands.isEmpty) return null;
     final buffer = StringBuffer();
     for (final hand in hands) {
-      final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
-      buffer.writeln('## $title');
-      final userAction = hand.expectedAction;
-      if (userAction != null && userAction.isNotEmpty) {
-        buffer.writeln('- Действие: $userAction');
-      }
-      if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
-        buffer.writeln('- GTO: ${hand.gtoAction}');
-      }
-      if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
-        buffer.writeln('- Группа: ${hand.rangeGroup}');
-      }
-      if (hand.comment != null && hand.comment!.isNotEmpty) {
-        buffer.writeln('- Комментарий: ${hand.comment}');
-      }
-      buffer.writeln();
+      buffer.write(ExportUtils.handMarkdown(hand));
     }
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/all_saved_hands.md');
@@ -201,27 +187,11 @@ class SavedHandManagerService extends ChangeNotifier {
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return [
-            for (final hand in hands) ...[
-              pw.Text(
-                hand.name.isNotEmpty ? hand.name : 'Без названия',
-                style: pw.TextStyle(font: boldFont, fontSize: 18),
-              ),
-              pw.SizedBox(height: 8),
-              if (hand.expectedAction != null &&
-                  hand.expectedAction!.isNotEmpty)
-                pw.Text('Действие: ${hand.expectedAction}',
-                    style: pw.TextStyle(font: regularFont)),
-              if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
-                pw.Text('GTO: ${hand.gtoAction}',
-                    style: pw.TextStyle(font: regularFont)),
-              if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty)
-                pw.Text('Группа: ${hand.rangeGroup}',
-                    style: pw.TextStyle(font: regularFont)),
-              if (hand.comment != null && hand.comment!.isNotEmpty)
-                pw.Text('Комментарий: ${hand.comment}',
-                    style: pw.TextStyle(font: regularFont)),
-              pw.SizedBox(height: 12),
-            ]
+            for (final hand in hands) ...ExportUtils.handPdfWidgets(
+              hand,
+              regularFont,
+              boldFont,
+            ),
           ];
         },
       ),
@@ -241,14 +211,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<String?> exportAllSessionsMarkdown(Map<int, String> notes) async {
     if (hands.isEmpty) return null;
 
-    String _durToStr(Duration d) {
-      final h = d.inHours;
-      final m = d.inMinutes.remainder(60);
-      final parts = <String>[];
-      if (h > 0) parts.add('${h}ч');
-      parts.add('${m}м');
-      return parts.join(' ');
-    }
+    String _durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
@@ -278,22 +241,7 @@ class SavedHandManagerService extends ChangeNotifier {
       }
       buffer.writeln();
       for (final hand in sessionHands) {
-        final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
-        buffer.writeln('### $title');
-        final userAction = hand.expectedAction;
-        if (userAction != null && userAction.isNotEmpty) {
-          buffer.writeln('- Действие: $userAction');
-        }
-        if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
-          buffer.writeln('- GTO: ${hand.gtoAction}');
-        }
-        if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
-          buffer.writeln('- Группа: ${hand.rangeGroup}');
-        }
-        if (hand.comment != null && hand.comment!.isNotEmpty) {
-          buffer.writeln('- Комментарий: ${hand.comment}');
-        }
-        buffer.writeln();
+        buffer.write(ExportUtils.handMarkdown(hand, level: 3));
       }
     }
 
@@ -309,14 +257,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<String?> exportAllSessionsPdf(Map<int, String> notes) async {
     if (hands.isEmpty) return null;
 
-    String _durToStr(Duration d) {
-      final h = d.inHours;
-      final m = d.inMinutes.remainder(60);
-      final parts = <String>[];
-      if (h > 0) parts.add('${h}ч');
-      parts.add('${m}м');
-      return parts.join(' ');
-    }
+    String _durToStr(Duration d) => ExportUtils.durationString(d);
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -355,27 +296,13 @@ class SavedHandManagerService extends ChangeNotifier {
                     pw.Text('Заметка: ${note.trim()}',
                         style: pw.TextStyle(font: regularFont)),
                   pw.SizedBox(height: 8),
-                  for (final hand in sessionHands) ...[
-                    pw.Text(
-                      hand.name.isNotEmpty ? hand.name : 'Без названия',
-                      style: pw.TextStyle(font: boldFont, fontSize: 16),
+                  for (final hand in sessionHands)
+                    ...ExportUtils.handPdfWidgets(
+                      hand,
+                      regularFont,
+                      boldFont,
+                      titleSize: 16,
                     ),
-                    pw.SizedBox(height: 4),
-                    if (hand.expectedAction != null &&
-                        hand.expectedAction!.isNotEmpty)
-                      pw.Text('Действие: ${hand.expectedAction}',
-                          style: pw.TextStyle(font: regularFont)),
-                    if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
-                      pw.Text('GTO: ${hand.gtoAction}',
-                          style: pw.TextStyle(font: regularFont)),
-                    if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty)
-                      pw.Text('Группа: ${hand.rangeGroup}',
-                          style: pw.TextStyle(font: regularFont)),
-                    if (hand.comment != null && hand.comment!.isNotEmpty)
-                      pw.Text('Комментарий: ${hand.comment}',
-                          style: pw.TextStyle(font: regularFont)),
-                    pw.SizedBox(height: 12),
-                  ],
                   pw.Divider(),
                 ];
               }(),
@@ -401,14 +328,7 @@ class SavedHandManagerService extends ChangeNotifier {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String _durToStr(Duration d) {
-      final h = d.inHours;
-      final m = d.inMinutes.remainder(60);
-      final parts = <String>[];
-      if (h > 0) parts.add('${h}ч');
-      parts.add('${m}м');
-      return parts.join(' ');
-    }
+    String _durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession();
     final ids = List<int>.from(sessionIds)..sort();
@@ -437,22 +357,7 @@ class SavedHandManagerService extends ChangeNotifier {
       }
       buffer.writeln();
       for (final hand in handsList) {
-        final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
-        buffer.writeln('### $title');
-        final userAction = hand.expectedAction;
-        if (userAction != null && userAction.isNotEmpty) {
-          buffer.writeln('- Действие: $userAction');
-        }
-        if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
-          buffer.writeln('- GTO: ${hand.gtoAction}');
-        }
-        if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
-          buffer.writeln('- Группа: ${hand.rangeGroup}');
-        }
-        if (hand.comment != null && hand.comment!.isNotEmpty) {
-          buffer.writeln('- Комментарий: ${hand.comment}');
-        }
-        buffer.writeln();
+        buffer.write(ExportUtils.handMarkdown(hand, level: 3));
       }
     }
 
@@ -470,14 +375,7 @@ class SavedHandManagerService extends ChangeNotifier {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String _durToStr(Duration d) {
-      final h = d.inHours;
-      final m = d.inMinutes.remainder(60);
-      final parts = <String>[];
-      if (h > 0) parts.add('${h}ч');
-      parts.add('${m}м');
-      return parts.join(' ');
-    }
+    String _durToStr(Duration d) => ExportUtils.durationString(d);
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -516,26 +414,13 @@ class SavedHandManagerService extends ChangeNotifier {
                       pw.Text('Заметка: ${note.trim()}',
                           style: pw.TextStyle(font: regularFont)),
                     pw.SizedBox(height: 8),
-                    for (final hand in handsList) ...[
-                      pw.Text(
-                        hand.name.isNotEmpty ? hand.name : 'Без названия',
-                        style: pw.TextStyle(font: boldFont, fontSize: 16),
+                    for (final hand in handsList)
+                      ...ExportUtils.handPdfWidgets(
+                        hand,
+                        regularFont,
+                        boldFont,
+                        titleSize: 16,
                       ),
-                      pw.SizedBox(height: 4),
-                      if (hand.expectedAction != null && hand.expectedAction!.isNotEmpty)
-                        pw.Text('Действие: ${hand.expectedAction}',
-                            style: pw.TextStyle(font: regularFont)),
-                      if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
-                        pw.Text('GTO: ${hand.gtoAction}',
-                            style: pw.TextStyle(font: regularFont)),
-                      if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty)
-                        pw.Text('Группа: ${hand.rangeGroup}',
-                            style: pw.TextStyle(font: regularFont)),
-                      if (hand.comment != null && hand.comment!.isNotEmpty)
-                        pw.Text('Комментарий: ${hand.comment}',
-                            style: pw.TextStyle(font: regularFont)),
-                      pw.SizedBox(height: 12),
-                    ],
                     pw.Divider(),
                   ];
                 }(),
@@ -555,14 +440,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<String?> exportAllSessionsCsv(Map<int, String> notes) async {
     if (hands.isEmpty) return null;
 
-    String _durToStr(Duration d) {
-      final h = d.inHours;
-      final m = d.inMinutes.remainder(60);
-      final parts = <String>[];
-      if (h > 0) parts.add('${h}ч');
-      parts.add('${m}м');
-      return parts.join(' ');
-    }
+    String _durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
@@ -575,16 +453,14 @@ class SavedHandManagerService extends ChangeNotifier {
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (list.isEmpty) continue;
       final stats = _sessionStats(list);
-      final evAvg = stats.evAvg != null ? stats.evAvg!.toStringAsFixed(1) : '';
-      final icmAvg = stats.icmAvg != null ? stats.icmAvg!.toStringAsFixed(3) : '';
-      rows.add([
-        formatDateTime(stats.end),
-        _durToStr(stats.duration),
+      rows.add(ExportUtils.csvRow(
+        stats.end,
+        stats.duration,
         stats.count,
         stats.correct,
-        evAvg,
-        icmAvg
-      ]);
+        stats.evAvg,
+        stats.icmAvg,
+      ));
     }
 
     final csv = const ListToCsvConverter(fieldDelimiter: ';')
@@ -599,14 +475,7 @@ class SavedHandManagerService extends ChangeNotifier {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String _durToStr(Duration d) {
-      final h = d.inHours;
-      final m = d.inMinutes.remainder(60);
-      final parts = <String>[];
-      if (h > 0) parts.add('${h}ч');
-      parts.add('${m}м');
-      return parts.join(' ');
-    }
+    String _durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession();
     final ids = List<int>.from(sessionIds)..sort();
@@ -620,16 +489,14 @@ class SavedHandManagerService extends ChangeNotifier {
       final list = List<SavedHand>.from(sessionHands)
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       final stats = _sessionStats(list);
-      final evAvg = stats.evAvg != null ? stats.evAvg!.toStringAsFixed(1) : '';
-      final icmAvg = stats.icmAvg != null ? stats.icmAvg!.toStringAsFixed(3) : '';
-      rows.add([
-        formatDateTime(stats.end),
-        _durToStr(stats.duration),
+      rows.add(ExportUtils.csvRow(
+        stats.end,
+        stats.duration,
         stats.count,
         stats.correct,
-        evAvg,
-        icmAvg
-      ]);
+        stats.evAvg,
+        stats.icmAvg,
+      ));
     }
 
     final csv = const ListToCsvConverter(fieldDelimiter: ';')
@@ -653,22 +520,7 @@ class SavedHandManagerService extends ChangeNotifier {
       buffer.writeln();
     }
     for (final hand in sessionHands) {
-      final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
-      buffer.writeln('## $title');
-      final userAction = hand.expectedAction;
-      if (userAction != null && userAction.isNotEmpty) {
-        buffer.writeln('- Действие: $userAction');
-      }
-      if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
-        buffer.writeln('- GTO: ${hand.gtoAction}');
-      }
-      if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
-        buffer.writeln('- Группа: ${hand.rangeGroup}');
-      }
-      if (hand.comment != null && hand.comment!.isNotEmpty) {
-        buffer.writeln('- Комментарий: ${hand.comment}');
-      }
-      buffer.writeln();
+      buffer.write(ExportUtils.handMarkdown(hand));
     }
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/session_${sessionId}.md');
@@ -697,27 +549,12 @@ class SavedHandManagerService extends ChangeNotifier {
               pw.Text(note.trim(), style: pw.TextStyle(font: regularFont)),
               pw.SizedBox(height: 12),
             ],
-            for (final hand in sessionHands) ...[
-              pw.Text(
-                hand.name.isNotEmpty ? hand.name : 'Без названия',
-                style: pw.TextStyle(font: boldFont, fontSize: 18),
-              ),
-              pw.SizedBox(height: 8),
-              if (hand.expectedAction != null &&
-                  hand.expectedAction!.isNotEmpty)
-                pw.Text('Действие: ${hand.expectedAction}',
-                    style: pw.TextStyle(font: regularFont)),
-              if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
-                pw.Text('GTO: ${hand.gtoAction}',
-                    style: pw.TextStyle(font: regularFont)),
-              if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty)
-                pw.Text('Группа: ${hand.rangeGroup}',
-                    style: pw.TextStyle(font: regularFont)),
-              if (hand.comment != null && hand.comment!.isNotEmpty)
-                pw.Text('Комментарий: ${hand.comment}',
-                    style: pw.TextStyle(font: regularFont)),
-              pw.SizedBox(height: 12),
-            ]
+            for (final hand in sessionHands)
+              ...ExportUtils.handPdfWidgets(
+                hand,
+                regularFont,
+                boldFont,
+              )
           ];
         },
       ),
