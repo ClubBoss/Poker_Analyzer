@@ -178,6 +178,50 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
   @override
   void initState() {
     super.initState();
+    final ids = _mistakeIds;
+    if (ids.isNotEmpty) {
+      final template = widget.template.copyWith(
+        id: const Uuid().v4(),
+        name: 'Review mistakes',
+        spots: [for (final s in widget.template.spots) if (ids.contains(s.id)) s],
+      );
+      MistakeReviewPackService.setLatestTemplate(template);
+      unawaited(context.read<MistakeReviewPackService>().addPack(ids,
+          templateId: widget.template.id));
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final start = await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            backgroundColor: AppColors.cardBackground,
+            title: const Text('Repeat mistakes',
+                style: TextStyle(color: Colors.white)),
+            content: Text('Start ${ids.length} mistakes now?',
+                style: const TextStyle(color: Colors.white70)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        );
+        if (start == true && mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TrainingPackPlayScreen(
+                template: MistakeReviewPackService.cachedTemplate!,
+                original: null,
+              ),
+            ),
+          );
+        }
+      });
+    }
     if (widget.template.id == MistakeReviewPackService.cachedTemplate?.id) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<MistakeReviewPackService>().setProgress(0);
