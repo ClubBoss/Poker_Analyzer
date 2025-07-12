@@ -113,7 +113,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   @override
@@ -679,10 +681,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
             _buildStreakCard(context),
             _buildDailyGoalCard(context),
             const FocusOfTheWeekCard(),
@@ -776,6 +782,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
