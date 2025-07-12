@@ -89,6 +89,17 @@ void main() {
               'Villain folds',
             ].join('\n');
             break;
+          case '888poker_hand_history':
+            sample = [
+              '888poker Hand #1',
+              'Seat 1: Hero (1)',
+              'Seat 2: Villain (1)',
+              '*** HOLE CARDS ***',
+              'Dealt to Hero [Ah Kh]',
+              'Hero raises to 2',
+              'Villain folds',
+            ].join('\n');
+            break;
           default:
             sample = '';
         }
