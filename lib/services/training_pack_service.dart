@@ -118,6 +118,24 @@ class TrainingPackService {
     );
   }
 
+  static Future<TrainingPackTemplate?> createDrillFromWeakestCategory(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final count = <String, int>{};
+    for (final h in hands) {
+      final cat = h.category;
+      final exp = h.expectedAction;
+      final gto = h.gtoAction;
+      if (cat == null || cat.isEmpty) continue;
+      if (exp == null || gto == null) continue;
+      if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
+      count[cat] = (count[cat] ?? 0) + 1;
+    }
+    if (count.isEmpty) return null;
+    final cat = count.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+    return createDrillFromCategory(context, cat);
+  }
+
   static Future<TrainingPackTemplate?> createTopMistakeDrill(
       BuildContext context) async {
     return createDrillFromTopCategories(context);
