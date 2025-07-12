@@ -3,12 +3,15 @@ import 'package:flutter/widgets.dart';
 import '../models/training_spot.dart';
 import '../models/evaluation_result.dart';
 import 'evaluation_executor_service.dart';
+import 'service_registry.dart';
 
 class TrainingSessionController {
-  TrainingSessionController({EvaluationExecutorService? executor})
-      : _executor = executor ?? EvaluationExecutorService();
+  TrainingSessionController({
+    required ServiceRegistry registry,
+    EvaluationExecutor? executor,
+  }) : _executor = executor ?? registry.get<EvaluationExecutor>();
 
-  final EvaluationExecutorService _executor;
+  final EvaluationExecutor _executor;
   TrainingSpot? _currentSpot;
 
   TrainingSpot? get currentSpot => _currentSpot;

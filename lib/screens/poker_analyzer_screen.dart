@@ -3337,6 +3337,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           EvaluationProcessingService(
             queueService: _queueService,
             debugPrefs: _debugPrefs,
+            registry: _serviceRegistry,
             debugSnapshotService: _debugSnapshotService,
           ));
     _processingService = _serviceRegistry.get<EvaluationProcessingService>();

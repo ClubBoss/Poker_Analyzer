@@ -49,13 +49,9 @@ abstract class EvaluationExecutor {
 
 /// Handles execution of a single evaluation request.
 class EvaluationExecutorService implements EvaluationExecutor {
-  EvaluationExecutorService._internal() {
+  EvaluationExecutorService() {
     _initFuture;
   }
-  static final EvaluationExecutorService _instance =
-      EvaluationExecutorService._internal();
-
-  factory EvaluationExecutorService() => _instance;
 
   final Queue<_QueueItem> _queue = Queue();
   final Map<String, EvalResult> _cache = {};

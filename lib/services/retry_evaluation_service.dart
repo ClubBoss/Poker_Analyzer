@@ -1,13 +1,16 @@
 import '../models/action_evaluation_request.dart';
 import 'evaluation_executor_service.dart';
+import 'service_registry.dart';
 import 'evaluation_queue_service.dart';
 
 /// Handles retry operations for evaluation requests.
 class RetryEvaluationService {
-  final EvaluationExecutorService _executorService;
+  final EvaluationExecutor _executor;
 
-  RetryEvaluationService({EvaluationExecutorService? executorService})
-      : _executorService = executorService ?? EvaluationExecutorService();
+  RetryEvaluationService({
+    required ServiceRegistry registry,
+    EvaluationExecutor? executor,
+  }) : _executor = executor ?? registry.get<EvaluationExecutor>();
 
   /// Attempts to execute an evaluation until it succeeds or [maxAttempts] is
   /// reached. The [req]'s `attempts` field will be updated on each failure.
@@ -19,7 +22,7 @@ class RetryEvaluationService {
     var success = false;
     while (!success && req.attempts < maxAttempts) {
       try {
-        await _executorService.execute(req);
+        await _executor.execute(req);
         success = true;
       } catch (_) {
         req.attempts++;
