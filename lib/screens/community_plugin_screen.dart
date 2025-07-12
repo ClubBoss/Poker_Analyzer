@@ -1,16 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
 import '../plugins/plugin_loader.dart';
+import '../plugins/plugin_manager.dart';
 
 class CommunityPlugin {
   final String name;
   final String url;
+  final String version;
   final String? checksum;
   final String? description;
   const CommunityPlugin({
     required this.name,
     required this.url,
+    required this.version,
     this.checksum,
     this.description,
   });
@@ -18,6 +22,7 @@ class CommunityPlugin {
     return CommunityPlugin(
       name: json['name'] as String,
       url: json['url'] as String,
+      version: json['version'] as String,
       checksum: json['checksum'] as String?,
       description: json['description'] as String?,
     );
@@ -33,6 +38,7 @@ class CommunityPluginScreen extends StatefulWidget {
 class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
   static const _url = 'https://pokeranalyzer.app/plugins.json';
   List<CommunityPlugin> _plugins = [];
+  Map<String, Map<String, dynamic>> _status = {};
   bool _loading = true;
 
   @override
@@ -50,6 +56,7 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
           _plugins = [for (final e in data) CommunityPlugin.fromJson(e as Map<String, dynamic>)];
         }
       }
+      _status = await PluginManager().loadStatus();
     } catch (_) {}
     if (mounted) setState(() => _loading = false);
   }
@@ -61,6 +68,7 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Plugin installed')),
         );
+        await _load();
       }
     } catch (e) {
       if (mounted) {
@@ -88,13 +96,21 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
                   itemCount: _plugins.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final p = _plugins[index];
+                    final plugin = _plugins[index];
+                    final file = p.basename(Uri.parse(plugin.url).path);
+                    final localVersion = _status[file]?['version'] as String?;
+                    final installed = localVersion != null;
+                    final needsUpdate = installed && localVersion != plugin.version;
+                    final subtitle = <Widget>[Text('v${plugin.version}')];
+                    if (plugin.description != null) subtitle.add(Text(plugin.description!));
+                    if (needsUpdate)
+                      subtitle.add(Text('Installed v$localVersion', style: const TextStyle(color: Colors.red)));
                     return ListTile(
-                      title: Text(p.name),
-                      subtitle: p.description == null ? null : Text(p.description!),
+                      title: Text(plugin.name),
+                      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: subtitle),
                       trailing: TextButton(
-                        onPressed: () => _install(p),
-                        child: const Text('Install'),
+                        onPressed: installed && !needsUpdate ? null : () => _install(plugin),
+                        child: Text(needsUpdate ? 'Update' : installed ? 'Installed' : 'Install'),
                       ),
                     );
                   },
