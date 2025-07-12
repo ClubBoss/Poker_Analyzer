@@ -1292,6 +1292,22 @@ class SavedHandManagerService extends ChangeNotifier {
     return result;
   }
 
+  List<MapEntry<String, double>> getTopMistakeCategories({int limit = 3}) {
+    final map = <String, double>{};
+    for (final h in hands) {
+      final cat = h.category;
+      final exp = h.expectedAction;
+      final gto = h.gtoAction;
+      if (cat == null || cat.isEmpty) continue;
+      if (exp == null || gto == null) continue;
+      if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
+      map[cat] = (map[cat] ?? 0) + (h.evLoss ?? 0);
+    }
+    final list = map.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return list.take(limit).toList();
+  }
+
   TrainingPackTemplate createPack(String name, List<SavedHand> selected) {
     HeroPosition _pos(String s) => parseHeroPosition(s);
 
