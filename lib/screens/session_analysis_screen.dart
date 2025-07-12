@@ -11,7 +11,7 @@ import '../services/mistake_review_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../services/pack_export_service.dart';
 import '../services/file_saver_service.dart';
-import '../widgets/saved_hand_viewer_dialog.dart';
+import 'session_replay_screen.dart';
 import '../widgets/common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
 import '../theme/constants.dart';
@@ -382,7 +382,17 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                         'EV: ${_evs[i].toStringAsFixed(2)} • ICM: ${_icms[i].toStringAsFixed(2)}',
                         style: const TextStyle(color: Colors.white70),
                       ),
-                      onTap: () => showSavedHandViewerDialog(context, list[i]),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SessionReplayScreen(
+                              hands: list,
+                              initialIndex: i,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
