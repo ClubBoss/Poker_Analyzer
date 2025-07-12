@@ -28,6 +28,7 @@ import '../widgets/ev_icm_chart.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../plugins/converters/888poker_hand_history_converter.dart';
 import 'v2/training_pack_play_screen.dart';
+import 'session_replay_screen.dart';
 
 class SessionAnalysisImportScreen extends StatefulWidget {
   const SessionAnalysisImportScreen({super.key});
@@ -175,6 +176,14 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     );
   }
 
+  void _replay() {
+    if (_hands.isEmpty) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => SessionReplayScreen(hands: _hands)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,6 +226,8 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
               Text('Accuracy: ${_summary!.accuracy.toStringAsFixed(1)}%', style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 16),
               EvIcmChart(hands: _hands),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: _replay, child: const Text('Replay Session')),
               const SizedBox(height: 16),
               if (_hands.any((h) => h.expectedAction != null && h.gtoAction != null && h.expectedAction!.toLowerCase() != h.gtoAction!.toLowerCase()))
                 ElevatedButton(onPressed: _review, child: const Text('🔥 Review mistakes')),
