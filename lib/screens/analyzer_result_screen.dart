@@ -8,27 +8,62 @@ import '../services/saved_hand_manager_service.dart';
 import 'training_session_screen.dart';
 import '../theme/app_colors.dart';
 
-class AnalyzerResultScreen extends StatelessWidget {
+class AnalyzerResultScreen extends StatefulWidget {
   final SavedHand hand;
   const AnalyzerResultScreen({super.key, required this.hand});
 
+  @override
+  State<AnalyzerResultScreen> createState() => _AnalyzerResultScreenState();
+}
+
+class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final loss = widget.hand.evLoss ?? 0;
+      if (loss.abs() >= 1.0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('EV Loss ≥ 1.0'),
+            action: SnackBarAction(
+              label: 'Тренировать похожее',
+              onPressed: () async {
+                final tpl = await TrainingPackService.createSimilarMistakeDrill(widget.hand);
+                if (tpl == null) return;
+                await context.read<TrainingSessionService>().startSession(tpl);
+                if (context.mounted) {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                  );
+                }
+              },
+            ),
+          ),
+        );
+      }
+    });
+  }
+
   bool get _isMistake {
-    final exp = hand.expectedAction?.trim().toLowerCase();
-    final gto = hand.gtoAction?.trim().toLowerCase();
+    final exp = widget.hand.expectedAction?.trim().toLowerCase();
+    final gto = widget.hand.gtoAction?.trim().toLowerCase();
     if (exp == null || gto == null) return false;
+    if ((widget.hand.evLoss ?? 0).abs() < 1.0) return false;
     return exp != gto;
   }
 
   @override
   Widget build(BuildContext context) {
     final similarCount = context.select<SavedHandManagerService, int>((s) {
-      final cat = hand.category;
-      final pos = hand.heroPosition;
-      final stack = hand.stackSizes[hand.heroIndex];
+      final cat = widget.hand.category;
+      final pos = widget.hand.heroPosition;
+      final stack = widget.hand.stackSizes[widget.hand.heroIndex];
       if (cat == null || stack == null) return 0;
       return s.hands
           .where((h) =>
-              h != hand &&
+              h != widget.hand &&
               h.category == cat &&
               h.heroPosition == pos &&
               h.stackSizes[h.heroIndex] == stack &&
@@ -50,8 +85,8 @@ class AnalyzerResultScreen extends StatelessWidget {
                 FloatingActionButton.extended(
                   onPressed: () async {
                     final tpl =
-                        await TrainingPackService.createDrillFromSimilarHands(
-                            context, hand);
+                        await TrainingPackService.createSimilarMistakeDrill(
+                            widget.hand);
                     if (tpl == null) return;
                     await context
                         .read<TrainingSessionService>()
