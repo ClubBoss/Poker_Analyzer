@@ -4,12 +4,21 @@ import 'package:provider/provider.dart';
 
 import '../services/training_stats_service.dart';
 import '../services/achievement_engine.dart';
+import '../services/progress_forecast_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
   const TrainingProgressAnalyticsScreen({super.key});
+
+  Future<void> _exportCsv(BuildContext context) async {
+    final file = await context.read<ProgressForecastService>().exportForecastCsv();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
+    );
+  }
 
   Widget _chart(List<MapEntry<DateTime, int>> data, Color color) {
     if (data.length < 2) return const SizedBox(height: 200);
@@ -123,6 +132,11 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
           _chart(stats.sessionsMonthly(12), Colors.greenAccent),
           const SizedBox(height: 12),
           _chart(stats.mistakesMonthly(12), Colors.redAccent),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () => _exportCsv(context),
+            child: const Text('Export CSV'),
+          ),
         ],
       ),
     );

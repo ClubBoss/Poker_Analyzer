@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+
 import '../models/saved_hand.dart';
 import 'saved_hand_manager_service.dart';
 import 'player_style_service.dart';
@@ -180,6 +186,24 @@ class ProgressForecastService extends ChangeNotifier {
       ev: data.last.ev + slopeEv,
       icm: data.last.icm + slopeIcm,
     );
+  }
+
+  Future<File> exportForecastCsv() async {
+    final rows = <List<dynamic>>[];
+    rows.add(['Date', 'Accuracy', 'EV', 'ICM']);
+    for (final e in _history) {
+      rows.add([
+        e.date.toIso8601String().split('T').first,
+        (e.accuracy * 100).toStringAsFixed(1),
+        e.ev.toStringAsFixed(2),
+        e.icm.toStringAsFixed(3),
+      ]);
+    }
+    final csv = const ListToCsvConverter().convert(rows, eol: '\r\n');
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/progress_forecast.csv');
+    await file.writeAsString(csv, encoding: utf8);
+    return file;
   }
 
   @override
