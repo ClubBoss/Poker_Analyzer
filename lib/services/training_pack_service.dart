@@ -140,6 +140,22 @@ class TrainingPackService {
       BuildContext context) async {
     return createDrillFromTopCategories(context);
   }
+
+  static Future<TrainingPackTemplate?> createRepeatDrillForCorrected(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final list = [
+      for (final h in hands)
+        if (h.corrected && (h.evLoss ?? 0).abs() >= 1.0) h
+    ];
+    if (list.isEmpty) return null;
+    final spots = [for (final h in list) _spotFromHand(h)];
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Repeat Corrected Drill',
+      spots: spots,
+    );
+  }
   static Future<TrainingPackTemplate?> createRepeatForCorrected(BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
     final hand = hands.reversed.firstWhereOrNull((h) => h.corrected);
