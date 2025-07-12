@@ -10,7 +10,7 @@ class PluginLoader {
 
   Future<Map<String, bool>> loadConfig() async => <String, bool>{};
 
-  Future<Plugin?> loadFromFile(dynamic file) async => null;
+  Future<Plugin?> loadFromFile(dynamic file, PluginManager manager) async => null;
 
   Future<void> downloadFromUrl(String url, {String? checksum}) async {}
 

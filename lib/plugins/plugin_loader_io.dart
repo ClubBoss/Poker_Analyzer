@@ -124,11 +124,12 @@ class PluginLoader {
     return _config!;
   }
 
-  Future<Plugin?> loadFromFile(File file) async {
+  Future<Plugin?> loadFromFile(File file, PluginManager manager) async {
     final name = p.basename(file.path);
     final config = await loadConfig();
     if (config[name] == false) {
       ErrorLogger.instance.logError('Plugin skipped: $name');
+      await manager.logStatus(name, 'skipped');
       return null;
     }
     final port = ReceivePort();
@@ -144,13 +145,17 @@ class PluginLoader {
       }
       if (plugin != null) {
         ErrorLogger.instance.logError('Plugin loaded: $name');
+        await manager.logStatus(name, 'loaded');
         return plugin;
       }
       ErrorLogger.instance.logError('Plugin failed: $name');
+      await manager.logStatus(name, 'failed');
     } on TimeoutException {
       ErrorLogger.instance.logError('Plugin timeout: $name');
+      await manager.logStatus(name, 'failed');
     } catch (e, st) {
       ErrorLogger.instance.logError('Plugin failed: $name', e, st);
+      await manager.logStatus(name, 'failed');
     } finally {
       isolate?.kill(priority: Isolate.immediate);
       port.close();
@@ -251,7 +256,7 @@ class PluginLoader {
       }
     } else {
       for (final file in files) {
-        final plugin = await loadFromFile(file);
+        final plugin = await loadFromFile(file, manager);
         if (plugin != null) {
           pluginNames.add(plugin.runtimeType.toString());
           loadedPlugins.add(plugin);
@@ -285,6 +290,7 @@ class PluginLoader {
     if (duplicates.isNotEmpty) {
       for (final name in duplicates) {
         ErrorLogger.instance.logError('Duplicate plugin: $name');
+        await manager.logStatus(name, 'duplicate');
       }
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
