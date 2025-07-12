@@ -48,7 +48,7 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
 }
 
 class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScreen> {
-  final _boundaryKey = GlobalKey();
+  final _shareBoundaryKey = GlobalKey();
   TrainingPackTemplate? _weakPack;
 
   @override
@@ -110,7 +110,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
 
   Future<void> _share(BuildContext context) async {
     final boundary =
-        _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+        _shareBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (boundary == null) return;
     final bytes = await PngExporter.captureBoundary(boundary);
     if (bytes == null) return;
@@ -140,7 +140,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
           )
     ].where((s) => s.id.isNotEmpty).toList();
     return RepaintBoundary(
-      key: _boundaryKey,
+      key: _shareBoundaryKey,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.trainingSummary),
