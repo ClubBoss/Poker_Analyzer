@@ -2,6 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
+import 'training_stats_service.dart';
 import 'cloud_sync_service.dart';
 
 class SessionNoteService extends ChangeNotifier {
@@ -71,5 +78,48 @@ class SessionNoteService extends ChangeNotifier {
     if (cloud != null) {
       await cloud!.uploadSessionNotes(_notes);
     }
+  }
+
+  Future<String?> exportAsPdf(TrainingStatsService stats) async {
+    if (_notes.values.every((n) => n.trim().isEmpty)) return null;
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+    final pdf = pw.Document();
+    final entries = _notes.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return [
+            pw.Text('Session Notes', style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 16),
+            pw.Text('Sessions: ${stats.sessionsCompleted}', style: pw.TextStyle(font: regularFont)),
+            pw.Text('Hands: ${stats.handsReviewed}', style: pw.TextStyle(font: regularFont)),
+            pw.Text('Mistakes: ${stats.mistakesFixed}', style: pw.TextStyle(font: regularFont)),
+            pw.Text('Accuracy: ${(stats.evalAccuracy * 100).toStringAsFixed(1)}%', style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 12),
+            for (final e in entries)
+              if (e.value.trim().isNotEmpty) ...[
+                pw.Text('Session ${e.key}', style: pw.TextStyle(font: boldFont, fontSize: 18)),
+                pw.Text(e.value.trim(), style: pw.TextStyle(font: regularFont)),
+                pw.SizedBox(height: 8),
+              ],
+          ];
+        },
+      ),
+    );
+    final bytes = await pdf.save();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/session_notes.pdf');
+    await file.writeAsBytes(bytes, flush: true);
+    await _shareFile(file);
+    return file.path;
+  }
+
+  Future<void> _shareFile(File file) async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      await Permission.storage.request();
+    }
+    await Share.shareXFiles([XFile(file.path)]);
   }
 }
