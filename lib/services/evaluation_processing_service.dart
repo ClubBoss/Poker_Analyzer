@@ -5,6 +5,7 @@ import '../models/action_evaluation_request.dart';
 import 'evaluation_queue_service.dart';
 import 'retry_evaluation_service.dart';
 import 'evaluation_executor_service.dart';
+import 'service_registry.dart';
 import 'backup_manager_service.dart';
 import 'debug_snapshot_service.dart';
 import 'debug_panel_preferences.dart';
@@ -14,15 +15,16 @@ class EvaluationProcessingService {
   EvaluationProcessingService({
     required this.queueService,
     required this.debugPrefs,
+    required this.registry,
     this.backupManager,
     this.debugSnapshotService,
     this.debugPanelCallback,
-    EvaluationExecutorService? executorService,
+    EvaluationExecutor? executor,
     RetryEvaluationService? retryService,
   }) {
-    _executorService = executorService ?? EvaluationExecutorService();
-    _retryService =
-        retryService ?? RetryEvaluationService(executorService: _executorService);
+    _executor = executor ?? registry.get<EvaluationExecutor>();
+    _retryService = retryService ??
+        RetryEvaluationService(registry: registry, executor: _executor);
     debugPrefs.addListener(_onPrefsChanged);
     _initFuture = _initialize();
     queueService.debugPanelCallback = debugPanelCallback;
@@ -30,10 +32,11 @@ class EvaluationProcessingService {
 
   final EvaluationQueueService queueService;
   final DebugPanelPreferences debugPrefs;
+  final ServiceRegistry registry;
   BackupManagerService? backupManager;
   DebugSnapshotService? debugSnapshotService;
 
-  late final EvaluationExecutorService _executorService;
+  late final EvaluationExecutor _executor;
   late final RetryEvaluationService _retryService;
 
   late final Future<void> _initFuture;

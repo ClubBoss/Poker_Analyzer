@@ -118,8 +118,8 @@ Future<void> main() async {
   ab = AbTestEngine(remote: rc);
   await ab.init();
   final cloud = CloudSyncService();
-  await AppBootstrap.init(cloud: cloud);
   final registry = ServiceRegistry();
+  await AppBootstrap.init(cloud: cloud, registry: registry);
   final pluginManager = PluginManager();
   final loader = PluginLoader();
   final dir = Directory('plugins');

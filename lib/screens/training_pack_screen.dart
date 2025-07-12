@@ -54,6 +54,7 @@ import '../services/error_logger_service.dart';
 import '../models/training_spot.dart';
 import '../models/evaluation_result.dart';
 import '../services/evaluation_executor_service.dart';
+import '../services/service_registry.dart';
 import '../services/training_session_controller.dart';
 import '../services/goals_service.dart';
 import '../widgets/replay_spot_widget.dart';
@@ -1899,8 +1900,16 @@ body { font-family: sans-serif; padding: 16px; }
                   providers: [
                     ChangeNotifierProvider(create: (_) => PlayerProfileService()),
                     ChangeNotifierProvider(create: (_) => PlayerManagerService(context.read<PlayerProfileService>())),
-                    Provider.value(value: EvaluationExecutorService()),
-                    Provider(create: (_) => TrainingSessionController()),
+                    Provider<ServiceRegistry>(
+                      create: (_) => ServiceRegistry()
+                        ..register<EvaluationExecutor>(
+                            EvaluationExecutorService()),
+                    ),
+                    Provider(
+                      create: (context) => TrainingSessionController(
+                        registry: context.read<ServiceRegistry>(),
+                      ),
+                    ),
                   ],
                   child: Builder(
                     builder: (context) => ChangeNotifierProvider(
