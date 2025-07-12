@@ -44,14 +44,30 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_stats == null) {
-      return const Scaffold(
-        appBar: AppBar(title: Text('My Stats')),
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('My Stats'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () => context.read<TrainingStatsService>().shareProgress(),
+            )
+          ],
+        ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
     final s = _stats!;
     return Scaffold(
-      appBar: AppBar(title: const Text('My Stats')),
+      appBar: AppBar(
+        title: const Text('My Stats'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () => context.read<TrainingStatsService>().shareProgress(),
+          )
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
