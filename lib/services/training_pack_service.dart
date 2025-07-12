@@ -12,26 +12,26 @@ import '../models/action_entry.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../helpers/poker_position_helper.dart';
 import '../helpers/training_pack_storage.dart';
+import 'pack_generator_service.dart';
 
 class TrainingPackService {
   const TrainingPackService._();
 
   static TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero = h.playerCards[h.heroIndex]
-        .map((c) => '${c.rank}${c.suit}')
-        .join(' ');
+    final hero =
+        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
     final board = [for (final c in h.boardCards) '${c.rank}${c.suit}'];
     final actions = <int, List<ActionEntry>>{};
     for (final a in h.actions) {
       actions.putIfAbsent(a.street, () => []).add(ActionEntry(
-        a.street,
-        a.playerIndex,
-        a.action,
-        amount: a.amount,
-        generated: a.generated,
-        manualEvaluation: a.manualEvaluation,
-        customLabel: a.customLabel,
-      ));
+            a.street,
+            a.playerIndex,
+            a.action,
+            amount: a.amount,
+            generated: a.generated,
+            manualEvaluation: a.manualEvaluation,
+            customLabel: a.customLabel,
+          ));
     }
     final stacks = <String, double>{
       for (final e in h.stackSizes.entries) '${e.key}': e.value.toDouble()
@@ -104,8 +104,8 @@ class TrainingPackService {
       ..sort((a, b) => b.value.compareTo(a.value));
     final spots = <TrainingPackSpot>[];
     for (final e in cats.take(3)) {
-      final list = byCat[e.key]!..sort(
-          (a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+      final list = byCat[e.key]!
+        ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
       for (final h in list.take(5)) {
         spots.add(_spotFromHand(h));
       }
@@ -156,7 +156,9 @@ class TrainingPackService {
       spots: spots,
     );
   }
-  static Future<TrainingPackTemplate?> createRepeatForCorrected(BuildContext context) async {
+
+  static Future<TrainingPackTemplate?> createRepeatForCorrected(
+      BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
     final hand = hands.reversed.firstWhereOrNull((h) => h.corrected);
     if (hand == null) return null;
@@ -185,13 +187,18 @@ class TrainingPackService {
     );
   }
 
-  static Future<TrainingPackTemplate?> createRepeatForIncorrect(BuildContext context) async {
+  static Future<TrainingPackTemplate?> createRepeatForIncorrect(
+      BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
     final hand = hands.reversed.firstWhereOrNull((h) {
       final ev = h.evLoss ?? 0.0;
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
-      return ev.abs() >= 1.0 && !h.corrected && exp != null && gto != null && exp != gto;
+      return ev.abs() >= 1.0 &&
+          !h.corrected &&
+          exp != null &&
+          gto != null &&
+          exp != gto;
     });
     if (hand == null) return null;
     final spot = _spotFromHand(hand);
@@ -226,6 +233,34 @@ class TrainingPackService {
       heroPos: spot.hand.position,
       createdAt: DateTime.now(),
       spots: [spot],
+    );
+    final list = await TrainingPackStorage.load();
+    list.add(template);
+    await TrainingPackStorage.save(list);
+    return template;
+  }
+
+  static Future<TrainingPackTemplate> createRangePack({
+    required String name,
+    required int minBb,
+    required int maxBb,
+    required List<int> playerStacksBb,
+    required HeroPosition heroPos,
+    required List<String> heroRange,
+    int bbCallPct = 20,
+    int anteBb = 0,
+  }) async {
+    final template = PackGeneratorService.generatePushFoldRangePack(
+      id: const Uuid().v4(),
+      name: name,
+      minBb: minBb,
+      maxBb: maxBb,
+      playerStacksBb: playerStacksBb,
+      heroPos: heroPos,
+      heroRange: heroRange,
+      bbCallPct: bbCallPct,
+      anteBb: anteBb,
+      createdAt: DateTime.now(),
     );
     final list = await TrainingPackStorage.load();
     list.add(template);
