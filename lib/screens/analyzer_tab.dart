@@ -20,6 +20,7 @@ import '../services/stack_manager_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/action_history_service.dart';
 import '../services/training_import_export_service.dart';
+import '../widgets/primary_weakness_drill_card.dart';
 import '../widgets/repeat_last_incorrect_card.dart';
 import '../widgets/top_mistake_drill_card.dart';
 import '../widgets/top_categories_drill_card.dart';
@@ -34,8 +35,9 @@ class AnalyzerTab extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PlayerProfileService()),
-        ChangeNotifierProvider(create: (context) =>
-            PlayerManagerService(context.read<PlayerProfileService>())),
+        ChangeNotifierProvider(
+            create: (context) =>
+                PlayerManagerService(context.read<PlayerProfileService>())),
         ChangeNotifierProvider(create: (_) => AllInPlayersService()),
         ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
         ChangeNotifierProvider(
@@ -49,7 +51,8 @@ class AnalyzerTab extends StatelessWidget {
             final history = PotHistoryService();
             final potSync = PotSyncService(historyService: history);
             final stackService = StackManagerService(
-              Map<int, int>.from(context.read<PlayerManagerService>().initialStacks),
+              Map<int, int>.from(
+                  context.read<PlayerManagerService>().initialStacks),
               potSync: potSync,
             );
             return PlaybackManagerService(
@@ -100,7 +103,8 @@ class AnalyzerTab extends StatelessWidget {
               Provider(
                 create: (_) => PlayerEditingService(
                   playerManager: context.read<PlayerManagerService>(),
-                  stackService: context.read<PlaybackManagerService>().stackService,
+                  stackService:
+                      context.read<PlaybackManagerService>().stackService,
                   playbackManager: context.read<PlaybackManagerService>(),
                   profile: context.read<PlayerProfileService>(),
                 ),
@@ -108,6 +112,7 @@ class AnalyzerTab extends StatelessWidget {
             ],
             child: Column(
               children: [
+                const PrimaryWeaknessDrillCard(),
                 const RepeatLastIncorrectCard(),
                 const TopMistakeDrillCard(),
                 const TopCategoriesDrillCard(),
