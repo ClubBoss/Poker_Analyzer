@@ -47,7 +47,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
     const labels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < counts.length; i++) {
-      const color = AppColors.accent;
+      final color = AppColors.accent;
       groups.add(
         BarChartGroupData(
           x: i,

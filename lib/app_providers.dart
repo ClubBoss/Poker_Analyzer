@@ -248,7 +248,7 @@ List<SingleChildWidget> buildTrainingProviders() {
               final service = UserPreferencesService(
                 cloud: context.read<CloudSyncService>(),
               );
-              UserPreferences.init(service);
+              UserPreferences.init(service, context.read<ThemeService>());
               service.load();
               return service;
             },
