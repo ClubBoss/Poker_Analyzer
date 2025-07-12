@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/xp_entry.dart';
-import 'xp_tracker_cloud_service.dart';
+import 'cloud_sync_service.dart';
 
 class XPTrackerService extends ChangeNotifier {
   XPTrackerService({this.cloud});
@@ -12,8 +12,9 @@ class XPTrackerService extends ChangeNotifier {
   static const _boxKey = 'xp_history';
   static const targetXp = 10;
   static const achievementXp = 50;
+  static const _timeKey = 'xp_updated';
 
-  final XPTrackerCloudService? cloud;
+  final CloudSyncService? cloud;
 
   int _xp = 0;
   Box<dynamic>? _box;
@@ -30,6 +31,26 @@ class XPTrackerService extends ChangeNotifier {
     await _box!.clear();
     for (final e in _history) {
       await _box!.put(e.id, e.toJson());
+    }
+  }
+
+  Map<String, dynamic> _toMap() => {
+        'xp': _xp,
+        'entries': [for (final e in _history) e.toJson()],
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
+
+  Future<void> _persist(DateTime ts) async {
+    await _saveXp();
+    await _persistHistory();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_timeKey, ts.toIso8601String());
+  }
+
+  Future<void> _save() async {
+    await _persist(DateTime.now());
+    if (cloud != null) {
+      await cloud!.uploadXp(_toMap());
     }
   }
 
@@ -53,15 +74,34 @@ class XPTrackerService extends ChangeNotifier {
         final map = Map<String, dynamic>.from(e.value as Map);
         return XPEntry.fromJson({'id': e.key.toString(), ...map});
       }));
-    final remote = await cloud?.loadEntries() ?? [];
-    final map = {for (final e in [..._history, ...remote]) e.id: e};
-    _history
-      ..clear()
-      ..addAll(map.values.toList()..sort((a, b) => b.date.compareTo(a.date)));
-    _trim();
+    _xp = prefs.getInt(_xpKey) ?? 0;
+    if (cloud != null) {
+      final remote = await cloud!.downloadXp();
+      if (remote != null) {
+        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+        if (remoteAt.isAfter(localAt)) {
+          final list = remote['entries'];
+          if (list is List) {
+            _history
+              ..clear()
+              ..addAll(list.map((e) =>
+                  XPEntry.fromJson(Map<String, dynamic>.from(e as Map))));
+            _trim();
+            _xp = (remote['xp'] as num?)?.toInt() ??
+                _history.fold(0, (p, e) => p + e.xp);
+            await _persist(remoteAt);
+          }
+        } else if (localAt.isAfter(remoteAt)) {
+          await cloud!.uploadXp(_toMap());
+        }
+      }
+    }
     _xp = _history.fold(0, (p, e) => p + e.xp);
-    await _saveXp();
-    await _persistHistory();
+    await _persist(DateTime.now());
     notifyListeners();
   }
 
@@ -80,9 +120,8 @@ class XPTrackerService extends ChangeNotifier {
     _history.insert(0, entry);
     _trim();
     _xp += xp;
-    await _saveXp();
     await _box!.put(entry.id, entry.toJson());
-    await cloud?.saveEntry(entry);
+    await _save();
     notifyListeners();
   }
 }

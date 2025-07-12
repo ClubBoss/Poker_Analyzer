@@ -20,6 +20,7 @@ class CloudSyncService {
   static const _cols = [
     'training_spots',
     'training_stats',
+    'xp_history',
     'preferences',
     'saved_hands',
     'session_notes',
@@ -408,6 +409,40 @@ class CloudSyncService {
         .collection('users')
         .doc(uid)
         .collection('evaluation_queue')
+        .doc('main')
+        .get();
+    if (!snap.exists) return null;
+    return snap.data();
+  }
+
+  Future<void> uploadTrainingStats(Map<String, dynamic> stats) async {
+    await queueMutation('training_stats', 'main', stats);
+    await syncUp();
+  }
+
+  Future<Map<String, dynamic>?> downloadTrainingStats() async {
+    if (uid == null) return null;
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('training_stats')
+        .doc('main')
+        .get();
+    if (!snap.exists) return null;
+    return snap.data();
+  }
+
+  Future<void> uploadXp(Map<String, dynamic> data) async {
+    await queueMutation('xp_history', 'main', data);
+    await syncUp();
+  }
+
+  Future<Map<String, dynamic>?> downloadXp() async {
+    if (uid == null) return null;
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('xp_history')
         .doc('main')
         .get();
     if (!snap.exists) return null;
