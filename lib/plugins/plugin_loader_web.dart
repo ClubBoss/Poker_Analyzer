@@ -233,6 +233,30 @@ class PluginLoader {
     await _writeCache(cache);
   }
 
+  Future<void> delete(String name) async {
+    final db = await _openDb();
+    var txn = db.transaction('files', 'readwrite');
+    await txn.objectStore('files').delete(name);
+    await txn.completed;
+
+    final config = await loadConfig();
+    config.remove(name);
+    txn = db.transaction('config', 'readwrite');
+    await txn.objectStore('config').put(jsonEncode(config), 'config');
+    await txn.completed;
+    _config = Map<String, bool>.from(config);
+
+    final cache = await _loadCache() ?? <String, dynamic>{};
+    final files = (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
+    files.remove(name);
+    final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+        <String, String>{};
+    checksums.remove(name);
+    cache['files'] = files;
+    cache['checksums'] = checksums;
+    await _writeCache(cache);
+  }
+
   Future<void> loadAll(
     ServiceRegistry registry,
     PluginManager manager, {

@@ -211,6 +211,34 @@ class PluginLoader {
     }
   }
 
+  Future<void> delete(String name) async {
+    final supportDir =
+        Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final supportFile = File(p.join(supportDir.path, name));
+    if (await supportFile.exists()) await supportFile.delete();
+    final rootFile = File(p.join('plugins', name));
+    if (await rootFile.exists()) await rootFile.delete();
+
+    final config = await loadConfig();
+    config.remove(name);
+    await supportDir.create(recursive: true);
+    final configFile = File(p.join(supportDir.path, 'plugin_config.json'));
+    await configFile.writeAsString(jsonEncode(config));
+    _config = Map<String, bool>.from(config);
+
+    final cache = await _loadCache() ?? <String, dynamic>{};
+    final files = (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
+    files.remove(name);
+    final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+        <String, String>{};
+    checksums.remove(name);
+    cache['files'] = files;
+    cache['checksums'] = checksums;
+    final f = await _cacheFile();
+    await f.writeAsString(jsonEncode(cache));
+    _cache = cache;
+  }
+
   Future<void> loadAll(
     ServiceRegistry registry,
     PluginManager manager, {
