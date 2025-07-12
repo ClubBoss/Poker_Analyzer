@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
+import 'progress_export_service.dart';
 import 'cloud_sync_service.dart';
 import '../models/training_stats.dart';
 import '../models/saved_hand.dart';
@@ -264,6 +266,13 @@ class TrainingStatsService extends ChangeNotifier {
       rows.add([key, sMap[d] ?? 0, hMap[d] ?? 0, mMap[d] ?? 0]);
     }
     return rows;
+  }
+
+  Future<void> shareProgress({bool weekly = false}) async {
+    final exporter = ProgressExportService(stats: this);
+    final csv = await exporter.exportCsv(weekly: weekly);
+    final pdf = await exporter.exportPdf(weekly: weekly);
+    await Share.shareXFiles([XFile(csv.path), XFile(pdf.path)]);
   }
 
   Map<String, int> _loadMap(SharedPreferences prefs, String key) {

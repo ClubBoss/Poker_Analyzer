@@ -8,6 +8,7 @@ import 'package:pdf/pdf.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
+import '../services/training_stats_service.dart';
 import '../helpers/category_translations.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
@@ -367,6 +368,10 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Экспорт',
             onPressed: () => _exportPdf(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () => context.read<TrainingStatsService>().shareProgress(),
           )
         ],
       ),
