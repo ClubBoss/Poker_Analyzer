@@ -44,13 +44,18 @@ class _SessionStats {
 }
 
 class SavedHandManagerService extends ChangeNotifier {
+  static SavedHandManagerService? _instance;
+  static SavedHandManagerService? get instance => _instance;
+
   SavedHandManagerService({
     required SavedHandStorageService storage,
     CloudSyncService? cloud,
     TrainingStatsService? stats,
   })  : _storage = storage,
         _cloud = cloud,
-        _stats = stats;
+        _stats = stats {
+    _instance = this;
+  }
 
   final SavedHandStorageService _storage;
   final TrainingStatsService? _stats;
