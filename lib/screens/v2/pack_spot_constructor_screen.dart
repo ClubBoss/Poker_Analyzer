@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:provider/provider.dart';
+import '../../models/v2/training_pack_template.dart';
+import '../../services/evaluation_executor_service.dart';
 import '../../models/card_model.dart';
 import '../../widgets/card_picker_widget.dart';
 import '../../widgets/action_editor_list.dart';
@@ -57,6 +60,17 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
         actions: {0: List<ActionEntry>.from(_actions)},
       ),
     );
+    final tpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Custom Pack',
+      heroBbStack: hero.round(),
+      playerStacksBb: [hero.round(), vil.round()],
+      heroPos: _pos,
+      spots: [spot],
+    );
+    await context
+        .read<EvaluationExecutorService>()
+        .evaluateSingle(context, spot, template: tpl, anteBb: spot.hand.anteBb);
     await TrainingPackService.saveCustomSpot(spot);
     if (mounted) Navigator.pop(context, true);
   }
