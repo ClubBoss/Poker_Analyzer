@@ -961,6 +961,23 @@ class SavedHandManagerService extends ChangeNotifier {
     return grouped;
   }
 
+  List<SavedHand> filtered({String? tag, String? position, DateTimeRange? range}) {
+    return [
+      for (final h in hands)
+        if ((tag == null || h.tags.contains(tag)) &&
+            (position == null || h.heroPosition == position) &&
+            (range == null ||
+                (!h.date.isBefore(range.start) && !h.date.isAfter(range.end))))
+          h
+    ];
+  }
+
+  List<SavedHand> byTag(String tag) => filtered(tag: tag);
+
+  List<SavedHand> byPosition(String position) => filtered(position: position);
+
+  List<SavedHand> byDateRange(DateTimeRange range) => filtered(range: range);
+
   /// Return the list of hands in the current error-free streak.
   ///
   /// Hands are returned in chronological order and only include
