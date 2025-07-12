@@ -213,6 +213,37 @@ part of 'training_pack_template_editor_screen.dart';
                   ),
                 ],
               ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      final range = await const RangeImportExportService()
+                          .readRange(widget.template.id);
+                      if (range != null) set(() {
+                        _rangeStr = range.join(' ');
+                        rangeCtr.text = _rangeStr;
+                        rangeErr = _rangeStr.trim().isNotEmpty &&
+                            PackGeneratorService.parseRangeString(_rangeStr).isEmpty;
+                      });
+                    },
+                    child: const Text('Import Range'),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () async {
+                      final list =
+                          PackGeneratorService.parseRangeString(_rangeStr).toList();
+                      await const RangeImportExportService()
+                          .writeRange(widget.template.id, list);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text('Range saved')));
+                      }
+                    },
+                    child: const Text('Export Range'),
+                  ),
+                ],
+              ),
               SwitchListTile(
                 title: const Text('PNG with JSON'),
                 value: _previewJsonPng,
