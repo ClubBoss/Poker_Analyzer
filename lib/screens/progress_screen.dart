@@ -19,6 +19,7 @@ import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/xp_tracker_service.dart';
+import '../services/training_stats_service.dart';
 import '../models/summary_result.dart';
 import '../models/saved_hand.dart';
 import '../theme/app_colors.dart';
@@ -119,21 +120,14 @@ class _ProgressScreenState extends State<ProgressScreen>
 
     final start = DateTime.now().subtract(const Duration(days: 6));
     final weekStart = DateTime(start.year, start.month, start.day);
-    final packs = context.read<TrainingPackStorageService>().packs;
-    final evMap = <DateTime, double>{};
-    for (final p in packs) {
-      for (final h in p.hands) {
-        final loss = h.evLoss;
-        if (loss == null) continue;
-        final d = DateTime(h.date.year, h.date.month, h.date.day);
-        if (d.isBefore(weekStart)) continue;
-        evMap.update(d, (v) => v + loss, ifAbsent: () => loss);
-      }
-    }
+    final stats = context.read<TrainingStatsService>();
+    final evLossMap = {
+      for (final e in stats.getDailyEvLossData(hands)) e.key: e.value
+    };
     final evLoss = <MapEntry<DateTime, double>>[];
     for (int i = 0; i < 7; i++) {
       final d = weekStart.add(Duration(days: i));
-      evLoss.add(MapEntry(d, -(evMap[d] ?? 0))); 
+      evLoss.add(MapEntry(d, -(evLossMap[d] ?? 0)));
     }
     final weekAcc = <MapEntry<DateTime, double>>[];
     final days = weekMap.keys
