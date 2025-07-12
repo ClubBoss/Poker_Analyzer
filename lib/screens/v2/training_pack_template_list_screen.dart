@@ -37,6 +37,7 @@ import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import 'training_pack_play_screen.dart';
 import 'training_pack_loader.dart';
+import 'pack_spot_constructor_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/mistake_review_pack_service.dart';
 import '../../services/mixed_drill_history_service.dart';
@@ -3275,6 +3276,19 @@ class _TrainingPackTemplateListScreenState
             heroTag: 'importCsvTplFab',
             onPressed: _importCsv,
             child: const Icon(Icons.upload_file),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'manualTplFab',
+            onPressed: () async {
+              final created = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const PackSpotConstructorScreen()),
+              );
+              if (created == true) refreshFromStorage();
+            },
+            label: const Text('Создать вручную'),
           ),
           const SizedBox(height: 12),
           FloatingActionButton(
