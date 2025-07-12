@@ -11,6 +11,7 @@ import '../models/v2/hero_position.dart';
 import '../models/action_entry.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../helpers/poker_position_helper.dart';
+import '../helpers/training_pack_storage.dart';
 
 class TrainingPackService {
   const TrainingPackService._();
@@ -157,5 +158,27 @@ class TrainingPackService {
       name: 'Drill: ${hand.name}',
       spots: [spot],
     );
+  }
+
+  static Future<TrainingPackTemplate> saveCustomSpot(
+      TrainingPackSpot spot) async {
+    final hero = spot.hand.stacks['0']?.round() ?? 0;
+    final players = [
+      for (int i = 0; i < spot.hand.playerCount; i++)
+        (spot.hand.stacks['$i'] ?? 0).round()
+    ];
+    final template = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Custom Pack',
+      heroBbStack: hero,
+      playerStacksBb: players,
+      heroPos: spot.hand.position,
+      createdAt: DateTime.now(),
+      spots: [spot],
+    );
+    final list = await TrainingPackStorage.load();
+    list.add(template);
+    await TrainingPackStorage.save(list);
+    return template;
   }
 }
