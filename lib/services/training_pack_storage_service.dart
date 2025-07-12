@@ -130,19 +130,7 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   Future<void> addCustomPack(TrainingPack pack) async {
-    final newPack = TrainingPack(
-      name: pack.name,
-      description: pack.description,
-      category: pack.category,
-      gameType: pack.gameType,
-      colorTag: pack.colorTag,
-      isBuiltIn: false,
-      tags: pack.tags,
-      hands: pack.hands,
-      spots: pack.spots,
-      difficulty: pack.difficulty,
-      history: const [],
-    );
+    final newPack = pack.copyWith(isBuiltIn: false, history: const []);
     _packs.add(newPack);
     await _persist();
     await _sync(newPack);
@@ -206,18 +194,9 @@ class TrainingPackStorageService extends ChangeNotifier {
         name = '$base ($idx)';
         idx++;
       }
-      final imported = TrainingPack(
+      final imported = pack.copyWith(
         name: name,
-        description: pack.description,
-        category: pack.category,
-        gameType: pack.gameType,
-        colorTag: pack.colorTag,
         isBuiltIn: false,
-        tags: pack.tags,
-        hands: pack.hands,
-        spots: pack.spots,
-        difficulty: pack.difficulty,
-        history: pack.history,
       );
       _packs.add(imported);
       await _persist();
@@ -245,63 +224,30 @@ class TrainingPackStorageService extends ChangeNotifier {
     if (index == -1) return;
     final trimmed = newName.trim();
     if (trimmed.isEmpty || trimmed == pack.name) return;
-      _packs[index] = TrainingPack(
-        name: trimmed,
-        description: pack.description,
-        category: pack.category,
-        gameType: pack.gameType,
-        colorTag: pack.colorTag,
-        isBuiltIn: pack.isBuiltIn,
-        tags: pack.tags,
-        hands: pack.hands,
-        spots: pack.spots,
-        difficulty: pack.difficulty,
-        history: pack.history,
-      );
+    final updated = pack.copyWith(name: trimmed);
+    _packs[index] = updated;
     await _persist();
-    await _sync(_packs[index]);
+    await _sync(updated);
     notifyListeners();
   }
 
   Future<void> setColorTag(TrainingPack pack, String color) async {
     final index = _packs.indexOf(pack);
     if (index == -1) return;
-    _packs[index] = TrainingPack(
-      name: pack.name,
-      description: pack.description,
-      category: pack.category,
-      gameType: pack.gameType,
-      colorTag: color,
-      isBuiltIn: pack.isBuiltIn,
-      tags: pack.tags,
-      hands: pack.hands,
-      spots: pack.spots,
-      difficulty: pack.difficulty,
-      history: pack.history,
-    );
+    final updated = pack.copyWith(colorTag: color);
+    _packs[index] = updated;
     await _persist();
-    await _sync(_packs[index]);
+    await _sync(updated);
     notifyListeners();
   }
 
   Future<void> setTags(TrainingPack pack, List<String> tags) async {
     final index = _packs.indexOf(pack);
     if (index == -1) return;
-    _packs[index] = TrainingPack(
-      name: pack.name,
-      description: pack.description,
-      category: pack.category,
-      gameType: pack.gameType,
-      colorTag: pack.colorTag,
-      isBuiltIn: pack.isBuiltIn,
-      tags: tags,
-      hands: pack.hands,
-      spots: pack.spots,
-      difficulty: pack.difficulty,
-      history: pack.history,
-    );
+    final updated = pack.copyWith(tags: tags);
+    _packs[index] = updated;
     await _persist();
-    await _sync(_packs[index]);
+    await _sync(updated);
     notifyListeners();
   }
 
@@ -309,23 +255,12 @@ class TrainingPackStorageService extends ChangeNotifier {
     final index = _packs.indexOf(pack);
     if (index == -1 || pack.history.isEmpty) return;
     final history = List<TrainingSessionResult>.from(pack.history)..removeLast();
-    _packs[index] = TrainingPack(
-      name: pack.name,
-      description: pack.description,
-      category: pack.category,
-      gameType: pack.gameType,
-      colorTag: pack.colorTag,
-      isBuiltIn: pack.isBuiltIn,
-      tags: pack.tags,
-      hands: pack.hands,
-      spots: pack.spots,
-      difficulty: pack.difficulty,
-      history: history,
-    );
+    final updated = pack.copyWith(history: history);
+    _packs[index] = updated;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('training_progress_${pack.name}');
     await _persist();
-    await _sync(_packs[index]);
+    await _sync(updated);
     notifyListeners();
   }
 
@@ -342,19 +277,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       total: total,
       correct: solved,
     ));
-    final updated = TrainingPack(
-      name: pack.name,
-      description: pack.description,
-      category: pack.category,
-      gameType: pack.gameType,
-      colorTag: pack.colorTag,
-      isBuiltIn: pack.isBuiltIn,
-      tags: pack.tags,
-      hands: pack.hands,
-      spots: pack.spots,
-      difficulty: pack.difficulty,
-      history: history,
-    );
+    final updated = pack.copyWith(history: history);
     _packs[index] = updated;
     await _persist();
     await _sync(updated);
@@ -524,20 +447,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       TrainingPack pack, PackSnapshot snap) async {
     final index = _packs.indexOf(pack);
     if (index == -1) return null;
-    final updated = TrainingPack(
-      name: pack.name,
-      description: pack.description,
-      category: pack.category,
-      gameType: pack.gameType,
-      colorTag: pack.colorTag,
-      isBuiltIn: pack.isBuiltIn,
-      tags: snap.tags,
-      hands: snap.hands,
-      spots: pack.spots,
-      difficulty: pack.difficulty,
-      history: pack.history,
-      id: pack.id,
-    );
+    final updated = pack.copyWith(tags: snap.tags, hands: snap.hands);
     _packs[index] = updated;
     await _persist();
     await _sync(updated);
@@ -608,20 +518,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       updatedHands.add(mods[h.savedAt.millisecondsSinceEpoch] ?? h);
     }
     updatedHands.addAll(added);
-    final updated = TrainingPack(
-      id: prev.id,
-      name: prev.name,
-      description: prev.description,
-      category: prev.category,
-      gameType: prev.gameType,
-      colorTag: prev.colorTag,
-      isBuiltIn: prev.isBuiltIn,
-      tags: prev.tags,
-      hands: updatedHands,
-      spots: prev.spots,
-      difficulty: prev.difficulty,
-      history: prev.history,
-    );
+    final updated = prev.copyWith(hands: updatedHands);
     _packs[index] = updated;
     notifyListeners();
     return prev;
