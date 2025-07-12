@@ -13,6 +13,7 @@ import '../widgets/sync_status_widget.dart';
 import 'evaluation_settings_screen.dart';
 import '../services/notification_service.dart';
 import '../services/remote_config_service.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -28,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _showActionHints;
   late bool _coachMode;
   late bool _simpleNavigation;
+  late Color _accentColor;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
 
   @override
@@ -40,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showActionHints = prefs.showActionHints;
     _coachMode = prefs.coachMode;
     _simpleNavigation = prefs.simpleNavigation;
+    _accentColor = prefs.accentColor;
     NotificationService.getReminderTime(context)
         .then((t) => setState(() => _reminderTime = t));
   }
@@ -82,6 +85,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (picked != null) {
       await NotificationService.updateReminderTime(context, picked);
       setState(() => _reminderTime = picked);
+    }
+  }
+
+  Future<void> _pickAccentColor() async {
+    Color selected = _accentColor;
+    final result = await showDialog<Color>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Accent Color'),
+        content: StatefulBuilder(
+          builder: (context, setStateDialog) => BlockPicker(
+            pickerColor: selected,
+            onColorChanged: (c) => setStateDialog(() => selected = c),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, selected),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (result != null) {
+      await UserPreferences.instance.setAccentColor(result);
+      setState(() => _accentColor = result);
     }
   }
 
@@ -199,6 +232,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Reminder Time'),
               subtitle: Text(_reminderTime.format(context)),
               onTap: _pickReminderTime,
+            ),
+            ListTile(
+              title: const Text('Accent Color'),
+              leading: CircleAvatar(backgroundColor: _accentColor),
+              onTap: _pickAccentColor,
             ),
             const SizedBox(height: 8),
             ElevatedButton(

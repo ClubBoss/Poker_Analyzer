@@ -580,7 +580,7 @@ class _TrainingPackTemplateListScreenState
                   strokeWidth: 8,
                   backgroundColor: Colors.white24,
                   valueColor:
-                      const AlwaysStoppedAnimation(AppColors.accent),
+                      AlwaysStoppedAnimation(AppColors.accent),
                 ),
                 Text('${(value * 100).round()}%',
                     style: const TextStyle(
@@ -877,7 +877,7 @@ class _TrainingPackTemplateListScreenState
                   strokeWidth: 3,
                   backgroundColor: Colors.white24,
                   valueColor:
-                      const AlwaysStoppedAnimation(AppColors.accent),
+                      AlwaysStoppedAnimation(AppColors.accent),
                 ),
               ),
             ),
@@ -2975,7 +2975,7 @@ class _TrainingPackTemplateListScreenState
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.insights, color: AppColors.accent),
+                        Icon(Icons.insights, color: AppColors.accent),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(

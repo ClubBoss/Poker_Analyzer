@@ -1091,8 +1091,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
                   child: ListTile(
-                    leading:
-                        const Icon(Icons.error, color: AppColors.accent),
+                    leading: Icon(Icons.error, color: AppColors.accent),
                     title: Text(l.reviewMistakes),
                     onTap: () async {
                       final tpl = await service.buildPack(context);

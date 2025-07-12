@@ -1,14 +1,17 @@
+import 'package:flutter/material.dart';
 import 'services/user_preferences_service.dart';
+import 'services/theme_service.dart';
 
 class UserPreferences {
-  UserPreferences._(this.service);
+  UserPreferences._(this.service, this.theme);
 
   static late final UserPreferences instance;
 
   final UserPreferencesService service;
+  final ThemeService theme;
 
-  static void init(UserPreferencesService service) {
-    instance = UserPreferences._(service);
+  static void init(UserPreferencesService service, ThemeService theme) {
+    instance = UserPreferences._(service, theme);
   }
 
   bool get showPotAnimation => service.showPotAnimation;
@@ -19,6 +22,7 @@ class UserPreferences {
   bool get demoMode => service.demoMode;
   bool get tutorialCompleted => service.tutorialCompleted;
   bool get simpleNavigation => service.simpleNavigation;
+  Color get accentColor => theme.accentColor;
 
   Future<void> setShowPotAnimation(bool value) => service.setShowPotAnimation(value);
   Future<void> setShowCardReveal(bool value) => service.setShowCardReveal(value);
@@ -28,4 +32,5 @@ class UserPreferences {
   Future<void> setDemoMode(bool value) => service.setDemoMode(value);
   Future<void> setSimpleNavigation(bool value) => service.setSimpleNavigation(value);
   Future<void> setTutorialCompleted(bool value) => service.setTutorialCompleted(value);
+  Future<void> setAccentColor(Color value) => theme.setAccentColor(value);
 }

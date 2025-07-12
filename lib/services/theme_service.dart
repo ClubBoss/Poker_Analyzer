@@ -4,13 +4,17 @@ import '../theme/app_colors.dart';
 
 class ThemeService extends ChangeNotifier {
   static const _key = 'theme_mode';
+  static const _accentKey = 'accent_color';
   ThemeMode _mode = ThemeMode.dark;
+  Color _accent = AppColors.accent;
+
   ThemeMode get mode => _mode;
+  Color get accentColor => _accent;
 
   ThemeData get lightTheme => ThemeData(
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.accent,
+          seedColor: _accent,
           brightness: Brightness.light,
         ),
         scaffoldBackgroundColor: AppColors.background,
@@ -25,7 +29,7 @@ class ThemeService extends ChangeNotifier {
   ThemeData get darkTheme => ThemeData(
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.accent,
+          seedColor: _accent,
           brightness: Brightness.dark,
         ),
         scaffoldBackgroundColor: AppColors.background,
@@ -45,6 +49,8 @@ class ThemeService extends ChangeNotifier {
     } else {
       _mode = ThemeMode.dark;
     }
+    _accent = Color(prefs.getInt(_accentKey) ?? AppColors.accent.value);
+    AppColors.accent = _accent;
     notifyListeners();
   }
 
@@ -52,6 +58,15 @@ class ThemeService extends ChangeNotifier {
     _mode = _mode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, _mode.name);
+    notifyListeners();
+  }
+
+  Future<void> setAccentColor(Color color) async {
+    if (_accent == color) return;
+    _accent = color;
+    AppColors.accent = color;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_accentKey, color.value);
     notifyListeners();
   }
 }
