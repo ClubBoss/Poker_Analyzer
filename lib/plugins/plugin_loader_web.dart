@@ -8,6 +8,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:poker_analyzer/core/error_logger.dart';
 import '../services/service_registry.dart';
+import '../main.dart';
 import 'converter_discovery_plugin.dart';
 import 'converter_plugin.dart';
 import 'plugin.dart';
@@ -205,11 +206,26 @@ class PluginLoader {
     return null;
   }
 
-  Future<void> downloadFromUrl(String url, {String? checksum}) async {
+  Future<bool> downloadFromUrl(String url, {String? checksum}) async {
     final uri = Uri.parse(url);
     final name = uri.pathSegments.last;
     if (!name.endsWith(_suffix)) {
       throw Exception('Invalid plugin file');
+    }
+    final cached = await _loadCache();
+    final cachedDigest =
+        (cached?['checksums'] as Map?)?.cast<String, String>()[name];
+    final existing = await _readFile(name);
+    if (checksum != null &&
+        cachedDigest != null &&
+        cachedDigest == checksum.toLowerCase() &&
+        existing != null) {
+      final ctx = navigatorKey.currentState?.context;
+      if (ctx != null && ctx.mounted) {
+        ScaffoldMessenger.of(ctx)
+            .showSnackBar(const SnackBar(content: Text('Plugin up to date')));
+      }
+      return false;
     }
     final request = await HttpRequest.request(url, responseType: 'arraybuffer');
     if (request.status != 200) {
@@ -225,12 +241,13 @@ class PluginLoader {
     final txn = db.transaction('files', 'readwrite');
     await txn.objectStore('files').put(code, name);
     await txn.completed;
-    final cache = await _loadCache() ?? <String, dynamic>{};
-    final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
-        <String, String>{};
+    final cacheMap = cached ?? <String, dynamic>{};
+    final checksums =
+        (cacheMap['checksums'] as Map?)?.cast<String, String>() ?? <String, String>{};
     checksums[name] = digest;
-    cache['checksums'] = checksums;
-    await _writeCache(cache);
+    cacheMap['checksums'] = checksums;
+    await _writeCache(cacheMap);
+    return true;
   }
 
   Future<void> loadAll(

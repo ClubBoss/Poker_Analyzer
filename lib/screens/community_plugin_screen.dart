@@ -56,10 +56,11 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
 
   Future<void> _install(CommunityPlugin p) async {
     try {
-      await PluginLoader().downloadFromUrl(p.url, checksum: p.checksum);
+      final downloaded =
+          await PluginLoader().downloadFromUrl(p.url, checksum: p.checksum);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Plugin installed')),
+          SnackBar(content: Text(downloaded ? 'Plugin installed' : 'Plugin up to date')),
         );
       }
     } catch (e) {

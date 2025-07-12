@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:poker_analyzer/core/error_logger.dart';
 import 'package:poker_analyzer/services/service_registry.dart';
+import '../main.dart';
 
 import 'converter_discovery_plugin.dart';
 import 'converter_plugin.dart';
@@ -172,16 +173,30 @@ class PluginLoader {
     return null;
   }
 
-  Future<void> downloadFromUrl(String url, {String? checksum}) async {
+  Future<bool> downloadFromUrl(String url, {String? checksum}) async {
     final uri = Uri.parse(url);
     final name = p.basename(uri.path);
     if (!name.endsWith(_suffix)) {
       throw Exception('Invalid plugin file');
     }
-    final dir = Directory(
-        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final dir =
+        Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, name));
+    final cached = await _loadCache();
+    final cachedDigest =
+        (cached?['checksums'] as Map?)?.cast<String, String>()[name];
+    if (checksum != null &&
+        cachedDigest != null &&
+        cachedDigest == checksum.toLowerCase() &&
+        await file.exists()) {
+      final ctx = navigatorKey.currentState?.context;
+      if (ctx != null && ctx.mounted) {
+        ScaffoldMessenger.of(ctx)
+            .showSnackBar(const SnackBar(content: Text('Plugin up to date')));
+      }
+      return false;
+    }
     final client = HttpClient();
     try {
       final request = await client.getUrl(uri);
@@ -193,14 +208,14 @@ class PluginLoader {
           .fold<BytesBuilder>(BytesBuilder(), (b, d) => b..add(d))
           .then((b) => b.takeBytes());
       await file.writeAsBytes(bytes);
-      final digest = sha256.convert(await file.readAsBytes()).toString();
+      final digest = sha256.convert(bytes).toString();
       if (checksum != null && checksum.toLowerCase() != digest) {
         await file.delete();
         throw Exception('Checksum mismatch');
       }
-      final cache = await _loadCache() ?? <String, dynamic>{};
-      final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
-          <String, String>{};
+      final cache = cached ?? <String, dynamic>{};
+      final checksums =
+          (cache['checksums'] as Map?)?.cast<String, String>() ?? <String, String>{};
       checksums[name] = digest;
       cache['checksums'] = checksums;
       final f = await _cacheFile();
@@ -209,6 +224,7 @@ class PluginLoader {
     } finally {
       client.close(force: true);
     }
+    return true;
   }
 
   Future<void> loadAll(

@@ -118,9 +118,11 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
       ),
     );
     try {
-      await PluginLoader().downloadFromUrl(url);
+      final downloaded = await PluginLoader().downloadFromUrl(url);
       if (mounted) {
-        messenger.showSnackBar(const SnackBar(content: Text('Plugin downloaded')));
+        messenger.showSnackBar(
+          SnackBar(content: Text(downloaded ? 'Plugin downloaded' : 'Plugin up to date')),
+        );
       }
       _urlCtr.clear();
     } catch (e) {
