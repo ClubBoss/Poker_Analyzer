@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 
@@ -31,11 +32,15 @@ import '../helpers/training_pack_storage.dart';
 import '../services/evaluation_logic_service.dart';
 import 'evaluation_settings_service.dart';
 import '../models/evaluation_mode.dart';
+import '../services/training_pack_service.dart';
+import '../services/training_session_service.dart';
+import '../screens/training_session_screen.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
   Future<void> execute(ActionEvaluationRequest req);
-  EvaluationResult evaluateSpot(BuildContext context, TrainingSpot spot, String userAction);
+  EvaluationResult evaluateSpot(
+      BuildContext context, TrainingSpot spot, String userAction);
   Future<EvalResult> evaluate(EvalRequest request);
   SummaryResult summarizeHands(List<SavedHand> hands);
 }
@@ -82,9 +87,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final completer = Completer<EvalResult>();
     _queue.add(_QueueItem(request, completer));
     _processQueue();
-    return completer.future
-        .timeout(const Duration(seconds: 3))
-        .then((res) {
+    return completer.future.timeout(const Duration(seconds: 3)).then((res) {
       TrainingStatsService.instance?.addEvalResult(res.score);
       return res;
     });
@@ -133,7 +136,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
           ? spot.playerCards[spot.heroIndex]
           : <CardModel>[];
       if (spot.boardCards.isEmpty && cards.length >= 2) {
-        final code = handCode('${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+        final code = handCode(
+            '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
         final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
         if (code != null && stack <= 15) {
           final ev = computePushEV(
@@ -176,9 +180,12 @@ class EvaluationExecutorService implements EvaluationExecutor {
   /// The initial implementation simply checks if the action matches the
   /// expected action for the hero at the given training spot.
   @override
-  EvaluationResult evaluateSpot(BuildContext context, TrainingSpot spot, String userAction) {
-    final expectedAction =
-        spot.recommendedAction ?? _evaluatePushFold(spot) ?? _heroAction(spot) ?? '-';
+  EvaluationResult evaluateSpot(
+      BuildContext context, TrainingSpot spot, String userAction) {
+    final expectedAction = spot.recommendedAction ??
+        _evaluatePushFold(spot) ??
+        _heroAction(spot) ??
+        '-';
     final normExpected = expectedAction.trim().toLowerCase();
     final normUser = userAction.trim().toLowerCase();
     final correct = normUser == normExpected;
@@ -186,9 +193,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
         spot.equities != null && spot.equities!.length > spot.heroIndex
             ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
             : 0.5;
-    final userEquity = correct
-        ? expectedEquity
-        : (expectedEquity - 0.1).clamp(0.0, 1.0);
+    final userEquity =
+        correct ? expectedEquity : (expectedEquity - 0.1).clamp(0.0, 1.0);
     String? hint;
     if (!correct) {
       for (final t in spot.tags) {
@@ -212,7 +218,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final goals = GoalsService.instance;
     if (goals != null) {
       if (correct) {
-        final progress = goals.goals.length > 1 ? goals.goals[1].progress + 1 : 1;
+        final progress =
+            goals.goals.length > 1 ? goals.goals[1].progress + 1 : 1;
         goals.setProgress(1, progress, context: context);
         goals.updateErrorFreeStreak(true, context: context);
       } else {
@@ -376,8 +383,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
       }
     }
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++)
-        hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
@@ -413,6 +419,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     EvaluationMode mode = EvaluationMode.ev,
     SavedHand? hand,
   }) async {
+    String? category;
     final prevEv = spot.heroEv;
     final prevIcm = spot.heroIcmEv;
     final settings = EvaluationSettingsService.instance;
@@ -477,28 +484,29 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final heroPushEv = spot.heroEv ?? 0;
     const foldEv = 0.0;
     spot.correctAction = heroPushEv >= foldEv ? 'push' : 'fold';
-      spot.explanation = spot.correctAction == 'push'
-          ? '+${(heroPushEv - foldEv).toStringAsFixed(2)} BB vs fold'
-          : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
-      if (hand != null) {
-        final act = heroAction(hand)?.action.trim().toLowerCase();
-        if (act != null) {
-          final bestEv = spot.correctAction == 'push' ? heroPushEv : foldEv;
-          final heroEv = act == 'push' ? heroPushEv : foldEv;
-          double loss = bestEv - heroEv;
-          var updated = hand.copyWith(
-            gtoAction: spot.correctAction,
-            evLoss: loss,
-          );
-          if (updated.category == null || updated.category!.isEmpty) {
-            final cat = const MistakeCategorizer().classify(updated);
-            updated = updated.copyWith(category: cat);
-          }
-          await context.read<SavedHandManagerService>().save(updated);
+    spot.explanation = spot.correctAction == 'push'
+        ? '+${(heroPushEv - foldEv).toStringAsFixed(2)} BB vs fold'
+        : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
+    if (hand != null) {
+      final act = heroAction(hand)?.action.trim().toLowerCase();
+      if (act != null) {
+        final bestEv = spot.correctAction == 'push' ? heroPushEv : foldEv;
+        final heroEv = act == 'push' ? heroPushEv : foldEv;
+        double loss = bestEv - heroEv;
+        var updated = hand.copyWith(
+          gtoAction: spot.correctAction,
+          evLoss: loss,
+        );
+        if (updated.category == null || updated.category!.isEmpty) {
+          final cat = const MistakeCategorizer().classify(updated);
+          updated = updated.copyWith(category: cat);
         }
+        await context.read<SavedHandManagerService>().save(updated);
+        category = updated.category;
       }
-      if (template != null) {
-        TemplateCoverageUtils.recountAll(template);
+    }
+    if (template != null) {
+      TemplateCoverageUtils.recountAll(template);
       final changed = prev == null ||
           !const DeepCollectionEquality().equals(
             prev.toJson(),
@@ -510,6 +518,31 @@ class EvaluationExecutorService implements EvaluationExecutor {
       if (changed || tagChanged || autoChanged) {
         await TrainingPackStorage.save([template]);
       }
+    }
+    if (spot.evalResult != null &&
+        !spot.evalResult!.correct &&
+        category != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Train this category?'),
+          action: SnackBarAction(
+            label: 'Train',
+            onPressed: () async {
+              final tpl = await TrainingPackService.createDrillFromCategory(
+                  context, category!);
+              if (tpl == null) return;
+              await context.read<TrainingSessionService>().startSession(tpl);
+              if (context.mounted) {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const TrainingSessionScreen()),
+                );
+              }
+            },
+          ),
+        ),
+      );
     }
   }
 
