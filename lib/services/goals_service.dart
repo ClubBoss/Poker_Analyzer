@@ -10,6 +10,8 @@ import '../screens/progress_screen.dart';
 import '../models/goal_progress_entry.dart';
 import '../models/drill_session_result.dart';
 import '../models/saved_hand.dart';
+import '../models/ev_recovery_goal.dart';
+import 'saved_hand_manager_service.dart';
 import 'streak_service.dart';
 import 'user_action_logger.dart';
 
@@ -200,6 +202,24 @@ class GoalsService extends ChangeNotifier {
     if (list.isEmpty) return 0;
     final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);
     return sum / list.length * 100;
+  }
+
+  EvRecoveryGoal? get weeklyEvRecoveryGoal {
+    final stats = TrainingStatsService.instance;
+    final hands = SavedHandManagerService.instance?.hands;
+    if (stats == null || hands == null) return null;
+    final list = stats.evWeekly(hands, 2);
+    if (list.length < 2) return null;
+    final prev = list[list.length - 2].value;
+    final curr = list.last.value;
+    final target = prev < 0 ? -prev : 0.0;
+    final progress = curr < 0 ? -curr : 0.0;
+    return EvRecoveryGoal(
+      type: 'recovery',
+      target: target,
+      progress: progress,
+      completed: progress < target,
+    );
   }
 
   List<GoalProgressEntry> historyFor(int index) =>
