@@ -159,6 +159,15 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     await _load();
   }
 
+  Future<void> _delete(String file) async {
+    await PluginLoader().delete(file);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Plugin deleted')));
+    }
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
@@ -207,6 +216,11 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
                           color: accent,
                           onPressed: () => _retry(file),
                         ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        color: accent,
+                        onPressed: () => _delete(file),
+                      ),
                       Switch(
                         value: enabled,
                         activeColor: accent,
