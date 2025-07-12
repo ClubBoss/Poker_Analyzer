@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
+import '../models/card_model.dart';
 import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/card_picker_widget.dart';
 
 class SavedHandEditorScreen extends StatefulWidget {
   final SavedHand hand;
@@ -20,6 +22,10 @@ class SavedHandEditorScreen extends StatefulWidget {
 
 class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
   late Map<int, List<ActionEntry>> _actions;
+  late HeroPosition _position;
+  late List<CardModel> _cards;
+  late Map<int, TextEditingController> _stacks;
+  late TextEditingController _expected;
 
   @override
   void initState() {
@@ -30,6 +36,16 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
         ActionEntry(a.street, a.playerIndex, a.action, amount: a.amount),
       );
     }
+    _position = _posFromString(widget.hand.heroPosition);
+    _cards = widget.hand.heroIndex < widget.hand.playerCards.length
+        ? List<CardModel>.from(widget.hand.playerCards[widget.hand.heroIndex])
+        : <CardModel>[];
+    _stacks = {
+      for (int i = 0; i < widget.hand.numberOfPlayers; i++)
+        i: TextEditingController(
+            text: (widget.hand.stackSizes[i] ?? 0).toString())
+    };
+    _expected = TextEditingController(text: widget.hand.expectedAction ?? '');
   }
 
   void _add(int s) {
@@ -84,7 +100,27 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
   Future<void> _save() async {
     final list = <ActionEntry>[];
     for (int s = 0; s < 4; s++) list.addAll(_actions[s]!);
-    var hand = widget.hand.copyWith(actions: list);
+    final stacks = {
+      for (int i = 0; i < widget.hand.numberOfPlayers; i++)
+        i: int.tryParse(_stacks[i]?.text ?? '') ?? 0
+    };
+    final cards = <List<CardModel>>[for (final l in widget.hand.playerCards) List<CardModel>.from(l)];
+    if (cards.length <= widget.hand.heroIndex) {
+      cards.length = widget.hand.heroIndex + 1;
+      while (cards.length <= widget.hand.heroIndex) {
+        cards.add(<CardModel>[]);
+      }
+    }
+    if (cards.length > widget.hand.heroIndex) {
+      cards[widget.hand.heroIndex] = List<CardModel>.from(_cards);
+    }
+    var hand = widget.hand.copyWith(
+      actions: list,
+      heroPosition: _position.label,
+      stackSizes: stacks,
+      playerCards: cards,
+      expectedAction: _expected.text.trim().isEmpty ? null : _expected.text.trim(),
+    );
     final heroCards = hand.playerCards.length > hand.heroIndex
         ? hand.playerCards[hand.heroIndex]
         : <dynamic>[];
@@ -120,6 +156,15 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
   }
 
   @override
+  void dispose() {
+    for (final c in _stacks.values) {
+      c.dispose();
+    }
+    _expected.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     const names = ['Preflop', 'Flop', 'Turn', 'River'];
     return Scaffold(
@@ -132,6 +177,70 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Hero Cards', style: TextStyle(color: Colors.white)),
+            ),
+            const SizedBox(height: 8),
+            CardPickerWidget(
+              cards: _cards,
+              onChanged: (i, c) => setState(() {
+                if (_cards.length > i) {
+                  _cards[i] = c;
+                } else {
+                  _cards.add(c);
+                }
+              }),
+              disabledCards: const {},
+            ),
+            const SizedBox(height: 16),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Position', style: TextStyle(color: Colors.white)),
+            ),
+            DropdownButton<HeroPosition>(
+              value: _position,
+              dropdownColor: Colors.black,
+              onChanged: (v) => setState(() => _position = v ?? _position),
+              items: [
+                for (final p in HeroPosition.values)
+                  if (p != HeroPosition.unknown)
+                    DropdownMenuItem(
+                        value: p,
+                        child: Text(p.label, style: const TextStyle(color: Colors.white)))
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Stacks (BB)', style: TextStyle(color: Colors.white)),
+            ),
+            const SizedBox(height: 8),
+            for (int i = 0; i < widget.hand.numberOfPlayers; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: TextField(
+                  controller: _stacks[i],
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'P${i + 1}',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _expected,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Action',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
             for (int s = 0; s < 4; s++)
               _StreetBlock(
                 title: names[s],
