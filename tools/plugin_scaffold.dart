@@ -35,6 +35,15 @@ class $name implements Plugin {
   List<ServiceExtension<dynamic>> get extensions => <ServiceExtension<dynamic>>[
         ${name}Extension(),
       ];
+
+  @override
+  String get name => '$name';
+
+  @override
+  String get description => '';
+
+  @override
+  String get version => '1.0.0';
 }
 ''';
   file.writeAsStringSync(content);

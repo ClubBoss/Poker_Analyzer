@@ -20,6 +20,15 @@ class _PluginA implements Plugin {
 
   @override
   List<ServiceExtension<dynamic>> get extensions => <ServiceExtension<dynamic>>[_IntExtension()];
+
+  @override
+  String get name => 'A';
+
+  @override
+  String get description => '';
+
+  @override
+  String get version => '1.0.0';
 }
 
 class _PluginB implements Plugin {
@@ -30,6 +39,15 @@ class _PluginB implements Plugin {
     registerCount++;
     registry.register<bool>(true);
   }
+
+  @override
+  String get name => 'B';
+
+  @override
+  String get description => '';
+
+  @override
+  String get version => '1.0.0';
 }
 
 void main() {

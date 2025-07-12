@@ -13,7 +13,8 @@ class PluginManager {
   /// List of loaded plug-ins.
   final List<Plugin> _plugins = <Plugin>[];
 
-  final Map<String, String> _status = <String, String>{};
+  final Map<String, Map<String, dynamic>> _info =
+      <String, Map<String, dynamic>>{};
 
   Future<File> _logFile() async {
     final dir = await getApplicationSupportDirectory();
@@ -26,26 +27,33 @@ class PluginManager {
       try {
         final data = await file.readAsString();
         final map = jsonDecode(data) as Map<String, dynamic>;
-        _status
+        _info
           ..clear()
-          ..addAll(map.map((k, v) => MapEntry(k, v.toString())));
+          ..addAll(map.map((k, v) => MapEntry(k, Map<String, dynamic>.from(v))));
       } catch (_) {}
     }
   }
 
   Future<void> _saveLog() async {
     final file = await _logFile();
-    await file.writeAsString(jsonEncode(_status));
+    await file.writeAsString(jsonEncode(_info));
   }
 
-  Future<Map<String, String>> loadStatus() async {
-    if (_status.isEmpty) await _loadLog();
-    return _status;
+  Future<Map<String, Map<String, dynamic>>> loadStatus() async {
+    if (_info.isEmpty) await _loadLog();
+    return _info;
   }
 
-  Future<void> logStatus(String name, String status) async {
+  Future<void> logStatus(String file, String status, {Plugin? plugin}) async {
     await _loadLog();
-    _status[name] = status;
+    final entry = _info[file] ?? <String, dynamic>{};
+    entry['status'] = status;
+    if (plugin != null) {
+      entry['name'] = plugin.name;
+      entry['description'] = plugin.description;
+      entry['version'] = plugin.version;
+    }
+    _info[file] = entry;
     await _saveLog();
   }
 

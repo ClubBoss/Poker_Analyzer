@@ -15,6 +15,12 @@ abstract class Plugin implements PluginInterface {
   @override
   List<ServiceExtension<dynamic>> get extensions => <ServiceExtension<dynamic>>[];
 
+  String get name;
+
+  String get description;
+
+  String get version;
+
   @override
   void unregister(ServiceRegistry registry) {}
 }

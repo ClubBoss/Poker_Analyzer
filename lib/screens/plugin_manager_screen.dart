@@ -20,7 +20,7 @@ class PluginManagerScreen extends StatefulWidget {
 class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Map<String, bool> _config = <String, bool>{};
   List<String> _files = <String>[];
-  Map<String, String> _status = <String, String>{};
+  Map<String, Map<String, dynamic>> _status = <String, Map<String, dynamic>>{};
   final TextEditingController _urlCtr = TextEditingController();
 
   @override
@@ -60,7 +60,9 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     setState(() {
       _config = Map<String, bool>.from(config);
       _files = files;
-      _status = Map<String, String>.from(status);
+      _status = status.map(
+        (k, v) => MapEntry(k, Map<String, dynamic>.from(v)),
+      );
     });
   }
 
@@ -173,12 +175,27 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
               itemBuilder: (context, index) {
                 final file = _files[index];
                 final enabled = _config[file] ?? true;
-                final status = _status[file];
+                final info = _status[file];
+                final status = info?['status'] as String?;
+                final name = info?['name'] as String?;
+                final desc = info?['description'] as String?;
+                final version = info?['version'] as String?;
+                final subtitleWidgets = <Widget>[];
+                if (name != null) subtitleWidgets.add(Text(name));
+                if (version != null)
+                  subtitleWidgets.add(Text('v$version'));
+                if (desc != null) subtitleWidgets.add(Text(desc));
+                if (status != null && status != 'loaded')
+                  subtitleWidgets.add(
+                      Text(status, style: const TextStyle(color: Colors.red)));
                 return ListTile(
                   title: Text(file),
-                  subtitle: status != null && status != 'loaded'
-                      ? Text(status, style: const TextStyle(color: Colors.red))
-                      : null,
+                  subtitle: subtitleWidgets.isEmpty
+                      ? null
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: subtitleWidgets,
+                        ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
