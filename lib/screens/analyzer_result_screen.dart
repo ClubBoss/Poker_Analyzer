@@ -79,7 +79,10 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
       gtoAction: spot.correctAction,
     );
     await context.read<SavedHandManagerService>().save(updated);
-    if (mounted) setState(() => _hand = updated);
+    if (mounted) {
+      setState(() => _hand = updated);
+      await _offerDrill();
+    }
   }
 
   @override
@@ -109,6 +112,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
           ),
         );
       }
+      await _offerDrill();
     });
   }
 
@@ -118,6 +122,37 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
     if (exp == null || gto == null) return false;
     if ((_hand.evLoss ?? 0).abs() < 1.0) return false;
     return exp != gto;
+  }
+
+  Future<void> _offerDrill() async {
+    if (!_isMistake) return;
+    final start = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.grey[850],
+        title: const Text('Создать тренировку?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Позже'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Тренировать'),
+          ),
+        ],
+      ),
+    );
+    if (start == true) {
+      final tpl = TrainingPackService.createDrillFromHand(_hand);
+      await context.read<TrainingSessionService>().startSession(tpl);
+      if (context.mounted) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+        );
+      }
+    }
   }
 
   @override
