@@ -3,15 +3,22 @@ import 'package:provider/provider.dart';
 
 import '../services/progress_forecast_service.dart';
 import '../models/training_result.dart';
-import '../widgets/daily_ev_icm_chart.dart';
+import '../widgets/ev_icm_trend_chart.dart';
 import '../widgets/common/accuracy_chart.dart';
 import '../widgets/common/average_accuracy_chart.dart';
 import '../widgets/sync_status_widget.dart';
 import '../theme/app_colors.dart';
 
-class ProgressOverviewScreen extends StatelessWidget {
+class ProgressOverviewScreen extends StatefulWidget {
   static const route = '/progress_overview';
   const ProgressOverviewScreen({super.key});
+
+  @override
+  State<ProgressOverviewScreen> createState() => _ProgressOverviewScreenState();
+}
+
+class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
+  EvIcmTrendMode _mode = EvIcmTrendMode.weekly;
 
   List<TrainingResult> _sessions(List<ProgressEntry> history) {
     return [
@@ -34,12 +41,35 @@ class ProgressOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Progress Overview'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context)],
+        actions: [
+          ToggleButtons(
+            isSelected: [
+              _mode == EvIcmTrendMode.weekly,
+              _mode == EvIcmTrendMode.monthly,
+            ],
+            onPressed: (i) => setState(() => _mode = EvIcmTrendMode.values[i]),
+            borderRadius: BorderRadius.circular(4),
+            selectedColor: Colors.white,
+            fillColor: Colors.blueGrey,
+            color: Colors.white70,
+            children: const [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text('Неделя'),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text('Месяц'),
+              ),
+            ],
+          ),
+          SyncStatusIcon.of(context)
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const DailyEvIcmChart(),
+          EvIcmTrendChart(mode: _mode),
           const SizedBox(height: 16),
           if (hasData) AccuracyChart(sessions: sessions) else _placeholder(),
           if (hasData) AverageAccuracyChart(sessions: sessions),
