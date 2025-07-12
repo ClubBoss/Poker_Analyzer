@@ -303,7 +303,11 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
             ],
             supportedLocales: const [
               Locale('en'),
+              Locale('es'),
+              Locale('fr'),
               Locale('ru'),
+              Locale('pt'),
+              Locale('de'),
             ],
             routes: {
               WeaknessOverviewScreen.route: (_) => const WeaknessOverviewScreen(),
