@@ -11,7 +11,6 @@ import 'package:uuid/uuid.dart';
 import '../models/action_evaluation_request.dart';
 import 'backup_manager_service.dart';
 import 'debug_snapshot_service.dart';
-import 'retry_evaluation_service.dart';
 import 'cloud_sync_service.dart';
 
 class EvaluationQueueService {
@@ -40,13 +39,14 @@ class EvaluationQueueService {
 
   // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
-  late final RetryEvaluationService _retryService;
   late final Future<void> _initFuture;
   /// Optional callback invoked whenever the queue state changes so the
   /// debug panel can update immediately.
   VoidCallback? debugPanelCallback;
   BackupManagerService? backupManager;
   DebugSnapshotService? debugSnapshotService;
+
+  Timer? _persistTimer;
 
   void attachBackupManager(BackupManagerService manager) {
     backupManager = manager;
@@ -57,13 +57,11 @@ class EvaluationQueueService {
   }
 
   EvaluationQueueService({
-    RetryEvaluationService? retryService,
     this.debugPanelCallback,
     this.backupManager,
     this.debugSnapshotService,
     this.cloud,
   }) {
-    _retryService = retryService ?? RetryEvaluationService();
     _initFuture = _initialize();
   }
 
@@ -152,8 +150,8 @@ class EvaluationQueueService {
       await _initFuture;
       final file = File('$_documentsDirPath/evaluation_current_queue.json');
       final tmpFile = File('${file.path}.tmp');
-      final state = await state();
-      await _writeJson(tmpFile, state);
+      final data = await state();
+      await _writeJson(tmpFile, data);
       try {
         await tmpFile.rename(file.path);
       } catch (e) {
@@ -186,12 +184,19 @@ class EvaluationQueueService {
     debugPanelCallback?.call();
   }
 
+  void _schedulePersist() {
+    _persistTimer?.cancel();
+    _persistTimer = Timer(const Duration(seconds: 1), () {
+      unawaited(_persist());
+    });
+  }
+
   /// Exposes persistence for external helpers.
   Future<void> persist() async => _persist();
 
   Future<void> addToQueue(ActionEvaluationRequest req) async {
     await _queueLock.synchronized(() => pending.add(req));
-    await _persist();
+    _schedulePersist();
   }
 
 
@@ -289,25 +294,25 @@ class EvaluationQueueService {
     await _queueLock.synchronized(pending.clear);
     failed.clear();
     completed.clear();
-    await _persist();
+    _schedulePersist();
   }
 
   /// Remove only pending evaluations.
   Future<void> clearPending() async {
     await _queueLock.synchronized(pending.clear);
-    await _persist();
+    _schedulePersist();
   }
 
   /// Remove only failed evaluations.
   Future<void> clearFailed() async {
     failed.clear();
-    await _persist();
+    _schedulePersist();
   }
 
   /// Remove only completed evaluations.
   Future<void> clearCompleted() async {
     completed.clear();
-    await _persist();
+    _schedulePersist();
   }
 
   /// Replace the entire pending queue with [items].
@@ -317,7 +322,7 @@ class EvaluationQueueService {
         ..clear()
         ..addAll(items);
     });
-    await _persist();
+    _schedulePersist();
   }
 
   /// Reorder [queue] moving the item at [oldIndex] to [newIndex].
@@ -327,7 +332,7 @@ class EvaluationQueueService {
       final item = queue.removeAt(oldIndex);
       queue.insert(newIndex, item);
     });
-    await _persist();
+    _schedulePersist();
   }
 
   int _deduplicateList(List<ActionEvaluationRequest> list, Set<String> seenIds) {
@@ -352,7 +357,7 @@ class EvaluationQueueService {
       removed += _deduplicateList(completed, seen);
     });
     if (removed > 0) {
-      await _persist();
+      _schedulePersist();
     }
     return removed;
   }
@@ -402,7 +407,7 @@ class EvaluationQueueService {
     });
 
     if (removed > 0) {
-      await _persist();
+      _schedulePersist();
     }
     return removed;
   }
