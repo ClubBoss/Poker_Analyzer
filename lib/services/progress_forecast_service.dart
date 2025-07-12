@@ -8,11 +8,15 @@ class ProgressEntry {
   final double accuracy;
   final double ev;
   final double icm;
+  final String position;
+  final String? tag;
   const ProgressEntry({
     required this.date,
     required this.accuracy,
     required this.ev,
     required this.icm,
+    required this.position,
+    this.tag,
   });
 }
 
@@ -31,14 +35,22 @@ class ProgressForecastService extends ChangeNotifier {
   final SavedHandManagerService hands;
   final PlayerStyleService style;
   List<ProgressEntry> _history = const [];
+  Map<String, List<ProgressEntry>> _positionHistory = {};
+  Map<String, List<ProgressEntry>> _tagHistory = {};
   ProgressForecast _forecast = const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
 
   List<ProgressEntry> get history => List.unmodifiable(_history);
+  Iterable<String> get positions => _positionHistory.keys;
+  Iterable<String> get tags => _tagHistory.keys;
   ProgressForecast get forecast => _forecast;
   List<MapEntry<DateTime, double>> get evSeries =>
       [for (final e in _history) MapEntry(e.date, e.ev)];
   List<MapEntry<DateTime, double>> get icmSeries =>
       [for (final e in _history) MapEntry(e.date, e.icm)];
+  List<ProgressEntry> positionSeries(String pos) =>
+      List.unmodifiable(_positionHistory[pos] ?? const []);
+  List<ProgressEntry> tagSeries(String tag) =>
+      List.unmodifiable(_tagHistory[tag] ?? const []);
 
   ProgressForecastService({required this.hands, required this.style}) {
     _update();
@@ -48,40 +60,70 @@ class ProgressForecastService extends ChangeNotifier {
 
   void _update() {
     final map = <DateTime, List<SavedHand>>{};
+    final posMap = <String, Map<DateTime, List<SavedHand>>>{};
+    final tagMap = <String, Map<DateTime, List<SavedHand>>>{};
     for (final h in hands.hands) {
       final day = DateTime(h.date.year, h.date.month, h.date.day);
       map.putIfAbsent(day, () => []).add(h);
-    }
-    final entries = map.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
-    final hist = <ProgressEntry>[];
-    for (final e in entries) {
-      int correct = 0;
-      int total = 0;
-      double ev = 0;
-      double icm = 0;
-      int evCount = 0;
-      for (final h in e.value) {
-        final exp = h.expectedAction?.trim().toLowerCase();
-        final gto = h.gtoAction?.trim().toLowerCase();
-        if (exp != null && gto != null) {
-          total++;
-          if (exp == gto) correct++;
-        }
-        final hev = h.heroEv;
-        if (hev != null) {
-          ev += hev;
-          evCount++;
-        }
-        final hicm = h.heroIcmEv;
-        if (hicm != null) icm += hicm;
+      posMap.putIfAbsent(h.heroPosition, () => {})
+          .putIfAbsent(day, () => [])
+          .add(h);
+      for (final t in h.tags) {
+        tagMap.putIfAbsent(t, () => {})
+            .putIfAbsent(day, () => [])
+            .add(h);
       }
-      final acc = total > 0 ? correct / total : 0;
-      final avgEv = evCount > 0 ? ev / evCount : 0;
-      final avgIcm = evCount > 0 ? icm / evCount : 0;
-      hist.add(ProgressEntry(date: e.key, accuracy: acc, ev: avgEv, icm: avgIcm));
     }
-    _history = hist;
-    var f = _calcForecast(hist);
+
+    List<ProgressEntry> _build(Map<DateTime, List<SavedHand>> source,
+        {String position = '', String? tag}) {
+      final entries = source.entries.toList()
+        ..sort((a, b) => a.key.compareTo(b.key));
+      final list = <ProgressEntry>[];
+      for (final e in entries) {
+        int correct = 0;
+        int total = 0;
+        double ev = 0;
+        double icm = 0;
+        int evCount = 0;
+        for (final h in e.value) {
+          final exp = h.expectedAction?.trim().toLowerCase();
+          final gto = h.gtoAction?.trim().toLowerCase();
+          if (exp != null && gto != null) {
+            total++;
+            if (exp == gto) correct++;
+          }
+          final hev = h.heroEv;
+          if (hev != null) {
+            ev += hev;
+            evCount++;
+          }
+          final hicm = h.heroIcmEv;
+          if (hicm != null) icm += hicm;
+        }
+        final acc = total > 0 ? correct / total : 0;
+        final avgEv = evCount > 0 ? ev / evCount : 0;
+        final avgIcm = evCount > 0 ? icm / evCount : 0;
+        list.add(ProgressEntry(
+            date: e.key,
+            accuracy: acc,
+            ev: avgEv,
+            icm: avgIcm,
+            position: position,
+            tag: tag));
+      }
+      return list;
+    }
+
+    _history = _build(map);
+    _positionHistory = {
+      for (final e in posMap.entries) e.key: _build(e.value, position: e.key)
+    };
+    _tagHistory = {
+      for (final e in tagMap.entries) e.key: _build(e.value, tag: e.key)
+    };
+
+    var f = _calcForecast(_history);
     switch (style.style) {
       case PlayerStyle.aggressive:
         f = ProgressForecast(
