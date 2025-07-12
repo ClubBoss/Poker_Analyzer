@@ -3,6 +3,9 @@ import 'training_spot.dart';
 import 'session_task_result.dart';
 import 'game_type.dart';
 import 'package:uuid/uuid.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'training_pack.g.dart';
 
 GameType parseGameType(dynamic v) {
   final s = (v as String? ?? '').toLowerCase();
@@ -10,6 +13,7 @@ GameType parseGameType(dynamic v) {
   return GameType.cash;
 }
 
+@JsonSerializable(explicitToJson: true)
 class TrainingSessionResult {
   final DateTime date;
   final int total;
@@ -23,26 +27,12 @@ class TrainingSessionResult {
     List<SessionTaskResult>? tasks,
   }) : tasks = tasks ?? [];
 
-  Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'total': total,
-        'correct': correct,
-        'tasks': [for (final t in tasks) t.toJson()],
-      };
-
-  static TrainingSessionResult fromJson(Map<String, dynamic> json) {
-    return TrainingSessionResult(
-      date: DateTime.parse(json['date']),
-      total: json['total'],
-      correct: json['correct'],
-      tasks: [
-        for (final t in (json['tasks'] as List? ?? []))
-          SessionTaskResult.fromJson(Map<String, dynamic>.from(t))
-      ],
-    );
-  }
+  factory TrainingSessionResult.fromJson(Map<String, dynamic> json) =>
+      _$TrainingSessionResultFromJson(json);
+  Map<String, dynamic> toJson() => _$TrainingSessionResultToJson(this);
 }
 
+@JsonSerializable(explicitToJson: true)
 class TrainingPack {
   final String id;
   final String name;
@@ -80,44 +70,9 @@ class TrainingPack {
   DateTime get lastAttemptDate =>
       history.isNotEmpty ? history.last.date : DateTime.fromMillisecondsSinceEpoch(0);
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'category': category,
-        'gameType': gameType.name,
-        'colorTag': colorTag,
-        'isBuiltIn': isBuiltIn,
-        if (tags.isNotEmpty) 'tags': tags,
-        'hands': [for (final h in hands) h.toJson()],
-        if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
-        'difficulty': difficulty,
-        'history': [for (final r in history) r.toJson()],
-      };
-
-  factory TrainingPack.fromJson(Map<String, dynamic> json) => TrainingPack(
-        id: json['id'] as String?,
-        name: json['name'] as String? ?? '',
-        description: json['description'] as String? ?? '',
-        category: json['category'] as String? ?? 'Uncategorized',
-        gameType: parseGameType(json['gameType']),
-        colorTag: json['colorTag'] as String? ?? '#2196F3',
-        isBuiltIn: json['isBuiltIn'] as bool? ?? false,
-        tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
-        hands: [
-          for (final h in (json['hands'] as List? ?? []))
-            SavedHand.fromJson(h as Map<String, dynamic>)
-        ],
-        spots: [
-          for (final s in (json['spots'] as List? ?? []))
-            TrainingSpot.fromJson(Map<String, dynamic>.from(s as Map))
-        ],
-        difficulty: (json['difficulty'] as num?)?.toInt() ?? 1,
-        history: [
-          for (final r in (json['history'] as List? ?? []))
-            TrainingSessionResult.fromJson(r as Map<String, dynamic>)
-        ],
-      );
+  factory TrainingPack.fromJson(Map<String, dynamic> json) =>
+      _$TrainingPackFromJson(json);
+  Map<String, dynamic> toJson() => _$TrainingPackToJson(this);
 
   TrainingPack copyWith({
     String? id,
