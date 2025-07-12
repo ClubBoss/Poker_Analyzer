@@ -24,7 +24,6 @@ import 'services/session_pin_service.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
-import 'services/xp_tracker_cloud_service.dart';
 import 'services/template_storage_service.dart';
 import 'services/hand_analysis_history_service.dart';
 import 'services/adaptive_training_service.dart';
@@ -78,7 +77,6 @@ late final TrainingPackStorageService packStorage;
 late final TrainingPackCloudSyncService packCloud;
 late final MistakePackCloudService mistakeCloud;
 late final GoalProgressCloudService goalCloud;
-late final XPTrackerCloudService xpCloud;
 late final TrainingPackTemplateStorageService templateStorage;
 
 List<SingleChildWidget> buildCoreProviders(CloudSyncService cloud) {
@@ -171,7 +169,6 @@ List<SingleChildWidget> buildTrainingProviders() {
           ),
           Provider<TrainingPackCloudSyncService>.value(value: packCloud),
           Provider<MistakePackCloudService>.value(value: mistakeCloud),
-          Provider<XPTrackerCloudService>.value(value: xpCloud),
           ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
           ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
           ChangeNotifierProvider(
@@ -199,7 +196,10 @@ List<SingleChildWidget> buildTrainingProviders() {
           ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
           ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
           ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
-          ChangeNotifierProvider(create: (_) => XPTrackerService(cloud: xpCloud)..load()),
+          ChangeNotifierProvider(
+              create: (context) =>
+                  XPTrackerService(cloud: context.read<CloudSyncService>())
+                    ..load()),
           ChangeNotifierProvider(create: (_) => RewardService()..load()),
           ChangeNotifierProvider(
             create: (context) => GoalsTrackerService(

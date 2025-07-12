@@ -33,6 +33,7 @@ class TrainingStatsService extends ChangeNotifier {
   static const _evalCorrectKey = 'stats_eval_correct';
   static const _evalHistoryKey = 'stats_eval_history';
   static const _skillStatsKey = 'stats_skill_stats';
+  static const _timeKey = 'stats_updated';
 
   int _sessions = 0;
   int _hands = 0;
@@ -395,6 +396,55 @@ class TrainingStatsService extends ChangeNotifier {
     }
     _currentStreak = prefs.getInt(_currentStreakKey) ?? 0;
     _bestStreak = prefs.getInt(_bestStreakKey) ?? 0;
+    if (cloud != null) {
+      final remote = await cloud!.downloadTrainingStats();
+      if (remote != null) {
+        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+        if (remoteAt.isAfter(localAt)) {
+          _sessions = (remote['sessions'] as num?)?.toInt() ?? _sessions;
+          _hands = (remote['hands'] as num?)?.toInt() ?? _hands;
+          _mistakes = (remote['mistakes'] as num?)?.toInt() ?? _mistakes;
+          final spd = remote['sessionsPerDay'];
+          final hpd = remote['handsPerDay'];
+          final mpd = remote['mistakesPerDay'];
+          if (spd is Map) {
+            _sessionsPerDay =
+                {for (final e in spd.entries) e.key: (e.value as num).toInt()};
+          }
+          if (hpd is Map) {
+            _handsPerDay =
+                {for (final e in hpd.entries) e.key: (e.value as num).toInt()};
+          }
+          if (mpd is Map) {
+            _mistakesPerDay =
+                {for (final e in mpd.entries) e.key: (e.value as num).toInt()};
+          }
+          _currentStreak = (remote['currentStreak'] as num?)?.toInt() ?? 0;
+          _bestStreak = (remote['bestStreak'] as num?)?.toInt() ?? 0;
+          _evalTotal = (remote['evalTotal'] as num?)?.toInt() ?? 0;
+          _evalCorrect = (remote['evalCorrect'] as num?)?.toInt() ?? 0;
+          final hist = remote['evalHistory'];
+          if (hist is List) {
+            _evalHistory = [for (final v in hist) (v as num).toDouble()];
+          }
+          final skills = remote['skills'];
+          if (skills is Map) {
+            _skillStats = {
+              for (final e in skills.entries)
+                e.key:
+                    SkillStat.fromJson(Map<String, dynamic>.from(e.value as Map))
+            };
+          }
+          await _persist(remoteAt);
+        } else if (localAt.isAfter(remoteAt)) {
+          await cloud!.uploadTrainingStats(_toMap());
+        }
+      }
+    }
     await _updateStreaks();
     notifyListeners();
   }
@@ -417,7 +467,7 @@ class TrainingStatsService extends ChangeNotifier {
         'updatedAt': DateTime.now().toIso8601String(),
       };
 
-  Future<void> _save() async {
+  Future<void> _persist(DateTime ts) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sessionsKey, _sessions);
     await prefs.setInt(_handsKey, _hands);
@@ -435,10 +485,13 @@ class TrainingStatsService extends ChangeNotifier {
       _skillStatsKey,
       jsonEncode({for (final e in _skillStats.entries) e.key: e.value.toJson()}),
     );
+    await prefs.setString(_timeKey, ts.toIso8601String());
+  }
+
+  Future<void> _save() async {
+    await _persist(DateTime.now());
     if (cloud != null) {
-      final data = _toMap();
-      await cloud!.queueMutation('training_stats', 'main', data);
-      unawaited(cloud!.syncUp());
+      await cloud!.uploadTrainingStats(_toMap());
     }
   }
 

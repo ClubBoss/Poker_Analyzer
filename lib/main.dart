@@ -22,7 +22,6 @@ import 'services/template_storage_service.dart';
 import 'services/training_pack_template_storage_service.dart';
 import 'services/adaptive_training_service.dart';
 import 'services/goal_progress_cloud_service.dart';
-import 'services/xp_tracker_cloud_service.dart';
 import 'services/daily_hand_service.dart';
 import 'services/spot_of_the_day_service.dart';
 import 'services/action_sync_service.dart';
@@ -144,7 +143,6 @@ Future<void> main() async {
   await packCloud.init();
   mistakeCloud = MistakePackCloudService();
   goalCloud = GoalProgressCloudService();
-  xpCloud = XPTrackerCloudService();
   templateStorage = TrainingPackTemplateStorageService(
     cloud: packCloud,
     goals: goalCloud,
@@ -249,7 +247,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   @override
   void initState() {
     super.initState();
-    _sync = ConnectivitySyncController(cloud: context.read<CloudSyncService>());
+    _sync = AppBootstrap.sync!;
     context.read<UserActionLogger>().log('opened_app');
     unawaited(NotificationService.scheduleDailyReminder(context));
     unawaited(NotificationService.scheduleDailyProgress(context));
@@ -261,7 +259,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
 
   @override
   void dispose() {
-    _sync.dispose();
+    AppBootstrap.dispose();
     context.read<CloudSyncService>().dispose();
     super.dispose();
   }
