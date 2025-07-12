@@ -15,6 +15,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../helpers/poker_position_helper.dart';
 import '../helpers/training_pack_storage.dart';
 import 'pack_generator_service.dart';
+import '../main.dart';
 
 class TrainingPackService {
   const TrainingPackService._();
@@ -271,6 +272,13 @@ class TrainingPackService {
       name: 'Drill: $cat',
       spots: spots,
     );
+  }
+
+  static Future<TrainingPackTemplate?> createSimilarMistakeDrill(
+      SavedHand hand) async {
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return null;
+    return createDrillFromSimilarHands(ctx, hand);
   }
 
   static Future<TrainingPackTemplate> saveCustomSpot(
