@@ -91,7 +91,8 @@ void main(List<String> args, SendPort port) {
     PathProviderPlatform.instance = _FakePathProvider(dir.path);
     HttpOverrides.runZoned(() async {
       final loader = PluginLoader();
-      await loader.downloadFromUrl('http://x/TestPlugin.dart');
+      final downloaded = await loader.downloadFromUrl('http://x/TestPlugin.dart');
+      expect(downloaded, true);
       final file = File('${dir.path}/plugins/TestPlugin.dart');
       expect(await file.exists(), true);
       expect(await file.readAsString(), 'data');
