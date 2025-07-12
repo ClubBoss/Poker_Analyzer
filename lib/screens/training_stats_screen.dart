@@ -5,6 +5,7 @@ import '../models/training_stats.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/streak_service.dart';
+import '../widgets/ev_icm_trend_chart.dart';
 
 class TrainingStatsScreen extends StatefulWidget {
   const TrainingStatsScreen({super.key});
@@ -69,6 +70,8 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          const EvIcmTrendChart(),
           if (s.topPacks.isNotEmpty) ...[
             const SizedBox(height: 16),
             const Text('Best Packs'),

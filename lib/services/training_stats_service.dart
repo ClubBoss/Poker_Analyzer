@@ -155,6 +155,32 @@ class TrainingStatsService extends ChangeNotifier {
     return _groupWeeklyAvg(daily);
   }
 
+  List<MapEntry<DateTime, double>> _groupMonthlyAvg(List<MapEntry<DateTime, double>> daily) {
+    final Map<DateTime, List<double>> grouped = {};
+    for (final e in daily) {
+      final m = DateTime(e.key.year, e.key.month);
+      grouped.putIfAbsent(m, () => []).add(e.value);
+    }
+    final entries = grouped.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return [
+      for (final e in entries) MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+    ];
+  }
+
+  List<MapEntry<DateTime, double>> evMonthly(List<SavedHand> hands, [int months = 12]) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - months + 1);
+    final daily = [for (final e in evDaily(hands, months * 31)) if (!e.key.isBefore(start)) e];
+    return _groupMonthlyAvg(daily);
+  }
+
+  List<MapEntry<DateTime, double>> icmMonthly(List<SavedHand> hands, [int months = 12]) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - months + 1);
+    final daily = [for (final e in icmDaily(hands, months * 31)) if (!e.key.isBefore(start)) e];
+    return _groupMonthlyAvg(daily);
+  }
+
   MapEntry<double, double> sessionEvIcmAvg(Iterable<SavedHand> hands) {
     double evSum = 0;
     int evCount = 0;
