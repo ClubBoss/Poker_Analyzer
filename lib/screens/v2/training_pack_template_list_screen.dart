@@ -28,6 +28,7 @@ import '../../services/generated_pack_history_service.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
+import '../../services/evaluation_executor_service.dart';
 import 'training_pack_template_editor_screen.dart';
 import '../../widgets/range_matrix_picker.dart';
 import '../../widgets/preset_range_buttons.dart';
@@ -2247,6 +2248,15 @@ class _TrainingPackTemplateListScreenState
         templateId: const Uuid().v4(),
         templateName: p.basenameWithoutExtension(file.name),
       );
+      final exec = context.read<EvaluationExecutorService>();
+      for (final spot in tpl.spots) {
+        await exec.evaluateSingle(
+          context,
+          spot,
+          template: tpl,
+          anteBb: tpl.anteBb,
+        );
+      }
       final skipped = allRows.length - 1 - tpl.spots.length;
       setState(() {
         _templates.add(tpl);
@@ -2277,6 +2287,15 @@ class _TrainingPackTemplateListScreenState
         templateId: const Uuid().v4(),
         templateName: 'Pasted Pack',
       );
+      final exec = context.read<EvaluationExecutorService>();
+      for (final spot in tpl.spots) {
+        await exec.evaluateSingle(
+          context,
+          spot,
+          template: tpl,
+          anteBb: tpl.anteBb,
+        );
+      }
       final skipped = rows.length - 1 - tpl.spots.length;
       setState(() {
         _templates.add(tpl);
