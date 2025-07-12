@@ -160,7 +160,7 @@ class TrainingPackService {
   static Future<TrainingPackTemplate?> createDrillFromWeakestCategory(
       BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
-    final count = <String, int>{};
+    final byCat = <String, List<SavedHand>>{};
     for (final h in hands) {
       final cat = h.category;
       final exp = h.expectedAction;
@@ -168,11 +168,22 @@ class TrainingPackService {
       if (cat == null || cat.isEmpty) continue;
       if (exp == null || gto == null) continue;
       if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
-      count[cat] = (count[cat] ?? 0) + 1;
+      byCat.putIfAbsent(cat, () => []).add(h);
     }
-    if (count.isEmpty) return null;
-    final cat = count.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
-    return createDrillFromCategory(context, cat);
+    if (byCat.isEmpty) return null;
+    final cat = byCat.entries
+        .reduce((a, b) => a.value.length >= b.value.length ? a : b)
+        .key;
+    final list = byCat[cat]!
+      ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    final rng = Random();
+    final count = min(list.length, 5 + rng.nextInt(3));
+    final spots = [for (final h in list.take(count)) _spotFromHand(h)];
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Авто Drill: $cat',
+      spots: spots,
+    );
   }
 
   static Future<TrainingPackTemplate?> createTopMistakeDrill(
