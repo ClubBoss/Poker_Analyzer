@@ -238,18 +238,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               leading: CircleAvatar(backgroundColor: _accentColor),
               onTap: _pickAccentColor,
             ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const EvaluationSettingsScreen(),
-                  ),
-                );
-              },
-              child: const Text('Evaluation Settings'),
-            ),
             Consumer<AuthService>(
               builder: (context, auth, child) {
                 if (auth.currentUser != null) {
@@ -285,21 +273,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               .syncDownStats();
                         }
                       },
-                      child: const Text('Sign In with Apple'),
-                    ),
-                  ],
-                );
-              },
+                    child: const Text('Sign In with Apple'),
+                  ),
+                ],
+              );
+            },
+          ),
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Advanced Settings',
+              style: TextStyle(color: Colors.white70, fontSize: 18),
             ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () =>
-                  context.read<RemoteConfigService>().reload(),
-              child: const Text('Reload Remote Config'),
-            ),
-            const SizedBox(height: 12),
-            ValueListenableBuilder<DateTime?>(
-              valueListenable: context.read<CloudSyncService>().lastSync,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EvaluationSettingsScreen(),
+                ),
+              );
+            },
+            child: const Text('Evaluation Settings'),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () =>
+                context.read<RemoteConfigService>().reload(),
+            child: const Text('Reload Remote Config'),
+          ),
+          const SizedBox(height: 12),
+          ValueListenableBuilder<DateTime?>(
+            valueListenable: context.read<CloudSyncService>().lastSync,
               builder: (context, value, child) {
                 final text = value == null
                     ? 'Sync Now'

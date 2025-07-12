@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/offline_evaluator_service.dart';
 import '../services/evaluation_settings_service.dart';
 
 class EvaluationSettingsScreen extends StatefulWidget {
@@ -10,44 +9,36 @@ class EvaluationSettingsScreen extends StatefulWidget {
 }
 
 class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
-  late bool _offline;
+  late TextEditingController _threshold;
   late TextEditingController _endpoint;
-  late TextEditingController _payouts;
+  bool _useIcm = false;
+  bool _offline = false;
 
   @override
   void initState() {
     super.initState();
     final s = EvaluationSettingsService.instance;
-    _offline = s.offline;
+    _threshold = TextEditingController(text: s.evThreshold.toString());
     _endpoint = TextEditingController(text: s.remoteEndpoint);
-    _payouts = TextEditingController(text: s.payouts.join(','));
+    _useIcm = s.useIcm;
+    _offline = s.offline;
   }
 
-  Future<void> _setOffline(bool v) async {
-    setState(() => _offline = v);
-    await EvaluationSettingsService.instance.update(offline: v);
-    OfflineEvaluatorService.isOffline = v;
-  }
-
-  Future<void> _setEndpoint(String v) async {
-    await EvaluationSettingsService.instance.update(endpoint: v);
-  }
-
-  Future<void> _setPayouts(String v) async {
-    final p = v
-        .split(',')
-        .map((e) => double.tryParse(e.trim()))
-        .whereType<double>()
-        .toList();
-    if (p.isNotEmpty) {
-      await EvaluationSettingsService.instance.update(payouts: p);
-    }
+  Future<void> _save() async {
+    final threshold = double.tryParse(_threshold.text) ?? EvaluationSettingsService.instance.evThreshold;
+    await EvaluationSettingsService.instance.update(
+      threshold: threshold,
+      icm: _useIcm,
+      endpoint: _endpoint.text,
+      offline: _offline,
+    );
+    if (mounted) Navigator.pop(context);
   }
 
   @override
   void dispose() {
+    _threshold.dispose();
     _endpoint.dispose();
-    _payouts.dispose();
     super.dispose();
   }
 
@@ -59,27 +50,38 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
         title: const Text('Evaluation Settings'),
         centerTitle: true,
       ),
-      body: ListView(
+      body: Padding(
         padding: const EdgeInsets.all(16),
-        children: [
-          SwitchListTile(
-            value: _offline,
-            title: const Text('Offline Mode'),
-            activeColor: Colors.orange,
-            onChanged: _setOffline,
-          ),
-          TextField(
-            controller: _endpoint,
-            decoration: const InputDecoration(labelText: 'EV API Endpoint'),
-            onChanged: _setEndpoint,
-          ),
-          TextField(
-            controller: _payouts,
-            decoration:
-                const InputDecoration(labelText: 'ICM Payouts (comma)'),
-            onChanged: _setPayouts,
-          ),
-        ],
+        child: Column(
+          children: [
+            TextField(
+              controller: _threshold,
+              decoration: const InputDecoration(labelText: 'EV Threshold'),
+              keyboardType: TextInputType.number,
+            ),
+            SwitchListTile(
+              value: _useIcm,
+              title: const Text('Use ICM'),
+              activeColor: Colors.orange,
+              onChanged: (v) => setState(() => _useIcm = v),
+            ),
+            SwitchListTile(
+              value: _offline,
+              title: const Text('Offline Mode'),
+              activeColor: Colors.orange,
+              onChanged: (v) => setState(() => _offline = v),
+            ),
+            TextField(
+              controller: _endpoint,
+              decoration: const InputDecoration(labelText: 'API Endpoint'),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _save,
+              child: const Text('Save'),
+            ),
+          ],
+        ),
       ),
     );
   }
