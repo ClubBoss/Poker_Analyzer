@@ -42,8 +42,19 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   bool _onlyFavorites = false;
   late SavedHandImportExportService _importExport;
 
-  bool _sameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+  DateTimeRange? _currentRange() {
+    final now = DateTime.now();
+    if (_dateFilter == 'Сегодня') {
+      final start = DateTime(now.year, now.month, now.day);
+      return DateTimeRange(start: start, end: now);
+    }
+    if (_dateFilter == '7 дней') {
+      return DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+    }
+    if (_dateFilter == '30 дней') {
+      return DateTimeRange(start: now.subtract(const Duration(days: 30)), end: now);
+    }
+    return null;
   }
 
   @override
@@ -70,28 +81,27 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     final tags = <String>{for (final h in allHands) ...h.tags};
     final positions = <String>{for (final h in allHands) h.heroPosition};
 
-    List<SavedHand> visible = allHands.where((hand) {
-      if (_onlyFavorites && !hand.isFavorite) return false;
-      final now = DateTime.now();
-      if (_dateFilter == 'Сегодня' && !_sameDay(hand.date, now)) return false;
-      if (_dateFilter == '7 дней' && hand.date.isBefore(now.subtract(const Duration(days: 7)))) {
-        return false;
-      }
-      if (_dateFilter == '30 дней' && hand.date.isBefore(now.subtract(const Duration(days: 30)))) {
-        return false;
-      }
-      if (_streetFilter != 'Все' && streetName(hand.boardStreet) != _streetFilter) {
-        return false;
-      }
-      final query = _searchController.text.toLowerCase();
-      if (query.isNotEmpty) {
-        final inTags = hand.tags.any((t) => t.toLowerCase().contains(query));
-        final inComment = hand.comment?.toLowerCase().contains(query) ?? false;
-        final inPos = hand.heroPosition.toLowerCase().contains(query);
-        if (!(inTags || inComment || inPos)) return false;
-      }
-      return true;
-    }).toList();
+    final filtered = handManager.filtered(
+      tag: _tagFilter == 'Все' ? null : _tagFilter,
+      position: _positionFilter == 'Все' ? null : _positionFilter,
+      range: _currentRange(),
+    );
+    List<SavedHand> visible = [
+      for (final hand in filtered)
+        if ((!_onlyFavorites || hand.isFavorite) &&
+            (_streetFilter == 'Все' || streetName(hand.boardStreet) == _streetFilter))
+          hand
+    ];
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      visible = [
+        for (final h in visible)
+          if (h.tags.any((t) => t.toLowerCase().contains(query)) ||
+              (h.comment?.toLowerCase().contains(query) ?? false) ||
+              h.heroPosition.toLowerCase().contains(query))
+            h
+      ];
+    }
 
     visible.sort((a, b) => b.date.compareTo(a.date));
 
