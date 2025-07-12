@@ -3334,6 +3334,22 @@ class _TrainingPackTemplateListScreenState
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
+            heroTag: 'randomMistakeTplFab',
+            label: const Text('Случайная ошибка'),
+            onPressed: () async {
+              final tpl = await TrainingPackService.createSingleRandomMistakeDrill(context);
+              if (tpl == null) return;
+              await context.read<TrainingSessionService>().startSession(tpl);
+              if (context.mounted) {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
             heroTag: 'repeatCorrectedDrillTplFab',
             label: const Text('Повтор исправленных'),
             onPressed: () async {
