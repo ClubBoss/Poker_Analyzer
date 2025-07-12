@@ -1023,6 +1023,24 @@ class SavedHandManagerService extends ChangeNotifier {
     return result;
   }
 
+  bool hasSimilarMistakes(SavedHand hand) {
+    final cat = hand.category;
+    final pos = hand.heroPosition;
+    final stack = hand.stackSizes[hand.heroIndex];
+    if (cat == null || stack == null) return false;
+    return hands.any(
+      (h) =>
+          h != hand &&
+          h.category == cat &&
+          h.heroPosition == pos &&
+          h.stackSizes[h.heroIndex] == stack &&
+          h.expectedAction != null &&
+          h.gtoAction != null &&
+          h.expectedAction!.trim().toLowerCase() !=
+              h.gtoAction!.trim().toLowerCase(),
+    );
+  }
+
   List<MapEntry<String, double>> getTopMistakeCategories({int limit = 3}) {
     final map = <String, double>{};
     for (final h in hands) {

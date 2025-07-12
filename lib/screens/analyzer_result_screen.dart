@@ -21,25 +21,8 @@ class AnalyzerResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasSimilar = context.select<SavedHandManagerService, bool>((s) {
-      final cat = hand.category;
-      final pos = hand.heroPosition;
-      final stack = hand.stackSizes[hand.heroIndex];
-      if (cat == null || stack == null) return false;
-      for (final h in s.hands) {
-        if (h == hand) continue;
-        if (h.category == cat &&
-            h.heroPosition == pos &&
-            h.stackSizes[h.heroIndex] == stack &&
-            h.expectedAction != null &&
-            h.gtoAction != null &&
-            h.expectedAction!.trim().toLowerCase() !=
-                h.gtoAction!.trim().toLowerCase()) {
-          return true;
-        }
-      }
-      return false;
-    });
+    final hasSimilar = context
+        .select<SavedHandManagerService, bool>((s) => s.hasSimilarMistakes(hand));
     final showFab = _isMistake && hasSimilar;
     return Scaffold(
       appBar: AppBar(title: const Text('Результаты анализа')),
