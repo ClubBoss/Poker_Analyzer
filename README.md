@@ -82,6 +82,8 @@ delegates to the plug-in's optional `validate` method. Returning a string from
 `validate` will reject the hand for export and surface the message to the user,
 while returning `null` allows the export to proceed.
 
+- PartyPoker Converter plug-in adds support for Partypoker hand history files.
+
 Подробнее о подключении сторонних модулей описано в [docs/plugins](docs/plugins/README.md).
 Разработчикам плагинов посвящено руководство [PLUGIN_DEV_GUIDE](docs/plugins/PLUGIN_DEV_GUIDE.md).
 
