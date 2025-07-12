@@ -23,6 +23,7 @@ import 'saved_hand_manager_service.dart';
 import 'push_fold_ev_service.dart';
 import 'goals_service.dart';
 import 'mistake_hint_service.dart';
+import '../helpers/push_fold_helper.dart';
 import 'training_stats_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'remote_ev_service.dart';
@@ -244,38 +245,12 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final cards = spot.playerCards[spot.heroIndex];
     if (cards.length < 2) return null;
     final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
-    if (stack > 15) return null;
-    final r1 = _rankValue(cards[0].rank);
-    final r2 = _rankValue(cards[1].rank);
-    final pair = cards[0].rank == cards[1].rank;
-    final suited = cards[0].suit == cards[1].suit;
-    final high = r1 > r2 ? r1 : r2;
-    final low = r1 > r2 ? r2 : r1;
-    if (stack <= 15) {
-      if (pair || high >= 14) return 'push';
-      if (high == 13 && low >= 9) return 'push';
-      if (high >= 11 && low >= 10 && suited) return 'push';
-    }
+    final code = handCode(
+        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+    if (code == null) return null;
+    final threshold = kPushFoldThresholds[code];
+    if (threshold != null && stack <= threshold) return 'push';
     return 'fold';
-  }
-
-  int _rankValue(String r) {
-    const map = {
-      '2': 2,
-      '3': 3,
-      '4': 4,
-      '5': 5,
-      '6': 6,
-      '7': 7,
-      '8': 8,
-      '9': 9,
-      'T': 10,
-      'J': 11,
-      'Q': 12,
-      'K': 13,
-      'A': 14,
-    };
-    return map[r] ?? 0;
   }
 
   /// Generates a summary for a list of saved hands.
