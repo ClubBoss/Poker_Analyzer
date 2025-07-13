@@ -5455,177 +5455,206 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: LayoutBuilder(
-          builder: (context, constraints) {
-            final narrow = constraints.maxWidth < 600;
-            _uiScale = narrow ? 0.8 : 1.0;
-            return AnimatedPadding(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-              ),
-              child: Column(
-            children: [
-            _HandHeaderSection(
-              handName: _handContext.currentHandName ?? 'New Hand',
-              playerCount: numberOfPlayers,
-              streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
-              onEdit: loadHandByName,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: HandCompletionIndicator(progress: _handFillProgress()),
-            ),
-            _PlayerCountSelector(
-              numberOfPlayers: numberOfPlayers,
-              playerPositions: playerPositions,
-              playerTypes: playerTypes,
-              onChanged: lockService.isLocked ? null : _onPlayerCountChanged,
-              disabled: lockService.isLocked,
-            ),
-            _HandProgressIndicator(step: _handProgressStep()),
-            if (hint != null) _InfoBanner(message: hint),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Text(
-                'Effective Stack (Current Street): $currentStreetEffectiveStack BB',
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-            Expanded(
-              flex: 7,
-              child: Transform.scale(
-                scale: _uiScale,
-                alignment: Alignment.topCenter,
-                child: const BoardControls(),
-              ),
-            ),
-    _TotalPotTracker(
-      potSync: _potSync,
-      currentStreet: currentStreet,
-      sidePots: _sidePots,
-    ),
-    AbsorbPointer(
-      absorbing: lockService.isLocked,
-      child: PlaybackProgressBar(
-        playbackIndex: _playbackManager.playbackIndex,
-        actionCount: actions.length,
-        onSeek: (index) {
-          lockService.safeSetState(this, () {
-            _playbackManager.seek(index);
-            _playbackManager.updatePlaybackState();
-          });
-        },
-      ),
-    ),
-    Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: AbsorbPointer(
-        absorbing: lockService.isLocked,
-        child: StreetActionHistoryPanel(
-          actions: savedActions,
-          pots: _potSync.pots,
-          stackSizes: _stackService.currentStacks,
-          playerPositions: playerPositions,
-          onEdit: _editAction,
-          onDelete: _deleteAction,
-          onInsert: _insertAction,
-          onDuplicate: _duplicateAction,
-          onReorder: _reorderAction,
-          visibleCount: _playbackManager.playbackIndex,
-          evaluateActionQuality: _evaluateActionQuality,
-        ),
-      ),
-    ),
-    AbsorbPointer(
-      absorbing: lockService.isLocked,
-      child: ActionHistoryExpansionTile(
-        actions: visibleActions,
-        playerPositions: playerPositions,
-        pots: _potSync.pots,
-        stackSizes: _stackService.currentStacks,
-        onEdit: _editAction,
-        onDelete: _deleteAction,
-        onInsert: _insertAction,
-        onDuplicate: _duplicateAction,
-        onReorder: _reorderAction,
-        visibleCount: _playbackManager.playbackIndex,
-        evaluateActionQuality: _evaluateActionQuality,
-      ),
-    StreetActionsWidget(
-      currentStreet: currentStreet,
-      canGoPrev: _boardManager.canReverseStreet(),
-      onPrevStreet:
-          lockService.isLocked ? null : () => lockService.safeSetState(this, _reverseStreet),
-      onStreetChanged: (index) {
-        if (lockService.isLocked) return;
-        lockService.safeSetState(this, () {
-          _changeStreet(index);
-          _undoRedoService.recordSnapshot();
-        });
-      },
-            ),
-            AbsorbPointer(
-              absorbing: lockService.isLocked,
-              child: StreetActionInputWidget(
-                currentStreet: currentStreet,
-                numberOfPlayers: numberOfPlayers,
-                playerPositions: playerPositions,
-                actionHistory: _actionHistory,
-                onAdd: handlePlayerAction,
-                onEdit: _editAction,
-                onDelete: _deleteAction,
-              ),
-            ),
-            ActionTimelinePanel(
-              actions: visibleActions,
-              playbackIndex: _playbackManager.playbackIndex,
-              onTap: (index) {
-                lockService.safeSetState(this, () {
-                  _playbackManager.seek(index);
-                  _playbackManager.updatePlaybackState();
-                });
-              },
-              playerPositions: playerPositions,
-              focusPlayerIndex: _focusOnHero ? heroIndex : null,
-              controller: _timelineController,
-              scale: scale,
-              locked: lockService.isLocked,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _PlaybackAndHandControls(
-                isPlaying: _playbackManager.isPlaying,
-                playbackIndex: _playbackManager.playbackIndex,
-                actionCount: actions.length,
-                elapsedTime: _playbackManager.elapsedTime,
-                onPlay: _play,
-                onPause: _pause,
-                onPlayAll: _playAll,
-                onStepBackward: _stepBackwardPlayback,
-                onStepForward: _stepForwardPlayback,
-                onPlaybackReset: _resetPlayback,
-                onSeek: _seekPlayback,
-                onSave: () => saveCurrentHand(),
-                onLoadLast: loadLastSavedHand,
-                onLoadByName: () => loadHandByName(),
-                onExportLast: exportLastSavedHand,
-                onExportAll: exportAllHands,
-                onImport: importHandFromClipboard,
-                onImportAll: importAllHandsFromClipboard,
-                onReset: _resetHand,
-                onBack: _cancelHandAnalysis,
-                focusOnHero: _focusOnHero,
-                onFocusChanged: (v) => setState(() => _focusOnHero = v),
-                backDisabled: _showdownActive,
-                disabled: _transitionHistory.isLocked,
-              ),
-            ),
-            const Expanded(child: ActionEditor()),
-            const Expanded(child: EvaluationPanel()),
-          ],
+            builder: (context, constraints) {
+              final landscape = constraints.maxWidth > constraints.maxHeight;
+              final shortest = constraints.biggest.shortestSide;
+              _uiScale = shortest < 600 ? 0.8 : 1.0;
+
+              Widget buildControls() => Column(
+                children: [
+                  _TotalPotTracker(
+                    potSync: _potSync,
+                    currentStreet: currentStreet,
+                    sidePots: _sidePots,
+                  ),
+                  AbsorbPointer(
+                    absorbing: lockService.isLocked,
+                    child: PlaybackProgressBar(
+                      playbackIndex: _playbackManager.playbackIndex,
+                      actionCount: actions.length,
+                      onSeek: (index) {
+                        lockService.safeSetState(this, () {
+                          _playbackManager.seek(index);
+                          _playbackManager.updatePlaybackState();
+                        });
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: AbsorbPointer(
+                      absorbing: lockService.isLocked,
+                      child: StreetActionHistoryPanel(
+                        actions: savedActions,
+                        pots: _potSync.pots,
+                        stackSizes: _stackService.currentStacks,
+                        playerPositions: playerPositions,
+                        onEdit: _editAction,
+                        onDelete: _deleteAction,
+                        onInsert: _insertAction,
+                        onDuplicate: _duplicateAction,
+                        onReorder: _reorderAction,
+                        visibleCount: _playbackManager.playbackIndex,
+                        evaluateActionQuality: _evaluateActionQuality,
+                      ),
+                    ),
+                  ),
+                  AbsorbPointer(
+                    absorbing: lockService.isLocked,
+                    child: ActionHistoryExpansionTile(
+                      actions: visibleActions,
+                      playerPositions: playerPositions,
+                      pots: _potSync.pots,
+                      stackSizes: _stackService.currentStacks,
+                      onEdit: _editAction,
+                      onDelete: _deleteAction,
+                      onInsert: _insertAction,
+                      onDuplicate: _duplicateAction,
+                      onReorder: _reorderAction,
+                      visibleCount: _playbackManager.playbackIndex,
+                      evaluateActionQuality: _evaluateActionQuality,
+                    ),
+                  ),
+                  StreetActionsWidget(
+                    currentStreet: currentStreet,
+                    canGoPrev: _boardManager.canReverseStreet(),
+                    onPrevStreet: lockService.isLocked
+                        ? null
+                        : () => lockService.safeSetState(this, _reverseStreet),
+                    onStreetChanged: (index) {
+                      if (lockService.isLocked) return;
+                      lockService.safeSetState(this, () {
+                        _changeStreet(index);
+                        _undoRedoService.recordSnapshot();
+                      });
+                    },
+                  ),
+                  AbsorbPointer(
+                    absorbing: lockService.isLocked,
+                    child: StreetActionInputWidget(
+                      currentStreet: currentStreet,
+                      numberOfPlayers: numberOfPlayers,
+                      playerPositions: playerPositions,
+                      actionHistory: _actionHistory,
+                      onAdd: handlePlayerAction,
+                      onEdit: _editAction,
+                      onDelete: _deleteAction,
+                    ),
+                  ),
+                  ActionTimelinePanel(
+                    actions: visibleActions,
+                    playbackIndex: _playbackManager.playbackIndex,
+                    onTap: (index) {
+                      lockService.safeSetState(this, () {
+                        _playbackManager.seek(index);
+                        _playbackManager.updatePlaybackState();
+                      });
+                    },
+                    playerPositions: playerPositions,
+                    focusPlayerIndex: _focusOnHero ? heroIndex : null,
+                    controller: _timelineController,
+                    scale: scale,
+                    locked: lockService.isLocked,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: _PlaybackAndHandControls(
+                      isPlaying: _playbackManager.isPlaying,
+                      playbackIndex: _playbackManager.playbackIndex,
+                      actionCount: actions.length,
+                      elapsedTime: _playbackManager.elapsedTime,
+                      onPlay: _play,
+                      onPause: _pause,
+                      onPlayAll: _playAll,
+                      onStepBackward: _stepBackwardPlayback,
+                      onStepForward: _stepForwardPlayback,
+                      onPlaybackReset: _resetPlayback,
+                      onSeek: _seekPlayback,
+                      onSave: () => saveCurrentHand(),
+                      onLoadLast: loadLastSavedHand,
+                      onLoadByName: () => loadHandByName(),
+                      onExportLast: exportLastSavedHand,
+                      onExportAll: exportAllHands,
+                      onImport: importHandFromClipboard,
+                      onImportAll: importAllHandsFromClipboard,
+                      onReset: _resetHand,
+                      onBack: _cancelHandAnalysis,
+                      focusOnHero: _focusOnHero,
+                      onFocusChanged: (v) => setState(() => _focusOnHero = v),
+                      backDisabled: _showdownActive,
+                      disabled: _transitionHistory.isLocked,
+                    ),
+                  ),
+                ],
+              );
+
+              final content = <Widget>[
+                _HandHeaderSection(
+                  handName: _handContext.currentHandName ?? 'New Hand',
+                  playerCount: numberOfPlayers,
+                  streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
+                  onEdit: loadHandByName,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: HandCompletionIndicator(progress: _handFillProgress()),
+                ),
+                _PlayerCountSelector(
+                  numberOfPlayers: numberOfPlayers,
+                  playerPositions: playerPositions,
+                  playerTypes: playerTypes,
+                  onChanged: lockService.isLocked ? null : _onPlayerCountChanged,
+                  disabled: lockService.isLocked,
+                ),
+                _HandProgressIndicator(step: _handProgressStep()),
+                if (hint != null) _InfoBanner(message: hint),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Text(
+                    'Effective Stack (Current Street): $currentStreetEffectiveStack BB',
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: landscape
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Transform.scale(
+                                scale: _uiScale,
+                                alignment: Alignment.topCenter,
+                                child: const BoardControls(),
+                              ),
+                            ),
+                            Expanded(child: buildControls()),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Transform.scale(
+                              scale: _uiScale,
+                              alignment: Alignment.topCenter,
+                              child: const BoardControls(),
+                            ),
+                            Expanded(child: buildControls()),
+                          ],
+                        ),
+                ),
+                const Expanded(child: ActionEditor()),
+                const Expanded(child: EvaluationPanel()),
+              ];
+
+              return AnimatedPadding(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                ),
+                child: Column(children: content),
+              );
+            },
           ),
-        ),
-      ),
       floatingActionButtonLocation: widget.demoMode
           ? FloatingActionButtonLocation.endTop
           : FloatingActionButtonLocation.endFloat,
