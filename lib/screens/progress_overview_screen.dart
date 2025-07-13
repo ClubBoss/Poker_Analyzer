@@ -10,6 +10,7 @@ import '../widgets/common/ev_icm_trend_chart.dart' as common;
 import '../widgets/sync_status_widget.dart';
 import '../theme/app_colors.dart';
 import '../services/training_stats_service.dart';
+import '../utils/responsive.dart';
 import '../services/saved_hand_manager_service.dart';
 
 class ProgressOverviewScreen extends StatefulWidget {
@@ -91,7 +92,7 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
 
   Widget _placeholder() {
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

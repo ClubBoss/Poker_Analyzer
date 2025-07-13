@@ -12,6 +12,7 @@ import '../theme/app_colors.dart';
 import 'daily_progress_history_screen.dart';
 import 'achievements_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/responsive.dart';
 
 class GoalOverviewScreen extends StatefulWidget {
   const GoalOverviewScreen({super.key});
@@ -238,8 +239,8 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: 7,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 7,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isCompactWidth(context) ? 4 : 7,
                     mainAxisSpacing: 4,
                     crossAxisSpacing: 4,
                   ),

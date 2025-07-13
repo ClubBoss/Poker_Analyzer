@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import '../helpers/action_utils.dart';
 import '../services/action_history_service.dart';
+import '../utils/responsive.dart';
 
 class CollapsibleActionHistory extends StatefulWidget {
   final ActionHistoryService actionHistory;
@@ -122,7 +123,7 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
         if (_open)
           Container(
             color: Colors.black54,
-            height: 200,
+            height: responsiveSize(context, 200),
             child: Column(
               children: [
                 TabBar(

@@ -8,6 +8,7 @@ import '../services/icm_push_ev_service.dart';
 import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
 import '../helpers/hand_utils.dart';
+import '../utils/responsive.dart';
 import '../theme/app_colors.dart';
 
 class WeeklyProgressScreen extends StatelessWidget {
@@ -134,7 +135,7 @@ class WeeklyProgressScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Container(
-            height: 200,
+            height: responsiveSize(context, 200),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.cardBackground,

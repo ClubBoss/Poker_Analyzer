@@ -14,6 +14,7 @@ import '../services/session_note_service.dart';
 import '../services/progress_export_service.dart';
 import '../services/training_stats_service.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
 import '../widgets/common/mistake_by_street_chart.dart';
 import '../widgets/common/session_volume_accuracy_chart.dart';
@@ -960,7 +961,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           SizedBox(height: 16 * scale),
           if (weekly.length > 1)
             Container(
-              height: 200,
+              height: responsiveSize(context, 200),
               padding: EdgeInsets.all(12 * scale),
               decoration: BoxDecoration(
                 color: AppColors.cardBackground,

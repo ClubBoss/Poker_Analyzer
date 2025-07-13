@@ -10,6 +10,7 @@ import 'streak_calendar_screen.dart';
 import '../widgets/mistake_summary_card.dart';
 import '../widgets/sync_status_widget.dart';
 import '../widgets/streak_trend_chart.dart';
+import '../utils/responsive.dart';
 
 enum _Mode { daily, weekly }
 
@@ -31,14 +32,14 @@ class _InsightsScreenState extends State<InsightsScreen> {
       _mode == _Mode.daily ? s.mistakesDaily(7) : s.mistakesWeekly(6);
 
   Widget _chart(List<MapEntry<DateTime, int>> data) {
-    if (data.length < 2) return const SizedBox(height: 200);
+    if (data.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final spots = <FlSpot>[];
     for (var i = 0; i < data.length; i++) {
       spots.add(FlSpot(i.toDouble(), data[i].value.toDouble()));
     }
     final step = (data.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -111,7 +112,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
 
   Widget _pie(GoalEngine g) {
     final goals = g.goals;
-    if (goals.isEmpty) return const SizedBox(height: 200);
+    if (goals.isEmpty) return SizedBox(height: responsiveSize(context, 200));
     final completed = goals.where((gg) => gg.completed).length;
     final sections = [
       PieChartSectionData(
@@ -136,7 +137,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
       ),
     ];
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

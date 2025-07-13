@@ -13,6 +13,7 @@ import '../../models/v2/training_pack_spot.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
 import '../../services/mistake_review_pack_service.dart';
+import '../../utils/responsive.dart';
 
 class TrainingPackResultScreenV2 extends StatelessWidget {
   final TrainingPackTemplate template;
@@ -311,7 +312,7 @@ class _EvDiffChart extends StatelessWidget {
     }
     final interval = maxY / 5;
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -406,7 +407,7 @@ class _IcmDiffChart extends StatelessWidget {
     }
     final interval = maxY / 5;
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,

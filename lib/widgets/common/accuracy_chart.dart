@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'animated_line_chart.dart';
 import '../../models/training_result.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/responsive.dart';
 
 class AccuracyChart extends StatelessWidget {
   final List<TrainingResult> sessions;
@@ -33,7 +34,7 @@ class AccuracyChart extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
-        height: 200,
+        height: responsiveSize(context, 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,

@@ -17,6 +17,7 @@ import '../models/training_pack.dart';
 import '../models/game_type.dart';
 import 'session_detail_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/responsive.dart';
 
 class AllSessionsScreen extends StatefulWidget {
   const AllSessionsScreen({super.key});
@@ -691,7 +692,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
             FadeTransition(opacity: animation, child: child),
         child: Container(
           key: ValueKey(_accuracyChartKey),
-          height: 200,
+          height: responsiveSize(context, 200),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: const Color(0xFF2A2B2E),

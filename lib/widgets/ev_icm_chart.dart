@@ -8,6 +8,7 @@ import '../services/push_fold_ev_service.dart';
 import '../services/icm_push_ev_service.dart';
 import 'common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 
 class EvIcmChart extends StatelessWidget {
   final List<SavedHand> hands;
@@ -84,7 +85,7 @@ class EvIcmChart extends StatelessWidget {
     final interval = (maxAbs / 5).ceilToDouble();
     final step = (data.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

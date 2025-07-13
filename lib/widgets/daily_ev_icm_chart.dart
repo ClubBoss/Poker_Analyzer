@@ -6,6 +6,7 @@ import '../services/training_stats_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 
 class DailyEvIcmChart extends StatelessWidget {
   final int days;
@@ -22,7 +23,7 @@ class DailyEvIcmChart extends StatelessWidget {
       for (final e in icm) e.key,
     }.toList()
       ..sort();
-    if (dates.length < 2) return const SizedBox(height: 200);
+    if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};
     final spotsEv = <FlSpot>[];
@@ -51,7 +52,7 @@ class DailyEvIcmChart extends StatelessWidget {
     final interval = (maxY - minY) / 4;
     final step = (dates.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

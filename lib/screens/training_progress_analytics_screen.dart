@@ -7,6 +7,7 @@ import '../services/achievement_engine.dart';
 import '../services/progress_forecast_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/responsive.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
@@ -21,14 +22,14 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
   }
 
   Widget _chart(List<MapEntry<DateTime, int>> data, Color color) {
-    if (data.length < 2) return const SizedBox(height: 200);
+    if (data.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final spots = <FlSpot>[];
     for (var i = 0; i < data.length; i++) {
       spots.add(FlSpot(i.toDouble(), data[i].value.toDouble()));
     }
     final step = (data.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

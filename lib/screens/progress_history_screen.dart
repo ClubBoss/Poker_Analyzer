@@ -5,6 +5,7 @@ import '../services/progress_forecast_service.dart';
 import '../widgets/progress_history_chart.dart';
 import '../widgets/sync_status_widget.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 
 class ProgressHistoryScreen extends StatelessWidget {
   static const route = '/progress_history';
@@ -30,7 +31,7 @@ class ProgressHistoryScreen extends StatelessWidget {
 
   Widget _placeholder() {
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

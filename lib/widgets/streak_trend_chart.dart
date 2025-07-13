@@ -5,6 +5,7 @@ import 'common/animated_line_chart.dart';
 
 import '../services/streak_service.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 
 class StreakTrendChart extends StatelessWidget {
   const StreakTrendChart({super.key});
@@ -13,14 +14,14 @@ class StreakTrendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final data = context.watch<StreakService>().history;
     if (data.length < 2) {
-      return const SizedBox(height: 200);
+      return SizedBox(height: responsiveSize(context, 200));
     }
     final spots = <FlSpot>[for (var i = 0; i < data.length; i++) FlSpot(i.toDouble(), data[i].value.toDouble())];
     final maxY = data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
     final interval = maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble();
     final step = (data.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
