@@ -12,7 +12,7 @@ import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
-import '../widgets/common/animated_line_chart.dart';
+import '../widgets/common/interactive_line_chart.dart';
 
 import '../services/goals_service.dart';
 import '../services/evaluation_executor_service.dart';
@@ -265,7 +265,7 @@ class _ProgressScreenState extends State<ProgressScreen>
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AnimatedLineChart(
+      child: InteractiveLineChart(
         data: LineChartData(
           minY: 0,
           gridData: FlGridData(
@@ -339,7 +339,7 @@ class _ProgressScreenState extends State<ProgressScreen>
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AnimatedLineChart(
+      child: InteractiveLineChart(
         data: LineChartData(
           minY: 0,
           maxY: 100,
@@ -422,7 +422,7 @@ class _ProgressScreenState extends State<ProgressScreen>
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AnimatedLineChart(
+      child: InteractiveLineChart(
         data: LineChartData(
           minY: minY,
           maxY: 0,
