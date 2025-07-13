@@ -3525,7 +3525,10 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _handManager = context.read<SavedHandManagerService>();
     _handImportExportService =
         widget.handImportExportService ??
-            SavedHandImportExportService(_handManager);
+            SavedHandImportExportService(
+              _handManager,
+              registry: _serviceRegistry,
+            );
   }
 
   void selectCard(int index, CardModel card) {
