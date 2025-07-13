@@ -29,19 +29,34 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   Future<void> _load() async {
     final builtIn = TrainingPackTemplateService.getAllTemplates(context);
     final top = await TrainingPackService.createTopMistakeDrill(context);
-    final community = await TrainingPackService.createDrillFromGlobalMistakes(context);
-    SavedHand? last = context.read<SavedHandManagerService>().hands.reversed.firstWhereOrNull((h) {
+    final community =
+        await TrainingPackService.createDrillFromGlobalMistakes(context);
+    SavedHand? last = context
+        .read<SavedHandManagerService>()
+        .hands
+        .reversed
+        .firstWhereOrNull((h) {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
       final ev = h.evLoss ?? 0.0;
-      return ev.abs() >= 1.0 && !h.corrected && exp != null && gto != null && exp != gto;
+      return ev.abs() >= 1.0 &&
+          !h.corrected &&
+          exp != null &&
+          gto != null &&
+          exp != gto;
     });
-    final similar = last != null ? await TrainingPackService.createSimilarMistakeDrill(last) : null;
+    final similar = last != null
+        ? await TrainingPackService.createSimilarMistakeDrill(last)
+        : null;
     if (!mounted) return;
     setState(() {
       _templates
         ..addAll(builtIn)
-        ..addAll([if (top != null) top, if (community != null) community, if (similar != null) similar]);
+        ..addAll([
+          if (top != null) top,
+          if (community != null) community,
+          if (similar != null) similar
+        ]);
       _loading = false;
     });
   }
@@ -70,21 +85,26 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                Text(t.name,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
                 if (t.description.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text(t.description, style: const TextStyle(color: Colors.white70)),
+                    child: Text(t.description,
+                        style: const TextStyle(color: Colors.white70)),
                   ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text('${t.spots.length} spots', style: const TextStyle(color: Colors.white70)),
+                  child: Text('${t.spots.length} spots',
+                      style: const TextStyle(color: Colors.white70)),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 8),
-          ElevatedButton(onPressed: () => _start(t), child: const Text('Train')),
+          ElevatedButton(
+              onPressed: () => _start(t), child: const Text('Train')),
         ],
       ),
     );
@@ -96,9 +116,12 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
       appBar: AppBar(title: const Text('Ready to Train')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [for (final t in _templates) _card(t)],
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [for (final t in _templates) _card(t)],
+              ),
             ),
     );
   }
