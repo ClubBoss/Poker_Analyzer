@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
+import '../../utils/responsive.dart';
 
 class SessionAccuracyDistributionChart extends StatelessWidget {
   final List<double> accuracies;
@@ -63,7 +64,7 @@ class SessionAccuracyDistributionChart extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
-        height: 200,
+        height: responsiveSize(context, 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,

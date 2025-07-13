@@ -14,6 +14,7 @@ import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/png_exporter.dart';
 import '../helpers/date_utils.dart';
+import '../utils/responsive.dart';
 
 class ProgressDashboardScreen extends StatefulWidget {
   const ProgressDashboardScreen({super.key});
@@ -99,8 +100,8 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: days.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isCompactWidth(context) ? 4 : 7,
               mainAxisSpacing: 4,
               crossAxisSpacing: 4,
             ),

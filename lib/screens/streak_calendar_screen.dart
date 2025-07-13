@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/training_stats_service.dart';
 import '../widgets/sync_status_widget.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 
 class StreakCalendarScreen extends StatelessWidget {
   const StreakCalendarScreen({super.key});
@@ -66,8 +67,8 @@ class StreakCalendarScreen extends StatelessWidget {
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 42,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 7,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isCompactWidth(context) ? 4 : 7,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),

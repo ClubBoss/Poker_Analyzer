@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_stats_service.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 
 class TrainingCalendarWidget extends StatelessWidget {
   const TrainingCalendarWidget({super.key});
@@ -33,8 +34,8 @@ class TrainingCalendarWidget extends StatelessWidget {
         itemCount: 42,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 7,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isCompactWidth(context) ? 4 : 7,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),

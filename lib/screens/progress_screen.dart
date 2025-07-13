@@ -36,6 +36,7 @@ import 'drill_history_screen.dart';
 import 'goal_drill_screen.dart';
 import 'weekly_progress_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/responsive.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -258,7 +259,7 @@ class _ProgressScreenState extends State<ProgressScreen>
     if (_streakSpots.length < 2) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -315,7 +316,7 @@ class _ProgressScreenState extends State<ProgressScreen>
   Widget _buildWeeklyAccuracyChart() {
     if (_weeklyAccuracy.isEmpty) {
       return Container(
-        height: 200,
+        height: responsiveSize(context, 200),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
@@ -332,7 +333,7 @@ class _ProgressScreenState extends State<ProgressScreen>
     }
     final step = (_weeklyAccuracy.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -415,7 +416,7 @@ class _ProgressScreenState extends State<ProgressScreen>
     final interval = minY.abs() < 1 ? 1.0 : (minY.abs() / 5).ceilToDouble();
     final step = (_dailyEvLoss.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -614,7 +615,7 @@ class _ProgressScreenState extends State<ProgressScreen>
     final step = (_mistakesPerDay.length / 6).ceil();
 
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -713,7 +714,7 @@ class _ProgressScreenState extends State<ProgressScreen>
               pw.Text('Результаты',
                   style: pw.TextStyle(font: boldFont, fontSize: 18)),
               pw.Container(
-                height: 200,
+                height: responsiveSize(context, 200),
                 child: pw.Chart(
                   grid: pw.PieGrid(),
                   datasets: [
@@ -736,7 +737,7 @@ class _ProgressScreenState extends State<ProgressScreen>
               pw.Text('История стрика',
                   style: pw.TextStyle(font: boldFont, fontSize: 18)),
               pw.Container(
-                height: 200,
+                height: responsiveSize(context, 200),
                 child: pw.Chart(
                   grid: pw.CartesianGrid(
                     xAxis: pw.FixedAxis(

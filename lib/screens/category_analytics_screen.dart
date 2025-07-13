@@ -7,6 +7,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../helpers/category_translations.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/animated_line_chart.dart';
+import '../utils/responsive.dart';
 
 class CategoryAnalyticsScreen extends StatelessWidget {
   static const route = '/category_analytics';
@@ -19,7 +20,7 @@ class CategoryAnalyticsScreen extends StatelessWidget {
       ...icm.map((e) => e.key)
     }.toList()
       ..sort();
-    if (dates.length < 2) return const SizedBox(height: 200);
+    if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};
     final spotsEv = <FlSpot>[];
@@ -48,7 +49,7 @@ class CategoryAnalyticsScreen extends StatelessWidget {
     final interval = (maxY - minY) / 4;
     final step = (dates.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

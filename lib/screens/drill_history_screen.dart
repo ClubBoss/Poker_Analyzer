@@ -8,6 +8,7 @@ import '../helpers/date_utils.dart';
 import '../models/drill_result.dart';
 import '../services/training_pack_storage_service.dart';
 import '../models/saved_hand.dart';
+import '../utils/responsive.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../helpers/pack_spot_utils.dart';
 import 'package:collection/collection.dart';
@@ -43,8 +44,8 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
 
   Widget _progressChart(List<DrillResult> data) {
     if (data.length < 2) {
-      return const SizedBox(
-        height: 200,
+      return SizedBox(
+        height: responsiveSize(context, 200),
         child: Center(
           child:
               Text('Недостаточно данных', style: TextStyle(color: Colors.white70)),
@@ -60,7 +61,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
     }
     final step = (sorted.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

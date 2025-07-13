@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../helpers/date_utils.dart';
 import '../helpers/action_utils.dart';
 import 'package:provider/provider.dart';
+import '../utils/responsive.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -2554,7 +2555,7 @@ class _EvIcmLineChart extends StatelessWidget {
     final interval = (maxY - minY) / 4;
     final step = (len / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

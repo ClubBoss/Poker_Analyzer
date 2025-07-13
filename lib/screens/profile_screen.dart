@@ -11,6 +11,7 @@ import '../services/cloud_sync_service.dart';
 import '../services/training_pack_cloud_sync_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/responsive.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -79,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildChart() {
     if (_stats.isEmpty) {
       return Container(
-        height: 200,
+        height: responsiveSize(context, 200),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: AppColors.cardBackground,

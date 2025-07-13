@@ -14,6 +14,7 @@ import '../services/file_saver_service.dart';
 import 'session_replay_screen.dart';
 import '../widgets/common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 import '../theme/constants.dart';
 import '../services/session_note_service.dart';
 import 'package:provider/provider.dart';
@@ -133,7 +134,7 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
     final interval = (maxAbs / 5).ceilToDouble();
     final step = (_evs.length / 6).ceil();
     return Container(
-      height: 200,
+      height: responsiveSize(context, 200),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,

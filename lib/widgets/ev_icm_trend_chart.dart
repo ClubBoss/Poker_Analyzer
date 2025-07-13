@@ -6,6 +6,7 @@ import '../services/training_stats_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
+import '../utils/responsive.dart';
 
 enum EvIcmTrendMode { weekly, monthly }
 
@@ -43,7 +44,7 @@ class EvIcmTrendChart extends StatelessWidget {
       ...icm.map((e) => e.key)
     }.toList()
       ..sort();
-    if (dates.length < 2) return const SizedBox(height: 200);
+    if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};
     final spotsEv = <FlSpot>[];
@@ -170,7 +171,7 @@ class EvIcmTrendChart extends StatelessWidget {
     );
     return Column(
       children: [
-        SizedBox(height: 200, child: chart),
+        SizedBox(height: responsiveSize(context, 200), child: chart),
         const SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
