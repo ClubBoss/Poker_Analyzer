@@ -101,7 +101,9 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: days.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: isCompactWidth(context) ? 4 : 7,
+              crossAxisCount: isLandscape(context)
+                  ? (isCompactWidth(context) ? 6 : 10)
+                  : (isCompactWidth(context) ? 4 : 7),
               mainAxisSpacing: 4,
               crossAxisSpacing: 4,
             ),
