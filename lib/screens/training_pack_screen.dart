@@ -128,6 +128,12 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   int _currentIndex = 0;
 
   static const List<String> _availableTags = ['BVB', 'ICM', 'Trap', 'KO'];
+  static const _stackRanges = ['10-15', '15-20', '20-25', '25+'];
+  static const _prefsStackKey = 'training_stack_range';
+
+  String? _stackFilter;
+  late List<SavedHand> _allHands;
+  late List<TrainingSpot> _allSpots;
 
   late TrainingPack _pack;
 
@@ -161,11 +167,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
       cloud: context.read<CloudSyncService>(),
     );
     _pack = widget.pack;
-    _sessionHands = widget.hands ?? _pack.hands;
+    _allHands = widget.hands ?? _pack.hands;
+    _sessionHands = List.from(_allHands);
+    _allSpots = List.from(_pack.spots);
+    _spots = List.from(_allSpots);
     _isMistakeReviewMode = widget.mistakeReviewMode;
     _loadProgress();
     _loadSpots();
     _loadSavedResults();
+    _loadStackFilter();
   }
 
   Future<void> _loadProgress() async {
@@ -189,12 +199,67 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   Future<void> _loadSpots() async {
     final loaded = await _spotStorageService.load();
     if (mounted && loaded.isNotEmpty) {
-      setState(() => _spots = loaded);
+      setState(() {
+        _allSpots = loaded;
+        _applyStackFilter();
+      });
     }
   }
 
   Future<void> _saveSpots() async {
     await _spotStorageService.save(_spots);
+  }
+
+  bool _matchStack(int stack) {
+    final r = _stackFilter;
+    if (r == null) return true;
+    if (r.endsWith('+')) {
+      final min = int.tryParse(r.substring(0, r.length - 1)) ?? 0;
+      return stack >= min;
+    }
+    final parts = r.split('-');
+    if (parts.length == 2) {
+      final min = int.tryParse(parts[0]) ?? 0;
+      final max = int.tryParse(parts[1]) ?? 0;
+      return stack >= min && stack <= max;
+    }
+    return true;
+  }
+
+  void _applyStackFilter() {
+    final hands = [
+      for (final h in _allHands)
+        if (_matchStack(h.stackSizes[h.heroIndex] ?? 0)) h
+    ];
+    final spots = [
+      for (final s in _allSpots)
+        if (_matchStack(s.stacks[s.heroIndex])) s
+    ];
+    _sessionHands = hands;
+    _spots = spots;
+    _currentIndex = _currentIndex.clamp(0, _sessionHands.isEmpty ? 0 : _sessionHands.length - 1);
+  }
+
+  Future<void> _loadStackFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _stackFilter = prefs.getString(_prefsStackKey);
+      _applyStackFilter();
+    });
+  }
+
+  Future<void> _setStackFilter(String? value) async {
+    setState(() {
+      _stackFilter = value;
+      _applyStackFilter();
+    });
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_prefsStackKey);
+    } else {
+      await prefs.setString(_prefsStackKey, value);
+    }
   }
 
   Future<void> _loadSavedResults() async {
@@ -635,8 +700,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
     setState(() {
       _currentIndex = 0;
       _results.clear();
-      _sessionHands = _pack.hands;
+      _allHands = _pack.hands;
       _isMistakeReviewMode = false;
+      _applyStackFilter();
     });
     _saveProgress();
   }
@@ -995,7 +1061,10 @@ body { font-family: sans-serif; padding: 16px; }
   Future<void> _importSpotsCsv() async {
     final spots = await _spotFileService.importSpotsCsv(context);
     if (spots.isNotEmpty && mounted) {
-      setState(() => _spots = spots);
+      setState(() {
+        _allSpots = spots;
+        _applyStackFilter();
+      });
       await _saveSpots();
     }
   }
@@ -1210,12 +1279,13 @@ body { font-family: sans-serif; padding: 16px; }
     }
 
     setState(() {
-      _sessionHands = mistakeHands;
+      _allHands = mistakeHands;
       _results
         ..clear()
         ..addAll(mistakes);
       _currentIndex = 0;
       _isMistakeReviewMode = true;
+      _applyStackFilter();
     });
   }
 
@@ -1520,6 +1590,17 @@ body { font-family: sans-serif; padding: 16px; }
       margin: const EdgeInsets.all(16),
       child: ListTile(
         leading: leading,
+        trailing: DropdownButton<String>(
+          value: _stackFilter ?? 'any',
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          onChanged: (v) => _setStackFilter(v == 'any' ? null : v),
+          items: [
+            const DropdownMenuItem(value: 'any', child: Text('Any Stack')),
+            for (final r in _stackRanges)
+              DropdownMenuItem(value: r, child: Text('$r BB')),
+          ],
+        ),
         title: Row(
           children: [
             Expanded(child: Text(_pack.name)),
@@ -1589,12 +1670,16 @@ body { font-family: sans-serif; padding: 16px; }
           spots: _spots,
           onEdit: (index) async {
             final spot = _spots[index];
+            final baseIndex = _allSpots.indexOf(spot);
             final updated = await Navigator.push<TrainingSpot>(
               context,
               MaterialPageRoute(builder: (_) => SpotEditorScreen(initial: spot)),
             );
             if (updated == null) return;
-            setState(() => _spots[index] = updated);
+            if (baseIndex != -1) _allSpots[baseIndex] = updated;
+            setState(() {
+              _applyStackFilter();
+            });
             await _saveSpots();
             final newPack = TrainingPack(
               name: _pack.name,
@@ -1615,8 +1700,10 @@ body { font-family: sans-serif; padding: 16px; }
             setState(() => _pack = newPack);
           },
           onRemove: (index) async {
+            final spot = _spots.removeAt(index);
+            _allSpots.remove(spot);
             setState(() {
-              _spots.removeAt(index);
+              _applyStackFilter();
             });
             await _saveSpots();
             final newPack = TrainingPack(
@@ -1642,6 +1729,13 @@ body { font-family: sans-serif; padding: 16px; }
             setState(() {
               final item = _spots.removeAt(oldIndex);
               _spots.insert(newIndex, item);
+              final baseItem = _allSpots.removeAt(_allSpots.indexOf(item));
+              final target = newIndex >= _spots.length
+                  ? null
+                  : _spots[newIndex];
+              final baseIndex =
+                  target == null ? _allSpots.length : _allSpots.indexOf(target);
+              _allSpots.insert(baseIndex, baseItem);
             });
             _saveSpots();
           },
@@ -2087,7 +2181,8 @@ body { font-family: sans-serif; padding: 16px; }
                   setState(() {
                     _currentIndex =
                         _pack.history.isNotEmpty ? _pack.history.last.total : 0;
-                    _sessionHands = _pack.hands;
+                    _allHands = _pack.hands;
+                    _applyStackFilter();
                     _isMistakeReviewMode = false;
                   });
                 },
