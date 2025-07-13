@@ -193,5 +193,23 @@ void main() {
       expect(exportConverters, hasLength(1));
       expect(exportConverters.first.formatId, 'export_only');
     });
+
+    test('detectCompatible finds matching converter', () {
+      final registry = ConverterRegistry();
+      final ok = _MockConverter('ok', 'Ok', (d) => d == 'match' ? _dummyHand() : null);
+      registry.register(ok);
+      registry.register(_MockConverter('bad', 'Bad'));
+
+      final result = registry.detectCompatible('match');
+      expect(result, same(ok));
+    });
+
+    test('detectCompatible returns null when none match', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('a', 'A'));
+
+      final result = registry.detectCompatible('data');
+      expect(result, isNull);
+    });
   });
 }

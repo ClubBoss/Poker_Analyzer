@@ -97,4 +97,17 @@ class ConverterRegistry {
           )
     ]);
   }
+
+  /// Returns the first converter that successfully parses [data].
+  ConverterPlugin? detectCompatible(String data) {
+    final parts = data.split(RegExp(r'\n\s*\n'));
+    for (final plugin in _plugins) {
+      for (final part in parts) {
+        if (plugin.convertFrom(part.trim()) != null) {
+          return plugin;
+        }
+      }
+    }
+    return null;
+  }
 }

@@ -14,7 +14,6 @@ import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
-import '../services/room_hand_history_importer.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/template_storage_service.dart';
 import '../services/push_fold_ev_service.dart';
@@ -25,7 +24,10 @@ import '../helpers/hand_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/ev_icm_chart.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
-import '../plugins/converters/888poker_hand_history_converter.dart';
+import '../plugins/plugin_loader.dart';
+import '../plugins/plugin_manager.dart';
+import '../plugins/converter_registry.dart';
+import '../services/service_registry.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'session_replay_screen.dart';
 
@@ -41,7 +43,6 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
   final List<SavedHand> _hands = [];
   SummaryResult? _summary;
   bool _loading = false;
-  String _format = 'auto';
 
   Future<void> _paste() async {
     final data = await Clipboard.getData('text/plain');
@@ -70,18 +71,24 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
       _hands.clear();
       _summary = null;
     });
-    List<SavedHand> parsed;
-    if (_format == '888') {
-      final converter = Poker888HandHistoryConverter();
-      final parts = text.split(RegExp(r'\n\s*\n'));
-      parsed = [
-        for (final p in parts)
-          if (converter.convertFrom(p) != null) converter.convertFrom(p)!
-      ];
-    } else {
-      final importer = await RoomHandHistoryImporter.create();
-      parsed = importer.parse(text);
+    final registry = ServiceRegistry();
+    final manager = PluginManager();
+    await PluginLoader().loadAll(registry, manager, context: context);
+    final converters = registry.get<ConverterRegistry>();
+    final plugin = converters.detectCompatible(text);
+    if (plugin == null) {
+      if (mounted) {
+        setState(() => _loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Unsupported format')));
+      }
+      return;
     }
+    final parts = text.split(RegExp(r'\n\s*\n'));
+    final parsed = [
+      for (final p in parts)
+        if (plugin.convertFrom(p.trim()) != null) plugin.convertFrom(p.trim())!
+    ];
     final service = context.read<SessionAnalysisService>();
     final result = await service.analyze(parsed);
     await context.read<SavedHandManagerService>().addHands(result.hands);
@@ -194,14 +201,6 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
               decoration: const InputDecoration(labelText: 'Hand history'),
             ),
             const SizedBox(height: 8),
-            DropdownButton<String>(
-              value: _format,
-              items: const [
-                DropdownMenuItem(value: 'auto', child: Text('Auto')),
-                DropdownMenuItem(value: '888', child: Text('888Poker')),
-              ],
-              onChanged: (v) => setState(() => _format = v ?? 'auto'),
-            ),
             const SizedBox(height: 8),
             ElevatedButton(onPressed: _parse, child: const Text('Parse & Analyze')),
             const SizedBox(height: 16),
