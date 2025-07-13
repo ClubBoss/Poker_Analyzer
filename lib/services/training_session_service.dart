@@ -37,9 +37,13 @@ class TrainingSessionService extends ChangeNotifier {
   double _preEvPct = 0;
   double _preIcmPct = 0;
   final Map<String, CategoryProgress> _categoryStats = {};
+  double _evAverageAll = 0;
+  double _icmAverageAll = 0;
 
   double get preEvPct => _preEvPct;
   double get preIcmPct => _preIcmPct;
+  double get evAverageAll => _evAverageAll;
+  double get icmAverageAll => _icmAverageAll;
 
   bool get isPaused => _paused;
   List<FocusGoal> get focusHandTypes => List.unmodifiable(_focusHandTypes);
@@ -151,6 +155,17 @@ class TrainingSessionService extends ChangeNotifier {
             for (final e in (spots as List? ?? []))
               TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
           ];
+          if (_spots.isNotEmpty) {
+            final evs = _spots.map((e) => e.heroEv).whereType<double>().toList();
+            if (evs.isNotEmpty) {
+              _evAverageAll = evs.reduce((a, b) => a + b) / evs.length;
+            }
+            final icms =
+                _spots.map((e) => e.heroIcmEv).whereType<double>().toList();
+            if (icms.isNotEmpty) {
+              _icmAverageAll = icms.reduce((a, b) => a + b) / icms.length;
+            }
+          }
       _focusHandTypes
         ..clear()
         ..addAll([
@@ -159,6 +174,8 @@ class TrainingSessionService extends ChangeNotifier {
         ]);
           _preEvPct = (data['preEvPct'] as num?)?.toDouble() ?? 0;
           _preIcmPct = (data['preIcmPct'] as num?)?.toDouble() ?? 0;
+          _evAverageAll = (data['evAverageAll'] as num?)?.toDouble() ?? 0;
+          _icmAverageAll = (data['icmAverageAll'] as num?)?.toDouble() ?? 0;
           final totalRaw = data['handGoalTotal'];
           if (totalRaw is Map) {
             _handGoalTotal
@@ -225,6 +242,8 @@ class TrainingSessionService extends ChangeNotifier {
     _handGoalTotal.clear();
     _handGoalCount.clear();
     _categoryStats.clear();
+    _evAverageAll = 0;
+    _icmAverageAll = 0;
     if (_activeBox != null) await _activeBox!.delete('session');
     notifyListeners();
   }
@@ -247,7 +266,9 @@ class TrainingSessionService extends ChangeNotifier {
             for (final e in _categoryStats.entries) e.key: e.value.toJson()
           },
         'preEvPct': _preEvPct,
-        'preIcmPct': _preIcmPct
+        'preIcmPct': _preIcmPct,
+        'evAverageAll': _evAverageAll,
+        'icmAverageAll': _icmAverageAll
       });
     }
   }
@@ -282,6 +303,18 @@ class TrainingSessionService extends ChangeNotifier {
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
     _preIcmPct = total == 0 ? 0 : template.icmCovered * 100 / total;
     _spots = List<TrainingPackSpot>.from(template.spots);
+    _evAverageAll = 0;
+    _icmAverageAll = 0;
+    if (_spots.isNotEmpty) {
+      final evs = _spots.map((e) => e.heroEv).whereType<double>().toList();
+      if (evs.isNotEmpty) {
+        _evAverageAll = evs.reduce((a, b) => a + b) / evs.length;
+      }
+      final icms = _spots.map((e) => e.heroIcmEv).whereType<double>().toList();
+      if (icms.isNotEmpty) {
+        _icmAverageAll = icms.reduce((a, b) => a + b) / icms.length;
+      }
+    }
     _actions.clear();
     _focusHandTypes
       ..clear()
