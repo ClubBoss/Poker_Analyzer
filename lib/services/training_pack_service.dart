@@ -369,6 +369,31 @@ class TrainingPackService {
     );
   }
 
+  static Future<TrainingPackTemplate?> createDrillFromAllMistakes(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final list = [
+      for (final h in hands)
+        if (!h.corrected &&
+            (h.evLoss?.abs() ?? 0) >= 1.0 &&
+            h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ];
+    if (list.isEmpty) return null;
+    list.shuffle();
+    final rng = Random();
+    final count = min(list.length, 5 + rng.nextInt(6));
+    final spots = [for (final h in list.take(count)) _spotFromHand(h)];
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'All Current Mistakes',
+      spots: spots,
+    );
+  }
+
   static TrainingPackTemplate createDrillFromHand(SavedHand hand) {
     final spot = _spotFromHand(hand);
     return TrainingPackTemplate(
