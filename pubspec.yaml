@@ -90,6 +90,8 @@ flutter:
     - assets/spots/spots.json
     - assets/training_packs/
     - assets/training_templates/
+    - assets/ranges/sb_10bb.json
+    - assets/ranges/btn_15bb.json
     - assets/ranges/
     - assets/packs/
 
