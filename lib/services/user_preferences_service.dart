@@ -12,6 +12,9 @@ class UserPreferencesService extends ChangeNotifier {
   static const _demoModeKey = 'demo_mode';
   static const _tutorialCompletedKey = 'tutorial_completed';
   static const _simpleNavKey = 'simple_navigation';
+  static const _weakRangeStartKey = 'weak_range_start';
+  static const _weakRangeEndKey = 'weak_range_end';
+  static const _weakCatCountKey = 'weak_cat_count';
 
   bool _showPotAnimation = true;
   bool _showCardReveal = true;
@@ -21,6 +24,8 @@ class UserPreferencesService extends ChangeNotifier {
   bool _demoMode = false;
   bool _tutorialCompleted = false;
   bool _simpleNavigation = false;
+  DateTimeRange? _weakRange;
+  int _weakCatCount = 5;
   final CloudSyncService? cloud;
 
   UserPreferencesService({this.cloud});
@@ -33,6 +38,8 @@ class UserPreferencesService extends ChangeNotifier {
   bool get demoMode => _demoMode;
   bool get tutorialCompleted => _tutorialCompleted;
   bool get simpleNavigation => _simpleNavigation;
+  DateTimeRange? get weaknessRange => _weakRange;
+  int get weaknessCategoryCount => _weakCatCount;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -44,6 +51,14 @@ class UserPreferencesService extends ChangeNotifier {
     _demoMode = prefs.getBool(_demoModeKey) ?? false;
     _tutorialCompleted = prefs.getBool(_tutorialCompletedKey) ?? false;
     _simpleNavigation = prefs.getBool(_simpleNavKey) ?? false;
+    final startStr = prefs.getString(_weakRangeStartKey);
+    final endStr = prefs.getString(_weakRangeEndKey);
+    if (startStr != null && endStr != null) {
+      final s = DateTime.tryParse(startStr);
+      final e = DateTime.tryParse(endStr);
+      if (s != null && e != null) _weakRange = DateTimeRange(start: s, end: e);
+    }
+    _weakCatCount = prefs.getInt(_weakCatCountKey) ?? 5;
     notifyListeners();
   }
 
@@ -56,6 +71,9 @@ class UserPreferencesService extends ChangeNotifier {
         'demoMode': _demoMode,
         'tutorialCompleted': _tutorialCompleted,
         'simpleNavigation': _simpleNavigation,
+        if (_weakRange != null) 'weakRangeStart': _weakRange!.start.toIso8601String(),
+        if (_weakRange != null) 'weakRangeEnd': _weakRange!.end.toIso8601String(),
+        'weakCatCount': _weakCatCount,
         'updatedAt': DateTime.now().toIso8601String(),
       };
 
@@ -122,6 +140,36 @@ class UserPreferencesService extends ChangeNotifier {
     if (_tutorialCompleted == value) return;
     _tutorialCompleted = value;
     await _save(_tutorialCompletedKey, value);
+    notifyListeners();
+  }
+
+  Future<void> setWeaknessRange(DateTimeRange? value) async {
+    _weakRange = value;
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_weakRangeStartKey);
+      await prefs.remove(_weakRangeEndKey);
+    } else {
+      await prefs.setString(_weakRangeStartKey, value.start.toIso8601String());
+      await prefs.setString(_weakRangeEndKey, value.end.toIso8601String());
+    }
+    if (cloud != null) {
+      final data = _toMap();
+      await cloud!.queueMutation('preferences', 'main', data);
+      unawaited(cloud!.syncUp());
+    }
+    notifyListeners();
+  }
+
+  Future<void> setWeaknessCategoryCount(int value) async {
+    _weakCatCount = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_weakCatCountKey, value);
+    if (cloud != null) {
+      final data = _toMap();
+      await cloud!.queueMutation('preferences', 'main', data);
+      unawaited(cloud!.syncUp());
+    }
     notifyListeners();
   }
 }

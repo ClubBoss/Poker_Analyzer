@@ -9,6 +9,9 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../services/training_stats_service.dart';
+import '../services/user_preferences_service.dart';
+import '../helpers/date_utils.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../helpers/category_translations.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
@@ -31,9 +34,14 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
   final ScrollController _ctrl = ScrollController();
   final _keys = <GlobalKey>[];
   int? _highlight;
+  DateTimeRange? _range;
+  int _limit = 5;
   @override
   void initState() {
     super.initState();
+    final prefs = context.read<UserPreferencesService>();
+    _range = prefs.weaknessRange;
+    _limit = prefs.weaknessCategoryCount;
     final list = _entries(context);
     if (list.isNotEmpty) {
       double max = -1;
@@ -59,7 +67,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
   }
 
   List<MapEntry<String, _CatStat>> _entries(BuildContext context) {
-    final hands = context.read<SavedHandManagerService>().hands;
+    final allHands = context.read<SavedHandManagerService>().hands;
+    final hands = _range == null
+        ? allHands
+        : [
+            for (final h in allHands)
+              if (!h.savedAt.isBefore(_range!.start) &&
+                  !h.savedAt.isAfter(_range!.end))
+                h
+          ];
     final stats = <String, _CatStat>{};
     for (final h in hands) {
       final cat = h.category;
@@ -90,7 +106,7 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
         final cmp = br.compareTo(ar);
         return cmp == 0 ? bt.compareTo(at) : cmp;
       });
-    return list;
+    return list.take(_limit).toList();
   }
 
   void _scrollToIndex() {
@@ -100,6 +116,34 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
     if (ctx != null) {
       Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
     }
+  }
+
+  String get _rangeLabel {
+    if (_range == null) return 'Период';
+    final start = formatDate(_range!.start);
+    final end = formatDate(_range!.end);
+    return start == end ? start : '$start – $end';
+  }
+
+  Future<void> _pickRange() async {
+    final now = DateTime.now();
+    final initial = _range ??
+        DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: initial,
+    );
+    if (picked != null) {
+      setState(() => _range = picked);
+      context.read<UserPreferencesService>().setWeaknessRange(picked);
+    }
+  }
+
+  void _setLimit(int value) {
+    setState(() => _limit = value);
+    context.read<UserPreferencesService>().setWeaknessCategoryCount(value);
   }
 
   Future<void> _exportPdf(BuildContext context) async {
@@ -451,6 +495,26 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                       const TextStyle(color: Colors.greenAccent, fontSize: 12)),
               const SizedBox(height: 24),
             ],
+            Row(
+              children: [
+                TextButton(
+                  onPressed: _pickRange,
+                  child: Text(_rangeLabel),
+                ),
+                const SizedBox(width: 8),
+                DropdownButton<int>(
+                  value: _limit,
+                  underline: const SizedBox.shrink(),
+                  dropdownColor: Colors.grey[900],
+                  items: [3, 5, 10]
+                      .map((e) => DropdownMenuItem(value: e, child: Text('$e')))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) _setLimit(v);
+                  },
+                ),
+              ],
+            ),
             Expanded(
               child: ListView.builder(
                 controller: _ctrl,
@@ -474,19 +538,20 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
             decoration: BoxDecoration(
               color: index == _highlight ? Colors.red.shade900 : Colors.grey[850],
               borderRadius: BorderRadius.circular(8),
-              border: index == _highlight
-                  ? Border.all(color: Colors.red)
-                  : null,
+              border: index == _highlight ? Border.all(color: Colors.red) : null,
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name.isEmpty ? 'Без категории' : name,
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(name.isEmpty ? 'Без категории' : name,
+                              style: const TextStyle(
+                                  color: Colors.white, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
                       Text(
                         '${e.value.count} ошибок • -${e.value.evLoss.toStringAsFixed(2)} EV',
@@ -504,15 +569,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                           'Тренировок: ${catProgress[e.key]!.played} • ${((catProgress[e.key]!.correct * 100 / catProgress[e.key]!.played).round())}% верно • +${catProgress[e.key]!.evSaved.toStringAsFixed(2)} EV',
                           style: const TextStyle(fontSize: 11, color: Colors.blueAccent),
                         ),
-                    ],
-                  ),
-                ),
-                Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        final tpl = await TrainingPackService.createDrillFromCategory(
-                            context, e.key);
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            final tpl = await TrainingPackService.createDrillFromCategory(
+                                context, e.key);
                         if (tpl == null) return;
                         await context
                             .read<TrainingSessionService>()
@@ -527,10 +592,10 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                       },
                       child: const Text('Тренироваться'),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        final manager = context.read<SavedHandManagerService>();
-                        final list = manager.filterByCategory(e.key);
+                        TextButton(
+                          onPressed: () {
+                            final manager = context.read<SavedHandManagerService>();
+                            final list = manager.filterByCategory(e.key);
                         if (list.isEmpty) return;
                         final tpl = manager.createPack('Ошибки', list);
                         Navigator.push(
@@ -540,9 +605,35 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                         );
                       },
                       child: const Text('Все ошибки этой категории'),
-                    ),
+                        ),
+                      ],
+                    )
                   ],
-                )
+                ),
+                if (catProgress[e.key] != null && catProgress[e.key]!.played > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: SizedBox(
+                      height: 120,
+                      child: PieChart(
+                        PieChartData(
+                          sectionsSpace: 0,
+                          sections: [
+                            PieChartSectionData(
+                              value: catProgress[e.key]!.correct.toDouble(),
+                              color: Colors.green,
+                              title: '',
+                            ),
+                            PieChartSectionData(
+                              value: (catProgress[e.key]!.played - catProgress[e.key]!.correct).toDouble(),
+                              color: Colors.red,
+                              title: '',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
               ],
             ),
           );
