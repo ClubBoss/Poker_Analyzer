@@ -2,7 +2,7 @@ import '../models/action_entry.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/saved_hand.dart';
-import 'diff_snapshot_service.dart';
+import '../undo_history/diff_engine.dart';
 import 'action_sync_service.dart';
 import 'board_manager_service.dart';
 import 'board_reveal_service.dart';
@@ -32,7 +32,7 @@ class UndoRedoService {
   final PotSyncService potSync;
   final TransitionLockService lockService;
   final TransitionHistoryService transitionHistory;
-  final DiffSnapshotService diffService;
+  final DiffEngine diffEngine;
 
   UndoRedoService({
     required this.actionSync,
@@ -48,12 +48,13 @@ class UndoRedoService {
     required this.potSync,
     required this.lockService,
     required this.transitionHistory,
-    required this.diffService,
+    required this.diffEngine,
   });
 
-  late SavedHand _lastSnapshot = _currentSnapshot();
-  final List<SnapshotDiff> _undoDiffs = [];
-  final List<SnapshotDiff> _redoDiffs = [];
+  late Map<String, dynamic> _lastMap = _currentSnapshot().toJson();
+  late SavedHand _lastSnapshot = SavedHand.fromJson(_lastMap);
+  final List<StateDiff> _undoDiffs = [];
+  final List<StateDiff> _redoDiffs = [];
 
   SavedHand _currentSnapshot() {
     final stackService = playbackManager.stackService;
@@ -101,17 +102,21 @@ class UndoRedoService {
 
   void recordSnapshot() {
     final current = _currentSnapshot();
-    final diff = diffService.compute(_lastSnapshot, current);
+    final currentMap = current.toJson();
+    final diff = diffEngine.compute(_lastMap, currentMap);
     _undoDiffs.add(diff);
     _redoDiffs.clear();
     _lastSnapshot = current;
+    _lastMap = currentMap;
     transitionHistory.recordSnapshot();
   }
 
   void resetHistory() {
     _undoDiffs.clear();
     _redoDiffs.clear();
-    _lastSnapshot = _currentSnapshot();
+    final snap = _currentSnapshot();
+    _lastMap = snap.toJson();
+    _lastSnapshot = snap;
     transitionHistory.resetHistory();
   }
 
@@ -152,18 +157,22 @@ class UndoRedoService {
   void undo() {
     if (_undoDiffs.isEmpty) return;
     final diff = _undoDiffs.removeLast();
-    final snap = diffService.apply(_lastSnapshot, diff.backward);
+    final map = diffEngine.apply(_lastMap, diff.backward);
+    final snap = SavedHand.fromJson(map);
     _redoDiffs.add(diff);
     _lastSnapshot = snap;
+    _lastMap = map;
     transitionHistory.undo(() => _applySnapshot(snap));
   }
 
   void redo() {
     if (_redoDiffs.isEmpty) return;
     final diff = _redoDiffs.removeLast();
-    final snap = diffService.apply(_lastSnapshot, diff.forward);
+    final map = diffEngine.apply(_lastMap, diff.forward);
+    final snap = SavedHand.fromJson(map);
     _undoDiffs.add(diff);
     _lastSnapshot = snap;
+    _lastMap = map;
     transitionHistory.redo(() => _applySnapshot(snap));
   }
 }

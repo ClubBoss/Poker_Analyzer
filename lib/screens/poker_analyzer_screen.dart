@@ -110,7 +110,7 @@ import '../services/backup_manager_service.dart';
 import '../services/debug_snapshot_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/undo_redo_service.dart';
-import '../services/diff_snapshot_service.dart';
+import '../undo_history/diff_engine.dart';
 import '../services/action_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/transition_history_service.dart';
@@ -3483,7 +3483,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       potSync: _potSync,
       lockService: lockService,
       transitionHistory: _transitionHistory,
-      diffService: DiffSnapshotService(),
+      diffEngine: DiffEngine(),
     ));
     _undoRedoService = _serviceRegistry.get<UndoRedoService>();
 
