@@ -38,6 +38,8 @@ import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_service.dart';
 import 'mistake_review_screen.dart';
+import '../services/saved_hand_manager_service.dart';
+import '../services/training_pack_template_storage_service.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
@@ -99,6 +101,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
       });
+      _maybeOfferStarter();
     });
     _init();
   }
@@ -110,6 +113,27 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _updateRecent();
     await _updatePopular();
     await _loadStats();
+  }
+
+  Future<void> _maybeOfferStarter() async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    if (hands.isNotEmpty) return;
+    final start = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const _StarterTrainingDialog(),
+    );
+    if (start == true && mounted) {
+      final tpl = await context
+          .read<TrainingPackTemplateStorageService>()
+          .loadBuiltinTemplate('starter_btn_vs_bb');
+      await context.read<TrainingSessionService>().startSession(tpl);
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+      );
+    }
   }
 
   @override
@@ -1390,6 +1414,39 @@ class _PackSheetContent extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _StarterTrainingDialog extends StatelessWidget {
+  const _StarterTrainingDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Practice most common push/fold spots to build skill quickly',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Start Training Now'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

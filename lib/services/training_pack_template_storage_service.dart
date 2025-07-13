@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../repositories/training_pack_template_repository.dart';
 import 'training_pack_cloud_sync_service.dart';
 import 'goal_progress_cloud_service.dart';
+import '../models/v2/training_pack_template.dart' as v2;
 
 class TrainingPackTemplateStorageService extends ChangeNotifier {
   static const _key = 'training_pack_templates';
@@ -114,5 +116,12 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
     };
     _goalProgress.putIfAbsent(templateId, () => {})[goal] = data;
     await goals?.saveProgress(data);
+  }
+
+  Future<v2.TrainingPackTemplate> loadBuiltinTemplate(String id) async {
+    final data = jsonDecode(
+      await rootBundle.loadString('assets/training_packs/$id.json'),
+    ) as Map<String, dynamic>;
+    return v2.TrainingPackTemplate.fromJson(data);
   }
 }
