@@ -20,6 +20,7 @@ import '../services/push_fold_ev_service.dart';
 import '../services/icm_push_ev_service.dart';
 import '../services/session_analysis_service.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/pack_export_service.dart';
 import '../helpers/hand_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/ev_icm_chart.dart';
@@ -91,7 +92,6 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     ];
     final service = context.read<SessionAnalysisService>();
     final result = await service.analyze(parsed);
-    await context.read<SavedHandManagerService>().addHands(result.hands);
     if (!mounted) return;
     setState(() {
       _hands
@@ -177,6 +177,72 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     );
   }
 
+  Future<bool> _confirmLargeExport(int count) async {
+    if (count <= 100) return true;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Экспортировать $count раздач?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Экспорт'),
+          ),
+        ],
+      ),
+    );
+    return confirm == true;
+  }
+
+  Future<void> _exportCsv() async {
+    if (_hands.isEmpty) return;
+    if (!await _confirmLargeExport(_hands.length)) return;
+    final list = [..._hands]..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+    final evs = <double>[];
+    final icms = <double>[];
+    for (final h in list) {
+      final ev = _ev(h) ?? 0;
+      evs.add(ev);
+      icms.add(_icm(h, ev) ?? 0);
+    }
+    await PackExportService.exportSessionCsv(list, evs, icms);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('CSV exported')));
+    }
+  }
+
+  Future<void> _exportPdf() async {
+    if (_hands.isEmpty) return;
+    if (!await _confirmLargeExport(_hands.length)) return;
+    final list = [..._hands]..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+    final evs = <double>[];
+    final icms = <double>[];
+    for (final h in list) {
+      final ev = _ev(h) ?? 0;
+      evs.add(ev);
+      icms.add(_icm(h, ev) ?? 0);
+    }
+    await PackExportService.exportSessionPdf(list, evs, icms);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('PDF exported')));
+    }
+  }
+
+  Future<void> _saveHands() async {
+    if (_hands.isEmpty) return;
+    await context.read<SavedHandManagerService>().addHands(_hands);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Hands saved')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,6 +279,16 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
               EvIcmChart(hands: _hands),
               const SizedBox(height: 16),
               ElevatedButton(onPressed: _replay, child: const Text('Replay Session')),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: _saveHands, child: const Text('💾 Save to My Hands')),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(child: ElevatedButton(onPressed: _exportPdf, child: const Text('Export PDF'))),
+                  const SizedBox(width: 8),
+                  Expanded(child: ElevatedButton(onPressed: _exportCsv, child: const Text('Export CSV'))),
+                ],
+              ),
               const SizedBox(height: 16),
               if (_hands.any((h) => h.expectedAction != null && h.gtoAction != null && h.expectedAction!.toLowerCase() != h.gtoAction!.toLowerCase()))
                 ElevatedButton(onPressed: _review, child: const Text('🔥 Review mistakes')),
