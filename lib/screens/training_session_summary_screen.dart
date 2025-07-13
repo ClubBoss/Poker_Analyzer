@@ -9,6 +9,7 @@ import '../services/png_exporter.dart';
 import 'package:flutter/rendering.dart';
 import '../widgets/combined_progress_bar.dart';
 import '../widgets/combined_progress_change_bar.dart';
+import '../widgets/ev_icm_history_chart.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_session.dart';
@@ -172,6 +173,8 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
               evPct: evPct,
               icmPct: icmPct,
             ),
+            const SizedBox(height: 12),
+            const EvIcmHistoryChart(),
             const SizedBox(height: 16),
             Builder(
               builder: (context) {
