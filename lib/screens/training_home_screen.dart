@@ -40,9 +40,12 @@ import 'training_progress_analytics_screen.dart';
 import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
 import '../widgets/sync_status_widget.dart';
+import '../tutorial/tutorial_flow.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
-  const TrainingHomeScreen({super.key});
+  final TutorialFlow? tutorial;
+  static final GlobalKey recommendationsKey = GlobalKey();
+  const TrainingHomeScreen({super.key, this.tutorial});
 
   @override
   State<TrainingHomeScreen> createState() => _TrainingHomeScreenState();
@@ -53,6 +56,8 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
   void initState() {
     super.initState();
     context.read<SpotOfTheDayService>().ensureTodaySpot();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => widget.tutorial?.showCurrentStep(context));
   }
 
   @override
@@ -86,7 +91,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
       ),
       body: ListView(
         children: [
-          const _RecommendedCarousel(),
+          _RecommendedCarousel(key: TrainingHomeScreen.recommendationsKey),
           const QuickContinueCard(),
           const DailyFocusRecapCard(),
           const SpotOfTheDayCard(),
@@ -127,7 +132,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
 }
 
 class _RecommendedCarousel extends StatefulWidget {
-  const _RecommendedCarousel();
+  const _RecommendedCarousel({super.key});
 
   @override
   State<_RecommendedCarousel> createState() => _RecommendedCarouselState();

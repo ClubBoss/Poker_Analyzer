@@ -50,6 +50,7 @@ import '../services/goals_service.dart';
 import '../widgets/focus_of_the_week_card.dart';
 import '../widgets/sync_status_widget.dart';
 import 'weakness_overview_screen.dart';
+import 'training_home_screen.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -626,7 +627,22 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       TutorialStep(
         targetKey: _trainingButtonKey,
         description: 'Выберите тренировочный пак',
-        onNext: (_, __) {},
+        onNext: (ctx, flow) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+                builder: (_) => TrainingHomeScreen(tutorial: flow)),
+          );
+        },
+      ),
+      TutorialStep(
+        targetKey: TrainingHomeScreen.recommendationsKey,
+        description: 'Персональные дриллы. Запустите предложенный пак',
+        onNext: (ctx, flow) {
+          final nav = Navigator.of(ctx);
+          nav.pop();
+          flow.showCurrentStep(nav.context);
+        },
       ),
       TutorialStep(
         targetKey: _newHandButtonKey,
