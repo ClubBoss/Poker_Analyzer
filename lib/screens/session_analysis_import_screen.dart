@@ -100,6 +100,17 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
       _summary = result.summary;
       _loading = false;
     });
+    final mistakes = [
+      for (final h in result.hands)
+        if (h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ];
+    if (mistakes.isNotEmpty) {
+      await _createPack(mistakes);
+    }
   }
 
   double? _ev(SavedHand h) {
@@ -130,16 +141,15 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     return icm;
   }
 
-  Future<void> _review() async {
-    final mistakes = [for (final h in _hands) if (h.expectedAction != null && h.gtoAction != null && h.expectedAction!.toLowerCase() != h.gtoAction!.toLowerCase()) h];
-    if (mistakes.isEmpty) return;
+  Future<void> _createPack(List<SavedHand> mistakes) async {
     final spots = <TrainingPackSpot>[];
     for (final h in mistakes) {
       final actions = <int, List<ActionEntry>>{for (var s = 0; s < 4; s++) s: []};
       for (final a in h.actions) {
         actions[a.street] = [...(actions[a.street] ?? []), a];
       }
-      final hero = h.playerCards.length > h.heroIndex ? h.playerCards[h.heroIndex] : <CardModel>[];
+      final hero =
+          h.playerCards.length > h.heroIndex ? h.playerCards[h.heroIndex] : <CardModel>[];
       final hc = hero.length >= 2 ? '${hero[0]} ${hero[1]}' : '';
       final handData = HandData(
         heroCards: hc,
@@ -154,19 +164,49 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
       spots.add(TrainingPackSpot(id: const Uuid().v4(), hand: handData));
     }
     if (spots.isEmpty) return;
-    final template = TrainingPackTemplate(id: const Uuid().v4(), name: 'Review Imported', spots: spots);
+    final template =
+        TrainingPackTemplate(id: const Uuid().v4(), name: 'Review Imported', spots: spots);
     context.read<TemplateStorageService>().addTemplate(template);
     MistakeReviewPackService.setLatestTemplate(template);
     await context
         .read<MistakeReviewPackService>()
         .addPack([for (final s in spots) s.id], templateId: template.id);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(template: MistakeReviewPackService.cachedTemplate!, original: template),
+    final start = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        title: const Text('Review mistakes', style: TextStyle(color: Colors.white)),
+        content: Text('Start ${spots.length} mistakes now?',
+            style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(_, false), child: const Text('No')),
+          TextButton(onPressed: () => Navigator.pop(_, true), child: const Text('Yes')),
+        ],
       ),
     );
+    if (start == true && mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TrainingPackPlayScreen(
+            template: MistakeReviewPackService.cachedTemplate!,
+            original: template,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _review() async {
+    final mistakes = [
+      for (final h in _hands)
+        if (h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.toLowerCase() != h.gtoAction!.toLowerCase())
+          h
+    ];
+    if (mistakes.isEmpty) return;
+    await _createPack(mistakes);
   }
 
   void _replay() {
