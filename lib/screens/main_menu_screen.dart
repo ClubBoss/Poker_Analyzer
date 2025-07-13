@@ -38,6 +38,7 @@ import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
 import 'progress_screen.dart';
 import 'progress_overview_screen.dart';
+import 'progress_history_screen.dart';
 import 'drill_history_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_overview_screen.dart';
@@ -543,6 +544,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ProgressOverviewScreen()),
+          );
+        },
+      ),
+      _MenuItem(
+        icon: Icons.timeline,
+        label: 'История EV/ICM',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProgressHistoryScreen()),
           );
         },
       ),
