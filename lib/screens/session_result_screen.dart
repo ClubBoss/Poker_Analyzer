@@ -12,6 +12,7 @@ import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'package:uuid/uuid.dart';
+import '../utils/responsive.dart';
 
 class SessionResultScreen extends StatefulWidget {
   final int total;
@@ -142,35 +143,44 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Session Result')),
       backgroundColor: const Color(0xFF1B1C1E),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double s(double v) => responsiveSize(context, v);
+          return Padding(
+            padding: EdgeInsets.all(s(16)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('${widget.correct} / ${widget.total}',
-                      style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
+                  Text(
+                    '${widget.correct} / ${widget.total}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: s(24),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: s(8)),
                   Text('Accuracy: ${rate.toStringAsFixed(1)}%',
                       style: const TextStyle(color: Colors.white70)),
-                  const SizedBox(height: 8),
+                  SizedBox(height: s(8)),
                   Text('EV ${service.evAverageAll.toStringAsFixed(2)}',
                       style: const TextStyle(color: Colors.white70)),
-                  const SizedBox(height: 4),
+                  SizedBox(height: s(4)),
                   Text('ICM ${service.icmAverageAll.toStringAsFixed(2)}',
                       style: const TextStyle(color: Colors.white70)),
-                  const SizedBox(height: 8),
+                  SizedBox(height: s(8)),
                   Text('Time: ${_format(widget.elapsed)}',
                       style: const TextStyle(color: Colors.white70)),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: s(16)),
             ActionAccuracyChart(actions: actions),
-            const SizedBox(height: 16),
+            SizedBox(height: s(16)),
             Expanded(
               child: actions.isEmpty
                   ? const Center(
@@ -223,27 +233,35 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                       },
                     ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: s(16)),
             Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ElevatedButton(
-                    onPressed: _retryMistakes,
-                    child: const Text('Retry mistakes'),
+                  SizedBox(
+                    width: s(200),
+                    child: ElevatedButton(
+                      onPressed: _retryMistakes,
+                      child: const Text('Retry mistakes'),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => widget.authorPreview
-                        ? Navigator.pop(context)
-                        : Navigator.of(context).popUntil((r) => r.isFirst),
-                    child: const Text('Done'),
+                  SizedBox(height: s(8)),
+                  SizedBox(
+                    width: s(200),
+                    child: ElevatedButton(
+                      onPressed: () => widget.authorPreview
+                          ? Navigator.pop(context)
+                          : Navigator.of(context).popUntil((r) => r.isFirst),
+                      child: const Text('Done'),
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
