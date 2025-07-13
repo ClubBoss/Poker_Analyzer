@@ -13,6 +13,10 @@ import 'package:poker_analyzer/services/daily_tip_service.dart';
 import 'package:poker_analyzer/services/next_step_engine.dart';
 import 'package:poker_analyzer/services/training_pack_stats_service.dart';
 import 'package:poker_analyzer/models/v2/hero_position.dart';
+import 'package:poker_analyzer/services/saved_hand_storage_service.dart';
+import 'package:poker_analyzer/services/saved_hand_manager_service.dart';
+import 'package:poker_analyzer/services/player_style_service.dart';
+import 'package:poker_analyzer/services/progress_forecast_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -60,6 +64,21 @@ void main() {
           ),
           ChangeNotifierProvider<NextStepEngine>(
             create: (_) => _FakeNextStepEngine(),
+          ),
+          ChangeNotifierProvider<SavedHandManagerService>(
+            create: (_) => SavedHandManagerService(
+              storage: SavedHandStorageService(),
+            ),
+          ),
+          ChangeNotifierProvider<PlayerStyleService>(
+            create: (context) =>
+                PlayerStyleService(hands: context.read<SavedHandManagerService>()),
+          ),
+          ChangeNotifierProvider<ProgressForecastService>(
+            create: (context) => ProgressForecastService(
+              hands: context.read<SavedHandManagerService>(),
+              style: context.read<PlayerStyleService>(),
+            ),
           ),
         ],
         child: MaterialApp(
