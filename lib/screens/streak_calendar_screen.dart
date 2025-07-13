@@ -65,10 +65,14 @@ class StreakCalendarScreen extends StatelessWidget {
         actions: [SyncStatusIcon.of(context)],
       ),
       body: GridView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: scaledPadding(context, 16),
         itemCount: 42,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isCompactWidth(context) ? 4 : 7,
+          crossAxisCount: isTablet(context) || isLandscape(context)
+              ? 8
+              : isCompactWidth(context)
+                  ? 4
+                  : 7,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),

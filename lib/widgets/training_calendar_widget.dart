@@ -25,7 +25,7 @@ class TrainingCalendarWidget extends StatelessWidget {
     final days = [for (var i = 0; i < 42; i++) start.add(Duration(days: i))];
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: scaledPadding(context, 12),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
@@ -35,7 +35,11 @@ class TrainingCalendarWidget extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isCompactWidth(context) ? 4 : 7,
+          crossAxisCount: isTablet(context) || isLandscape(context)
+              ? 8
+              : isCompactWidth(context)
+                  ? 4
+                  : 7,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),

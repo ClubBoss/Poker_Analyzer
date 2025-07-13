@@ -25,10 +25,14 @@ class DailyProgressHistoryScreen extends StatelessWidget {
         actions: [SyncStatusIcon.of(context)],
       ),
       body: GridView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: scaledPadding(context, 16),
         itemCount: days.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isCompactWidth(context) ? 4 : 7,
+          crossAxisCount: isTablet(context) || isLandscape(context)
+              ? 8
+              : isCompactWidth(context)
+                  ? 4
+                  : 7,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),
@@ -48,7 +52,8 @@ class DailyProgressHistoryScreen extends StatelessWidget {
                 Text('${d.day}',
                     style: const TextStyle(color: Colors.white, fontSize: 12)),
                 Text('$count',
-                    style: const TextStyle(color: Colors.white70, fontSize: 10)),
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 10)),
               ],
             ),
           );
