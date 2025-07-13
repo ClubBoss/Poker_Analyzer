@@ -15,6 +15,8 @@ import '../models/action_evaluation_request.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import 'saved_hand_manager_service.dart';
+import '../import_export/converter_pipeline.dart';
+import 'service_registry.dart';
 import 'player_manager_service.dart';
 import 'stack_manager_service.dart';
 import 'board_manager_service.dart';
@@ -30,9 +32,13 @@ import 'all_in_players_service.dart';
 import 'action_tag_service.dart';
 
 class SavedHandImportExportService {
-  SavedHandImportExportService(this.manager);
+  SavedHandImportExportService(this.manager, {ServiceRegistry? registry})
+      : _pipeline = registry?.contains<ConverterPipeline>() == true
+            ? registry!.get<ConverterPipeline>()
+            : null;
 
   final SavedHandManagerService manager;
+  final ConverterPipeline? _pipeline;
 
   /// Serialize [hand] to a JSON string.
   static String encode(SavedHand hand) => jsonEncode(hand.toJson());
@@ -70,6 +76,14 @@ class SavedHandImportExportService {
     return (gameType != hand.gameType || category != hand.category)
         ? hand.copyWith(gameType: gameType, category: category)
         : hand;
+  }
+
+  SavedHand? _tryInternal(String text) {
+    try {
+      return deserializeHand(text);
+    } catch (_) {
+      return null;
+    }
   }
 
   SavedHand buildHand({
@@ -185,16 +199,20 @@ class SavedHandImportExportService {
       }
       return null;
     }
-    try {
-      return deserializeHand(data.text!);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Неверный формат данных.')),
-        );
+    SavedHand? hand;
+    if (_pipeline != null) {
+      for (final id in _pipeline!.supportedFormats()) {
+        hand = _pipeline!.tryImport(id, data.text!);
+        if (hand != null) break;
       }
-      return null;
     }
+    hand ??= _tryInternal(data.text!);
+    if (hand == null && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Неверный формат данных.')),
+      );
+    }
+    return hand;
   }
 
   Future<int> importAllHandsFromClipboard(BuildContext context) async {
@@ -207,11 +225,33 @@ class SavedHandImportExportService {
       }
       return 0;
     }
+    int count = 0;
+    if (_pipeline != null) {
+      final parts = data.text!.split(RegExp(r'\n\s*\n'));
+      for (final part in parts) {
+        for (final id in _pipeline!.supportedFormats()) {
+          final hand = _pipeline!.tryImport(id, part.trim());
+          if (hand != null) {
+            try {
+              await manager.add(hand);
+              count++;
+            } catch (_) {}
+            break;
+          }
+        }
+      }
+      if (count > 0) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Imported $count hands')));
+        }
+        return count;
+      }
+    }
     try {
       final parsed = jsonDecode(data.text!);
       if (parsed is! List) throw const FormatException();
 
-      int count = 0;
       for (final item in parsed) {
         if (item is Map<String, dynamic>) {
           try {

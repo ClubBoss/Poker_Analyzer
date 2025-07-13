@@ -1,4 +1,5 @@
 import 'package:poker_analyzer/services/service_registry.dart';
+import 'package:poker_analyzer/import_export/converter_pipeline.dart';
 
 import 'converter_plugin.dart';
 import 'converter_registry.dart';
@@ -21,6 +22,8 @@ class ConverterDiscoveryPlugin implements Plugin {
     for (final ConverterPlugin plugin in plugins) {
       converterRegistry.register(plugin);
     }
+    registry.registerIfAbsent<ConverterPipeline>(
+        ConverterPipeline(converterRegistry));
   }
 
   @override
