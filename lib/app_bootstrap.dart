@@ -5,6 +5,7 @@ import 'services/session_note_service.dart';
 import 'services/connectivity_sync_controller.dart';
 import 'services/evaluation_executor_service.dart';
 import 'services/service_registry.dart';
+import 'core/plugin_runtime.dart';
 
 class AppBootstrap {
   const AppBootstrap._();
@@ -12,10 +13,15 @@ class AppBootstrap {
   static ConnectivitySyncController? _sync;
   static ConnectivitySyncController? get sync => _sync;
 
-  static Future<void> init({
+  static ServiceRegistry? _registry;
+  static ServiceRegistry get registry => _registry!;
+
+  static Future<ServiceRegistry> init({
     CloudSyncService? cloud,
-    required ServiceRegistry registry,
+    required PluginRuntime runtime,
   }) async {
+    await runtime.initialize();
+    final ServiceRegistry registry = runtime.registry.createChild();
     await TrainingPackAssetLoader.instance.loadAll();
     await FavoritePackService.instance.init();
     if (cloud != null) {
@@ -28,10 +34,13 @@ class AppBootstrap {
     }
     await SessionNoteService(cloud: cloud).load();
     registry.registerIfAbsent<EvaluationExecutor>(EvaluationExecutorService());
+    _registry = registry;
+    return registry;
   }
 
   static void dispose() {
     _sync?.dispose();
     _sync = null;
+    _registry = null;
   }
 }

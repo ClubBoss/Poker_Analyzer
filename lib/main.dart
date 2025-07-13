@@ -5,9 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:poker_analyzer/plugins/plugin_loader.dart';
-import 'package:poker_analyzer/plugins/plugin_manager.dart';
-import 'services/service_registry.dart';
+import 'core/plugin_runtime.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/weakness_overview_screen.dart';
 import 'services/saved_hand_storage_service.dart';
@@ -118,25 +116,8 @@ Future<void> main() async {
   ab = AbTestEngine(remote: rc);
   await ab.init();
   final cloud = CloudSyncService();
-  final registry = ServiceRegistry();
-  await AppBootstrap.init(cloud: cloud, registry: registry);
-  final pluginManager = PluginManager();
-  final loader = PluginLoader();
-  final dir = Directory('plugins');
-  if (await dir.exists()) {
-    await for (final entity in dir.list()) {
-      if (entity is File && entity.path.endsWith('.dart')) {
-        final plugin = await loader.loadFromFile(entity, pluginManager);
-        if (plugin != null) {
-          pluginManager.load(plugin);
-        }
-      }
-    }
-  }
-  for (final p in loader.loadBuiltInPlugins()) {
-    pluginManager.load(p);
-  }
-  pluginManager.initializeAll(registry);
+  final runtime = PluginRuntime();
+  await AppBootstrap.init(cloud: cloud, runtime: runtime);
   packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
   await packStorage.loadBuiltInPacks();
