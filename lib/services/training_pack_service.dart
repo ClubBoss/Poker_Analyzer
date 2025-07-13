@@ -328,6 +328,30 @@ class TrainingPackService {
     );
   }
 
+  static Future<TrainingPackTemplate?> createEvLossDrill(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final list = [
+      for (final h in hands)
+        if (!h.corrected &&
+            h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ];
+    if (list.isEmpty) return null;
+    list.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    final rng = Random();
+    final count = min(list.length, 10 + rng.nextInt(3));
+    final spots = [for (final h in list.take(count)) _spotFromHand(h)];
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Самые дорогие ошибки',
+      spots: spots,
+    );
+  }
+
   static TrainingPackTemplate createDrillFromHand(SavedHand hand) {
     final spot = _spotFromHand(hand);
     return TrainingPackTemplate(
