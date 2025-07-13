@@ -49,7 +49,7 @@
   "presetSb17bb": "SB 17BB Push/Fold",
   "presetSb18bb": "SB 18BB Push/Fold",
   "presetSb19bb": "SB 19BB Push/Fold",
-  "presetSb20bb": "SB 20BB Push/Fold"
+  "presetSb20bb": "SB 20BB Push/Fold",
   "generateSpots": "Générer des spots",
   "noContent": "Pas de contenu",
   "startTrainingSessionPrompt": "Commencer la session d'entraînement maintenant ?",
