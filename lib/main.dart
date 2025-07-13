@@ -155,8 +155,8 @@ Future<void> main() async {
   await packCloud.syncUpTemplates(templateStorage);
   unawaited(
     AssetSyncService.instance.syncIfNeeded().catchError(
-      (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
-    ),
+          (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
+        ),
   );
   await EvaluationSettingsService.instance.load();
   await MistakeHintService.instance.load();
@@ -189,7 +189,6 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     });
   }
 
-
   Future<void> _maybeResumeTraining() async {
     final prefs = await SharedPreferences.getInstance();
     String? id;
@@ -208,8 +207,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     if (DateTime.now()
             .difference(DateTime.fromMillisecondsSinceEpoch(ts))
             .inHours >
-        12)
-      return;
+        12) return;
     final templates = await TrainingPackStorage.load();
     final tpl = templates.firstWhereOrNull((t) => t.id == id);
     if (tpl == null) return;
@@ -278,23 +276,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
             title: 'Poker AI Analyzer',
             debugShowCheckedModeBanner: false,
             themeMode: theme,
-            theme: ThemeData.light().copyWith(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-              textTheme: ThemeData.light().textTheme.apply(
-                fontFamily: 'Roboto',
-                bodyColor: Colors.black,
-                displayColor: Colors.black,
-              ),
-            ),
-            darkTheme: ThemeData.dark().copyWith(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-              scaffoldBackgroundColor: Colors.black,
-              textTheme: ThemeData.dark().textTheme.apply(
-                fontFamily: 'Roboto',
-                bodyColor: Colors.white,
-                displayColor: Colors.white,
-              ),
-            ),
+            theme: context.read<ThemeService>().lightTheme,
+            darkTheme: context.read<ThemeService>().darkTheme,
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -310,7 +293,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
               Locale('de'),
             ],
             routes: {
-              WeaknessOverviewScreen.route: (_) => const WeaknessOverviewScreen(),
+              WeaknessOverviewScreen.route: (_) =>
+                  const WeaknessOverviewScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');
