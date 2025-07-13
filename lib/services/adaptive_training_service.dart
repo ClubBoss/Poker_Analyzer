@@ -205,4 +205,14 @@ class AdaptiveTrainingService extends ChangeNotifier {
       heroRange: range,
     );
   }
+
+  Future<TrainingPackTemplate?> nextRecommendedPack() async {
+    await refresh();
+    final prefs = await SharedPreferences.getInstance();
+    for (final t in _recommended) {
+      final idx = prefs.getInt('tpl_prog_${t.id}') ?? 0;
+      if (idx < t.spots.length) return t;
+    }
+    return null;
+  }
 }
