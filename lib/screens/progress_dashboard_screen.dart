@@ -7,9 +7,13 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:csv/csv.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
+import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/png_exporter.dart';
@@ -71,6 +75,60 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
     }
   }
 
+  Future<void> _exportPdf() async {
+    final stats = context.read<TrainingStatsService>();
+    final handsService = context.read<SavedHandManagerService>();
+    final sessionsTotal =
+        stats.sessionsDaily(30).fold<int>(0, (a, e) => a + e.value);
+    final handsTotal = stats.handsDaily(30).fold<int>(0, (a, e) => a + e.value);
+    final mistakesTotal =
+        stats.mistakesDaily(30).fold<int>(0, (a, e) => a + e.value);
+
+    final chartBytes = await PngExporter.exportWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: stats),
+          ChangeNotifierProvider.value(value: handsService),
+        ],
+        child: const DailyEvIcmChart(),
+      ),
+    );
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (ctx) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('Progress Dashboard',
+                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 16),
+            pw.Text('Sessions: $sessionsTotal',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text('Hands: $handsTotal',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text('Mistakes: $mistakesTotal',
+                style: pw.TextStyle(font: regularFont)),
+            if (chartBytes != null) ...[
+              pw.SizedBox(height: 16),
+              pw.Image(pw.MemoryImage(chartBytes)),
+            ],
+          ],
+        ),
+      ),
+    );
+
+    final bytes = await pdf.save();
+    await Printing.sharePdf(
+      bytes: bytes,
+      filename: 'dashboard_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +146,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         actions: [
           IconButton(onPressed: _share, icon: const Icon(Icons.share)),
           IconButton(onPressed: _exportCsv, icon: const Icon(Icons.download)),
+          IconButton(onPressed: _exportPdf, icon: const Icon(Icons.picture_as_pdf)),
           SyncStatusIcon.of(context)
         ],
       ),
