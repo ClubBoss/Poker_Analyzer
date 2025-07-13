@@ -18,6 +18,9 @@ import '../helpers/mistake_category_translations.dart';
 import 'pack_generator_service.dart';
 import '../helpers/category_translations.dart';
 import '../main.dart';
+import 'cloud_retry_policy.dart';
+import 'cloud_sync_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TrainingPackService {
   const TrainingPackService._();
@@ -395,6 +398,40 @@ class TrainingPackService {
       name: 'All Current Mistakes',
       spots: spots,
     );
+  }
+
+  static Future<TrainingPackTemplate?> createDrillFromGlobalMistakes(
+      BuildContext context) async {
+    final cloud = context.read<CloudSyncService>();
+    if (!cloud.isEnabled) return null;
+    try {
+      final snap = await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
+          .collection('community_mistakes')
+          .orderBy('evLoss', descending: true)
+          .limit(100)
+          .get());
+      final map = <String, SavedHand>{};
+      for (final d in snap.docs) {
+        final data = d.data();
+        final hand = SavedHand.fromJson(Map<String, dynamic>.from(data));
+        if (hand.corrected) continue;
+        final key = hand.spotId ?? hand.name;
+        map[key] ??= hand;
+      }
+      if (map.isEmpty) return null;
+      final list = map.values.toList()
+        ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+      final rng = Random();
+      final count = min(list.length, 10 + rng.nextInt(6));
+      final spots = [for (final h in list.take(count)) _spotFromHand(h)];
+      return TrainingPackTemplate(
+        id: const Uuid().v4(),
+        name: 'Community Mistakes',
+        spots: spots,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   static TrainingPackTemplate createDrillFromHand(SavedHand hand) {

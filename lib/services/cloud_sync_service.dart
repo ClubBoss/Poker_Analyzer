@@ -39,6 +39,7 @@ class CloudSyncService {
           defaultTargetPlatform == TargetPlatform.macOS));
   bool get _local => CloudSyncService.isLocal;
   String? get uid => _auth.currentUser?.uid;
+  bool get isEnabled => uid != null;
   final List<Map<String, dynamic>> _pending = [];
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
   final ValueNotifier<double> progress = ValueNotifier(0);
