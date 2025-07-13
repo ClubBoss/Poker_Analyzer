@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
 
@@ -15,6 +16,8 @@ class UserPreferencesService extends ChangeNotifier {
   static const _weakRangeStartKey = 'weak_range_start';
   static const _weakRangeEndKey = 'weak_range_end';
   static const _weakCatCountKey = 'weak_cat_count';
+  static const _evRangeStartKey = 'ev_range_start';
+  static const _evRangeEndKey = 'ev_range_end';
 
   bool _showPotAnimation = true;
   bool _showCardReveal = true;
@@ -26,6 +29,7 @@ class UserPreferencesService extends ChangeNotifier {
   bool _simpleNavigation = false;
   DateTimeRange? _weakRange;
   int _weakCatCount = 5;
+  RangeValues _evRange = const RangeValues(0, 5);
   final CloudSyncService? cloud;
 
   UserPreferencesService({this.cloud});
@@ -40,6 +44,7 @@ class UserPreferencesService extends ChangeNotifier {
   bool get simpleNavigation => _simpleNavigation;
   DateTimeRange? get weaknessRange => _weakRange;
   int get weaknessCategoryCount => _weakCatCount;
+  RangeValues get evRange => _evRange;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -58,6 +63,11 @@ class UserPreferencesService extends ChangeNotifier {
       final e = DateTime.tryParse(endStr);
       if (s != null && e != null) _weakRange = DateTimeRange(start: s, end: e);
     }
+    final evStart = prefs.getDouble(_evRangeStartKey);
+    final evEnd = prefs.getDouble(_evRangeEndKey);
+    if (evStart != null && evEnd != null) {
+      _evRange = RangeValues(evStart, evEnd);
+    }
     _weakCatCount = prefs.getInt(_weakCatCountKey) ?? 5;
     notifyListeners();
   }
@@ -73,6 +83,8 @@ class UserPreferencesService extends ChangeNotifier {
         'simpleNavigation': _simpleNavigation,
         if (_weakRange != null) 'weakRangeStart': _weakRange!.start.toIso8601String(),
         if (_weakRange != null) 'weakRangeEnd': _weakRange!.end.toIso8601String(),
+        'evRangeStart': _evRange.start,
+        'evRangeEnd': _evRange.end,
         'weakCatCount': _weakCatCount,
         'updatedAt': DateTime.now().toIso8601String(),
       };
@@ -165,6 +177,19 @@ class UserPreferencesService extends ChangeNotifier {
     _weakCatCount = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_weakCatCountKey, value);
+    if (cloud != null) {
+      final data = _toMap();
+      await cloud!.queueMutation('preferences', 'main', data);
+      unawaited(cloud!.syncUp());
+    }
+    notifyListeners();
+  }
+
+  Future<void> setEvRange(RangeValues value) async {
+    _evRange = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_evRangeStartKey, value.start);
+    await prefs.setDouble(_evRangeEndKey, value.end);
     if (cloud != null) {
       final data = _toMap();
       await cloud!.queueMutation('preferences', 'main', data);

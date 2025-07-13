@@ -11,6 +11,7 @@ import '../widgets/saved_hand_list_view.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/sync_status_widget.dart';
+import '../services/user_preferences_service.dart';
 
 class SavedHandsScreen extends StatefulWidget {
   final String? initialTag;
@@ -39,6 +40,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   String _dateFilter = 'Все';
   String _accuracyFilter = 'Все';
   String _streetFilter = 'Все';
+  RangeValues _evRange = const RangeValues(0, 5);
   bool _onlyFavorites = false;
   late SavedHandImportExportService _importExport;
 
@@ -65,6 +67,10 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     _accuracyFilter = widget.initialAccuracy ?? 'Все';
     _dateFilter = widget.initialDateFilter ?? 'Все';
     _streetFilter = widget.initialStreet ?? 'Все';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final prefs = context.read<UserPreferencesService>();
+      setState(() => _evRange = prefs.evRange);
+    });
   }
 
   @override
@@ -89,7 +95,9 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     List<SavedHand> visible = [
       for (final hand in filtered)
         if ((!_onlyFavorites || hand.isFavorite) &&
-            (_streetFilter == 'Все' || streetName(hand.boardStreet) == _streetFilter))
+            (_streetFilter == 'Все' || streetName(hand.boardStreet) == _streetFilter) &&
+            (hand.evLoss == null ||
+                (hand.evLoss! >= _evRange.start && hand.evLoss! <= _evRange.end)))
           hand
     ];
     final query = _searchController.text.toLowerCase();
@@ -169,6 +177,24 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                   items: ['Все', 'Только ошибки', 'Только верные']
                       .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                       .toList(),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 120,
+                  child: RangeSlider(
+                    values: _evRange,
+                    min: 0,
+                    max: 5,
+                    divisions: 50,
+                    labels: RangeLabels(
+                      _evRange.start.toStringAsFixed(1),
+                      _evRange.end.toStringAsFixed(1),
+                    ),
+                    onChanged: (v) {
+                      setState(() => _evRange = v);
+                      context.read<UserPreferencesService>().setEvRange(v);
+                    },
+                  ),
                 ),
                 IconButton(
                   onPressed: () => setState(() => _onlyFavorites = !_onlyFavorites),
