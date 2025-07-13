@@ -404,15 +404,15 @@ class TrainingPackService {
   }
 
   static Future<TrainingPackTemplate?> createDrillFromSimilarHands(
-      BuildContext context, SavedHand hand) async {
+      BuildContext context, SavedHand referenceHand) async {
     final hands = context.read<SavedHandManagerService>().hands;
-    final cat = hand.category;
-    final pos = hand.heroPosition;
-    final stack = hand.stackSizes[hand.heroIndex];
+    final cat = referenceHand.category;
+    final pos = referenceHand.heroPosition;
+    final stack = referenceHand.stackSizes[referenceHand.heroIndex];
     if (cat == null || stack == null) return null;
     final list = [
       for (final h in hands)
-        if (h != hand &&
+        if (h != referenceHand &&
             h.category == cat &&
             h.heroPosition == pos &&
             h.stackSizes[h.heroIndex] == stack &&
@@ -423,12 +423,14 @@ class TrainingPackService {
           h
     ];
     if (list.isEmpty) return null;
-    list.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
-    final selected = list.take(10).toList();
+    list.shuffle();
+    final rng = Random();
+    final count = min(list.length, 4 + rng.nextInt(5));
+    final selected = list.take(count).toList();
     final spots = [for (final h in selected) _spotFromHand(h)];
     return TrainingPackTemplate(
       id: const Uuid().v4(),
-      name: 'Drill: $cat',
+      name: 'Similar Mistakes Drill',
       spots: spots,
     );
   }
