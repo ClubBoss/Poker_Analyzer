@@ -11,7 +11,12 @@ enum EvIcmTrendMode { weekly, monthly }
 
 class EvIcmTrendChart extends StatelessWidget {
   final EvIcmTrendMode mode;
-  const EvIcmTrendChart({super.key, this.mode = EvIcmTrendMode.weekly});
+  final List<DateTime> sessionDates;
+  const EvIcmTrendChart({
+    super.key,
+    this.mode = EvIcmTrendMode.weekly,
+    this.sessionDates = const [],
+  });
 
   String _format(DateTime d) {
     if (mode == EvIcmTrendMode.monthly) {
@@ -66,6 +71,34 @@ class EvIcmTrendChart extends StatelessWidget {
     }
     final interval = (maxY - minY) / 4;
     final step = (dates.length / 6).ceil();
+    final verticalLines = <VerticalLine>[];
+    for (var i = 0; i < sessionDates.length; i++) {
+      final d = sessionDates[i];
+      for (var j = 0; j < dates.length; j++) {
+        final start = dates[j];
+        final end = j == dates.length - 1
+            ? (mode == EvIcmTrendMode.weekly
+                ? start.add(const Duration(days: 7))
+                : DateTime(start.year, start.month + 1))
+            : dates[j + 1];
+        if (!d.isBefore(start) && d.isBefore(end)) {
+          verticalLines.add(
+            VerticalLine(
+              x: j.toDouble(),
+              color: Colors.white24,
+              dashArray: [2, 2],
+              label: VerticalLineLabel(
+                show: true,
+                alignment: Alignment.topCenter,
+                style: const TextStyle(color: Colors.white70, fontSize: 8),
+                labelResolver: (_) => '${i + 1}',
+              ),
+            ),
+          );
+          break;
+        }
+      }
+    }
     final chart = AnimatedLineChart(
       data: LineChartData(
         minY: minY,
@@ -132,6 +165,7 @@ class EvIcmTrendChart extends StatelessWidget {
             dotData: FlDotData(show: false),
           ),
         ],
+        extraLinesData: ExtraLinesData(verticalLines: verticalLines),
       ),
     );
     return Column(

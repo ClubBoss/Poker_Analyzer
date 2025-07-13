@@ -318,6 +318,21 @@ class TrainingStatsService extends ChangeNotifier {
     return _groupMonthly(daily);
   }
 
+  List<DateTime> sessionHistory(List<SavedHand> hands, [int limit = 30]) {
+    final Map<int, DateTime> map = {};
+    for (final h in hands) {
+      final saved = map[h.sessionId];
+      if (saved == null || h.savedAt.isAfter(saved)) {
+        map[h.sessionId] = h.savedAt;
+      }
+    }
+    final list = map.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    final dates = [for (final e in list) e.value];
+    if (dates.length > limit) dates.removeRange(0, dates.length - limit);
+    return dates;
+  }
+
   List<List<dynamic>> progressRows({bool weekly = false, int count = 30}) {
     final sessions = weekly ? sessionsWeekly(count) : sessionsDaily(count);
     final hands = weekly ? handsWeekly(count) : handsDaily(count);

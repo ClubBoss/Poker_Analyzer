@@ -9,6 +9,8 @@ import '../widgets/common/average_accuracy_chart.dart';
 import '../widgets/common/ev_icm_trend_chart.dart' as common;
 import '../widgets/sync_status_widget.dart';
 import '../theme/app_colors.dart';
+import '../services/training_stats_service.dart';
+import '../services/saved_hand_manager_service.dart';
 
 class ProgressOverviewScreen extends StatefulWidget {
   static const route = '/progress_overview';
@@ -70,7 +72,12 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          EvIcmTrendChart(mode: _mode),
+          EvIcmTrendChart(
+            mode: _mode,
+            sessionDates: context
+                .watch<TrainingStatsService>()
+                .sessionHistory(context.watch<SavedHandManagerService>().hands),
+          ),
           const SizedBox(height: 16),
           if (hasData) AccuracyChart(sessions: sessions) else _placeholder(),
           if (hasData) AverageAccuracyChart(sessions: sessions),

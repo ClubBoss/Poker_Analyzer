@@ -5,6 +5,7 @@ import '../models/training_stats.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/streak_service.dart';
+import '../services/saved_hand_manager_service.dart';
 import '../widgets/ev_icm_trend_chart.dart';
 
 class TrainingStatsScreen extends StatefulWidget {
@@ -87,7 +88,11 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const EvIcmTrendChart(),
+          EvIcmTrendChart(
+            sessionDates: context
+                .watch<TrainingStatsService>()
+                .sessionHistory(context.watch<SavedHandManagerService>().hands),
+          ),
           if (s.topPacks.isNotEmpty) ...[
             const SizedBox(height: 16),
             const Text('Best Packs'),
