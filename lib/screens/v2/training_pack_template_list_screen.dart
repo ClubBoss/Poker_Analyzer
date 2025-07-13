@@ -3371,7 +3371,7 @@ class _TrainingPackTemplateListScreenState
             label: const Text('Повтор исправленных'),
             onPressed: () async {
               final tpl =
-                  await TrainingPackService.createRepeatDrillForCorrected(context);
+                  await TrainingPackService.createDrillFromCorrectedHands(context);
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               if (context.mounted) {
