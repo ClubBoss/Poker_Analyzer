@@ -615,7 +615,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Future<void> _top3CategoriesDrill() async {
-    final tpl = await TrainingPackService.createDrillFromTop3Categories(context);
+    final tpl = await TrainingPackService.createDrillFromTopCategories(context);
     if (tpl == null) return;
     await context.read<TrainingSessionService>().startSession(tpl);
     if (!mounted) return;
@@ -1276,7 +1276,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           FloatingActionButton.extended(
             heroTag: 'top3CatFab',
             onPressed: _top3CategoriesDrill,
-            label: const Text('Top 3 категории'),
+            label: const Text('Top 3 Mistakes'),
             icon: const Icon(Icons.leaderboard),
           ),
           const SizedBox(height: 12),
