@@ -8,20 +8,19 @@ import 'package:uuid/uuid.dart';
 
 import '../models/saved_hand.dart';
 import '../models/summary_result.dart';
-import '../models/eval_request.dart';
 import '../models/action_entry.dart';
 import '../models/card_model.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
-import '../models/training_spot.dart';
 import '../services/room_hand_history_importer.dart';
-import '../services/evaluation_executor_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/template_storage_service.dart';
 import '../services/push_fold_ev_service.dart';
 import '../services/icm_push_ev_service.dart';
+import '../services/session_analysis_service.dart';
+import '../services/saved_hand_manager_service.dart';
 import '../helpers/hand_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/ev_icm_chart.dart';
@@ -83,28 +82,15 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
       final importer = await RoomHandHistoryImporter.create();
       parsed = importer.parse(text);
     }
-    final executor = EvaluationExecutorService();
-    final evaluated = <SavedHand>[];
-    for (final h in parsed) {
-      final act = heroAction(h);
-      if (act == null) continue;
-      final spot = TrainingSpot.fromSavedHand(h);
-      final req = EvalRequest(hash: const Uuid().v4(), spot: spot, action: act.action);
-      final res = await executor.evaluate(req);
-      String? gto;
-      if (!res.isError && res.reason != null && res.reason!.startsWith('Expected ')) {
-        gto = res.reason!.substring(9);
-      } else if (!res.isError && res.reason == null) {
-        gto = act.action;
-      }
-      evaluated.add(h.copyWith(expectedAction: act.action, gtoAction: gto));
-    }
-    final summary = executor.summarizeHands(evaluated);
+    final service = context.read<SessionAnalysisService>();
+    final result = await service.analyze(parsed);
+    await context.read<SavedHandManagerService>().addHands(result.hands);
+    if (!mounted) return;
     setState(() {
       _hands
         ..clear()
-        ..addAll(evaluated);
-      _summary = summary;
+        ..addAll(result.hands);
+      _summary = result.summary;
       _loading = false;
     });
   }
