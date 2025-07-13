@@ -252,6 +252,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     context.read<UserActionLogger>().log('opened_app');
     unawaited(NotificationService.scheduleDailyReminder(context));
     unawaited(NotificationService.scheduleDailyProgress(context));
+    NotificationService.startRecommendedPackTask(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeResumeTraining();
       _maybeShowIntroOverlay();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'remote_config_service.dart';
 import 'training_stats_service.dart';
 import 'personal_recommendation_service.dart';
+import 'adaptive_training_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../screens/training_home_screen.dart';
@@ -14,6 +16,7 @@ class NotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
   static const _timeKey = 'daily_reminder_time';
   static const _progressId = 102;
+  static Timer? _packTimer;
 
   static Future<void> init() async {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -120,6 +123,27 @@ class NotificationService {
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
+  }
+
+  static void startRecommendedPackTask(BuildContext context) {
+    _packTimer?.cancel();
+    _packTimer = Timer.periodic(const Duration(hours: 6), (_) async {
+      final tpl =
+          await context.read<AdaptiveTrainingService>().nextRecommendedPack();
+      if (tpl == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      final idx = prefs.getInt('tpl_prog_${tpl.id}') ?? 0;
+      final remaining = tpl.spots.length - idx;
+      await _plugin.show(
+        103,
+        'Poker Analyzer',
+        '🔥 ${tpl.name} — осталось $remaining спотов',
+        const NotificationDetails(
+          android: AndroidNotificationDetails('rec_pack', 'Recommended Pack'),
+          iOS: DarwinNotificationDetails(),
+        ),
+      );
+    });
   }
 
   static String _fmt(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
