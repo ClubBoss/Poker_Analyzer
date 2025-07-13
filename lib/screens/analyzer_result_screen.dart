@@ -174,7 +174,9 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
                   h.gtoAction!.trim().toLowerCase())
           .length;
     });
-    final showFab = _isMistake && similarCount > 0;
+    final hasSimilar = context.select<SavedHandManagerService, bool>(
+        (s) => s.hasSimilarMistakes(_hand));
+    final showFab = hasSimilar;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Результаты анализа'),
@@ -189,8 +191,8 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
                 FloatingActionButton.extended(
                   onPressed: () async {
                     final tpl =
-                        await TrainingPackService.createSimilarMistakeDrill(
-                            _hand);
+                        await TrainingPackService.createDrillFromSimilarHands(
+                            context, _hand);
                     if (tpl == null) return;
                     await context
                         .read<TrainingSessionService>()
@@ -203,7 +205,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
                       );
                     }
                   },
-                  label: const Text('Отработать похожие'),
+                  label: const Text('Train Similar Mistakes'),
                   icon: const Icon(Icons.fitness_center),
                 ),
                 const SizedBox(height: 8),
