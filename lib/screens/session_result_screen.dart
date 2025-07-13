@@ -10,6 +10,7 @@ import '../theme/app_colors.dart';
 import '../widgets/player_note_button.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
+import 'v2/training_pack_play_screen.dart';
 import 'package:uuid/uuid.dart';
 
 class SessionResultScreen extends StatefulWidget {
@@ -33,33 +34,62 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
 
   Future<void> _retryMistakes() async {
     final service = context.read<TrainingSessionService>();
-    final missed = service.actionLog
-        .where((e) => !e.isCorrect)
-        .map((e) => e.spotId)
+    final ids = service.results.entries
+        .where((e) => e.value == false)
+        .map((e) => e.key)
         .toSet();
-    if (missed.isEmpty) return;
-    final spots = service.spots.where((s) => missed.contains(s.id)).toList();
+    if (ids.isEmpty) return;
+    final spots = service.spots.where((s) => ids.contains(s.id)).toList();
     if (spots.isEmpty) return;
-    final t = TrainingPackTemplate(
-      id: const Uuid().v4(),
-      name: 'Retry mistakes',
-      spots: spots,
-    );
-    await service.startSession(t);
+    final tpl = (service.template ??
+            TrainingPackTemplate(id: const Uuid().v4(), name: ''))
+        .copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+      MaterialPageRoute(
+        builder: (_) => TrainingPackPlayScreen(
+          template: tpl,
+          original: tpl,
+        ),
+      ),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final actions = context.read<TrainingSessionService>().actionLog;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final service = context.read<TrainingSessionService>();
+      final actions = service.actionLog;
       if (actions.isNotEmpty) {
         showTrainingActionLogDialog(context, actions);
+      }
+      final hasMistakes = service.results.values.any((e) => e == false);
+      if (hasMistakes && mounted) {
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            backgroundColor: AppColors.cardBackground,
+            title: const Text('Retry mistakes',
+                style: TextStyle(color: Colors.white)),
+            content: const Text('Start retry pack now?',
+                style: TextStyle(color: Colors.white70)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        );
+        if (confirm == true && mounted) {
+          await _retryMistakes();
+        }
       }
     });
   }
