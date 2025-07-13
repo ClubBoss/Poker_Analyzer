@@ -34,6 +34,7 @@ import 'plugin_manager_screen.dart';
 import 'online_plugin_catalog_screen.dart';
 import 'onboarding_screen.dart';
 import 'ev_icm_analytics_screen.dart';
+import 'ev_stats_screen.dart';
 import 'progress_dashboard_screen.dart';
 import 'position_tag_analytics_screen.dart';
 import 'weakness_overview_screen.dart';
@@ -256,6 +257,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     ),
                   );
                   break;
+                case 'evstats':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EvStatsScreen(),
+                    ),
+                  );
+                  break;
                 case 'dashboard':
                   Navigator.push(
                     context,
@@ -292,6 +301,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               PopupMenuItem(value: 'community_plugins', child: Text('🌐 Community')),
               PopupMenuItem(value: 'onboarding', child: Text('📖 Обучение')),
               PopupMenuItem(value: 'evicm', child: Text('EV/ICM')),
+              PopupMenuItem(value: 'evstats', child: Text('EV Stats')),
               PopupMenuItem(value: 'pos_tag', child: Text('Позиции/Теги')),
               PopupMenuItem(value: 'dashboard', child: Text('📈 Dashboard')),
               PopupMenuItem(value: 'about', child: Text('About')),
