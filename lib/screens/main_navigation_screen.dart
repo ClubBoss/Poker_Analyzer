@@ -31,7 +31,7 @@ import '../widgets/resume_training_card.dart';
 import '../services/ab_test_engine.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
-import 'community_plugin_screen.dart';
+import 'online_plugin_catalog_screen.dart';
 import 'onboarding_screen.dart';
 import 'ev_icm_analytics_screen.dart';
 import 'progress_dashboard_screen.dart';
@@ -238,7 +238,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const CommunityPluginScreen(),
+                      builder: (_) => const OnlinePluginCatalogScreen(),
                     ),
                   );
                   break;
