@@ -6,6 +6,8 @@ import '../services/training_session_service.dart';
 import '../widgets/training_action_log_dialog.dart';
 import '../widgets/spot_viewer_dialog.dart';
 import '../widgets/common/action_accuracy_chart.dart';
+import '../widgets/ev_icm_chart.dart';
+import '../helpers/pack_spot_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/player_note_button.dart';
 import '../models/v2/training_pack_template.dart';
@@ -109,6 +111,10 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
     final rate = widget.total == 0 ? 0 : widget.correct * 100 / widget.total;
     final service = context.watch<TrainingSessionService>();
     final actions = service.actionLog;
+    final hands = [
+      for (final s in service.spots)
+        handFromPackSpot(s, anteBb: service.template?.anteBb ?? 0)
+    ];
     return Scaffold(
       appBar: AppBar(title: const Text('Session Result')),
       backgroundColor: const Color(0xFF1B1C1E),
@@ -140,6 +146,8 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
             ),
             const SizedBox(height: 16),
             ActionAccuracyChart(actions: actions),
+            const SizedBox(height: 16),
+            EvIcmChart(hands: hands),
             const SizedBox(height: 16),
             Expanded(
               child: actions.isEmpty
