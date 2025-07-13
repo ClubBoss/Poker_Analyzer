@@ -586,11 +586,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 360;
+        final count = isLandscape(context)
+            ? 3
+            : (compact ? 1 : 2);
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: compact ? 1 : 2,
+            crossAxisCount: count,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
             childAspectRatio: 1.2,

@@ -876,41 +876,78 @@ class _ProgressScreenState extends State<ProgressScreen>
         children: [
           _buildGoalCompletedBadge(),
           _buildAllGoalsCompletedBadge(),
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const GoalDrillScreen()),
-                  );
-                },
-                child: const Text('Отработать цель'),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const DrillHistoryScreen()),
-                  );
-                },
-                child: const Text('История тренировок'),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const WeeklyProgressScreen()),
-                  );
-                },
-                child: const Text('Прогресс 7д'),
-              ),
-            ],
-          ),
+          isPortrait(context)
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const GoalDrillScreen()),
+                        );
+                      },
+                      child: const Text('Отработать цель'),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const DrillHistoryScreen()),
+                        );
+                      },
+                      child: const Text('История тренировок'),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const WeeklyProgressScreen()),
+                        );
+                      },
+                      child: const Text('Прогресс 7д'),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const GoalDrillScreen()),
+                        );
+                      },
+                      child: const Text('Отработать цель'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const DrillHistoryScreen()),
+                        );
+                      },
+                      child: const Text('История тренировок'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const WeeklyProgressScreen()),
+                        );
+                      },
+                      child: const Text('Прогресс 7д'),
+                    ),
+                  ],
+                ),
           const Text(
             'Результаты',
             style: TextStyle(
