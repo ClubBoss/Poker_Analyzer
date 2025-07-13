@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:poker_analyzer/plugins/plugin_loader_io.dart';
 import 'package:poker_analyzer/plugins/sample_logging_plugin.dart';
+import 'package:poker_analyzer/plugins/plugin_manager.dart';
 
 class _FakePathProvider extends PathProviderPlatform {
   _FakePathProvider(this.path);
@@ -81,8 +82,30 @@ void main(List<String> args, SendPort port) {
 }
 ''');
     final loader = PluginLoader();
-    final plugin = await loader.loadFromFile(file);
+    final manager = PluginManager();
+    final plugin = await loader.loadFromFile(file, manager);
     expect(plugin, isA<SampleLoggingPlugin>());
+  });
+
+  test('loadFromFile rejects invalid checksum', () async {
+    final dir = await Directory.systemTemp.createTemp();
+    PathProviderPlatform.instance = _FakePathProvider(dir.path);
+    final pluginsDir = Directory('${dir.path}/plugins');
+    await pluginsDir.create();
+    await File('${pluginsDir.path}/plugin_config.json').writeAsString('{}');
+    final file = File('${pluginsDir.path}/TestPlugin.dart');
+    await file.writeAsString('''
+import 'dart:isolate';
+import 'package:poker_analyzer/plugins/sample_logging_plugin.dart';
+void main(List<String> args, SendPort port) {
+  port.send(SampleLoggingPlugin());
+}
+''');
+    await File('${file.path}.sha256').writeAsString('0');
+    final loader = PluginLoader();
+    final manager = PluginManager();
+    final plugin = await loader.loadFromFile(file, manager);
+    expect(plugin, isNull);
   });
 
   test('downloadFromUrl saves file', () async {

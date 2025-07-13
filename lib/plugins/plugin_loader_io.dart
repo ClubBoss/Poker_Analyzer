@@ -40,6 +40,14 @@ class PluginLoader {
   Map<String, bool>? _config;
   Map<String, dynamic>? _cache;
 
+  Future<bool> _verify(File file) async {
+    final sig = File('${file.path}.sha256');
+    if (!await sig.exists()) return true;
+    final expected = (await sig.readAsString()).trim().toLowerCase();
+    final digest = sha256.convert(await file.readAsBytes()).toString();
+    return digest == expected;
+  }
+
   Future<File> _cacheFile() async {
     return File(p.join(
         (await getApplicationSupportDirectory()).path, 'plugin_cache.json'));
@@ -143,6 +151,11 @@ class PluginLoader {
     if (config[name] == false) {
       ErrorLogger.instance.logError('Plugin skipped: $name');
       await manager.logStatus(name, 'skipped');
+      return null;
+    }
+    if (!await _verify(file)) {
+      ErrorLogger.instance.logError('Checksum mismatch: $name');
+      await manager.logStatus(name, 'failed');
       return null;
     }
     final port = ReceivePort();
