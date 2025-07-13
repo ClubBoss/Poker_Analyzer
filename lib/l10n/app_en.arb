@@ -27,7 +27,29 @@
   ,"packPushFold12": "Push/Fold 12BB (No Ante)"
   ,"packPushFold15": "Push/Fold 15BB (No Ante)"
   ,"packPushFold10": "Push/Fold 10BB (No Ante)"
-  ,"packPushFold20": "Push/Fold 20BB (No Ante)"
+  ,"packPushFold20": "Push/Fold 20BB (No Ante)",
+  "presetBtn10bb": "BTN 10BB Push/Fold",
+  "presetBtn11bb": "BTN 11BB Push/Fold",
+  "presetBtn12bb": "BTN 12BB Push/Fold",
+  "presetBtn13bb": "BTN 13BB Push/Fold",
+  "presetBtn14bb": "BTN 14BB Push/Fold",
+  "presetBtn15bb": "BTN 15BB Push/Fold",
+  "presetBtn16bb": "BTN 16BB Push/Fold",
+  "presetBtn17bb": "BTN 17BB Push/Fold",
+  "presetBtn18bb": "BTN 18BB Push/Fold",
+  "presetBtn19bb": "BTN 19BB Push/Fold",
+  "presetBtn20bb": "BTN 20BB Push/Fold",
+  "presetSb10bb": "SB 10BB Push/Fold",
+  "presetSb11bb": "SB 11BB Push/Fold",
+  "presetSb12bb": "SB 12BB Push/Fold",
+  "presetSb13bb": "SB 13BB Push/Fold",
+  "presetSb14bb": "SB 14BB Push/Fold",
+  "presetSb15bb": "SB 15BB Push/Fold",
+  "presetSb16bb": "SB 16BB Push/Fold",
+  "presetSb17bb": "SB 17BB Push/Fold",
+  "presetSb18bb": "SB 18BB Push/Fold",
+  "presetSb19bb": "SB 19BB Push/Fold",
+  "presetSb20bb": "SB 20BB Push/Fold"
   ,"generateSpots": "Generate spots"
   ,"noContent": "No content"
   ,"startTrainingSessionPrompt": "Start training session now?"

@@ -22,7 +22,10 @@ class TrainingPackPresetRepository {
         spots: [
           TrainingSpot(
             playerCards: [
-              [CardModel(rank: 'A', suit: 'h'), CardModel(rank: '8', suit: 'h')],
+              [
+                CardModel(rank: 'A', suit: 'h'),
+                CardModel(rank: '8', suit: 'h'),
+              ],
               <CardModel>[],
             ],
             boardCards: const [],
@@ -39,8 +42,14 @@ class TrainingPackPresetRepository {
           ),
           TrainingSpot(
             playerCards: [
-              [CardModel(rank: 'K', suit: 'd'), CardModel(rank: 'Q', suit: 'd')],
-              [CardModel(rank: '5', suit: 's'), CardModel(rank: '5', suit: 'c')],
+              [
+                CardModel(rank: 'K', suit: 'd'),
+                CardModel(rank: 'Q', suit: 'd'),
+              ],
+              [
+                CardModel(rank: '5', suit: 's'),
+                CardModel(rank: '5', suit: 'c'),
+              ],
             ],
             boardCards: const [],
             actions: [
@@ -56,7 +65,10 @@ class TrainingPackPresetRepository {
           ),
           TrainingSpot(
             playerCards: [
-              [CardModel(rank: 'A', suit: 's'), CardModel(rank: '2', suit: 's')],
+              [
+                CardModel(rank: 'A', suit: 's'),
+                CardModel(rank: '2', suit: 's'),
+              ],
               <CardModel>[],
             ],
             boardCards: const [],
@@ -73,6 +85,26 @@ class TrainingPackPresetRepository {
           ),
         ],
       ),
+      for (var bb = 10; bb <= 20; bb++)
+        TrainingPackPreset(
+          id: 'btn_push_fold_${bb}bb',
+          name: 'BTN ${bb}BB Push/Fold',
+          description: 'BTN push/fold ${bb}BB',
+          gameType: GameType.tournament,
+          heroBbStack: bb,
+          playerStacksBb: [bb, bb],
+          heroPos: HeroPosition.btn,
+        ),
+      for (var bb = 10; bb <= 20; bb++)
+        TrainingPackPreset(
+          id: 'sb_push_fold_${bb}bb',
+          name: 'SB ${bb}BB Push/Fold',
+          description: 'SB push/fold ${bb}BB',
+          gameType: GameType.tournament,
+          heroBbStack: bb,
+          playerStacksBb: [bb, bb],
+          heroPos: HeroPosition.sb,
+        ),
     ];
   }
 }
