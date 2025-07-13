@@ -284,6 +284,23 @@ class TrainingPackService {
     );
   }
 
+  static Future<TrainingPackTemplate?> createDrillFromCorrectedHands(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final list = [for (final h in hands) if (h.corrected) h];
+    if (list.isEmpty) return null;
+    list.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    final rng = Random();
+    final count = min(list.length, 5 + rng.nextInt(4));
+    final selected = list.take(count).toList()..shuffle();
+    final spots = [for (final h in selected) _spotFromHand(h)];
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Repeat Corrected Hands',
+      spots: spots,
+    );
+  }
+
   static Future<TrainingPackTemplate?> createRepeatForIncorrect(
       BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
