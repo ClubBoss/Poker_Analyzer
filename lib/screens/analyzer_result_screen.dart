@@ -48,7 +48,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
     }
     final stacks = <String, double>{
       for (int i = 0; i < h.numberOfPlayers; i++)
-        '$i': (h.stackSizes[i] ?? 0).toDouble()
+        '$i': (h.stackSizes[i] ?? 0).toDouble(),
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),
@@ -67,9 +67,12 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
 
   Future<void> _evaluate() async {
     final spot = _spotFromHand(_hand);
-    await context
-        .read<EvaluationExecutorService>()
-        .evaluateSingle(context, spot, hand: _hand, anteBb: _hand.anteBb);
+    await context.read<EvaluationExecutorService>().evaluateSingle(
+      context,
+      spot,
+      hand: _hand,
+      anteBb: _hand.anteBb,
+    );
     final acts = <ActionEntry>[];
     for (final l in spot.hand.actions.values) {
       acts.addAll(l);
@@ -99,13 +102,17 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
             action: SnackBarAction(
               label: 'Тренировать похожее',
               onPressed: () async {
-                final tpl = await TrainingPackService.createSimilarMistakeDrill(_hand);
+                final tpl = await TrainingPackService.createSimilarMistakeDrill(
+                  _hand,
+                );
                 if (tpl == null) return;
                 await context.read<TrainingSessionService>().startSession(tpl);
                 if (context.mounted) {
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const TrainingSessionScreen(),
+                    ),
                   );
                 }
               },
@@ -180,8 +187,10 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
       ),
     );
     if (start == true) {
-      final tpl =
-          await TrainingPackService.createDrillFromSimilarHands(context, _hand);
+      final tpl = await TrainingPackService.createDrillFromSimilarHands(
+        context,
+        _hand,
+      );
       if (tpl == null) return;
       await context.read<TrainingSessionService>().startSession(tpl);
       if (context.mounted) {
@@ -201,20 +210,24 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
       final stack = _hand.stackSizes[_hand.heroIndex];
       if (cat == null || stack == null) return 0;
       return s.hands
-          .where((h) =>
-              h != _hand &&
-              h.category == cat &&
-              h.heroPosition == pos &&
-              h.stackSizes[h.heroIndex] == stack &&
-              h.expectedAction != null &&
-              h.gtoAction != null &&
-              h.expectedAction!.trim().toLowerCase() !=
-                  h.gtoAction!.trim().toLowerCase())
+          .where(
+            (h) =>
+                h != _hand &&
+                h.category == cat &&
+                h.heroPosition == pos &&
+                h.stackSizes[h.heroIndex] == stack &&
+                h.expectedAction != null &&
+                h.gtoAction != null &&
+                h.expectedAction!.trim().toLowerCase() !=
+                    h.gtoAction!.trim().toLowerCase(),
+          )
           .length;
     });
     final hasSimilar = context.select<SavedHandManagerService, bool>(
-        (s) => s.hasSimilarMistakes(_hand));
-    final showFab = hasSimilar;
+      (s) => s.hasSimilarMistakes(_hand),
+    );
+    final showReplay = _isMistake;
+    final showFab = showReplay || hasSimilar;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Результаты анализа'),
@@ -226,30 +239,58 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
           ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                FloatingActionButton.extended(
-                  onPressed: () async {
-                    final tpl =
-                        await TrainingPackService.createDrillFromSimilarHands(
-                            context, _hand);
-                    if (tpl == null) return;
-                    await context
-                        .read<TrainingSessionService>()
-                        .startSession(tpl);
-                    if (context.mounted) {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
+                if (showReplay)
+                  FloatingActionButton.extended(
+                    onPressed: () async {
+                      final tpl = TrainingPackService.createDrillFromHand(
+                        _hand,
                       );
-                    }
-                  },
-                  label: const Text('Train Similar Mistakes'),
-                  icon: const Icon(Icons.fitness_center),
-                ),
-                const SizedBox(height: 8),
-                Text('$similarCount похожих ошибок',
-                    style: const TextStyle(
-                        fontSize: 12, color: Colors.white70)),
+                      await context.read<TrainingSessionService>().startSession(
+                        tpl,
+                      );
+                      if (context.mounted) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen(),
+                          ),
+                        );
+                      }
+                    },
+                    label: const Text('Replay This Hand'),
+                    icon: const Icon(Icons.replay),
+                  ),
+                if (showReplay && hasSimilar) const SizedBox(height: 8),
+                if (hasSimilar)
+                  FloatingActionButton.extended(
+                    onPressed: () async {
+                      final tpl =
+                          await TrainingPackService.createDrillFromSimilarHands(
+                            context,
+                            _hand,
+                          );
+                      if (tpl == null) return;
+                      await context.read<TrainingSessionService>().startSession(
+                        tpl,
+                      );
+                      if (context.mounted) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen(),
+                          ),
+                        );
+                      }
+                    },
+                    label: const Text('Train Similar Mistakes'),
+                    icon: const Icon(Icons.fitness_center),
+                  ),
+                if (hasSimilar) const SizedBox(height: 8),
+                if (hasSimilar)
+                  Text(
+                    '$similarCount похожих ошибок',
+                    style: const TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
               ],
             )
           : null,
