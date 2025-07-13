@@ -131,6 +131,11 @@ class PackGeneratorService {
 
   static Future<TrainingPackTemplate> generatePackFromPreset(
       TrainingPackPreset p) async {
+    List<String>? range = p.heroRange;
+    if (range == null || range.isEmpty) {
+      final loaded = await RangeLibraryService.instance.getRange(p.id);
+      if (loaded.isNotEmpty) range = loaded;
+    }
     List<TrainingPackSpot> spots;
     if (p.spots.isNotEmpty) {
       spots = [
@@ -146,7 +151,7 @@ class PackGeneratorService {
         count: p.spotCount,
         bbCallPct: p.bbCallPct,
         anteBb: p.anteBb,
-        range: p.heroRange,
+        range: range,
       );
     }
     final tpl = TrainingPackTemplate(
@@ -161,7 +166,7 @@ class PackGeneratorService {
       spotCount: p.spotCount,
       bbCallPct: p.bbCallPct,
       anteBb: p.anteBb,
-      heroRange: p.heroRange,
+      heroRange: range,
       createdAt: p.createdAt,
       lastGeneratedAt: DateTime.now(),
       isBuiltIn: true,
