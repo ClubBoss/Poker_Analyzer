@@ -21,4 +21,14 @@ void main() {
     );
     expect(ev, lessThan(0));
   });
+
+  test('multiway icm ev accounts for callers', () {
+    final ev = computeMultiwayIcmEV(
+      chipStacksBb: [20, 10, 10],
+      heroIndex: 0,
+      chipPushEv: 5,
+      callerIndices: const [1, 2],
+    );
+    expect(ev, greaterThan(0));
+  });
 }

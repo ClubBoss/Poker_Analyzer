@@ -407,6 +407,10 @@ class EvaluationExecutorService implements EvaluationExecutor {
           for (var i = 0; i < spot.hand.playerCount; i++)
             spot.hand.stacks['$i']?.round() ?? 0
         ];
+        final callers = [
+          for (final a in spot.hand.actions[0] ?? [])
+            if (a.playerIndex != hero && a.action == 'call') a.playerIndex
+        ];
         final res = await compute(
           _computeEv,
           {
@@ -415,6 +419,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
             'hand': code,
             'ante': anteBb,
             'payouts': settings.payouts,
+            'callers': callers,
           },
         );
         final acts = spot.hand.actions[0] ?? [];
@@ -537,18 +542,27 @@ Map<String, double> _computeEv(Map<String, dynamic> args) {
   final hand = args['hand'] as String;
   final ante = args['ante'] as int;
   final payouts = List<double>.from(args['payouts'] as List);
+  final callers = List<int>.from(args['callers'] as List? ?? const []);
   final ev = computePushEV(
     heroBbStack: stacks[hero],
     bbCount: stacks.length - 1,
     heroHand: hand,
     anteBb: ante,
   );
-  final icm = computeLocalIcmPushEV(
-    chipStacksBb: stacks,
-    heroIndex: hero,
-    heroHand: hand,
-    anteBb: ante,
-    payouts: payouts,
-  );
+  final icm = callers.length > 1
+      ? computeMultiwayIcmEV(
+          chipStacksBb: stacks,
+          heroIndex: hero,
+          chipPushEv: ev,
+          callerIndices: callers,
+          payouts: payouts,
+        )
+      : computeLocalIcmPushEV(
+          chipStacksBb: stacks,
+          heroIndex: hero,
+          heroHand: hand,
+          anteBb: ante,
+          payouts: payouts,
+        );
   return {'ev': ev, 'icm': icm};
 }
