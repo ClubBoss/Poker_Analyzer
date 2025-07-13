@@ -149,16 +149,25 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
         color: AppColors.cardBackground,
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: TextField(
-            controller: _noteController,
-            minLines: 3,
-            maxLines: null,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Заметка о сессии',
-              hintStyle: TextStyle(color: Colors.white54),
-            ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _noteController,
+                  minLines: 3,
+                  maxLines: null,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Заметка о сессии',
+                    hintStyle: TextStyle(color: Colors.white54),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SyncStatusIcon.of(context),
+            ],
           ),
         ),
       ),

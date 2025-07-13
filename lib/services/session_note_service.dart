@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'training_stats_service.dart';
 import 'cloud_sync_service.dart';
+import '../app_bootstrap.dart';
 
 class SessionNoteService extends ChangeNotifier {
   static const _prefsKey = 'session_notes';
@@ -60,14 +61,15 @@ class SessionNoteService extends ChangeNotifier {
 
   Future<void> setNote(int sessionId, String note) async {
     _notes[sessionId] = note;
-    final prefs = await SharedPreferences.getInstance();
-    final data = {for (final e in _notes.entries) e.key.toString(): e.value};
-    await prefs.setString(_prefsKey, jsonEncode(data));
-    await prefs.setString(_timeKey, DateTime.now().toIso8601String());
-    if (cloud != null) {
-      await cloud!.uploadSessionNotes(_notes);
-    }
+    await _persist();
     notifyListeners();
+    if (cloud != null) {
+      try {
+        await cloud!.uploadSessionNotes(_notes);
+      } catch (_) {
+        AppBootstrap.sync?.cloud.syncUp();
+      }
+    }
   }
 
   Future<void> _persist() async {
@@ -75,9 +77,6 @@ class SessionNoteService extends ChangeNotifier {
     final data = {for (final e in _notes.entries) e.key.toString(): e.value};
     await prefs.setString(_prefsKey, jsonEncode(data));
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());
-    if (cloud != null) {
-      await cloud!.uploadSessionNotes(_notes);
-    }
   }
 
   Future<String?> exportAsPdf(TrainingStatsService stats) async {
