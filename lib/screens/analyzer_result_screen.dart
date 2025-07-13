@@ -82,6 +82,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
     if (mounted) {
       setState(() => _hand = updated);
       await _offerDrill();
+      await _offerSimilarDrill();
     }
   }
 
@@ -113,6 +114,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
         );
       }
       await _offerDrill();
+      await _offerSimilarDrill();
     });
   }
 
@@ -145,6 +147,42 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
     );
     if (start == true) {
       final tpl = TrainingPackService.createDrillFromHand(_hand);
+      await context.read<TrainingSessionService>().startSession(tpl);
+      if (context.mounted) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+        );
+      }
+    }
+  }
+
+  Future<void> _offerSimilarDrill() async {
+    if (!_isMistake) return;
+    if (!context.read<SavedHandManagerService>().hasSimilarMistakes(_hand)) {
+      return;
+    }
+    final start = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.grey[850],
+        title: const Text('Train similar hands now?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Later'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
+    );
+    if (start == true) {
+      final tpl =
+          await TrainingPackService.createDrillFromSimilarHands(context, _hand);
+      if (tpl == null) return;
       await context.read<TrainingSessionService>().startSession(tpl);
       if (context.mounted) {
         await Navigator.push(
