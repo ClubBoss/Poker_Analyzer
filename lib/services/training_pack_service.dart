@@ -162,6 +162,7 @@ class TrainingPackService {
       BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
     final byCat = <String, List<SavedHand>>{};
+    final evMap = <String, double>{};
     for (final h in hands) {
       final cat = h.category;
       final exp = h.expectedAction;
@@ -169,20 +170,21 @@ class TrainingPackService {
       if (cat == null || cat.isEmpty) continue;
       if (exp == null || gto == null) continue;
       if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
+      if (h.corrected) continue;
       byCat.putIfAbsent(cat, () => []).add(h);
+      evMap[cat] = (evMap[cat] ?? 0) + (h.evLoss ?? 0);
     }
-    if (byCat.isEmpty) return null;
-    final cat = byCat.entries
-        .reduce((a, b) => a.value.length >= b.value.length ? a : b)
-        .key;
+    if (evMap.isEmpty) return null;
+    final cat =
+        evMap.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
     final list = byCat[cat]!
       ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     final rng = Random();
-    final count = min(list.length, 5 + rng.nextInt(3));
+    final count = min(list.length, 5 + rng.nextInt(4));
     final spots = [for (final h in list.take(count)) _spotFromHand(h)];
     return TrainingPackTemplate(
       id: const Uuid().v4(),
-      name: 'Авто Drill: $cat',
+      name: 'Weakest Category Drill',
       spots: spots,
     );
   }
