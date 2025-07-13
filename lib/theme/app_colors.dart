@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const background = Color(0xFF1A1A1C);
-  static const cardBackground = Color(0xFF242428);
+  static const darkBackground = Color(0xFF1A1A1C);
+  static const lightBackground = Color(0xFFF2F2F4);
+  static const darkCard = Color(0xFF242428);
+  static const lightCard = Color(0xFFFFFFFF);
+  static const background = darkBackground;
+  static const cardBackground = darkCard;
   static const button = Color(0xFFB73239);
   static Color accent = const Color(0xFFD8B243);
   static final errorBg = Colors.red.withOpacity(.2);
@@ -10,4 +14,8 @@ class AppColors {
   static const evPost = Color(0xFFC9A559);
   static const icmPre = Color(0xFF404B1E);
   static const icmPost = Color(0xFF675729);
+  static const textPrimaryDark = Colors.white;
+  static const textSecondaryDark = Colors.white70;
+  static const textPrimaryLight = Colors.black;
+  static const textSecondaryLight = Colors.black54;
 }

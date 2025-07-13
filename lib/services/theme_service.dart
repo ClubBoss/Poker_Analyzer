@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
+import '../theme/constants.dart';
 
 class ThemeService extends ChangeNotifier {
   static const _key = 'theme_mode';
@@ -17,12 +18,20 @@ class ThemeService extends ChangeNotifier {
           seedColor: _accent,
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: AppColors.background,
-        cardColor: AppColors.cardBackground,
-        textTheme: ThemeData.light().textTheme.apply(
+        scaffoldBackgroundColor: AppColors.lightBackground,
+        cardColor: AppColors.lightCard,
+        textTheme: ThemeData.light()
+            .textTheme
+            .copyWith(
+              bodySmall: const TextStyle(fontSize: AppConstants.fontSize14),
+              bodyMedium: const TextStyle(fontSize: AppConstants.fontSize16),
+              bodyLarge: const TextStyle(fontSize: AppConstants.fontSize18),
+              labelSmall: const TextStyle(fontSize: AppConstants.fontSize12),
+            )
+            .apply(
               fontFamily: 'Roboto',
-              bodyColor: Colors.black,
-              displayColor: Colors.black,
+              bodyColor: AppColors.textPrimaryLight,
+              displayColor: AppColors.textPrimaryLight,
             ),
       );
 
@@ -32,12 +41,20 @@ class ThemeService extends ChangeNotifier {
           seedColor: _accent,
           brightness: Brightness.dark,
         ),
-        scaffoldBackgroundColor: AppColors.background,
-        cardColor: AppColors.cardBackground,
-        textTheme: ThemeData.dark().textTheme.apply(
+        scaffoldBackgroundColor: AppColors.darkBackground,
+        cardColor: AppColors.darkCard,
+        textTheme: ThemeData.dark()
+            .textTheme
+            .copyWith(
+              bodySmall: const TextStyle(fontSize: AppConstants.fontSize14),
+              bodyMedium: const TextStyle(fontSize: AppConstants.fontSize16),
+              bodyLarge: const TextStyle(fontSize: AppConstants.fontSize18),
+              labelSmall: const TextStyle(fontSize: AppConstants.fontSize12),
+            )
+            .apply(
               fontFamily: 'Roboto',
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
+              bodyColor: AppColors.textPrimaryDark,
+              displayColor: AppColors.textPrimaryDark,
             ),
       );
 
