@@ -86,7 +86,7 @@ import 'services/asset_sync_service.dart';
 import 'services/favorite_pack_service.dart';
 import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
-import 'widgets/first_launch_overlay.dart';
+import 'widgets/first_launch_tutorial.dart';
 import 'screens/onboarding_screen.dart';
 import 'app_bootstrap.dart';
 import 'app_providers.dart';
@@ -178,15 +178,19 @@ class PokerAIAnalyzerApp extends StatefulWidget {
 class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   late final ConnectivitySyncController _sync;
 
-  Future<void> _maybeShowIntroOverlay() async {
+  Future<void> _maybeShowIntroTutorial() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('seen_intro_overlay') == true) return;
+    var done = true;
+    for (int i = 0; i < 3; i++) {
+      if (prefs.getBool('intro_step_$i') != true) {
+        done = false;
+        break;
+      }
+    }
+    if (done) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
-    showFirstLaunchOverlay(ctx, () async {
-      final p = await SharedPreferences.getInstance();
-      await p.setBool('seen_intro_overlay', true);
-    });
+    showFirstLaunchTutorial(ctx);
   }
 
   Future<void> _maybeResumeTraining() async {
@@ -253,7 +257,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     NotificationService.startRecommendedPackTask(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeResumeTraining();
-      _maybeShowIntroOverlay();
+      _maybeShowIntroTutorial();
     });
   }
 
