@@ -4,6 +4,11 @@ import 'package:poker_analyzer/models/training_spot.dart';
 import 'package:poker_analyzer/models/card_model.dart';
 import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/models/eval_request.dart';
+import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/models/v2/hand_data.dart';
+import 'package:poker_analyzer/services/evaluation_settings_service.dart';
+import 'package:poker_analyzer/services/icm_push_ev_service.dart';
+import 'package:poker_analyzer/services/push_fold_ev_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -91,5 +96,39 @@ void main() {
     expect(res.score, 1);
     final cached = await EvaluationExecutorService().evaluate(req);
     expect(cached.score, 1);
+  });
+
+  testWidgets('evaluateSingle uses multiway icm', (tester) async {
+    final spot = TrainingPackSpot(
+      id: 'm',
+      hand: HandData(
+        heroCards: 'AA',
+        heroIndex: 0,
+        playerCount: 3,
+        stacks: {'0': 10, '1': 10, '2': 10},
+        actions: {
+          0: [
+            ActionEntry(0, 0, 'push', amount: 10),
+            ActionEntry(0, 1, 'call', amount: 10),
+            ActionEntry(0, 2, 'call', amount: 10),
+          ]
+        },
+        anteBb: 0,
+      ),
+    );
+    EvaluationSettingsService.instance.update(offline: true);
+    await tester.pumpWidget(Container());
+    final ctx = tester.element(find.byType(Container));
+    await tester.runAsync(() async {
+      await EvaluationExecutorService().evaluateSingle(ctx, spot);
+    });
+    final ev = computePushEV(heroBbStack: 10, bbCount: 2, heroHand: 'AA', anteBb: 0);
+    final icm = computeMultiwayIcmEV(
+      chipStacksBb: const [10, 10, 10],
+      heroIndex: 0,
+      chipPushEv: ev,
+      callerIndices: const [1, 2],
+    );
+    expect(spot.heroIcmEv, icm);
   });
 }
