@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../screens/template_library_screen.dart';
+import '../screens/ready_to_train_screen.dart';
 import '../screens/training_onboarding_screen.dart';
 
 Future<void> openTrainingTemplates(BuildContext context) async {
@@ -10,7 +10,7 @@ Future<void> openTrainingTemplates(BuildContext context) async {
     context,
     MaterialPageRoute(
       builder: (_) => seen
-          ? const TemplateLibraryScreen()
+          ? const ReadyToTrainScreen()
           : const TrainingOnboardingScreen(),
     ),
   );
