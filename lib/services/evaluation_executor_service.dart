@@ -558,6 +558,23 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (mistakeCount >= 4) return MistakeSeverity.medium;
     return MistakeSeverity.low;
   }
+
+  Future<void> bulkEvaluate(
+    List<TrainingPackSpot> spots, {
+    TrainingPackTemplate? template,
+    int anteBb = 0,
+    bool withIcm = true,
+  }) async {
+    for (final s in spots) {
+      await evaluateSingle(
+        WidgetsBinding.instance.renderViewElement!,
+        s,
+        template: template,
+        anteBb: anteBb,
+        mode: withIcm ? EvaluationMode.icm : EvaluationMode.ev,
+      );
+    }
+  }
 }
 
 class _QueueItem {
