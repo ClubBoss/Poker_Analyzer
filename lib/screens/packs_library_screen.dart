@@ -362,6 +362,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         t.spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
     final solvedAll =
         t.spots.every((s) => s.heroEv != null && s.heroIcmEv != null);
+    final coveragePct = total == 0
+        ? 0
+        : ((t.evCovered + t.icmCovered) * 100 / (2 * total)).round();
     final fav = context.read<FavoritePackService>();
     double pct(int done) => total == 0 ? 0 : done * 100 / total;
     return ListTile(
@@ -406,6 +409,18 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                 ],
               ),
             ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Coverage: ${coveragePct}%',
+            style: TextStyle(
+              fontSize: 11,
+              color: coveragePct < 70
+                  ? Colors.grey
+                  : coveragePct >= 90
+                      ? Colors.green
+                      : Colors.white,
+            ),
           ),
           const SizedBox(height: 4),
           CombinedProgressBar(pct(evDone), pct(icmDone)),
