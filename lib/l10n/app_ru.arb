@@ -96,4 +96,6 @@
   ,"packsShown": "Показано {count} паков"
   ,"noResults": "Нет результатов"
   ,"resetFilters": "Сбросить фильтры"
+  ,"sortLabel": "Сортировка:"
+  ,"sortPopular": "Сначала популярные"
 }
