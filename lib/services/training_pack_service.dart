@@ -555,4 +555,32 @@ class TrainingPackService {
     await TrainingPackStorage.save(list);
     return template;
   }
+
+  static Future<TrainingPackTemplate?> generateFreshMistakeDrill(
+      BuildContext context) async {
+    final hands = context.read<SavedHandManagerService>().hands;
+    final list = [
+      for (final h in hands)
+        if (!h.corrected &&
+            (h.evLoss?.abs() ?? 0) >= 1.0 &&
+            h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h
+    ];
+    if (list.isEmpty) return null;
+    list.sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final spots = [for (final h in list.take(20)) _spotFromHand(h)];
+    final template = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Свежие ошибки',
+      createdAt: DateTime.now(),
+      spots: spots,
+    );
+    final stored = await TrainingPackStorage.load();
+    stored.add(template);
+    await TrainingPackStorage.save(stored);
+    return template;
+  }
 }

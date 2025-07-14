@@ -107,6 +107,14 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ready to Train')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          await TrainingPackService.generateFreshMistakeDrill(context);
+          if (mounted) _load();
+        },
+        label: const Text('Новый Пак'),
+        icon: const Icon(Icons.add),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
