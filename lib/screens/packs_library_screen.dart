@@ -979,8 +979,28 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           ],
                         ),
                       ],
-                    ),
                   ),
+                ),
+                StreamBuilder<Set<String>>(
+                  stream: context.read<FavoritePackService>().favorites$,
+                  builder: (context, _) {
+                    final c = _filtered.length;
+                    final text = c == 0
+                        ? AppLocalizations.of(context)!.noResults
+                        : AppLocalizations.of(context)!.packsShown(c);
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          text,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey),
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: StreamBuilder<Set<String>>(
@@ -990,7 +1010,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       final filtered = _filtered;
                       if (filtered.isEmpty &&
                           (_query.isNotEmpty || _difficultyFilter != null)) {
-                        return const Center(child: Text('No packs match'));
+                        return Center(child: Text(AppLocalizations.of(context)!.noResults));
                       }
                       if (_groupByTag) {
                         final groups = <String, List<TrainingPackTemplate>>{};
