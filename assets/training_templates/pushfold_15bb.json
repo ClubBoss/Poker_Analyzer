@@ -1,0 +1,33 @@
+{
+  "id": "starter_pushfold_15bb",
+  "name": "Push/Fold 15BB",
+  "gameType": "tournament",
+  "heroBbStack": 15,
+  "playerStacksBb": [15, 15],
+  "heroPos": "btn",
+  "anteBb": 0,
+  "spotCount": 1,
+  "tags": ["starter"],
+  "isBuiltIn": true,
+  "spots": [
+    {
+      "id": "pf15_1",
+      "title": "A9o push",
+      "hand": {
+        "heroCards": "As 9c",
+        "position": "btn",
+        "heroIndex": 0,
+        "playerCount": 2,
+        "stacks": {"0": 15, "1": 15},
+        "actions": {
+          "0": [
+            {"street": 0, "playerIndex": 0, "action": "push", "amount": 15},
+            {"street": 0, "playerIndex": 1, "action": "fold"}
+          ]
+        },
+        "anteBb": 0
+      },
+      "tags": []
+    }
+  ]
+}

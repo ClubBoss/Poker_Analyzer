@@ -1,0 +1,33 @@
+{
+  "id": "starter_pushfold_20bb",
+  "name": "Push/Fold 20BB",
+  "gameType": "tournament",
+  "heroBbStack": 20,
+  "playerStacksBb": [20, 20],
+  "heroPos": "btn",
+  "anteBb": 0,
+  "spotCount": 1,
+  "tags": ["starter"],
+  "isBuiltIn": true,
+  "spots": [
+    {
+      "id": "pf20_1",
+      "title": "KQo push",
+      "hand": {
+        "heroCards": "Kh Qh",
+        "position": "btn",
+        "heroIndex": 0,
+        "playerCount": 2,
+        "stacks": {"0": 20, "1": 20},
+        "actions": {
+          "0": [
+            {"street": 0, "playerIndex": 0, "action": "push", "amount": 20},
+            {"street": 0, "playerIndex": 1, "action": "fold"}
+          ]
+        },
+        "anteBb": 0
+      },
+      "tags": []
+    }
+  ]
+}
