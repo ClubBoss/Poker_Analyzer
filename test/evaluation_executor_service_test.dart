@@ -55,6 +55,30 @@ void main() {
     expect(res.correct, isFalse);
   });
 
+  test('evaluate returns call when profitable', () {
+    final spot = TrainingSpot(
+      playerCards: [
+        [CardModel(rank: 'A', suit: '♠'), CardModel(rank: 'K', suit: '♠')],
+        [CardModel(rank: '2', suit: '♣'), CardModel(rank: '7', suit: '♦')],
+      ],
+      boardCards: const [],
+      actions: const [
+        ActionEntry(0, 1, 'push', amount: 10),
+        ActionEntry(0, 0, 'call', amount: 10),
+      ],
+      heroIndex: 0,
+      numberOfPlayers: 2,
+      playerTypes: const [],
+      positions: const ['BB', 'SB'],
+      stacks: const [10, 10],
+      createdAt: DateTime.now(),
+    );
+    final ctx = TestWidgetsFlutterBinding.instance.renderViewElement!;
+    final res = EvaluationExecutorService().evaluateSpot(ctx, spot, 'call');
+    expect(res.expectedAction, 'call');
+    expect(res.correct, isTrue);
+  });
+
   test('evaluate falls back to hero action when stack is deep', () {
     final spot = TrainingSpot(
       playerCards: [
@@ -96,6 +120,29 @@ void main() {
     expect(res.score, 1);
     final cached = await EvaluationExecutorService().evaluate(req);
     expect(cached.score, 1);
+  });
+
+  test('async evaluate returns score for call', () async {
+    final spot = TrainingSpot(
+      playerCards: [
+        [CardModel(rank: 'A', suit: '♠'), CardModel(rank: 'K', suit: '♠')],
+        [CardModel(rank: '2', suit: '♣'), CardModel(rank: '7', suit: '♦')],
+      ],
+      boardCards: const [],
+      actions: const [
+        ActionEntry(0, 1, 'push', amount: 10),
+        ActionEntry(0, 0, 'call', amount: 10),
+      ],
+      heroIndex: 0,
+      numberOfPlayers: 2,
+      playerTypes: const [],
+      positions: const ['BB', 'SB'],
+      stacks: const [10, 10],
+      createdAt: DateTime.now(),
+    );
+    final req = EvalRequest(hash: 'c', spot: spot, action: 'call');
+    final res = await EvaluationExecutorService().evaluate(req);
+    expect(res.score, 1);
   });
 
   testWidgets('evaluateSingle uses multiway icm', (tester) async {
