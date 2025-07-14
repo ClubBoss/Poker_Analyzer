@@ -196,9 +196,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         icmSum: 0,
       ));
       final prefs = await SharedPreferences.getInstance();
+      final acc = total == 0 ? 0.0 : correct * 100 / total;
       await prefs.setBool('completed_tpl_${tpl.id}', true);
       await prefs.setString(
           'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
+      await prefs.setDouble('last_accuracy_tpl_${tpl.id}', acc);
       final cloud = context.read<CloudSyncService?>();
       if (cloud != null) {
         unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
