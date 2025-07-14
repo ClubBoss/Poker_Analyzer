@@ -56,6 +56,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   _PackSort _sort = _PackSort.recommended;
   SharedPreferences? _prefs;
   List<TrainingPack> _suggestions = [];
+  bool _hotOnly = false;
+  List<TrainingPack> _hot = [];
 
   Future<void> _importPack() async {
     final service = context.read<TrainingPackStorageService>();
@@ -80,16 +82,28 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     });
   }
 
+  Future<void> _updateHot() async {
+    final list =
+        await context.read<TrainingPackStorageService>().getHotPacks();
+    if (mounted) setState(() => _hot = list);
+  }
+
   @override
   void initState() {
     super.initState();
     _loadPrefs();
+    _updateHot();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadSuggestions();
+  }
+
+  Future<void> _setHot(bool v) async {
+    setState(() => _hotOnly = v);
+    if (v) await _updateHot();
   }
 
   @override
@@ -175,7 +189,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     final storage = context.watch<TrainingPackStorageService>();
     final hands = context.watch<SavedHandManagerService>().hands;
     List<TrainingPack> packs;
-    switch (_sort) {
+    if (_hotOnly) {
+      packs = List.from(_hot);
+    } else {
+      switch (_sort) {
       case _PackSort.newest:
         packs = List.of(storage.packs)
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -186,6 +203,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         break;
       default:
         packs = storage.getSortedPacks();
+      }
     }
 
     if (_prefs == null) {
@@ -204,19 +222,21 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       );
     }
 
-    List<TrainingPack> visible = _hideCompleted
-        ? [for (final p in packs) if (!_isPackCompleted(p)) p]
-        : packs;
+    List<TrainingPack> visible = _hotOnly
+        ? packs
+        : _hideCompleted
+            ? [for (final p in packs) if (!_isPackCompleted(p)) p]
+            : packs;
 
-    if (_typeFilter != null) {
+    if (!_hotOnly && _typeFilter != null) {
       visible = [for (final p in visible) if (p.gameType == _typeFilter) p];
     }
 
-    if (_diffFilter > 0) {
+    if (!_hotOnly && _diffFilter > 0) {
       visible = [for (final p in visible) if (p.difficulty == _diffFilter) p];
     }
 
-    if (_colorFilter != 'All') {
+    if (!_hotOnly && _colorFilter != 'All') {
       if (_colorFilter == 'None') {
         visible = [for (final p in visible) if (p.colorTag.isEmpty) p];
       } else if (_colorFilter.startsWith('#')) {
@@ -238,7 +258,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     }
 
     final query = _searchController.text.toLowerCase();
-    if (query.isNotEmpty) {
+    if (!_hotOnly && query.isNotEmpty) {
       visible = [
         for (final p in visible)
           if (p.name.toLowerCase().contains(query) ||
@@ -518,8 +538,24 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                       Text(_colorFilter),
                     ],
                   ),
-                ),
-            ],
+            ),
+          ],
+        ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ChoiceChip(
+            label: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text('🔥'),
+                SizedBox(width: 4),
+                Text('Горячие', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            selected: _hotOnly,
+            selectedColor: Colors.orange,
+            onSelected: (v) => _setHot(v),
           ),
         ),
         SwitchListTile(

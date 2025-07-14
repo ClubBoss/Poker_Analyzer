@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/session_log.dart';
 import '../asset_manifest.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,6 +49,27 @@ class TrainingPackStorageService extends ChangeNotifier {
       return a.pctComplete.compareTo(b.pctComplete);
     });
     return List.unmodifiable(list);
+  }
+
+  Future<List<TrainingPack>> getHotPacks([int limit = 5]) async {
+    if (!Hive.isBoxOpen('session_logs')) {
+      await Hive.initFlutter();
+      await Hive.openBox('session_logs');
+    }
+    final box = Hive.box('session_logs');
+    final count = <String, int>{};
+    for (final v in box.values.whereType<Map>()) {
+      final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
+      count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
+    }
+    final list = [for (final p in _packs) if (count[p.id] != null) p];
+    list.sort((a, b) {
+      final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
+      if (r != 0) return r;
+      return b.lastAttemptDate.compareTo(a.lastAttemptDate);
+    });
+    if (limit < list.length) return list.sublist(0, limit);
+    return list;
   }
 
   final Map<String, List<PackSnapshot>> _snapshots = {};
