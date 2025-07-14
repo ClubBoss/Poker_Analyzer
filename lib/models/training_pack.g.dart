@@ -24,7 +24,9 @@ TrainingPack _$TrainingPackFromJson(Map<String, dynamic> json) => TrainingPack(
       spots: const [],
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 1,
       history: const [],
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     );
 
 Map<String, dynamic> _$TrainingPackToJson(TrainingPack instance) =>
-    <String, dynamic>{};
+    <String, dynamic>{'createdAt': instance.createdAt.toIso8601String()};

@@ -8,6 +8,7 @@ import '../services/smart_suggestion_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/progress_chip.dart';
+import '../widgets/new_chip.dart';
 import 'training_pack_screen.dart';
 
 class TrainingRecommendationScreen extends StatefulWidget {
@@ -122,7 +123,17 @@ class _PackCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(pack.name, style: const TextStyle(color: Colors.white)),
+            Row(
+              children: [
+                Expanded(
+                    child:
+                        Text(pack.name, style: const TextStyle(color: Colors.white))),
+                if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                  const SizedBox(width: 4),
+                if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                  const NewChip(),
+              ],
+            ),
             const Spacer(),
             Row(
               children: [
