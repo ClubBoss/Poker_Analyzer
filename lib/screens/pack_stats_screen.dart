@@ -13,12 +13,14 @@ class PackStatsScreen extends StatelessWidget {
   final int correct;
   final int total;
   final DateTime completedAt;
+  final Map<String, int>? categoryCounts;
   const PackStatsScreen({
     super.key,
     required this.templateId,
     required this.correct,
     required this.total,
     required this.completedAt,
+    this.categoryCounts,
   });
 
   TrainingPackTemplate? _template(BuildContext context) {
@@ -46,10 +48,7 @@ class PackStatsScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => PackHistoryScreen(
-          templateId: tpl.id,
-          title: tpl.name,
-        ),
+        builder: (_) => PackHistoryScreen(templateId: tpl.id, title: tpl.name),
       ),
     );
   }
@@ -85,13 +84,29 @@ class PackStatsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text('Accuracy ${acc.toStringAsFixed(1)}%',
-                        style: const TextStyle(color: Colors.white70)),
+                    Text(
+                      'Accuracy ${acc.toStringAsFixed(1)}%',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                     const SizedBox(height: 8),
                     Text(date, style: const TextStyle(color: Colors.white54)),
                   ],
                 ),
               ),
+              if (categoryCounts != null && categoryCounts!.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final e in categoryCounts!.entries)
+                      Text(
+                        '${e.key} — ${e.value}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 16),
               SizedBox(
                 width: 200,
