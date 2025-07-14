@@ -5,6 +5,7 @@ import '../services/pinned_pack_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/mistake_category_translations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/date_utils.dart';
 
 class TrainingPackCard extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -27,6 +28,7 @@ class TrainingPackCard extends StatefulWidget {
 
 class _TrainingPackCardState extends State<TrainingPackCard> {
   late bool _pinned;
+  String? _completedAt;
 
   Future<void> _resetProgress() async {
     final prefs = await SharedPreferences.getInstance();
@@ -45,6 +47,18 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   void initState() {
     super.initState();
     _pinned = widget.template.isPinned;
+    if (widget.dimmed) _loadCompletedAt();
+  }
+
+  Future<void> _loadCompletedAt() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ts = DateTime.tryParse(
+        prefs.getString('completed_at_tpl_${widget.template.id}') ?? '');
+    if (ts != null && mounted) {
+      setState(() {
+        _completedAt = formatLongDate(ts);
+      });
+    }
   }
 
   @override
@@ -74,8 +88,10 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
               : AppColors.cardBackground,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Row(
+        child: Stack(
           children: [
+            Row(
+              children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,6 +169,17 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                 ),
               ],
             ),
+          ],
+            ),
+            if (widget.dimmed && _completedAt != null)
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: Text(
+                  _completedAt!,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+              ),
           ],
         ),
       ),
