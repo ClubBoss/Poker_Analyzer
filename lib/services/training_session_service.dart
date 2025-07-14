@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
@@ -23,6 +24,7 @@ import '../models/category_progress.dart';
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
   Box<dynamic>? _activeBox;
+  static const _indexPrefix = 'ts_idx_';
   TrainingSession? _session;
   TrainingPackTemplate? _template;
   List<TrainingPackSpot> _spots = [];
@@ -245,6 +247,7 @@ class TrainingSessionService extends ChangeNotifier {
     _evAverageAll = 0;
     _icmAverageAll = 0;
     if (_activeBox != null) await _activeBox!.delete('session');
+    unawaited(_clearIndex());
     notifyListeners();
   }
 
@@ -271,6 +274,18 @@ class TrainingSessionService extends ChangeNotifier {
         'icmAverageAll': _icmAverageAll
       });
     }
+  }
+
+  Future<void> _saveIndex() async {
+    if (_template == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('$_indexPrefix${_template!.id}', _session?.index ?? 0);
+  }
+
+  Future<void> _clearIndex() async {
+    if (_template == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('$_indexPrefix${_template!.id}');
   }
 
   void pause() {
@@ -327,10 +342,18 @@ class TrainingSessionService extends ChangeNotifier {
           _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
       _handGoalCount[g.label] = 0;
     }
+    int savedIndex = 0;
+    if (persist) {
+      final prefs = await SharedPreferences.getInstance();
+      savedIndex = prefs.getInt('$_indexPrefix${template.id}') ?? 0;
+    }
     _session = TrainingSession.fromTemplate(
       template,
       authorPreview: !persist,
     );
+    if (savedIndex > 0 && savedIndex < _spots.length) {
+      _session!.index = savedIndex;
+    }
     _paused = false;
     _accumulated = Duration.zero;
     _resumedAt = DateTime.now();
@@ -338,6 +361,7 @@ class TrainingSessionService extends ChangeNotifier {
     if (persist && _box != null) {
       await _box!.put(_session!.id, _session!.toJson());
       _saveActive();
+      unawaited(_saveIndex());
     }
     notifyListeners();
   }
@@ -406,6 +430,7 @@ class TrainingSessionService extends ChangeNotifier {
     unawaited(context
         .read<CloudTrainingHistoryService>()
         .saveSession(_buildResults()));
+    unawaited(_clearIndex());
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -463,6 +488,7 @@ class TrainingSessionService extends ChangeNotifier {
     }
     if (_box != null) await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
+    unawaited(_saveIndex());
     notifyListeners();
   }
 
@@ -476,9 +502,13 @@ class TrainingSessionService extends ChangeNotifier {
         _resumedAt = null;
       }
       _timer?.cancel();
+      unawaited(_clearIndex());
     }
     if (_box != null) _box!.put(_session!.id, _session!.toJson());
     _saveActive();
+    if (_session!.completedAt == null) {
+      unawaited(_saveIndex());
+    }
     notifyListeners();
     return currentSpot;
   }
@@ -489,6 +519,7 @@ class TrainingSessionService extends ChangeNotifier {
       _session!.index -= 1;
       if (_box != null) _box!.put(_session!.id, _session!.toJson());
       _saveActive();
+      unawaited(_saveIndex());
       notifyListeners();
     }
     return currentSpot;
