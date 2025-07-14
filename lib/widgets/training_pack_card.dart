@@ -49,6 +49,39 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
     await widget.onRefresh?.call();
   }
 
+  Future<void> _handleTap() async {
+    if (!_passed) {
+      widget.onTap();
+      return;
+    }
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Пак пройден'),
+        content: const Text('Повторить или сбросить прогресс?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'cancel'),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'reset'),
+            child: const Text('Сбросить прогресс'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'repeat'),
+            child: const Text('Повторить'),
+          ),
+        ],
+      ),
+    );
+    if (result == 'repeat') {
+      widget.onTap();
+    } else if (result == 'reset') {
+      await _resetProgress();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -170,7 +203,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
               ),
             ),
             const SizedBox(width: 8),
-            ElevatedButton(onPressed: widget.onTap, child: const Text('Train')),
+            ElevatedButton(onPressed: _handleTap, child: const Text('Train')),
             PopupMenuButton<String>(
               onSelected: (v) {
                 if (v == 'reset') _resetProgress();
