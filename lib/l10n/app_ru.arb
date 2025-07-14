@@ -95,4 +95,5 @@
   ,"exportWeaknessReport": "Экспортировать отчёт о слабых местах"
   ,"packsShown": "Показано {count} паков"
   ,"noResults": "Нет результатов"
+  ,"resetFilters": "Сбросить фильтры"
 }
