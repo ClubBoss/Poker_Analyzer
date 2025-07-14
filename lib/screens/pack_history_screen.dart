@@ -1,123 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../services/training_session_service.dart';
-import '../services/training_pack_template_service.dart';
-import '../models/v2/training_pack_template.dart';
-import 'training_session_screen.dart';
-import '../widgets/training_pack_card.dart';
 import '../helpers/date_utils.dart';
+import '../services/session_log_service.dart';
 
-class PackHistoryScreen extends StatefulWidget {
-  const PackHistoryScreen({super.key});
+class PackHistoryScreen extends StatelessWidget {
+  final String templateId;
+  final String title;
+  const PackHistoryScreen({super.key, required this.templateId, required this.title});
 
-  @override
-  State<PackHistoryScreen> createState() => _PackHistoryScreenState();
-}
-
-class _PackHistoryScreenState extends State<PackHistoryScreen> {
-  final Map<DateTime, List<TrainingPackTemplate>> _groups = {};
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final map = await _fetchTemplates();
-    if (!mounted) return;
-    setState(() {
-      _groups
-        ..clear()
-        ..addAll(map);
-      _loading = false;
-    });
-  }
-
-  Future<Map<DateTime, List<TrainingPackTemplate>>> _fetchTemplates() async {
-    final templates = TrainingPackTemplateService.getAllTemplates(context);
-    final prefs = await SharedPreferences.getInstance();
-    final list = <MapEntry<TrainingPackTemplate, DateTime>>[];
-    for (final t in templates) {
-      if (prefs.getBool('completed_tpl_${t.id}') ?? false) {
-        final ts = DateTime.tryParse(
-                prefs.getString('completed_at_tpl_${t.id}') ?? '') ??
-            DateTime.fromMillisecondsSinceEpoch(0);
-        t.lastTrainedAt = ts;
-        list.add(MapEntry(t, ts));
-      }
-    }
-    list.sort((a, b) => b.value.compareTo(a.value));
-    final map = <DateTime, List<TrainingPackTemplate>>{};
-    for (final e in list) {
-      final day = DateTime(e.value.year, e.value.month, e.value.day);
-      map.putIfAbsent(day, () => []).add(e.key);
-    }
-    return map;
-  }
-
-  Future<void> _refreshAfterReset() async {
-    final map = await _fetchTemplates();
-    if (!mounted) return;
-    setState(() {
-      _groups
-        ..clear()
-        ..addAll(map);
-    });
-  }
-
-  Future<void> _start(TrainingPackTemplate tpl) async {
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (context.mounted) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-      );
-    }
+  String _formatDuration(Duration d) {
+    final h = d.inHours;
+    final m = d.inMinutes.remainder(60);
+    final parts = <String>[];
+    if (h > 0) parts.add('${h}ч');
+    parts.add('${m}м');
+    return parts.join(' ');
   }
 
   @override
   Widget build(BuildContext context) {
+    final logs = context
+        .watch<SessionLogService>()
+        .filter(templateId: templateId)
+      ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+    final sessions = logs.take(10).toList();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('История паков')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _groups.isEmpty
-              ? const Center(
-                  child: Text('История пуста',
-                      style: TextStyle(color: Colors.white70)),
-                )
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: Builder(builder: (context) {
-                    final dates = _groups.keys.toList()
-                      ..sort((a, b) => b.compareTo(a));
-                    return ListView(
-                      padding: const EdgeInsets.all(16),
-                      children: [
-                        for (int i = 0; i < dates.length; i++) ...[
-                          Padding(
-                            padding:
-                                EdgeInsets.fromLTRB(0, i == 0 ? 0 : 16, 0, 8),
-                            child: Text(
-                              formatLongDate(dates[i]),
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                          ),
-                          for (final t in _groups[dates[i]]!)
-                            TrainingPackCard(
-                              template: t,
-                              onTap: () => _start(t),
-                              onRefresh: _refreshAfterReset,
-                            ),
-                        ]
-                      ],
-                    );
-                  }),
-                ),
+      appBar: AppBar(title: Text(title)),
+      backgroundColor: const Color(0xFF1B1C1E),
+      body: sessions.isEmpty
+          ? const Center(
+              child: Text('История пуста',
+                  style: TextStyle(color: Colors.white70)),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: sessions.length,
+              separatorBuilder: (_, __) =>
+                  const Divider(height: 1, color: Colors.white24),
+              itemBuilder: (context, index) {
+                final s = sessions[index];
+                final total = s.correctCount + s.mistakeCount;
+                final acc = total == 0 ? 0.0 : s.correctCount * 100 / total;
+                final success = acc >= 80;
+                final duration = s.completedAt.difference(s.startedAt);
+                return ListTile(
+                  leading: Icon(
+                    success ? Icons.check_circle : Icons.cancel,
+                    color: success ? Colors.greenAccent : Colors.redAccent,
+                  ),
+                  title: Text(
+                    formatDateTime(s.completedAt),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    '${acc.toStringAsFixed(1)}% • ${_formatDuration(duration)}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

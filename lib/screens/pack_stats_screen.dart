@@ -6,6 +6,7 @@ import '../services/training_pack_template_service.dart';
 import '../services/training_session_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
+import 'pack_history_screen.dart';
 
 class PackStatsScreen extends StatelessWidget {
   final String templateId;
@@ -37,6 +38,20 @@ class PackStatsScreen extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
       );
     }
+  }
+
+  void _openHistory(BuildContext context) {
+    final tpl = _template(context);
+    if (tpl == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PackHistoryScreen(
+          templateId: tpl.id,
+          title: tpl.name,
+        ),
+      ),
+    );
   }
 
   @override
@@ -83,6 +98,14 @@ class PackStatsScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => _repeat(context),
                   child: const Text('Repeat Pack'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  onPressed: () => _openHistory(context),
+                  child: const Text('History'),
                 ),
               ),
             ],
