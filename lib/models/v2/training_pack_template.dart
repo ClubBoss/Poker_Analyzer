@@ -40,6 +40,7 @@ class TrainingPackTemplate {
   bool isBuiltIn;
   String? png;
   bool? isFavorite;
+  bool isPinned;
 
   TrainingPackTemplate({
     required this.id,
@@ -72,6 +73,7 @@ class TrainingPackTemplate {
     this.isBuiltIn = false,
     this.png,
     this.isFavorite = false,
+    this.isPinned = false,
   })  : spots = spots ?? [],
         tags = tags ?? [],
         focusTags = focusTags ?? [],
@@ -113,6 +115,7 @@ class TrainingPackTemplate {
     bool? isBuiltIn,
     String? png,
     bool? isFavorite,
+    bool? isPinned,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -146,6 +149,7 @@ class TrainingPackTemplate {
       isBuiltIn: isBuiltIn ?? this.isBuiltIn,
       png: png ?? this.png,
       isFavorite: isFavorite ?? this.isFavorite,
+      isPinned: isPinned ?? this.isPinned,
     );
   }
 
@@ -198,6 +202,7 @@ class TrainingPackTemplate {
       isBuiltIn: json['isBuiltIn'] as bool? ?? false,
       png: json['png'] as String?,
       isFavorite: json['isFavorite'] as bool? ?? false,
+      isPinned: json['isPinned'] as bool? ?? false,
     );
     if (!tpl.meta.containsKey('evCovered') ||
         !tpl.meta.containsKey('icmCovered')) {
@@ -240,6 +245,7 @@ class TrainingPackTemplate {
         if (isBuiltIn) 'isBuiltIn': true,
         if (png != null) 'png': png,
         if (isFavorite == true) 'isFavorite': true,
+        if (isPinned) 'isPinned': true,
       };
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
