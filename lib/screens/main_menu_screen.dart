@@ -51,6 +51,7 @@ import '../widgets/focus_of_the_week_card.dart';
 import '../widgets/sync_status_widget.dart';
 import 'weakness_overview_screen.dart';
 import 'training_home_screen.dart';
+import 'ready_to_train_screen.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -115,9 +116,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ],
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   @override
@@ -153,7 +152,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         MaterialPageRoute(builder: (_) => const OnboardingScreen()),
       );
       if (mounted) {
-        setState(() => _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
+        setState(() =>
+            _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
       }
     });
   }
@@ -586,9 +586,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 360;
-        final count = isLandscape(context)
-            ? 3
-            : (compact ? 1 : 2);
+        final count = isLandscape(context) ? 3 : (compact ? 1 : 2);
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -712,108 +710,135 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         ],
       ),
       body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-            _buildStreakCard(context),
-            _buildDailyGoalCard(context),
-            const FocusOfTheWeekCard(),
-            _buildProgressCard(context),
-            _buildSpotOfDaySection(context),
-            _buildMenuGrid(context),
-            ListTile(
-              leading: const Icon(Icons.analytics, color: Colors.white),
-              trailing: const Icon(Icons.chevron_right),
-              title: const Text('Анализ ошибок'),
-              onTap: () {
-                Navigator.pushNamed(context, WeaknessOverviewScreen.route);
-              },
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildStreakCard(context),
+                    _buildDailyGoalCard(context),
+                    const FocusOfTheWeekCard(),
+                    _buildProgressCard(context),
+                    _buildSpotOfDaySection(context),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const ReadyToTrainScreen()),
+                          );
+                        },
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('Тренироваться'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildMenuGrid(context),
+                    ListTile(
+                      leading: const Icon(Icons.analytics, color: Colors.white),
+                      trailing: const Icon(Icons.chevron_right),
+                      title: const Text('Анализ ошибок'),
+                      onTap: () {
+                        Navigator.pushNamed(
+                            context, WeaknessOverviewScreen.route);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    SwitchListTile(
+                      value: _demoMode,
+                      title: const Text('Demo Mode'),
+                      onChanged: _toggleDemoMode,
+                      activeColor: Colors.orange,
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      '🛠️ Инструменты',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final manager = Provider.of<SavedHandManagerService>(
+                            context,
+                            listen: false);
+                        final service =
+                            await HandHistoryFileService.create(manager);
+                        await service.importFromFiles(context);
+                      },
+                      child: const Text('Импортировать Hand History'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const SessionAnalysisImportScreen()),
+                        );
+                      },
+                      child: const Text('Анализ сессии EV/ICM'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final manager = Provider.of<SavedHandManagerService>(
+                            context,
+                            listen: false);
+                        final path = await manager.exportAllHandsMarkdown();
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(path != null
+                                ? 'Файл сохранён: all_saved_hands.md'
+                                : 'Нет сохранённых раздач'),
+                          ),
+                        );
+                      },
+                      child: const Text('Экспорт всех раздач'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final manager = Provider.of<SavedHandManagerService>(
+                            context,
+                            listen: false);
+                        final path = await manager.exportAllHandsPdf();
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(path != null
+                                ? 'Файл сохранён: all_saved_hands.pdf'
+                                : 'Нет сохранённых раздач'),
+                          ),
+                        );
+                      },
+                      child: const Text('Экспорт PDF раздач'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const GlobalEvaluationScreen()),
+                        );
+                      },
+                      child: const Text('Глобальный пересчёт EV/ICM'),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            SwitchListTile(
-              value: _demoMode,
-              title: const Text('Demo Mode'),
-              onChanged: _toggleDemoMode,
-              activeColor: Colors.orange,
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              '🛠️ Инструменты',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                final manager = Provider.of<SavedHandManagerService>(context,
-                    listen: false);
-                final service = await HandHistoryFileService.create(manager);
-                await service.importFromFiles(context);
-              },
-              child: const Text('Импортировать Hand History'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SessionAnalysisImportScreen()),
-                );
-              },
-              child: const Text('Анализ сессии EV/ICM'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                final manager = Provider.of<SavedHandManagerService>(context,
-                    listen: false);
-                final path = await manager.exportAllHandsMarkdown();
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(path != null
-                        ? 'Файл сохранён: all_saved_hands.md'
-                        : 'Нет сохранённых раздач'),
-                  ),
-                );
-              },
-              child: const Text('Экспорт всех раздач'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                final manager = Provider.of<SavedHandManagerService>(context,
-                    listen: false);
-                final path = await manager.exportAllHandsPdf();
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(path != null
-                        ? 'Файл сохранён: all_saved_hands.pdf'
-                        : 'Нет сохранённых раздач'),
-                  ),
-                );
-              },
-              child: const Text('Экспорт PDF раздач'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const GlobalEvaluationScreen()),
-                );
-              },
-              child: const Text('Глобальный пересчёт EV/ICM'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
-    ),
-  ),
-);
+    );
   }
 }
