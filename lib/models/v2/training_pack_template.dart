@@ -370,3 +370,17 @@ class TrainingPackTemplate {
 
   bool hasPlayableContent() => playableVariants().isNotEmpty;
 }
+
+extension TrainingPackTemplateUpdated on TrainingPackTemplate {
+  DateTime? get updatedDate {
+    final u = meta['updated'];
+    if (u is String) return DateTime.tryParse(u);
+    if (u is int) return DateTime.fromMillisecondsSinceEpoch(u);
+    try {
+      final dynamic d = this;
+      if (d.updatedAt is DateTime) return d.updatedAt as DateTime;
+      if (d.lastModified is DateTime) return d.lastModified as DateTime;
+    } catch (_) {}
+    return null;
+  }
+}
