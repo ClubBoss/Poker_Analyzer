@@ -95,4 +95,5 @@
   ,"exportWeaknessReport": "Export Weakness Report"
   ,"packsShown": "Shown {count} packs"
   ,"noResults": "No results"
+  ,"resetFilters": "Reset filters"
 }

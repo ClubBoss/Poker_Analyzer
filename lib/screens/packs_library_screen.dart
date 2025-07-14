@@ -326,6 +326,16 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     }
   }
 
+  void _resetFilters() {
+    setState(() {
+      _selectedTags.clear();
+      _stackFilters.clear();
+      _difficultyFilter = null;
+      _query = '';
+    });
+    _saveState();
+  }
+
   Widget _buildPackTile(TrainingPackTemplate t) {
     final isNew =
         DateTime.now().difference(t.createdAt).inDays < 3;
@@ -964,6 +974,13 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         TextButton(
                           onPressed: _showAllTags,
                           child: const Text('All Tags'),
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                              foregroundColor: Colors.redAccent),
+                          onPressed: _resetFilters,
+                          child: Text(AppLocalizations.of(context)!.resetFilters),
                         ),
                         const SizedBox(width: 8),
                         Row(
