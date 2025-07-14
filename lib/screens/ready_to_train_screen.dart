@@ -10,6 +10,7 @@ import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/training_pack_card.dart';
 import 'empty_training_screen.dart';
 
 class ReadyToTrainScreen extends StatefulWidget {
@@ -64,7 +65,8 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
         : null;
     final prefs = await SharedPreferences.getInstance();
     final list = [
-      ...builtIn.where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false)),
+      ...builtIn
+          .where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false)),
       if (top != null && !(prefs.getBool('completed_tpl_${top.id}') ?? false))
         top,
       if (community != null &&
@@ -101,62 +103,6 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     }
   }
 
-  Widget _card(TrainingPackTemplate t) {
-    return GestureDetector(
-      onLongPress: () async {
-        await context.read<PinnedPackService>().toggle(t.id);
-        if (mounted) setState(() {
-          t.isPinned = !t.isPinned;
-          _applyPinned();
-        });
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (t.isPinned) const Text('📌 '),
-                    Expanded(
-                      child: Text(t.name,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-                if (t.description.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(t.description,
-                        style: const TextStyle(color: Colors.white70)),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text('${t.spots.length} spots',
-                      style: const TextStyle(color: Colors.white70)),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-              onPressed: () => _start(t), child: const Text('Train')),
-        ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,7 +113,10 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.all(16),
-                children: [for (final t in _templates) _card(t)],
+                children: [
+                  for (final t in _templates)
+                    TrainingPackCard(template: t, onTap: () => _start(t)),
+                ],
               ),
             ),
     );
