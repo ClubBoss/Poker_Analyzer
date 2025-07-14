@@ -126,11 +126,66 @@ class AchievementService extends ChangeNotifier {
   List<AchievementInfo> allAchievements() {
     final unlocked = {for (final a in _achievements) a.id: a.unlocked};
     return [
-      AchievementInfo(id: "first_pack", title: "Первый пак завершён", description: "Завершите первую тренировку", icon: Icons.flag, progress: stats.sessionsCompleted > 0 ? 1 : 0, target: 1, category: "Volume"),
-      AchievementInfo(id: "hands_100", title: "100 рук сыграно", description: "Разберите 100 сыгранных рук", icon: Icons.pan_tool_alt, progress: stats.handsReviewed, target: 100, category: "Volume"),
-      AchievementInfo(id: "streak_7", title: "7 дней подряд", description: "Тренируйтесь 7 дней подряд", icon: Icons.local_fire_department, progress: streak.streak.value, target: 7, category: "Streaks"),
-      AchievementInfo(id: "error_free_3", title: "Без ошибок 3 дня", description: "Три дня без ошибок подряд", icon: Icons.check_circle, progress: streak.errorFreeStreak, target: 3, category: "Streaks"),
-      AchievementInfo(id: "ev_015", title: "EV-мастер", description: "Средний EV > 0.15 в сессии", icon: Icons.trending_up, progress: unlocked["ev_015"] == true ? 1 : 0, target: 1, category: "Accuracy"),
+      AchievementInfo(
+        id: 'first_pack',
+        title: 'Первый пак завершён',
+        description: 'Завершите первую тренировку',
+        progress: stats.sessionsCompleted > 0 ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.flag],
+        category: 'Volume',
+      ),
+      AchievementInfo(
+        id: 'hands_100',
+        title: 'Руки разобраны',
+        description: 'Разберите сыгранные руки',
+        progress: stats.handsReviewed,
+        thresholds: const [10, 50, 200, 1000],
+        iconsPerLevel: const [
+          Icons.looks_one,
+          Icons.looks_two,
+          Icons.looks_3,
+          Icons.looks_4,
+        ],
+        category: 'Volume',
+      ),
+      AchievementInfo(
+        id: 'streak_7',
+        title: 'Дни подряд',
+        description: 'Тренируйтесь каждый день',
+        progress: streak.streak.value,
+        thresholds: const [3, 7, 30, 100],
+        iconsPerLevel: const [
+          Icons.calendar_view_day,
+          Icons.calendar_today,
+          Icons.calendar_month,
+          Icons.event_available,
+        ],
+        category: 'Streaks',
+      ),
+      AchievementInfo(
+        id: 'error_free_3',
+        title: 'Без ошибок',
+        description: 'Дни без ошибок',
+        progress: streak.errorFreeStreak,
+        thresholds: const [1, 3, 7, 30],
+        iconsPerLevel: const [
+          Icons.check,
+          Icons.check_circle,
+          Icons.check_circle_outline,
+          Icons.verified,
+        ],
+        category: 'Streaks',
+      ),
+      AchievementInfo(
+        id: 'ev_015',
+        title: 'EV-мастер',
+        description: 'Средний EV > 0.15 в сессии',
+        progress: unlocked['ev_015'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.trending_up],
+        category: 'Accuracy',
+      ),
     ];
   }
 
