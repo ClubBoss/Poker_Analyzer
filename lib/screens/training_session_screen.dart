@@ -35,7 +35,6 @@ class _EndlessStats {
   }
 }
 
-
 class TrainingSessionScreen extends StatefulWidget {
   final VoidCallback? onSessionEnd;
   final TrainingSession? session;
@@ -113,7 +112,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         await prefs.setString(
             'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
       } else {
-        await prefs.setInt('progress_tpl_${tpl.id}', service.session?.index ?? 0);
+        await prefs.setInt(
+            'progress_tpl_${tpl.id}', service.session?.index ?? 0);
       }
     }
     if (!mounted) return;
@@ -212,6 +212,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       if (cloud != null) {
         unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
       }
+      Map<String, int>? counts;
+      if (tpl.id == 'suggested_weekly') {
+        counts = {};
+        for (final e in service.getCategoryStats().entries) {
+          final n = e.value.played - e.value.correct;
+          if (n > 0) counts[e.key] = n;
+        }
+      }
       await service.complete(
         context,
         resultBuilder: (_) => PackStatsScreen(
@@ -219,6 +227,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           correct: correct,
           total: total,
           completedAt: DateTime.now(),
+          categoryCounts: counts,
         ),
       );
     }
@@ -251,18 +260,15 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final segments = <Widget>[];
     if (correct > 0) {
       segments.add(Expanded(
-          flex: correct,
-          child: Container(height: 4, color: Colors.green)));
+          flex: correct, child: Container(height: 4, color: Colors.green)));
     }
     if (incorrect > 0) {
       segments.add(Expanded(
-          flex: incorrect,
-          child: Container(height: 4, color: Colors.red)));
+          flex: incorrect, child: Container(height: 4, color: Colors.red)));
     }
     if (remaining > 0) {
       segments.add(Expanded(
-          flex: remaining,
-          child: Container(height: 4, color: Colors.grey)));
+          flex: remaining, child: Container(height: 4, color: Colors.grey)));
     }
     return Row(children: segments);
   }
@@ -314,8 +320,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             orElse: () => '',
           );
           final categoryName = tag.isNotEmpty ? tag.substring(4) : null;
-          final showCategory =
-              service.template?.id == 'suggested_weekly' && categoryName != null;
+          final showCategory = service.template?.id == 'suggested_weekly' &&
+              categoryName != null;
           return Scaffold(
             appBar: AppBar(
               title: const Text('Training'),
