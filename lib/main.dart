@@ -266,9 +266,22 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
       await ctx.read<TrainingSessionService>().startSession(pinned);
     }
     if (!mounted) return;
+    showDialog(
+      context: ctx,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+    Navigator.pop(ctx);
     Navigator.pushReplacement(
       ctx,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (_, __, ___) => const TrainingSessionScreen(),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
     );
   }
 
