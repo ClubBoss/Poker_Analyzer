@@ -37,6 +37,18 @@ class TrainingPackStorageService extends ChangeNotifier {
   final List<TrainingPack> _packs = [];
   List<TrainingPack> get packs => List.unmodifiable(_packs);
 
+  List<TrainingPack> getSortedPacks() {
+    final list = List<TrainingPack>.from(_packs);
+    list.sort((a, b) {
+      final c = b.createdAt.compareTo(a.createdAt);
+      if (c != 0) return c;
+      final d = b.difficulty.compareTo(a.difficulty);
+      if (d != 0) return d;
+      return a.pctComplete.compareTo(b.pctComplete);
+    });
+    return List.unmodifiable(list);
+  }
+
   final Map<String, List<PackSnapshot>> _snapshots = {};
   List<PackSnapshot> snapshotsOf(TrainingPack pack) =>
       List.unmodifiable(_snapshots[pack.id] ?? const []);

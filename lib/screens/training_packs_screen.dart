@@ -28,6 +28,8 @@ import '../services/smart_suggestion_service.dart';
 import 'training_session_screen.dart';
 import '../models/saved_hand.dart';
 
+enum _PackSort { recommended, newest, hardest }
+
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
 
@@ -51,6 +53,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   String _colorFilter = 'All';
   bool _groupByColor = false;
   Color _lastColor = Colors.blue;
+  _PackSort _sort = _PackSort.recommended;
   SharedPreferences? _prefs;
   List<TrainingPack> _suggestions = [];
 
@@ -169,8 +172,21 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final packs = context.watch<TrainingPackStorageService>().packs;
+    final storage = context.watch<TrainingPackStorageService>();
     final hands = context.watch<SavedHandManagerService>().hands;
+    List<TrainingPack> packs;
+    switch (_sort) {
+      case _PackSort.newest:
+        packs = List.of(storage.packs)
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case _PackSort.hardest:
+        packs = List.of(storage.packs)
+          ..sort((a, b) => b.difficulty.compareTo(a.difficulty));
+        break;
+      default:
+        packs = storage.getSortedPacks();
+    }
 
     if (_prefs == null) {
       return Scaffold(
@@ -515,6 +531,25 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             await prefs.setBool(_groupKey, v);
           },
           activeColor: Colors.orange,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              const Text('Сортировка', style: TextStyle(color: Colors.white)),
+              const SizedBox(width: 8),
+              DropdownButton<_PackSort>(
+                value: _sort,
+                underline: const SizedBox.shrink(),
+                onChanged: (v) => setState(() => _sort = v ?? _PackSort.recommended),
+                items: const [
+                  DropdownMenuItem(value: _PackSort.recommended, child: Text('Рекомендуемые')),
+                  DropdownMenuItem(value: _PackSort.newest, child: Text('Новые')),
+                  DropdownMenuItem(value: _PackSort.hardest, child: Text('Сложные')),
+                ],
+              ),
+            ],
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
