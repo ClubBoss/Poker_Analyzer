@@ -5,7 +5,9 @@ import 'services/cloud_sync_service.dart';
 import 'services/session_note_service.dart';
 import 'services/connectivity_sync_controller.dart';
 import 'services/evaluation_executor_service.dart';
+import 'services/training_pack_service.dart';
 import 'services/service_registry.dart';
+import 'helpers/training_pack_storage.dart';
 import 'core/plugin_runtime.dart';
 
 class AppBootstrap {
@@ -35,6 +37,10 @@ class AppBootstrap {
       _sync = ConnectivitySyncController(cloud: cloud);
     }
     await SessionNoteService(cloud: cloud).load();
+    final packs = await TrainingPackStorage.load();
+    if (packs.isEmpty) {
+      await TrainingPackService.generateDefaultPersonalPack(cloud: cloud);
+    }
     registry.registerIfAbsent<EvaluationExecutor>(EvaluationExecutorService());
     _registry = registry;
     return registry;
