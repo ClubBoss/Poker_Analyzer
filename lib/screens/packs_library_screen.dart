@@ -9,6 +9,7 @@ import '../services/training_pack_asset_loader.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import '../models/session_log.dart';
 
 import '../models/v2/training_pack_template.dart';
@@ -484,11 +485,37 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (t.lastTrainedAt != null)
-            Text(
-              'Trained ${timeago.format(t.lastTrainedAt!, locale: "en_short")}',
-              style: const TextStyle(fontSize: 11, color: Colors.white54),
-            ),
+          (() {
+            final updated = t.updatedDate;
+            final diff = updated == null
+                ? null
+                : DateTime.now().difference(updated).inDays;
+            String? label;
+            if (diff != null) {
+              if (diff > 30) {
+                label =
+                    'Updated: ${DateFormat('d MMM', 'en_US').format(updated)}';
+              } else if (diff < 3) {
+                label = 'Updated Recently';
+              }
+            }
+            if (label == null && t.lastTrainedAt == null) return null;
+            return Row(
+              children: [
+                if (label != null)
+                  Text(label,
+                      style: const TextStyle(
+                          fontSize: 11, color: Colors.white38)),
+                if (label != null && t.lastTrainedAt != null)
+                  const SizedBox(width: 8),
+                if (t.lastTrainedAt != null)
+                  Text(
+                    'Trained ${timeago.format(t.lastTrainedAt!, locale: "en_short")}',
+                    style: const TextStyle(fontSize: 11, color: Colors.white54),
+                  ),
+              ],
+            );
+          })(),
           Text(t.description),
           if (t.tags.isNotEmpty)
             Padding(
