@@ -93,4 +93,6 @@
   ,"evBb": "EV: {value} BB"
   ,"icmLabel": "ICM: {value}"
   ,"exportWeaknessReport": "Export Weakness Report"
+  ,"packsShown": "Shown {count} packs"
+  ,"noResults": "No results"
 }
