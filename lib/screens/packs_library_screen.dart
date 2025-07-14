@@ -65,7 +65,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<String> _statusFilters = {};
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
-  final Set<String> _tagFilters = {};
+  String? _selectedTag;
+  bool _groupByTag = false;
   final Set<String> _mistakePacks = {};
   _SortMode _sortMode = _SortMode.name;
   static const _PrefsKey = 'pack_library_state';
@@ -115,8 +116,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           }
         }
       }
-      final tagOk = _tagFilters.isEmpty ||
-          p.tags.any((tag) => _tagFilters.contains(tag));
+      final tagOk = _selectedTag == null || p.tags.contains(_selectedTag);
       return diffOk && textOk && statusOk && posOk && stackOk && tagOk;
     }).toList();
     res.sort((a, b) {
@@ -189,9 +189,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         _stackFilters
           ..clear()
           ..addAll([for (final i in json['stack'] as List? ?? []) _StackRange.values[i as int]]);
-        _tagFilters
-          ..clear()
-          ..addAll([for (final s in json['tags'] as List? ?? []) s as String]);
+        _selectedTag = json['tag'] as String?;
+        _groupByTag = json['groupTag'] as bool? ?? false;
         final sort = json['sort'] as int?;
         if (sort != null && sort >= 0 && sort < _SortMode.values.length) {
           _sortMode = _SortMode.values[sort];
@@ -208,7 +207,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       'status': _statusFilters.toList(),
       'pos': [for (final p in _posFilters) p.name],
       'stack': [for (final r in _stackFilters) r.index],
-      'tags': _tagFilters.toList(),
+      'tag': _selectedTag,
+      'groupTag': _groupByTag,
       'sort': _sortMode.index,
     });
     await prefs.setString(_PrefsKey, json);
@@ -296,6 +296,194 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     await TrainingPackStorage.save(list);
     if (mounted) setState(() {});
     TrainingStatsService.instance?.notifyListeners();
+  }
+
+  Widget _buildPackTile(TrainingPackTemplate t) {
+    final isNew =
+        DateTime.now().difference(t.createdAt).inDays < 3;
+    final total = t.spots.length;
+    final evDone =
+        t.spots.where((s) => s.heroEv != null && !s.dirty).length;
+    final icmDone =
+        t.spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+    final solvedAll =
+        t.spots.every((s) => s.heroEv != null && s.heroIcmEv != null);
+    final fav = context.read<FavoritePackService>();
+    double pct(int done) => total == 0 ? 0 : done * 100 / total;
+    return ListTile(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(t.name)),
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: [
+                  if (t.difficulty != null)
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: t.difficulty == 'Beginner'
+                            ? Colors.green
+                            : t.difficulty == 'Intermediate'
+                                ? Colors.orange
+                                : t.difficulty == 'Advanced'
+                                    ? Colors.red
+                                    : Colors.grey,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        t.difficulty!,
+                        style:
+                            const TextStyle(fontSize: 10, color: Colors.white),
+                      ),
+                    ),
+                  if (isNew)
+                    Chip(
+                      label: const Text('NEW'),
+                      backgroundColor: Colors.amber,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity:
+                          const VisualDensity(horizontal: -4, vertical: -4),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          CombinedProgressBar(pct(evDone), pct(icmDone)),
+        ],
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (t.lastTrainedAt != null)
+            Text(
+              'Trained ${timeago.format(t.lastTrainedAt!, locale: "en_short")}',
+              style: const TextStyle(fontSize: 11, color: Colors.white54),
+            ),
+          Text(t.description),
+        ],
+      ),
+      leading: CircleAvatar(child: Text(total.toString())),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(
+              fav.isFavorite(t.id) ? Icons.star : Icons.star_border,
+            ),
+            color: fav.isFavorite(t.id) ? Colors.amber : Colors.white54,
+            onPressed: () => fav.toggle(t.id),
+          ),
+          if (validateTrainingPackTemplate(t).isEmpty &&
+              !context
+                  .read<TemplateStorageService>()
+                  .templates
+                  .any((e) => e.name == t.name))
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: ElevatedButton(
+                onPressed: () async {
+                  final newSession = await context
+                      .read<TrainingSessionService>()
+                      .startFromTemplate(t);
+                  if (!context.mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          TrainingSessionScreen(session: newSession),
+                    ),
+                  );
+                },
+                child: const Text('Start'),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PackPreviewScreen(pack: t),
+                  ),
+                );
+              },
+              child: const Text('Preview'),
+            ),
+          ),
+          if (_mistakePacks.contains(t.id))
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: OutlinedButton(
+                onPressed: () async {
+                  final session = await context
+                      .read<TrainingSessionService>()
+                      .startFromPastMistakes(t);
+                  if (session == null) {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('mistakes_tpl_${t.id}', false);
+                    if (mounted) {
+                      setState(() => _mistakePacks.remove(t.id));
+                    }
+                    return;
+                  }
+                  if (!context.mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TrainingSessionScreen(session: session),
+                    ),
+                  );
+                },
+                child: Text(AppLocalizations.of(context)!.reviewMistakes),
+              ),
+            ),
+          IconButton(
+            icon: const Icon(Icons.play_circle_fill),
+            tooltip: solvedAll ? 'All solved' : 'Resume',
+            onPressed: solvedAll
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => TrainingSessionScreen(template: t)),
+                    );
+                  },
+          ),
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              if (v == 'import') _import(t);
+              if (v == 'preview') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrainingPackTemplateEditorScreen(
+                      template: t,
+                      templates: [t],
+                      readOnly: true,
+                    ),
+                  ),
+                );
+              }
+              if (v == 'reset') _resetPack(t);
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'import', child: Text('Import')),
+              PopupMenuItem(value: 'preview', child: Text('Preview')),
+              PopupMenuItem(value: 'reset', child: Text('Reset progress')),
+            ],
+          )
+        ],
+      ),
+      onTap: () => _import(t),
+    );
   }
 
   void _showPresetSheet() {
@@ -640,26 +828,42 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                 if (_packs.any((p) => p.tags.isNotEmpty))
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Wrap(
-                      spacing: 8,
+                    child: Row(
                       children: [
-                        for (final tag in {
-                          ...{
-                            for (final p in _packs) ...p.tags
-                          }
-                        }.toList()..sort())
-                          FilterChip(
-                            label: Text(tag),
-                            selected: _tagFilters.contains(tag),
-                            onSelected: (_) {
-                              setState(() {
-                                _tagFilters.contains(tag)
-                                    ? _tagFilters.remove(tag)
-                                    : _tagFilters.add(tag);
-                              });
+                        Expanded(
+                          child: DropdownButton<String>(
+                            value: _selectedTag ?? 'All',
+                            dropdownColor: Colors.grey[900],
+                            items: [
+                              const DropdownMenuItem(
+                                  value: 'All', child: Text('All')),
+                              for (final tag in {
+                                ...{
+                                  for (final p in _packs) ...p.tags
+                                }
+                              }.toList()..sort())
+                                DropdownMenuItem(value: tag, child: Text(tag)),
+                            ],
+                            onChanged: (v) {
+                              setState(() =>
+                                  _selectedTag = v == 'All' ? null : v);
                               _saveState();
                             },
                           ),
+                        ),
+                        const SizedBox(width: 8),
+                        Row(
+                          children: [
+                            const Text('Group by Tag'),
+                            Switch(
+                              value: _groupByTag,
+                              onChanged: (v) {
+                                setState(() => _groupByTag = v);
+                                _saveState();
+                              },
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -670,200 +874,34 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         context.read<FavoritePackService>().favorites$,
                     builder: (context, _) {
                       final filtered = _filtered;
-                      return filtered.isEmpty &&
-                              (_query.isNotEmpty || _difficultyFilter != null)
-                          ? const Center(child: Text('No packs match'))
-                          : ListView.builder(
-                              itemCount: filtered.length,
-                              itemBuilder: (_, i) {
-                                final t = filtered[i];
-                        final isNew =
-                            DateTime.now().difference(t.createdAt).inDays < 3;
-                        final total = t.spots.length;
-                final evDone =
-                    t.spots.where((s) => s.heroEv != null && !s.dirty).length;
-                final icmDone =
-                    t.spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
-                final solvedAll = t.spots.every(
-                    (s) => s.heroEv != null && s.heroIcmEv != null);
-                final fav = context.read<FavoritePackService>();
-                double pct(int done) =>
-                    total == 0 ? 0 : done * 100 / total;
-                Color col(double p) => p >= 80
-                    ? Colors.green
-                    : p >= 50
-                        ? Colors.orange
-                        : Colors.red;
-                  return ListTile(
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: Text(t.name)),
-                          Wrap(
-                            spacing: 4,
-                            runSpacing: 4,
-                            children: [
-                              if (t.difficulty != null)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: t.difficulty == 'Beginner'
-                                        ? Colors.green
-                                        : t.difficulty == 'Intermediate'
-                                            ? Colors.orange
-                                            : t.difficulty == 'Advanced'
-                                                ? Colors.red
-                                                : Colors.grey,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    t.difficulty!,
-                                    style: const TextStyle(fontSize: 10, color: Colors.white),
-                                  ),
-                                ),
-                              if (isNew)
-                                Chip(
-                                  label: const Text('NEW'),
-                                  backgroundColor: Colors.amber,
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      CombinedProgressBar(pct(evDone), pct(icmDone)),
-                    ],
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (t.lastTrainedAt != null)
-                        Text('Trained ${timeago.format(t.lastTrainedAt!, locale: "en_short")}',
-                            style: const TextStyle(fontSize: 11, color: Colors.white54)),
-                      Text(t.description),
-                    ],
-                  ),
-                  leading: CircleAvatar(child: Text(total.toString())),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          fav.isFavorite(t.id)
-                              ? Icons.star
-                              : Icons.star_border,
-                        ),
-                        color:
-                            fav.isFavorite(t.id) ? Colors.amber : Colors.white54,
-                        onPressed: () =>
-                            context.read<FavoritePackService>().toggle(t.id),
-                      ),
-                      if (validateTrainingPackTemplate(t).isEmpty &&
-                          !context.read<TemplateStorageService>().templates.any((e) => e.name == t.name))
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final newSession = await context
-                                  .read<TrainingSessionService>()
-                                  .startFromTemplate(t);
-                              if (!context.mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => TrainingSessionScreen(session: newSession),
-                                ),
-                              );
-                            },
-                            child: const Text('Start'),
-                          ),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => PackPreviewScreen(pack: t),
-                              ),
-                            );
-                          },
-                          child: const Text('Preview'),
-                        ),
-                      ),
-                      if (_mistakePacks.contains(t.id))
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: OutlinedButton(
-                            onPressed: () async {
-                              final session = await context
-                                  .read<TrainingSessionService>()
-                                  .startFromPastMistakes(t);
-                              if (session == null) {
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.setBool(
-                                    'mistakes_tpl_${t.id}', false);
-                                if (mounted) {
-                                  setState(() => _mistakePacks.remove(t.id));
-                                }
-                                return;
-                              }
-                              if (!context.mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      TrainingSessionScreen(session: session),
-                                ),
-                              );
-                            },
-                            child: Text(l.reviewMistakes),
-                          ),
-                        ),
-                      IconButton(
-                        icon: const Icon(Icons.play_circle_fill),
-                        tooltip: solvedAll ? 'All solved' : 'Resume',
-                        onPressed: solvedAll ? null : () {
-                          Navigator.push(context,
-                            MaterialPageRoute(builder: (_) =>
-                              TrainingSessionScreen(template: t)));
-                        },
-                      ),
-                      PopupMenuButton<String>(
-                        onSelected: (v) {
-                          if (v == 'import') _import(t);
-                          if (v == 'preview') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => TrainingPackTemplateEditorScreen(
-                                  template: t,
-                                  templates: [t],
-                                  readOnly: true,
-                                ),
-                              ),
-                            );
-                          }
-                          if (v == 'reset') _resetPack(t);
-                        },
-                        itemBuilder: (_) => const [
-                          PopupMenuItem(value: 'import', child: Text('Import')),
-                          PopupMenuItem(value: 'preview', child: Text('Preview')),
-                          PopupMenuItem(value: 'reset', child: Text('Reset progress')),
-                        ],
-                      )
-                    ],
-                  ),
-                  onTap: () => _import(t),
-                );
-              },
-            ),
+                      if (filtered.isEmpty &&
+                          (_query.isNotEmpty || _difficultyFilter != null)) {
+                        return const Center(child: Text('No packs match'));
+                      }
+                      if (_groupByTag) {
+                        final groups = <String, List<TrainingPackTemplate>>{};
+                        for (final t in filtered) {
+                          final key =
+                              t.tags.isNotEmpty ? t.tags.first : 'Other';
+                          groups.putIfAbsent(key, () => []).add(t);
+                        }
+                        final keys = groups.keys.toList()..sort();
+                        return ListView(
+                          children: [
+                            for (final k in keys)
+                              ExpansionTile(
+                                title: Text(k),
+                                children: [
+                                  for (final t in groups[k]!) _buildPackTile(t)
+                                ],
+                              )
+                          ],
+                        );
+                      }
+                      return ListView.builder(
+                        itemCount: filtered.length,
+                        itemBuilder: (_, i) => _buildPackTile(filtered[i]),
+                      );
           ),
         ],
       ),
