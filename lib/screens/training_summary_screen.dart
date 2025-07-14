@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/progress_forecast_service.dart';
+import '../widgets/common/ev_icm_trend_chart.dart';
 import '../theme/app_colors.dart';
 
 class TrainingSummaryScreen extends StatelessWidget {
@@ -26,6 +30,9 @@ class TrainingSummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rate = total == 0 ? 0 : correct * 100 / total;
+    final history = context.watch<ProgressForecastService>().history;
+    final data =
+        history.length >= 2 ? history.sublist(history.length - 2) : history;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Center(
@@ -46,9 +53,25 @@ class TrainingSummaryScreen extends StatelessWidget {
               Text('Time: ${_format(elapsed)}',
                   style: const TextStyle(color: Colors.white70)),
               const SizedBox(height: 24),
-              ElevatedButton(onPressed: onRepeat, child: const Text('Repeat')),
+              EvIcmTrendChart(data: data),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.button,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: onRepeat,
+                child: const Text('Repeat'),
+              ),
               const SizedBox(height: 8),
-              OutlinedButton(onPressed: onBack, child: const Text('Back')),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.button,
+                  side: const BorderSide(color: AppColors.button),
+                ),
+                onPressed: onBack,
+                child: const Text('Back'),
+              ),
             ],
           ),
         ),
