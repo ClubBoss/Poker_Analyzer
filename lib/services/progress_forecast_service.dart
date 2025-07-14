@@ -59,6 +59,23 @@ class ProgressForecastService extends ChangeNotifier {
   List<ProgressEntry> tagSeries(String tag) =>
       List.unmodifiable(_tagHistory[tag] ?? const []);
 
+  MapEntry<double, double> avgPrevEvIcm([int sessions = 5]) {
+    if (_history.length <= 1) return const MapEntry(0, 0);
+    final end = _history.length - 1;
+    var start = end - sessions;
+    if (start < 0) start = 0;
+    final slice = _history.sublist(start, end);
+    if (slice.isEmpty) return const MapEntry(0, 0);
+    double ev = 0;
+    double icm = 0;
+    for (final e in slice) {
+      ev += e.ev;
+      icm += e.icm;
+    }
+    final c = slice.length;
+    return MapEntry(ev / c, icm / c);
+  }
+
   ProgressForecastService({required this.hands, required this.style}) {
     _update();
     hands.addListener(_update);
