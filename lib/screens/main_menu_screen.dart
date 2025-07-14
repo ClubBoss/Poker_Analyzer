@@ -82,6 +82,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   final GlobalKey _historyButtonKey = GlobalKey();
   bool _tutorialCompleted = false;
   bool _showStreakPopup = false;
+  bool _suggestedDismissed = false;
 
   Widget _buildStreakIndicator(BuildContext context) {
     final streak = context.watch<StreakService>().count;
@@ -493,6 +494,50 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     }
   }
 
+  Widget _buildSuggestedBanner(BuildContext context) {
+    final service = context.watch<SuggestedPackService>();
+    final tpl = service.template;
+    final date = service.date;
+    final show =
+        !_suggestedDismissed && tpl != null && date != null && DateTime.now().difference(date).inDays < 6;
+    if (!show) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Dismissible(
+        key: const ValueKey('suggestedBanner'),
+        direction: DismissDirection.horizontal,
+        onDismissed: (_) => setState(() => _suggestedDismissed = true),
+        child: Card(
+          color: Colors.grey[850],
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Новая подборка тренировок!',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await context.read<TrainingSessionService>().startSession(tpl!);
+                    if (!context.mounted) return;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                    );
+                  },
+                  child: const Text('Начать тренировку'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   List<_MenuItem> _buildMenuItems(BuildContext context) {
     return [
       _MenuItem(
@@ -718,6 +763,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    _buildSuggestedBanner(context),
                     _buildStreakCard(context),
                     _buildDailyGoalCard(context),
                     const FocusOfTheWeekCard(),
