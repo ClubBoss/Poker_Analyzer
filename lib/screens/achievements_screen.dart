@@ -11,7 +11,6 @@ class AchievementsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final service = context.watch<AchievementService>();
-    final accent = Theme.of(context).colorScheme.secondary;
     final data = service.allAchievements();
     final Map<String, List<AchievementInfo>> grouped = {};
     for (final a in data) {
@@ -33,7 +32,7 @@ class AchievementsScreen extends StatelessWidget {
               title: Text(entry.key,
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               children: [
-                for (final a in entry.value) _Item(a, accent),
+                for (final a in entry.value) _Item(a),
               ],
             ),
         ],
@@ -44,8 +43,7 @@ class AchievementsScreen extends StatelessWidget {
 
 class _Item extends StatelessWidget {
   final AchievementInfo ach;
-  final Color accent;
-  const _Item(this.ach, this.accent);
+  const _Item(this.ach);
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +58,7 @@ class _Item extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(ach.icon, color: accent),
+          Icon(ach.icon, color: ach.level.color),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -71,13 +69,23 @@ class _Item extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(ach.description,
                     style: const TextStyle(color: Colors.white70)),
+                const SizedBox(height: 4),
+                Text(
+                  ach.level.label,
+                  style: TextStyle(
+                    color: ach.level.color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
-                    value: (ach.progress / ach.target).clamp(0.0, 1.0),
+                    value: (ach.progressInLevel / ach.targetInLevel)
+                        .clamp(0.0, 1.0),
                     backgroundColor: Colors.white24,
-                    valueColor: AlwaysStoppedAnimation<Color>(accent),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(ach.level.color),
                     minHeight: 6,
                   ),
                 ),
@@ -88,7 +96,7 @@ class _Item extends StatelessWidget {
           Column(
             children: [
               if (done) const Icon(Icons.check_circle, color: Colors.green),
-              Text('${ach.progress}/${ach.target}')
+              Text('${ach.progressInLevel}/${ach.targetInLevel}')
             ],
           )
         ],
