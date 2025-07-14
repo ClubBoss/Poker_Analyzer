@@ -46,6 +46,7 @@ import '../../models/mixed_drill_stat.dart';
 import '../../services/bulk_evaluator_service.dart';
 import '../../services/offline_evaluator_service.dart';
 import '../../services/pack_runtime_builder.dart';
+import '../../widgets/filter_summary_bar.dart';
 import '../../services/range_library_service.dart';
 import '../../services/theme_service.dart';
 import '../../services/session_log_service.dart';
@@ -621,6 +622,49 @@ class _TrainingPackTemplateListScreenState
     if (_mixedHandGoalOnly) parts.add('Hand Goal only');
     if (_mixedAutoOnly) parts.add('Auto only');
     return parts.join(' • ');
+  }
+
+  String _filterSummary() {
+    final parts = <String>[];
+    if (_difficultyFilter != null) parts.add(_difficultyFilter!);
+    if (_posFilter != null) parts.add(_posFilter!.label);
+    if (_stackFilter != null) parts.add('${_stackFilter}bb');
+    String sortLabel() {
+      switch (_sort) {
+        case 'coverage':
+          return 'Coverage';
+        case 'created':
+          return 'Newest';
+        case 'spots':
+          return 'Most Spots';
+        case 'tag':
+          return 'Tag';
+        case 'last_trained':
+          return 'Last Trained';
+        default:
+          return 'Name';
+      }
+    }
+    parts.add('Sort: ${sortLabel()}');
+    return parts.join(' • ');
+  }
+
+  Future<void> _resetFilters() async {
+    setState(() {
+      _difficultyFilter = null;
+      _posFilter = null;
+      _stackFilter = null;
+      _streetFilter = null;
+      _selectedTag = null;
+      _tagFilters.clear();
+      _icmOnly = false;
+      _completedOnly = false;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsDifficultyKey);
+    await prefs.remove(_prefsPosKey);
+    await prefs.remove(_prefsStackKey);
+    await prefs.remove(_prefsStreetKey);
   }
 
   List<String> _topTags(TrainingPackTemplate tpl) {
@@ -3345,6 +3389,14 @@ class _TrainingPackTemplateListScreenState
                       ],
                     ),
                   ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: FilterSummaryBar(
+                    summary: _filterSummary(),
+                    onReset: _resetFilters,
+                    onChange: _showFilters,
+                  ),
+                ),
                 Expanded(
                   child: (_groupByStreet || _groupByType)
                       ? ListView(
