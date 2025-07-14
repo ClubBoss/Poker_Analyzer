@@ -51,6 +51,7 @@ import '../../services/theme_service.dart';
 import '../../services/session_log_service.dart';
 import '../../services/training_pack_stats_service.dart';
 import '../../services/training_pack_service.dart';
+import '../../services/favorite_pack_service.dart';
 import 'new_training_pack_template_dialog.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
@@ -76,6 +77,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsMixedAutoKey = 'tpl_mixed_auto';
   static const _prefsEndlessKey = 'tpl_endless_drill';
   static const _prefsFavoritesKey = 'tpl_favorites';
+  static const _prefsShowFavOnlyKey = 'tpl_show_fav_only';
   static const _prefsSortKey = 'tpl_sort_option';
   static const _prefsStackKey = 'tpl_stack_filter';
   static const _prefsPosKey = 'tpl_pos_filter';
@@ -442,6 +444,19 @@ class _TrainingPackTemplateListScreenState
     if (mounted) setState(() => _favorites.addAll(list));
   }
 
+  Future<void> _loadShowFavoritesOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() => _showFavoritesOnly = prefs.getBool(_prefsShowFavOnlyKey) ?? false);
+    }
+  }
+
+  Future<void> _setShowFavoritesOnly(bool value) async {
+    setState(() => _showFavoritesOnly = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsShowFavOnlyKey, value);
+  }
+
   Future<void> _saveFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_prefsFavoritesKey, _favorites.toList());
@@ -657,9 +672,17 @@ class _TrainingPackTemplateListScreenState
   }
 
   List<TrainingPackTemplate> _visibleTemplates() {
+    final base = _showFavoritesOnly
+        ? [
+            for (final t in _templates)
+              if (_favorites.contains(t.id) ||
+                  FavoritePackService.instance.isFavorite(t.id))
+                t
+          ]
+        : _templates;
     final byType = _selectedType == null
-        ? _templates
-        : [for (final t in _templates) if (t.gameType == _selectedType) t];
+        ? base
+        : [for (final t in base) if (t.gameType == _selectedType) t];
     final filtered = _selectedTag == null
         ? byType
         : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
@@ -1240,10 +1263,15 @@ class _TrainingPackTemplateListScreenState
           children: [
             IconButton(
               icon: Icon(
-                _favorites.contains(t.id) ? Icons.star : Icons.star_border,
+                _favorites.contains(t.id) ||
+                        FavoritePackService.instance.isFavorite(t.id)
+                    ? Icons.star
+                    : Icons.star_border,
               ),
-              color:
-                  _favorites.contains(t.id) ? Colors.amber : Colors.white54,
+              color: _favorites.contains(t.id) ||
+                      FavoritePackService.instance.isFavorite(t.id)
+                  ? Colors.amber
+                  : Colors.white54,
               onPressed: () => _toggleFavorite(t.id),
             ),
             if (t.targetStreet != null)
@@ -1386,6 +1414,7 @@ class _TrainingPackTemplateListScreenState
       _loadGroupByStreet();
       _loadGroupByType();
       _loadFavorites();
+      _loadShowFavoritesOnly();
       _loadStackFilter();
       _loadPosFilter();
       _loadDifficultyFilter();
@@ -2781,7 +2810,12 @@ class _TrainingPackTemplateListScreenState
       ..sort((a, b) => tagCounts[b]!.compareTo(tagCounts[a]!));
     final tags = topTags.take(10).toList();
     final base = _showFavoritesOnly
-        ? [for (final t in _templates) if (_favorites.contains(t.id)) t]
+        ? [
+            for (final t in _templates)
+              if (_favorites.contains(t.id) ||
+                  FavoritePackService.instance.isFavorite(t.id))
+                t
+          ]
         : _templates;
     final byType = _selectedType == null
         ? base
@@ -2866,7 +2900,7 @@ class _TrainingPackTemplateListScreenState
               _showFavoritesOnly ? Icons.star : Icons.star_border,
               color: _showFavoritesOnly ? Colors.amber : null,
             ),
-            onPressed: () => setState(() => _showFavoritesOnly = !_showFavoritesOnly),
+            onPressed: () => _setShowFavoritesOnly(!_showFavoritesOnly),
           ),
           IconButton(
             icon: Icon(
