@@ -29,12 +29,14 @@ class TrainingPackCard extends StatefulWidget {
 class _TrainingPackCardState extends State<TrainingPackCard> {
   late bool _pinned;
   String? _completedAt;
+  double? _accuracy;
 
   Future<void> _resetProgress() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('progress_tpl_${widget.template.id}');
     await prefs.remove('completed_tpl_${widget.template.id}');
     await prefs.remove('completed_at_tpl_${widget.template.id}');
+    await prefs.remove('last_accuracy_tpl_${widget.template.id}');
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Прогресс сброшен')),
@@ -47,16 +49,18 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   void initState() {
     super.initState();
     _pinned = widget.template.isPinned;
-    if (widget.dimmed) _loadCompletedAt();
+    if (widget.dimmed) _loadStats();
   }
 
-  Future<void> _loadCompletedAt() async {
+  Future<void> _loadStats() async {
     final prefs = await SharedPreferences.getInstance();
     final ts = DateTime.tryParse(
         prefs.getString('completed_at_tpl_${widget.template.id}') ?? '');
-    if (ts != null && mounted) {
+    final acc = prefs.getDouble('last_accuracy_tpl_${widget.template.id}');
+    if (mounted) {
       setState(() {
-        _completedAt = formatLongDate(ts);
+        if (ts != null) _completedAt = formatLongDate(ts);
+        if (acc != null) _accuracy = acc;
       });
     }
   }
@@ -171,13 +175,26 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
             ),
           ],
             ),
-            if (widget.dimmed && _completedAt != null)
+            if (widget.dimmed && (_completedAt != null || _accuracy != null))
               Positioned(
                 bottom: 4,
                 right: 4,
-                child: Text(
-                  _completedAt!,
-                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (_completedAt != null)
+                      Text(
+                        _completedAt!,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.white70),
+                      ),
+                    if (_accuracy != null)
+                      Text(
+                        'Accuracy: ${_accuracy!.toStringAsFixed(0)}%',
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.white70),
+                      ),
+                  ],
                 ),
               ),
           ],
