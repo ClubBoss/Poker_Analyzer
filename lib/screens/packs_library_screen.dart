@@ -76,6 +76,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   String _sortOrder = 'newest';
   Map<String, int> _playCounts = {};
   Map<String, int> _trainedHands = {};
+  Map<String, double> _ratings = {};
   static const _PrefsKey = 'pack_library_state';
 
   @override
@@ -183,16 +184,29 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     final box = Hive.box('session_logs');
     final counts = <String, int>{};
     final hands = <String, int>{};
+    final mistakes = <String, int>{};
     for (final v in box.values.whereType<Map>()) {
       final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
       counts.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
       final total = log.correctCount + log.mistakeCount;
       hands.update(log.templateId, (c) => c + total, ifAbsent: () => total);
+      mistakes.update(log.templateId, (c) => c + log.mistakeCount,
+          ifAbsent: () => log.mistakeCount);
+    }
+    final ratings = <String, double>{};
+    for (final id in hands.keys) {
+      final h = hands[id] ?? 0;
+      final m = mistakes[id] ?? 0;
+      if (h > 0) {
+        final r = 5.0 - (m / h) * 2.5;
+        ratings[id] = double.parse(r.clamp(1.0, 5.0).toStringAsFixed(1));
+      }
     }
     if (mounted) {
       setState(() {
         _playCounts = counts;
         _trainedHands = hands;
+        _ratings = ratings;
       });
     }
   }
@@ -379,6 +393,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         ? 0
         : ((t.evCovered + t.icmCovered) * 100 / (2 * total)).round();
     final fav = context.read<FavoritePackService>();
+    final rating = _ratings[t.id];
     double pct(int done) => total == 0 ? 0 : done * 100 / total;
     return ListTile(
       title: Column(
@@ -387,6 +402,19 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           Row(
             children: [
               Expanded(child: Text(t.name)),
+              if (rating != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 14),
+                      const SizedBox(width: 2),
+                      Text(rating.toStringAsFixed(1),
+                          style: const TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ),
               Wrap(
                 spacing: 4,
                 runSpacing: 4,
