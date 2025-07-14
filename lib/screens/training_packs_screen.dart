@@ -10,6 +10,7 @@ import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
 import '../theme/app_colors.dart';
 import '../widgets/progress_chip.dart';
+import '../widgets/new_chip.dart';
 import '../widgets/color_picker_dialog.dart';
 import 'training_pack_screen.dart';
 import '../helpers/training_onboarding.dart';
@@ -377,9 +378,17 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(pack.name,
-                                    style:
-                                        const TextStyle(color: Colors.white)),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: Text(pack.name,
+                                            style: const TextStyle(color: Colors.white))),
+                                    if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                                      const SizedBox(width: 4),
+                                    if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                                      const NewChip(),
+                                  ],
+                                ),
                                 const Spacer(),
                                 Row(
                                   children: [
@@ -577,6 +586,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                             title: Row(
                               children: [
                                 Expanded(child: Text(pack.name)),
+                                if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                                  const SizedBox(width: 4),
+                                if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                                  const NewChip(),
                                 const SizedBox(width: 4),
                                 DifficultyChip(pack.difficulty),
                                 const SizedBox(width: 4),
@@ -683,6 +696,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
               title: Row(
                 children: [
                   Expanded(child: Text(pack.name)),
+                  if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                    const SizedBox(width: 4),
+                  if (DateTime.now().difference(pack.createdAt).inDays < 7)
+                    const NewChip(),
                   const SizedBox(width: 4),
                   DifficultyChip(pack.difficulty),
                   const SizedBox(width: 4),

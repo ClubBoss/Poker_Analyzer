@@ -46,6 +46,7 @@ class TrainingPack {
   final List<TrainingSpot> spots;
   final int difficulty;
   final List<TrainingSessionResult> history;
+  final DateTime createdAt;
 
   TrainingPack({
     String? id,
@@ -60,10 +61,12 @@ class TrainingPack {
     List<TrainingSpot>? spots,
     this.difficulty = 1,
     List<TrainingSessionResult>? history,
+    DateTime? createdAt,
   })  : id = id ?? const Uuid().v4(),
         tags = tags ?? const [],
         spots = spots ?? const [],
-        history = history ?? [];
+        history = history ?? [],
+        createdAt = createdAt ?? DateTime.now();
 
   int get solved => history.isNotEmpty ? history.last.correct : 0;
   int get lastAttempted => history.isNotEmpty ? history.last.total : 0;
@@ -87,6 +90,7 @@ class TrainingPack {
     List<TrainingSpot>? spots,
     int? difficulty,
     List<TrainingSessionResult>? history,
+    DateTime? createdAt,
   }) {
     return TrainingPack(
       id: id ?? this.id,
@@ -101,6 +105,7 @@ class TrainingPack {
       spots: spots ?? List<TrainingSpot>.from(this.spots),
       difficulty: difficulty ?? this.difficulty,
       history: history ?? List<TrainingSessionResult>.from(this.history),
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

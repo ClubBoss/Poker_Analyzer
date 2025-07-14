@@ -193,7 +193,8 @@ class TrainingPackStorageService extends ChangeNotifier {
       final content = utf8.decode(data);
       final json = jsonDecode(content);
       if (json is! Map<String, dynamic>) return 'Неверный формат файла';
-      var pack = TrainingPack.fromJson(Map<String, dynamic>.from(json));
+      var pack = TrainingPack.fromJson(Map<String, dynamic>.from(json))
+          .copyWith(createdAt: DateTime.now());
       String base = pack.name.isEmpty ? 'Pack' : pack.name;
       String name = base;
       int idx = 2;
@@ -319,7 +320,8 @@ class TrainingPackStorageService extends ChangeNotifier {
       ...pack.toJson(),
       'name': name,
       'isBuiltIn': false,
-      'history': []
+      'history': [],
+      'createdAt': DateTime.now().toIso8601String(),
     };
     final copy = TrainingPack.fromJson(map);
     _packs.add(copy);
@@ -358,6 +360,7 @@ class TrainingPackStorageService extends ChangeNotifier {
         hands: entry.value,
         spots: pack.spots,
         difficulty: pack.difficulty,
+        createdAt: DateTime.now(),
         history: const [],
       );
       _packs.insert(index + result.length, newPack);
@@ -397,6 +400,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       hands: tpl.hands,
       spots: const [],
       difficulty: 1,
+      createdAt: DateTime.now(),
     );
     _packs.add(pack);
     await save();
@@ -442,6 +446,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       hands: selected,
       spots: const [],
       difficulty: 1,
+      createdAt: DateTime.now(),
     );
     _packs.add(pack);
     await _persist();
