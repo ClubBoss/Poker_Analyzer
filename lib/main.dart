@@ -258,8 +258,13 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     final completed = prefs.getBool('completed_tpl_${pinned.id}') ?? false;
     final stat = await TrainingPackStatsService.getStats(pinned.id);
     final idx = stat?.lastIndex ?? 0;
-    if (completed && idx >= pinned.spots.length - 1) return;
-    await ctx.read<TrainingSessionService>().startSession(pinned);
+    if (completed && idx >= pinned.spots.length - 1) {
+      final rec = await ctx.read<PersonalRecommendationService>().getTopRecommended();
+      if (rec == null) return;
+      await ctx.read<TrainingSessionService>().startSession(rec);
+    } else {
+      await ctx.read<TrainingSessionService>().startSession(pinned);
+    }
     if (!mounted) return;
     Navigator.pushReplacement(
       ctx,

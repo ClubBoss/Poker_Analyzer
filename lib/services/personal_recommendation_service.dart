@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template.dart';
 import 'adaptive_training_service.dart';
 import 'achievement_engine.dart';
@@ -8,6 +9,7 @@ import 'weak_spot_recommendation_service.dart';
 import 'player_style_service.dart';
 import 'player_style_forecast_service.dart';
 import 'progress_forecast_service.dart';
+import 'training_pack_stats_service.dart';
 
 class RecommendationTask {
   final String title;
@@ -116,5 +118,16 @@ class PersonalRecommendationService extends ChangeNotifier {
       completer.complete();
     });
     return completer.future;
+  }
+
+  Future<TrainingPackTemplate?> getTopRecommended() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final t in _packs) {
+      final completed = prefs.getBool('completed_tpl_${t.id}') ?? false;
+      final stat = await TrainingPackStatsService.getStats(t.id);
+      final idx = stat?.lastIndex ?? 0;
+      if (!completed || idx < t.spots.length) return t;
+    }
+    return null;
   }
 }
