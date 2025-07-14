@@ -369,6 +369,38 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
               style: const TextStyle(fontSize: 11, color: Colors.white54),
             ),
           Text(t.description),
+          if (t.tags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: SizedBox(
+                height: 28,
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: 2,
+                  children: [
+                    for (final tag in t.tags.take(3))
+                      Chip(
+                        label: Text(tag, style: const TextStyle(fontSize: 11)),
+                        backgroundColor: Colors.grey[800],
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                        visualDensity:
+                            const VisualDensity(horizontal: -4, vertical: -4),
+                      ),
+                    if (t.tags.length > 3)
+                      Chip(
+                        label: Text('+${t.tags.length - 3}',
+                            style: const TextStyle(fontSize: 11)),
+                        backgroundColor: Colors.grey[800],
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                        visualDensity:
+                            const VisualDensity(horizontal: -4, vertical: -4),
+                      ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
       leading: CircleAvatar(child: Text(total.toString())),
