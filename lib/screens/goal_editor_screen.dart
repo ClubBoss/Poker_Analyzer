@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/goal_engine.dart';
+import '../services/user_goal_engine.dart';
 import '../models/user_goal.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -39,7 +39,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     final title = _title.text.trim();
     final target = int.tryParse(_target.text) ?? 1;
     if (title.isEmpty) return;
-    final engine = context.read<GoalEngine>();
+    final engine = context.read<UserGoalEngine>();
     final stats = engine.stats;
     int base;
     if (widget.goal == null) {

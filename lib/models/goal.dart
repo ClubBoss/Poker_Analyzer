@@ -2,8 +2,9 @@ class Goal {
   final String id;
   final String title;
   final String type;
-  final int target;
-  int progress;
+  final int targetXP;
+  int currentXP;
+  final DateTime deadline;
   final int reward;
   bool completed;
 
@@ -11,8 +12,9 @@ class Goal {
     required this.id,
     required this.title,
     required this.type,
-    required this.target,
-    this.progress = 0,
+    required this.targetXP,
+    this.currentXP = 0,
+    required this.deadline,
     this.reward = 0,
     this.completed = false,
   });
@@ -21,8 +23,9 @@ class Goal {
         'id': id,
         'title': title,
         'type': type,
-        'target': target,
-        'progress': progress,
+        'targetXP': targetXP,
+        'currentXP': currentXP,
+        'deadline': deadline.toIso8601String(),
         'reward': reward,
         'completed': completed,
       };
@@ -31,8 +34,9 @@ class Goal {
         id: json['id'] as String,
         title: json['title'] as String,
         type: json['type'] as String,
-        target: json['target'] as int,
-        progress: json['progress'] as int? ?? 0,
+        targetXP: json['targetXP'] as int,
+        currentXP: json['currentXP'] as int? ?? 0,
+        deadline: DateTime.tryParse(json['deadline'] as String? ?? '') ?? DateTime.now(),
         reward: json['reward'] as int? ?? 0,
         completed: json['completed'] as bool? ?? false,
       );

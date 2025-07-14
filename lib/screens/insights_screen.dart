@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../services/training_stats_service.dart';
-import '../services/goal_engine.dart';
+import '../services/user_goal_engine.dart';
 import '../theme/app_colors.dart';
 import '../widgets/training_calendar_widget.dart';
 import 'streak_calendar_screen.dart';
@@ -110,7 +110,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
 
-  Widget _pie(GoalEngine g) {
+  Widget _pie(UserGoalEngine g) {
     final goals = g.goals;
     if (goals.isEmpty) return SizedBox(height: responsiveSize(context, 200));
     final completed = goals.where((gg) => gg.completed).length;
@@ -156,7 +156,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   @override
   Widget build(BuildContext context) {
     final stats = context.watch<TrainingStatsService>();
-    final goals = context.watch<GoalEngine>();
+    final goals = context.watch<UserGoalEngine>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Insights'),

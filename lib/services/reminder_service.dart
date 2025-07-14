@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_goal.dart';
-import 'goal_engine.dart';
+import 'user_goal_engine.dart';
 import 'spot_of_the_day_service.dart';
 import 'streak_service.dart';
 import 'notification_service.dart';
@@ -17,7 +17,7 @@ class ReminderService extends ChangeNotifier {
   static const _drillDismissKey = 'reminder_drill_dismiss';
 
   final SpotOfTheDayService spotService;
-  final GoalEngine goalEngine;
+  final UserGoalEngine goalEngine;
   final StreakService streakService;
   final BuildContext context;
 

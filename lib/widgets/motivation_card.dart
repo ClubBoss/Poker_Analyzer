@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/goal_engine.dart';
+import '../services/user_goal_engine.dart';
 import '../services/achievement_engine.dart';
 import '../screens/motivation_screen.dart';
 import '../models/user_goal.dart';
@@ -11,8 +11,8 @@ class MotivationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final goals = context.watch<GoalEngine>().goals;
-    final engine = context.watch<GoalEngine>();
+    final goals = context.watch<UserGoalEngine>().goals;
+    final engine = context.watch<UserGoalEngine>();
     UserGoal? bestGoal;
     int goalRemain = 1 << 30;
     for (final g in goals) {
