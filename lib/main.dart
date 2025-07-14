@@ -99,6 +99,7 @@ import 'services/pinned_pack_service.dart';
 import 'services/training_pack_template_service.dart';
 import 'services/training_pack_stats_service.dart';
 import 'screens/training_session_screen.dart';
+import 'screens/empty_training_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -251,10 +252,19 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
     final templates = TrainingPackTemplateService.getAllTemplates(ctx);
-    final service = ctx.read<PinnedPackService>();
-    final pinned = templates.firstWhereOrNull((t) => service.isPinned(t.id));
-    if (pinned == null) return;
     final prefs = await SharedPreferences.getInstance();
+    final valid =
+        templates.where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false)).toList();
+    if (valid.isEmpty) {
+      Navigator.push(
+        ctx,
+        MaterialPageRoute(builder: (_) => const EmptyTrainingScreen()),
+      );
+      return;
+    }
+    final service = ctx.read<PinnedPackService>();
+    final pinned = valid.firstWhereOrNull((t) => service.isPinned(t.id));
+    if (pinned == null) return;
     final completed = prefs.getBool('completed_tpl_${pinned.id}') ?? false;
     final stat = await TrainingPackStatsService.getStats(pinned.id);
     final idx = stat?.lastIndex ?? 0;

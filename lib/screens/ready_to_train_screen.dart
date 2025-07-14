@@ -10,6 +10,7 @@ import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'empty_training_screen.dart';
 
 class ReadyToTrainScreen extends StatefulWidget {
   const ReadyToTrainScreen({super.key});
@@ -74,6 +75,13 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
         similar,
     ];
     if (!mounted) return;
+    if (list.isEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const EmptyTrainingScreen()),
+      );
+      return;
+    }
     setState(() {
       _templates
         ..clear()
