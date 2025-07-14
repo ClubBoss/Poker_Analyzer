@@ -208,7 +208,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
       final heroStack = spot.heroStack ??
           (spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0);
       final villainStack = spot.villainStack ??
-          (spot.stacks.length > 1 ? spot.stacks[spot.heroIndex == 0 ? 1 : 0] : 0);
+          (spot.stacks.length > 1
+              ? spot.stacks[spot.heroIndex == 0 ? 1 : 0]
+              : 0);
       if (spot.playerCards.length > spot.heroIndex &&
           spot.playerCards[spot.heroIndex].length >= 2) {
         final cards = spot.playerCards[spot.heroIndex];
@@ -457,27 +459,35 @@ class EvaluationExecutorService implements EvaluationExecutor {
     return evaluateSpot(ctx, spotData, action);
   }
 
-  Future<void> evaluateSingle(
-    BuildContext context,
+  Future<void> evaluateRaw(
     TrainingPackSpot spot, {
     TrainingPackTemplate? template,
     int anteBb = 0,
-    EvaluationMode mode = EvaluationMode.ev,
-    SavedHand? hand,
+    bool withIcm = true,
   }) async {
-    String? category;
     final prevEv = spot.heroEv;
     final prevIcm = spot.heroIcmEv;
     final settings = EvaluationSettingsService.instance;
     if (!settings.offline) {
       try {
-        await const RemoteEvService().evaluateIcm(spot, anteBb: anteBb);
+        if (withIcm) {
+          await const RemoteEvService().evaluateIcm(spot, anteBb: anteBb);
+        } else {
+          await const RemoteEvService().evaluate(spot, anteBb: anteBb);
+        }
       } catch (_) {}
     } else {
       try {
-        await AppBootstrap.registry
-            .get<LocalEvService>()
-            .evaluateIcm(spot, anteBb: anteBb);
+        final local = AppBootstrap.registry.get<LocalEvService>();
+        if (withIcm) {
+          await local.evaluateIcm(
+            spot,
+            anteBb: anteBb,
+            payouts: settings.payouts,
+          );
+        } else {
+          await local.evaluate(spot, anteBb: anteBb);
+        }
       } catch (_) {
         final hero = spot.hand.heroIndex;
         final code = handCode(spot.hand.heroCards);
@@ -509,7 +519,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
           for (final a in acts) {
             if (a.playerIndex == hero && a.action == heroAct) {
               a.ev = res['ev'] as double;
-              a.icmEv = res['icm'] as double;
+              if (withIcm) a.icmEv = res['icm'] as double;
               break;
             }
           }
@@ -519,7 +529,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (spot.heroEv == null) {
       await const PushFoldEvService().evaluate(spot, anteBb: anteBb);
     }
-    if (spot.heroIcmEv == null) {
+    if (withIcm && spot.heroIcmEv == null) {
       await const PushFoldEvService()
           .evaluateIcm(spot, anteBb: anteBb, payouts: settings.payouts);
     }
@@ -547,6 +557,39 @@ class EvaluationExecutorService implements EvaluationExecutor {
     spot.explanation = spot.correctAction == 'push'
         ? '+${(heroPushEv - foldEv).toStringAsFixed(2)} BB vs fold'
         : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
+    if (template != null) {
+      TemplateCoverageUtils.recountAll(template);
+      final changed = prev == null ||
+          !const DeepCollectionEquality().equals(
+            prev.toJson(),
+            spot.evalResult!.toJson(),
+          );
+      final tagChanged = hadTag != spot.tags.contains('Mistake');
+      final autoChanged =
+          prevAction != spot.correctAction || prevExpl != spot.explanation;
+      if (changed || tagChanged || autoChanged) {
+        await TrainingPackStorage.save([template]);
+      }
+    }
+  }
+
+  Future<void> evaluateSingle(
+    BuildContext context,
+    TrainingPackSpot spot, {
+    TrainingPackTemplate? template,
+    int anteBb = 0,
+    EvaluationMode mode = EvaluationMode.ev,
+    SavedHand? hand,
+  }) async {
+    String? category;
+    await evaluateRaw(
+      spot,
+      template: template,
+      anteBb: anteBb,
+      withIcm: mode == EvaluationMode.icm,
+    );
+    final heroPushEv = spot.heroEv ?? 0;
+    const foldEv = 0.0;
     if (hand != null) {
       final act = heroAction(hand)?.action.trim().toLowerCase();
       if (act != null) {
@@ -563,20 +606,6 @@ class EvaluationExecutorService implements EvaluationExecutor {
         }
         await context.read<SavedHandManagerService>().save(updated);
         category = updated.category;
-      }
-    }
-    if (template != null) {
-      TemplateCoverageUtils.recountAll(template);
-      final changed = prev == null ||
-          !const DeepCollectionEquality().equals(
-            prev.toJson(),
-            spot.evalResult!.toJson(),
-          );
-      final tagChanged = hadTag != spot.tags.contains('Mistake');
-      final autoChanged =
-          prevAction != spot.correctAction || prevExpl != spot.explanation;
-      if (changed || tagChanged || autoChanged) {
-        await TrainingPackStorage.save([template]);
       }
     }
     if (spot.evalResult != null &&
@@ -619,14 +648,24 @@ class EvaluationExecutorService implements EvaluationExecutor {
     int anteBb = 0,
     bool withIcm = true,
   }) async {
+    final ctx = WidgetsBinding.instance.renderViewElement;
     for (final s in spots) {
-      await evaluateSingle(
-        WidgetsBinding.instance.renderViewElement!,
-        s,
-        template: template,
-        anteBb: anteBb,
-        mode: withIcm ? EvaluationMode.icm : EvaluationMode.ev,
-      );
+      if (ctx == null) {
+        await evaluateRaw(
+          s,
+          template: template,
+          anteBb: anteBb,
+          withIcm: withIcm,
+        );
+      } else {
+        await evaluateSingle(
+          ctx,
+          s,
+          template: template,
+          anteBb: anteBb,
+          mode: withIcm ? EvaluationMode.icm : EvaluationMode.ev,
+        );
+      }
     }
   }
 }
