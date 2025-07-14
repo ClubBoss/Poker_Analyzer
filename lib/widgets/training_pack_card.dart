@@ -30,6 +30,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('progress_tpl_${widget.template.id}');
     await prefs.remove('completed_tpl_${widget.template.id}');
+    await prefs.remove('completed_at_tpl_${widget.template.id}');
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Прогресс сброшен')),
