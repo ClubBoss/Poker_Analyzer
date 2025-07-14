@@ -8,6 +8,7 @@ import '../services/pinned_pack_service.dart';
 import '../models/saved_hand.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
+import 'pack_history_screen.dart';
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/training_pack_card.dart';
@@ -106,7 +107,20 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ready to Train')),
+      appBar: AppBar(
+        title: const Text('Ready to Train'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PackHistoryScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await TrainingPackService.generateFreshMistakeDrill(context);
