@@ -648,24 +648,13 @@ class EvaluationExecutorService implements EvaluationExecutor {
     int anteBb = 0,
     bool withIcm = true,
   }) async {
-    final ctx = WidgetsBinding.instance.renderViewElement;
     for (final s in spots) {
-      if (ctx == null) {
-        await evaluateRaw(
-          s,
-          template: template,
-          anteBb: anteBb,
-          withIcm: withIcm,
-        );
-      } else {
-        await evaluateSingle(
-          ctx,
-          s,
-          template: template,
-          anteBb: anteBb,
-          mode: withIcm ? EvaluationMode.icm : EvaluationMode.ev,
-        );
-      }
+      await evaluateRaw(
+        s,
+        template: template,
+        anteBb: anteBb,
+        withIcm: withIcm,
+      );
     }
   }
 }
