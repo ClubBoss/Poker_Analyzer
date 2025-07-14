@@ -21,6 +21,7 @@ import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
 import '../widgets/combined_progress_bar.dart';
+import 'all_tags_screen.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
 
@@ -299,6 +300,36 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     await TrainingPackStorage.save(list);
     if (mounted) setState(() {});
     TrainingStatsService.instance?.notifyListeners();
+  }
+
+  Future<void> _showAllTags() async {
+    final counts = <String, int>{};
+    for (final p in _packs) {
+      for (final t in p.tags) {
+        counts[t] = (counts[t] ?? 0) + 1;
+      }
+    }
+    final tags = counts.keys.toList()
+      ..sort((a, b) {
+        final ca = counts[a]!;
+        final cb = counts[b]!;
+        final c = cb.compareTo(ca);
+        return c != 0 ? c : a.compareTo(b);
+      });
+    final tag = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => AllTagsScreen(tags: tags)),
+    );
+    if (tag != null) {
+      setState(() {
+        if (_selectedTags.contains(tag)) {
+          _selectedTags.remove(tag);
+        } else {
+          _selectedTags.add(tag);
+        }
+      });
+      _saveState();
+    }
   }
 
   Widget _buildPackTile(TrainingPackTemplate t) {
@@ -906,6 +937,10 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                             ),
                           ),
                         ),
+                        TextButton(
+                          onPressed: _showAllTags,
+                          child: const Text('All Tags'),
+                        ),
                         const SizedBox(width: 8),
                         Row(
                           children: [
@@ -957,7 +992,12 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         itemCount: filtered.length,
                         itemBuilder: (_, i) => _buildPackTile(filtered[i]),
                       );
-          ),
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
         ],
       ),
     );
