@@ -26,6 +26,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   bool _loading = true;
   final Map<String, int> _progress = {};
   bool _showCompleted = false;
+  final Map<String, bool> _completed = {};
 
   void _applyPinned() {
     final service = context.read<PinnedPackService>();
@@ -91,9 +92,11 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
         similar,
     ];
     final prog = <String, int>{};
+    final done = <String, bool>{};
     for (final t in list) {
       final p = prefs.getInt('progress_tpl_${t.id}');
       if (p != null) prog[t.id] = p;
+      done[t.id] = prefs.getBool('completed_tpl_${t.id}') ?? false;
     }
     if (!mounted) return;
     if (list.isEmpty) {
@@ -110,6 +113,9 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
       _progress
         ..clear()
         ..addAll(prog);
+      _completed
+        ..clear()
+        ..addAll(done);
       _applyPinned();
       _loading = false;
     });
@@ -171,18 +177,43 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
+              child: Builder(builder: (context) {
+                final completedList = [
                   for (final t in _templates)
-                    TrainingPackCard(
-                      template: t,
-                      onTap: () => _start(t),
-                      progress: _progress[t.id],
-                      onRefresh: _load,
-                    ),
-                ],
-              ),
+                    if (_completed[t.id] ?? false) t
+                ];
+                final todoList = [
+                  for (final t in _templates)
+                    if (!(_completed[t.id] ?? false)) t
+                ];
+                return ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    for (final t in todoList)
+                      TrainingPackCard(
+                        template: t,
+                        onTap: () => _start(t),
+                        progress: _progress[t.id],
+                        onRefresh: _load,
+                      ),
+                    if (_showCompleted && completedList.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
+                        child: Text('Завершённые',
+                            style: TextStyle(color: Colors.white70)),
+                      ),
+                      for (final t in completedList)
+                        TrainingPackCard(
+                          template: t,
+                          onTap: () => _start(t),
+                          progress: _progress[t.id],
+                          onRefresh: _load,
+                          dimmed: true,
+                        ),
+                    ],
+                  ],
+                );
+              }),
             ),
     );
   }
