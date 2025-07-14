@@ -39,10 +39,18 @@ class _PackHistoryScreenState extends State<PackHistoryScreen> {
   Future<List<TrainingPackTemplate>> _fetchTemplates() async {
     final templates = TrainingPackTemplateService.getAllTemplates(context);
     final prefs = await SharedPreferences.getInstance();
-    return [
-      for (final t in templates)
-        if (prefs.getBool('completed_tpl_${t.id}') ?? false) t
-    ];
+    final list = <MapEntry<TrainingPackTemplate, DateTime>>[];
+    for (final t in templates) {
+      if (prefs.getBool('completed_tpl_${t.id}') ?? false) {
+        final ts = DateTime.tryParse(
+                prefs.getString('completed_at_tpl_${t.id}') ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        t.lastTrainedAt = ts;
+        list.add(MapEntry(t, ts));
+      }
+    }
+    list.sort((a, b) => b.value.compareTo(a.value));
+    return [for (final e in list) e.key];
   }
 
   Future<void> _refreshAfterReset() async {
