@@ -35,8 +35,11 @@ class SuggestedPackService extends ChangeNotifier {
       } catch (_) {}
     }
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
+    if (_date == null || DateTime.now().difference(_date!).inDays >= 7) {
+      await _generate();
+    }
     logs.addListener(_check);
-    await _check();
+    _schedule();
   }
 
   Future<void> _check() async {
