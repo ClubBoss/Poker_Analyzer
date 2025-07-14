@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/pinned_pack_service.dart';
 import '../theme/app_colors.dart';
+import '../helpers/mistake_category_translations.dart';
 
 class TrainingPackCard extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -25,6 +26,13 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
 
   @override
   Widget build(BuildContext context) {
+    final catSet = <String>{};
+    for (final s in widget.template.spots) {
+      for (final t in s.tags.where((t) => t.startsWith('cat:'))) {
+        catSet.add(t.substring(4));
+      }
+    }
+    final cats = [for (final c in catSet) translateMistakeCategory(c)];
     return GestureDetector(
       onLongPress: () async {
         await context.read<PinnedPackService>().toggle(widget.template.id);
@@ -76,6 +84,22 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),
+                  if (cats.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: [
+                          for (final c in cats)
+                            Chip(
+                              label: Text(c),
+                              backgroundColor: const Color(0xFF3A3B3E),
+                              labelStyle: const TextStyle(color: Colors.white),
+                            ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
