@@ -870,28 +870,38 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               children: [
-                                for (final tag in {
-                                  ...{
-                                    for (final p in _packs) ...p.tags
+                                () {
+                                  final tagCounts = <String, int>{};
+                                  for (final p in _packs) {
+                                    for (final t in p.tags) {
+                                      tagCounts[t] = (tagCounts[t] ?? 0) + 1;
+                                    }
                                   }
-                                }.toList()..sort())
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: FilterChip(
-                                      label: Text(tag),
-                                      selected: _selectedTags.contains(tag),
-                                      onSelected: (_) {
-                                        setState(() {
-                                          if (_selectedTags.contains(tag)) {
-                                            _selectedTags.remove(tag);
-                                          } else {
-                                            _selectedTags.add(tag);
-                                          }
-                                        });
-                                        _saveState();
-                                      },
-                                    ),
-                                  ),
+                                  final entries = tagCounts.entries.toList()
+                                    ..sort((a, b) => b.value.compareTo(a.value));
+                                  final tags = entries.take(10).map((e) => e.key);
+                                  return [
+                                    for (final tag in tags)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.symmetric(horizontal: 4),
+                                        child: FilterChip(
+                                          label: Text(tag),
+                                          selected: _selectedTags.contains(tag),
+                                          onSelected: (_) {
+                                            setState(() {
+                                              if (_selectedTags.contains(tag)) {
+                                                _selectedTags.remove(tag);
+                                              } else {
+                                                _selectedTags.add(tag);
+                                              }
+                                            });
+                                            _saveState();
+                                          },
+                                        ),
+                                      ),
+                                  ];
+                                }(),
                               ],
                             ),
                           ),
