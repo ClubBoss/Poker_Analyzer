@@ -16,6 +16,10 @@ import '../helpers/training_onboarding.dart';
 import 'training_pack_comparison_screen.dart';
 import 'create_pack_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../services/saved_hand_manager_service.dart';
+import '../services/training_session_service.dart';
+import 'training_session_screen.dart';
+import '../models/saved_hand.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
@@ -138,6 +142,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs;
+    final hands = context.watch<SavedHandManagerService>().hands;
 
     if (_prefs == null) {
       return Scaffold(
@@ -193,6 +198,49 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     }
 
     final bool noRealPacks = packs.isEmpty;
+    final draftWidget = hands.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'Загрузите раздачи, чтобы быстро начать тренировку',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: () async {
+                final manager = context.read<SavedHandManagerService>();
+                final list = manager.hands;
+                final recent = list.length > 10
+                    ? list.sublist(list.length - 10)
+                    : List<SavedHand>.from(list);
+                var tpl = manager
+                    .createPack('Draft', recent)
+                    .copyWith(isDraft: true);
+                final session = await context
+                    .read<TrainingSessionService>()
+                    .startFromTemplate(tpl);
+                if (!context.mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrainingSessionScreen(session: session),
+                  ),
+                );
+              },
+              child: const Text('Сгенерировать пак из последних 10 раздач'),
+            ),
+          );
 
     if (noRealPacks) {
       return Scaffold(
@@ -206,6 +254,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             children: [
               const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
               const SizedBox(height: 24),
+              draftWidget,
               ElevatedButton(
                 onPressed: () => openTrainingTemplates(context),
                 child: const Text('Создать из шаблона'),
@@ -242,6 +291,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       ),
       body: Column(
         children: [
+          draftWidget,
           SwitchListTile(
             title: const Text('Скрыть завершённые'),
             value: _hideCompleted,
