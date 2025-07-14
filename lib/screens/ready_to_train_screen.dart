@@ -152,6 +152,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
                       template: t,
                       onTap: () => _start(t),
                       progress: _progress[t.id],
+                      onRefresh: _load,
                     ),
                 ],
               ),

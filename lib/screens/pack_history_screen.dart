@@ -68,7 +68,11 @@ class _PackHistoryScreenState extends State<PackHistoryScreen> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       for (final t in _templates)
-                        TrainingPackCard(template: t, onTap: () => _start(t)),
+                        TrainingPackCard(
+                          template: t,
+                          onTap: () => _start(t),
+                          onRefresh: _load,
+                        ),
                     ],
                   ),
                 ),
