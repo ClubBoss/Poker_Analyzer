@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'player_input_screen.dart';
 import 'saved_hands_screen.dart';
@@ -83,6 +84,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   bool _tutorialCompleted = false;
   bool _showStreakPopup = false;
   bool _suggestedDismissed = false;
+  DateTime? _dismissedDate;
+  static const _dismissedKey = 'suggested_weekly_dismissed_date';
 
   Widget _buildStreakIndicator(BuildContext context) {
     final streak = context.watch<StreakService>().count;
@@ -127,6 +130,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _tutorialCompleted = UserPreferences.instance.tutorialCompleted;
     context.read<StreakService>().addListener(_onStreakChanged);
     _loadSpot();
+    _loadDismissed();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<StreakService>().updateStreak();
@@ -144,6 +148,23 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     }
   }
 
+  Future<void> _loadDismissed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final str = prefs.getString(_dismissedKey);
+    if (!mounted) return;
+    if (str != null) {
+      final dt = DateTime.tryParse(str);
+      if (dt != null && DateTime.now().difference(dt).inDays < 7) {
+        setState(() {
+          _suggestedDismissed = true;
+          _dismissedDate = dt;
+        });
+      } else {
+        await prefs.remove(_dismissedKey);
+      }
+    }
+  }
+
   void _maybeShowOnboarding() {
     if (UserPreferences.instance.tutorialCompleted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -156,6 +177,26 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         setState(() =>
             _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
       }
+    });
+  }
+
+  Future<void> _dismissSuggestedBanner() async {
+    final now = DateTime.now();
+    setState(() {
+      _suggestedDismissed = true;
+      _dismissedDate = now;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_dismissedKey, now.toIso8601String());
+  }
+
+  Future<void> _clearDismissed() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_dismissedKey);
+    if (!mounted) return;
+    setState(() {
+      _suggestedDismissed = false;
+      _dismissedDate = null;
     });
   }
 
@@ -498,15 +539,22 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     final service = context.watch<SuggestedPackService>();
     final tpl = service.template;
     final date = service.date;
-    final show =
-        !_suggestedDismissed && tpl != null && date != null && DateTime.now().difference(date).inDays < 6;
+    if (_dismissedDate != null &&
+        DateTime.now().difference(_dismissedDate!).inDays >= 7 &&
+        _suggestedDismissed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _clearDismissed());
+    }
+    final show = !_suggestedDismissed &&
+        tpl != null &&
+        date != null &&
+        DateTime.now().difference(date).inDays < 6;
     if (!show) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Dismissible(
         key: const ValueKey('suggestedBanner'),
         direction: DismissDirection.horizontal,
-        onDismissed: (_) => setState(() => _suggestedDismissed = true),
+        onDismissed: (_) => _dismissSuggestedBanner(),
         child: Card(
           color: Colors.grey[850],
           child: Padding(
