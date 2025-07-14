@@ -18,6 +18,7 @@ class SpotTemplateEngine {
     required List<int> stackRange,
     required String actionType,
     bool withIcm = false,
+    String? name,
   }) async {
     final uuid = const Uuid();
     final spots = <TrainingPackSpot>[];
@@ -38,9 +39,11 @@ class SpotTemplateEngine {
       );
       spots.add(TrainingPackSpot(id: uuid.v4(), hand: hand));
     }
+    final templateName =
+        name ?? _buildName(actionType, heroPosition, villainPosition, stackRange, withIcm);
     final template = TrainingPackTemplate(
       id: uuid.v4(),
-      name: 'Template',
+      name: templateName,
       gameType: GameType.tournament,
       spots: spots,
       heroBbStack: stackRange.isNotEmpty ? stackRange.first : 0,
@@ -75,5 +78,36 @@ class SpotTemplateEngine {
         ];
     }
     return null;
+  }
+
+  String _buildName(
+    String actionType,
+    HeroPosition hero,
+    HeroPosition villain,
+    List<int> stackRange,
+    bool icm,
+  ) {
+    String actionLabel(String type) {
+      switch (type) {
+        case 'push':
+          return 'Push vs Fold';
+        case 'callPush':
+          return 'Call vs Push';
+        case 'minraiseFold':
+          return 'Minraise/Fold vs Push';
+      }
+      return type;
+    }
+
+    String rangeLabel() {
+      if (stackRange.isEmpty) return '';
+      final min = stackRange.reduce((a, b) => a < b ? a : b);
+      final max = stackRange.reduce((a, b) => a > b ? a : b);
+      if (min == max) return '$min BB';
+      return '$min\u2013$max BB';
+    }
+
+    final suffix = icm ? ', ICM' : '';
+    return '${actionLabel(actionType)} \u2014 ${hero.label} vs ${villain.label} (${rangeLabel()}$suffix)';
   }
 }
