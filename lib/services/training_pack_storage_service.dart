@@ -72,6 +72,34 @@ class TrainingPackStorageService extends ChangeNotifier {
     return list;
   }
 
+  Future<List<(TrainingPack, int)>> getMostCompletedPacks([
+    int limit = 10,
+  ]) async {
+    if (!Hive.isBoxOpen('session_logs')) {
+      await Hive.initFlutter();
+      await Hive.openBox('session_logs');
+    }
+    final box = Hive.box('session_logs');
+    final count = <String, int>{};
+    for (final v in box.values.whereType<Map>()) {
+      final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
+      if (log.mistakeCount == 0) {
+        count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
+      }
+    }
+    final list = [
+      for (final p in _packs)
+        if (count[p.id] != null) (p, count[p.id]!)
+    ];
+    list.sort((a, b) {
+      final r = b.$2.compareTo(a.$2);
+      if (r != 0) return r;
+      return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
+    });
+    if (limit < list.length) return list.sublist(0, limit);
+    return list;
+  }
+
   final Map<String, List<PackSnapshot>> _snapshots = {};
   List<PackSnapshot> snapshotsOf(TrainingPack pack) =>
       List.unmodifiable(_snapshots[pack.id] ?? const []);

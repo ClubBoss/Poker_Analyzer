@@ -27,6 +27,7 @@ import 'training_recommendation_screen.dart';
 import '../services/smart_suggestion_service.dart';
 import 'training_session_screen.dart';
 import '../models/saved_hand.dart';
+import 'top_packs_screen.dart';
 
 enum _PackSort { recommended, newest, hardest }
 
@@ -72,6 +73,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const DrillHistoryScreen()),
+    );
+  }
+
+  void _openTopPacks() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TopPacksScreen()),
     );
   }
 
@@ -215,6 +223,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
               icon: const Icon(Icons.analytics),
               onPressed: _openHistory,
             ),
+            TextButton(
+              onPressed: _openTopPacks,
+              child: const Text('🏆 Топ паки'),
+            ),
             SyncStatusIcon.of(context)
           ],
         ),
@@ -321,6 +333,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
               icon: const Icon(Icons.analytics),
               onPressed: _openHistory,
             ),
+            TextButton(
+              onPressed: _openTopPacks,
+              child: const Text('🏆 Топ паки'),
+            ),
             SyncStatusIcon.of(context)
           ],
         ),
@@ -370,6 +386,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           IconButton(
             icon: const Icon(Icons.analytics),
             onPressed: _openHistory,
+          ),
+          TextButton(
+            onPressed: _openTopPacks,
+            child: const Text('🏆 Топ паки'),
           ),
           SyncStatusIcon.of(context)
         ],
