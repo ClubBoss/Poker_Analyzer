@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import 'spot_template_engine.dart';
@@ -47,5 +50,14 @@ class PackLibraryGenerator {
         }
       }
     }
+  }
+
+  Future<void> saveToJson(String path) async {
+    final file = File(path);
+    await file.create(recursive: true);
+    await file.writeAsString(
+      jsonEncode([for (final p in _packs) p.toJson()]),
+      flush: true,
+    );
   }
 }
