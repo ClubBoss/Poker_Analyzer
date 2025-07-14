@@ -87,6 +87,10 @@ while returning `null` allows the export to proceed.
 Подробнее о подключении сторонних модулей описано в [docs/plugins](docs/plugins/README.md).
 Разработчикам плагинов посвящено руководство [PLUGIN_DEV_GUIDE](docs/plugins/PLUGIN_DEV_GUIDE.md).
 
+## Plug-ins
+
+See [USER_GUIDE](docs/plugins/USER_GUIDE.md) for installation and activation.
+
 ![screenshot](flutter_01.png)
 
 ## Future plans
