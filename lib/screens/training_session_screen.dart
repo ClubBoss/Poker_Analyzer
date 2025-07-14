@@ -103,6 +103,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
 
   Future<void> _next(service) async {
     final next = service.nextSpot();
+    final tpl = service.template;
+    if (tpl != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('progress_tpl_${tpl.id}', service.session?.index ?? 0);
+    }
     if (!mounted) return;
     if (next == null) {
       if (widget.onSessionEnd != null) {
