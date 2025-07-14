@@ -83,6 +83,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsPosKey = 'tpl_pos_filter';
   static const _prefsDifficultyKey = 'tpl_diff_filter';
   static const _prefsStreetKey = 'tpl_street_filter';
+  static const _prefsRecentKey = 'tpl_recent_packs';
   static const _stackRanges = ['0-9', '10-15', '16-25', '26+'];
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
@@ -123,6 +124,7 @@ class _TrainingPackTemplateListScreenState
   HeroPosition? _posFilter;
   String? _difficultyFilter;
   String? _streetFilter;
+  final List<String> _recentIds = [];
 
   Future<void> _loadSort() async {
     final prefs = await SharedPreferences.getInstance();
@@ -541,6 +543,32 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadRecent() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_prefsRecentKey) ?? [];
+    if (mounted) setState(() => _recentIds
+      ..clear()
+      ..addAll(list));
+  }
+
+  Future<void> _addRecent(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _recentIds.remove(id);
+      _recentIds.insert(0, id);
+      if (_recentIds.length > 10) {
+        _recentIds.removeRange(10, _recentIds.length);
+      }
+    });
+    await prefs.setStringList(_prefsRecentKey, _recentIds);
+  }
+
+  Future<void> _clearRecent() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _recentIds.clear());
+    await prefs.remove(_prefsRecentKey);
+  }
+
   bool _matchStack(int stack) {
     final r = _stackFilter;
     if (r == null) return true;
@@ -677,6 +705,61 @@ class _TrainingPackTemplateListScreenState
         );
       }
     }
+  }
+
+  Widget _buildRecentCard(TrainingPackTemplate t) {
+    final total = t.spots.length;
+    final ratio = total == 0 ? 0.0 : (_progress[t.id]?.clamp(0, total) ?? 0) / total;
+    return Container(
+      width: 160,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(t.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(value: ratio),
+          const Spacer(),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: IconButton(
+              icon: const Icon(Icons.play_arrow),
+              onPressed: () => _chooseVariant(t),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentSection(List<TrainingPackTemplate> list) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const Text('Recent Packs'),
+              const Spacer(),
+              TextButton(onPressed: _clearRecent, child: const Text('Clear')),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 120,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [for (final t in list) _buildRecentCard(t)],
+          ),
+        ),
+      ],
+    );
   }
 
   bool _isIcmTemplate(TrainingPackTemplate t) {
@@ -857,6 +940,7 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _startVariant(TrainingPackTemplate tpl, TrainingPackVariant v,
       {bool force = false}) async {
+    await _addRecent(tpl.id);
     if (const PackRuntimeBuilder().isPending(tpl, v)) return;
     await Navigator.push(
       context,
@@ -1444,6 +1528,7 @@ class _TrainingPackTemplateListScreenState
       _loadPosFilter();
       _loadDifficultyFilter();
       _loadStreetFilter();
+      _loadRecent();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -2805,6 +2890,7 @@ class _TrainingPackTemplateListScreenState
     bool persist = true,
     VoidCallback? onSessionEnd,
   }) async {
+    await _addRecent(template.id);
     await context
         .read<TrainingSessionService>()
         .startSession(template, persist: persist);
@@ -2919,6 +3005,10 @@ class _TrainingPackTemplateListScreenState
     }
     final history = _dedupHistory();
     final suggestion = _groupByStreet ? _suggestTemplate() : null;
+    final recent = [
+      for (final id in _recentIds)
+        _templates.firstWhereOrNull((t) => t.id == id)
+    ].whereType<TrainingPackTemplate>().toList();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Packs'),
@@ -3058,6 +3148,7 @@ class _TrainingPackTemplateListScreenState
                     subtitle: Text('$pct% • ${s.street} • $tags'),
                   );
                 }),
+                if (recent.isNotEmpty) _buildRecentSection(recent),
                 if (history.isNotEmpty)
                   ExpansionTile(
                     title: const Text('Recent Generated Packs'),
