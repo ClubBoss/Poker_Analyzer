@@ -1,101 +1,92 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/user_goal.dart';
-import '../widgets/confetti_overlay.dart';
-import '../main.dart';
-import 'training_stats_service.dart';
-import 'xp_tracker_service.dart';
+import '../models/goal.dart';
 
 class GoalEngine extends ChangeNotifier {
-  static const _prefsKey = 'user_goals';
-  final TrainingStatsService stats;
-  GoalEngine({required this.stats}) {
+  static GoalEngine? _instance;
+  static GoalEngine get instance => _instance!;
+
+  GoalEngine() {
+    _instance = this;
     _init();
   }
 
-  final List<UserGoal> _goals = [];
-
-  List<UserGoal> get goals => List.unmodifiable(_goals);
+  static const _prefsKey = 'xp_goals';
+  final List<Goal> _goals = [];
+  List<Goal> get goals => List.unmodifiable(_goals);
 
   Future<void> _init() async {
-    await _load();
-    _update();
-    stats.sessionsStream.listen((_) => _update());
-    stats.handsStream.listen((_) => _update());
-    stats.mistakesStream.listen((_) => _update());
-  }
-
-  Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
-      _goals
-        ..clear()
-        ..addAll(UserGoal.decode(raw));
+      try {
+        final data = jsonDecode(raw) as List;
+        _goals.addAll(data.map((e) => Goal.fromJson(Map<String, dynamic>.from(e as Map))));
+      } catch (_) {
+        _goals.addAll(_defaultGoals());
+      }
+    } else {
+      _goals.addAll(_defaultGoals());
     }
+    notifyListeners();
+  }
+
+  List<Goal> _defaultGoals() {
+    final now = DateTime.now();
+    return [
+      Goal(
+        id: 'daily',
+        title: 'Earn 200 XP today',
+        type: 'daily',
+        targetXP: 200,
+        currentXP: 0,
+        deadline: DateTime(now.year, now.month, now.day).add(const Duration(days: 1)),
+      ),
+      Goal(
+        id: 'weekly',
+        title: 'Reach level 10 this week',
+        type: 'weekly',
+        targetXP: 1000,
+        currentXP: 0,
+        deadline: DateTime(now.year, now.month, now.day).add(Duration(days: 8 - now.weekday)),
+      ),
+      Goal(
+        id: 'progress',
+        title: 'Earn 10K XP all-time',
+        type: 'progressive',
+        targetXP: 10000,
+        currentXP: 0,
+        deadline: DateTime.now().add(const Duration(days: 3650)),
+      ),
+    ];
   }
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsKey, UserGoal.encode(_goals));
+    await prefs.setString(_prefsKey, jsonEncode([for (final g in _goals) g.toJson()]));
   }
 
-  int _statValue(String type) {
-    switch (type) {
-      case 'sessions':
-        return stats.sessionsCompleted;
-      case 'hands':
-        return stats.handsReviewed;
-      default:
-        return stats.mistakesFixed;
+  Future<void> updateXP(int xpDelta) async {
+    for (final g in _goals) {
+      if (g.completed) continue;
+      if (g.deadline.isBefore(DateTime.now())) continue;
+      g.currentXP += xpDelta;
     }
+    await checkCompletions();
   }
 
-  int progress(UserGoal g) => _statValue(g.type) - g.base;
-
-  void _update() {
-    for (var i = 0; i < _goals.length; i++) {
-      final g = _goals[i];
-      if (!g.completed && progress(g) >= g.target) {
-        _goals[i] = g.copyWith(completedAt: DateTime.now());
-        _save();
-        final ctx = navigatorKey.currentContext;
-        if (ctx != null) {
-          showConfettiOverlay(ctx);
-          ScaffoldMessenger.of(ctx).showSnackBar(
-            SnackBar(content: Text('Goal completed: ${g.title}')),
-          );
-          unawaited(
-            ctx.read<XPTrackerService>().add(
-                  xp: XPTrackerService.achievementXp,
-                  source: 'goal',
-                ),
-          );
-        }
+  Future<void> checkCompletions() async {
+    bool changed = false;
+    for (final g in _goals) {
+      if (!g.completed && g.currentXP >= g.targetXP && g.deadline.isAfter(DateTime.now())) {
+        g.completed = true;
+        changed = true;
       }
     }
-    notifyListeners();
-  }
-
-  Future<void> addGoal(UserGoal g) async {
-    _goals.add(g);
-    await _save();
-    notifyListeners();
-  }
-
-  Future<void> removeGoal(String id) async {
-    _goals.removeWhere((g) => g.id == id);
-    await _save();
-    notifyListeners();
-  }
-
-  Future<void> updateGoal(UserGoal goal) async {
-    final index = _goals.indexWhere((g) => g.id == goal.id);
-    if (index == -1) return;
-    _goals[index] = goal;
-    await _save();
-    _update();
+    if (changed) {
+      await _save();
+      notifyListeners();
+    }
   }
 }

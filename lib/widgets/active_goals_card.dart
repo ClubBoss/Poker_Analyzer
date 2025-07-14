@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/goal_engine.dart';
+import '../services/user_goal_engine.dart';
 import '../screens/goals_history_screen.dart';
 
 class ActiveGoalsCard extends StatelessWidget {
@@ -8,7 +8,7 @@ class ActiveGoalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final engine = context.watch<GoalEngine>();
+    final engine = context.watch<UserGoalEngine>();
     final accent = Theme.of(context).colorScheme.secondary;
     final goals = engine.goals.where((g) => !g.completed).toList();
     if (goals.isEmpty) return const SizedBox.shrink();

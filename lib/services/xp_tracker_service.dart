@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/xp_entry.dart';
 import 'cloud_sync_service.dart';
+import 'goal_engine.dart';
 
 class XPTrackerService extends ChangeNotifier {
   XPTrackerService({this.cloud});
@@ -120,6 +122,7 @@ class XPTrackerService extends ChangeNotifier {
     _history.insert(0, entry);
     _trim();
     _xp += xp;
+    unawaited(GoalEngine.instance.updateXP(xp));
     await _box!.put(entry.id, entry.toJson());
     await _save();
     notifyListeners();

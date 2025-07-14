@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'saved_hand_manager_service.dart';
-import 'goal_engine.dart';
+import 'user_goal_engine.dart';
 import 'streak_service.dart';
 import '../models/saved_hand.dart';
 import '../models/user_goal.dart';
@@ -23,7 +23,7 @@ class NextStepEngine extends ChangeNotifier {
   static NextStepEngine get instance => _instance!;
 
   final SavedHandManagerService hands;
-  final GoalEngine goals;
+  final UserGoalEngine goals;
   final StreakService streak;
   NextStepSuggestion? _suggestion;
   NextStepSuggestion? get suggestion => _suggestion;

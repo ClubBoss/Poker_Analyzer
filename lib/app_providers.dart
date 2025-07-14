@@ -36,7 +36,7 @@ import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
 import 'services/reward_service.dart';
-import 'services/goals_tracker_service.dart';
+import 'services/goal_engine.dart';
 import 'services/daily_challenge_service.dart';
 import 'services/weekly_challenge_service.dart';
 import 'services/streak_counter_service.dart';
@@ -52,7 +52,7 @@ import 'services/goals_service.dart';
 import 'services/streak_service.dart';
 import 'services/achievement_service.dart';
 import 'services/achievement_engine.dart';
-import 'services/goal_engine.dart';
+import 'services/user_goal_engine.dart';
 import 'services/personal_recommendation_service.dart';
 import 'services/reminder_service.dart';
 import 'services/daily_reminder_service.dart';
@@ -206,12 +206,7 @@ List<SingleChildWidget> buildTrainingProviders() {
                   XPTrackerService(cloud: context.read<CloudSyncService>())
                     ..load()),
           ChangeNotifierProvider(create: (_) => RewardService()..load()),
-          ChangeNotifierProvider(
-            create: (context) => GoalsTrackerService(
-              rewards: context.read<RewardService>(),
-              stats: context.read<TrainingStatsService>(),
-            ),
-          ),
+          ChangeNotifierProvider(create: (_) => GoalEngine()),
           ChangeNotifierProvider(
             create: (context) => DailyChallengeService(
               adaptive: context.read<AdaptiveTrainingService>(),
@@ -283,7 +278,7 @@ List<SingleChildWidget> buildTrainingProviders() {
           ),
           ChangeNotifierProvider(
             create: (context) =>
-                GoalEngine(stats: context.read<TrainingStatsService>()),
+                UserGoalEngine(stats: context.read<TrainingStatsService>()),
           ),
           ChangeNotifierProvider(
             create: (context) => PersonalRecommendationService(
@@ -298,7 +293,7 @@ List<SingleChildWidget> buildTrainingProviders() {
             create: (context) => ReminderService(
               context: context,
               spotService: context.read<SpotOfTheDayService>(),
-              goalEngine: context.read<GoalEngine>(),
+              goalEngine: context.read<UserGoalEngine>(),
               streakService: context.read<StreakService>(),
             )..load(),
           ),
@@ -313,7 +308,7 @@ List<SingleChildWidget> buildTrainingProviders() {
           ChangeNotifierProvider(
             create: (context) => NextStepEngine(
               hands: context.read<SavedHandManagerService>(),
-              goals: context.read<GoalEngine>(),
+              goals: context.read<UserGoalEngine>(),
               streak: context.read<StreakService>(),
             ),
           ),

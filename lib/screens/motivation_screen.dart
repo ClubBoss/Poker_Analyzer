@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/xp_tracker_service.dart';
 import '../services/achievement_engine.dart';
-import '../services/goal_engine.dart';
+import '../services/user_goal_engine.dart';
 import '../services/next_step_engine.dart';
 import '../models/user_goal.dart';
 import '../models/achievement.dart';
@@ -12,7 +12,7 @@ import '../widgets/next_step_card.dart';
 class MotivationScreen extends StatelessWidget {
   const MotivationScreen({super.key});
 
-  Widget _goal(UserGoal g, GoalEngine engine, Color accent) {
+  Widget _goal(UserGoal g, UserGoalEngine engine, Color accent) {
     final progress = engine.progress(g);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -99,7 +99,7 @@ class MotivationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final xp = context.watch<XPTrackerService>();
-    final engine = context.watch<GoalEngine>();
+    final engine = context.watch<UserGoalEngine>();
     final goals = engine.goals;
     final achievements = context.watch<AchievementEngine>().achievements;
     final accent = Theme.of(context).colorScheme.secondary;
