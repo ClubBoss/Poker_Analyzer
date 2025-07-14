@@ -8,6 +8,7 @@ import '../models/action_entry.dart';
 import 'pack_generator_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'training_pack_asset_loader.dart';
 
 class TrainingPackTemplateService {
   static final TrainingPackTemplate _starterPushfold10bb = TrainingPackTemplate(
@@ -958,5 +959,6 @@ class TrainingPackTemplateService {
         starterPushfold12bb(ctx),
         starterPushfold15bb(ctx),
         starterPushfold20bb(ctx),
+        ...TrainingPackAssetLoader.instance.getAll(),
       ];
 }

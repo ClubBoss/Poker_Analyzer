@@ -1,0 +1,33 @@
+{
+  "id": "starter_pushfold_12bb",
+  "name": "Push/Fold 12BB",
+  "gameType": "tournament",
+  "heroBbStack": 12,
+  "playerStacksBb": [12, 12],
+  "heroPos": "sb",
+  "anteBb": 0,
+  "spotCount": 1,
+  "tags": ["starter"],
+  "isBuiltIn": true,
+  "spots": [
+    {
+      "id": "pf12_1",
+      "title": "AJo push",
+      "hand": {
+        "heroCards": "Ah Jd",
+        "position": "sb",
+        "heroIndex": 0,
+        "playerCount": 2,
+        "stacks": {"0": 12, "1": 12},
+        "actions": {
+          "0": [
+            {"street": 0, "playerIndex": 0, "action": "push", "amount": 12},
+            {"street": 0, "playerIndex": 1, "action": "fold"}
+          ]
+        },
+        "anteBb": 0
+      },
+      "tags": []
+    }
+  ]
+}

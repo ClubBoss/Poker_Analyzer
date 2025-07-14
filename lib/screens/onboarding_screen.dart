@@ -6,6 +6,7 @@ import '../user_preferences.dart';
 import '../services/hand_history_file_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_template_service.dart';
+import '../models/v2/training_pack_template.dart';
 import '../helpers/pack_spot_utils.dart';
 import 'training_screen.dart';
 
@@ -19,6 +20,17 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _index = 0;
+  List<TrainingPackTemplate> _templates = [];
+  TrainingPackTemplate? _selected;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_templates.isEmpty) {
+      _templates = TrainingPackTemplateService.getAllTemplates(context);
+      if (_templates.isNotEmpty) _selected = _templates.first;
+    }
+  }
 
   Future<void> _finish() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,7 +46,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _startStarterPack() {
-    final tpl = TrainingPackTemplateService.starterPushfold10bb(context);
+    final tpl = _selected ??
+        TrainingPackTemplateService.starterPushfold10bb(context);
     final hands = [for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)];
     Navigator.push(
       context,
@@ -91,6 +104,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           _page('Готово', 'Вы готовы начать тренировку'),
           const SizedBox(height: 32),
+          DropdownButton<TrainingPackTemplate>(
+            dropdownColor: Colors.grey[850],
+            value: _selected,
+            items: [
+              for (final t in _templates)
+                DropdownMenuItem(
+                  value: t,
+                  child: Text(t.name,
+                      style: const TextStyle(color: Colors.white)),
+                )
+            ],
+            onChanged: (v) => setState(() => _selected = v),
+          ),
+          const SizedBox(height: 12),
           ElevatedButton(
             onPressed: _importHands,
             child: const Text('Импортировать Hand History'),

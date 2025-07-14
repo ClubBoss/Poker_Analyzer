@@ -1,0 +1,33 @@
+{
+  "id": "starter_pushfold_10bb",
+  "name": "Push/Fold 10BB",
+  "gameType": "tournament",
+  "heroBbStack": 10,
+  "playerStacksBb": [10, 10],
+  "heroPos": "sb",
+  "anteBb": 0,
+  "spotCount": 1,
+  "tags": ["starter"],
+  "isBuiltIn": true,
+  "spots": [
+    {
+      "id": "pf10_1",
+      "title": "A9o push",
+      "hand": {
+        "heroCards": "As 9d",
+        "position": "sb",
+        "heroIndex": 0,
+        "playerCount": 2,
+        "stacks": {"0": 10, "1": 10},
+        "actions": {
+          "0": [
+            {"street": 0, "playerIndex": 0, "action": "push", "amount": 10},
+            {"street": 0, "playerIndex": 1, "action": "fold"}
+          ]
+        },
+        "anteBb": 0
+      },
+      "tags": []
+    }
+  ]
+}
