@@ -384,3 +384,21 @@ extension TrainingPackTemplateUpdated on TrainingPackTemplate {
     return null;
   }
 }
+
+extension TrainingPackTemplateStreetCoverage on TrainingPackTemplate {
+  List<int> streetTotals() {
+    final totals = List<int>.filled(4, 0);
+    for (final s in spots) totals[s.street]++;
+    return totals;
+  }
+
+  List<int> streetCovered() {
+    final covered = List<int>.filled(4, 0);
+    for (final s in spots) {
+      if (!s.dirty && s.heroEv != null && s.heroIcmEv != null) {
+        covered[s.street]++;
+      }
+    }
+    return covered;
+  }
+}

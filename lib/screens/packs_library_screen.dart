@@ -25,6 +25,7 @@ import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
 import '../widgets/combined_progress_bar.dart';
+import '../widgets/street_coverage_bar.dart';
 import 'all_tags_screen.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
@@ -493,6 +494,11 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           ),
           const SizedBox(height: 4),
           CombinedProgressBar(pct(evDone), pct(icmDone)),
+          const SizedBox(height: 4),
+          StreetCoverageBar(
+            t.streetTotals(),
+            t.streetCovered(),
+          ),
         ],
       ),
       subtitle: Column(
