@@ -4,6 +4,7 @@
   stacks: [10, 15]
   action: callPush
   icm: true
+  tags: [callPush, icm, bbVsSb]
 
 - name: 'Push vs Fold — SB vs BB (10–15 BB)'
   hero: SB
@@ -11,6 +12,7 @@
   stacks: [10, 15]
   action: push
   icm: false
+  tags: [push, sbVsBb]
 
 - name: 'Minraise/Fold vs Push — BTN vs BB (20 BB, ICM)'
   hero: BTN
@@ -18,3 +20,4 @@
   stacks: [20]
   action: minraiseFold
   icm: true
+  tags: [minraiseFold, icm, btnVsBb]

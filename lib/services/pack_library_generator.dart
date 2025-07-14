@@ -69,6 +69,7 @@ class PackLibraryGenerator {
         withIcm: t.icm,
         name: t.name,
       );
+      tpl.tags = [for (final tag in t.tags) if (tag.trim().isNotEmpty) tag];
       _packs.add(tpl);
     }
   }
