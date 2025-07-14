@@ -37,6 +37,7 @@ import 'goal_drill_screen.dart';
 import 'weekly_progress_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
+import '../widgets/xp_progress_card.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -874,6 +875,7 @@ class _ProgressScreenState extends State<ProgressScreen>
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          const XPProgressCard(),
           _buildGoalCompletedBadge(),
           _buildAllGoalsCompletedBadge(),
           isPortrait(context)
