@@ -10,7 +10,7 @@ class PackLibraryGenerator {
   final List<TrainingPackTemplate> _packs = [];
 
   PackLibraryGenerator({SpotTemplateEngine? engine})
-      : engine = engine ?? SpotTemplateEngine();
+    : engine = engine ?? SpotTemplateEngine();
 
   List<TrainingPackTemplate> get packs => List.unmodifiable(_packs);
 
@@ -24,27 +24,30 @@ class PackLibraryGenerator {
     _packs.clear();
     final heroes = heroPositions ?? HeroPosition.values;
     final villains = villainPositions ?? HeroPosition.values;
-    final ranges = stackRanges ??
+    final ranges =
+        stackRanges ??
         const [
           [10],
           [15],
-          [20]
+          [20],
         ];
     final actions = actionTypes ?? const ['push', 'callPush', 'minraiseFold'];
     final modes = includeIcm ? const [false, true] : const [false];
     for (final hero in heroes) {
       for (final vill in villains) {
-        for (final r in ranges) {
-          for (final type in actions) {
-            for (final icm in modes) {
-              final tpl = await engine.generate(
-                heroPosition: hero,
-                villainPosition: vill,
-                stackRange: r,
-                actionType: type,
-                withIcm: icm,
-              );
-              _packs.add(tpl);
+        if (hero != vill) {
+          for (final r in ranges) {
+            for (final type in actions) {
+              for (final icm in modes) {
+                final tpl = await engine.generate(
+                  heroPosition: hero,
+                  villainPosition: vill,
+                  stackRange: r,
+                  actionType: type,
+                  withIcm: icm,
+                );
+                _packs.add(tpl);
+              }
             }
           }
         }
