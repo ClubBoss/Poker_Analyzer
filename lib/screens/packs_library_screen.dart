@@ -28,7 +28,7 @@ import 'all_tags_screen.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
 
-enum _SortMode { name, newest, progress, favorite, rating }
+enum _SortMode { name, newest, progress, favorite, rating, coverage }
 
 extension _StackRangeExt on _StackRange {
   String get label {
@@ -134,6 +134,14 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         final ra = _ratings[a.id] ?? 0.0;
         final rb = _ratings[b.id] ?? 0.0;
         final r = rb.compareTo(ra);
+        if (r != 0) return r;
+      } else if (_sortMode == _SortMode.coverage) {
+        double cov(TrainingPackTemplate t) {
+          final total = t.spots.length;
+          if (total == 0) return 0;
+          return (t.evCovered + t.icmCovered) / (2 * total);
+        }
+        final r = cov(b).compareTo(cov(a));
         if (r != 0) return r;
       }
       switch (_sortOrder) {
@@ -904,6 +912,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           PopupMenuItem(
                               value: _SortMode.rating,
                               child: Text(l.sortRating)),
+                          PopupMenuItem(
+                              value: _SortMode.coverage,
+                              child: Text(l.sortCoverage)),
                         ],
                       ),
                     ],
