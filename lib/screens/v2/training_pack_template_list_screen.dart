@@ -76,6 +76,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsMixedAutoKey = 'tpl_mixed_auto';
   static const _prefsEndlessKey = 'tpl_endless_drill';
   static const _prefsFavoritesKey = 'tpl_favorites';
+  static const _prefsSortKey = 'tpl_sort_option';
   static const _prefsStackKey = 'tpl_stack_filter';
   static const _prefsPosKey = 'tpl_pos_filter';
   static const _prefsDifficultyKey = 'tpl_diff_filter';
@@ -118,6 +119,26 @@ class _TrainingPackTemplateListScreenState
   String? _stackFilter;
   HeroPosition? _posFilter;
   String? _difficultyFilter;
+
+  Future<void> _loadSort() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_prefsSortKey);
+    if (mounted && value != null) {
+      setState(() {
+        _sort = value;
+        _sortTemplates();
+      });
+    }
+  }
+
+  Future<void> _setSort(String value) async {
+    setState(() {
+      _sort = value;
+      _sortTemplates();
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsSortKey, value);
+  }
 
   Future<void> refreshFromStorage() async {
     final list = await TrainingPackStorage.load();
@@ -192,17 +213,9 @@ class _TrainingPackTemplateListScreenState
         });
         break;
       case 'last_trained':
-        final logs = context.read<SessionLogService>().logs;
-        final map = <String, DateTime>{};
-        for (final l in logs) {
-          final cur = map[l.templateId];
-          if (cur == null || l.completedAt.isAfter(cur)) {
-            map[l.templateId] = l.completedAt;
-          }
-        }
         _templates.sort((a, b) {
-          final aDt = map[a.id] ?? a.createdAt;
-          final bDt = map[b.id] ?? b.createdAt;
+          final aDt = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bDt = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
           final r = bDt.compareTo(aDt);
           return r == 0
               ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
@@ -1356,6 +1369,7 @@ class _TrainingPackTemplateListScreenState
   void initState() {
     super.initState();
     _searchCtrl = TextEditingController();
+    _loadSort();
     _loading = true;
     TrainingPackStorage.load().then((list) async {
       if (!mounted) return;
@@ -2874,17 +2888,14 @@ class _TrainingPackTemplateListScreenState
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort),
-            onSelected: (v) {
-              setState(() {
-                _sort = v;
-                _sortTemplates();
-              });
-            },
+            onSelected: _setSort,
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'coverage', child: Text('Best Coverage')),
               PopupMenuItem(value: 'name', child: Text('Name A–Z')),
               PopupMenuItem(value: 'created', child: Text('Newest First')),
-              PopupMenuItem(value: 'last_trained', child: Text('Last Trained')),
+              PopupMenuItem(
+                  value: 'last_trained',
+                  child: Text('Last Trained (Recent → Old)')),
               PopupMenuItem(value: 'spots', child: Text('Most Spots')),
               PopupMenuItem(value: 'tag', child: Text('Tag A–Z')),
             ],
