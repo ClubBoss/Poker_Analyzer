@@ -11,12 +11,14 @@ class TrainingPackCard extends StatefulWidget {
   final VoidCallback onTap;
   final int? progress;
   final Future<void> Function()? onRefresh;
+  final bool dimmed;
   const TrainingPackCard({
     super.key,
     required this.template,
     required this.onTap,
     this.progress,
     this.onRefresh,
+    this.dimmed = false,
   });
 
   @override
@@ -67,7 +69,9 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: widget.dimmed
+              ? const Color(0xFF3A3B3E)
+              : AppColors.cardBackground,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
