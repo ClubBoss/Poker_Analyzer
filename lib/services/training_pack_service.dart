@@ -12,6 +12,7 @@ import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../models/action_entry.dart';
 import '../services/saved_hand_manager_service.dart';
+import 'saved_hand_storage_service.dart';
 import '../helpers/poker_position_helper.dart';
 import '../helpers/training_pack_storage.dart';
 import '../helpers/mistake_category_translations.dart';
@@ -525,6 +526,29 @@ class TrainingPackService {
       bbCallPct: bbCallPct,
       anteBb: anteBb,
       createdAt: DateTime.now(),
+    );
+    final list = await TrainingPackStorage.load();
+    list.add(template);
+    await TrainingPackStorage.save(list);
+    return template;
+  }
+
+  static Future<TrainingPackTemplate?> generateDefaultPersonalPack({
+    CloudSyncService? cloud,
+  }) async {
+    final storage = SavedHandStorageService(cloud: cloud);
+    await storage.load();
+    final hands = storage.hands
+        .where((h) => (h.evLoss?.abs() ?? 0) >= 1.0)
+        .toList();
+    if (hands.isEmpty) return null;
+    hands.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    final spots = [for (final h in hands.take(20)) _spotFromHand(h)];
+    final template = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Personal Pack',
+      createdAt: DateTime.now(),
+      spots: spots,
     );
     final list = await TrainingPackStorage.load();
     list.add(template);
