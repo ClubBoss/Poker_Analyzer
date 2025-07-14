@@ -7,6 +7,7 @@ import '../services/training_pack_template_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
 import '../widgets/training_pack_card.dart';
+import '../helpers/date_utils.dart';
 
 class PackHistoryScreen extends StatefulWidget {
   const PackHistoryScreen({super.key});
@@ -16,7 +17,7 @@ class PackHistoryScreen extends StatefulWidget {
 }
 
 class _PackHistoryScreenState extends State<PackHistoryScreen> {
-  final List<TrainingPackTemplate> _templates = [];
+  final Map<DateTime, List<TrainingPackTemplate>> _groups = {};
   bool _loading = true;
 
   @override
@@ -26,17 +27,17 @@ class _PackHistoryScreenState extends State<PackHistoryScreen> {
   }
 
   Future<void> _load() async {
-    final list = await _fetchTemplates();
+    final map = await _fetchTemplates();
     if (!mounted) return;
     setState(() {
-      _templates
+      _groups
         ..clear()
-        ..addAll(list);
+        ..addAll(map);
       _loading = false;
     });
   }
 
-  Future<List<TrainingPackTemplate>> _fetchTemplates() async {
+  Future<Map<DateTime, List<TrainingPackTemplate>>> _fetchTemplates() async {
     final templates = TrainingPackTemplateService.getAllTemplates(context);
     final prefs = await SharedPreferences.getInstance();
     final list = <MapEntry<TrainingPackTemplate, DateTime>>[];
@@ -50,16 +51,21 @@ class _PackHistoryScreenState extends State<PackHistoryScreen> {
       }
     }
     list.sort((a, b) => b.value.compareTo(a.value));
-    return [for (final e in list) e.key];
+    final map = <DateTime, List<TrainingPackTemplate>>{};
+    for (final e in list) {
+      final day = DateTime(e.value.year, e.value.month, e.value.day);
+      map.putIfAbsent(day, () => []).add(e.key);
+    }
+    return map;
   }
 
   Future<void> _refreshAfterReset() async {
-    final list = await _fetchTemplates();
+    final map = await _fetchTemplates();
     if (!mounted) return;
     setState(() {
-      _templates
+      _groups
         ..clear()
-        ..addAll(list);
+        ..addAll(map);
     });
   }
 
@@ -79,24 +85,38 @@ class _PackHistoryScreenState extends State<PackHistoryScreen> {
       appBar: AppBar(title: const Text('История паков')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _templates.isEmpty
+          : _groups.isEmpty
               ? const Center(
                   child: Text('История пуста',
                       style: TextStyle(color: Colors.white70)),
                 )
               : RefreshIndicator(
                   onRefresh: _load,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      for (final t in _templates)
-                        TrainingPackCard(
-                          template: t,
-                          onTap: () => _start(t),
-                          onRefresh: _refreshAfterReset,
-                        ),
-                    ],
-                  ),
+                  child: Builder(builder: (context) {
+                    final dates = _groups.keys.toList()
+                      ..sort((a, b) => b.compareTo(a));
+                    return ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        for (int i = 0; i < dates.length; i++) ...[
+                          Padding(
+                            padding:
+                                EdgeInsets.fromLTRB(0, i == 0 ? 0 : 16, 0, 8),
+                            child: Text(
+                              formatLongDate(dates[i]),
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                          for (final t in _groups[dates[i]]!)
+                            TrainingPackCard(
+                              template: t,
+                              onTap: () => _start(t),
+                              onRefresh: _refreshAfterReset,
+                            ),
+                        ]
+                      ],
+                    );
+                  }),
                 ),
     );
   }
