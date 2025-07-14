@@ -309,6 +309,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             );
           }
           final expected = _expectedAction(spot);
+          final tag = spot.tags.firstWhere(
+            (t) => t.startsWith('cat:'),
+            orElse: () => '',
+          );
+          final categoryName = tag.isNotEmpty ? tag.substring(4) : null;
+          final showCategory =
+              service.template?.id == 'suggested_weekly' && categoryName != null;
           return Scaffold(
             appBar: AppBar(
               title: const Text('Training'),
@@ -471,6 +478,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                             ),
                           ],
                         ),
+                        if (showCategory)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              categoryName!,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ),
                       ],
                     ],
                   ),
