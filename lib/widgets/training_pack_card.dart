@@ -8,8 +8,13 @@ import '../helpers/mistake_category_translations.dart';
 class TrainingPackCard extends StatefulWidget {
   final TrainingPackTemplate template;
   final VoidCallback onTap;
-  const TrainingPackCard(
-      {super.key, required this.template, required this.onTap});
+  final int? progress;
+  const TrainingPackCard({
+    super.key,
+    required this.template,
+    required this.onTap,
+    this.progress,
+  });
 
   @override
   State<TrainingPackCard> createState() => _TrainingPackCardState();
@@ -58,13 +63,17 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                   Row(
                     children: [
                       if (_pinned)
-                        const Text('📌 ',
-                            style: TextStyle(color: Colors.white)),
+                        const Text(
+                          '📌 ',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       Expanded(
                         child: Text(
                           widget.template.name,
                           style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -84,6 +93,14 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),
+                  if (widget.progress != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        '${widget.progress} / ${widget.template.spots.length}',
+                        style: const TextStyle(color: Colors.white54),
+                      ),
+                    ),
                   if (cats.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
