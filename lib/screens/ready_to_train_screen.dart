@@ -25,6 +25,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = true;
   final Map<String, int> _progress = {};
+  bool _showCompleted = false;
 
   void _applyPinned() {
     final service = context.read<PinnedPackService>();
@@ -40,7 +41,10 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    SharedPreferences.getInstance().then((p) {
+      _showCompleted = p.getBool('show_completed_packs') ?? false;
+      if (mounted) _load();
+    });
   }
 
   Future<void> _load() async {
@@ -69,15 +73,21 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     final prefs = await SharedPreferences.getInstance();
     final list = [
       ...builtIn.where(
-        (t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false),
+        (t) =>
+            _showCompleted ||
+            !(prefs.getBool('completed_tpl_${t.id}') ?? false),
       ),
-      if (top != null && !(prefs.getBool('completed_tpl_${top.id}') ?? false))
+      if (top != null &&
+          (_showCompleted ||
+              !(prefs.getBool('completed_tpl_${top.id}') ?? false)))
         top,
       if (community != null &&
-          !(prefs.getBool('completed_tpl_${community.id}') ?? false))
+          (_showCompleted ||
+              !(prefs.getBool('completed_tpl_${community.id}') ?? false)))
         community,
       if (similar != null &&
-          !(prefs.getBool('completed_tpl_${similar.id}') ?? false))
+          (_showCompleted ||
+              !(prefs.getBool('completed_tpl_${similar.id}') ?? false)))
         similar,
     ];
     final prog = <String, int>{};
@@ -115,6 +125,13 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     }
   }
 
+  Future<void> _toggle(bool value) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setBool('show_completed_packs', value);
+    setState(() => _showCompleted = value);
+    _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,6 +146,16 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
                 MaterialPageRoute(builder: (_) => const PackHistoryScreen()),
               );
             },
+          ),
+          PopupMenuButton<bool>(
+            onSelected: _toggle,
+            itemBuilder: (_) => [
+              CheckedPopupMenuItem(
+                value: !_showCompleted,
+                checked: _showCompleted,
+                child: const Text('Показать завершённые'),
+              ),
+            ],
           ),
         ],
       ),
