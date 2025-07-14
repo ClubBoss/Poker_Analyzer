@@ -156,3 +156,13 @@ class TrainingPackSpot {
     explanation,
   );
 }
+
+extension TrainingPackSpotStreet on TrainingPackSpot {
+  int get street {
+    final n = hand.board.length;
+    if (n >= 5) return 3;
+    if (n == 4) return 2;
+    if (n >= 3) return 1;
+    return 0;
+  }
+}
