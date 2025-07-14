@@ -321,13 +321,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       MaterialPageRoute(builder: (_) => AllTagsScreen(tags: tags)),
     );
     if (tag != null) {
-      setState(() {
-        if (_selectedTags.contains(tag)) {
-          _selectedTags.remove(tag);
-        } else {
-          _selectedTags.add(tag);
-        }
-      });
+      setState(() => _selectedTags.add(tag));
       _saveState();
     }
   }
@@ -891,6 +885,36 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     ],
                   ),
                 ),
+                if (_selectedTags.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Selected Tags:'),
+                        const SizedBox(height: 4),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              for (final tag in _selectedTags)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: FilterChip(
+                                    label: Text(tag),
+                                    selected: true,
+                                    onSelected: (_) {
+                                      setState(() => _selectedTags.remove(tag));
+                                      _saveState();
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 if (_packs.any((p) => p.tags.isNotEmpty))
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
