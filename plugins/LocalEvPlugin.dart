@@ -14,7 +14,8 @@ class LocalEvService {
     final stack = spot.hand.stacks['$hero']?.round();
     if (hand == null || stack == null) return;
     for (final a in spot.hand.actions[0] ?? []) {
-      if (a.playerIndex == hero && a.action == 'push') {
+      if (a.playerIndex == hero &&
+          (a.action == 'push' || a.action == 'call' || a.action == 'raise')) {
         a.ev = computePushEV(
           heroBbStack: stack,
           bbCount: spot.hand.playerCount - 1,
@@ -41,7 +42,8 @@ class LocalEvService {
         if (a.playerIndex != hero && a.action == 'call') a.playerIndex
     ];
     for (final a in spot.hand.actions[0] ?? []) {
-      if (a.playerIndex == hero && a.action == 'push') {
+      if (a.playerIndex == hero &&
+          (a.action == 'push' || a.action == 'call' || a.action == 'raise')) {
         final ev = computePushEV(
           heroBbStack: stack,
           bbCount: spot.hand.playerCount - 1,

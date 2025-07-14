@@ -140,13 +140,18 @@ class EvaluationExecutorService implements EvaluationExecutor {
             '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
         final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
         if (code != null && stack <= 15) {
+          final heroAct = _heroAction(spot);
           final ev = computePushEV(
             heroBbStack: stack,
             bbCount: spot.numberOfPlayers - 1,
             heroHand: code,
             anteBb: spot.anteBb,
           );
-          expectedAction = ev >= 0 ? 'push' : 'fold';
+          if (heroAct == 'call' || heroAct == 'raise') {
+            expectedAction = ev >= 0 ? heroAct : 'fold';
+          } else {
+            expectedAction = ev >= 0 ? 'push' : 'fold';
+          }
         }
       }
       expectedAction ??= _heroAction(spot) ?? '-';
@@ -247,6 +252,19 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final code = handCode(
         '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
     if (code == null) return null;
+    final heroAct = _heroAction(spot);
+    if (heroAct == 'call' || heroAct == 'raise') {
+      if (stack <= 15) {
+        final ev = computePushEV(
+          heroBbStack: stack,
+          bbCount: spot.numberOfPlayers - 1,
+          heroHand: code,
+          anteBb: spot.anteBb,
+        );
+        return ev >= 0 ? heroAct : 'fold';
+      }
+      return heroAct;
+    }
     final threshold = kPushFoldThresholds[code];
     if (threshold != null && stack <= threshold) return 'push';
     return 'fold';
@@ -418,6 +436,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
             for (final a in spot.hand.actions[0] ?? [])
               if (a.playerIndex != hero && a.action == 'call') a.playerIndex
           ];
+          final heroAct = (spot.hand.actions[0] ?? [])
+              .firstWhereOrNull((e) => e.playerIndex == hero)
+              ?.action;
           final res = await compute(
             _computeEv,
             {
@@ -427,11 +448,12 @@ class EvaluationExecutorService implements EvaluationExecutor {
               'ante': anteBb,
               'payouts': settings.payouts,
               'callers': callers,
+              'action': heroAct,
             },
           );
           final acts = spot.hand.actions[0] ?? [];
           for (final a in acts) {
-            if (a.playerIndex == hero && a.action == 'push') {
+            if (a.playerIndex == hero && a.action == heroAct) {
               a.ev = res['ev'] as double;
               a.icmEv = res['icm'] as double;
               break;
@@ -551,12 +573,16 @@ Map<String, double> _computeEv(Map<String, dynamic> args) {
   final ante = args['ante'] as int;
   final payouts = List<double>.from(args['payouts'] as List);
   final callers = List<int>.from(args['callers'] as List? ?? const []);
-  final ev = computePushEV(
-    heroBbStack: stacks[hero],
-    bbCount: stacks.length - 1,
-    heroHand: hand,
-    anteBb: ante,
-  );
+  final action = args['action'] as String?;
+  double ev = 0;
+  if (action == 'push' || action == 'call' || action == 'raise') {
+    ev = computePushEV(
+      heroBbStack: stacks[hero],
+      bbCount: stacks.length - 1,
+      heroHand: hand,
+      anteBb: ante,
+    );
+  }
   final icm = callers.length > 1
       ? computeMultiwayIcmEV(
           chipStacksBb: stacks,
