@@ -98,4 +98,5 @@
   ,"resetFilters": "Reset filters"
   ,"sortLabel": "Orden:" 
   ,"sortPopular": "Populares primero"
+  ,"sortRating": "Rating (High \u2192 Low)"
 }
