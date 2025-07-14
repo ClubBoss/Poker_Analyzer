@@ -6,6 +6,7 @@ import '../services/training_session_controller.dart';
 import '../widgets/training_spot_diagram.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/sync_status_widget.dart';
+import '../models/training_spot.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   const TrainingPlayScreen({super.key});
@@ -53,16 +54,27 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _choose('PUSH'),
-                    child: const Text('PUSH'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => _choose('FOLD'),
-                    child: const Text('FOLD'),
-                  ),
-                ],
+                children: spot.actionType == SpotActionType.callPush
+                    ? [
+                        ElevatedButton(
+                          onPressed: () => _choose('CALL'),
+                          child: const Text('CALL'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _choose('FOLD'),
+                          child: const Text('FOLD'),
+                        ),
+                      ]
+                    : [
+                        ElevatedButton(
+                          onPressed: () => _choose('PUSH'),
+                          child: const Text('PUSH'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _choose('FOLD'),
+                          child: const Text('FOLD'),
+                        ),
+                      ],
               ),
             ] else ...[
               Text(

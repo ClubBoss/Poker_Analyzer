@@ -26,6 +26,21 @@ double computePushEV({
   });
 }
 
+double computeCallEV({
+  required int heroBbStack,
+  required int villainBbStack,
+  required String heroHand,
+  required int anteBb,
+}) {
+  final key = 'c|$heroBbStack|$villainBbStack|$heroHand|$anteBb';
+  return _evCache.putIfAbsent(key, () {
+    final eq = _equity[heroHand] ?? 0.5;
+    final pot = 2 * anteBb + 1.5;
+    final call = villainBbStack.toDouble();
+    return eq * (pot + call) - (1 - eq) * call;
+  });
+}
+
 class PushFoldEvService {
   const PushFoldEvService();
 
