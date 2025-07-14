@@ -108,6 +108,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final prefs = await SharedPreferences.getInstance();
       if (next == null) {
         await prefs.remove('progress_tpl_${tpl.id}');
+        await prefs.setBool('completed_tpl_${tpl.id}', true);
       } else {
         await prefs.setInt('progress_tpl_${tpl.id}', service.session?.index ?? 0);
       }
@@ -192,13 +193,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         evSum: 0,
         icmSum: 0,
       ));
-      if (acc >= 0.8) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('completed_tpl_${tpl.id}', true);
-        final cloud = context.read<CloudSyncService?>();
-        if (cloud != null) {
-          unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
-        }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('completed_tpl_${tpl.id}', true);
+      final cloud = context.read<CloudSyncService?>();
+      if (cloud != null) {
+        unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
       }
     }
     await service.complete(context);
