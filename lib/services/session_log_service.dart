@@ -90,6 +90,11 @@ class SessionLogService extends ChangeNotifier {
     if (s == null || s.completedAt == null) return;
     if (_logged.contains(s.id)) return;
     final correct = _sessions.correctCount;
+    final cats = <String, int>{};
+    for (final e in _sessions.getCategoryStats().entries) {
+      final miss = e.value.played - e.value.correct;
+      if (miss > 0) cats[e.key] = miss;
+    }
     final log = SessionLog(
       sessionId: s.id,
       templateId: s.templateId,
@@ -97,6 +102,7 @@ class SessionLogService extends ChangeNotifier {
       completedAt: s.completedAt!,
       correctCount: correct,
       mistakeCount: s.results.length - correct,
+      categories: cats,
     );
     _logged.add(s.id);
     unawaited(_save(log));
@@ -115,6 +121,20 @@ class SessionLogService extends ChangeNotifier {
             (templateId == null || l.templateId == templateId))
           l
     ];
+  }
+
+  Map<String, int> getRecentMistakes([int days = 7]) {
+    final cutoff = DateTime.now().subtract(Duration(days: days));
+    final map = <String, int>{};
+    for (final l in _logs) {
+      if (l.completedAt.isBefore(cutoff)) break;
+      for (final e in l.categories.entries) {
+        map[e.key] = (map[e.key] ?? 0) + e.value;
+      }
+    }
+    final entries = map.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return {for (final e in entries) e.key: e.value};
   }
 
   @override

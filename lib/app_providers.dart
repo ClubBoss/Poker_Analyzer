@@ -67,6 +67,7 @@ import 'services/training_pack_play_controller.dart';
 import 'services/training_session_service.dart';
 import 'services/session_manager.dart';
 import 'services/session_log_service.dart';
+import 'services/suggested_pack_service.dart';
 import 'services/evaluation_executor_service.dart';
 import 'services/session_analysis_service.dart';
 import 'services/user_action_logger.dart';
@@ -360,6 +361,12 @@ List<SingleChildWidget> buildTrainingProviders() {
             create: (context) => SessionLogService(
               sessions: context.read<TrainingSessionService>(),
               cloud: context.read<CloudSyncService>(),
+            )..load(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => SuggestedPackService(
+              logs: context.read<SessionLogService>(),
+              hands: context.read<SavedHandManagerService>(),
             )..load(),
           ),
   ];
