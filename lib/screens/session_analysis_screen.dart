@@ -9,6 +9,8 @@ import '../helpers/hand_utils.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_session_service.dart';
+import '../services/training_pack_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/pack_export_service.dart';
 import '../services/file_saver_service.dart';
 import 'session_replay_screen.dart';
@@ -73,6 +75,38 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         ..addAll(icms);
       _loading = false;
     });
+    if (!mounted) return;
+    _offerTraining();
+  }
+
+  Future<void> _offerTraining() async {
+    final tpl = await TrainingPackService.createDrillFromTopCategories(context);
+    if (tpl == null || !mounted) return;
+    final l = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        content: Text(l.startTrainingSessionPrompt),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Skip'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
   }
 
   @override
