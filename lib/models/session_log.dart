@@ -7,6 +7,7 @@ class SessionLog {
   final DateTime completedAt;
   final int correctCount;
   final int mistakeCount;
+  final Map<String, int> categories;
 
   SessionLog({
     required this.sessionId,
@@ -15,7 +16,8 @@ class SessionLog {
     required this.completedAt,
     required this.correctCount,
     required this.mistakeCount,
-  });
+    Map<String, int>? categories,
+  }) : categories = categories ?? const {};
 
   factory SessionLog.fromJson(Map<String, dynamic> j) => SessionLog(
         sessionId: j['sessionId'] as String? ?? '',
@@ -26,14 +28,19 @@ class SessionLog {
             DateTime.tryParse(j['completedAt'] as String? ?? '') ?? DateTime.now(),
         correctCount: j['correct'] as int? ?? 0,
         mistakeCount: j['mistakes'] as int? ?? 0,
+        categories: {
+          for (final e in (j['categories'] as Map? ?? {}).entries)
+            e.key as String: (e.value as num).toInt()
+        },
       );
 
   Map<String, dynamic> toJson() => {
         'sessionId': sessionId,
         'templateId': templateId,
         'startedAt': startedAt.toIso8601String(),
-        'completedAt': completedAt.toIso8601String(),
-        'correct': correctCount,
-        'mistakes': mistakeCount,
+      'completedAt': completedAt.toIso8601String(),
+      'correct': correctCount,
+      'mistakes': mistakeCount,
+        if (categories.isNotEmpty) 'categories': categories,
       };
 }
