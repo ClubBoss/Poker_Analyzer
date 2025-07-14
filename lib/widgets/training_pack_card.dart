@@ -4,16 +4,19 @@ import '../models/v2/training_pack_template.dart';
 import '../services/pinned_pack_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/mistake_category_translations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TrainingPackCard extends StatefulWidget {
   final TrainingPackTemplate template;
   final VoidCallback onTap;
   final int? progress;
+  final Future<void> Function()? onRefresh;
   const TrainingPackCard({
     super.key,
     required this.template,
     required this.onTap,
     this.progress,
+    this.onRefresh,
   });
 
   @override
@@ -22,6 +25,18 @@ class TrainingPackCard extends StatefulWidget {
 
 class _TrainingPackCardState extends State<TrainingPackCard> {
   late bool _pinned;
+
+  Future<void> _resetProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('progress_tpl_${widget.template.id}');
+    await prefs.remove('completed_tpl_${widget.template.id}');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Прогресс сброшен')),
+      );
+    }
+    await widget.onRefresh?.call();
+  }
 
   @override
   void initState() {
@@ -122,6 +137,17 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
             ),
             const SizedBox(width: 8),
             ElevatedButton(onPressed: widget.onTap, child: const Text('Train')),
+            PopupMenuButton<String>(
+              onSelected: (v) {
+                if (v == 'reset') _resetProgress();
+              },
+              itemBuilder: (_) => const [
+                PopupMenuItem(
+                  value: 'reset',
+                  child: Text('Сбросить прогресс'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
