@@ -103,6 +103,11 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     }
   }
 
+  Future<void> _newPack() async {
+    await TrainingPackService.generateFreshMistakeDrill(context);
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,6 +124,10 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
                 ],
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _newPack,
+        child: const Text('Новый Пак'),
+      ),
     );
   }
 }
