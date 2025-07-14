@@ -21,6 +21,8 @@ import '../widgets/weekly_drill_stats_card.dart';
 import '../widgets/xp_progress_card.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_session_service.dart';
+import 'training_recommendation_screen.dart';
+import '../services/smart_suggestion_service.dart';
 import 'training_session_screen.dart';
 import '../models/saved_hand.dart';
 
@@ -48,6 +50,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   bool _groupByColor = false;
   Color _lastColor = Colors.blue;
   SharedPreferences? _prefs;
+  List<TrainingPack> _suggestions = [];
 
   Future<void> _importPack() async {
     final service = context.read<TrainingPackStorageService>();
@@ -65,10 +68,23 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     );
   }
 
+  void _loadSuggestions() {
+    final service = context.read<SmartSuggestionService>();
+    setState(() {
+      _suggestions = service.getSuggestions();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _loadPrefs();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadSuggestions();
   }
 
   @override
@@ -323,6 +339,82 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         children: [
           const WeeklyDrillStatsCard(),
           const XPProgressCard(),
+          if (_suggestions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Рекомендуем вам',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 112,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.only(right: 16),
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        final pack = _suggestions[index];
+                        final pct = pack.pctComplete;
+                        return GestureDetector(
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TrainingPackScreen(pack: pack),
+                              ),
+                            );
+                            if (mounted) _loadSuggestions();
+                          },
+                          child: Container(
+                            width: 180,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardBackground,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(pack.name,
+                                    style:
+                                        const TextStyle(color: Colors.white)),
+                                const Spacer(),
+                                Row(
+                                  children: [
+                                    DifficultyChip(pack.difficulty),
+                                    const SizedBox(width: 4),
+                                    ProgressChip(pct),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemCount: _suggestions.length,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TrainingRecommendationScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text('Показать все рекомендации'),
+                    ),
+                  )
+                ],
+              ),
+            ),
           draftWidget,
           SwitchListTile(
             title: const Text('Скрыть завершённые'),
