@@ -24,6 +24,7 @@ class ReadyToTrainScreen extends StatefulWidget {
 class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = true;
+  final Map<String, int> _progress = {};
 
   void _applyPinned() {
     final service = context.read<PinnedPackService>();
@@ -45,8 +46,9 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   Future<void> _load() async {
     final builtIn = TrainingPackTemplateService.getAllTemplates(context);
     final top = await TrainingPackService.createTopMistakeDrill(context);
-    final community =
-        await TrainingPackService.createDrillFromGlobalMistakes(context);
+    final community = await TrainingPackService.createDrillFromGlobalMistakes(
+      context,
+    );
     SavedHand? last = context
         .read<SavedHandManagerService>()
         .hands
@@ -66,8 +68,9 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
         : null;
     final prefs = await SharedPreferences.getInstance();
     final list = [
-      ...builtIn
-          .where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false)),
+      ...builtIn.where(
+        (t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false),
+      ),
       if (top != null && !(prefs.getBool('completed_tpl_${top.id}') ?? false))
         top,
       if (community != null &&
@@ -77,6 +80,11 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
           !(prefs.getBool('completed_tpl_${similar.id}') ?? false))
         similar,
     ];
+    final prog = <String, int>{};
+    for (final t in list) {
+      final p = prefs.getInt('progress_tpl_${t.id}');
+      if (p != null) prog[t.id] = p;
+    }
     if (!mounted) return;
     if (list.isEmpty) {
       Navigator.pushReplacement(
@@ -89,6 +97,9 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
       _templates
         ..clear()
         ..addAll(list);
+      _progress
+        ..clear()
+        ..addAll(prog);
       _applyPinned();
       _loading = false;
     });
@@ -137,7 +148,11 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   for (final t in _templates)
-                    TrainingPackCard(template: t, onTap: () => _start(t)),
+                    TrainingPackCard(
+                      template: t,
+                      onTap: () => _start(t),
+                      progress: _progress[t.id],
+                    ),
                 ],
               ),
             ),
