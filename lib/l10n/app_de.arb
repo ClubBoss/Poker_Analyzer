@@ -96,4 +96,6 @@
   ,"packsShown": "Shown {count} packs"
   ,"noResults": "No results"
   ,"resetFilters": "Reset filters"
+  ,"sortLabel": "Sortierung:"
+  ,"sortPopular": "Beliebt zuerst"
 }

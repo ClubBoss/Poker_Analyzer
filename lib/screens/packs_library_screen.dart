@@ -7,6 +7,8 @@ import 'package:collection/collection.dart';
 import '../services/training_pack_asset_loader.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/session_log.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../services/template_storage_service.dart';
@@ -70,6 +72,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   bool _groupByTag = false;
   final Set<String> _mistakePacks = {};
   _SortMode _sortMode = _SortMode.name;
+  String _sortOrder = 'newest';
+  Map<String, int> _playCounts = {};
   static const _PrefsKey = 'pack_library_state';
 
   @override
@@ -78,6 +82,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     _restoreState().then((_) {
       _loaded = true;
       _load();
+      _loadPlayCounts();
     });
   }
 
@@ -122,25 +127,20 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       return diffOk && textOk && statusOk && posOk && stackOk && tagOk;
     }).toList();
     res.sort((a, b) {
-      switch (_sortMode) {
-        case _SortMode.name:
-          return a.name.compareTo(b.name);
-        case _SortMode.newest:
+      switch (_sortOrder) {
+        case 'popular':
+          final pa = _playCounts[a.id] ?? 0;
+          final pb = _playCounts[b.id] ?? 0;
+          final r = pb.compareTo(pa);
+          if (r != 0) return r;
           return b.createdAt.compareTo(a.createdAt);
-        case _SortMode.progress:
-          final pa = a.spots.isEmpty
-              ? 0
-              : (a.evCovered + a.icmCovered) / a.spots.length;
-          final pb = b.spots.isEmpty
-              ? 0
-              : (b.evCovered + b.icmCovered) / b.spots.length;
-          final cmp = pb.compareTo(pa);
-          return cmp != 0 ? cmp : a.name.compareTo(b.name);
-        case _SortMode.favorite:
-          final fa = fav.isFavorite(a.id);
-          final fb = fav.isFavorite(b.id);
-          if (fa != fb) return fa ? -1 : 1;
-          return a.name.compareTo(b.name);
+        case 'mostSpots':
+          final r = b.spots.length.compareTo(a.spots.length);
+          if (r != 0) return r;
+          return b.createdAt.compareTo(a.createdAt);
+        case 'newest':
+        default:
+          return b.createdAt.compareTo(a.createdAt);
       }
     });
     return res;
@@ -173,6 +173,20 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     }
   }
 
+  Future<void> _loadPlayCounts() async {
+    if (!Hive.isBoxOpen('session_logs')) {
+      await Hive.initFlutter();
+      await Hive.openBox('session_logs');
+    }
+    final box = Hive.box('session_logs');
+    final counts = <String, int>{};
+    for (final v in box.values.whereType<Map>()) {
+      final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
+      counts.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
+    }
+    if (mounted) setState(() => _playCounts = counts);
+  }
+
   Future<void> _restoreState() async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString(_PrefsKey);
@@ -199,6 +213,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         if (sort != null && sort >= 0 && sort < _SortMode.values.length) {
           _sortMode = _SortMode.values[sort];
         }
+        _sortOrder = json['order'] as String? ?? 'newest';
       });
     } catch (_) {}
   }
@@ -214,6 +229,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       'tags': _selectedTags.toList(),
       'groupTag': _groupByTag,
       'sort': _sortMode.index,
+      'order': _sortOrder,
     });
     await prefs.setString(_PrefsKey, json);
   }
@@ -990,6 +1006,30 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                               value: _groupByTag,
                               onChanged: (v) {
                                 setState(() => _groupByTag = v);
+                                _saveState();
+                              },
+                            ),
+                            const SizedBox(width: 16),
+                            Text(AppLocalizations.of(context)!.sortLabel),
+                            const SizedBox(width: 4),
+                            DropdownButton<String>(
+                              value: _sortOrder,
+                              dropdownColor: AppColors.cardBackground,
+                              style: const TextStyle(color: Colors.white),
+                              items: [
+                                DropdownMenuItem(
+                                    value: 'newest',
+                                    child: Text(l.sortNewest)),
+                                DropdownMenuItem(
+                                    value: 'popular',
+                                    child: Text(l.sortPopular)),
+                                DropdownMenuItem(
+                                    value: 'mostSpots',
+                                    child: Text(l.sortMostHands)),
+                              ],
+                              onChanged: (v) {
+                                if (v == null) return;
+                                setState(() => _sortOrder = v);
                                 _saveState();
                               },
                             ),
