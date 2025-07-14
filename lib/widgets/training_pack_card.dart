@@ -42,6 +42,11 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
     await prefs.remove('last_accuracy_tpl_${widget.template.id}_1');
     await prefs.remove('last_accuracy_tpl_${widget.template.id}_2');
     if (mounted) {
+      setState(() {
+        _passed = false;
+        _accuracy = null;
+        _completedAt = null;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Прогресс сброшен')),
       );
