@@ -15,14 +15,30 @@ class TrainingPackAssetLoader {
     _packs.clear();
     final manifestRaw = await rootBundle.loadString('AssetManifest.json');
     final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
-    final paths = manifest.keys.where((e) {
+    final List<String> paths = manifest.keys.where((e) {
       final ok = e.startsWith('assets/packs/') ||
           e.startsWith('assets/training_templates/');
       return ok && (e.endsWith('.yaml') || e.endsWith('.json'));
-    });
+    }).toList();
+    const libPath = 'assets/training_packs/training_pack_library.json';
+    if (manifest.containsKey(libPath)) paths.add(libPath);
     for (final p in paths) {
       try {
         final str = await rootBundle.loadString(p);
+        if (p.endsWith('training_pack_library.json')) {
+          final list = jsonDecode(str);
+          if (list is List) {
+            for (final item in list) {
+              if (item is Map) {
+                final tpl = TrainingPackTemplate.fromJson(
+                    Map<String, dynamic>.from(item as Map));
+                final issues = validateTrainingPackTemplate(tpl);
+                if (issues.isEmpty) _packs.add(tpl);
+              }
+            }
+          }
+          continue;
+        }
         Map<String, dynamic> map;
         if (p.endsWith('.yaml')) {
           map = jsonDecode(jsonEncode(loadYaml(str))) as Map<String, dynamic>;
