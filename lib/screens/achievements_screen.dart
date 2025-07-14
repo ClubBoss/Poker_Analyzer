@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/achievement_service.dart';
 import '../models/achievement_info.dart';
 import '../widgets/sync_status_widget.dart';
+import '../widgets/xp_progress_card.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
@@ -25,6 +26,7 @@ class AchievementsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          const XPProgressCard(),
           for (final entry in grouped.entries)
             ExpansionTile(
               initiallyExpanded: true,
