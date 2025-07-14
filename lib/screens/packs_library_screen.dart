@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -74,6 +75,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   _SortMode _sortMode = _SortMode.name;
   String _sortOrder = 'newest';
   Map<String, int> _playCounts = {};
+  Map<String, int> _trainedHands = {};
   static const _PrefsKey = 'pack_library_state';
 
   @override
@@ -180,11 +182,19 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     }
     final box = Hive.box('session_logs');
     final counts = <String, int>{};
+    final hands = <String, int>{};
     for (final v in box.values.whereType<Map>()) {
       final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
       counts.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
+      final total = log.correctCount + log.mistakeCount;
+      hands.update(log.templateId, (c) => c + total, ifAbsent: () => total);
     }
-    if (mounted) setState(() => _playCounts = counts);
+    if (mounted) {
+      setState(() {
+        _playCounts = counts;
+        _trainedHands = hands;
+      });
+    }
   }
 
   Future<void> _restoreState() async {
@@ -356,6 +366,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     final isNew =
         DateTime.now().difference(t.createdAt).inDays < 3;
     final total = t.spots.length;
+    final trained = _trainedHands[t.id] ?? 0;
+    final done = trained.clamp(0, total);
+    final ratio = total == 0 ? 0.0 : done / total;
     final evDone =
         t.spots.where((s) => s.heroEv != null && !s.dirty).length;
     final icmDone =
@@ -464,6 +477,25 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                             const VisualDensity(horizontal: -4, vertical: -4),
                       ),
                   ],
+                ),
+              ),
+            ),
+          if (total > 0)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '${done} / $total (${(ratio * 100).round()}%)',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.white,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
                 ),
               ),
             ),
