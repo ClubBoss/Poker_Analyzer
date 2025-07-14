@@ -30,6 +30,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   late bool _pinned;
   String? _completedAt;
   double? _accuracy;
+  bool _passed = false;
 
   Future<void> _resetProgress() async {
     final prefs = await SharedPreferences.getInstance();
@@ -37,6 +38,9 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
     await prefs.remove('completed_tpl_${widget.template.id}');
     await prefs.remove('completed_at_tpl_${widget.template.id}');
     await prefs.remove('last_accuracy_tpl_${widget.template.id}');
+    await prefs.remove('last_accuracy_tpl_${widget.template.id}_0');
+    await prefs.remove('last_accuracy_tpl_${widget.template.id}_1');
+    await prefs.remove('last_accuracy_tpl_${widget.template.id}_2');
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Прогресс сброшен')),
@@ -57,10 +61,15 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
     final ts = DateTime.tryParse(
         prefs.getString('completed_at_tpl_${widget.template.id}') ?? '');
     final acc = prefs.getDouble('last_accuracy_tpl_${widget.template.id}');
+    final a0 = prefs.getDouble('last_accuracy_tpl_${widget.template.id}_0');
+    final a1 = prefs.getDouble('last_accuracy_tpl_${widget.template.id}_1');
+    final a2 = prefs.getDouble('last_accuracy_tpl_${widget.template.id}_2');
     if (mounted) {
       setState(() {
         if (ts != null) _completedAt = formatLongDate(ts);
         if (acc != null) _accuracy = acc;
+        _passed = a0 != null && a1 != null && a2 != null &&
+            a0 >= 80 && a1 >= 80 && a2 >= 80;
       });
     }
   }
@@ -175,6 +184,22 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
             ),
           ],
             ),
+            if (_passed)
+              Positioned(
+                right: 4,
+                top: 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    '✅ Completed',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ),
             if (widget.dimmed && (_completedAt != null || _accuracy != null))
               Positioned(
                 bottom: 4,
