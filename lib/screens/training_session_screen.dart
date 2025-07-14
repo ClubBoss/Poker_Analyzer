@@ -106,7 +106,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final tpl = service.template;
     if (tpl != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('progress_tpl_${tpl.id}', service.session?.index ?? 0);
+      if (next == null) {
+        await prefs.remove('progress_tpl_${tpl.id}');
+      } else {
+        await prefs.setInt('progress_tpl_${tpl.id}', service.session?.index ?? 0);
+      }
     }
     if (!mounted) return;
     if (next == null) {
