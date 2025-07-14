@@ -20,6 +20,7 @@ import 'mixed_drill_history_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import '../widgets/weekly_drill_stats_card.dart';
 import '../widgets/xp_progress_card.dart';
+import '../widgets/training_library_header_card.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_session_service.dart';
 import 'training_recommendation_screen.dart';
@@ -291,6 +292,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const TrainingLibraryHeaderCard(),
               const WeeklyDrillStatsCard(),
               const XPProgressCard(),
               const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
@@ -338,6 +340,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       ),
       body: Column(
         children: [
+          const TrainingLibraryHeaderCard(),
           const WeeklyDrillStatsCard(),
           const XPProgressCard(),
           if (_suggestions.isNotEmpty)
