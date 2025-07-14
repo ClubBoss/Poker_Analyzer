@@ -95,6 +95,10 @@ import 'package:collection/collection.dart';
 import 'helpers/training_pack_storage.dart';
 import 'screens/v2/training_pack_play_screen.dart';
 import 'core/error_logger.dart';
+import 'services/pinned_pack_service.dart';
+import 'services/training_pack_template_service.dart';
+import 'services/training_pack_stats_service.dart';
+import 'screens/training_session_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -237,9 +241,30 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     unawaited(NotificationService.scheduleDailyProgress(context));
     NotificationService.startRecommendedPackTask(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeStartPinnedTraining();
       _maybeResumeTraining();
       _maybeShowIntroTutorial();
     });
+  }
+
+  Future<void> _maybeStartPinnedTraining() async {
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+    final templates = TrainingPackTemplateService.getAllTemplates(ctx);
+    final service = ctx.read<PinnedPackService>();
+    final pinned = templates.firstWhereOrNull((t) => service.isPinned(t.id));
+    if (pinned == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final completed = prefs.getBool('completed_tpl_${pinned.id}') ?? false;
+    final stat = await TrainingPackStatsService.getStats(pinned.id);
+    final idx = stat?.lastIndex ?? 0;
+    if (completed && idx >= pinned.spots.length - 1) return;
+    await ctx.read<TrainingSessionService>().startSession(pinned);
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      ctx,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
   }
 
   @override
