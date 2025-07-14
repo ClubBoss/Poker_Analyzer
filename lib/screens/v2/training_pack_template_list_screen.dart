@@ -78,6 +78,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsFavoritesKey = 'tpl_favorites';
   static const _prefsStackKey = 'tpl_stack_filter';
   static const _prefsPosKey = 'tpl_pos_filter';
+  static const _prefsDifficultyKey = 'tpl_diff_filter';
   static const _stackRanges = ['0-9', '10-15', '16-25', '26+'];
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
@@ -116,6 +117,7 @@ class _TrainingPackTemplateListScreenState
   bool _autoEvalQueued = false;
   String? _stackFilter;
   HeroPosition? _posFilter;
+  String? _difficultyFilter;
 
   Future<void> refreshFromStorage() async {
     final list = await TrainingPackStorage.load();
@@ -469,6 +471,11 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadDifficultyFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) setState(() => _difficultyFilter = prefs.getString(_prefsDifficultyKey));
+  }
+
   Future<void> _setPosFilter(HeroPosition? value) async {
     setState(() => _posFilter = value);
     final prefs = await SharedPreferences.getInstance();
@@ -476,6 +483,16 @@ class _TrainingPackTemplateListScreenState
       await prefs.remove(_prefsPosKey);
     } else {
       await prefs.setString(_prefsPosKey, value.name);
+    }
+  }
+
+  Future<void> _setDifficultyFilter(String? value) async {
+    setState(() => _difficultyFilter = value);
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_prefsDifficultyKey);
+    } else {
+      await prefs.setString(_prefsDifficultyKey, value);
     }
   }
 
@@ -642,10 +659,18 @@ class _TrainingPackTemplateListScreenState
     final posFiltered = _posFilter == null
         ? stackFiltered
         : [for (final t in stackFiltered) if (t.heroPos == _posFilter) t];
-    final evalFiltered = !_showNeedsEvalOnly
+    final diffFiltered = _difficultyFilter == null
         ? posFiltered
         : [
             for (final t in posFiltered)
+              if (t.difficulty == _difficultyFilter ||
+                  t.tags.contains(_difficultyFilter!))
+                t
+          ];
+    final evalFiltered = !_showNeedsEvalOnly
+        ? diffFiltered
+        : [
+            for (final t in diffFiltered)
               if (t.evCovered < t.spots.length ||
                   t.icmCovered < t.spots.length)
                 t
@@ -1349,6 +1374,7 @@ class _TrainingPackTemplateListScreenState
       _loadFavorites();
       _loadStackFilter();
       _loadPosFilter();
+      _loadDifficultyFilter();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -2412,6 +2438,13 @@ class _TrainingPackTemplateListScreenState
                 selected: _icmOnly,
                 onSelected: (_) => setState(() => _icmOnly = !_icmOnly),
               ),
+              for (final d in ['Beginner', 'Intermediate', 'Advanced'])
+                ChoiceChip(
+                  label: Text(d),
+                  selected: _difficultyFilter == d,
+                  onSelected: (_) => _setDifficultyFilter(
+                      _difficultyFilter == d ? null : d),
+                ),
               DropdownButton<String>(
                 value: _stackFilter ?? 'any',
                 dropdownColor: Colors.grey[900],
@@ -2464,9 +2497,17 @@ class _TrainingPackTemplateListScreenState
     final icmFiltered = !_icmOnly
         ? filtered
         : [for (final t in filtered) if (_isIcmTemplate(t)) t];
+    final diffFiltered = _difficultyFilter == null
+        ? icmFiltered
+        : [
+            for (final t in icmFiltered)
+              if (t.difficulty == _difficultyFilter ||
+                  t.tags.contains(_difficultyFilter!))
+                t
+          ];
     final completed = _completedOnly
-        ? [for (final t in icmFiltered) if (t.goalAchieved) t]
-        : icmFiltered;
+        ? [for (final t in diffFiltered) if (t.goalAchieved) t]
+        : diffFiltered;
     final visible = _hideCompleted
         ? [
             for (final t in completed)
@@ -2572,9 +2613,17 @@ class _TrainingPackTemplateListScreenState
     final filtered = _selectedTag == null
         ? byType
         : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
+    final diffFiltered = _difficultyFilter == null
+        ? filtered
+        : [
+            for (final t in filtered)
+              if (t.difficulty == _difficultyFilter ||
+                  t.tags.contains(_difficultyFilter!))
+                t
+          ];
     final completed = _completedOnly
-        ? [for (final t in filtered) if (t.goalAchieved) t]
-        : filtered;
+        ? [for (final t in diffFiltered) if (t.goalAchieved) t]
+        : diffFiltered;
     final visible = _hideCompleted
         ? [
             for (final t in completed)
@@ -3054,6 +3103,13 @@ class _TrainingPackTemplateListScreenState
                           onSelected: (_) =>
                               setState(() => _icmOnly = !_icmOnly),
                         ),
+                        for (final d in ['Beginner', 'Intermediate', 'Advanced'])
+                          ChoiceChip(
+                            label: Text(d),
+                            selected: _difficultyFilter == d,
+                            onSelected: (_) => _setDifficultyFilter(
+                                _difficultyFilter == d ? null : d),
+                          ),
                         DropdownButton<String>(
                           value: _stackFilter ?? 'any',
                           dropdownColor: Colors.grey[900],
