@@ -394,6 +394,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   Widget _buildPackTile(TrainingPackTemplate t) {
     final isNew =
         DateTime.now().difference(t.createdAt).inDays < 3;
+    final isUpdated = t.updatedDate != null &&
+        DateTime.now().difference(t.updatedDate!).inDays < 3;
     final total = t.spots.length;
     final trained = _trainedHands[t.id] ?? 0;
     final done = trained.clamp(0, total);
@@ -416,7 +418,18 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         children: [
           Row(
             children: [
-              Expanded(child: Text(t.name)),
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(t.name),
+                    if (isUpdated)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text('🆕', style: TextStyle(fontSize: 12)),
+                      ),
+                  ],
+                ),
+              ),
               if (rating != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
