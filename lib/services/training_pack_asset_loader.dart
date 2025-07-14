@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:yaml/yaml.dart';
 
 import '../models/v2/training_pack_template.dart';
+import '../models/v2/hero_position.dart';
 import '../helpers/training_pack_validator.dart';
 
 class TrainingPackAssetLoader {
@@ -11,8 +12,22 @@ class TrainingPackAssetLoader {
 
   final List<TrainingPackTemplate> _packs = [];
 
+  bool _validMeta(TrainingPackTemplate t, Set<String> ids) {
+    if (t.spots.isEmpty) return false;
+    if (t.spotCount != t.spots.length) return false;
+    if (t.heroPos == HeroPosition.unknown) return false;
+    if (t.playerStacksBb.isEmpty || t.playerStacksBb.any((v) => v <= 0)) {
+      return false;
+    }
+    if (t.name.trim().isEmpty) return false;
+    if (ids.contains(t.id)) return false;
+    ids.add(t.id);
+    return true;
+  }
+
   Future<void> loadAll() async {
     _packs.clear();
+    final ids = <String>{};
     final manifestRaw = await rootBundle.loadString('AssetManifest.json');
     final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
     final List<String> paths = manifest.keys.where((e) {
@@ -32,6 +47,7 @@ class TrainingPackAssetLoader {
               if (item is Map) {
                 final tpl = TrainingPackTemplate.fromJson(
                     Map<String, dynamic>.from(item as Map));
+                if (!_validMeta(tpl, ids)) continue;
                 final issues = validateTrainingPackTemplate(tpl);
                 if (issues.isEmpty) _packs.add(tpl);
               }
@@ -48,6 +64,7 @@ class TrainingPackAssetLoader {
           map = Map<String, dynamic>.from(json);
         }
         final tpl = TrainingPackTemplate.fromJson(map);
+        if (!_validMeta(tpl, ids)) continue;
         final issues = validateTrainingPackTemplate(tpl);
         if (issues.isEmpty) _packs.add(tpl);
       } catch (_) {}
