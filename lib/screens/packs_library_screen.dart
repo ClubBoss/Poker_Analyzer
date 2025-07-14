@@ -28,7 +28,7 @@ import 'all_tags_screen.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
 
-enum _SortMode { name, newest, progress, favorite }
+enum _SortMode { name, newest, progress, favorite, rating }
 
 extension _StackRangeExt on _StackRange {
   String get label {
@@ -130,6 +130,12 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       return diffOk && textOk && statusOk && posOk && stackOk && tagOk;
     }).toList();
     res.sort((a, b) {
+      if (_sortMode == _SortMode.rating) {
+        final ra = _ratings[a.id] ?? 0.0;
+        final rb = _ratings[b.id] ?? 0.0;
+        final r = rb.compareTo(ra);
+        if (r != 0) return r;
+      }
       switch (_sortOrder) {
         case 'popular':
           final pa = _playCounts[a.id] ?? 0;
@@ -895,6 +901,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                               value: _SortMode.progress, child: Text(l.sortProgress)),
                           PopupMenuItem(
                               value: _SortMode.favorite, child: Text(l.favorites)),
+                          PopupMenuItem(
+                              value: _SortMode.rating,
+                              child: Text(l.sortRating)),
                         ],
                       ),
                     ],
