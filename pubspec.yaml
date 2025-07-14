@@ -89,6 +89,8 @@ flutter:
     - assets/cards/card_back.png
     - assets/spots/spots.json
     - assets/training_packs/
+    - assets/training_packs/pushfold_btn_15bb.json
+    - assets/training_packs/pushfold_sb_15bb.json
     - assets/training_templates/
     - assets/ranges/sb_10bb.json
     - assets/ranges/btn_15bb.json
