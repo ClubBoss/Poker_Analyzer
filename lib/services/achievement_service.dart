@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/achievement_info.dart';
 import '../models/simple_achievement.dart';
 import '../widgets/achievement_unlocked_overlay.dart';
 import '../services/training_stats_service.dart';
@@ -122,4 +123,15 @@ class AchievementService extends ChangeNotifier {
     final avg = evs.reduce((a, b) => a + b) / evs.length;
     if (avg > 0.15) _unlock('ev_015');
   }
+  List<AchievementInfo> allAchievements() {
+    final unlocked = {for (final a in _achievements) a.id: a.unlocked};
+    return [
+      AchievementInfo(id: "first_pack", title: "Первый пак завершён", description: "Завершите первую тренировку", icon: Icons.flag, progress: stats.sessionsCompleted > 0 ? 1 : 0, target: 1, category: "Volume"),
+      AchievementInfo(id: "hands_100", title: "100 рук сыграно", description: "Разберите 100 сыгранных рук", icon: Icons.pan_tool_alt, progress: stats.handsReviewed, target: 100, category: "Volume"),
+      AchievementInfo(id: "streak_7", title: "7 дней подряд", description: "Тренируйтесь 7 дней подряд", icon: Icons.local_fire_department, progress: streak.streak.value, target: 7, category: "Streaks"),
+      AchievementInfo(id: "error_free_3", title: "Без ошибок 3 дня", description: "Три дня без ошибок подряд", icon: Icons.check_circle, progress: streak.errorFreeStreak, target: 3, category: "Streaks"),
+      AchievementInfo(id: "ev_015", title: "EV-мастер", description: "Средний EV > 0.15 в сессии", icon: Icons.trending_up, progress: unlocked["ev_015"] == true ? 1 : 0, target: 1, category: "Accuracy"),
+    ];
+  }
+
 }

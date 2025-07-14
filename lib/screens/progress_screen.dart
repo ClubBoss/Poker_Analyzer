@@ -860,7 +860,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             onPressed: _exportChartsPdf,
           ),
           IconButton(
-            icon: const Text('🏆', style: TextStyle(fontSize: 20)),
+              icon: const Icon(Icons.emoji_events),
             tooltip: 'Достижения',
             onPressed: () {
               Navigator.push(
