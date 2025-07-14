@@ -10,10 +10,10 @@ import 'package:flutter/rendering.dart';
 import '../widgets/combined_progress_bar.dart';
 import '../widgets/combined_progress_change_bar.dart';
 import '../widgets/ev_icm_history_chart.dart';
+import '../widgets/ev_icm_improvement_row.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_session.dart';
-import '../models/v2/hero_position.dart';
 import '../services/training_session_service.dart';
 import '../services/adaptive_training_service.dart';
 import '../services/weak_spot_recommendation_service.dart';
@@ -175,6 +175,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
             ),
             const SizedBox(height: 12),
             const EvIcmHistoryChart(),
+            const EvIcmImprovementRow(),
             const SizedBox(height: 16),
             Builder(
               builder: (context) {
