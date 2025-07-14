@@ -156,3 +156,12 @@ class TrainingPackSpot {
     explanation,
   );
 }
+
+extension TrainingPackSpotCategory on TrainingPackSpot {
+  String? get mistakeCategory {
+    for (final t in tags) {
+      if (t.startsWith('cat:')) return t.substring(4);
+    }
+    return null;
+  }
+}
