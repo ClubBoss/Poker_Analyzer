@@ -410,7 +410,10 @@ class TrainingSessionService extends ChangeNotifier {
     return _session;
   }
 
-  Future<void> complete(BuildContext context) async {
+  Future<void> complete(
+    BuildContext context, {
+    WidgetBuilder? resultBuilder,
+  }) async {
     if (_session == null || _template == null) return;
     final ids = [
       for (final e in _session!.results.entries)
@@ -434,12 +437,13 @@ class TrainingSessionService extends ChangeNotifier {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingSessionSummaryScreen(
-          session: _session!,
-          template: _template!,
-          preEvPct: _preEvPct,
-          preIcmPct: _preIcmPct,
-        ),
+        builder: resultBuilder ??
+            (_) => TrainingSessionSummaryScreen(
+                  session: _session!,
+                  template: _template!,
+                  preEvPct: _preEvPct,
+                  preIcmPct: _preIcmPct,
+                ),
       ),
     );
   }

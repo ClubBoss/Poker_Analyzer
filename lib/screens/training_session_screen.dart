@@ -11,6 +11,7 @@ import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_session.dart';
+import 'pack_stats_screen.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -179,7 +180,6 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     if (tpl != null) {
       final correct = service.correctCount;
       final total = service.totalCount;
-      final acc = total == 0 ? 0.0 : correct / total;
       final totalSpots = tpl.spots.length;
       final evAfter = totalSpots == 0 ? 0.0 : tpl.evCovered * 100 / totalSpots;
       final icmAfter =
@@ -203,8 +203,16 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       if (cloud != null) {
         unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
       }
+      await service.complete(
+        context,
+        resultBuilder: (_) => PackStatsScreen(
+          templateId: tpl.id,
+          correct: correct,
+          total: total,
+          completedAt: DateTime.now(),
+        ),
+      );
     }
-    await service.complete(context);
   }
 
   void _showEndlessSummary() {
