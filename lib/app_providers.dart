@@ -69,6 +69,7 @@ import 'services/training_session_service.dart';
 import 'services/session_manager.dart';
 import 'services/session_log_service.dart';
 import 'services/suggested_pack_service.dart';
+import 'services/smart_suggestion_service.dart';
 import 'services/evaluation_executor_service.dart';
 import 'services/session_analysis_service.dart';
 import 'services/user_action_logger.dart';
@@ -369,6 +370,11 @@ List<SingleChildWidget> buildTrainingProviders() {
               logs: context.read<SessionLogService>(),
               hands: context.read<SavedHandManagerService>(),
             )..load(),
+          ),
+          Provider(
+            create: (context) => SmartSuggestionService(
+              storage: context.read<TrainingPackStorageService>(),
+            ),
           ),
   ];
 }
