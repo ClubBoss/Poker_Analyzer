@@ -18,6 +18,7 @@ import 'create_pack_screen.dart';
 import 'mixed_drill_history_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import '../widgets/weekly_drill_stats_card.dart';
+import '../widgets/xp_progress_card.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_session_service.dart';
 import 'training_session_screen.dart';
@@ -274,6 +275,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const WeeklyDrillStatsCard(),
+              const XPProgressCard(),
               const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
               const SizedBox(height: 24),
               draftWidget,
@@ -320,6 +322,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       body: Column(
         children: [
           const WeeklyDrillStatsCard(),
+          const XPProgressCard(),
           draftWidget,
           SwitchListTile(
             title: const Text('Скрыть завершённые'),
