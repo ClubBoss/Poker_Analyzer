@@ -14,19 +14,27 @@ class EvIcmHistoryChart extends StatelessWidget {
     final service = context.watch<ProgressForecastService>();
     final ev = service.evSeries;
     final icm = service.icmSeries;
-    final dates = {...ev.map((e) => e.key), ...icm.map((e) => e.key)}.toList()
+    final acc = service.accuracySeries;
+    final dates = {
+      ...ev.map((e) => e.key),
+      ...icm.map((e) => e.key),
+      ...acc.map((e) => e.key)
+    }.toList()
       ..sort();
     if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};
+    final accMap = {for (final e in acc) e.key: e.value};
     final spotsEv = <FlSpot>[];
     final spotsIcm = <FlSpot>[];
+    final spotsAcc = <FlSpot>[];
     double minY = 0;
     double maxY = 0;
     for (var i = 0; i < dates.length; i++) {
       final d = dates[i];
       final evv = evMap[d];
       final icmv = icmMap[d];
+      final accv = accMap[d];
       if (evv != null) {
         spotsEv.add(FlSpot(i.toDouble(), evv));
         if (evv < minY) minY = evv;
@@ -36,6 +44,11 @@ class EvIcmHistoryChart extends StatelessWidget {
         spotsIcm.add(FlSpot(i.toDouble(), icmv));
         if (icmv < minY) minY = icmv;
         if (icmv > maxY) maxY = icmv;
+      }
+      if (accv != null) {
+        spotsAcc.add(FlSpot(i.toDouble(), accv));
+        if (accv < minY) minY = accv;
+        if (accv > maxY) maxY = accv;
       }
     }
     if (minY == maxY) {
@@ -113,6 +126,13 @@ class EvIcmHistoryChart extends StatelessWidget {
             LineChartBarData(
               spots: spotsIcm,
               color: AppColors.icmPre,
+              barWidth: 2,
+              isCurved: false,
+              dotData: FlDotData(show: false),
+            ),
+            LineChartBarData(
+              spots: spotsAcc,
+              color: AppColors.accent,
               barWidth: 2,
               isCurved: false,
               dotData: FlDotData(show: false),
