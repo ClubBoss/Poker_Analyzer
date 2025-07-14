@@ -188,7 +188,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
   EvaluationResult evaluateSpot(
       BuildContext context, TrainingSpot spot, String userAction) {
     final expectedAction = spot.recommendedAction ??
-        _evaluatePushFold(spot) ??
+        (spot.actionType == SpotActionType.callPush
+            ? _evaluateCallPush(spot)
+            : _evaluatePushFold(spot)) ??
         _heroAction(spot) ??
         '-';
     final normExpected = expectedAction.trim().toLowerCase();
@@ -200,6 +202,35 @@ class EvaluationExecutorService implements EvaluationExecutor {
             : 0.5;
     final userEquity =
         correct ? expectedEquity : (expectedEquity - 0.1).clamp(0.0, 1.0);
+    double? ev;
+    double? icmEv;
+    if (spot.actionType == SpotActionType.callPush) {
+      final heroStack = spot.heroStack ??
+          (spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0);
+      final villainStack = spot.villainStack ??
+          (spot.stacks.length > 1 ? spot.stacks[spot.heroIndex == 0 ? 1 : 0] : 0);
+      if (spot.playerCards.length > spot.heroIndex &&
+          spot.playerCards[spot.heroIndex].length >= 2) {
+        final cards = spot.playerCards[spot.heroIndex];
+        final code = handCode(
+            '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+        if (code != null) {
+          ev = computeCallEV(
+            heroBbStack: heroStack,
+            villainBbStack: villainStack,
+            heroHand: code,
+            anteBb: spot.anteBb,
+          );
+          final stacks = [heroStack, villainStack];
+          icmEv = computeIcmPushEV(
+            chipStacksBb: stacks,
+            heroIndex: 0,
+            heroHand: code,
+            chipPushEv: ev,
+          );
+        }
+      }
+    }
     String? hint;
     if (!correct) {
       for (final t in spot.tags) {
@@ -217,6 +248,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
       expectedAction: expectedAction,
       userEquity: userEquity,
       expectedEquity: expectedEquity,
+      ev: ev,
+      icmEv: icmEv,
       hint: hint,
     );
 
@@ -268,6 +301,27 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final threshold = kPushFoldThresholds[code];
     if (threshold != null && stack <= threshold) return 'push';
     return 'fold';
+  }
+
+  String? _evaluateCallPush(TrainingSpot spot) {
+    if (spot.boardCards.isNotEmpty) return null;
+    if (spot.playerCards.length <= spot.heroIndex) return null;
+    final cards = spot.playerCards[spot.heroIndex];
+    if (cards.length < 2) return null;
+    final heroStack = spot.heroStack ??
+        (spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0);
+    final villainStack = spot.villainStack ??
+        (spot.stacks.length > 1 ? spot.stacks[spot.heroIndex == 0 ? 1 : 0] : 0);
+    final code = handCode(
+        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+    if (code == null) return null;
+    final ev = computeCallEV(
+      heroBbStack: heroStack,
+      villainBbStack: villainStack,
+      heroHand: code,
+      anteBb: spot.anteBb,
+    );
+    return ev >= 0 ? 'call' : 'fold';
   }
 
   /// Generates a summary for a list of saved hands.

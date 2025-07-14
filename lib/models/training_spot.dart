@@ -3,6 +3,8 @@ import 'card_model.dart';
 import 'player_model.dart';
 import 'saved_hand.dart';
 
+enum SpotActionType { pushFold, callPush }
+
 class TrainingSpot {
   final List<List<CardModel>> playerCards;
   final List<CardModel> boardCards;
@@ -36,6 +38,12 @@ class TrainingSpot {
   final String? actionHistory;
   final String? recommendedAction;
   final int? recommendedAmount;
+  final SpotActionType actionType;
+  final String? heroPosition;
+  final String? villainPosition;
+  final int? heroStack;
+  final int? villainStack;
+  final double? expectedValue;
   final DateTime createdAt;
 
   TrainingSpot({
@@ -63,6 +71,12 @@ class TrainingSpot {
     this.actionHistory,
     this.recommendedAction,
     this.recommendedAmount,
+    this.actionType = SpotActionType.pushFold,
+    this.heroPosition,
+    this.villainPosition,
+    this.heroStack,
+    this.villainStack,
+    this.expectedValue,
     this.difficulty = 3,
     this.rating = 0,
     DateTime? createdAt,
@@ -105,6 +119,11 @@ class TrainingSpot {
       difficulty: 3,
       rating: hand.rating,
       createdAt: hand.date,
+      heroPosition: hand.heroPosition,
+      heroStack: hand.stackSizes[hand.heroIndex],
+      villainStack: hand.stackSizes[hand.heroIndex == 0 ? 1 : 0],
+      villainPosition: hand.playerPositions[hand.heroIndex == 0 ? 1 : 0] ?? '',
+      actionType: SpotActionType.pushFold,
     );
   }
 
@@ -153,6 +172,12 @@ class TrainingSpot {
         if (actionHistory != null) 'actionHistory': actionHistory,
         if (recommendedAction != null) 'recommendedAction': recommendedAction,
         if (recommendedAmount != null) 'recommendedAmount': recommendedAmount,
+        'actionType': actionType.name,
+        if (heroPosition != null) 'heroPosition': heroPosition,
+        if (villainPosition != null) 'villainPosition': villainPosition,
+        if (heroStack != null) 'heroStack': heroStack,
+        if (villainStack != null) 'villainStack': villainStack,
+        if (expectedValue != null) 'expectedValue': expectedValue,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -265,6 +290,15 @@ class TrainingSpot {
       actionHistory: json['actionHistory'] as String?,
       recommendedAction: json['recommendedAction'] as String?,
       recommendedAmount: (json['recommendedAmount'] as num?)?.toInt(),
+      actionType: SpotActionType.values.firstWhere(
+        (e) => e.name == json['actionType'],
+        orElse: () => SpotActionType.pushFold,
+      ),
+      heroPosition: json['heroPosition'] as String?,
+      villainPosition: json['villainPosition'] as String?,
+      heroStack: (json['heroStack'] as num?)?.toInt(),
+      villainStack: (json['villainStack'] as num?)?.toInt(),
+      expectedValue: (json['expectedValue'] as num?)?.toDouble(),
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
     );
@@ -280,6 +314,12 @@ class TrainingSpot {
     String? actionHistory,
     String? recommendedAction,
     int? recommendedAmount,
+    SpotActionType? actionType,
+    String? heroPosition,
+    String? villainPosition,
+    int? heroStack,
+    int? villainStack,
+    double? expectedValue,
     List<String>? strategyAdvice,
     List<double>? equities,
     List<List<double>>? rangeMatrix,
@@ -313,6 +353,12 @@ class TrainingSpot {
       actionHistory: actionHistory ?? this.actionHistory,
       recommendedAction: recommendedAction ?? this.recommendedAction,
       recommendedAmount: recommendedAmount ?? this.recommendedAmount,
+      actionType: actionType ?? this.actionType,
+      heroPosition: heroPosition ?? this.heroPosition,
+      villainPosition: villainPosition ?? this.villainPosition,
+      heroStack: heroStack ?? this.heroStack,
+      villainStack: villainStack ?? this.villainStack,
+      expectedValue: expectedValue ?? this.expectedValue,
       createdAt: createdAt ?? this.createdAt,
     );
   }
