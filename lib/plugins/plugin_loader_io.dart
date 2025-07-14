@@ -30,6 +30,7 @@ import 'poker_stars_converter_plugin.dart';
 import 'gg_poker_converter_plugin.dart';
 import 'ipoker_converter_plugin.dart';
 import 'partypoker_converter_plugin.dart';
+import '../../plugins/LocalEvPlugin.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -95,6 +96,7 @@ class PluginLoader {
     return <Plugin>[
       SampleLoggingPlugin(),
       ConverterDiscoveryPlugin(converters),
+      LocalEvPlugin(),
     ];
   }
 
@@ -122,6 +124,8 @@ class PluginLoader {
         return PartyPokerConverterPlugin();
       case 'IpokerConverterPlugin':
         return IpokerConverterPlugin();
+      case 'LocalEvPlugin':
+        return LocalEvPlugin();
     }
     return null;
   }
