@@ -9,6 +9,7 @@ import '../models/saved_hand.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
 import 'package:collection/collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReadyToTrainScreen extends StatefulWidget {
   const ReadyToTrainScreen({super.key});
@@ -60,16 +61,23 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     final similar = last != null
         ? await TrainingPackService.createSimilarMistakeDrill(last)
         : null;
+    final prefs = await SharedPreferences.getInstance();
+    final list = [
+      ...builtIn.where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false)),
+      if (top != null && !(prefs.getBool('completed_tpl_${top.id}') ?? false))
+        top,
+      if (community != null &&
+          !(prefs.getBool('completed_tpl_${community.id}') ?? false))
+        community,
+      if (similar != null &&
+          !(prefs.getBool('completed_tpl_${similar.id}') ?? false))
+        similar,
+    ];
     if (!mounted) return;
     setState(() {
       _templates
         ..clear()
-        ..addAll(builtIn)
-        ..addAll([
-          if (top != null) top,
-          if (community != null) community,
-          if (similar != null) similar
-        ]);
+        ..addAll(list);
       _applyPinned();
       _loading = false;
     });
