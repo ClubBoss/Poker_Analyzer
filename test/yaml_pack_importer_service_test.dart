@@ -6,5 +6,6 @@ void main() {
     final service = YamlPackImporterService();
     final list = await service.loadFromYaml('pack_templates.yaml');
     expect(list, isNotEmpty);
+    expect(list.first.tags, isNotEmpty);
   });
 }

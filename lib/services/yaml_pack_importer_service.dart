@@ -9,6 +9,7 @@ class YamlPackTemplate {
   final List<int> stacks;
   final String action;
   final bool icm;
+  final List<String> tags;
   YamlPackTemplate({
     required this.name,
     required this.hero,
@@ -16,7 +17,8 @@ class YamlPackTemplate {
     required this.stacks,
     required this.action,
     required this.icm,
-  });
+    List<String>? tags,
+  }) : tags = tags ?? const [];
 }
 
 class YamlPackImporterService {
@@ -32,6 +34,9 @@ class YamlPackImporterService {
         for (final v in (item['stacks'] as YamlList? ?? const []))
           (v as num).toInt(),
       ];
+      final tags = <String>[
+        for (final v in (item['tags'] as YamlList? ?? const [])) v.toString()
+      ];
       list.add(
         YamlPackTemplate(
           name: item['name'].toString(),
@@ -40,6 +45,7 @@ class YamlPackImporterService {
           stacks: stacks,
           action: item['action'].toString(),
           icm: item['icm'] == true,
+          tags: tags,
         ),
       );
     }
