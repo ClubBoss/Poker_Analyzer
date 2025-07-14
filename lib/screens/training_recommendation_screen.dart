@@ -1,17 +1,14 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/personal_recommendation_service.dart';
-import '../services/adaptive_training_service.dart';
+
+import '../models/training_pack.dart';
+import '../services/goals_service.dart';
 import '../services/mistake_review_pack_service.dart';
-import '../services/training_pack_stats_service.dart';
-import '../services/training_session_service.dart';
-import '../services/dynamic_pack_adjustment_service.dart';
-import '../models/v2/training_pack_template.dart';
-import 'training_template_detail_screen.dart';
-import 'training_session_screen.dart';
-import '../widgets/progress_forecast_card.dart';
-import '../widgets/player_style_card.dart';
+import '../services/smart_suggestion_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/difficulty_chip.dart';
+import '../widgets/progress_chip.dart';
+import 'training_pack_screen.dart';
 
 class TrainingRecommendationScreen extends StatefulWidget {
   const TrainingRecommendationScreen({super.key});
@@ -21,190 +18,122 @@ class TrainingRecommendationScreen extends StatefulWidget {
 }
 
 class _TrainingRecommendationScreenState extends State<TrainingRecommendationScreen> {
-  final Map<String, TrainingPackStat?> _stats = {};
-  final Map<String, double?> _delta = {};
-  late PersonalRecommendationService _service;
-  late VoidCallback _listener;
+  Map<String, List<TrainingPack>> _data = {};
   bool _loading = true;
-  List<TrainingPackTemplate> _tpls = [];
-  List<RecommendationTask> _tasks = [];
 
   @override
   void initState() {
     super.initState();
-    _service = context.read<PersonalRecommendationService>();
-    _listener = () => unawaited(_update());
-    _service.addListener(_listener);
-    _refresh();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
-  @override
-  void dispose() {
-    _service.removeListener(_listener);
-    super.dispose();
-  }
-
-  Future<void> _refresh() async {
-    await context.read<AdaptiveTrainingService>().refresh();
-  }
-
-  Future<void> _update() async {
-    final list = _service.packs.toList();
-    final tasks = _service.tasks;
-    final review = await MistakeReviewPackService.latestTemplate(context);
-    if (review != null) list.insert(0, review);
-    final adjust = context.read<DynamicPackAdjustmentService>();
-    final stats = <String, TrainingPackStat?>{};
-    final delta = <String, double?>{};
-    final adjusted = <TrainingPackTemplate>[];
-    for (final t in list) {
-      stats[t.id] =
-          context.read<AdaptiveTrainingService>().statFor(t.id) ??
-              await TrainingPackStatsService.getStats(t.id);
-      final hist = await TrainingPackStatsService.history(t.id);
-      if (hist.length >= 2) {
-        delta[t.id] =
-            (hist.last.accuracy - hist[hist.length - 2].accuracy) * 100;
-      }
-      adjusted.add(await adjust.adjust(t));
-    }
-    if (!mounted) return;
+  void _load() {
+    final service = context.read<SmartSuggestionService>();
+    final goals = context.read<GoalsService>();
+    final mistakes = context.read<MistakeReviewPackService>();
     setState(() {
-      _tpls = adjusted;
-      _tasks = tasks;
-      _stats
-        ..clear()
-        ..addAll(stats);
-      _delta
-        ..clear()
-        ..addAll(delta);
+      _data = service.getExtendedSuggestions(goals, mistakes);
       _loading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final sections = {
+      'almost': 'Почти завершены',
+      'stale': 'Давно не открывали',
+      'goal': 'По вашей цели',
+      'mistakes': 'Ошибки в похожих',
+    };
     return Scaffold(
       appBar: AppBar(title: const Text('Рекомендации')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final tpl = await context
-              .read<AdaptiveTrainingService>()
-              .buildAdaptivePack();
-          await context.read<TrainingSessionService>().startSession(tpl);
-          if (context.mounted) {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-            );
-          }
-        },
-        child: const Icon(Icons.auto_mode),
-      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const ProgressForecastCard(),
-                const PlayerStyleCard(),
-                if (_tpls.isEmpty && _tasks.isEmpty)
-                  const Center(child: Text('Нет рекомендаций'))
-                else ...[
-                  ..._tasks.map((t) => _TaskTile(task: t)),
-                  ..._tpls.map((tpl) {
-                    final stat = _stats[tpl.id];
-                    final acc = (stat?.accuracy ?? 0) * 100;
-                    final ev = stat?.postEvPct ?? 0;
-                    final icm = stat?.postIcmPct ?? 0;
-                    final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
-                    final focus = tpl.handTypeSummary();
-                    final rangePct = ((tpl.heroRange?.length ?? 0) * 100 / 169).round();
-                    final missCount =
-                        context.read<MistakeReviewPackService>().mistakeCount(tpl.id);
-                    final delta = _delta[tpl.id];
-                    final diff = tpl.difficultyLevel;
-                    return Card(
-                      color: Colors.grey[850],
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        title: Text(tpl.name, style: const TextStyle(color: Colors.white)),
-                        subtitle: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'LVL $diff • ${acc.toStringAsFixed(1)}% • EV ${ev.toStringAsFixed(1)}% • ICM ${icm.toStringAsFixed(1)}%'
-                                ' • ${tpl.heroBbStack}bb • R $rangePct%'
-                                '${missCount > 0 ? ' • $missCount ошиб.' : ''}${focus.isNotEmpty ? ' • $focus' : ''}',
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                            ),
-                            if (delta != null) ...[
-                              Icon(delta >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
-                                  size: 14, color: delta >= 0 ? Colors.green : Colors.red),
-                              const SizedBox(width: 2),
-                              Text('${delta.abs().toStringAsFixed(1)}%',
-                                  style: TextStyle(
-                                      color: delta >= 0 ? Colors.green : Colors.red,
-                                      fontSize: 12)),
-                            ]
-                          ],
+          : _data.values.every((e) => e.isEmpty)
+              ? const Center(child: Text('Нет рекомендаций'))
+              : ListView(
+                  children: [
+                    for (final key in sections.keys)
+                      if (_data[key]?.isNotEmpty ?? false)
+                        _Section(
+                          title: sections[key]!,
+                          packs: _data[key]!,
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(children: [for (var i = 0; i < rating; i++) const Icon(Icons.star, color: Colors.amber, size: 16)]),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.chevron_right, color: Colors.greenAccent),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => TrainingTemplateDetailScreen(
-                                template: tpl,
-                                stat: stat,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  })
-                ]
-              ],
-            ),
+                  ],
+                ),
     );
   }
 }
 
-class _TaskTile extends StatelessWidget {
-  final RecommendationTask task;
-  const _TaskTile({required this.task});
+class _Section extends StatelessWidget {
+  final String title;
+  final List<TrainingPack> packs;
+  const _Section({required this.title, required this.packs});
 
   @override
   Widget build(BuildContext context) {
-    final accent = Theme.of(context).colorScheme.secondary;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(task.icon, color: accent),
-          const SizedBox(width: 12),
-          Expanded(
-              child: Text(task.title,
-                  style: const TextStyle(color: Colors.white))),
-          Text('Еще ${task.remaining}',
-              style: const TextStyle(color: Colors.white70))
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 112,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: packs.length,
+              itemBuilder: (_, i) => _PackCard(pack: packs[i]),
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
+class _PackCard extends StatelessWidget {
+  final TrainingPack pack;
+  const _PackCard({required this.pack});
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = pack.pctComplete;
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: pack)),
+        );
+      },
+      child: Container(
+        width: 180,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(pack.name, style: const TextStyle(color: Colors.white)),
+            const Spacer(),
+            Row(
+              children: [
+                DifficultyChip(pack.difficulty),
+                const SizedBox(width: 4),
+                ProgressChip(pct),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
