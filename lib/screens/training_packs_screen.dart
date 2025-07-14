@@ -15,6 +15,7 @@ import 'training_pack_screen.dart';
 import '../helpers/training_onboarding.dart';
 import 'training_pack_comparison_screen.dart';
 import 'create_pack_screen.dart';
+import 'mixed_drill_history_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_session_service.dart';
@@ -52,6 +53,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg ?? 'Пак импортирован')),
+    );
+  }
+
+  void _openHistory() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DrillHistoryScreen()),
     );
   }
 
@@ -148,7 +156,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
-          actions: [SyncStatusIcon.of(context)],
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.analytics),
+              onPressed: _openHistory,
+            ),
+            SyncStatusIcon.of(context)
+          ],
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -246,7 +260,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
-          actions: [SyncStatusIcon.of(context)],
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.analytics),
+              onPressed: _openHistory,
+            ),
+            SyncStatusIcon.of(context)
+          ],
         ),
         body: Center(
           child: Column(
@@ -287,7 +307,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Тренировочные споты'),
-        actions: [SyncStatusIcon.of(context)],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: _openHistory,
+          ),
+          SyncStatusIcon.of(context)
+        ],
       ),
       body: Column(
         children: [
