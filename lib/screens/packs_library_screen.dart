@@ -65,7 +65,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<String> _statusFilters = {};
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
-  String? _selectedTag;
+  final Set<String> _selectedTags = {};
   bool _groupByTag = false;
   final Set<String> _mistakePacks = {};
   _SortMode _sortMode = _SortMode.name;
@@ -116,7 +116,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           }
         }
       }
-      final tagOk = _selectedTag == null || p.tags.contains(_selectedTag);
+      final tagOk =
+          _selectedTags.isEmpty || p.tags.any(_selectedTags.contains);
       return diffOk && textOk && statusOk && posOk && stackOk && tagOk;
     }).toList();
     res.sort((a, b) {
@@ -189,7 +190,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         _stackFilters
           ..clear()
           ..addAll([for (final i in json['stack'] as List? ?? []) _StackRange.values[i as int]]);
-        _selectedTag = json['tag'] as String?;
+        _selectedTags
+          ..clear()
+          ..addAll([for (final t in json['tags'] as List? ?? []) t as String]);
         _groupByTag = json['groupTag'] as bool? ?? false;
         final sort = json['sort'] as int?;
         if (sort != null && sort >= 0 && sort < _SortMode.values.length) {
@@ -207,7 +210,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       'status': _statusFilters.toList(),
       'pos': [for (final p in _posFilters) p.name],
       'stack': [for (final r in _stackFilters) r.index],
-      'tag': _selectedTag,
+      'tags': _selectedTags.toList(),
       'groupTag': _groupByTag,
       'sort': _sortMode.index,
     });
@@ -831,24 +834,34 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: DropdownButton<String>(
-                            value: _selectedTag ?? 'All',
-                            dropdownColor: Colors.grey[900],
-                            items: [
-                              const DropdownMenuItem(
-                                  value: 'All', child: Text('All')),
-                              for (final tag in {
-                                ...{
-                                  for (final p in _packs) ...p.tags
-                                }
-                              }.toList()..sort())
-                                DropdownMenuItem(value: tag, child: Text(tag)),
-                            ],
-                            onChanged: (v) {
-                              setState(() =>
-                                  _selectedTag = v == 'All' ? null : v);
-                              _saveState();
-                            },
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                for (final tag in {
+                                  ...{
+                                    for (final p in _packs) ...p.tags
+                                  }
+                                }.toList()..sort())
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: FilterChip(
+                                      label: Text(tag),
+                                      selected: _selectedTags.contains(tag),
+                                      onSelected: (_) {
+                                        setState(() {
+                                          if (_selectedTags.contains(tag)) {
+                                            _selectedTags.remove(tag);
+                                          } else {
+                                            _selectedTags.add(tag);
+                                          }
+                                        });
+                                        _saveState();
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
