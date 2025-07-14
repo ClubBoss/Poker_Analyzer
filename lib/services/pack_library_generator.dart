@@ -4,6 +4,7 @@ import 'dart:io';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import 'spot_template_engine.dart';
+import 'yaml_pack_importer_service.dart';
 
 class PackLibraryGenerator {
   final SpotTemplateEngine engine;
@@ -52,6 +53,23 @@ class PackLibraryGenerator {
           }
         }
       }
+    }
+  }
+
+  Future<void> generateFromYaml(String path) async {
+    final importer = YamlPackImporterService();
+    final list = await importer.loadFromYaml(path);
+    _packs.clear();
+    for (final t in list) {
+      final tpl = await engine.generate(
+        heroPosition: t.hero,
+        villainPosition: t.villain,
+        stackRange: t.stacks,
+        actionType: t.action,
+        withIcm: t.icm,
+        name: t.name,
+      );
+      _packs.add(tpl);
     }
   }
 

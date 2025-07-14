@@ -1,0 +1,20 @@
+- name: 'Call vs Push — BB vs SB (10–15 BB, ICM)'
+  hero: BB
+  villain: SB
+  stacks: [10, 15]
+  action: callPush
+  icm: true
+
+- name: 'Push vs Fold — SB vs BB (10–15 BB)'
+  hero: SB
+  villain: BB
+  stacks: [10, 15]
+  action: push
+  icm: false
+
+- name: 'Minraise/Fold vs Push — BTN vs BB (20 BB, ICM)'
+  hero: BTN
+  villain: BB
+  stacks: [20]
+  action: minraiseFold
+  icm: true
