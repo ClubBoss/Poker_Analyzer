@@ -82,6 +82,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsStackKey = 'tpl_stack_filter';
   static const _prefsPosKey = 'tpl_pos_filter';
   static const _prefsDifficultyKey = 'tpl_diff_filter';
+  static const _prefsStreetKey = 'tpl_street_filter';
   static const _stackRanges = ['0-9', '10-15', '16-25', '26+'];
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
@@ -121,6 +122,7 @@ class _TrainingPackTemplateListScreenState
   String? _stackFilter;
   HeroPosition? _posFilter;
   String? _difficultyFilter;
+  String? _streetFilter;
 
   Future<void> _loadSort() async {
     final prefs = await SharedPreferences.getInstance();
@@ -524,6 +526,21 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadStreetFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) setState(() => _streetFilter = prefs.getString(_prefsStreetKey));
+  }
+
+  Future<void> _setStreetFilter(String? value) async {
+    setState(() => _streetFilter = value);
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_prefsStreetKey);
+    } else {
+      await prefs.setString(_prefsStreetKey, value);
+    }
+  }
+
   bool _matchStack(int stack) {
     final r = _stackFilter;
     if (r == null) return true;
@@ -703,10 +720,13 @@ class _TrainingPackTemplateListScreenState
                   t.tags.contains(_difficultyFilter!))
                 t
           ];
-    final evalFiltered = !_showNeedsEvalOnly
+    final streetFiltered = _streetFilter == null
         ? diffFiltered
+        : [for (final t in diffFiltered) if (t.targetStreet == _streetFilter) t];
+    final evalFiltered = !_showNeedsEvalOnly
+        ? streetFiltered
         : [
-            for (final t in diffFiltered)
+            for (final t in streetFiltered)
               if (t.evCovered < t.spots.length ||
                   t.icmCovered < t.spots.length)
                 t
@@ -1423,6 +1443,7 @@ class _TrainingPackTemplateListScreenState
       _loadStackFilter();
       _loadPosFilter();
       _loadDifficultyFilter();
+      _loadStreetFilter();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -2494,6 +2515,19 @@ class _TrainingPackTemplateListScreenState
                       _difficultyFilter == d ? null : d),
                 ),
               DropdownButton<String>(
+                value: _streetFilter ?? 'any',
+                dropdownColor: Colors.grey[900],
+                hint: const Text('All Streets'),
+                onChanged: (v) => _setStreetFilter(v == 'any' ? null : v),
+                items: const [
+                  DropdownMenuItem(value: 'any', child: Text('All Streets')),
+                  DropdownMenuItem(value: 'preflop', child: Text('Preflop')),
+                  DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                  DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                  DropdownMenuItem(value: 'river', child: Text('River')),
+                ],
+              ),
+              DropdownButton<String>(
                 value: _stackFilter ?? 'any',
                 dropdownColor: Colors.grey[900],
                 hint: const Text('Any Stack'),
@@ -2553,9 +2587,12 @@ class _TrainingPackTemplateListScreenState
                   t.tags.contains(_difficultyFilter!))
                 t
           ];
+    final streetFiltered = _streetFilter == null
+        ? diffFiltered
+        : [for (final t in diffFiltered) if (t.targetStreet == _streetFilter) t];
     final completed = _completedOnly
-        ? [for (final t in diffFiltered) if (t.goalAchieved) t]
-        : diffFiltered;
+        ? [for (final t in streetFiltered) if (t.goalAchieved) t]
+        : streetFiltered;
     final visible = _hideCompleted
         ? [
             for (final t in completed)
@@ -3160,6 +3197,23 @@ class _TrainingPackTemplateListScreenState
                             onSelected: (_) => _setDifficultyFilter(
                                 _difficultyFilter == d ? null : d),
                           ),
+                        DropdownButton<String>(
+                          value: _streetFilter ?? 'any',
+                          dropdownColor: Colors.grey[900],
+                          hint: const Text('All Streets'),
+                          onChanged: (v) =>
+                              _setStreetFilter(v == 'any' ? null : v),
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'any', child: Text('All Streets')),
+                            DropdownMenuItem(
+                                value: 'preflop', child: Text('Preflop')),
+                            DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                            DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                            DropdownMenuItem(
+                                value: 'river', child: Text('River')),
+                          ],
+                        ),
                         DropdownButton<String>(
                           value: _stackFilter ?? 'any',
                           dropdownColor: Colors.grey[900],
