@@ -1292,9 +1292,14 @@ class _TrainingPackTemplateListScreenState
                   )
                 : Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child:
-                        Text(l.noContent, style: const TextStyle(color: Colors.white54)),
+                    child: Text(l.noContent, style: const TextStyle(color: Colors.white54)),
                   ),
+            if (!_showNeedsEvalOnly &&
+                (t.evCovered < t.spots.length || t.icmCovered < t.spots.length))
+              const Tooltip(
+                message: 'Some spots are missing EV/ICM analysis',
+                child: Icon(Icons.auto_fix_high, color: Colors.redAccent, size: 16),
+              ),
             IconButton(
               icon: const Icon(Icons.auto_fix_high),
               tooltip: l.generateSpots,
