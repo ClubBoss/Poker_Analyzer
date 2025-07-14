@@ -63,6 +63,7 @@ import 'services/daily_focus_recap_service.dart';
 import 'services/feedback_service.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
+import 'services/weekly_drill_stats_service.dart';
 import 'services/training_pack_play_controller.dart';
 import 'services/training_session_service.dart';
 import 'services/session_manager.dart';
@@ -344,6 +345,11 @@ List<SingleChildWidget> buildTrainingProviders() {
           ChangeNotifierProvider(create: (_) => DrillHistoryService()..load()),
           ChangeNotifierProvider(
             create: (_) => MixedDrillHistoryService()..load(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => WeeklyDrillStatsService(
+              history: context.read<MixedDrillHistoryService>(),
+            )..load(),
           ),
           Provider(create: (_) => const HandAnalyzerService()),
           ChangeNotifierProvider(
