@@ -431,6 +431,26 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                     ),
                   ),
                 ],
+                const SizedBox(height: 16),
+                Builder(
+                  builder: (context) => ElevatedButton(
+                    onPressed: () async {
+                      final tpl = await MistakeReviewPackService.latestTemplate(
+                          context);
+                      if (tpl == null) return;
+                      await context
+                          .read<TrainingSessionService>()
+                          .startSession(tpl, persist: false);
+                      if (!context.mounted) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    },
+                    child: const Text('Train Mistakes'),
+                  ),
+                ),
               ],
             ),
     );
