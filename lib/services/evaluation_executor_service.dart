@@ -33,6 +33,8 @@ import '../utils/template_coverage_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../services/evaluation_logic_service.dart';
 import 'evaluation_settings_service.dart';
+import '../app_bootstrap.dart';
+import '../../plugins/LocalEvPlugin.dart';
 import '../models/evaluation_mode.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
@@ -400,34 +402,40 @@ class EvaluationExecutorService implements EvaluationExecutor {
         await const RemoteEvService().evaluateIcm(spot, anteBb: anteBb);
       } catch (_) {}
     } else {
-      final hero = spot.hand.heroIndex;
-      final code = handCode(spot.hand.heroCards);
-      if (code != null) {
-        final stacks = [
-          for (var i = 0; i < spot.hand.playerCount; i++)
-            spot.hand.stacks['$i']?.round() ?? 0
-        ];
-        final callers = [
-          for (final a in spot.hand.actions[0] ?? [])
-            if (a.playerIndex != hero && a.action == 'call') a.playerIndex
-        ];
-        final res = await compute(
-          _computeEv,
-          {
-            'stacks': stacks,
-            'hero': hero,
-            'hand': code,
-            'ante': anteBb,
-            'payouts': settings.payouts,
-            'callers': callers,
-          },
-        );
-        final acts = spot.hand.actions[0] ?? [];
-        for (final a in acts) {
-          if (a.playerIndex == hero && a.action == 'push') {
-            a.ev = res['ev'] as double;
-            a.icmEv = res['icm'] as double;
-            break;
+      try {
+        await AppBootstrap.registry
+            .get<LocalEvService>()
+            .evaluateIcm(spot, anteBb: anteBb);
+      } catch (_) {
+        final hero = spot.hand.heroIndex;
+        final code = handCode(spot.hand.heroCards);
+        if (code != null) {
+          final stacks = [
+            for (var i = 0; i < spot.hand.playerCount; i++)
+              spot.hand.stacks['$i']?.round() ?? 0
+          ];
+          final callers = [
+            for (final a in spot.hand.actions[0] ?? [])
+              if (a.playerIndex != hero && a.action == 'call') a.playerIndex
+          ];
+          final res = await compute(
+            _computeEv,
+            {
+              'stacks': stacks,
+              'hero': hero,
+              'hand': code,
+              'ante': anteBb,
+              'payouts': settings.payouts,
+              'callers': callers,
+            },
+          );
+          final acts = spot.hand.actions[0] ?? [];
+          for (final a in acts) {
+            if (a.playerIndex == hero && a.action == 'push') {
+              a.ev = res['ev'] as double;
+              a.icmEv = res['icm'] as double;
+              break;
+            }
           }
         }
       }
