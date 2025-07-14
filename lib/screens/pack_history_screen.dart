@@ -26,18 +26,32 @@ class _PackHistoryScreenState extends State<PackHistoryScreen> {
   }
 
   Future<void> _load() async {
-    final templates = TrainingPackTemplateService.getAllTemplates(context);
-    final prefs = await SharedPreferences.getInstance();
-    final list = [
-      for (final t in templates)
-        if (prefs.getBool('completed_tpl_${t.id}') ?? false) t
-    ];
+    final list = await _fetchTemplates();
     if (!mounted) return;
     setState(() {
       _templates
         ..clear()
         ..addAll(list);
       _loading = false;
+    });
+  }
+
+  Future<List<TrainingPackTemplate>> _fetchTemplates() async {
+    final templates = TrainingPackTemplateService.getAllTemplates(context);
+    final prefs = await SharedPreferences.getInstance();
+    return [
+      for (final t in templates)
+        if (prefs.getBool('completed_tpl_${t.id}') ?? false) t
+    ];
+  }
+
+  Future<void> _refreshAfterReset() async {
+    final list = await _fetchTemplates();
+    if (!mounted) return;
+    setState(() {
+      _templates
+        ..clear()
+        ..addAll(list);
     });
   }
 
@@ -71,7 +85,7 @@ class _PackHistoryScreenState extends State<PackHistoryScreen> {
                         TrainingPackCard(
                           template: t,
                           onTap: () => _start(t),
-                          onRefresh: _load,
+                          onRefresh: _refreshAfterReset,
                         ),
                     ],
                   ),
