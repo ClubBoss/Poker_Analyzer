@@ -203,4 +203,33 @@ packs:
     expect(list.length, 1);
     expect(list.first.gameType, GameType.cash);
   });
+
+  test('parse applies defaultDescription', () {
+    const yaml = '''
+defaultDescription: Generated
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.first.description, 'Generated');
+  });
+
+  test('local description overrides defaultDescription', () {
+    const yaml = '''
+defaultDescription: Generated
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    description: Local
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.first.description, 'Local');
+  });
 }

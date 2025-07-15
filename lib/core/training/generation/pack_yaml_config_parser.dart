@@ -11,11 +11,12 @@ class PackYamlConfig {
 class PackYamlConfigParser {
   final YamlReader reader;
   const PackYamlConfigParser({YamlReader? yamlReader})
-    : reader = yamlReader ?? const YamlReader();
+      : reader = yamlReader ?? const YamlReader();
 
   PackYamlConfig parse(String yamlSource) {
     final map = reader.read(yamlSource);
     final rangeTags = map['defaultRangeTags'] == true;
+    final defaultDescription = map['defaultDescription']?.toString() ?? '';
     final defaultTags = <String>[
       for (final t in (map['defaultTags'] as List? ?? const [])) t.toString(),
     ];
@@ -38,7 +39,10 @@ class PackYamlConfigParser {
                 p.toString(),
             ],
             title: item['title']?.toString() ?? '',
-            description: item['description']?.toString() ?? '',
+            description: () {
+              final desc = item['description']?.toString() ?? '';
+              return desc.isNotEmpty ? desc : defaultDescription;
+            }(),
             tags: () {
               final local = item['tags'] as List?;
               final tags = local == null || local.isEmpty
@@ -49,8 +53,8 @@ class PackYamlConfigParser {
             count: (item.containsKey('rangeGroup') || defaultRangeGroup != null)
                 ? (item['count'] as num?)?.toInt() ?? (defaultCount ?? 25)
                 : item.containsKey('count')
-                ? (item['count'] as num?)?.toInt() ?? 25
-                : (defaultCount ?? 25),
+                    ? (item['count'] as num?)?.toInt() ?? 25
+                    : (defaultCount ?? 25),
             rangeGroup: item['rangeGroup']?.toString() ?? defaultRangeGroup,
             multiplePositions: item.containsKey('multiplePositions')
                 ? item['multiplePositions'] == true
