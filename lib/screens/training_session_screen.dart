@@ -200,6 +200,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       await prefs.setBool('completed_tpl_${tpl.id}', true);
       await prefs.setString(
           'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
+      await prefs.setString(
+          'last_trained_tpl_${tpl.id}', DateTime.now().toIso8601String());
       await prefs.setDouble('last_accuracy_tpl_${tpl.id}', acc);
       for (var i = 2; i > 0; i--) {
         final prev = prefs.getDouble('last_accuracy_tpl_${tpl.id}_${i - 1}');

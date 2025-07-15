@@ -63,6 +63,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _sortKey = 'lib_sort';
   static const _favKey = 'fav_tpl_ids';
   static const _needsPracticeKey = 'lib_needs_practice';
+  static const _needsRepetitionKey = 'lib_needs_repetition';
   static const _favOnlyKey = 'lib_fav_only';
   static const _recentOnlyKey = 'lib_recent_only';
   static const _inProgressKey = 'lib_in_progress';
@@ -101,6 +102,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _needsPractice = false;
   bool _loadingNeedsPractice = false;
   final Set<String> _needsPracticeIds = {};
+  bool _needsRepetition = false;
+  bool _loadingNeedsRepetition = false;
+  final Set<String> _needsRepetitionIds = {};
   final Set<String> _favorites = {};
   final Set<String> _pinned = {};
   bool _favoritesOnly = false;
@@ -184,6 +188,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..clear()
         ..addAll(prefs.getStringList(_favKey) ?? []);
       _needsPractice = prefs.getBool(_needsPracticeKey) ?? false;
+      _needsRepetition = prefs.getBool(_needsRepetitionKey) ?? false;
       _favoritesOnly = prefs.getBool(_favOnlyKey) ?? false;
       _selectedTags
         ..clear()
@@ -230,6 +235,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           cloud.save(_favKey, jsonEncode(merged)).catchError((_) {}));
     }
     if (_needsPractice) _updateNeedsPractice(true);
+    if (_needsRepetition) _updateNeedsRepetition(true);
   }
 
   Future<void> _setFilter(String value) async {
@@ -270,6 +276,37 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..clear()
         ..addAll(ids);
       _loadingNeedsPractice = false;
+    });
+  }
+
+  Future<void> _updateNeedsRepetition(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_needsRepetitionKey, value);
+    setState(() {
+      _needsRepetition = value;
+      if (!value) _needsRepetitionIds.clear();
+    });
+    if (!value) return;
+    setState(() => _loadingNeedsRepetition = true);
+    final templates = context.read<TemplateStorageService>().templates;
+    final now = DateTime.now();
+    final ids = <String>{};
+    for (final t in templates) {
+      final stat = await TrainingPackStatsService.getStats(t.id);
+      final acc = stat?.accuracy ?? 1.0;
+      if (acc >= .9) continue;
+      DateTime? last;
+      final s = prefs.getString('last_trained_tpl_${t.id}');
+      if (s != null) last = DateTime.tryParse(s);
+      last ??= stat?.last;
+      if (last != null && now.difference(last).inDays > 7) ids.add(t.id);
+    }
+    if (!mounted) return;
+    setState(() {
+      _needsRepetitionIds
+        ..clear()
+        ..addAll(ids);
+      _loadingNeedsRepetition = false;
     });
   }
 
@@ -657,6 +694,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (_needsPracticeIds.contains(t.id)) t
       ];
     }
+    if (_needsRepetition) {
+      visible = [
+        for (final t in visible)
+          if (_needsRepetitionIds.contains(t.id)) t
+      ];
+    }
     if (_favoritesOnly) {
       visible = [for (final t in visible) if (_favorites.contains(t.id)) t];
     }
@@ -988,6 +1031,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   const Icon(Icons.schedule, size: 16, color: Colors.grey),
                   const SizedBox(width: 4),
                 ],
+                if (_needsRepetitionIds.contains(t.id)) ...[
+                  const Text('⏳', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 4),
+                ],
                 Expanded(
                   child: Text(
                     t.name,
@@ -1294,6 +1341,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final filteringActive = query.isNotEmpty ||
         _filter != 'all' ||
         _needsPractice ||
+        _needsRepetition ||
         _favoritesOnly ||
         _popularOnly ||
         _recommendedOnly ||
@@ -1533,6 +1581,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 label: Text(l.needsPractice),
                 selected: _needsPractice,
                 onSelected: (v) => _updateNeedsPractice(v),
+              ),
+              ChoiceChip(
+                label: const Text('⏳ На повторение'),
+                selected: _needsRepetition,
+                onSelected: (v) => _updateNeedsRepetition(v),
               ),
               FilterChip(
                 label: Text(l.favorites),
