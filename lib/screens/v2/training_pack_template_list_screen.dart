@@ -12,6 +12,7 @@ import '../../theme/app_colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/pack_import_service.dart';
 import '../../models/v2/training_pack_template.dart';
+import '../../services/daily_spotlight_service.dart';
 import '../../models/v2/hand_data.dart';
 import '../../models/v2/hero_position.dart';
 import '../../models/v2/training_pack_spot.dart';
@@ -1064,6 +1065,8 @@ class _TrainingPackTemplateListScreenState
     final needsEval = total > 0 && (t.evCovered < total || t.icmCovered < total);
     final isNew = t.lastGeneratedAt != null &&
         DateTime.now().difference(t.lastGeneratedAt!).inHours < 48;
+    final spotlight =
+        context.watch<DailySpotlightService>().template?.id == t.id;
     final header = ListTile(
       tileColor:
           t.id == _lastOpenedId ? Theme.of(context).highlightColor : null,
@@ -1113,6 +1116,16 @@ class _TrainingPackTemplateListScreenState
               ),
             ),
           Expanded(child: Text(t.name)),
+          if (spotlight)
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Chip(
+                label: Text('🎯 Пак дня', style: TextStyle(fontSize: 12)),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                backgroundColor: Colors.amber,
+              ),
+            ),
           if (isNew)
             const Padding(
               padding: EdgeInsets.only(left: 4),

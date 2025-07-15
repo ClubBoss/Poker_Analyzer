@@ -15,6 +15,7 @@ import '../services/dynamic_pack_adjustment_service.dart';
 import '../utils/template_priority.dart';
 import 'training_session_screen.dart';
 import '../services/weak_spot_recommendation_service.dart';
+import '../services/daily_spotlight_service.dart';
 
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/spot_of_the_day_card.dart';
@@ -330,6 +331,8 @@ class _PackCard extends StatelessWidget {
         ? 'Продолжить'
         : 'Начать';
     final color = completed ? Colors.green : Colors.orange;
+    final spotlight = context.watch<DailySpotlightService>().template?.id ==
+        template.id;
     final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(
       template.id,
     );
@@ -349,6 +352,9 @@ class _PackCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (spotlight)
+            const Text('🎯 Пак дня',
+                style: TextStyle(color: Colors.amber, fontSize: 12)),
           Icon(hasMistakes ? Icons.error : Icons.shield, color: color),
           const Spacer(),
           Text(template.name, maxLines: 2, overflow: TextOverflow.ellipsis),

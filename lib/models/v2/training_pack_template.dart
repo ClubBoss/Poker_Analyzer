@@ -42,6 +42,7 @@ class TrainingPackTemplate {
   bool? isFavorite;
   bool isPinned;
   bool trending;
+  bool recommended;
 
   TrainingPackTemplate({
     required this.id,
@@ -76,6 +77,7 @@ class TrainingPackTemplate {
     this.isFavorite = false,
     this.isPinned = false,
     this.trending = false,
+    this.recommended = false,
   })  : spots = spots ?? [],
         tags = tags ?? [],
         focusTags = focusTags ?? [],
@@ -119,6 +121,7 @@ class TrainingPackTemplate {
     bool? isFavorite,
     bool? isPinned,
     bool? trending,
+    bool? recommended,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -154,6 +157,7 @@ class TrainingPackTemplate {
       isFavorite: isFavorite ?? this.isFavorite,
       isPinned: isPinned ?? this.isPinned,
       trending: trending ?? this.trending,
+      recommended: recommended ?? this.recommended,
     );
   }
 
@@ -208,6 +212,7 @@ class TrainingPackTemplate {
       isFavorite: json['isFavorite'] as bool? ?? false,
       isPinned: json['isPinned'] as bool? ?? false,
       trending: json['trending'] as bool? ?? false,
+      recommended: json['recommended'] as bool? ?? false,
     );
     if (!tpl.meta.containsKey('evCovered') ||
         !tpl.meta.containsKey('icmCovered')) {
@@ -252,6 +257,7 @@ class TrainingPackTemplate {
         if (isFavorite == true) 'isFavorite': true,
         if (isPinned) 'isPinned': true,
         if (trending) 'trending': true,
+        if (recommended) 'recommended': true,
       };
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
