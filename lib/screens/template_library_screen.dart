@@ -1091,6 +1091,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _weakCategoriesDrill() async {
+    final tpl = await TrainingPackService.createDrillFromWeakCategories(context);
+    if (tpl == null) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
@@ -2168,6 +2179,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             onPressed: _top3CategoriesDrill,
             label: const Text('Top 3 Mistakes'),
             icon: const Icon(Icons.leaderboard),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'weakCatsFab',
+            onPressed: _weakCategoriesDrill,
+            label: const Text('Собрать тренировку из слабых категорий'),
+            icon: const Icon(Icons.bolt),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
