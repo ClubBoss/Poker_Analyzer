@@ -8,6 +8,7 @@ class PackGenerationRequest {
   final String description;
   final List<String> tags;
   final int count;
+  final bool multiplePositions;
   const PackGenerationRequest({
     required this.gameType,
     required this.bb,
@@ -16,5 +17,6 @@ class PackGenerationRequest {
     this.description = '',
     List<String>? tags,
     this.count = 25,
+    this.multiplePositions = false,
   }) : tags = tags ?? const [];
 }

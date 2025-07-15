@@ -35,6 +35,7 @@ class PackYamlConfigParser {
               return List<String>.from(tags);
             }(),
             count: (item['count'] as num?)?.toInt() ?? 25,
+            multiplePositions: item['multiplePositions'] == true,
           )
     ];
   }
