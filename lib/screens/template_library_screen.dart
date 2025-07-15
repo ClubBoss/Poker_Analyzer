@@ -68,7 +68,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _needsPracticeOnlyKey = 'lib_needs_practice_only';
   static const _favOnlyKey = 'lib_fav_only';
   static const _recentOnlyKey = 'lib_recent_only';
-  static const _inProgressKey = 'lib_in_progress';
+  static const _inProgressOnlyKey = 'lib_in_progress_only';
   static const _hideCompletedKey = 'lib_hide_completed';
   static const _completedOnlyKey = 'lib_completed_only';
   static const _popularOnlyKey = 'lib_popular_only';
@@ -236,7 +236,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             prefs.getStringList(_diffKey)?.map(int.tryParse).whereType<int>() ??
                 []);
       _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
-      _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
+      _inProgressOnly = prefs.getBool(_inProgressOnlyKey) ?? false;
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
       _completedOnly = prefs.getBool(_completedOnlyKey) ?? false;
       _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
@@ -504,7 +504,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _setInProgressOnly(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_inProgressKey, value);
+    await prefs.setBool(_inProgressOnlyKey, value);
     setState(() => _inProgressOnly = value);
   }
 
@@ -898,8 +898,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (_inProgressOnly) {
       visible = [
         for (final t in visible)
-          if ((_stats[t.id]?.lastIndex ?? 0) > 0 &&
-              (_stats[t.id]?.accuracy ?? 1.0) < 1.0)
+          if (_progressPercentFor(t) > 0 && _progressPercentFor(t) < 100)
             t
       ];
     }
@@ -2117,7 +2116,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   onSelected: (v) => _setFavoritesOnly(v),
                 ),
                 ChoiceChip(
-                  label: const Text('🟡 В процессе'),
+                  label: const Text('🔁 Начатые'),
                   selected: _inProgressOnly,
                   onSelected: (v) => _setInProgressOnly(v),
                 ),
