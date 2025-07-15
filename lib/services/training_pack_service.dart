@@ -248,46 +248,21 @@ class TrainingPackService {
       byCat.putIfAbsent(cat, () => []).add(h);
     }
     if (byCat.isEmpty) return null;
-    final entry = byCat.entries
-        .reduce((a, b) => a.value.length >= b.value.length ? a : b);
+    final entries = byCat.entries.toList()
+      ..sort((a, b) {
+        final c = b.value.length.compareTo(a.value.length);
+        if (c != 0) return c;
+        final evA = a.value.fold<double>(0, (s, h) => s + (h.evLoss ?? 0));
+        final evB = b.value.fold<double>(0, (s, h) => s + (h.evLoss ?? 0));
+        return evB.compareTo(evA);
+      });
+    final entry = entries.first;
     final list = entry.value
       ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     final rng = Random();
     final count = min(list.length, 5 + rng.nextInt(4));
     final spots = [for (final h in list.take(count)) _spotFromHand(h)];
-    return TrainingPackTemplate(
-      id: const Uuid().v4(),
-      name: translateMistakeCategory(entry.key),
-      spots: spots,
-    );
-  }
-
-
-  static Future<TrainingPackTemplate?> createDrillFromWorstCategory(
-      BuildContext context) async {
-    final hands = context.read<SavedHandManagerService>().hands;
-    final byCat = <String, List<SavedHand>>{};
-    for (final h in hands) {
-      final cat = h.category;
-      final exp = h.expectedAction;
-      final gto = h.gtoAction;
-      if (cat == null || cat.isEmpty) continue;
-      if (exp == null || gto == null) continue;
-      if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
-      if (h.corrected) continue;
-      byCat.putIfAbsent(cat, () => []).add(h);
-    }
-    if (byCat.isEmpty) return null;
-    final entry = byCat.entries
-        .reduce((a, b) => a.value.length >= b.value.length ? a : b);
-    final list = entry.value
-      ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
-    final rng = Random();
-    final count = min(list.length, 5 + rng.nextInt(4));
-    final spots = [for (final h in list.take(count)) _spotFromHand(h)];
-    final title = translateCategory(entry.key).isEmpty
-        ? entry.key
-        : translateCategory(entry.key);
+    final title = 'Тренировка: ${translateMistakeCategory(entry.key)}';
     return TrainingPackTemplate(
       id: const Uuid().v4(),
       name: title,

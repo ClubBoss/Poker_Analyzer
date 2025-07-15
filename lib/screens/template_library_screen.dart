@@ -1102,6 +1102,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _worstCategoryDrill() async {
+    final tpl = await TrainingPackService.createDrillFromWorstCategory(context);
+    if (tpl == null) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
@@ -2186,6 +2197,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             onPressed: _weakCategoriesDrill,
             label: const Text('Собрать тренировку из слабых категорий'),
             icon: const Icon(Icons.bolt),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'worstCatFab',
+            onPressed: _worstCategoryDrill,
+            label: const Text('Частые ошибки (EV Loss)'),
+            icon: const Icon(Icons.error_outline),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
