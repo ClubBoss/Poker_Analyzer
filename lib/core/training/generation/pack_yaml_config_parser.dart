@@ -27,6 +27,7 @@ class PackYamlConfigParser {
     final map = reader.read(yamlSource);
     final rangeTags = map['defaultRangeTags'] == true;
     final defaultGameType = map['defaultGameType'];
+    final defaultTitle = map['defaultTitle']?.toString() ?? '';
     final defaultDescription = map['defaultDescription']?.toString() ?? '';
     final defaultTags = _readTags(map['defaultTags']);
     final defaultCount = (map['defaultCount'] as num?)?.toInt() ?? 25;
@@ -47,7 +48,10 @@ class PackYamlConfigParser {
               for (final p in (item['positions'] as List? ?? const []))
                 p.toString(),
             ],
-            title: item['title']?.toString() ?? '',
+            title: () {
+              final t = item['title']?.toString() ?? '';
+              return t.isNotEmpty ? t : defaultTitle;
+            }(),
             description: () {
               final desc = item['description']?.toString() ?? '';
               return desc.isNotEmpty ? desc : defaultDescription;
