@@ -5,6 +5,7 @@
   action: callPush
   icm: true
   tags: [callPush, icm, bbVsSb]
+  trending: true
 
 - name: 'Push vs Fold — SB vs BB (10–15 BB)'
   hero: SB
@@ -13,6 +14,7 @@
   action: push
   icm: false
   tags: [push, sbVsBb]
+  trending: true
 
 - name: 'Minraise/Fold vs Push — BTN vs BB (20 BB, ICM)'
   hero: BTN
@@ -21,3 +23,4 @@
   action: minraiseFold
   icm: true
   tags: [minraiseFold, icm, btnVsBb]
+  trending: true

@@ -70,6 +70,7 @@ class PackLibraryGenerator {
         name: t.name,
       );
       tpl.tags = [for (final tag in t.tags) if (tag.trim().isNotEmpty) tag];
+      tpl.trending = t.trending;
       _packs.add(tpl);
     }
   }

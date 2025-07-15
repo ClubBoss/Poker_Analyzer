@@ -1,15 +1,35 @@
 import '../models/training_pack.dart';
+import '../models/v2/training_pack_template.dart';
 import 'training_pack_storage_service.dart';
+import 'template_storage_service.dart';
 import 'goals_service.dart';
 import 'mistake_review_pack_service.dart';
 
 class SmartSuggestionService {
   final TrainingPackStorageService storage;
-  SmartSuggestionService({required this.storage});
+  final TemplateStorageService templates;
+  SmartSuggestionService({required this.storage, required this.templates});
 
   List<TrainingPack> getSuggestions() {
     final now = DateTime.now();
     final list = storage.packs.toList();
+    if (list.isEmpty) {
+      final tpls = templates.templates.where((t) => t.trending).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return [
+        for (final t in tpls.take(3))
+          TrainingPack(
+            name: t.name,
+            description: t.description,
+            gameType: t.gameType,
+            tags: t.tags,
+            hands: const [],
+            spots: const [],
+            difficulty: t.difficultyLevel,
+            isBuiltIn: t.isBuiltIn,
+          )
+      ];
+    }
     list.sort((a, b) {
       final ascore = (1 - a.pctComplete) * 100 + now.difference(a.lastAttemptDate).inDays;
       final bscore = (1 - b.pctComplete) * 100 + now.difference(b.lastAttemptDate).inDays;
