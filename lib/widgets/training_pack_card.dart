@@ -4,6 +4,7 @@ import '../models/v2/training_pack_template.dart';
 import '../services/pinned_pack_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/mistake_category_translations.dart';
+import 'coverage_meter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/date_utils.dart';
 import '../services/training_pack_stats_service.dart';
@@ -223,6 +224,12 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                                 ),
                             ],
                           ),
+                        ),
+                      if (widget.template.coveragePercent != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: CoverageMeter(
+                              widget.template.coveragePercent!),
                         ),
                     ],
                   ),
