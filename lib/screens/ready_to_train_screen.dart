@@ -128,6 +128,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
         context,
         MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
       );
+      if (mounted) _load();
     }
   }
 
