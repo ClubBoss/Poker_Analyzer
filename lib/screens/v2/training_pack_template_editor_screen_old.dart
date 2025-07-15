@@ -1028,6 +1028,33 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _clearTags() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Clear tags for all spots?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Clear')),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      _recordSnapshot();
+      setState(() {
+        for (final s in widget.template.spots) {
+          s.tags.clear();
+        }
+      });
+      await _persist();
+    }
+  }
+
+
   void _showSummary() {
     final spots = widget.template.spots;
     final total = spots.length;
@@ -3718,6 +3745,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             onPressed: _manageTags,
           ),
           IconButton(
+            icon: const Text('🧹'),
+            tooltip: 'Clear Tags',
+            onPressed: _clearTags,
+          ),
+          IconButton(
             icon: const Icon(Icons.delete_sweep),
             tooltip: 'Clear All Spots',
             onPressed: _clearAll,
@@ -6338,6 +6370,32 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       setState(() => widget.template.spots.clear());
       _persist();
       setState(() => _history.log('Deleted', 'all spots', ''));
+    }
+  }
+
+  Future<void> _clearTags() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Clear tags for all spots?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Clear')),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      _recordSnapshot();
+      setState(() {
+        for (final s in widget.template.spots) {
+          s.tags.clear();
+        }
+      });
+      await _persist();
     }
   }
 
@@ -9026,6 +9084,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: const Text('🏷️'),
             tooltip: 'Manage Tags',
             onPressed: _manageTags,
+          ),
+          IconButton(
+            icon: const Text('🧹'),
+            tooltip: 'Clear Tags',
+            onPressed: _clearTags,
           ),
           IconButton(
             icon: const Icon(Icons.delete_sweep),
