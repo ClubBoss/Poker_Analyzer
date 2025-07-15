@@ -13,6 +13,7 @@ class TrainingPackTemplate {
   String slug;
   String name;
   String description;
+  String category;
   GameType gameType;
   List<TrainingPackSpot> spots;
   List<String> tags;
@@ -50,6 +51,7 @@ class TrainingPackTemplate {
     this.slug = '',
     required this.name,
     this.description = '',
+    this.category = '',
     this.gameType = GameType.tournament,
     List<TrainingPackSpot>? spots,
     List<String>? tags,
@@ -95,6 +97,7 @@ class TrainingPackTemplate {
     String? slug,
     String? name,
     String? description,
+    String? category,
     GameType? gameType,
     List<TrainingPackSpot>? spots,
     List<String>? tags,
@@ -131,6 +134,7 @@ class TrainingPackTemplate {
       slug: slug ?? this.slug,
       name: name ?? this.name,
       description: description ?? this.description,
+      category: category ?? this.category,
       gameType: gameType ?? this.gameType,
       spots: spots ?? List<TrainingPackSpot>.from(this.spots),
       tags: tags ?? List<String>.from(this.tags),
@@ -171,6 +175,7 @@ class TrainingPackTemplate {
       slug: json['slug'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
+      category: json['category'] as String? ?? '',
       gameType: parseGameType(json['gameType']),
       spots: [
         for (final s in (json['spots'] as List? ?? []))
@@ -231,6 +236,7 @@ class TrainingPackTemplate {
         'slug': slug,
         'name': name,
         'description': description,
+        'category': category,
         'gameType': gameType.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
