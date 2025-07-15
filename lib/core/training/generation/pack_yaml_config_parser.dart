@@ -1,12 +1,11 @@
 import 'pack_generation_request.dart';
-import '../../../models/game_type.dart';
 import '../../../models/training_pack.dart' show parseGameType;
 import 'yaml_reader.dart';
 
 class PackYamlConfigParser {
   final YamlReader reader;
   const PackYamlConfigParser({YamlReader? yamlReader})
-    : reader = yamlReader ?? const YamlReader();
+      : reader = yamlReader ?? const YamlReader();
 
   List<PackGenerationRequest> parse(String yamlSource) {
     final map = reader.read(yamlSource);
@@ -15,6 +14,7 @@ class PackYamlConfigParser {
     ];
     final defaultCount = (map['defaultCount'] as num?)?.toInt();
     final defaultMultiplePositions = map['defaultMultiplePositions'] == true;
+    final defaultRangeGroup = map['defaultRangeGroup']?.toString();
     final list = map['packs'];
     if (list is! List) return const [];
     return [
@@ -39,10 +39,12 @@ class PackYamlConfigParser {
                   : [for (final t in local) t.toString()];
               return List<String>.from(tags);
             }(),
-            count: item.containsKey('count')
-                ? (item['count'] as num?)?.toInt() ?? 25
-                : (defaultCount ?? 25),
-            rangeGroup: item['rangeGroup']?.toString(),
+            count: (item.containsKey('rangeGroup') || defaultRangeGroup != null)
+                ? (item['count'] as num?)?.toInt() ?? (defaultCount ?? 25)
+                : item.containsKey('count')
+                    ? (item['count'] as num?)?.toInt() ?? 25
+                    : (defaultCount ?? 25),
+            rangeGroup: item['rangeGroup']?.toString() ?? defaultRangeGroup,
             multiplePositions: item.containsKey('multiplePositions')
                 ? item['multiplePositions'] == true
                 : defaultMultiplePositions,
