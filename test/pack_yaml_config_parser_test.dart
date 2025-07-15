@@ -264,6 +264,25 @@ packs:
     expect(list.first.gameType, GameType.cash);
   });
 
+  test('parse includes enabled packs', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    enabled: true
+  - gameType: cash
+    bb: 5
+    positions: [bb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.length, 2);
+    expect(list.first.gameType, GameType.tournament);
+    expect(list.last.gameType, GameType.cash);
+  });
+
   test('parse applies defaultDescription', () {
     const yaml = '''
 defaultDescription: Generated
