@@ -83,6 +83,33 @@ packs:
     expect(list.first.bb, 0);
   });
 
+  test('parse applies defaultGameType', () {
+    const yaml = '''
+defaultGameType: tournament
+packs:
+  - bb: 10
+    positions: [sb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.first.gameType, GameType.tournament);
+  });
+
+  test('local gameType overrides defaultGameType', () {
+    const yaml = '''
+defaultGameType: tournament
+packs:
+  - gameType: cash
+    bb: 5
+    positions: [bb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.first.gameType, GameType.cash);
+  });
+
   test('parse applies default count and multiple positions', () {
     const yaml = '''
 defaultCount: 5

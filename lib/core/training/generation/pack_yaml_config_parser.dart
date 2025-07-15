@@ -11,11 +11,12 @@ class PackYamlConfig {
 class PackYamlConfigParser {
   final YamlReader reader;
   const PackYamlConfigParser({YamlReader? yamlReader})
-      : reader = yamlReader ?? const YamlReader();
+    : reader = yamlReader ?? const YamlReader();
 
   PackYamlConfig parse(String yamlSource) {
     final map = reader.read(yamlSource);
     final rangeTags = map['defaultRangeTags'] == true;
+    final defaultGameType = map['defaultGameType'];
     final defaultDescription = map['defaultDescription']?.toString() ?? '';
     final defaultTags = <String>[
       for (final t in (map['defaultTags'] as List? ?? const [])) t.toString(),
@@ -29,7 +30,7 @@ class PackYamlConfigParser {
       for (final item in list)
         if (item is Map && item['enabled'] != false)
           PackGenerationRequest(
-            gameType: parseGameType(item['gameType']),
+            gameType: parseGameType(item['gameType'] ?? defaultGameType),
             bb: (item['bb'] as num?)?.toInt() ?? 0,
             bbList: item['bbList'] is List
                 ? [for (final b in item['bbList']) (b as num).toInt()]
@@ -53,8 +54,8 @@ class PackYamlConfigParser {
             count: (item.containsKey('rangeGroup') || defaultRangeGroup != null)
                 ? (item['count'] as num?)?.toInt() ?? (defaultCount ?? 25)
                 : item.containsKey('count')
-                    ? (item['count'] as num?)?.toInt() ?? 25
-                    : (defaultCount ?? 25),
+                ? (item['count'] as num?)?.toInt() ?? 25
+                : (defaultCount ?? 25),
             rangeGroup: item['rangeGroup']?.toString() ?? defaultRangeGroup,
             multiplePositions: item.containsKey('multiplePositions')
                 ? item['multiplePositions'] == true
