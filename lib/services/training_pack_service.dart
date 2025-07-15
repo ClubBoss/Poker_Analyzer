@@ -22,6 +22,8 @@ import '../main.dart';
 import 'cloud_retry_policy.dart';
 import 'cloud_sync_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'template_storage_service.dart';
+import 'training_pack_stats_service.dart';
 
 class TrainingPackService {
   const TrainingPackService._();
@@ -190,6 +192,44 @@ class TrainingPackService {
     return TrainingPackTemplate(
       id: const Uuid().v4(),
       name: 'Weakest Category Drill',
+      spots: spots,
+    );
+  }
+
+  static Future<TrainingPackTemplate?> createDrillFromWeakCategories(
+      BuildContext context) async {
+    final stats = await TrainingPackStatsService.getCategoryStats();
+    if (stats.isEmpty) return null;
+    final cats = stats.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    final selected = [for (final e in cats.take(3)) e.key];
+    final templates = context.read<TemplateStorageService>().templates;
+    final spots = <TrainingPackSpot>[];
+    final seen = <String>{};
+    final rng = Random();
+    for (final cat in selected) {
+      final list = <TrainingPackSpot>[];
+      for (final t in templates) {
+        for (final s in t.spots) {
+          final tag = 'cat:$cat';
+          if ((s.tags.contains(tag) || s.categories.contains(tag)) && seen.add(s.id)) {
+            list.add(s);
+          }
+        }
+      }
+      if (list.isEmpty) continue;
+      list.sort((a, b) {
+        final r = (b.heroEv ?? 0).compareTo(a.heroEv ?? 0);
+        return r == 0 ? b.createdAt.compareTo(a.createdAt) : r;
+      });
+      final maxCount = min(list.length, 5);
+      final count = maxCount < 3 ? maxCount : 3 + rng.nextInt(maxCount - 2);
+      spots.addAll([for (final s in list.take(count)) s.copyWith(id: const Uuid().v4())]);
+    }
+    if (spots.isEmpty) return null;
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Weak Categories Drill',
       spots: spots,
     );
   }
