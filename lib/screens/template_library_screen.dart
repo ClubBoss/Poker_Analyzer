@@ -1192,6 +1192,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _smartReviewDrill() async {
+    final tpl = await TrainingPackService.createSmartReviewDrill(context);
+    if (tpl == null) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
@@ -2367,6 +2378,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             onPressed: _repeatCorrected,
             label: const Text('Повторить исправленную'),
             icon: const Icon(Icons.repeat),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'smartReviewFab',
+            onPressed: _smartReviewDrill,
+            label: const Text('📚 Умный повтор'),
+            icon: const Icon(Icons.auto_stories),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
