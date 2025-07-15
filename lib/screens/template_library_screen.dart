@@ -144,10 +144,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await _load(prefs);
     await _autoImport(prefs);
-    await _updateRecent();
-    await _updatePopular();
-    await _loadStats();
     await _loadPlayCounts();
+    await _updatePopular();
+    await _updateRecent();
+    await _loadStats();
     await _loadWeakCategories();
     await context.read<TagCacheService>().updateFrom(
           context.read<TemplateStorageService>().templates,
@@ -519,10 +519,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _updatePopular() async {
     final templates = context.read<TemplateStorageService>().templates;
-    final popular =
-        await TrainingPackStatsService.mostPlayedTemplates(templates, 5);
+    final list = [
+      for (final t in templates)
+        if (_playCounts[t.id] != null) t
+    ]
+      ..sort((a, b) {
+        final pa = _playCounts[a.id] ?? 0;
+        final pb = _playCounts[b.id] ?? 0;
+        final r = pb.compareTo(pa);
+        return r == 0 ? a.name.compareTo(b.name) : r;
+      });
     if (!mounted) return;
-    setState(() => _popular = popular);
+    setState(() => _popular = list.take(5).toList());
   }
 
   Future<void> _loadStats() async {
@@ -1504,6 +1512,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (!t.isBuiltIn) t
     ]);
+    final popularFiltered = _applyFilters([
+      for (final t in _popular)
+        if (!_pinned.contains(t.id) && !_favorites.contains(t.id)) t
+    ]);
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Row(
@@ -1888,7 +1900,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             user.isNotEmpty ||
                             _recent.isNotEmpty ||
                             featured.isNotEmpty ||
-                            _popular.isNotEmpty)
+                            popularFiltered.length >= 3)
                           const Divider(),
                       ],
                       if (repeatList.isNotEmpty) ...[
@@ -1900,7 +1912,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             user.isNotEmpty ||
                             _recent.isNotEmpty ||
                             featured.isNotEmpty ||
-                            _popular.isNotEmpty)
+                            popularFiltered.length >= 3)
                           const Divider(),
                       ],
                       if (sortedFav.isNotEmpty) ...[
@@ -1913,6 +1925,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       ] else if (filteringActive) ...[
                         _emptyTile,
                         if (builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (popularFiltered.length >= 3) ...[
+                        ListTile(title: Text(l.popularPacks)),
+                        for (final t in popularFiltered) _item(t),
+                        if (_recent.isNotEmpty ||
+                            featured.isNotEmpty ||
+                            builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
                             user.isNotEmpty)
                           const Divider(),
@@ -1948,16 +1970,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                           categories: _weakCategories,
                           onTap: _setActiveCategory,
                         ),
-                        if (_popular.isNotEmpty ||
+                        if (popularFiltered.length >= 3 ||
                             builtInStarter.isNotEmpty ||
-                            builtInOther.isNotEmpty ||
-                            user.isNotEmpty)
-                          const Divider(),
-                      ],
-                      if (_popular.isNotEmpty) ...[
-                        ListTile(title: Text(l.popularPacks)),
-                        for (final t in _popular) _item(t),
-                        if (builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
                             user.isNotEmpty)
                           const Divider(),
