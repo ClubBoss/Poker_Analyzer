@@ -598,4 +598,83 @@ class TrainingPackService {
     await TrainingPackStorage.save(stored);
     return template;
   }
+
+  static Future<TrainingPackTemplate?> createSmartReviewDrill(
+      BuildContext context) async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final rng = Random();
+    final spots = <TrainingPackSpot>[];
+    bool bad(TrainingPackStat? s) {
+      final acc = s?.accuracy ?? 1.0;
+      final ev = s == null
+          ? 100.0
+          : (s.postEvPct > 0 ? s.postEvPct : s.preEvPct);
+      final icm = s == null
+          ? 100.0
+          : (s.postIcmPct > 0 ? s.postIcmPct : s.preIcmPct);
+      return acc < .6 || ev < 60 || icm < 60;
+    }
+
+    final practice = <TrainingPackTemplate>[];
+    for (final t in templates) {
+      final stat = await TrainingPackStatsService.getStats(t.id);
+      if (bad(stat)) practice.add(t);
+    }
+    practice.shuffle();
+    for (final t in practice) {
+      final list = List<TrainingPackSpot>.from(t.spots)..shuffle();
+      final count = min(list.length, 1 + rng.nextInt(list.length > 1 ? 2 : 1));
+      spots.addAll(
+          list.take(count).map((s) => s.copyWith(id: const Uuid().v4())));
+      if (spots.length >= 10) break;
+    }
+    if (spots.length < 10) {
+      final recent = await TrainingPackStatsService.recentlyPractisedTemplates(
+          templates);
+      for (final t in recent) {
+        final stat = await TrainingPackStatsService.getStats(t.id);
+        if (!bad(stat)) continue;
+        final list = List<TrainingPackSpot>.from(t.spots)..shuffle();
+        spots.add(list.first.copyWith(id: const Uuid().v4()));
+        if (spots.length >= 10) break;
+      }
+    }
+    if (spots.length < 10) {
+      final stats = await TrainingPackStatsService.getCategoryStats();
+      final cats = stats.entries.toList()
+        ..sort((a, b) => a.value.compareTo(b.value));
+      for (final e in cats.take(3)) {
+        final tag = 'cat:${e.key}';
+        final list = <TrainingPackSpot>[];
+        for (final t in templates) {
+          for (final s in t.spots) {
+            if (s.tags.contains(tag) || s.categories.contains(tag)) {
+              list.add(s);
+            }
+          }
+        }
+        list.shuffle();
+        if (list.isEmpty) continue;
+        final count = min(list.length, 1 + rng.nextInt(list.length > 1 ? 2 : 1));
+        spots.addAll(
+            list.take(count).map((s) => s.copyWith(id: const Uuid().v4())));
+        if (spots.length >= 10) break;
+      }
+    }
+    if (spots.length < 10) {
+      final hands = context.read<SavedHandManagerService>().hands;
+      final corrected = [for (final h in hands) if (h.corrected) h];
+      corrected.shuffle();
+      final count = min(corrected.length, 2);
+      spots.addAll([for (final h in corrected.take(count)) _spotFromHand(h)]);
+    }
+    if (spots.isEmpty) return null;
+    spots.shuffle();
+    return TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: '📚 Умный повтор',
+      createdAt: DateTime.now(),
+      spots: spots.length > 10 ? spots.take(10).toList() : spots,
+    );
+  }
 }
