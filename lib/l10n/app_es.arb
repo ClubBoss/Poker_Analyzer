@@ -102,4 +102,9 @@
   ,"sortCoverage": "Coverage (High \u2192 Low)"
   ,"filtersSelected": "Filters: {count} selected"
   ,"filtersNone": "Filters: none"
+  ,"progress": "Progress"
+  ,"packsCompleted": "Packs Completed"
+  ,"averageAccuracy": "Avg Accuracy"
+  ,"averageEv": "Avg EV"
+  ,"dailyStreak": "Streak"
 }

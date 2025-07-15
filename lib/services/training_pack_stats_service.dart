@@ -52,6 +52,19 @@ class TrainingPackStat {
       );
 }
 
+class GlobalPackStats {
+  final double averageAccuracy;
+  final double averageEV;
+  final int packsCompleted;
+  final int dailyStreak;
+  const GlobalPackStats({
+    this.averageAccuracy = 0,
+    this.averageEV = 0,
+    this.packsCompleted = 0,
+    this.dailyStreak = 0,
+  });
+}
+
 class TrainingPackStatsService {
   static const _prefix = 'tpl_stat_';
   static const _histPrefix = 'tpl_hist_';
@@ -246,5 +259,48 @@ class TrainingPackStatsService {
       }
     } catch (_) {}
     return {};
+  }
+
+  static GlobalPackStats? _cache;
+  static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
+
+  static Future<GlobalPackStats> getGlobalStats({bool force = false}) async {
+    if (!force && _cache != null &&
+        DateTime.now().difference(_cacheTime) < const Duration(minutes: 1)) {
+      return _cache!;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    double acc = 0;
+    double ev = 0;
+    int count = 0;
+    for (final k in prefs.getKeys()) {
+      if (k.startsWith(_prefix)) {
+        final raw = prefs.getString(k);
+        if (raw == null) continue;
+        try {
+          final data = jsonDecode(raw);
+          if (data is Map) {
+            final stat =
+                TrainingPackStat.fromJson(Map<String, dynamic>.from(data));
+            acc += stat.accuracy;
+            ev += stat.evSum;
+            count++;
+          }
+        } catch (_) {}
+      }
+    }
+    final completed = prefs.getKeys()
+        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .length;
+    final streak = prefs.getInt('training_streak_count') ?? 0;
+    final result = GlobalPackStats(
+      averageAccuracy: count > 0 ? acc / count : 0,
+      averageEV: count > 0 ? ev / count : 0,
+      packsCompleted: completed,
+      dailyStreak: streak,
+    );
+    _cache = result;
+    _cacheTime = DateTime.now();
+    return result;
   }
 }
