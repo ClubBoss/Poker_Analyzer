@@ -37,6 +37,7 @@ import '../widgets/skill_progress_card.dart';
 import '../widgets/review_past_mistakes_card.dart';
 import '../widgets/weak_spot_card.dart';
 import '../widgets/achievements_card.dart';
+import '../widgets/daily_spotlight_card.dart';
 import 'training_progress_analytics_screen.dart';
 import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
@@ -66,6 +67,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final narrow = width < 400;
+    final tablet = width >= 600;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training'),
@@ -97,10 +99,12 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
       ),
       body: ListView(
         children: [
+          if (tablet) const DailySpotlightCard(),
           _RecommendedCarousel(
             key: TrainingHomeScreen.recommendationsKey,
             narrow: narrow,
           ),
+          if (!tablet) const DailySpotlightCard(),
           if (narrow) ...[
             const QuickContinueCard(),
             const DailyProgressRing(),
