@@ -38,6 +38,8 @@ import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_service.dart';
 import 'mistake_review_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_template_storage_service.dart';
 import 'package:intl/intl.dart';
@@ -70,6 +72,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortProgress = 'progress';
   static const kSortInProgress = 'resume';
   static const kSortCoverage = 'coverage';
+  static const kSortCombinedTrending = 'combinedTrending';
   static const _sortIcons = {
     kSortEdited: Icons.update,
     kSortSpots: Icons.format_list_numbered,
@@ -77,6 +80,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     kSortProgress: Icons.bar_chart,
     kSortInProgress: Icons.play_arrow,
     kSortCoverage: Icons.layers,
+    kSortCombinedTrending: Icons.local_fire_department,
   };
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
@@ -96,6 +100,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<TrainingPackTemplate> _recent = [];
   List<TrainingPackTemplate> _popular = [];
   final Map<String, TrainingPackStat?> _stats = {};
+  final Map<String, int> _playCounts = {};
 
   @override
   void initState() {
@@ -117,6 +122,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _updateRecent();
     await _updatePopular();
     await _loadStats();
+    await _loadPlayCounts();
   }
 
   Future<void> _maybeOfferStarter() async {
@@ -295,10 +301,42 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     });
   }
 
+  Future<void> _loadPlayCounts() async {
+    if (!Hive.isBoxOpen('session_logs')) {
+      await Hive.initFlutter();
+      await Hive.openBox('session_logs');
+    }
+    final box = Hive.box('session_logs');
+    final counts = <String, int>{};
+    for (final v in box.values.whereType<Map>()) {
+      final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
+      counts.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
+    }
+    if (!mounted) return;
+    setState(() {
+      _playCounts
+        ..clear()
+        ..addAll(counts);
+    });
+  }
+
   Color _colorFor(double val) {
     if (val >= .99) return Colors.green;
     if (val >= .5) return Colors.amber;
     return Colors.red;
+  }
+
+  int _compareCombinedTrending(TrainingPackTemplate a, TrainingPackTemplate b) {
+    final ta = (a as dynamic).trending == true;
+    final tb = (b as dynamic).trending == true;
+    final r1 = (tb ? 1 : 0).compareTo(ta ? 1 : 0);
+    if (r1 != 0) return r1;
+    final pa = _playCounts[a.id] ?? 0;
+    final pb = _playCounts[b.id] ?? 0;
+    final r2 = pb.compareTo(pa);
+    if (r2 != 0) return r2;
+    final r3 = b.updatedAt.compareTo(a.updatedAt);
+    return r3 == 0 ? a.name.compareTo(b.name) : r3;
   }
 
 
@@ -341,6 +379,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           return cmp == 0 ? a.name.compareTo(b.name) : cmp;
         });
         break;
+      case kSortCombinedTrending:
+        copy.sort(_compareCombinedTrending);
+        break;
       default:
         copy.sort((a, b) {
           final cmp = b.updatedAt.compareTo(a.updatedAt);
@@ -380,6 +421,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             label: Text(l.sortCoverage),
             selected: _sort == kSortCoverage,
             onSelected: (_) => _setSort(kSortCoverage),
+          ),
+          ChoiceChip(
+            label: const Text('🔥 Популярное'),
+            selected: _sort == kSortCombinedTrending,
+            onSelected: (_) => _setSort(kSortCombinedTrending),
           ),
           ChoiceChip(
             label: const Text('In Progress'),
@@ -997,12 +1043,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final featured = [
       for (final t in nonFav)
         if (t.isBuiltIn && _isFeatured(t)) t
-    ]..sort(
-        (a, b) {
-          final cmp = b.updatedAt.compareTo(a.updatedAt);
-          return cmp == 0 ? a.name.compareTo(b.name) : cmp;
-        },
-      );
+    ]..sort(_compareCombinedTrending);
     final remaining = [
       for (final t in nonFav)
         if (!(t.isBuiltIn && _isFeatured(t))) t
@@ -1066,6 +1107,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 PopupMenuItem(
                   value: kSortCoverage,
                   child: Text(AppLocalizations.of(ctx)!.sortCoverage),
+                ),
+                const PopupMenuItem(
+                  value: kSortCombinedTrending,
+                  child: Text('🔥 Популярное'),
                 ),
                 const PopupMenuItem(
                   value: kSortInProgress,
