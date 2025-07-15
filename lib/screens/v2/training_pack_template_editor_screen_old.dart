@@ -250,22 +250,43 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     prefs.setString(_prefsSortMode2Key, _sortMode.name);
   }
 
-  Set<String> _templateRange() {
+  Set<String> _spotHands() {
     final set = <String>{};
     for (final s in widget.template.spots) {
-      final hand = handCode(s.hand.heroCards);
-      if (hand != null) set.add(hand);
+      final code = handCode(s.hand.heroCards);
+      if (code != null) set.add(code);
     }
     return set;
   }
 
+  Set<String> _rangeHands() {
+    final range = widget.template.heroRange;
+    if (range != null && range.isNotEmpty) {
+      return {for (final h in range) h.toUpperCase()};
+    }
+    return _spotHands();
+  }
+
   Map<String, int> _handTypeCounts() {
+    final hands = _spotHands();
     final res = <String, int>{};
     for (final g in widget.template.focusHandTypes) {
       var count = 0;
-      for (final s in widget.template.spots) {
-        final code = handCode(s.hand.heroCards);
-        if (code != null && matchHandTypeLabel(g.label, code)) count++;
+      for (final code in hands) {
+        if (matchHandTypeLabel(g.label, code)) count++;
+      }
+      res[g.label] = count;
+    }
+    return res;
+  }
+
+  Map<String, int> _handTypeTotals() {
+    final hands = _rangeHands();
+    final res = <String, int>{};
+    for (final g in widget.template.focusHandTypes) {
+      var count = 0;
+      for (final code in hands) {
+        if (matchHandTypeLabel(g.label, code)) count++;
       }
       res[g.label] = count;
     }
@@ -3249,8 +3270,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final topTags = tagCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final summaryTags = [for (final e in topTags.take(3)) e.key];
-    final range = _templateRange();
     final handCounts = _handTypeCounts();
+    final handTotals = _handTypeTotals();
     final historyGroups = <String, List<ChangeEntry>>{};
     for (final e in _history.history) {
       final day = DateFormat.yMd().format(e.time);
@@ -4360,7 +4381,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const SizedBox(height: 8),
             if (handCounts.isNotEmpty)
               ExpansionTile(
-                title: const Text('Hand Goal Stats',
+                title: const Text('Focus coverage',
                     style: TextStyle(color: Colors.white)),
                 iconColor: Colors.white,
                 collapsedIconColor: Colors.white,
@@ -4372,12 +4393,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   Wrap(
                     spacing: 8,
                     children: [
-                      for (final e in handCounts.entries)
-                        Chip(
-                          backgroundColor: Colors.grey[800],
-                          label: Text('${e.key}: ${e.value}',
-                              style: const TextStyle(color: Colors.white)),
-                        ),
+                      for (final g in widget.template.focusHandTypes)
+                        (() {
+                          final count = handCounts[g.label] ?? 0;
+                          final total = handTotals[g.label] ?? 0;
+                          final pct = total == 0 ? 0 : (count * 100 / total).round();
+                          final bg = pct < 70 ? Colors.red : Colors.grey[800];
+                          return Chip(
+                            backgroundColor: bg,
+                            label: Text(
+                              '${g.label}: $count/$total ($pct%)',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        })(),
                     ],
                   ),
                 ],
@@ -5506,22 +5535,43 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     prefs.setString(_prefsSortMode2Key, _sortMode.name);
   }
 
-  Set<String> _templateRange() {
+  Set<String> _spotHands() {
     final set = <String>{};
     for (final s in widget.template.spots) {
-      final hand = handCode(s.hand.heroCards);
-      if (hand != null) set.add(hand);
+      final code = handCode(s.hand.heroCards);
+      if (code != null) set.add(code);
     }
     return set;
   }
 
+  Set<String> _rangeHands() {
+    final range = widget.template.heroRange;
+    if (range != null && range.isNotEmpty) {
+      return {for (final h in range) h.toUpperCase()};
+    }
+    return _spotHands();
+  }
+
   Map<String, int> _handTypeCounts() {
+    final hands = _spotHands();
     final res = <String, int>{};
     for (final g in widget.template.focusHandTypes) {
       var count = 0;
-      for (final s in widget.template.spots) {
-        final code = handCode(s.hand.heroCards);
-        if (code != null && matchHandTypeLabel(g.label, code)) count++;
+      for (final code in hands) {
+        if (matchHandTypeLabel(g.label, code)) count++;
+      }
+      res[g.label] = count;
+    }
+    return res;
+  }
+
+  Map<String, int> _handTypeTotals() {
+    final hands = _rangeHands();
+    final res = <String, int>{};
+    for (final g in widget.template.focusHandTypes) {
+      var count = 0;
+      for (final code in hands) {
+        if (matchHandTypeLabel(g.label, code)) count++;
       }
       res[g.label] = count;
     }
@@ -8514,8 +8564,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final topTags = tagCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final summaryTags = [for (final e in topTags.take(3)) e.key];
-    final range = _templateRange();
     final handCounts = _handTypeCounts();
+    final handTotals = _handTypeTotals();
     final historyGroups = <String, List<ChangeEntry>>{};
     for (final e in _history.history) {
       final day = DateFormat.yMd().format(e.time);
@@ -9624,7 +9674,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const SizedBox(height: 8),
             if (handCounts.isNotEmpty)
               ExpansionTile(
-                title: const Text('Hand Goal Stats',
+                title: const Text('Focus coverage',
                     style: TextStyle(color: Colors.white)),
                 iconColor: Colors.white,
                 collapsedIconColor: Colors.white,
@@ -9636,12 +9686,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   Wrap(
                     spacing: 8,
                     children: [
-                      for (final e in handCounts.entries)
-                        Chip(
-                          backgroundColor: Colors.grey[800],
-                          label: Text('${e.key}: ${e.value}',
-                              style: const TextStyle(color: Colors.white)),
-                        ),
+                      for (final g in widget.template.focusHandTypes)
+                        (() {
+                          final count = handCounts[g.label] ?? 0;
+                          final total = handTotals[g.label] ?? 0;
+                          final pct = total == 0 ? 0 : (count * 100 / total).round();
+                          final bg = pct < 70 ? Colors.red : Colors.grey[800];
+                          return Chip(
+                            backgroundColor: bg,
+                            label: Text(
+                              '${g.label}: $count/$total ($pct%)',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        })(),
                     ],
                   ),
                 ],
