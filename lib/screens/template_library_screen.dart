@@ -63,6 +63,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _favOnlyKey = 'lib_fav_only';
   static const _recentOnlyKey = 'lib_recent_only';
   static const _inProgressKey = 'lib_in_progress';
+  static const _hideCompletedKey = 'lib_hide_completed';
   static const _selTagKey = 'lib_sel_tag';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
@@ -94,6 +95,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _favoritesOnly = false;
   bool _inProgressOnly = false;
   bool _showRecent = true;
+  bool _hideCompleted = false;
   String? _selectedTag;
   bool _importing = false;
 
@@ -166,6 +168,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _selectedTag = prefs.getString(_selTagKey);
       _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
       _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
+      _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
     });
     final cloud = context.read<CloudSyncService>();
     final remoteRaw = await cloud.load(_favKey);
@@ -268,6 +271,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_inProgressKey, value);
     setState(() => _inProgressOnly = value);
+  }
+
+  Future<void> _setHideCompleted(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hideCompletedKey, value);
+    setState(() => _hideCompleted = value);
   }
 
   Future<void> _updateRecent() async {
@@ -444,6 +453,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   bool _isFeatured(TrainingPackTemplate t) => _hasTag(t, kFeaturedTag);
 
+  bool _isCompleted(String id) {
+    final stat = _stats[id];
+    if (stat == null) return false;
+    final ev = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
+    final icm = stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
+    return stat.accuracy >= .9 && ev >= 80 && icm >= 80;
+  }
+
   List<TrainingPackTemplate> _applyFilters(
       List<TrainingPackTemplate> templates) {
     var visible = templates;
@@ -484,6 +501,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         for (final t in visible)
           if ((_stats[t.id]?.lastIndex ?? 0) > 0 &&
               (_stats[t.id]?.accuracy ?? 1.0) < 1.0)
+            t
+      ];
+    }
+    if (_hideCompleted && !_favoritesOnly) {
+      visible = [
+        for (final t in visible)
+          if (!_isCompleted(t.id) ||
+              _favorites.contains(t.id) ||
+              _recent.any((e) => e.id == t.id))
             t
       ];
     }
@@ -1238,6 +1264,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 label: const Text('🟡 В процессе'),
                 selected: _inProgressOnly,
                 onSelected: (v) => _setInProgressOnly(v),
+              ),
+              ChoiceChip(
+                label: const Text('🧹 Скрыть завершённые'),
+                selected: _hideCompleted,
+                onSelected: (v) => _setHideCompleted(v),
               ),
               FilterChip(
                 label: Text(l.recentPacks),
