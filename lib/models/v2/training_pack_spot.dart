@@ -8,6 +8,7 @@ class TrainingPackSpot {
   String note;
   HandData hand;
   List<String> tags;
+  List<String> categories;
   DateTime editedAt;
   DateTime createdAt;
   bool pinned;
@@ -26,6 +27,7 @@ class TrainingPackSpot {
     this.note = '',
     HandData? hand,
     List<String>? tags,
+    List<String>? categories,
     DateTime? editedAt,
     DateTime? createdAt,
     this.pinned = false,
@@ -37,6 +39,7 @@ class TrainingPackSpot {
   }) : isNew = isNew ?? false,
        hand = hand ?? HandData(),
        tags = tags ?? [],
+       categories = categories ?? [],
        editedAt = editedAt ?? DateTime.now(),
        createdAt = createdAt ?? DateTime.now();
 
@@ -46,6 +49,7 @@ class TrainingPackSpot {
     String? note,
     HandData? hand,
     List<String>? tags,
+    List<String>? categories,
     DateTime? editedAt,
     DateTime? createdAt,
     bool? pinned,
@@ -60,6 +64,7 @@ class TrainingPackSpot {
     note: note ?? this.note,
     hand: hand ?? this.hand,
     tags: tags ?? List<String>.from(this.tags),
+    categories: categories ?? List<String>.from(this.categories),
     editedAt: editedAt ?? this.editedAt,
     createdAt: createdAt ?? this.createdAt,
     pinned: pinned ?? this.pinned,
@@ -78,6 +83,7 @@ class TrainingPackSpot {
         ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
         : HandData(),
     tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
+    categories: [for (final t in (j['categories'] as List? ?? [])) t as String],
     editedAt:
         DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
     createdAt:
@@ -99,6 +105,7 @@ class TrainingPackSpot {
     'note': note,
     'hand': hand.toJson(),
     if (tags.isNotEmpty) 'tags': tags,
+    if (categories.isNotEmpty) 'categories': categories,
     'editedAt': editedAt.toIso8601String(),
     'createdAt': createdAt.toIso8601String(),
     if (pinned) 'pinned': true,
@@ -134,6 +141,7 @@ class TrainingPackSpot {
           note == other.note &&
           hand == other.hand &&
           const ListEquality().equals(tags, other.tags) &&
+          const ListEquality().equals(categories, other.categories) &&
           pinned == other.pinned &&
           dirty == other.dirty &&
           isNew == other.isNew &&
@@ -148,6 +156,7 @@ class TrainingPackSpot {
     note,
     hand,
     const ListEquality().hash(tags),
+    const ListEquality().hash(categories),
     pinned,
     dirty,
     isNew,
