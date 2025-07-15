@@ -16,6 +16,7 @@ class TrainingPackTemplateCard extends StatefulWidget {
 class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
   String? previewPath;
   bool completed = false;
+  bool inProgress = false;
   @override
   void initState() {
     super.initState();
@@ -24,11 +25,18 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
 
   void _load() async {
     final path = await ThumbnailCacheService.instance.getThumbnail(widget.template);
+    final stat = await TrainingPackStatsService.getStats(widget.template.id);
     final done = await _isFullyCompleted(widget.template);
+    var progress = false;
+    if (stat != null && widget.template.spots.isNotEmpty) {
+      final pct = ((stat.lastIndex + 1) * 100 / widget.template.spots.length).clamp(0, 100);
+      progress = pct > 0 && pct < 100;
+    }
     if (!mounted) return;
     setState(() {
       previewPath = path;
       completed = done;
+      inProgress = progress;
     });
   }
 
@@ -61,6 +69,26 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
             if (previewPath != null)
               Positioned.fill(
                 child: Container(color: Colors.black45),
+              ),
+            if (inProgress && !completed)
+              Positioned(
+                left: 4,
+                top: 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    '🔥 В процессе',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             if (completed)
               Positioned(
