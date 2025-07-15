@@ -1,11 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:file_picker/file_picker.dart';
+import '../services/template_storage_service.dart';
+import '../core/training/generation/yaml_reader.dart';
 
 const _validStreets = ['preflop', 'flop', 'turn', 'river'];
 
 import '../models/training_pack_template_model.dart';
+import '../models/training_pack_template.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/training_pack_template_storage_service.dart';
 
@@ -149,6 +154,48 @@ class _TrainingPackTemplateEditorScreenState
     ctrl.dispose();
   }
 
+  Future<void> _importYaml() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    try {
+      final reader = const YamlReader();
+      final map = reader.read(await File(path).readAsString());
+      final service = context.read<TemplateStorageService>();
+      final error = service.validateTemplateJson(Map<String, dynamic>.from(map));
+      if (error != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(error)));
+        }
+        return;
+      }
+      final template = TrainingPackTemplate.fromMap(map);
+      if (service.templates.any((t) => t.id == template.id)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Такой шаблон уже есть')));
+        }
+        return;
+      }
+      service.addTemplate(template);
+      await service.saveAll();
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Шаблон импортирован')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка импорта файла')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -200,10 +247,14 @@ class _TrainingPackTemplateEditorScreenState
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _save,
-              child: const Text('Сохранить'),
-            ),
-          ],
-        ),
+            child: const Text('Сохранить'),
+          ),
+        ],
+      ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _importYaml,
+        child: const Icon(Icons.upload_file),
       ),
     );
   }
