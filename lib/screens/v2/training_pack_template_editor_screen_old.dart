@@ -18,6 +18,13 @@ class _Row {
         tag = '';
 }
 
+class _CatStat {
+  double acc;
+  double ev;
+  double icm;
+  _CatStat({this.acc = 0, this.ev = 0, this.icm = 0});
+}
+
 List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
   final map = <String, List<int>>{};
   for (int i = 0; i < spots.length; i++) {
@@ -156,6 +163,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
   List<TemplateSnapshot> _snapshots = [];
+  Map<String, _CatStat> _catStats = {};
   bool _loadingEval = false;
   double _scrollProgress = 0;
   bool _showScrollIndicator = false;
@@ -347,6 +355,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateScroll();
       _maybeStartTraining();
+      _loadCategoryStats();
     });
     _clipboardTimer ??=
         Timer.periodic(const Duration(seconds: 2), (_) => _checkClipboard());
@@ -1729,6 +1738,49 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Nothing to update')));
     }
+  }
+
+  Future<void> _loadCategoryStats() async {
+    if (widget.template.lastTrainedAt == null) {
+      setState(() => _catStats.clear());
+      return;
+    }
+    final accMap = await TrainingPackStatsService.getCategoryStats();
+    final hands = context.read<SavedHandManagerService>().hands;
+    final cats = <String>{};
+    for (final s in widget.template.spots) {
+      for (final t in s.tags.where((t) => t.startsWith('cat:'))) {
+        cats.add(t.substring(4));
+      }
+    }
+    final map = <String, _CatStat>{};
+    for (final c in cats) {
+      double evSum = 0;
+      int evCount = 0;
+      double icmSum = 0;
+      int icmCount = 0;
+      for (final h in hands.where((h) => h.category == c)) {
+        final ev = h.heroEv;
+        if (ev != null) {
+          evSum += ev;
+          evCount++;
+        }
+        final icm = h.heroIcmEv;
+        if (icm != null) {
+          icmSum += icm;
+          icmCount++;
+        }
+      }
+      final acc = accMap[c];
+      if (acc != null || evCount > 0 || icmCount > 0) {
+        map[c] = _CatStat(
+          acc: acc ?? 0,
+          ev: evCount > 0 ? evSum / evCount : 0,
+          icm: icmCount > 0 ? icmSum / icmCount : 0,
+        );
+      }
+    }
+    if (mounted) setState(() => _catStats = map);
   }
 
   Future<void> _bulkAddTag([List<String>? ids]) async {
@@ -4474,6 +4526,57 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         })(),
                     ],
                   ),
+                ],
+              ),
+            if (_catStats.isNotEmpty)
+              ExpansionTile(
+                title: const Text('Category Stats',
+                    style: TextStyle(color: Colors.white)),
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                collapsedTextColor: Colors.white,
+                textColor: Colors.white,
+                childrenPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                children: [
+                  DataTable(
+                    headingRowHeight: 28,
+                    dataRowHeight: 28,
+                    columnSpacing: 24,
+                    columns: const [
+                      DataColumn(
+                          label: Text('Category',
+                              style: TextStyle(color: Colors.white))),
+                      DataColumn(
+                          numeric: true,
+                          label: Text('Acc',
+                              style: TextStyle(color: Colors.white))),
+                      DataColumn(
+                          numeric: true,
+                          label: Text('EV',
+                              style: TextStyle(color: Colors.white))),
+                      DataColumn(
+                          numeric: true,
+                          label: Text('ICM',
+                              style: TextStyle(color: Colors.white))),
+                    ],
+                    rows: [
+                      for (final e in _catStats.entries)
+                        DataRow(cells: [
+                          DataCell(Text(e.key,
+                              style: const TextStyle(color: Colors.white))),
+                          DataCell(Text('${(e.value.acc * 100).round()}%',
+                              style:
+                                  const TextStyle(color: Colors.white70))),
+                          DataCell(Text(e.value.ev.toStringAsFixed(2),
+                              style:
+                                  const TextStyle(color: Colors.white70))),
+                          DataCell(Text(e.value.icm.toStringAsFixed(2),
+                              style:
+                                  const TextStyle(color: Colors.white70))),
+                        ])
+                    ],
+                  )
                 ],
               ),
             const SizedBox(height: 16),
