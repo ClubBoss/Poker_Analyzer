@@ -21,6 +21,7 @@ class PackLibraryGenerator {
         bb: r.bb,
         positions: r.positions,
         count: r.count,
+        multiplePositions: r.multiplePositions,
       );
       if (r.title.isNotEmpty) tpl.name = r.title;
       if (r.description.isNotEmpty) tpl.description = r.description;

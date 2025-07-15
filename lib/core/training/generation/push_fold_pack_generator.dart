@@ -18,6 +18,7 @@ class PushFoldPackGenerator {
     required int bb,
     required List<String> positions,
     int count = 25,
+    bool multiplePositions = false,
   }) {
     final posList = positions.map(parseHeroPosition).toList();
     final availableHands = PackGeneratorService.topNHands(count).toList();
@@ -32,12 +33,14 @@ class PushFoldPackGenerator {
         spots.add(
           TrainingPackSpot(
             id: '${_uuid.v4()}_${index++}',
-            title: '$hand push',
+            title:
+                multiplePositions ? '$hand push from ${pos.label}' : '$hand push',
             hand: data,
             tags: const ['pushfold'],
           ),
         );
       }
+      if (!multiplePositions) break;
     }
     final now = DateTime.now();
     final tpl = TrainingPackTemplate(
