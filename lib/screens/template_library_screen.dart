@@ -1082,7 +1082,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
-  Widget _item(TrainingPackTemplate t) {
+  Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
     final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
@@ -1095,6 +1095,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (note != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(
+                  note,
+                  style: const TextStyle(fontSize: 12, color: Colors.orange),
+                ),
+              ),
             if (_isStarter(t))
               Row(
                 children: [
@@ -1516,6 +1524,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in _popular)
         if (!_pinned.contains(t.id) && !_favorites.contains(t.id)) t
     ]);
+    final weakMap = <String, List<TrainingPackTemplate>>{};
+    if (_weakCategories.isNotEmpty) {
+      final forWeak = _applyFilters([
+        for (final t in templates)
+          if (!_pinned.contains(t.id)) t
+      ]);
+      for (final c in _weakCategories.take(3)) {
+        final list = [
+          for (final t in forWeak)
+            if (t.hands.any((h) => h.category == c)) t
+        ];
+        if (list.isNotEmpty) {
+          weakMap[c] = _applySorting(list).take(2).toList();
+        }
+      }
+    }
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Row(
@@ -1972,6 +1996,29 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         ),
                         if (popularFiltered.length >= 3 ||
                             builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (weakMap.isNotEmpty) ...[
+                        const ListTile(
+                            title:
+                                Text('🧠 \u041f\u043e\u0432\u0442\u043e\u0440\u044b \u043f\u043e \u0441\u043b\u0430\u0431\u044b\u043c \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f\u043c')),
+                        for (final e in weakMap.entries) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
+                            child: Text(
+                              translateCategory(e.key),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white70),
+                            ),
+                          ),
+                          for (final t in e.value)
+                            _item(t, 'Weak Category: ${translateCategory(e.key)}'),
+                        ],
+                        if (builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
                             user.isNotEmpty)
                           const Divider(),
