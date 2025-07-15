@@ -1,11 +1,16 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:poker_analyzer/core/training/generation/pack_library_generator.dart';
 import 'package:poker_analyzer/core/training/generation/pack_library_exporter.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 
-Future<void> main() async {
-  const configPath = 'tool/config.yaml';
+Future<void> main(List<String> args) async {
+  final parser = ArgParser()
+    ..addOption('config', defaultsTo: 'tool/config.yaml');
+  final argResults = parser.parse(args);
+  final configPath = argResults['config'] as String;
+  stdout.writeln('Using config: $configPath');
   const outputDir = 'tool/output';
   final file = File(configPath);
   if (!file.existsSync()) {
