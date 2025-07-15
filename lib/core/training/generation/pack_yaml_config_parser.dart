@@ -21,7 +21,7 @@ class PackYamlConfigParser {
     final defaultTags = <String>[
       for (final t in (map['defaultTags'] as List? ?? const [])) t.toString(),
     ];
-    final defaultCount = (map['defaultCount'] as num?)?.toInt();
+    final defaultCount = (map['defaultCount'] as num?)?.toInt() ?? 25;
     final defaultMultiplePositions = map['defaultMultiplePositions'] == true;
     final defaultRangeGroup = map['defaultRangeGroup']?.toString();
     final list = map['packs'];
@@ -51,11 +51,7 @@ class PackYamlConfigParser {
                   : [for (final t in local) t.toString()];
               return List<String>.from(tags);
             }(),
-            count: (item.containsKey('rangeGroup') || defaultRangeGroup != null)
-                ? (item['count'] as num?)?.toInt() ?? (defaultCount ?? 25)
-                : item.containsKey('count')
-                ? (item['count'] as num?)?.toInt() ?? 25
-                : (defaultCount ?? 25),
+            count: (item['count'] as num?)?.toInt() ?? defaultCount,
             rangeGroup: item['rangeGroup']?.toString() ?? defaultRangeGroup,
             multiplePositions: item.containsKey('multiplePositions')
                 ? item['multiplePositions'] == true
