@@ -35,6 +35,9 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   double? _accuracy;
   String? _lastAttempt;
   bool _passed = false;
+  double? _evPct;
+  double? _icmPct;
+  double? _accPct;
 
   Future<void> _resetProgress() async {
     final prefs = await SharedPreferences.getInstance();
@@ -123,12 +126,37 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
             a0 >= 80 &&
             a1 >= 80 &&
             a2 >= 80;
+        if (stat != null) {
+          _evPct = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
+          _icmPct = stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
+          _accPct = stat.accuracy * 100;
+        }
         if (last != null) {
           final locale = Intl.getCurrentLocale();
           _lastAttempt = DateFormat('dd MMM', locale).format(last.toLocal());
         }
       });
     }
+  }
+
+  Widget _progressLine() {
+    final ev = _evPct ?? 0;
+    final icm = _icmPct ?? 0;
+    final acc = _accPct ?? 0;
+    if (ev >= 100 && icm >= 100 && acc >= 100) return const SizedBox.shrink();
+    Color c(double v) =>
+        v >= 90 ? Colors.green : v >= 60 ? Colors.yellow : Colors.red;
+    return Text.rich(
+      TextSpan(children: [
+        const TextSpan(text: 'EV: '),
+        TextSpan(text: '${ev.round()}%', style: TextStyle(color: c(ev))),
+        const TextSpan(text: ', ICM: '),
+        TextSpan(text: '${icm.round()}%', style: TextStyle(color: c(icm))),
+        const TextSpan(text: ', Acc: '),
+        TextSpan(text: '${acc.round()}%', style: TextStyle(color: c(acc))),
+      ]),
+      style: const TextStyle(fontSize: 12, color: Colors.white70),
+    );
   }
 
   @override
@@ -326,6 +354,12 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                     style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
+              ),
+            if (_evPct != null || _icmPct != null || _accPct != null)
+              Positioned(
+                bottom: 4,
+                left: 4,
+                child: _progressLine(),
               ),
             if (_lastAttempt != null ||
                 (widget.dimmed && (_completedAt != null || _accuracy != null)))
