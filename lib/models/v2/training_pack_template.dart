@@ -10,6 +10,7 @@ import '../../utils/template_coverage_utils.dart';
 
 class TrainingPackTemplate {
   final String id;
+  String slug;
   String name;
   String description;
   GameType gameType;
@@ -46,6 +47,7 @@ class TrainingPackTemplate {
 
   TrainingPackTemplate({
     required this.id,
+    this.slug = '',
     required this.name,
     this.description = '',
     this.gameType = GameType.tournament,
@@ -90,6 +92,7 @@ class TrainingPackTemplate {
 
   TrainingPackTemplate copyWith({
     String? id,
+    String? slug,
     String? name,
     String? description,
     GameType? gameType,
@@ -125,6 +128,7 @@ class TrainingPackTemplate {
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
+      slug: slug ?? this.slug,
       name: name ?? this.name,
       description: description ?? this.description,
       gameType: gameType ?? this.gameType,
@@ -164,6 +168,7 @@ class TrainingPackTemplate {
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) {
     final tpl = TrainingPackTemplate(
       id: json['id'] as String? ?? '',
+      slug: json['slug'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
       gameType: parseGameType(json['gameType']),
@@ -223,6 +228,7 @@ class TrainingPackTemplate {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'slug': slug,
         'name': name,
         'description': description,
         'gameType': gameType.name,
