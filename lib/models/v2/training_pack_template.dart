@@ -262,6 +262,11 @@ class TrainingPackTemplate {
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
   int get icmCovered => meta['icmCovered'] as int? ?? 0;
+  double? get coveragePercent {
+    final total = spots.length;
+    if (total == 0) return null;
+    return (evCovered + icmCovered) * 100 / (2 * total);
+  }
 
   String posRangeLabel() {
     final heroSet = <HeroPosition>{heroPos};
