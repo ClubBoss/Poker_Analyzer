@@ -222,10 +222,29 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
             ),
           ],
             ),
-            if (_passed)
+            if (widget.template.trending)
               Positioned(
                 right: 4,
                 top: 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(0, 1)),
+                    ],
+                  ),
+                  child: const Text(
+                    '🔥 Тренд',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ),
+            if (_passed)
+              Positioned(
+                right: 4,
+                top: widget.template.trending ? 24 : 4,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
