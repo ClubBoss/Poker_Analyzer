@@ -48,4 +48,29 @@ class TrainingPackTemplate {
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$TrainingPackTemplateToJson(this);
+
+  factory TrainingPackTemplate.fromMap(Map<String, dynamic> map) {
+    return TrainingPackTemplate(
+      id: map['id'].toString(),
+      name: map['name'].toString(),
+      gameType: map['gameType'].toString(),
+      category: map['category'] as String?,
+      description: map['description'].toString(),
+      hands: [
+        for (final h in (map['hands'] as List? ?? const []))
+          SavedHand.fromJson(Map<String, dynamic>.from(h))
+      ],
+      version: map['version']?.toString() ?? '1.0.0',
+      author: map['author']?.toString() ?? '',
+      revision: (map['revision'] as num?)?.toInt() ?? 1,
+      createdAt:
+          DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(map['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+      isBuiltIn: map['isBuiltIn'] == true,
+      tags: [for (final t in (map['tags'] as List? ?? const [])) t.toString()],
+      defaultColor: map['defaultColor']?.toString() ?? '#2196F3',
+      pinned: map['pinned'] == true,
+    );
+  }
 }

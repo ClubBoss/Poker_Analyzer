@@ -13,9 +13,12 @@ import 'package:open_filex/open_filex.dart';
 import 'thumbnail_cache_service.dart';
 
 import '../models/training_pack_template.dart';
+import '../core/training/generation/yaml_reader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TemplateStorageService extends ChangeNotifier {
   static final _manifestFuture = AssetManifest.instance;
+  static const _prefsKey = 'pack_templates';
   final List<TrainingPackTemplate> _templates = [];
   List<TrainingPackTemplate> get templates => List.unmodifiable(_templates);
 
@@ -272,6 +275,34 @@ class TemplateStorageService extends ChangeNotifier {
       }
       return null;
     }
+  }
+
+  Future<void> saveAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _prefsKey,
+      [for (final t in _templates) jsonEncode(t.toJson())],
+    );
+  }
+
+  Future<void> importYamlLibrary() async {
+    final manifest = await _manifestFuture;
+    final paths = manifest.keys
+        .where((e) => e.startsWith('assets/packs/') && e.endsWith('.yaml'));
+    if (paths.isEmpty) return;
+    final reader = const YamlReader();
+    for (final p in paths) {
+      try {
+        final map = reader.read(await rootBundle.loadString(p));
+        final tpl = TrainingPackTemplate.fromMap(map);
+        if (_templates.every((t) => t.id != tpl.id)) {
+          _templates.add(tpl);
+        }
+      } catch (_) {}
+    }
+    _resort();
+    await saveAll();
+    notifyListeners();
   }
 
   Future<void> exportTemplateToFile(
