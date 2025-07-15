@@ -1108,6 +1108,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final visible = _applyFilters(templates);
     final sortedVisible = _applySorting(visible);
     final query = _searchCtrl.text.trim().toLowerCase();
+    final filtersCount = _selectedTags.length + _selectedCategories.length;
     final hasResults = sortedVisible.isNotEmpty;
     final filteringActive = query.isNotEmpty ||
         _filter != 'all' ||
@@ -1336,27 +1337,44 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         if (tagList.isNotEmpty || categoryList.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final tag in tagList)
-                  FilterChip(
-                    label: Text(tag),
-                    selected: _selectedTags.contains(tag),
-                    onSelected: (_) => _toggleTag(tag),
-                  ),
-                for (final cat in categoryList)
-                  FilterChip(
-                    label: Text(translateCategory(cat)),
-                    selected: _selectedCategories.contains(cat),
-                    onSelected: (_) => _toggleCategory(cat),
-                  ),
-                if (_selectedTags.isNotEmpty || _selectedCategories.isNotEmpty)
-                  ActionChip(
-                    label: const Text('Сбросить'),
-                    onPressed: _clearTagFilters,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      filtersCount > 0
+                          ? l.filtersSelected(filtersCount)
+                          : l.filtersNone,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final tag in tagList)
+                      FilterChip(
+                        label: Text(tag),
+                        selected: _selectedTags.contains(tag),
+                        onSelected: (_) => _toggleTag(tag),
+                      ),
+                    for (final cat in categoryList)
+                      FilterChip(
+                        label: Text(translateCategory(cat)),
+                        selected: _selectedCategories.contains(cat),
+                        onSelected: (_) => _toggleCategory(cat),
+                      ),
+                    if (_selectedTags.isNotEmpty || _selectedCategories.isNotEmpty)
+                      ActionChip(
+                        label: const Text('Сбросить'),
+                        onPressed: _clearTagFilters,
+                      ),
+                  ],
+                ),
               ],
             ),
           ),

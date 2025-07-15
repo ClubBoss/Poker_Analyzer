@@ -100,4 +100,6 @@
   ,"sortPopular": "Mais populares"
   ,"sortRating": "Rating (High \u2192 Low)"
   ,"sortCoverage": "Coverage (High \u2192 Low)"
+  ,"filtersSelected": "Filters: {count} selected"
+  ,"filtersNone": "Filters: none"
 }

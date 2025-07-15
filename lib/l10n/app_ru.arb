@@ -100,4 +100,6 @@
   ,"sortPopular": "Сначала популярные"
   ,"sortRating": "Rating (High \u2192 Low)"
   ,"sortCoverage": "Coverage (High \u2192 Low)"
+  ,"filtersSelected": "\u0424\u0438\u043b\u044c\u0442\u0440\u044b: {count} \u0432\u044b\u0431\u0440\u0430\u043d\u043e"
+  ,"filtersNone": "\u0424\u0438\u043b\u044c\u0442\u0440\u044b: \u043d\u0435\u0442"
 }
