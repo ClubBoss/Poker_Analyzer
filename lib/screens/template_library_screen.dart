@@ -53,6 +53,7 @@ import '../helpers/category_translations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/user_action_logger.dart';
 import '../widgets/category_section.dart';
+import '../services/weak_spot_recommendation_service.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -1263,6 +1264,66 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Widget _recommendedCategoryCard() {
+    return FutureBuilder<String?>(
+      future: context
+          .read<WeakSpotRecommendationService>()
+          .getRecommendedCategory(),
+      builder: (context, snap) {
+        final cat = snap.data;
+        if (cat == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[850],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.accent),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.folder, color: AppColors.accent),
+                    SizedBox(width: 8),
+                    Text(
+                      '📂 Рекомендуемая категория',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  translateCategory(cat),
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Подтяните навык в этой области',
+                  style: TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () => _setActiveCategory(cat),
+                    child: const Text('Начать'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
@@ -1954,6 +2015,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 child: Text(l.packOfDay),
               ),
             ),
+          _recommendedCategoryCard(),
           SwitchListTile(
             title: Text(l.favorites),
             value: _favoritesOnly,

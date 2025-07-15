@@ -4,6 +4,7 @@ import 'pack_generator_service.dart';
 import 'saved_hand_manager_service.dart';
 import 'player_progress_service.dart';
 import '../models/v2/training_pack_template.dart';
+import 'training_pack_stats_service.dart';
 
 class WeakSpotRecommendation {
   final HeroPosition position;
@@ -98,5 +99,13 @@ class WeakSpotRecommendationService extends ChangeNotifier {
       heroPos: heroPos,
       heroRange: PackGeneratorService.topNHands(pct).toList(),
     );
+  }
+
+  Future<String?> getRecommendedCategory() async {
+    final stats = await TrainingPackStatsService.getCategoryStats();
+    if (stats.isEmpty) return null;
+    final list = stats.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    return list.first.key;
   }
 }
