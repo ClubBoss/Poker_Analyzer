@@ -23,6 +23,7 @@ class TrainingPackTemplate {
   final bool isBuiltIn;
   final List<String> tags;
   final String defaultColor;
+  bool pinned;
 
   TrainingPackTemplate({
     required this.id,
@@ -39,6 +40,7 @@ class TrainingPackTemplate {
     this.isBuiltIn = false,
     List<String>? tags,
     this.defaultColor = '#2196F3',
+    this.pinned = false,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         tags = tags ?? const [];

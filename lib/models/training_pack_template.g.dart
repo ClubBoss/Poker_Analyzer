@@ -16,7 +16,22 @@ TrainingPackTemplate _$TrainingPackTemplateFromJson(Map<String, dynamic> json) =
       isBuiltIn: json['isBuiltIn'] as bool? ?? false,
       tags: const [],
       defaultColor: json['defaultColor'] as String? ?? '#2196F3',
+      pinned: json['pinned'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$TrainingPackTemplateToJson(
-        TrainingPackTemplate instance) => <String, dynamic>{};
+        TrainingPackTemplate instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'gameType': instance.gameType,
+      'category': instance.category,
+      'description': instance.description,
+      'version': instance.version,
+      'author': instance.author,
+      'revision': instance.revision,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
+      'isBuiltIn': instance.isBuiltIn,
+      'defaultColor': instance.defaultColor,
+      'pinned': instance.pinned,
+    };
