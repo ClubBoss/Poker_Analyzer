@@ -659,6 +659,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return gain * 100 + count;
   }
 
+  double _progressPercentFor(TrainingPackTemplate t) {
+    final stat = _stats[t.id];
+    if (stat == null || t.spots.isEmpty) return 0;
+    return ((stat.lastIndex + 1) * 100 / t.spots.length).clamp(0, 100).toDouble();
+  }
+
   int _compareCombinedTrending(TrainingPackTemplate a, TrainingPackTemplate b) {
     final ta = (a as dynamic).trending == true;
     final tb = (b as dynamic).trending == true;
@@ -1728,6 +1734,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in nonFav)
         if (!_needsPracticeOnlyIds.contains(t.id)) t
     ];
+    final continueList = [
+      for (final t in nonFavRest)
+        if (_progressPercentFor(t) >= 1 && _progressPercentFor(t) < 100) t
+    ]
+      ..sort((a, b) {
+        final ad = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bd = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bd.compareTo(ad);
+      });
     final sortedFav = _applySorting(fav);
     final featured = [
       for (final t in nonFavRest)
@@ -2204,6 +2219,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (repeatList.isNotEmpty) ...[
                         const ListTile(title: Text('📉 Нужно повторить')),
                         for (final t in repeatList) _item(t),
+                        if (sortedFav.isNotEmpty ||
+                            continueList.length >= 2 ||
+                            builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty ||
+                            _recent.isNotEmpty ||
+                            featured.isNotEmpty ||
+                            (!_popularOnly && popularFiltered.length >= 3) ||
+                            (_popularOnly && popularFiltered.isNotEmpty))
+                          const Divider(),
+                      ],
+                      if (continueList.length >= 2) ...[
+                        const ListTile(title: Text('⏳ Продолжить обучение')),
+                        for (final t in continueList) _item(t),
                         if (sortedFav.isNotEmpty ||
                             builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
