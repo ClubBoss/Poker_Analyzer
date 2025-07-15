@@ -138,11 +138,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         final r = rb.compareTo(ra);
         if (r != 0) return r;
       } else if (_sortMode == _SortMode.coverage) {
-        double cov(TrainingPackTemplate t) {
-          final total = t.spots.length;
-          if (total == 0) return 0;
-          return (t.evCovered + t.icmCovered) / (2 * total);
-        }
+        double cov(TrainingPackTemplate t) => t.coveragePercent ?? -1;
         final r = cov(b).compareTo(cov(a));
         if (r != 0) return r;
       }
