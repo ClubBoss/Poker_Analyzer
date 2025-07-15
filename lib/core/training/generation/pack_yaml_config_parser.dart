@@ -5,10 +5,12 @@ import 'yaml_reader.dart';
 class PackYamlConfig {
   final List<PackGenerationRequest> requests;
   final bool rangeTags;
+  final List<String> defaultTags;
   final int defaultCount;
   const PackYamlConfig({
     required this.requests,
     this.rangeTags = false,
+    this.defaultTags = const [],
     this.defaultCount = 25,
   });
 }
@@ -43,6 +45,7 @@ class PackYamlConfigParser {
       return PackYamlConfig(
         requests: const [],
         rangeTags: rangeTags,
+        defaultTags: defaultTags,
         defaultCount: defaultCount,
       );
     }
@@ -82,6 +85,7 @@ class PackYamlConfigParser {
     return PackYamlConfig(
       requests: requests,
       rangeTags: rangeTags,
+      defaultTags: defaultTags,
       defaultCount: defaultCount,
     );
   }
