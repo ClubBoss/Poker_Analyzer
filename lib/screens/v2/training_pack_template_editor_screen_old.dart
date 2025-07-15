@@ -30,6 +30,21 @@ List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
   return [for (final g in map.values) if (g.length > 1) g];
 }
 
+double? averageFocusCoverage(
+    Map<String, int> counts, Map<String, int> totals) {
+  if (counts.isEmpty) return null;
+  double sum = 0;
+  int n = 0;
+  for (final e in counts.entries) {
+    final total = totals[e.key] ?? 0;
+    if (total == 0) return null;
+    sum += e.value / total;
+    n++;
+  }
+  if (n == 0) return null;
+  return sum * 100 / n;
+}
+
 TrainingPackSpot? _copiedSpot;
 class UndoIntent extends Intent { const UndoIntent(); }
 class RedoIntent extends Intent { const RedoIntent(); }
@@ -3272,6 +3287,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final summaryTags = [for (final e in topTags.take(3)) e.key];
     final handCounts = _handTypeCounts();
     final handTotals = _handTypeTotals();
+    final focusAvg = averageFocusCoverage(handCounts, handTotals);
     final historyGroups = <String, List<ChangeEntry>>{};
     for (final e in _history.history) {
       final day = DateFormat.yMd().format(e.time);
@@ -4382,8 +4398,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const SizedBox(height: 8),
             if (handCounts.isNotEmpty)
               ExpansionTile(
-                title: const Text('Focus coverage',
-                    style: TextStyle(color: Colors.white)),
+                title: Row(
+                  children: [
+                    const Text('Focus coverage'),
+                    const SizedBox(width: 8),
+                    Text(
+                      '(avg ${focusAvg == null ? 'N/A' : '${focusAvg.round()}%'})',
+                      style: TextStyle(
+                        color: focusAvg == null
+                            ? Colors.white
+                            : focusAvg < 70
+                                ? Colors.red
+                                : focusAvg < 90
+                                    ? Colors.yellow
+                                    : Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
                 iconColor: Colors.white,
                 collapsedIconColor: Colors.white,
                 collapsedTextColor: Colors.white,
@@ -8567,6 +8599,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final summaryTags = [for (final e in topTags.take(3)) e.key];
     final handCounts = _handTypeCounts();
     final handTotals = _handTypeTotals();
+    final focusAvg = averageFocusCoverage(handCounts, handTotals);
     final historyGroups = <String, List<ChangeEntry>>{};
     for (final e in _history.history) {
       final day = DateFormat.yMd().format(e.time);
@@ -9676,8 +9709,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const SizedBox(height: 8),
             if (handCounts.isNotEmpty)
               ExpansionTile(
-                title: const Text('Focus coverage',
-                    style: TextStyle(color: Colors.white)),
+                title: Row(
+                  children: [
+                    const Text('Focus coverage'),
+                    const SizedBox(width: 8),
+                    Text(
+                      '(avg ${focusAvg == null ? 'N/A' : '${focusAvg.round()}%'})',
+                      style: TextStyle(
+                        color: focusAvg == null
+                            ? Colors.white
+                            : focusAvg < 70
+                                ? Colors.red
+                                : focusAvg < 90
+                                    ? Colors.yellow
+                                    : Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
                 iconColor: Colors.white,
                 collapsedIconColor: Colors.white,
                 collapsedTextColor: Colors.white,
