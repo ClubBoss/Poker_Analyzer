@@ -10,6 +10,9 @@ class PackYamlConfigParser {
 
   List<PackGenerationRequest> parse(String yamlSource) {
     final map = reader.read(yamlSource);
+    final defaultTags = <String>[
+      for (final t in (map['defaultTags'] as List? ?? const [])) t.toString()
+    ];
     final list = map['packs'];
     if (list is! List) return const [];
     return [
@@ -24,9 +27,13 @@ class PackYamlConfigParser {
             ],
             title: item['title']?.toString() ?? '',
             description: item['description']?.toString() ?? '',
-            tags: [
-              for (final t in (item['tags'] as List? ?? const [])) t.toString()
-            ],
+            tags: () {
+              final local = item['tags'] as List?;
+              final tags = local == null || local.isEmpty
+                  ? defaultTags
+                  : [for (final t in local) t.toString()];
+              return List<String>.from(tags);
+            }(),
             count: (item['count'] as num?)?.toInt() ?? 25,
           )
     ];
