@@ -5,6 +5,7 @@ import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import 'spot_template_engine.dart';
 import 'yaml_pack_importer_service.dart';
+import '../models/v2/training_pack_spot.dart';
 
 class PackLibraryGenerator {
   final SpotTemplateEngine engine;
@@ -47,6 +48,7 @@ class PackLibraryGenerator {
                   actionType: type,
                   withIcm: icm,
                 );
+                _autoTagSpots(tpl);
                 _packs.add(tpl);
               }
             }
@@ -72,6 +74,7 @@ class PackLibraryGenerator {
       tpl.tags = [for (final tag in t.tags) if (tag.trim().isNotEmpty) tag];
       tpl.trending = t.trending;
       tpl.recommended = t.recommended;
+      _autoTagSpots(tpl);
       _packs.add(tpl);
     }
   }
@@ -83,5 +86,28 @@ class PackLibraryGenerator {
       jsonEncode([for (final p in _packs) p.toJson()]),
       flush: true,
     );
+  }
+
+  void _autoTagSpots(TrainingPackTemplate tpl) {
+    for (final spot in tpl.spots) {
+      final posTag = 'pos:${spot.hand.position.name}';
+      final stack = spot.hand.stacks['${spot.hand.heroIndex}'] ?? 0.0;
+      final stackTag = 'bb:${stack.round()}';
+      String? action;
+      final acts = spot.hand.actions[0] ?? [];
+      for (final a in acts) {
+        if (a.playerIndex == spot.hand.heroIndex) {
+          action = a.action;
+          break;
+        }
+      }
+      final catTag = action != null ? 'cat:$action' : null;
+      final set = {...spot.tags, posTag, stackTag};
+      if (catTag != null) set.add(catTag);
+      spot.tags = set.toList()..sort();
+      final cats = [posTag, stackTag];
+      if (catTag != null) cats.add(catTag);
+      spot.categories = cats;
+    }
   }
 }
