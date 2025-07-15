@@ -1608,23 +1608,38 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         onSelected: (_) => _setActiveCategory(cat),
                       ),
                     ),
-                  if (_activeTags.isNotEmpty || _activeCategories.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: IconButton(
-                        icon: const Icon(Icons.close, size: 18),
-                        color: Colors.white70,
-                        onPressed: _clearActiveFilters,
-                      ),
-                    ),
-                ],
+          if (_activeTags.isNotEmpty || _activeCategories.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                color: Colors.white70,
+                onPressed: _clearActiveFilters,
               ),
             ),
-          if (_weakCategories.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+    ),
+        if (cache.popularCategories.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                for (final cat in cache.popularCategories)
+                  ChoiceChip(
+                    label: Text(translateCategory(cat)),
+                    selected: _selectedCategories.contains(cat),
+                    onSelected: (_) => _toggleCategory(cat),
+                  ),
+              ],
+            ),
+          ),
+        if (_weakCategories.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('📊 Мои категории',
                       style: TextStyle(
