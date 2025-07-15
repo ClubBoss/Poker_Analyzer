@@ -134,6 +134,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<TrainingPackTemplate> _popular = [];
   final Map<String, TrainingPackStat?> _stats = {};
   final Map<String, int> _playCounts = {};
+  final Map<String, int> _handsCompleted = {};
   List<String> _weakCategories = [];
   final Set<String> _mastered = {};
 
@@ -153,6 +154,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _updatePopular();
     await _updateRecent();
     await _loadStats();
+    await _loadHandsCompleted();
     await _loadWeakCategories();
     await context.read<TagCacheService>().updateFrom(
           context.read<TemplateStorageService>().templates,
@@ -588,6 +590,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _playCounts
         ..clear()
         ..addAll(counts);
+    });
+  }
+
+  Future<void> _loadHandsCompleted() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final map = <String, int>{};
+    for (final t in templates) {
+      final c = await TrainingPackStatsService.getHandsCompleted(t.id);
+      if (c > 0) map[t.id] = c;
+    }
+    if (!mounted) return;
+    setState(() {
+      _handsCompleted
+        ..clear()
+        ..addAll(map);
     });
   }
 
@@ -1175,6 +1192,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       );
     }
 
+    Widget handsProgress() {
+      final c = _handsCompleted[t.id];
+      if (c == null) return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Text(
+          '$c / ${t.spots.length}',
+          style: const TextStyle(fontSize: 12, color: Colors.white54),
+        ),
+      );
+    }
+
     final tagsWidget = tags.isNotEmpty
         ? Padding(
             padding: const EdgeInsets.only(top: 4),
@@ -1217,6 +1246,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       )
                     : null,
               ),
+              handsProgress(),
               progress(),
               if (tags.isNotEmpty) tagsWidget,
             ],
@@ -1330,6 +1360,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ),
               ],
             ),
+            handsProgress(),
             progress(),
             if (tags.isNotEmpty) tagsWidget,
           ],
