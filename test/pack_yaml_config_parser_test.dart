@@ -330,4 +330,50 @@ packs:
     expect(list.first.description, 'Generated');
     expect(list.last.description, 'Generated');
   });
+
+  test('parse applies defaultTitle', () {
+    const yaml = '''
+defaultTitle: SB Trainer
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    expect(config.requests.first.title, 'SB Trainer');
+  });
+
+  test('local title overrides defaultTitle', () {
+    const yaml = '''
+defaultTitle: Pack
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    title: Local
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    expect(config.requests.first.title, 'Local');
+  });
+
+  test('defaultTitle applies to each pack', () {
+    const yaml = '''
+defaultTitle: Trainer
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+  - gameType: cash
+    bb: 5
+    positions: [bb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.length, 2);
+    expect(list.first.title, 'Trainer');
+    expect(list.last.title, 'Trainer');
+  });
 }
