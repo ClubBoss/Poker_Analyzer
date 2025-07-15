@@ -135,6 +135,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<TrainingPackTemplate> _recent = [];
   List<TrainingPackTemplate> _popular = [];
   List<String> _popularIds = [];
+  List<TrainingPackTemplate> _newPacks = [];
   final Map<String, TrainingPackStat?> _stats = {};
   final Map<String, int> _playCounts = {};
   final Map<String, int> _handsCompleted = {};
@@ -155,6 +156,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _autoImport(prefs);
     await _loadPlayCounts();
     await _updatePopular();
+    await _updateNewPacks();
     await _updateRecent();
     await _loadStats();
     await _loadHandsCompleted();
@@ -561,6 +563,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     });
   }
 
+  Future<void> _updateNewPacks() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final now = DateTime.now();
+    final list = [
+      for (final t in templates)
+        if (now.difference(t.createdAt).inDays < 7) t
+    ]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    if (!mounted) return;
+    setState(() => _newPacks = list);
+  }
+
   Future<void> _loadStats() async {
     final templates = context.read<TemplateStorageService>().templates;
     final map = <String, TrainingPackStat?>{};
@@ -960,6 +973,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
     if (template == null) return;
     context.read<TemplateStorageService>().addTemplate(template);
+    await _updateNewPacks();
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -1639,6 +1653,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final l = AppLocalizations.of(context)!;
     final templates = context.watch<TemplateStorageService>().templates;
     final cache = context.watch<TagCacheService>();
+    final showNew = _newPacks.length >= 3;
     final tagSet = <String>{for (final t in templates) ...t.tags};
     final catSet = <String>{
       for (final t in templates)
@@ -2161,6 +2176,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (_popularOnly && popularFiltered.isNotEmpty) ...[
                         ListTile(title: Text(l.popularPacks)),
                         for (final t in popularFiltered) _item(t),
+                        if (showNew) ...[
+                          const Divider(),
+                          ListTile(title: Text(l.newPacks)),
+                          for (final t in _newPacks) _item(t),
+                        ],
                         if (pinnedTemplates.isNotEmpty ||
                             repeatList.isNotEmpty ||
                             sortedFav.isNotEmpty ||
@@ -2211,6 +2231,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (!_popularOnly && popularFiltered.length >= 3) ...[
                         ListTile(title: Text(l.popularPacks)),
                         for (final t in popularFiltered) _item(t),
+                        if (showNew) ...[
+                          const Divider(),
+                          ListTile(title: Text(l.newPacks)),
+                          for (final t in _newPacks) _item(t),
+                        ],
                         if (_recent.isNotEmpty ||
                             featured.isNotEmpty ||
                             builtInStarter.isNotEmpty ||
