@@ -6,12 +6,12 @@
   "builtInPacks": "Built-in Packs",
   "yourPacks": "Your Packs",
   "recentPacks": "Recently Practised",
-  "popularPacks": "\ud83d\udd25 Popular"
+  "popularPacks": "\ud83d\udd25 Popular",
   "newPacks": "\ud83c\udd95 New",
-  ,"starterBadge": "Starter"
-  ,"newBadge": "New"
-  ,"masteredBadge": "✅ Mastered"
-  ,"hands": "hands"
+  "starterBadge": "Starter",
+  "newBadge": "New",
+  "masteredBadge": "✅ Mastered",
+  "hands": "hands"
   ,"startTraining": "Start training"
   ,"lastTrained": "Last trained"
   ,"needsPractice": "Needs Practice"
