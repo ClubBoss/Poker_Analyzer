@@ -10,6 +10,8 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 
+import 'thumbnail_cache_service.dart';
+
 import '../models/training_pack_template.dart';
 
 class TemplateStorageService extends ChangeNotifier {
@@ -46,6 +48,7 @@ class TemplateStorageService extends ChangeNotifier {
   void addTemplate(TrainingPackTemplate template) {
     if (_templates.any((t) => t.id == template.id)) return;
     _templates.add(template);
+    ThumbnailCacheService.instance.invalidate(template.id);
     _resort();
     notifyListeners();
   }
@@ -55,6 +58,7 @@ class TemplateStorageService extends ChangeNotifier {
     final index = _templates.indexWhere((t) => t.id == template.id);
     if (index == -1) return;
     _templates[index] = template;
+    ThumbnailCacheService.instance.invalidate(template.id);
     _resort();
     notifyListeners();
   }
@@ -62,12 +66,14 @@ class TemplateStorageService extends ChangeNotifier {
   void removeTemplate(TrainingPackTemplate template) {
     if (template.isBuiltIn) return;
     _templates.remove(template);
+    ThumbnailCacheService.instance.invalidate(template.id);
     notifyListeners();
   }
 
   void restoreTemplate(TrainingPackTemplate template, int index) {
     final insertIndex = index.clamp(0, _templates.length);
     _templates.insert(insertIndex, template);
+    ThumbnailCacheService.instance.invalidate(template.id);
     notifyListeners();
   }
 
@@ -86,6 +92,7 @@ class TemplateStorageService extends ChangeNotifier {
       } else {
         _templates[index] = template;
       }
+      ThumbnailCacheService.instance.invalidate(template.id);
       _resort();
       notifyListeners();
       return null;
@@ -162,6 +169,7 @@ class TemplateStorageService extends ChangeNotifier {
           );
           if (replace == true) {
             _templates[index] = template;
+            ThumbnailCacheService.instance.invalidate(template.id);
             notifyListeners();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -210,6 +218,7 @@ class TemplateStorageService extends ChangeNotifier {
           );
           if (action == 'replace') {
             _templates[index] = template;
+            ThumbnailCacheService.instance.invalidate(template.id);
             notifyListeners();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -246,6 +255,7 @@ class TemplateStorageService extends ChangeNotifier {
         }
       }
       _templates.add(template);
+      ThumbnailCacheService.instance.invalidate(template.id);
       _resort();
       notifyListeners();
       if (context.mounted) {
