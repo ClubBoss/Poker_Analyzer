@@ -55,6 +55,39 @@ packs:
     expect(list.last.tags, ['cash']);
   });
 
+  test('parse supports defaultTags string', () {
+    const yaml = '''
+defaultTags: pushfold
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    expect(config.requests.first.tags, ['pushfold']);
+  });
+
+  test('parse handles tags string and empty list', () {
+    const yaml = '''
+defaultTags: pushfold
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    tags: cash
+  - gameType: tournament
+    bb: 15
+    positions: [bb]
+    tags: []
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.first.tags, ['cash']);
+    expect(list.last.tags, ['pushfold']);
+  });
+
   test('parse reads multiplePositions flag', () {
     const yaml = '''
 packs:

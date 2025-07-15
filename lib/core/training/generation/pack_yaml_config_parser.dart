@@ -13,14 +13,22 @@ class PackYamlConfigParser {
   const PackYamlConfigParser({YamlReader? yamlReader})
     : reader = yamlReader ?? const YamlReader();
 
+  List<String> _readTags(dynamic source) {
+    if (source is String) {
+      return source.isEmpty ? [] : [source];
+    }
+    if (source is List) {
+      return [for (final t in source) t.toString()];
+    }
+    return [];
+  }
+
   PackYamlConfig parse(String yamlSource) {
     final map = reader.read(yamlSource);
     final rangeTags = map['defaultRangeTags'] == true;
     final defaultGameType = map['defaultGameType'];
     final defaultDescription = map['defaultDescription']?.toString() ?? '';
-    final defaultTags = <String>[
-      for (final t in (map['defaultTags'] as List? ?? const [])) t.toString(),
-    ];
+    final defaultTags = _readTags(map['defaultTags']);
     final defaultCount = (map['defaultCount'] as num?)?.toInt() ?? 25;
     final defaultMultiplePositions = map['defaultMultiplePositions'] == true;
     final defaultRangeGroup = map['defaultRangeGroup']?.toString();
@@ -45,10 +53,8 @@ class PackYamlConfigParser {
               return desc.isNotEmpty ? desc : defaultDescription;
             }(),
             tags: () {
-              final local = item['tags'] as List?;
-              final tags = local == null || local.isEmpty
-                  ? defaultTags
-                  : [for (final t in local) t.toString()];
+              final local = _readTags(item['tags']);
+              final tags = local.isEmpty ? defaultTags : local;
               return List<String>.from(tags);
             }(),
             count: (item['count'] as num?)?.toInt() ?? defaultCount,
