@@ -39,6 +39,16 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   double? _icmPct;
   double? _accPct;
 
+  Future<void> _togglePin() async {
+    await context.read<PinnedPackService>().toggle(widget.template.id);
+    if (mounted) {
+      setState(() {
+        _pinned = !_pinned;
+        widget.template.isPinned = _pinned;
+      });
+    }
+  }
+
   Future<void> _resetProgress() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('progress_tpl_${widget.template.id}');
@@ -173,14 +183,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
     }
     final cats = [for (final c in catSet) translateMistakeCategory(c)];
     return GestureDetector(
-      onLongPress: () async {
-        await context.read<PinnedPackService>().toggle(widget.template.id);
-        if (mounted)
-          setState(() {
-            _pinned = !_pinned;
-            widget.template.isPinned = _pinned;
-          });
-      },
+      onLongPress: _togglePin,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
@@ -192,6 +195,19 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
         ),
         child: Stack(
           children: [
+            Positioned(
+              left: 4,
+              top: 4,
+              child: GestureDetector(
+                onTap: _togglePin,
+                child: Text(
+                  '📌',
+                  style: TextStyle(
+                    color: _pinned ? Colors.orange : Colors.white54,
+                  ),
+                ),
+              ),
+            ),
             Row(
               children: [
                 Expanded(

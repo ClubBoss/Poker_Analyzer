@@ -69,6 +69,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _hideCompletedKey = 'lib_hide_completed';
   static const _popularOnlyKey = 'lib_popular_only';
   static const _recommendedOnlyKey = 'lib_recommended_only';
+  static const _pinKey = 'lib_pinned_ids';
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
   static const _diffKey = 'lib_difficulty_filter';
@@ -101,6 +102,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _loadingNeedsPractice = false;
   final Set<String> _needsPracticeIds = {};
   final Set<String> _favorites = {};
+  final Set<String> _pinned = {};
   bool _favoritesOnly = false;
   bool _inProgressOnly = false;
   bool _showRecent = true;
@@ -208,6 +210,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
       _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
       _recommendedOnly = prefs.getBool(_recommendedOnlyKey) ?? false;
+      _pinned
+        ..clear()
+        ..addAll(prefs.getStringList(_pinKey) ?? []);
     });
     final cloud = context.read<CloudSyncService>();
     final remoteRaw = await cloud.load(_favKey);
@@ -282,6 +287,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         .read<CloudSyncService>()
         .save(_favKey, jsonEncode(list))
         .catchError((_) {}));
+  }
+
+  Future<void> _togglePinned(String id) async {
+    setState(() {
+      if (!_pinned.add(id)) {
+        _pinned.remove(id);
+      }
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_pinKey, _pinned.toList());
   }
 
   Future<void> _setFavoritesOnly(bool value) async {
@@ -1078,6 +1093,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
+              onPressed: () => _togglePinned(t.id),
+              icon: Text('📌',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: _pinned.contains(t.id)
+                          ? Colors.orange
+                          : Colors.white54)),
+            ),
+            IconButton(
               icon: Icon(
                 _favorites.contains(t.id) ? Icons.star : Icons.star_border,
               ),
@@ -1252,7 +1276,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         if (catSet.contains(c)) c,
       ...[for (final c in catSet.toList()..sort()) if (!cache.popularCategories.contains(c)) c]
     ];
-    final visible = _applyFilters(templates);
+    final pinnedList = _applySorting([
+      for (final t in templates)
+        if (_pinned.contains(t.id)) t
+    ]);
+    final visible = _applyFilters([
+      for (final t in templates)
+        if (!_pinned.contains(t.id)) t
+    ]);
     final sortedVisible = _applySorting(visible);
     final query = _searchCtrl.text.trim().toLowerCase();
     final filtersCount = _selectedTags.length +
@@ -1602,6 +1633,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           child: hasResults
               ? ListView(
                   children: [
+                    if (pinnedList.isNotEmpty) ...[
+                      const ListTile(title: Text('📌 Закреплённые')),
+                      for (final t in pinnedList) _item(t),
+                      if (sortedFav.isNotEmpty ||
+                          builtInStarter.isNotEmpty ||
+                          builtInOther.isNotEmpty ||
+                          user.isNotEmpty ||
+                          _recent.isNotEmpty ||
+                          featured.isNotEmpty ||
+                          _popular.isNotEmpty)
+                        const Divider(),
+                    ],
                     if (sortedFav.isNotEmpty) ...[
                       ListTile(title: Text('★ ${l.favorites}')),
                       for (final t in sortedFav) _item(t),
