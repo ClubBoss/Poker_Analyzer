@@ -542,6 +542,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return Colors.red;
   }
 
+  Color _progressColor(double val) {
+    if (val >= 80) return Colors.green;
+    if (val >= 50) return Colors.amber;
+    return Colors.red;
+  }
+
   int _compareCombinedTrending(TrainingPackTemplate a, TrainingPackTemplate b) {
     final ta = (a as dynamic).trending == true;
     final tb = (b as dynamic).trending == true;
@@ -1083,6 +1089,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ),
               ],
             ),
+            (() {
+              final stat = _stats[t.id];
+              if (stat == null) return const SizedBox.shrink();
+              final ev = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
+              final icm = stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
+              if (ev == 0 || icm == 0) return const SizedBox.shrink();
+              final val = ((stat.accuracy * 100) + ev + icm) / 3;
+              return Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Semantics(
+                  label: l.percentLabel(val.round()),
+                  child: LinearProgressIndicator(
+                    value: val / 100,
+                    backgroundColor: Colors.white12,
+                    color: _progressColor(val),
+                    minHeight: 3,
+                  ),
+                ),
+              );
+            })(),
             if (tags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
