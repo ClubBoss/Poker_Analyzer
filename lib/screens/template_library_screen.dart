@@ -73,6 +73,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _popularOnlyKey = 'lib_popular_only';
   static const _recommendedOnlyKey = 'lib_recommended_only';
   static const _masteredOnlyKey = 'lib_mastered_only';
+  static const _effectivenessSortKey = 'lib_effectiveness_sort';
   static const _compactKey = 'lib_compact_mode';
   static const _pinKey = 'lib_pinned';
   static const _selTagsKey = 'lib_sel_tags';
@@ -104,6 +105,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   String _filter = 'all';
   String _sort = kSortEdited;
+  bool _effectivenessSort = false;
   bool _needsPractice = false;
   bool _loadingNeedsPractice = false;
   final Set<String> _needsPracticeIds = {};
@@ -199,6 +201,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() {
       _filter = prefs.getString(_key) ?? 'all';
       _sort = prefs.getString(_sortKey) ?? kSortEdited;
+      _effectivenessSort = prefs.getBool(_effectivenessSortKey) ?? false;
       _favorites
         ..clear()
         ..addAll(prefs.getStringList(_favKey) ?? []);
@@ -529,6 +532,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() => _compactMode = value);
   }
 
+  Future<void> _setEffectivenessSort(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_effectivenessSortKey, value);
+    setState(() => _effectivenessSort = value);
+  }
+
   Future<void> _updateRecent() async {
     final templates = context.read<TemplateStorageService>().templates;
     final recent = await TrainingPackStatsService.recentlyPractisedTemplates(
@@ -631,6 +640,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return Colors.red;
   }
 
+  double _effectivenessScore(TrainingPackTemplate t) {
+    final count = _playCounts[t.id] ?? 0;
+    final ev = _stats[t.id]?.evSum ?? 0.0;
+    final gain = count > 0 ? ev / count : ev;
+    return gain * 100 + count;
+  }
+
   int _compareCombinedTrending(TrainingPackTemplate a, TrainingPackTemplate b) {
     final ta = (a as dynamic).trending == true;
     final tb = (b as dynamic).trending == true;
@@ -646,6 +662,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
     final copy = [...list];
+    if (_effectivenessSort) {
+      copy.sort((a, b) {
+        final r = _effectivenessScore(b).compareTo(_effectivenessScore(a));
+        return r == 0 ? a.name.compareTo(b.name) : r;
+      });
+      return copy;
+    }
     switch (_sort) {
       case kSortCoverage:
         copy.sort((a, b) {
@@ -730,6 +753,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             label: const Text('🔥 Популярное'),
             selected: _sort == kSortCombinedTrending,
             onSelected: (_) => _setSort(kSortCombinedTrending),
+          ),
+          ChoiceChip(
+            label: const Text('📈 Эффективность'),
+            selected: _effectivenessSort,
+            onSelected: (v) => _setEffectivenessSort(v),
           ),
           ChoiceChip(
             label: const Text('In Progress'),
