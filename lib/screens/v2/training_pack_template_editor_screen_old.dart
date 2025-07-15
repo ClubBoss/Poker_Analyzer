@@ -1,7 +1,7 @@
 part of 'training_pack_template_editor_screen.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
-enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
+enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc, priorityDesc }
 enum SortMode { position, chronological }
 
 enum _RowKind { header, spot }
@@ -111,7 +111,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     'BTN',
     'SB',
     'Hero push only',
-    'Mistake spots'
+    'Mistake spots',
+    'High priority'
   ];
   String? _quickFilter;
   String? _positionFilter;
@@ -3269,6 +3270,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           cmp = (a, b) =>
               (a.heroIcmEv ?? double.infinity).compareTo(b.heroIcmEv ?? double.infinity);
           break;
+        case SpotSort.priorityDesc:
+          cmp = (a, b) => b.priority.compareTo(a.priority);
+          break;
         default:
           cmp = (a, b) => 0;
       }
@@ -4648,6 +4652,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   DropdownMenuItem(value: SpotSort.evAsc, child: Text('EV ↑')),
                   DropdownMenuItem(value: SpotSort.icmDesc, child: Text('ICM ↓')),
                   DropdownMenuItem(value: SpotSort.icmAsc, child: Text('ICM ↑')),
+                  DropdownMenuItem(
+                      value: SpotSort.priorityDesc, child: Text('Priority')),
                 ],
                 onChanged: (v) =>
                     setState(() => _spotSort = v ?? SpotSort.original),
@@ -5325,7 +5331,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     'BTN',
     'SB',
     'Hero push only',
-    'Mistake spots'
+    'Mistake spots',
+    'High priority'
   ];
   String? _quickFilter;
   String? _positionFilter;
@@ -9873,6 +9880,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   DropdownMenuItem(value: SpotSort.evAsc, child: Text('EV ↑')),
                   DropdownMenuItem(value: SpotSort.icmDesc, child: Text('ICM ↓')),
                   DropdownMenuItem(value: SpotSort.icmAsc, child: Text('ICM ↑')),
+                  DropdownMenuItem(
+                      value: SpotSort.priorityDesc, child: Text('Priority')),
                 ],
                 onChanged: (v) =>
                     setState(() => _spotSort = v ?? SpotSort.original),

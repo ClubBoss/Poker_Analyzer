@@ -57,6 +57,21 @@ class _TrainingPackSpotPreviewCardState
   final FocusNode _titleFocus = FocusNode();
   bool _editing = false;
 
+  Color _priorityColor(int p) {
+    switch (p) {
+      case 5:
+        return Colors.red;
+      case 4:
+        return Colors.orange;
+      case 3:
+        return Colors.green;
+      case 2:
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
+  }
+
   void _duplicate() {
     final tpl = widget.template;
     final persist = widget.persist;
@@ -547,6 +562,25 @@ class _TrainingPackSpotPreviewCardState
                 ),
               ),
             ),
+          Positioned(
+            bottom: 4,
+            left: 4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              decoration: BoxDecoration(
+                color: _priorityColor(spot.priority),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '${spot.priority}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -268,8 +268,9 @@ class TrainingPackTemplate {
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
   int get icmCovered => meta['icmCovered'] as int? ?? 0;
+  int get totalWeight => meta['totalWeight'] as int? ?? spots.length;
   double? get coveragePercent {
-    final total = spots.length;
+    final total = totalWeight;
     if (total == 0) return null;
     return (evCovered + icmCovered) * 100 / (2 * total);
   }

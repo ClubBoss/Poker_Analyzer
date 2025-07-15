@@ -180,7 +180,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     if (tpl != null) {
       final correct = service.correctCount;
       final total = service.totalCount;
-      final totalSpots = tpl.spots.length;
+      final totalSpots = tpl.totalWeight;
       final evAfter = totalSpots == 0 ? 0.0 : tpl.evCovered * 100 / totalSpots;
       final icmAfter =
           totalSpots == 0 ? 0.0 : tpl.icmCovered * 100 / totalSpots;

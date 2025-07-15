@@ -13,6 +13,7 @@ class TrainingPackSpot {
   DateTime createdAt;
   bool pinned;
   bool dirty;
+  int priority;
 
   /// Ephemeral flag — used only in RAM to highlight freshly imported spots.
   /// Never written to / read from JSON.
@@ -32,6 +33,7 @@ class TrainingPackSpot {
     DateTime? createdAt,
     this.pinned = false,
     this.dirty = false,
+    this.priority = 3,
     bool? isNew,
     this.evalResult,
     this.correctAction,
@@ -54,6 +56,7 @@ class TrainingPackSpot {
     DateTime? createdAt,
     bool? pinned,
     bool? dirty,
+    int? priority,
     bool? isNew,
     EvaluationResult? evalResult,
     String? correctAction,
@@ -69,6 +72,7 @@ class TrainingPackSpot {
     createdAt: createdAt ?? this.createdAt,
     pinned: pinned ?? this.pinned,
     dirty: dirty ?? this.dirty,
+    priority: priority ?? this.priority,
     isNew: isNew ?? this.isNew,
     evalResult: evalResult ?? this.evalResult,
     correctAction: correctAction ?? this.correctAction,
@@ -90,6 +94,7 @@ class TrainingPackSpot {
         DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
     pinned: j['pinned'] == true,
     dirty: j['dirty'] == true,
+    priority: (j['priority'] as num?)?.toInt() ?? 3,
     // `isNew` never restored from disk
     isNew: false,
     evalResult: j['evalResult'] != null
@@ -110,6 +115,7 @@ class TrainingPackSpot {
     'createdAt': createdAt.toIso8601String(),
     if (pinned) 'pinned': true,
     if (dirty) 'dirty': true,
+    if (priority != 3) 'priority': priority,
     if (evalResult != null) 'evalResult': evalResult!.toJson(),
     if (correctAction != null) 'correctAction': correctAction,
     if (explanation != null) 'explanation': explanation,
@@ -144,6 +150,7 @@ class TrainingPackSpot {
           const ListEquality().equals(categories, other.categories) &&
           pinned == other.pinned &&
           dirty == other.dirty &&
+          priority == other.priority &&
           isNew == other.isNew &&
           evalResult == other.evalResult &&
           correctAction == other.correctAction &&
@@ -159,6 +166,7 @@ class TrainingPackSpot {
     const ListEquality().hash(categories),
     pinned,
     dirty,
+    priority,
     isNew,
     evalResult,
     correctAction,
