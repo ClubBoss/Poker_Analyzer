@@ -70,6 +70,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _recentOnlyKey = 'lib_recent_only';
   static const _inProgressKey = 'lib_in_progress';
   static const _hideCompletedKey = 'lib_hide_completed';
+  static const _completedOnlyKey = 'lib_completed_only';
   static const _popularOnlyKey = 'lib_popular_only';
   static const _recommendedOnlyKey = 'lib_recommended_only';
   static const _masteredOnlyKey = 'lib_mastered_only';
@@ -121,6 +122,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _inProgressOnly = false;
   bool _showRecent = true;
   bool _hideCompleted = false;
+  bool _completedOnly = false;
   bool _popularOnly = false;
   bool _recommendedOnly = false;
   bool _masteredOnly = false;
@@ -236,6 +238,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
       _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
+      _completedOnly = prefs.getBool(_completedOnlyKey) ?? false;
       _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
       _recommendedOnly = prefs.getBool(_recommendedOnlyKey) ?? false;
       _masteredOnly = prefs.getBool(_masteredOnlyKey) ?? false;
@@ -509,6 +512,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_hideCompletedKey, value);
     setState(() => _hideCompleted = value);
+  }
+
+  Future<void> _setCompletedOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_completedOnlyKey, value);
+    setState(() => _completedOnly = value);
   }
 
   Future<void> _setPopularOnly(bool value) async {
@@ -802,6 +811,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return stat.accuracy >= .9 && ev >= 80 && icm >= 80;
   }
 
+  bool _isFullyCompleted(TrainingPackTemplate t) {
+    final stat = _stats[t.id];
+    if (stat == null) return false;
+    final ev = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
+    final icm = stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
+    return _progressPercentFor(t) == 100 &&
+        (stat.accuracy >= .9 || ev >= 90 || icm >= 90);
+  }
+
   bool _matchesTagsAndCategories(TrainingPackTemplate t) {
     final tags = {..._selectedTags, ..._activeTags};
     final cats = {..._selectedCategories, ..._activeCategories};
@@ -891,7 +909,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (_mastered.contains(t.id)) t
       ];
     }
-    if (_hideCompleted && !_favoritesOnly) {
+    if (_completedOnly) {
+      visible = [
+        for (final t in visible)
+          if (_isFullyCompleted(t)) t
+      ];
+    }
+    if (_hideCompleted && !_favoritesOnly && !_completedOnly) {
       visible = [
         for (final t in visible)
           if (!_isCompleted(t.id) ||
@@ -2096,6 +2120,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   label: const Text('🟡 В процессе'),
                   selected: _inProgressOnly,
                   onSelected: (v) => _setInProgressOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('📍 Только завершённые'),
+                  selected: _completedOnly,
+                  onSelected: (v) => _setCompletedOnly(v),
                 ),
                 ChoiceChip(
                   label: const Text('🧹 Скрыть завершённые'),
