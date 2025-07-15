@@ -38,6 +38,7 @@ import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_pack_storage_service.dart';
+import '../services/motivation_service.dart';
 import 'mistake_review_screen.dart';
 import '../services/tag_cache_service.dart';
 import '../services/recommended_pack_service.dart';
@@ -133,6 +134,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _activeCategories = {};
   final Set<int> _difficultyFilters = {};
   bool _importing = false;
+  String _dailyQuote = '';
 
   List<TrainingPackTemplate> _recent = [];
   List<TrainingPackTemplate> _popular = [];
@@ -150,6 +152,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     _searchCtrl.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeOfferStarter());
     _init();
+    MotivationService.getDailyQuote().then((q) {
+      if (mounted) setState(() => _dailyQuote = q);
+    });
   }
 
   Future<void> _init() async {
@@ -1905,6 +1910,30 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ),
       body: Column(
         children: [
+          if (_dailyQuote.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Text('💡', style: TextStyle(fontSize: 20)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _dailyQuote,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           SwitchListTile(
             title: Text(l.favorites),
             value: _favoritesOnly,
