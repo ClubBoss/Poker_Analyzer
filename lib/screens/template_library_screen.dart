@@ -70,6 +70,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _recommendedOnlyKey = 'lib_recommended_only';
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
+  static const _diffKey = 'lib_difficulty_filter';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
   static const kSortEdited = 'edited';
@@ -105,6 +106,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _recommendedOnly = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
+  final Set<int> _difficultyFilters = {};
   bool _importing = false;
 
   List<TrainingPackTemplate> _recent = [];
@@ -181,6 +183,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _selectedCategories
         ..clear()
         ..addAll(prefs.getStringList(_selCatsKey) ?? []);
+      _difficultyFilters
+        ..clear()
+        ..addAll(prefs
+                .getStringList(_diffKey)
+                ?.map(int.tryParse)
+                .whereType<int>() ??
+            []);
       _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
       _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
@@ -286,6 +295,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       await prefs.remove(_selCatsKey);
     } else {
       await prefs.setStringList(_selCatsKey, _selectedCategories.toList());
+    }
+    setState(() {});
+  }
+
+  Future<void> _toggleDifficulty(int level) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!_difficultyFilters.add(level)) {
+      _difficultyFilters.remove(level);
+    }
+    if (_difficultyFilters.isEmpty) {
+      await prefs.remove(_diffKey);
+    } else {
+      await prefs.setStringList(
+          _diffKey, _difficultyFilters.map((e) => e.toString()).toList());
     }
     setState(() {});
   }
@@ -601,6 +624,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   h.category != null &&
                   rec.preferredCategories.contains(h.category)))
             t
+      ];
+    }
+    if (_difficultyFilters.isNotEmpty) {
+      visible = [
+        for (final t in visible)
+          if (_difficultyFilters.contains((t as dynamic).difficultyLevel)) t
       ];
     }
     return visible;
@@ -1160,7 +1189,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final visible = _applyFilters(templates);
     final sortedVisible = _applySorting(visible);
     final query = _searchCtrl.text.trim().toLowerCase();
-    final filtersCount = _selectedTags.length + _selectedCategories.length;
+    final filtersCount =
+        _selectedTags.length + _selectedCategories.length + _difficultyFilters.length;
     final hasResults = sortedVisible.isNotEmpty;
     final filteringActive = query.isNotEmpty ||
         _filter != 'all' ||
@@ -1169,7 +1199,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _popularOnly ||
         _recommendedOnly ||
         _selectedTags.isNotEmpty ||
-        _selectedCategories.isNotEmpty;
+        _selectedCategories.isNotEmpty ||
+        _difficultyFilters.isNotEmpty;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
     for (final t in sortedVisible) {
@@ -1394,6 +1425,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 label: const Text('🔥 Рекомендуемые'),
                 selected: _recommendedOnly,
                 onSelected: (v) => _setRecommendedOnly(v),
+              ),
+              ChoiceChip(
+                label: const Text('Сложность: 👶'),
+                selected: _difficultyFilters.contains(1),
+                onSelected: (_) => _toggleDifficulty(1),
+              ),
+              ChoiceChip(
+                label: const Text('🎯'),
+                selected: _difficultyFilters.contains(2),
+                onSelected: (_) => _toggleDifficulty(2),
+              ),
+              ChoiceChip(
+                label: const Text('🔥'),
+                selected: _difficultyFilters.contains(3),
+                onSelected: (_) => _toggleDifficulty(3),
               ),
             ],
           ),
