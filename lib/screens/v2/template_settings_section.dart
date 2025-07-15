@@ -320,6 +320,7 @@ part of 'training_pack_template_editor_screen.dart';
       });
       _markAllDirty();
       await _persist();
+      if (mounted) setState(() {});
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Template settings updated')));
