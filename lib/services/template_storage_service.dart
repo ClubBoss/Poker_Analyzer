@@ -106,17 +106,30 @@ class TemplateStorageService extends ChangeNotifier {
 
   Future<void> load() async {
     try {
-      final manifest = await _manifestFuture;
-      final paths = manifest.keys.where((e) =>
-          e.startsWith('assets/training_templates/') && e.endsWith('.json'));
-      _templates.clear();
-      for (final p in paths) {
-        final data = jsonDecode(await rootBundle.loadString(p));
-        if (data is Map<String, dynamic>) {
-          _templates.add(TrainingPackTemplate.fromJson(data));
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getStringList(_prefsKey);
+      if (stored != null && stored.isNotEmpty) {
+        _templates
+          ..clear()
+          ..addAll(stored.map((e) =>
+              TrainingPackTemplate.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      } else {
+        final manifest = await _manifestFuture;
+        final paths = manifest.keys.where((e) =>
+            e.startsWith('assets/training_templates/') && e.endsWith('.json'));
+        _templates.clear();
+        for (final p in paths) {
+          final data = jsonDecode(await rootBundle.loadString(p));
+          if (data is Map<String, dynamic>) {
+            _templates.add(TrainingPackTemplate.fromJson(data));
+          }
         }
       }
       _resort();
+      if (!(prefs.getBool('hasImportedYamlTemplates') ?? false)) {
+        await importYamlLibrary();
+        await prefs.setBool('hasImportedYamlTemplates', true);
+      }
     } catch (_) {}
     notifyListeners();
   }
