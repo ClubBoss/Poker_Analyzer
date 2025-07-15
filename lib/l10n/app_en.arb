@@ -60,6 +60,7 @@
   ,"repeatMistakes": "Repeat Mistakes"
   ,"backToLibrary": "Back to Library"
   ,"recommendedPacks": "Recommended packs"
+  ,"masteredPacks": "Mastered packs"
   ,"dailyGoals": "Daily Goals"
   ,"sessions": "Sessions"
   ,"accuracyPercent": "Accuracy %"
@@ -111,4 +112,5 @@
   ,"pinnedPacks": "\ud83d\udccc Pinned Templates"
   ,"dailyStreak": "Streak"
   ,"weakAreas": "Weak Areas"
+  ,"packOfDay": "\ud83c\udfb2 Pack of the Day"
 }
