@@ -65,6 +65,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _favKey = 'fav_tpl_ids';
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _needsRepetitionKey = 'lib_needs_repetition';
+  static const _needsPracticeOnlyKey = 'lib_needs_practice_only';
   static const _favOnlyKey = 'lib_fav_only';
   static const _recentOnlyKey = 'lib_recent_only';
   static const _inProgressKey = 'lib_in_progress';
@@ -107,6 +108,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _needsRepetition = false;
   bool _loadingNeedsRepetition = false;
   final Set<String> _needsRepetitionIds = {};
+  bool _needsPracticeOnly = false;
+  bool _loadingNeedsPracticeOnly = false;
+  final Set<String> _needsPracticeOnlyIds = {};
   final Set<String> _favorites = {};
   final Set<String> _pinned = {};
   bool _favoritesOnly = false;
@@ -193,6 +197,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..addAll(prefs.getStringList(_favKey) ?? []);
       _needsPractice = prefs.getBool(_needsPracticeKey) ?? false;
       _needsRepetition = prefs.getBool(_needsRepetitionKey) ?? false;
+      _needsPracticeOnly = prefs.getBool(_needsPracticeOnlyKey) ?? false;
       _favoritesOnly = prefs.getBool(_favOnlyKey) ?? false;
       _selectedTags
         ..clear()
@@ -241,6 +246,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     }
     if (_needsPractice) _updateNeedsPractice(true);
     if (_needsRepetition) _updateNeedsRepetition(true);
+    if (_needsPracticeOnly) _updateNeedsPracticeOnly(true);
   }
 
   Future<void> _setFilter(String value) async {
@@ -312,6 +318,37 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..clear()
         ..addAll(ids);
       _loadingNeedsRepetition = false;
+    });
+  }
+
+  Future<void> _updateNeedsPracticeOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_needsPracticeOnlyKey, value);
+    setState(() {
+      _needsPracticeOnly = value;
+      if (!value) _needsPracticeOnlyIds.clear();
+    });
+    if (!value) return;
+    setState(() => _loadingNeedsPracticeOnly = true);
+    final templates = context.read<TemplateStorageService>().templates;
+    final ids = <String>{};
+    for (final t in templates) {
+      final stat = await TrainingPackStatsService.getStats(t.id);
+      final acc = stat?.accuracy ?? 1.0;
+      final ev = stat == null
+          ? 100.0
+          : (stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct);
+      final icm = stat == null
+          ? 100.0
+          : (stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct);
+      if (acc < .6 || ev < 60 || icm < 60) ids.add(t.id);
+    }
+    if (!mounted) return;
+    setState(() {
+      _needsPracticeOnlyIds
+        ..clear()
+        ..addAll(ids);
+      _loadingNeedsPracticeOnly = false;
     });
   }
 
@@ -728,6 +765,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (_needsRepetitionIds.contains(t.id)) t
       ];
     }
+    if (_needsPracticeOnly) {
+      visible = [
+        for (final t in visible)
+          if (_needsPracticeOnlyIds.contains(t.id)) t
+      ];
+    }
     if (_favoritesOnly) {
       visible = [
         for (final t in visible)
@@ -1071,6 +1114,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   const Text('⏳', style: TextStyle(fontSize: 16)),
                   const SizedBox(width: 4),
                 ],
+                if (_needsPracticeOnlyIds.contains(t.id)) ...[
+                  const Text('📉', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 4),
+                ],
                 Expanded(
                   child: Text(
                     t.name,
@@ -1394,7 +1441,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     ];
     final pinnedList = _applySorting([
       for (final t in templates)
-        if (_pinned.contains(t.id)) t
+        if (_pinned.contains(t.id) &&
+            (!_needsPracticeOnly || _needsPracticeOnlyIds.contains(t.id)))
+          t
     ]);
     final visible = _applyFilters([
       for (final t in templates)
@@ -1412,6 +1461,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _filter != 'all' ||
         _needsPractice ||
         _needsRepetition ||
+        _needsPracticeOnly ||
         _favoritesOnly ||
         _popularOnly ||
         _recommendedOnly ||
@@ -1425,13 +1475,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     for (final t in sortedVisible) {
       (_favorites.contains(t.id) ? fav : nonFav).add(t);
     }
+    final repeatList = _applySorting([
+      for (final t in nonFav)
+        if (_needsPracticeOnlyIds.contains(t.id)) t
+    ]);
+    final nonFavRest = [
+      for (final t in nonFav)
+        if (!_needsPracticeOnlyIds.contains(t.id)) t
+    ];
     final sortedFav = _applySorting(fav);
     final featured = [
-      for (final t in nonFav)
+      for (final t in nonFavRest)
         if (t.isBuiltIn && _isFeatured(t)) t
     ]..sort(_compareCombinedTrending);
     final remaining = [
-      for (final t in nonFav)
+      for (final t in nonFavRest)
         if (!(t.isBuiltIn && _isFeatured(t))) t
     ];
     final builtInStarter = _applySorting([
@@ -1716,6 +1774,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   selected: _needsRepetition,
                   onSelected: (v) => _updateNeedsRepetition(v),
                 ),
+                ChoiceChip(
+                  label: const Text('📉 Нужно повторить'),
+                  selected: _needsPracticeOnly,
+                  onSelected: (v) => _updateNeedsPracticeOnly(v),
+                ),
                 FilterChip(
                   label: Text(l.favorites),
                   selected: _favoritesOnly,
@@ -1810,7 +1873,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ),
             ),
           _buildSortButtons(l),
-          if (_loadingNeedsPractice)
+          if (_loadingNeedsPractice || _loadingNeedsPracticeOnly)
             const LinearProgressIndicator(minHeight: 2),
           Expanded(
             child: hasResults
@@ -1819,6 +1882,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (pinnedList.isNotEmpty) ...[
                         ListTile(title: Text(l.pinnedPacks)),
                         for (final t in pinnedList) _item(t),
+                        if (sortedFav.isNotEmpty ||
+                            builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty ||
+                            _recent.isNotEmpty ||
+                            featured.isNotEmpty ||
+                            _popular.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (repeatList.isNotEmpty) ...[
+                        const ListTile(title: Text('📉 Нужно повторить')),
+                        for (final t in repeatList) _item(t),
                         if (sortedFav.isNotEmpty ||
                             builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
