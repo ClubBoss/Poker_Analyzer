@@ -5,7 +5,12 @@ import 'yaml_reader.dart';
 class PackYamlConfig {
   final List<PackGenerationRequest> requests;
   final bool rangeTags;
-  const PackYamlConfig({required this.requests, this.rangeTags = false});
+  final int defaultCount;
+  const PackYamlConfig({
+    required this.requests,
+    this.rangeTags = false,
+    this.defaultCount = 25,
+  });
 }
 
 class PackYamlConfigParser {
@@ -34,7 +39,13 @@ class PackYamlConfigParser {
     final defaultMultiplePositions = map['defaultMultiplePositions'] == true;
     final defaultRangeGroup = map['defaultRangeGroup']?.toString();
     final list = map['packs'];
-    if (list is! List) return const PackYamlConfig(requests: []);
+    if (list is! List) {
+      return PackYamlConfig(
+        requests: const [],
+        rangeTags: rangeTags,
+        defaultCount: defaultCount,
+      );
+    }
     final requests = [
       for (final item in list)
         if (item is Map && item['enabled'] != false)
@@ -68,6 +79,10 @@ class PackYamlConfigParser {
                 : defaultMultiplePositions,
           ),
     ];
-    return PackYamlConfig(requests: requests, rangeTags: rangeTags);
+    return PackYamlConfig(
+      requests: requests,
+      rangeTags: rangeTags,
+      defaultCount: defaultCount,
+    );
   }
 }
