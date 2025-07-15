@@ -1,5 +1,4 @@
 import 'pack_yaml_config_parser.dart';
-import 'pack_generation_request.dart';
 import 'push_fold_pack_generator.dart';
 import '../../../models/v2/training_pack_template.dart';
 
@@ -13,7 +12,8 @@ class PackLibraryGenerator {
         generator = pushFoldGenerator ?? const PushFoldPackGenerator();
 
   List<TrainingPackTemplate> generateFromYaml(String yaml) {
-    final requests = parser.parse(yaml);
+    final config = parser.parse(yaml);
+    final requests = config.requests;
     final list = <TrainingPackTemplate>[];
     for (final r in requests) {
       final tpl = generator.generate(
@@ -27,7 +27,14 @@ class PackLibraryGenerator {
       );
       if (r.title.isNotEmpty) tpl.name = r.title;
       if (r.description.isNotEmpty) tpl.description = r.description;
-      if (r.tags.isNotEmpty) tpl.tags = List<String>.from(r.tags);
+      final tags = List<String>.from(r.tags);
+      if (config.rangeTags &&
+          r.rangeGroup != null &&
+          r.rangeGroup!.isNotEmpty &&
+          !tags.contains(r.rangeGroup)) {
+        tags.add(r.rangeGroup!);
+      }
+      if (tags.isNotEmpty) tpl.tags = tags;
       tpl.spotCount = tpl.spots.length;
       list.add(tpl);
     }

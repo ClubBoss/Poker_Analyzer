@@ -2,13 +2,20 @@ import 'pack_generation_request.dart';
 import '../../../models/training_pack.dart' show parseGameType;
 import 'yaml_reader.dart';
 
+class PackYamlConfig {
+  final List<PackGenerationRequest> requests;
+  final bool rangeTags;
+  const PackYamlConfig({required this.requests, this.rangeTags = false});
+}
+
 class PackYamlConfigParser {
   final YamlReader reader;
   const PackYamlConfigParser({YamlReader? yamlReader})
       : reader = yamlReader ?? const YamlReader();
 
-  List<PackGenerationRequest> parse(String yamlSource) {
+  PackYamlConfig parse(String yamlSource) {
     final map = reader.read(yamlSource);
+    final rangeTags = map['defaultRangeTags'] == true;
     final defaultTags = <String>[
       for (final t in (map['defaultTags'] as List? ?? const [])) t.toString(),
     ];
@@ -16,8 +23,8 @@ class PackYamlConfigParser {
     final defaultMultiplePositions = map['defaultMultiplePositions'] == true;
     final defaultRangeGroup = map['defaultRangeGroup']?.toString();
     final list = map['packs'];
-    if (list is! List) return const [];
-    return [
+    if (list is! List) return const PackYamlConfig(requests: []);
+    final requests = [
       for (final item in list)
         if (item is Map)
           PackGenerationRequest(
@@ -50,5 +57,6 @@ class PackYamlConfigParser {
                 : defaultMultiplePositions,
           ),
     ];
+    return PackYamlConfig(requests: requests, rangeTags: rangeTags);
   }
 }

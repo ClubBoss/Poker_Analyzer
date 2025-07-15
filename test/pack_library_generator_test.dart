@@ -53,4 +53,18 @@ packs:
     expect(list.first.spots.length,
         HandRangeLibrary.getGroup('top10').length);
   });
+
+  test('generateFromYaml adds range tag', () {
+    const yaml = '''
+defaultRangeTags: true
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    rangeGroup: top10
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.tags.contains('top10'), true);
+  });
 }
