@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:poker_analyzer/core/training/generation/pack_yaml_config_parser.dart';
-import 'package:poker_analyzer/core/training/generation/pack_generation_request.dart';
 import 'package:poker_analyzer/models/game_type.dart';
 
 void main() {
@@ -124,5 +123,32 @@ packs:
     final list = parser.parse(yaml);
     expect(list.first.rangeGroup, 'top15');
     expect(list.first.count, 25);
+  });
+
+  test('parse applies defaultRangeGroup', () {
+    const yaml = '''
+defaultRangeGroup: tilt
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+''';
+    final parser = PackYamlConfigParser();
+    final list = parser.parse(yaml);
+    expect(list.first.rangeGroup, 'tilt');
+  });
+
+  test('local rangeGroup overrides defaultRangeGroup', () {
+    const yaml = '''
+defaultRangeGroup: tilt
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    rangeGroup: top15
+''';
+    final parser = PackYamlConfigParser();
+    final list = parser.parse(yaml);
+    expect(list.first.rangeGroup, 'top15');
   });
 }
