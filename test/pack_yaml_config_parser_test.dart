@@ -111,4 +111,18 @@ packs:
     expect(list.first.count, 3);
     expect(list.first.multiplePositions, false);
   });
+
+  test('parse reads rangeGroup', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [btn]
+    rangeGroup: top15
+''';
+    final parser = PackYamlConfigParser();
+    final list = parser.parse(yaml);
+    expect(list.first.rangeGroup, 'top15');
+    expect(list.first.count, 25);
+  });
 }

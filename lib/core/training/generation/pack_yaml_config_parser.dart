@@ -42,6 +42,7 @@ class PackYamlConfigParser {
             count: item.containsKey('count')
                 ? (item['count'] as num?)?.toInt() ?? 25
                 : (defaultCount ?? 25),
+            rangeGroup: item['rangeGroup']?.toString(),
             multiplePositions: item.containsKey('multiplePositions')
                 ? item['multiplePositions'] == true
                 : defaultMultiplePositions,

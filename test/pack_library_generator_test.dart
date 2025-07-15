@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:poker_analyzer/core/training/generation/pack_library_generator.dart';
+import 'package:poker_analyzer/services/hand_range_library.dart';
 
 void main() {
   test('generateFromYaml returns templates', () {
@@ -37,5 +38,19 @@ packs:
     final list = generator.generateFromYaml(yaml);
     expect(list.first.spots.length, 4);
     expect(list.first.spotCount, 4);
+  });
+
+  test('generateFromYaml uses rangeGroup', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    rangeGroup: top10
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.spots.length,
+        HandRangeLibrary.getGroup('top10').length);
   });
 }

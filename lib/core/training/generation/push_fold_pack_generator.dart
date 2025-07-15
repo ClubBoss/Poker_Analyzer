@@ -6,6 +6,7 @@ import '../../../models/v2/hero_position.dart';
 import '../../../models/game_type.dart';
 import '../../../models/action_entry.dart';
 import '../../../services/pack_generator_service.dart';
+import '../../../services/hand_range_library.dart';
 import '../../../utils/template_coverage_utils.dart';
 import '../../../helpers/poker_position_helper.dart';
 
@@ -19,13 +20,14 @@ class PushFoldPackGenerator {
     List<int>? bbList,
     required List<String> positions,
     int count = 25,
+    String? rangeGroup,
     bool multiplePositions = false,
   }) {
     final stacks = bbList == null || bbList.isEmpty ? [bb] : bbList;
     final posList = positions.map(parseHeroPosition).toList();
-    final availableHands = PackGeneratorService.topNHands(count).toList();
-    final limit = availableHands.length < count ? availableHands.length : count;
-    final hands = availableHands.take(limit).toList();
+    final hands = rangeGroup != null
+        ? HandRangeLibrary.getGroup(rangeGroup)
+        : PackGeneratorService.topNHands(count).toList();
     final spots = <TrainingPackSpot>[];
     var index = 1;
     for (final stack in stacks) {
