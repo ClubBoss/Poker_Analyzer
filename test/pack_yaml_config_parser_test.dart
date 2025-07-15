@@ -311,4 +311,23 @@ packs:
     final list = config.requests;
     expect(list.first.description, 'Local');
   });
+
+  test('defaultDescription applies to each pack', () {
+    const yaml = '''
+defaultDescription: Generated
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+  - gameType: cash
+    bb: 5
+    positions: [bb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.length, 2);
+    expect(list.first.description, 'Generated');
+    expect(list.last.description, 'Generated');
+  });
 }
