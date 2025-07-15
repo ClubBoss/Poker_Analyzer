@@ -72,6 +72,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _hideCompletedKey = 'lib_hide_completed';
   static const _popularOnlyKey = 'lib_popular_only';
   static const _recommendedOnlyKey = 'lib_recommended_only';
+  static const _masteredOnlyKey = 'lib_mastered_only';
   static const _compactKey = 'lib_compact_mode';
   static const _pinKey = 'lib_pinned';
   static const _selTagsKey = 'lib_sel_tags';
@@ -120,6 +121,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _hideCompleted = false;
   bool _popularOnly = false;
   bool _recommendedOnly = false;
+  bool _masteredOnly = false;
   bool _compactMode = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
@@ -228,6 +230,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
       _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
       _recommendedOnly = prefs.getBool(_recommendedOnlyKey) ?? false;
+      _masteredOnly = prefs.getBool(_masteredOnlyKey) ?? false;
       _compactMode = prefs.getBool(_compactKey) ?? false;
       _pinned
         ..clear()
@@ -510,6 +513,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_recommendedOnlyKey, value);
     setState(() => _recommendedOnly = value);
+  }
+
+  Future<void> _setMasteredOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_masteredOnlyKey, value);
+    setState(() => _masteredOnly = value);
   }
 
   Future<void> _setCompactMode(bool value) async {
@@ -807,6 +816,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if ((_stats[t.id]?.lastIndex ?? 0) > 0 &&
               (_stats[t.id]?.accuracy ?? 1.0) < 1.0)
             t
+      ];
+    }
+    if (_masteredOnly) {
+      visible = [
+        for (final t in visible)
+          if (_mastered.contains(t.id)) t
       ];
     }
     if (_hideCompleted && !_favoritesOnly) {
@@ -1592,6 +1607,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _favoritesOnly ||
         _popularOnly ||
         _recommendedOnly ||
+        _masteredOnly ||
         _selectedTags.isNotEmpty ||
         _selectedCategories.isNotEmpty ||
         _activeTags.isNotEmpty ||
@@ -1955,6 +1971,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   label: const Text('🔥 Рекомендуемые'),
                   selected: _recommendedOnly,
                   onSelected: (v) => _setRecommendedOnly(v),
+                ),
+                ChoiceChip(
+                  label: Text(l.masteredBadge),
+                  selected: _masteredOnly,
+                  onSelected: (v) => _setMasteredOnly(v),
                 ),
                 ChoiceChip(
                   label: const Text('📋 Компактно'),
