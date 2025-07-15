@@ -1817,7 +1817,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ? ListView(
                     children: [
                       if (pinnedList.isNotEmpty) ...[
-                        const ListTile(title: Text('📌 Закреплённые')),
+                        ListTile(title: Text(l.pinnedPacks)),
                         for (final t in pinnedList) _item(t),
                         if (sortedFav.isNotEmpty ||
                             builtInStarter.isNotEmpty ||
