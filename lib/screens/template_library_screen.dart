@@ -37,6 +37,7 @@ import '../services/bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_service.dart';
+import '../services/training_pack_storage_service.dart';
 import 'mistake_review_screen.dart';
 import '../services/tag_cache_service.dart';
 import '../services/recommended_pack_service.dart';
@@ -136,7 +137,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadStats();
     await _loadPlayCounts();
     await context.read<TagCacheService>().updateFrom(
-        context.read<TemplateStorageService>().templates);
+      context.read<TemplateStorageService>().templates,
+      context.read<TrainingPackStorageService>().packs,
+    );
   }
 
   Future<void> _maybeOfferStarter() async {

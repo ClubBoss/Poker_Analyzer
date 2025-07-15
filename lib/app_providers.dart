@@ -86,6 +86,7 @@ late final TrainingPackCloudSyncService packCloud;
 late final MistakePackCloudService mistakeCloud;
 late final GoalProgressCloudService goalCloud;
 late final TrainingPackTemplateStorageService templateStorage;
+late final TagCacheService tagCache;
 
 List<SingleChildWidget> buildCoreProviders(CloudSyncService cloud) {
   return [
@@ -263,10 +264,7 @@ List<SingleChildWidget> buildTrainingProviders() {
             },
           ),
           ChangeNotifierProvider(create: (_) => TagService()..load()),
-          ChangeNotifierProvider(
-            create: (context) =>
-                TagCacheService(templates: context.read<TemplateStorageService>()),
-          ),
+          ChangeNotifierProvider<TagCacheService>.value(value: tagCache),
           ChangeNotifierProvider(create: (_) => IgnoredMistakeService()..load()),
           ChangeNotifierProvider(create: (_) => GoalsService()..load()),
           ChangeNotifierProvider(

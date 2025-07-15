@@ -27,6 +27,7 @@ import 'services/folded_players_service.dart';
 import 'services/all_in_players_service.dart';
 import 'services/user_preferences_service.dart';
 import 'services/tag_service.dart';
+import 'services/tag_cache_service.dart';
 import 'services/ignored_mistake_service.dart';
 import 'services/goals_service.dart';
 import 'services/cloud_sync_service.dart';
@@ -145,6 +146,11 @@ Future<void> main() async {
   );
   await EvaluationSettingsService.instance.load();
   await MistakeHintService.instance.load();
+  tagCache = TagCacheService(
+    templates: templateStorage,
+    packs: packStorage,
+  );
+  await tagCache.updateFrom(templateStorage.templates, packStorage.packs);
   runApp(
     MultiProvider(
       providers: buildAppProviders(cloud),
