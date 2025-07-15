@@ -10,6 +10,7 @@ import '../models/v2/training_pack_spot.dart';
 class PackLibraryGenerator {
   final SpotTemplateEngine engine;
   final List<TrainingPackTemplate> _packs = [];
+  final Set<String> _slugs = {};
 
   PackLibraryGenerator({SpotTemplateEngine? engine})
     : engine = engine ?? SpotTemplateEngine();
@@ -24,6 +25,7 @@ class PackLibraryGenerator {
     bool includeIcm = true,
   }) async {
     _packs.clear();
+    _slugs.clear();
     final heroes = heroPositions ?? HeroPosition.values;
     final villains = villainPositions ?? HeroPosition.values;
     final ranges =
@@ -48,6 +50,9 @@ class PackLibraryGenerator {
                   actionType: type,
                   withIcm: icm,
                 );
+                tpl.slug = _uniqueSlug(
+                  _buildSlug(type, hero, vill, r, icm),
+                );
                 _autoTagSpots(tpl);
                 _packs.add(tpl);
               }
@@ -62,6 +67,7 @@ class PackLibraryGenerator {
     final importer = YamlPackImporterService();
     final list = await importer.loadFromYaml(path);
     _packs.clear();
+    _slugs.clear();
     for (final t in list) {
       final tpl = await engine.generate(
         heroPosition: t.hero,
@@ -70,6 +76,9 @@ class PackLibraryGenerator {
         actionType: t.action,
         withIcm: t.icm,
         name: t.name,
+      );
+      tpl.slug = _uniqueSlug(
+        _buildSlug(t.action, t.hero, t.villain, t.stacks, t.icm),
       );
       tpl.tags = [for (final tag in t.tags) if (tag.trim().isNotEmpty) tag];
       tpl.trending = t.trending;
@@ -109,5 +118,43 @@ class PackLibraryGenerator {
       if (catTag != null) cats.add(catTag);
       spot.categories = cats;
     }
+  }
+
+  String _buildSlug(
+    String action,
+    HeroPosition hero,
+    HeroPosition villain,
+    List<int> stacks,
+    bool icm,
+  ) {
+    String a;
+    switch (action) {
+      case 'push':
+        a = 'push';
+        break;
+      case 'callPush':
+        a = 'call';
+        break;
+      case 'minraiseFold':
+        a = 'minraise';
+        break;
+      default:
+        a = action;
+    }
+    final avg = stacks.isEmpty
+        ? 0
+        : stacks.reduce((a, b) => a + b) ~/ stacks.length;
+    final prefix = icm ? 'icm-' : '';
+    return '$prefix$a-${hero.name}-${avg}bb-vs-${villain.name}';
+  }
+
+  String _uniqueSlug(String base) {
+    var slug = base;
+    var i = 1;
+    while (_slugs.contains(slug)) {
+      slug = '$base-${i++}';
+    }
+    _slugs.add(slug);
+    return slug;
   }
 }
