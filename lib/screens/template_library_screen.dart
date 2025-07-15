@@ -39,6 +39,7 @@ import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_service.dart';
 import 'mistake_review_screen.dart';
 import '../services/tag_cache_service.dart';
+import '../services/recommended_pack_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -66,6 +67,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _inProgressKey = 'lib_in_progress';
   static const _hideCompletedKey = 'lib_hide_completed';
   static const _popularOnlyKey = 'lib_popular_only';
+  static const _recommendedOnlyKey = 'lib_recommended_only';
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
   static const kStarterTag = 'starter';
@@ -100,6 +102,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _showRecent = true;
   bool _hideCompleted = false;
   bool _popularOnly = false;
+  bool _recommendedOnly = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
   bool _importing = false;
@@ -182,6 +185,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
       _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
+      _recommendedOnly = prefs.getBool(_recommendedOnlyKey) ?? false;
     });
     final cloud = context.read<CloudSyncService>();
     final remoteRaw = await cloud.load(_favKey);
@@ -318,6 +322,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_popularOnlyKey, value);
     setState(() => _popularOnly = value);
+  }
+
+  Future<void> _setRecommendedOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_recommendedOnlyKey, value);
+    setState(() => _recommendedOnly = value);
   }
 
   Future<void> _updateRecent() async {
@@ -579,6 +589,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         for (final t in visible)
           if (t.tags.any(cache.popularTags.contains) ||
               t.hands.any((h) => cache.popularCategories.contains(h.category)))
+            t
+      ];
+    }
+    if (_recommendedOnly) {
+      final rec = context.read<RecommendedPackService>();
+      visible = [
+        for (final t in visible)
+          if (t.tags.any(rec.preferredTags.contains) ||
+              t.hands.any((h) =>
+                  h.category != null &&
+                  rec.preferredCategories.contains(h.category)))
             t
       ];
     }
@@ -1146,6 +1167,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _needsPractice ||
         _favoritesOnly ||
         _popularOnly ||
+        _recommendedOnly ||
         _selectedTags.isNotEmpty ||
         _selectedCategories.isNotEmpty;
     final fav = <TrainingPackTemplate>[];
@@ -1367,6 +1389,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 label: const Text('📈 Популярные'),
                 selected: _popularOnly,
                 onSelected: (v) => _setPopularOnly(v),
+              ),
+              ChoiceChip(
+                label: const Text('🔥 Рекомендуемые'),
+                selected: _recommendedOnly,
+                onSelected: (v) => _setRecommendedOnly(v),
               ),
             ],
           ),
