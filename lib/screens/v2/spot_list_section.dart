@@ -392,6 +392,7 @@ part of 'training_pack_template_editor_screen.dart';
     );
     setState(() => widget.template.spots.add(spot));
     await _persist();
+    if (mounted) setState(() {});
     setState(() => _log('Added', spot));
     await _openEditor(spot);
   }
@@ -829,6 +830,7 @@ part of 'training_pack_template_editor_screen.dart';
       _showDupHint = false;
     });
     _persist();
+    if (mounted) setState(() {});
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
   }
 
@@ -904,6 +906,7 @@ part of 'training_pack_template_editor_screen.dart';
     setState(() => widget.template.focusHandTypes.add(FocusGoal(label, weight)));
     _handTypeCtr.clear();
     _persist();
+    if (mounted) setState(() {});
     final tag = _tagForHandType(label);
     if (tag != null && !widget.template.tags.contains(tag)) {
       ScaffoldMessenger.of(context).showSnackBar(

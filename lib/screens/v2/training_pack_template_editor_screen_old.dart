@@ -4361,6 +4361,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     onDeleted: () {
                       setState(() => widget.template.focusHandTypes.remove(t));
                       _persist();
+                      if (mounted) setState(() {});
                     },
                   ),
                 SizedBox(
@@ -9654,6 +9655,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     onDeleted: () {
                       setState(() => widget.template.focusHandTypes.remove(t));
                       _persist();
+                      if (mounted) setState(() {});
                     },
                   ),
                 SizedBox(
