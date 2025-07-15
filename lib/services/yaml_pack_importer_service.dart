@@ -10,6 +10,7 @@ class YamlPackTemplate {
   final String action;
   final bool icm;
   final List<String> tags;
+  final bool trending;
   YamlPackTemplate({
     required this.name,
     required this.hero,
@@ -18,6 +19,7 @@ class YamlPackTemplate {
     required this.action,
     required this.icm,
     List<String>? tags,
+    this.trending = false,
   }) : tags = tags ?? const [];
 }
 
@@ -37,6 +39,7 @@ class YamlPackImporterService {
       final tags = <String>[
         for (final v in (item['tags'] as YamlList? ?? const [])) v.toString()
       ];
+      final trending = item['trending'] == true;
       list.add(
         YamlPackTemplate(
           name: item['name'].toString(),
@@ -46,6 +49,7 @@ class YamlPackImporterService {
           action: item['action'].toString(),
           icm: item['icm'] == true,
           tags: tags,
+          trending: trending,
         ),
       );
     }

@@ -374,6 +374,7 @@ List<SingleChildWidget> buildTrainingProviders() {
           Provider(
             create: (context) => SmartSuggestionService(
               storage: context.read<TrainingPackStorageService>(),
+              templates: context.read<TemplateStorageService>(),
             ),
           ),
   ];
