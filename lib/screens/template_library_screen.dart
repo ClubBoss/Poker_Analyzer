@@ -50,6 +50,7 @@ import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/user_action_logger.dart';
+import '../widgets/category_section.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -1794,6 +1795,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     else if (filteringActive) ...[
                       _emptyTile,
                       if (builtInStarter.isNotEmpty ||
+                          builtInOther.isNotEmpty ||
+                          user.isNotEmpty)
+                        const Divider(),
+                    ],
+                    if (_weakCategories.isNotEmpty) ...[
+                      CategorySection(
+                        title: l.weakAreas,
+                        categories: _weakCategories,
+                        onTap: _setActiveCategory,
+                      ),
+                      if (_popular.isNotEmpty ||
+                          builtInStarter.isNotEmpty ||
                           builtInOther.isNotEmpty ||
                           user.isNotEmpty)
                         const Divider(),
