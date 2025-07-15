@@ -6,13 +6,15 @@ import 'yaml_reader.dart';
 class PackYamlConfigParser {
   final YamlReader reader;
   const PackYamlConfigParser({YamlReader? yamlReader})
-      : reader = yamlReader ?? const YamlReader();
+    : reader = yamlReader ?? const YamlReader();
 
   List<PackGenerationRequest> parse(String yamlSource) {
     final map = reader.read(yamlSource);
     final defaultTags = <String>[
-      for (final t in (map['defaultTags'] as List? ?? const [])) t.toString()
+      for (final t in (map['defaultTags'] as List? ?? const [])) t.toString(),
     ];
+    final defaultCount = (map['defaultCount'] as num?)?.toInt();
+    final defaultMultiplePositions = map['defaultMultiplePositions'] == true;
     final list = map['packs'];
     if (list is! List) return const [];
     return [
@@ -22,14 +24,11 @@ class PackYamlConfigParser {
             gameType: parseGameType(item['gameType']),
             bb: (item['bb'] as num?)?.toInt() ?? 0,
             bbList: item['bbList'] is List
-                ? [
-                    for (final b in item['bbList'])
-                      (b as num).toInt()
-                  ]
+                ? [for (final b in item['bbList']) (b as num).toInt()]
                 : null,
             positions: [
               for (final p in (item['positions'] as List? ?? const []))
-                p.toString()
+                p.toString(),
             ],
             title: item['title']?.toString() ?? '',
             description: item['description']?.toString() ?? '',
@@ -40,9 +39,13 @@ class PackYamlConfigParser {
                   : [for (final t in local) t.toString()];
               return List<String>.from(tags);
             }(),
-            count: (item['count'] as num?)?.toInt() ?? 25,
-            multiplePositions: item['multiplePositions'] == true,
-          )
+            count: item.containsKey('count')
+                ? (item['count'] as num?)?.toInt() ?? 25
+                : (defaultCount ?? 25),
+            multiplePositions: item.containsKey('multiplePositions')
+                ? item['multiplePositions'] == true
+                : defaultMultiplePositions,
+          ),
     ];
   }
 }
