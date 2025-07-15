@@ -133,6 +133,10 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
 
   @override
   Widget build(BuildContext context) {
+    final updatedAt =
+        widget.template.updatedDate ?? widget.template.createdAt;
+    final isNew =
+        DateTime.now().difference(updatedAt).inDays <= 3;
     final catSet = <String>{};
     for (final s in widget.template.spots) {
       for (final t in s.tags.where((t) => t.startsWith('cat:'))) {
@@ -252,10 +256,36 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                 ),
               ],
             ),
-            if (widget.template.trending)
+            if (isNew)
               Positioned(
                 right: 4,
                 top: 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 2,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: const Text(
+                    '🆕 Новая',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ),
+            if (widget.template.trending)
+              Positioned(
+                right: 4,
+                top: isNew ? 24 : 4,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
@@ -281,7 +311,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
             if (_passed)
               Positioned(
                 right: 4,
-                top: widget.template.trending ? 24 : 4,
+                top: (isNew ? 24 : 4) + (widget.template.trending ? 20 : 0),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
