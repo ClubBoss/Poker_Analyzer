@@ -65,6 +65,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _recentOnlyKey = 'lib_recent_only';
   static const _inProgressKey = 'lib_in_progress';
   static const _hideCompletedKey = 'lib_hide_completed';
+  static const _popularOnlyKey = 'lib_popular_only';
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
   static const kStarterTag = 'starter';
@@ -98,6 +99,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _inProgressOnly = false;
   bool _showRecent = true;
   bool _hideCompleted = false;
+  bool _popularOnly = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
   bool _importing = false;
@@ -179,6 +181,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
       _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
+      _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
     });
     final cloud = context.read<CloudSyncService>();
     final remoteRaw = await cloud.load(_favKey);
@@ -309,6 +312,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_hideCompletedKey, value);
     setState(() => _hideCompleted = value);
+  }
+
+  Future<void> _setPopularOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_popularOnlyKey, value);
+    setState(() => _popularOnly = value);
   }
 
   Future<void> _updateRecent() async {
@@ -562,6 +571,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       visible = [
         for (final t in visible)
           if (_matchesTagsOrCategories(t)) t
+      ];
+    }
+    if (_popularOnly) {
+      final cache = context.read<TagCacheService>();
+      visible = [
+        for (final t in visible)
+          if (t.tags.any(cache.popularTags.contains) ||
+              t.hands.any((h) => cache.popularCategories.contains(h.category)))
+            t
       ];
     }
     return visible;
@@ -1127,6 +1145,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _filter != 'all' ||
         _needsPractice ||
         _favoritesOnly ||
+        _popularOnly ||
         _selectedTags.isNotEmpty ||
         _selectedCategories.isNotEmpty;
     final fav = <TrainingPackTemplate>[];
@@ -1343,6 +1362,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 label: Text(l.recentPacks),
                 selected: _showRecent,
                 onSelected: (v) => _setShowRecent(v),
+              ),
+              ChoiceChip(
+                label: const Text('📈 Популярные'),
+                selected: _popularOnly,
+                onSelected: (v) => _setPopularOnly(v),
               ),
             ],
           ),
