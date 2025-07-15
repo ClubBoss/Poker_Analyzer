@@ -39,6 +39,14 @@ class TrainingPackStorageService extends ChangeNotifier {
   final List<TrainingPack> _packs = [];
   List<TrainingPack> get packs => List.unmodifiable(_packs);
 
+  static const _logsKey = 'session_logs_updated';
+  final List<TrainingPack> _hotCache = [];
+  DateTime _hotTime = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime _hotLogs = DateTime.fromMillisecondsSinceEpoch(0);
+  final List<(TrainingPack, int)> _topCache = [];
+  DateTime _topTime = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime _topLogs = DateTime.fromMillisecondsSinceEpoch(0);
+
   List<TrainingPack> getSortedPacks() {
     final list = List<TrainingPack>.from(_packs);
     list.sort((a, b) {
@@ -51,7 +59,13 @@ class TrainingPackStorageService extends ChangeNotifier {
     return List.unmodifiable(list);
   }
 
-  Future<List<TrainingPack>> getHotPacks([int limit = 5]) async {
+  Future<DateTime> _readLogsTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    return DateTime.tryParse(prefs.getString(_logsKey) ?? '') ??
+        DateTime.fromMillisecondsSinceEpoch(0);
+  }
+
+  Future<void> refreshHotPacks() async {
     if (!Hive.isBoxOpen('session_logs')) {
       await Hive.initFlutter();
       await Hive.openBox('session_logs');
@@ -62,19 +76,19 @@ class TrainingPackStorageService extends ChangeNotifier {
       final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
       count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
     }
-    final list = [for (final p in _packs) if (count[p.id] != null) p];
-    list.sort((a, b) {
-      final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
-      if (r != 0) return r;
-      return b.lastAttemptDate.compareTo(a.lastAttemptDate);
-    });
-    if (limit < list.length) return list.sublist(0, limit);
-    return list;
+    _hotCache
+      ..clear()
+      ..addAll([for (final p in _packs) if (count[p.id] != null) p]
+        ..sort((a, b) {
+          final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
+          if (r != 0) return r;
+          return b.lastAttemptDate.compareTo(a.lastAttemptDate);
+        }));
+    _hotTime = DateTime.now();
+    _hotLogs = await _readLogsTime();
   }
 
-  Future<List<(TrainingPack, int)>> getMostCompletedPacks([
-    int limit = 10,
-  ]) async {
+  Future<void> refreshTopPacks() async {
     if (!Hive.isBoxOpen('session_logs')) {
       await Hive.initFlutter();
       await Hive.openBox('session_logs');
@@ -87,17 +101,41 @@ class TrainingPackStorageService extends ChangeNotifier {
         count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
       }
     }
-    final list = [
-      for (final p in _packs)
-        if (count[p.id] != null) (p, count[p.id]!)
-    ];
-    list.sort((a, b) {
-      final r = b.$2.compareTo(a.$2);
-      if (r != 0) return r;
-      return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
-    });
-    if (limit < list.length) return list.sublist(0, limit);
-    return list;
+    _topCache
+      ..clear()
+      ..addAll([
+        for (final p in _packs)
+          if (count[p.id] != null) (p, count[p.id]!)
+      ]
+        ..sort((a, b) {
+          final r = b.$2.compareTo(a.$2);
+          if (r != 0) return r;
+          return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
+        }));
+    _topTime = DateTime.now();
+    _topLogs = await _readLogsTime();
+  }
+
+  Future<List<TrainingPack>> getHotPacks([int limit = 5]) async {
+    final logsTime = await _readLogsTime();
+    if (_hotCache.isEmpty ||
+        logsTime.isAfter(_hotLogs) ||
+        DateTime.now().difference(_hotTime) > const Duration(minutes: 10)) {
+      await refreshHotPacks();
+    }
+    return limit < _hotCache.length ? _hotCache.sublist(0, limit) : _hotCache;
+  }
+
+  Future<List<(TrainingPack, int)>> getMostCompletedPacks([
+    int limit = 10,
+  ]) async {
+    final logsTime = await _readLogsTime();
+    if (_topCache.isEmpty ||
+        logsTime.isAfter(_topLogs) ||
+        DateTime.now().difference(_topTime) > const Duration(minutes: 10)) {
+      await refreshTopPacks();
+    }
+    return limit < _topCache.length ? _topCache.sublist(0, limit) : _topCache;
   }
 
   final Map<String, List<PackSnapshot>> _snapshots = {};
@@ -149,6 +187,9 @@ class TrainingPackStorageService extends ChangeNotifier {
       await loadBuiltInPacks();
     }
 
+    await refreshHotPacks();
+    await refreshTopPacks();
+
     notifyListeners();
   }
 
@@ -189,6 +230,8 @@ class TrainingPackStorageService extends ChangeNotifier {
         }
       }
       await _persist();
+      await refreshHotPacks();
+      await refreshTopPacks();
     } catch (_) {}
   }
 
@@ -457,7 +500,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       name: name,
       description: tpl.description,
       category: cat,
-      gameType: tpl.gameType,
+      gameType: parseGameType(tpl.gameType),
       colorTag: color,
       tags: List.from(tpl.tags),
       hands: tpl.hands,
@@ -504,7 +547,7 @@ class TrainingPackStorageService extends ChangeNotifier {
           : (template.category?.isNotEmpty == true
               ? template.category!
               : 'Uncategorized'),
-      gameType: template.gameType,
+      gameType: parseGameType(template.gameType),
       colorTag: colorTag ?? '#2196F3',
       hands: selected,
       spots: const [],
@@ -619,7 +662,7 @@ class TrainingPackStorageService extends ChangeNotifier {
 
 extension PackProgress on TrainingPack {
   double get pctComplete =>
-      (hands.isEmpty ? 0 : solved / hands.length).clamp(0, 1);
+      (hands.isEmpty ? 0 : solved / hands.length).clamp(0, 1).toDouble();
 }
 
 int calcOrderHash(List<SavedHand> hands) {
