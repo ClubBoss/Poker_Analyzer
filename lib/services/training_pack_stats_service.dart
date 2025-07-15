@@ -237,6 +237,17 @@ class TrainingPackStatsService {
     return [];
   }
 
+  static Future<bool> isMastered(String id) async {
+    final hist = await history(id);
+    if (hist.length < 5) return false;
+    final recent = hist.sublist(hist.length - 5);
+    for (final h in recent) {
+      if (h.accuracy < 0.8) return false;
+      if (h.evSum.abs() >= 0.2) return false;
+    }
+    return true;
+  }
+
   static Future<Map<String, double>> getCategoryStats() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_skillKey);
