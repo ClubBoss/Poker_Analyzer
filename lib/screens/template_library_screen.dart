@@ -125,12 +125,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   void initState() {
     super.initState();
     _searchCtrl.addListener(() => setState(() {}));
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
-      });
-      _maybeOfferStarter();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeOfferStarter());
     _init();
   }
 
@@ -146,6 +141,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       context.read<TemplateStorageService>().templates,
       context.read<TrainingPackStorageService>().packs,
     );
+    if (!mounted) return;
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
+    });
   }
 
   Future<void> _maybeOfferStarter() async {
