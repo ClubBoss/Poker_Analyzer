@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/training_session_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/adaptive_training_service.dart';
+import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
 
 class TrainingTemplateDetailScreen extends StatelessWidget {
@@ -58,6 +60,59 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                 padding: EdgeInsets.only(top: 8),
                 child: Text('Есть ошибки', style: TextStyle(color: Colors.orange)),
               ),
+            if (template.meta.containsKey('evCovered') &&
+                template.meta.containsKey('icmCovered') &&
+                template.spots.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 120,
+                child: PieChart(
+                  PieChartData(
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 40,
+                    sections: [
+                      PieChartSectionData(
+                        value: template.evCovered.toDouble(),
+                        color: AppColors.evPre,
+                        title:
+                            '${(template.evCovered * 100 / template.spots.length).round()}%',
+                        titleStyle: const TextStyle(color: Colors.white),
+                      ),
+                      PieChartSectionData(
+                        value: template.icmCovered.toDouble(),
+                        color: AppColors.icmPre,
+                        title:
+                            '${(template.icmCovered * 100 / template.spots.length).round()}%',
+                        titleStyle: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Container(width: 12, height: 12, color: AppColors.evPre),
+                      const SizedBox(width: 4),
+                      const Text('EV',
+                          style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                  Row(
+                    children: [
+                      Container(width: 12, height: 12, color: AppColors.icmPre),
+                      const SizedBox(width: 4),
+                      const Text('ICM',
+                          style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ),
+            ],
             const Spacer(),
             Row(
               children: [
