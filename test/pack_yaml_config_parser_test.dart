@@ -159,6 +159,20 @@ packs:
     expect(list.first.multiplePositions, true);
   });
 
+  test('parse stores defaultCount', () {
+    const yaml = '''
+defaultCount: 40
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [btn]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    expect(config.defaultCount, 40);
+    expect(config.requests.first.count, 40);
+  });
+
   test('local values override defaults', () {
     const yaml = '''
 defaultCount: 5
