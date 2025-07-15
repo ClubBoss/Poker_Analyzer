@@ -8,6 +8,9 @@ part of 'training_pack_template_editor_screen.dart';
     if (_duplicatesOnly) {
       base = [for (final s in base) if (_isDup(s)) s];
     }
+    if (_priorityFilter != null) {
+      base = [for (final s in base) if (s.priority == _priorityFilter) s];
+    }
     final changed =
         _changedOnly ? _history.history.map((e) => e.id).toSet() : null;
     final list = base.where((s) {
