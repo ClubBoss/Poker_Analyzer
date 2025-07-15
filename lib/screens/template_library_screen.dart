@@ -38,6 +38,7 @@ import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_service.dart';
 import 'mistake_review_screen.dart';
+import '../services/tag_cache_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -127,6 +128,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _updatePopular();
     await _loadStats();
     await _loadPlayCounts();
+    await context.read<TagCacheService>().updateFrom(
+        context.read<TemplateStorageService>().templates);
   }
 
   Future<void> _maybeOfferStarter() async {
@@ -1098,13 +1101,23 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final templates = context.watch<TemplateStorageService>().templates;
-    final tagList = <String>{for (final t in templates) ...t.tags}.toList()..sort();
-    final categoryList = <String>{
+    final cache = context.watch<TagCacheService>();
+    final tagSet = <String>{for (final t in templates) ...t.tags};
+    final catSet = <String>{
       for (final t in templates)
         for (final h in t.hands)
           if (h.category != null && h.category!.isNotEmpty) h.category!
-    }.toList()
-      ..sort();
+    };
+    final tagList = [
+      for (final t in cache.popularTags)
+        if (tagSet.contains(t)) t,
+      ...[for (final t in tagSet.toList()..sort()) if (!cache.popularTags.contains(t)) t]
+    ];
+    final categoryList = [
+      for (final c in cache.popularCategories)
+        if (catSet.contains(c)) c,
+      ...[for (final c in catSet.toList()..sort()) if (!cache.popularCategories.contains(c)) c]
+    ];
     final visible = _applyFilters(templates);
     final sortedVisible = _applySorting(visible);
     final query = _searchCtrl.text.trim().toLowerCase();

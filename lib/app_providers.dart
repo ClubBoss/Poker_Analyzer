@@ -48,6 +48,7 @@ import 'services/folded_players_service.dart';
 import 'services/action_sync_service.dart';
 import 'services/user_preferences_service.dart';
 import 'services/tag_service.dart';
+import 'services/tag_cache_service.dart';
 import 'services/ignored_mistake_service.dart';
 import 'services/goals_service.dart';
 import 'services/streak_service.dart';
@@ -261,6 +262,10 @@ List<SingleChildWidget> buildTrainingProviders() {
             },
           ),
           ChangeNotifierProvider(create: (_) => TagService()..load()),
+          ChangeNotifierProvider(
+            create: (context) =>
+                TagCacheService(templates: context.read<TemplateStorageService>()),
+          ),
           ChangeNotifierProvider(create: (_) => IgnoredMistakeService()..load()),
           ChangeNotifierProvider(create: (_) => GoalsService()..load()),
           ChangeNotifierProvider(
