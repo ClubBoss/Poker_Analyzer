@@ -6,6 +6,8 @@ import '../theme/app_colors.dart';
 import '../helpers/mistake_category_translations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/date_utils.dart';
+import '../services/training_pack_stats_service.dart';
+import 'package:intl/intl.dart';
 
 class TrainingPackCard extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -30,6 +32,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   late bool _pinned;
   String? _completedAt;
   double? _accuracy;
+  String? _lastAttempt;
   bool _passed = false;
 
   Future<void> _resetProgress() async {
@@ -47,9 +50,9 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
         _accuracy = null;
         _completedAt = null;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Прогресс сброшен')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Прогресс сброшен')));
     }
     await widget.onRefresh?.call();
   }
@@ -91,23 +94,38 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   void initState() {
     super.initState();
     _pinned = widget.template.isPinned;
-    if (widget.dimmed) _loadStats();
+    _loadStats();
   }
 
   Future<void> _loadStats() async {
     final prefs = await SharedPreferences.getInstance();
     final ts = DateTime.tryParse(
-        prefs.getString('completed_at_tpl_${widget.template.id}') ?? '');
+      prefs.getString('completed_at_tpl_${widget.template.id}') ?? '',
+    );
     final acc = prefs.getDouble('last_accuracy_tpl_${widget.template.id}');
     final a0 = prefs.getDouble('last_accuracy_tpl_${widget.template.id}_0');
     final a1 = prefs.getDouble('last_accuracy_tpl_${widget.template.id}_1');
     final a2 = prefs.getDouble('last_accuracy_tpl_${widget.template.id}_2');
+    final stat = await TrainingPackStatsService.getStats(widget.template.id);
+    DateTime? last = stat?.last;
+    if (last == null) {
+      final ms = prefs.getInt('tpl_ts_${widget.template.id}');
+      if (ms != null) last = DateTime.fromMillisecondsSinceEpoch(ms);
+    }
     if (mounted) {
       setState(() {
         if (ts != null) _completedAt = formatLongDate(ts);
         if (acc != null) _accuracy = acc;
-        _passed = a0 != null && a1 != null && a2 != null &&
-            a0 >= 80 && a1 >= 80 && a2 >= 80;
+        _passed = a0 != null &&
+            a1 != null &&
+            a2 != null &&
+            a0 >= 80 &&
+            a1 >= 80 &&
+            a2 >= 80;
+        if (last != null) {
+          final locale = Intl.getCurrentLocale();
+          _lastAttempt = DateFormat('dd MMM', locale).format(last.toLocal());
+        }
       });
     }
   }
@@ -143,96 +161,108 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
           children: [
             Row(
               children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_pinned)
-                        const Text(
-                          '📌 ',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      Expanded(
-                        child: Text(
-                          widget.template.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (widget.template.description.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        widget.template.description,
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      '${widget.template.spots.length} spots',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ),
-                  if (widget.progress != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        '${widget.progress} / ${widget.template.spots.length}',
-                        style: const TextStyle(color: Colors.white54),
-                      ),
-                    ),
-                  if (cats.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
+                      Row(
                         children: [
-                          for (final c in cats)
-                            Chip(
-                              label: Text(c),
-                              backgroundColor: const Color(0xFF3A3B3E),
-                              labelStyle: const TextStyle(color: Colors.white),
+                          if (_pinned)
+                            const Text(
+                              '📌 ',
+                              style: TextStyle(color: Colors.white),
                             ),
+                          Expanded(
+                            child: Text(
+                              widget.template.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
+                      if (widget.template.description.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            widget.template.description,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          '${widget.template.spots.length} spots',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                      if (widget.progress != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            '${widget.progress} / ${widget.template.spots.length}',
+                            style: const TextStyle(color: Colors.white54),
+                          ),
+                        ),
+                      if (cats.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: [
+                              for (final c in cats)
+                                Chip(
+                                  label: Text(c),
+                                  backgroundColor: const Color(0xFF3A3B3E),
+                                  labelStyle: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _handleTap,
+                  child: const Text('Train'),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (v) {
+                    if (v == 'reset') _resetProgress();
+                  },
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'reset',
+                      child: Text('Сбросить прогресс'),
                     ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(onPressed: _handleTap, child: const Text('Train')),
-            PopupMenuButton<String>(
-              onSelected: (v) {
-                if (v == 'reset') _resetProgress();
-              },
-              itemBuilder: (_) => const [
-                PopupMenuItem(
-                  value: 'reset',
-                  child: Text('Сбросить прогресс'),
+                  ],
                 ),
               ],
-            ),
-          ],
             ),
             if (widget.template.trending)
               Positioned(
                 right: 4,
                 top: 4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(4),
                     boxShadow: const [
-                      BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(0, 1)),
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 2,
+                        offset: Offset(0, 1),
+                      ),
                     ],
                   ),
                   child: const Text(
@@ -246,7 +276,10 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                 right: 4,
                 top: widget.template.trending ? 24 : 4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green,
                     borderRadius: BorderRadius.circular(4),
@@ -257,24 +290,37 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                   ),
                 ),
               ),
-            if (widget.dimmed && (_completedAt != null || _accuracy != null))
+            if (_lastAttempt != null ||
+                (widget.dimmed && (_completedAt != null || _accuracy != null)))
               Positioned(
                 bottom: 4,
                 right: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (_completedAt != null)
+                    if (_lastAttempt != null)
+                      Text(
+                        _lastAttempt!,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    if (widget.dimmed && _completedAt != null)
                       Text(
                         _completedAt!,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.white70),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
                       ),
-                    if (_accuracy != null)
+                    if (widget.dimmed && _accuracy != null)
                       Text(
                         'Accuracy: ${_accuracy!.toStringAsFixed(0)}%',
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.white70),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
                       ),
                   ],
                 ),
