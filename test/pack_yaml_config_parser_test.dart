@@ -185,4 +185,22 @@ packs:
     final config = parser.parse(yaml);
     expect(config.rangeTags, false);
   });
+
+  test('parse skips disabled packs', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    enabled: false
+  - gameType: cash
+    bb: 5
+    positions: [bb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    final list = config.requests;
+    expect(list.length, 1);
+    expect(list.first.gameType, GameType.cash);
+  });
 }
