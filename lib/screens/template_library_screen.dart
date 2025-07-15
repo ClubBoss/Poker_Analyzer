@@ -791,11 +791,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final tagOk = tags.isEmpty || t.tags.any(tags.contains);
     var catOk = cats.isEmpty;
     if (!catOk) {
-      for (final h in t.hands) {
-        final c = h.category;
-        if (c != null && cats.contains(c)) {
-          catOk = true;
-          break;
+      if (t.category != null && cats.contains(t.category)) {
+        catOk = true;
+      } else {
+        for (final h in t.hands) {
+          final c = h.category;
+          if (c != null && cats.contains(c)) {
+            catOk = true;
+            break;
+          }
         }
       }
     }
@@ -1264,21 +1268,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           dense: true,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          children: [
+            Text(
+              t.name,
+              style: t.isBuiltIn
+                  ? TextStyle(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    )
+                  : null,
+            ),
+            if (t.category != null && t.category!.isNotEmpty)
               Text(
-                t.name,
-                style: t.isBuiltIn
-                    ? TextStyle(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      )
-                    : null,
+                translateCategory(t.category),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
-              handsProgress(),
-              progress(),
-              if (tags.isNotEmpty) tagsWidget,
-            ],
-          ),
+            handsProgress(),
+            progress(),
+            if (tags.isNotEmpty) tagsWidget,
+          ],
+        ),
           onTap: () async {
             final create = await showDialog<bool>(
               context: context,
@@ -1365,6 +1374,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         : null,
                   ),
                 ),
+                if (t.category != null && t.category!.isNotEmpty) ...[
+                  const SizedBox(width: 4),
+                  Text(
+                    translateCategory(t.category),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
                 if (_mastered.contains(t.id)) ...[
                   const SizedBox(width: 4),
                   Text(
@@ -1394,9 +1410,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ],
         ),
         subtitle: () {
-          final c = translateCategory(t.category);
-          final main =
-              '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} ${l.hands} • v$version';
+          final main = '${t.hands.length} ${l.hands} • v$version';
           final stat = _stats[t.id];
           if (stat == null) {
             return Column(
@@ -1624,6 +1638,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         for (final h in t.hands)
           if (h.category != null && h.category!.isNotEmpty) h.category!
     };
+    final templateCatSet = <String>{
+      for (final t in templates)
+        if (t.category != null && t.category!.isNotEmpty) t.category!
+    };
     final tagList = [
       for (final t in cache.popularTags)
         if (tagSet.contains(t)) t,
@@ -1639,6 +1657,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         for (final c in catSet.toList()..sort())
           if (!cache.popularCategories.contains(c)) c
       ]
+    ];
+    final templateCategoryList = [
+      for (final c in templateCatSet.toList()..sort()) c
     ];
     final pinnedTemplates = _applySorting([
       for (final t in templates)
@@ -1938,6 +1959,25 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       label: Text(translateCategory(cat)),
                       selected: _selectedCategories.contains(cat),
                       onSelected: (_) => _toggleCategory(cat),
+                    ),
+                ],
+              ),
+            ),
+          if (templateCategoryList.isNotEmpty)
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  for (final cat in templateCategoryList)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(translateCategory(cat)),
+                        selected: _selectedCategories.contains(cat),
+                        onSelected: (_) => _toggleCategory(cat),
+                      ),
                     ),
                 ],
               ),
