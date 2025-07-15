@@ -38,6 +38,7 @@ import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_pack_storage_service.dart';
+import '../services/daily_pack_service.dart';
 import '../services/motivation_service.dart';
 import 'mistake_review_screen.dart';
 import '../services/tag_cache_service.dart';
@@ -1251,6 +1252,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _startDailyPack() async {
+    final tpl = context.read<DailyPackService>().template;
+    if (tpl == null) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
@@ -1932,6 +1944,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          if (context.watch<DailyPackService>().template != null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: _startDailyPack,
+                child: Text(l.packOfDay),
               ),
             ),
           SwitchListTile(
