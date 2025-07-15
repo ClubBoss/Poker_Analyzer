@@ -176,19 +176,8 @@ class _TrainingPackTemplateListScreenState
     switch (_sort) {
       case 'coverage':
         _templates.sort((a, b) {
-          double cover(TrainingPackTemplate t) {
-            final total = t.spots.length;
-            if (total == 0) return 0;
-            final evPct =
-                t.spots.where((s) => s.heroEv != null && !s.dirty).length / total;
-            final icmPct = t.spots
-                    .where((s) => s.heroIcmEv != null && !s.dirty)
-                    .length /
-                total;
-            return (evPct + icmPct) / 2;
-          }
-
-          final r = cover(b).compareTo(cover(a));
+          double cov(TrainingPackTemplate t) => t.coveragePercent ?? -1;
+          final r = cov(b).compareTo(cov(a));
           return r == 0
               ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
               : r;
@@ -3112,15 +3101,17 @@ class _TrainingPackTemplateListScreenState
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort),
             onSelected: _setSort,
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'coverage', child: Text('Best Coverage')),
-              PopupMenuItem(value: 'name', child: Text('Name A–Z')),
-              PopupMenuItem(value: 'created', child: Text('Newest First')),
+            itemBuilder: (ctx) => [
               PopupMenuItem(
+                  value: 'coverage',
+                  child: Text(AppLocalizations.of(ctx)!.sortCoverage)),
+              const PopupMenuItem(value: 'name', child: Text('Name A–Z')),
+              const PopupMenuItem(value: 'created', child: Text('Newest First')),
+              const PopupMenuItem(
                   value: 'last_trained',
                   child: Text('Last Trained (Recent → Old)')),
-              PopupMenuItem(value: 'spots', child: Text('Most Spots')),
-              PopupMenuItem(value: 'tag', child: Text('Tag A–Z')),
+              const PopupMenuItem(value: 'spots', child: Text('Most Spots')),
+              const PopupMenuItem(value: 'tag', child: Text('Tag A–Z')),
             ],
           ),
           PopupMenuButton<String>(

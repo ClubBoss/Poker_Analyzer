@@ -68,12 +68,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortName = 'name';
   static const kSortProgress = 'progress';
   static const kSortInProgress = 'resume';
+  static const kSortCoverage = 'coverage';
   static const _sortIcons = {
     kSortEdited: Icons.update,
     kSortSpots: Icons.format_list_numbered,
     kSortName: Icons.sort_by_alpha,
     kSortProgress: Icons.bar_chart,
     kSortInProgress: Icons.play_arrow,
+    kSortCoverage: Icons.layers,
   };
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
@@ -294,6 +296,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
     final copy = [...list];
     switch (_sort) {
+      case kSortCoverage:
+        copy.sort((a, b) {
+          final ca = a.coveragePercent;
+          final cb = b.coveragePercent;
+          if (ca == null && cb == null) return 0;
+          if (ca == null) return 1;
+          if (cb == null) return -1;
+          final r = cb.compareTo(ca);
+          return r == 0 ? a.name.compareTo(b.name) : r;
+        });
+        break;
       case kSortName:
         copy.sort((a, b) => a.name.compareTo(b.name));
         break;
@@ -353,6 +366,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             label: Text(l.sortProgress),
             selected: _sort == kSortProgress,
             onSelected: (_) => _setSort(kSortProgress),
+          ),
+          ChoiceChip(
+            label: Text(l.sortCoverage),
+            selected: _sort == kSortCoverage,
+            onSelected: (_) => _setSort(kSortCoverage),
           ),
           ChoiceChip(
             label: const Text('In Progress'),
@@ -1027,6 +1045,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 PopupMenuItem(
                   value: kSortProgress,
                   child: Text(AppLocalizations.of(ctx)!.sortProgress),
+                ),
+                PopupMenuItem(
+                  value: kSortCoverage,
+                  child: Text(AppLocalizations.of(ctx)!.sortCoverage),
                 ),
                 const PopupMenuItem(
                   value: kSortInProgress,
