@@ -133,6 +133,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Map<String, TrainingPackStat?> _stats = {};
   final Map<String, int> _playCounts = {};
   List<String> _weakCategories = [];
+  final Set<String> _mastered = {};
 
   @override
   void initState() {
@@ -544,14 +545,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _loadStats() async {
     final templates = context.read<TemplateStorageService>().templates;
     final map = <String, TrainingPackStat?>{};
+    final mastered = <String>{};
     for (final t in templates) {
       map[t.id] = await TrainingPackStatsService.getStats(t.id);
+      if (await TrainingPackStatsService.isMastered(t.id)) {
+        mastered.add(t.id);
+      }
     }
     if (!mounted) return;
     setState(() {
       _stats
         ..clear()
         ..addAll(map);
+      _mastered
+        ..clear()
+        ..addAll(mastered);
     });
   }
 
@@ -1284,6 +1292,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         : null,
                   ),
                 ),
+                if (_mastered.contains(t.id)) ...[
+                  const SizedBox(width: 4),
+                  Text(
+                    l.masteredBadge,
+                    style: const TextStyle(color: Colors.green, fontSize: 12),
+                  ),
+                ],
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
                   transitionBuilder: (child, animation) =>
