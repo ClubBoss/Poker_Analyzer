@@ -72,6 +72,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _hideCompletedKey = 'lib_hide_completed';
   static const _popularOnlyKey = 'lib_popular_only';
   static const _recommendedOnlyKey = 'lib_recommended_only';
+  static const _compactKey = 'lib_compact_mode';
   static const _pinKey = 'lib_pinned_ids';
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
@@ -119,6 +120,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _hideCompleted = false;
   bool _popularOnly = false;
   bool _recommendedOnly = false;
+  bool _compactMode = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
   final Set<String> _activeTags = {};
@@ -225,6 +227,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
       _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
       _recommendedOnly = prefs.getBool(_recommendedOnlyKey) ?? false;
+      _compactMode = prefs.getBool(_compactKey) ?? false;
       _pinned
         ..clear()
         ..addAll(prefs.getStringList(_pinKey) ?? []);
@@ -506,6 +509,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_recommendedOnlyKey, value);
     setState(() => _recommendedOnly = value);
+  }
+
+  Future<void> _setCompactMode(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_compactKey, value);
+    setState(() => _compactMode = value);
   }
 
   Future<void> _updateRecent() async {
@@ -1089,6 +1098,103 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final tags = t.tags.take(3).toList();
     final isNew =
         t.isBuiltIn && DateTime.now().difference(t.createdAt).inDays < 7;
+    Widget progress() {
+      final stat = _stats[t.id];
+      if (stat == null) return const SizedBox.shrink();
+      final ev = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
+      final icm = stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
+      if (ev == 0 || icm == 0) return const SizedBox.shrink();
+      final val = ((stat.accuracy * 100) + ev + icm) / 3;
+      return Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Semantics(
+          label: l.percentLabel(val.round()),
+          child: LinearProgressIndicator(
+            value: val / 100,
+            backgroundColor: Colors.white12,
+            color: _progressColor(val),
+            minHeight: 3,
+          ),
+        ),
+      );
+    }
+    final tagsWidget = tags.isNotEmpty
+        ? Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                for (final tag in tags)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[800],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      tag,
+                      style:
+                          const TextStyle(fontSize: 11, color: Colors.white70),
+                    ),
+                  ),
+              ],
+            ),
+          )
+        : const SizedBox.shrink();
+
+    if (_compactMode) {
+      Widget card = Card(
+        child: ListTile(
+          dense: true,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                t.name,
+                style: t.isBuiltIn
+                    ? TextStyle(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      )
+                    : null,
+              ),
+              progress(),
+              if (tags.isNotEmpty) tagsWidget,
+            ],
+          ),
+          onTap: () async {
+            final create = await showDialog<bool>(
+              context: context,
+              builder: (_) => TemplatePreviewDialog(template: t),
+            );
+            if (create == true && context.mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) =>
+                        CreatePackFromTemplateScreen(template: t)),
+              );
+            }
+          },
+        ),
+      );
+      if (_isStarter(t)) {
+        card = Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.blueAccent, width: 2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: card,
+        );
+      }
+      return GestureDetector(
+        onLongPress: () => _showPackSheet(context, t),
+        child: card,
+      );
+    }
+
     Widget card = Card(
       child: ListTile(
         leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
@@ -1161,51 +1267,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ),
               ],
             ),
-            (() {
-              final stat = _stats[t.id];
-              if (stat == null) return const SizedBox.shrink();
-              final ev = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
-              final icm =
-                  stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
-              if (ev == 0 || icm == 0) return const SizedBox.shrink();
-              final val = ((stat.accuracy * 100) + ev + icm) / 3;
-              return Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Semantics(
-                  label: l.percentLabel(val.round()),
-                  child: LinearProgressIndicator(
-                    value: val / 100,
-                    backgroundColor: Colors.white12,
-                    color: _progressColor(val),
-                    minHeight: 3,
-                  ),
-                ),
-              );
-            })(),
-            if (tags.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
-                    for (final tag in tags)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          tag,
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.white70),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+            progress(),
+            if (tags.isNotEmpty) tagsWidget,
           ],
         ),
         subtitle: () {
@@ -1844,6 +1907,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   label: const Text('🔥 Рекомендуемые'),
                   selected: _recommendedOnly,
                   onSelected: (v) => _setRecommendedOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('📋 Компактно'),
+                  selected: _compactMode,
+                  onSelected: (v) => _setCompactMode(v),
                 ),
                 ChoiceChip(
                   label: const Text('Сложность: 👶'),
