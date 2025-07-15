@@ -73,7 +73,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _popularOnlyKey = 'lib_popular_only';
   static const _recommendedOnlyKey = 'lib_recommended_only';
   static const _compactKey = 'lib_compact_mode';
-  static const _pinKey = 'lib_pinned_ids';
+  static const _pinKey = 'lib_pinned';
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
   static const _diffKey = 'lib_difficulty_filter';
@@ -1551,7 +1551,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (!cache.popularCategories.contains(c)) c
       ]
     ];
-    final pinnedList = _applySorting([
+    final pinnedTemplates = _applySorting([
       for (final t in templates)
         if (_pinned.contains(t.id) &&
             (!_needsPracticeOnly || _needsPracticeOnlyIds.contains(t.id)))
@@ -2016,9 +2016,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             child: hasResults
                 ? ListView(
                     children: [
-                      if (pinnedList.isNotEmpty) ...[
+                      if (pinnedTemplates.isNotEmpty) ...[
                         ListTile(title: Text(l.pinnedPacks)),
-                        for (final t in pinnedList) _item(t),
+                        for (final t in pinnedTemplates) _item(t),
                         if (sortedFav.isNotEmpty ||
                             builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
