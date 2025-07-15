@@ -26,6 +26,7 @@ packs:
     expect(list.length, 2);
     expect(list.first.gameType, GameType.tournament);
     expect(list.first.bb, 10);
+    expect(list.first.bbList, isNull);
     expect(list.first.positions, ['sb', 'bb']);
     expect(list.first.title, 'Test');
     expect(list.first.tags, ['pushfold']);
@@ -64,5 +65,18 @@ packs:
     final parser = PackYamlConfigParser();
     final list = parser.parse(yaml);
     expect(list.first.multiplePositions, true);
+  });
+
+  test('parse reads bbList', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bbList: [10, 20]
+    positions: [btn]
+''';
+    final parser = PackYamlConfigParser();
+    final list = parser.parse(yaml);
+    expect(list.first.bbList, [10, 20]);
+    expect(list.first.bb, 0);
   });
 }

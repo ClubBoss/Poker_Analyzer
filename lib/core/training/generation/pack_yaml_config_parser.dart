@@ -21,6 +21,12 @@ class PackYamlConfigParser {
           PackGenerationRequest(
             gameType: parseGameType(item['gameType']),
             bb: (item['bb'] as num?)?.toInt() ?? 0,
+            bbList: item['bbList'] is List
+                ? [
+                    for (final b in item['bbList'])
+                      (b as num).toInt()
+                  ]
+                : null,
             positions: [
               for (final p in (item['positions'] as List? ?? const []))
                 p.toString()

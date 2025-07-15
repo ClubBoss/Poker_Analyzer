@@ -19,6 +19,7 @@ class PackLibraryGenerator {
       final tpl = generator.generate(
         gameType: r.gameType,
         bb: r.bb,
+        bbList: r.bbList,
         positions: r.positions,
         count: r.count,
         multiplePositions: r.multiplePositions,

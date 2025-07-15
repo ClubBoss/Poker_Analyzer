@@ -24,4 +24,18 @@ packs:
     expect(tpl.spotCount, tpl.spots.length);
     expect(tpl.id.isNotEmpty, true);
   });
+
+  test('generateFromYaml handles bbList', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bbList: [10, 15]
+    positions: [sb]
+    count: 2
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.spots.length, 4);
+    expect(list.first.spotCount, 4);
+  });
 }
