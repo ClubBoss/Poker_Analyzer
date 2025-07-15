@@ -146,9 +146,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadPlayCounts();
     await _loadWeakCategories();
     await context.read<TagCacheService>().updateFrom(
-      context.read<TemplateStorageService>().templates,
-      context.read<TrainingPackStorageService>().packs,
-    );
+          context.read<TemplateStorageService>().templates,
+          context.read<TrainingPackStorageService>().packs,
+        );
     if (!mounted) return;
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
@@ -212,11 +212,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       }
       _difficultyFilters
         ..clear()
-        ..addAll(prefs
-                .getStringList(_diffKey)
-                ?.map(int.tryParse)
-                .whereType<int>() ??
-            []);
+        ..addAll(
+            prefs.getStringList(_diffKey)?.map(int.tryParse).whereType<int>() ??
+                []);
       _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
       _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
       _hideCompleted = prefs.getBool(_hideCompletedKey) ?? false;
@@ -239,8 +237,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       await prefs.setStringList(_favKey, merged);
     }
     if (!setEquals(remote.toSet(), _favorites)) {
-      unawaited(
-          cloud.save(_favKey, jsonEncode(merged)).catchError((_) {}));
+      unawaited(cloud.save(_favKey, jsonEncode(merged)).catchError((_) {}));
     }
     if (_needsPractice) _updateNeedsPractice(true);
     if (_needsRepetition) _updateNeedsRepetition(true);
@@ -381,8 +378,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..clear()
         ..add(tag);
       await prefs.setStringList(_actTagsKey, [tag]);
-      _activeCategories
-        ..clear();
+      _activeCategories..clear();
       await prefs.remove(_actCatsKey);
     }
     setState(() {});
@@ -400,8 +396,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..add(cat);
       await prefs.setStringList(_actCatsKey, [cat]);
       await prefs.setString(_lastCatKey, cat);
-      _activeTags
-        ..clear();
+      _activeTags..clear();
       await prefs.remove(_actTagsKey);
     }
     setState(() {});
@@ -562,7 +557,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return r3 == 0 ? a.name.compareTo(b.name) : r3;
   }
 
-
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
     final copy = [...list];
     switch (_sort) {
@@ -675,19 +669,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return stat.accuracy >= .9 && ev >= 80 && icm >= 80;
   }
 
-  bool _matchesTagsOrCategories(TrainingPackTemplate t) {
+  bool _matchesTagsAndCategories(TrainingPackTemplate t) {
     final tags = {..._selectedTags, ..._activeTags};
     final cats = {..._selectedCategories, ..._activeCategories};
-    if (tags.isNotEmpty && t.tags.any(tags.contains)) {
-      return true;
-    }
-    if (cats.isNotEmpty) {
+    if (tags.isEmpty && cats.isEmpty) return true;
+    final tagOk = tags.isEmpty || t.tags.any(tags.contains);
+    var catOk = cats.isEmpty;
+    if (!catOk) {
       for (final h in t.hands) {
         final c = h.category;
-        if (c != null && cats.contains(c)) return true;
+        if (c != null && cats.contains(c)) {
+          catOk = true;
+          break;
+        }
       }
     }
-    return tags.isEmpty && cats.isEmpty;
+    return tagOk && catOk;
   }
 
   List<TrainingPackTemplate> _applyFilters(
@@ -705,7 +702,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ];
     } else if (_filter == 'mistakes') {
       final service = context.read<MistakeReviewPackService>();
-      visible = [for (final t in visible) if (service.hasMistakes(t.id)) t];
+      visible = [
+        for (final t in visible)
+          if (service.hasMistakes(t.id)) t
+      ];
     }
     final query = _searchCtrl.text.trim().toLowerCase();
     if (query.isNotEmpty) {
@@ -729,7 +729,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ];
     }
     if (_favoritesOnly) {
-      visible = [for (final t in visible) if (_favorites.contains(t.id)) t];
+      visible = [
+        for (final t in visible)
+          if (_favorites.contains(t.id)) t
+      ];
     }
     if (_inProgressOnly) {
       visible = [
@@ -754,7 +757,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _activeCategories.isNotEmpty) {
       visible = [
         for (final t in visible)
-          if (_matchesTagsOrCategories(t)) t
+          if (_matchesTagsAndCategories(t)) t
       ];
     }
     if (_popularOnly) {
@@ -936,17 +939,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       return;
     }
     final manifest = await _manifestFuture;
-    final paths = manifest.keys.where(
-        (e) => e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
+    final paths = manifest.keys.where((e) =>
+        e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
     final service = context.read<TemplateStorageService>();
     var added = 0;
     for (final p in paths) {
       try {
         final data = jsonDecode(await rootBundle.loadString(p));
         if (data is Map<String, dynamic>) {
-          final tpl = TrainingPackTemplate.fromJson(
-              Map<String, dynamic>.from(data))
-            ..isBuiltIn = true;
+          final tpl =
+              TrainingPackTemplate.fromJson(Map<String, dynamic>.from(data))
+                ..isBuiltIn = true;
           if (service.templates.every((t) => t.id != tpl.id)) {
             service.addTemplate(tpl);
             added++;
@@ -959,14 +962,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       }
     }
     await prefs.setBool('imported_initial_templates', true);
-    unawaited(
-        context.read<CloudSyncService>().save('imported_initial_templates', '1'));
+    unawaited(context
+        .read<CloudSyncService>()
+        .save('imported_initial_templates', '1'));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       if (added == 0) {
-        messenger.showSnackBar(
-            const SnackBar(content: Text('Не удалось импортировать некоторые паки')));
+        messenger.showSnackBar(const SnackBar(
+            content: Text('Не удалось импортировать некоторые паки')));
       } else {
         messenger.showSnackBar(SnackBar(
             content: Text(Intl.plural(added,
@@ -981,7 +985,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<TrainingPackTemplate?> _loadLastPack(BuildContext context) async {
     final service = context.read<TemplateStorageService>();
-    final list = [for (final t in service.templates) if (!t.isBuiltIn) t];
+    final list = [
+      for (final t in service.templates)
+        if (!t.isBuiltIn) t
+    ];
     list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return list.isNotEmpty ? list.first : null;
   }
@@ -996,13 +1003,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       );
       if (tpl.id.isEmpty) tpl = null;
     }
-    tpl ??= (
-      () {
-        final builtIn = [for (final t in templates) if (t.isBuiltIn) t];
-        if (builtIn.isEmpty) return null;
-        return builtIn[Random().nextInt(builtIn.length)];
-      }()
-    );
+    tpl ??= (() {
+      final builtIn = [
+        for (final t in templates)
+          if (t.isBuiltIn) t
+      ];
+      if (builtIn.isEmpty) return null;
+      return builtIn[Random().nextInt(builtIn.length)];
+    }());
     if (tpl == null) return;
     await context.read<TrainingSessionService>().startSession(tpl);
     if (!mounted) return;
@@ -1094,7 +1102,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               final stat = _stats[t.id];
               if (stat == null) return const SizedBox.shrink();
               final ev = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
-              final icm = stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
+              final icm =
+                  stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
               if (ev == 0 || icm == 0) return const SizedBox.shrink();
               final val = ((stat.accuracy * 100) + ev + icm) / 3;
               return Padding(
@@ -1138,7 +1147,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ),
         subtitle: () {
           final c = translateCategory(t.category);
-          final main = '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} ${l.hands} • v$version';
+          final main =
+              '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} ${l.hands} • v$version';
           final stat = _stats[t.id];
           if (stat == null) {
             return Column(
@@ -1149,7 +1159,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ],
             );
           }
-          final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
+          final date =
+              DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1207,7 +1218,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 context.read<TrainingSessionService>().startSession(t);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const TrainingSessionScreen()),
                 );
               },
               child: const Text('▶️ Train'),
@@ -1289,7 +1301,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
-                  builder: (_) => const Center(child: CircularProgressIndicator()),
+                  builder: (_) =>
+                      const Center(child: CircularProgressIndicator()),
                 );
                 final tpl = await service.review(context, t.id);
                 if (!context.mounted) return;
@@ -1309,7 +1322,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 context.read<TrainingSessionService>().startSession(t);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const TrainingSessionScreen()),
                 );
               }
             },
@@ -1318,7 +1332,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (_) => const Center(child: CircularProgressIndicator()),
+                builder: (_) =>
+                    const Center(child: CircularProgressIndicator()),
               );
               final tpl = await service.review(context, t.id);
               if (!context.mounted) return;
@@ -1331,7 +1346,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               }
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => MistakeReviewScreen(template: tpl)),
+                MaterialPageRoute(
+                    builder: (_) => MistakeReviewScreen(template: tpl)),
               );
             },
           ),
@@ -1363,12 +1379,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final tagList = [
       for (final t in cache.popularTags)
         if (tagSet.contains(t)) t,
-      ...[for (final t in tagSet.toList()..sort()) if (!cache.popularTags.contains(t)) t]
+      ...[
+        for (final t in tagSet.toList()..sort())
+          if (!cache.popularTags.contains(t)) t
+      ]
     ];
     final categoryList = [
       for (final c in cache.popularCategories)
         if (catSet.contains(c)) c,
-      ...[for (final c in catSet.toList()..sort()) if (!cache.popularCategories.contains(c)) c]
+      ...[
+        for (final c in catSet.toList()..sort())
+          if (!cache.popularCategories.contains(c)) c
+      ]
     ];
     final pinnedList = _applySorting([
       for (final t in templates)
@@ -1420,8 +1442,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (t.isBuiltIn && !_isStarter(t)) t
     ]);
-    final user =
-        _applySorting([for (final t in remaining) if (!t.isBuiltIn) t]);
+    final user = _applySorting([
+      for (final t in remaining)
+        if (!t.isBuiltIn) t
+    ]);
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Row(
@@ -1431,7 +1455,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 controller: _searchCtrl,
                 focusNode: _searchFocusNode,
                 autofocus: true,
-                decoration: const InputDecoration(hintText: 'Поиск', border: InputBorder.none),
+                decoration: const InputDecoration(
+                    hintText: 'Поиск', border: InputBorder.none),
                 style: const TextStyle(color: Colors.white),
               ),
             ),
@@ -1442,9 +1467,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               onChanged: (v) => v != null ? _setFilter(v) : null,
               items: [
                 const DropdownMenuItem(value: 'all', child: Text('All')),
-                const DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
+                const DropdownMenuItem(
+                    value: 'tournament', child: Text('Tournament')),
                 const DropdownMenuItem(value: 'cash', child: Text('Cash')),
-                DropdownMenuItem(value: 'mistakes', child: Text(l.filterMistakes)),
+                DropdownMenuItem(
+                    value: 'mistakes', child: Text(l.filterMistakes)),
               ],
             ),
             PopupMenuButton<String>(
@@ -1528,9 +1555,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       MaterialPageRoute(
                         builder: (_) => TrainingPackTemplateEditorScreen(
                           template: t,
-                          templates: context
-                              .read<TemplateStorageService>()
-                              .templates,
+                          templates:
+                              context.read<TemplateStorageService>().templates,
                         ),
                       ),
                     );
@@ -1583,7 +1609,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               );
             },
           ),
-          if (cache.popularTags.isNotEmpty || cache.popularCategories.isNotEmpty)
+          if (cache.popularTags.isNotEmpty ||
+              cache.popularCategories.isNotEmpty)
             SizedBox(
               height: 40,
               child: ListView(
@@ -1608,38 +1635,53 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         onSelected: (_) => _setActiveCategory(cat),
                       ),
                     ),
-          if (_activeTags.isNotEmpty || _activeCategories.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                color: Colors.white70,
-                onPressed: _clearActiveFilters,
+                  if (_activeTags.isNotEmpty || _activeCategories.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        color: Colors.white70,
+                        onPressed: _clearActiveFilters,
+                      ),
+                    ),
+                ],
               ),
             ),
-        ],
-      ),
-    ),
-        if (cache.popularCategories.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Wrap(
-              spacing: 8,
-              children: [
-                for (final cat in cache.popularCategories)
-                  ChoiceChip(
-                    label: Text(translateCategory(cat)),
-                    selected: _selectedCategories.contains(cat),
-                    onSelected: (_) => _toggleCategory(cat),
-                  ),
-              ],
+          if (cache.popularCategories.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  for (final cat in cache.popularCategories)
+                    ChoiceChip(
+                      label: Text(translateCategory(cat)),
+                      selected: _selectedCategories.contains(cat),
+                      onSelected: (_) => _toggleCategory(cat),
+                    ),
+                ],
+              ),
             ),
-          ),
-        if (_weakCategories.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (cache.popularTags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  for (final tag in cache.popularTags)
+                    FilterChip(
+                      label: Text(tag),
+                      selected: _selectedTags.contains(tag),
+                      onSelected: (_) => _toggleTag(tag),
+                    ),
+                ],
+              ),
+            ),
+          if (_weakCategories.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('📊 Мои категории',
                       style: TextStyle(
@@ -1664,234 +1706,246 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             child: Wrap(
               spacing: 8,
               children: [
-              FilterChip(
-                label: Text(l.needsPractice),
-                selected: _needsPractice,
-                onSelected: (v) => _updateNeedsPractice(v),
-              ),
-              ChoiceChip(
-                label: const Text('⏳ На повторение'),
-                selected: _needsRepetition,
-                onSelected: (v) => _updateNeedsRepetition(v),
-              ),
-              FilterChip(
-                label: Text(l.favorites),
-                selected: _favoritesOnly,
-                onSelected: (v) => _setFavoritesOnly(v),
-              ),
-              ChoiceChip(
-                label: const Text('🟡 В процессе'),
-                selected: _inProgressOnly,
-                onSelected: (v) => _setInProgressOnly(v),
-              ),
-              ChoiceChip(
-                label: const Text('🧹 Скрыть завершённые'),
-                selected: _hideCompleted,
-                onSelected: (v) => _setHideCompleted(v),
-              ),
-              FilterChip(
-                label: Text(l.recentPacks),
-                selected: _showRecent,
-                onSelected: (v) => _setShowRecent(v),
-              ),
-              ChoiceChip(
-                label: const Text('📈 Популярные'),
-                selected: _popularOnly,
-                onSelected: (v) => _setPopularOnly(v),
-              ),
-              ChoiceChip(
-                label: const Text('🔥 Рекомендуемые'),
-                selected: _recommendedOnly,
-                onSelected: (v) => _setRecommendedOnly(v),
-              ),
-              ChoiceChip(
-                label: const Text('Сложность: 👶'),
-                selected: _difficultyFilters.contains(1),
-                onSelected: (_) => _toggleDifficulty(1),
-              ),
-              ChoiceChip(
-                label: const Text('🎯'),
-                selected: _difficultyFilters.contains(2),
-                onSelected: (_) => _toggleDifficulty(2),
-              ),
-              ChoiceChip(
-                label: const Text('🔥'),
-                selected: _difficultyFilters.contains(3),
-                onSelected: (_) => _toggleDifficulty(3),
-              ),
-            ],
-          ),
-        ),
-        if (tagList.isNotEmpty || categoryList.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      filtersCount > 0
-                          ? l.filtersSelected(filtersCount)
-                          : l.filtersNone,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.grey),
-                    ),
-                  ],
+                FilterChip(
+                  label: Text(l.needsPractice),
+                  selected: _needsPractice,
+                  onSelected: (v) => _updateNeedsPractice(v),
                 ),
-                const SizedBox(height: 4),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    for (final tag in tagList)
-                      FilterChip(
-                        label: Text(tag),
-                        selected: _selectedTags.contains(tag),
-                        onSelected: (_) => _toggleTag(tag),
-                      ),
-                    for (final cat in categoryList)
-                      FilterChip(
-                        label: Text(translateCategory(cat)),
-                        selected: _selectedCategories.contains(cat),
-                        onSelected: (_) => _toggleCategory(cat),
-                      ),
-                    if (_selectedTags.isNotEmpty || _selectedCategories.isNotEmpty)
-                      ActionChip(
-                        label: const Text('Сбросить'),
-                        onPressed: _clearTagFilters,
-                      ),
-                  ],
+                ChoiceChip(
+                  label: const Text('⏳ На повторение'),
+                  selected: _needsRepetition,
+                  onSelected: (v) => _updateNeedsRepetition(v),
+                ),
+                FilterChip(
+                  label: Text(l.favorites),
+                  selected: _favoritesOnly,
+                  onSelected: (v) => _setFavoritesOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('🟡 В процессе'),
+                  selected: _inProgressOnly,
+                  onSelected: (v) => _setInProgressOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('🧹 Скрыть завершённые'),
+                  selected: _hideCompleted,
+                  onSelected: (v) => _setHideCompleted(v),
+                ),
+                FilterChip(
+                  label: Text(l.recentPacks),
+                  selected: _showRecent,
+                  onSelected: (v) => _setShowRecent(v),
+                ),
+                ChoiceChip(
+                  label: const Text('📈 Популярные'),
+                  selected: _popularOnly,
+                  onSelected: (v) => _setPopularOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('🔥 Рекомендуемые'),
+                  selected: _recommendedOnly,
+                  onSelected: (v) => _setRecommendedOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('Сложность: 👶'),
+                  selected: _difficultyFilters.contains(1),
+                  onSelected: (_) => _toggleDifficulty(1),
+                ),
+                ChoiceChip(
+                  label: const Text('🎯'),
+                  selected: _difficultyFilters.contains(2),
+                  onSelected: (_) => _toggleDifficulty(2),
+                ),
+                ChoiceChip(
+                  label: const Text('🔥'),
+                  selected: _difficultyFilters.contains(3),
+                  onSelected: (_) => _toggleDifficulty(3),
                 ),
               ],
             ),
           ),
-        _buildSortButtons(l),
-        if (_loadingNeedsPractice) const LinearProgressIndicator(minHeight: 2),
-        Expanded(
-          child: hasResults
-              ? ListView(
-                  children: [
-                    if (pinnedList.isNotEmpty) ...[
-                      const ListTile(title: Text('📌 Закреплённые')),
-                      for (final t in pinnedList) _item(t),
-                      if (sortedFav.isNotEmpty ||
-                          builtInStarter.isNotEmpty ||
-                          builtInOther.isNotEmpty ||
-                          user.isNotEmpty ||
-                          _recent.isNotEmpty ||
-                          featured.isNotEmpty ||
-                          _popular.isNotEmpty)
-                        const Divider(),
-                    ],
-                    if (sortedFav.isNotEmpty) ...[
-                      ListTile(title: Text('★ ${l.favorites}')),
-                      for (final t in sortedFav) _item(t),
-                      if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
-                    ]
-                    else if (filteringActive) ...[
-                      _emptyTile,
-                      if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
-                    ],
-                    if (_recent.isNotEmpty && !_needsPractice && _showRecent) ...[
-                      ListTile(title: Text(l.recentPacks)),
-                      for (final t in _recent) _item(t),
-                      if (featured.isNotEmpty || builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty)
-                        const Divider(),
-                    ],
-                    if (featured.isNotEmpty) ...[
-                      ListTile(title: Text(l.recommended)),
-                      for (final t in featured) _item(t),
-                      if (builtInStarter.isNotEmpty ||
-                          builtInOther.isNotEmpty ||
-                          user.isNotEmpty)
-                        const Divider(),
-                    ]
-                    else if (filteringActive) ...[
-                      _emptyTile,
-                      if (builtInStarter.isNotEmpty ||
-                          builtInOther.isNotEmpty ||
-                          user.isNotEmpty)
-                        const Divider(),
-                    ],
-                    if (_weakCategories.isNotEmpty) ...[
-                      CategorySection(
-                        title: l.weakAreas,
-                        categories: _weakCategories,
-                        onTap: _setActiveCategory,
-                      ),
-                      if (_popular.isNotEmpty ||
-                          builtInStarter.isNotEmpty ||
-                          builtInOther.isNotEmpty ||
-                          user.isNotEmpty)
-                        const Divider(),
-                    ],
-                    if (_popular.isNotEmpty) ...[
-                      ListTile(title: Text(l.popularPacks)),
-                      for (final t in _popular) _item(t),
-                      if (builtInStarter.isNotEmpty ||
-                          builtInOther.isNotEmpty ||
-                          user.isNotEmpty)
-                        const Divider(),
-                    ],
-                    if (builtInStarter.isNotEmpty) ...[
-                      ListTile(title: Text(l.starterPacks)),
-                      for (final t in builtInStarter) _item(t),
-                      if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
-                    ]
-                    else if (filteringActive) ...[
-                      _emptyTile,
-                      if (builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
-                    ],
-                    if (builtInOther.isNotEmpty) ...[
-                      ListTile(title: Text(l.builtInPacks)),
-                      for (final t in builtInOther) _item(t),
-                      if (user.isNotEmpty) const Divider(),
-                    ]
-                    else if (filteringActive) ...[
-                      _emptyTile,
-                      if (user.isNotEmpty) const Divider(),
-                    ],
-                    if (user.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child:
-                            Text(l.yourPacks, style: Theme.of(context).textTheme.titleMedium),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.add),
-                            title: const Text('Создать новый пак'),
-                            onTap: _createTemplate,
-                          ),
-                        ),
-                      ),
-                      for (final t in user) _item(t),
-                    ]
-                    else if (filteringActive) ...[
-                      _emptyTile,
-                    ],
-                  ],
-                )
-              : Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+          if (tagList.isNotEmpty || categoryList.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Icon(Icons.auto_awesome,
-                          size: 96, color: Colors.white30),
-                      const SizedBox(height: 24),
-                      const Text('Нет доступных паков'),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: _importStarterPacks,
-                        child: const Text('Импортировать паки'),
+                      Text(
+                        filtersCount > 0
+                            ? l.filtersSelected(filtersCount)
+                            : l.filtersNone,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.grey),
                       ),
                     ],
                   ),
-                ),
-        ),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      for (final tag in tagList)
+                        FilterChip(
+                          label: Text(tag),
+                          selected: _selectedTags.contains(tag),
+                          onSelected: (_) => _toggleTag(tag),
+                        ),
+                      for (final cat in categoryList)
+                        FilterChip(
+                          label: Text(translateCategory(cat)),
+                          selected: _selectedCategories.contains(cat),
+                          onSelected: (_) => _toggleCategory(cat),
+                        ),
+                      if (_selectedTags.isNotEmpty ||
+                          _selectedCategories.isNotEmpty)
+                        ActionChip(
+                          label: const Text('Сбросить'),
+                          onPressed: _clearTagFilters,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          _buildSortButtons(l),
+          if (_loadingNeedsPractice)
+            const LinearProgressIndicator(minHeight: 2),
+          Expanded(
+            child: hasResults
+                ? ListView(
+                    children: [
+                      if (pinnedList.isNotEmpty) ...[
+                        const ListTile(title: Text('📌 Закреплённые')),
+                        for (final t in pinnedList) _item(t),
+                        if (sortedFav.isNotEmpty ||
+                            builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty ||
+                            _recent.isNotEmpty ||
+                            featured.isNotEmpty ||
+                            _popular.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (sortedFav.isNotEmpty) ...[
+                        ListTile(title: Text('★ ${l.favorites}')),
+                        for (final t in sortedFav) _item(t),
+                        if (builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ] else if (filteringActive) ...[
+                        _emptyTile,
+                        if (builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (_recent.isNotEmpty &&
+                          !_needsPractice &&
+                          _showRecent) ...[
+                        ListTile(title: Text(l.recentPacks)),
+                        for (final t in _recent) _item(t),
+                        if (featured.isNotEmpty ||
+                            builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (featured.isNotEmpty) ...[
+                        ListTile(title: Text(l.recommended)),
+                        for (final t in featured) _item(t),
+                        if (builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ] else if (filteringActive) ...[
+                        _emptyTile,
+                        if (builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (_weakCategories.isNotEmpty) ...[
+                        CategorySection(
+                          title: l.weakAreas,
+                          categories: _weakCategories,
+                          onTap: _setActiveCategory,
+                        ),
+                        if (_popular.isNotEmpty ||
+                            builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (_popular.isNotEmpty) ...[
+                        ListTile(title: Text(l.popularPacks)),
+                        for (final t in _popular) _item(t),
+                        if (builtInStarter.isNotEmpty ||
+                            builtInOther.isNotEmpty ||
+                            user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (builtInStarter.isNotEmpty) ...[
+                        ListTile(title: Text(l.starterPacks)),
+                        for (final t in builtInStarter) _item(t),
+                        if (builtInOther.isNotEmpty || user.isNotEmpty)
+                          const Divider(),
+                      ] else if (filteringActive) ...[
+                        _emptyTile,
+                        if (builtInOther.isNotEmpty || user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (builtInOther.isNotEmpty) ...[
+                        ListTile(title: Text(l.builtInPacks)),
+                        for (final t in builtInOther) _item(t),
+                        if (user.isNotEmpty) const Divider(),
+                      ] else if (filteringActive) ...[
+                        _emptyTile,
+                        if (user.isNotEmpty) const Divider(),
+                      ],
+                      if (user.isNotEmpty) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Text(l.yourPacks,
+                              style: Theme.of(context).textTheme.titleMedium),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Card(
+                            child: ListTile(
+                              leading: const Icon(Icons.add),
+                              title: const Text('Создать новый пак'),
+                              onTap: _createTemplate,
+                            ),
+                          ),
+                        ),
+                        for (final t in user) _item(t),
+                      ] else if (filteringActive) ...[
+                        _emptyTile,
+                      ],
+                    ],
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.auto_awesome,
+                            size: 96, color: Colors.white30),
+                        const SizedBox(height: 24),
+                        const Text('Нет доступных паков'),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: _importStarterPacks,
+                          child: const Text('Импортировать паки'),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
         ],
       ),
       floatingActionButton: Column(
