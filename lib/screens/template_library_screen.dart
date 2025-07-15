@@ -72,6 +72,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
   static const _diffKey = 'lib_difficulty_filter';
+  static const _actTagsKey = 'lib_act_tags';
+  static const _actCatsKey = 'lib_act_cats';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
   static const kSortEdited = 'edited';
@@ -107,6 +109,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _recommendedOnly = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
+  final Set<String> _activeTags = {};
+  final Set<String> _activeCategories = {};
   final Set<int> _difficultyFilters = {};
   bool _importing = false;
 
@@ -186,6 +190,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _selectedCategories
         ..clear()
         ..addAll(prefs.getStringList(_selCatsKey) ?? []);
+      _activeTags
+        ..clear()
+        ..addAll(prefs.getStringList(_actTagsKey) ?? []);
+      _activeCategories
+        ..clear()
+        ..addAll(prefs.getStringList(_actCatsKey) ?? []);
       _difficultyFilters
         ..clear()
         ..addAll(prefs
@@ -302,6 +312,50 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() {});
   }
 
+  Future<void> _setActiveTag(String tag) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_activeTags.contains(tag)) {
+      _activeTags.clear();
+      await prefs.remove(_actTagsKey);
+    } else {
+      _activeTags
+        ..clear()
+        ..add(tag);
+      await prefs.setStringList(_actTagsKey, [tag]);
+      _activeCategories
+        ..clear();
+      await prefs.remove(_actCatsKey);
+    }
+    setState(() {});
+  }
+
+  Future<void> _setActiveCategory(String cat) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_activeCategories.contains(cat)) {
+      _activeCategories.clear();
+      await prefs.remove(_actCatsKey);
+    } else {
+      _activeCategories
+        ..clear()
+        ..add(cat);
+      await prefs.setStringList(_actCatsKey, [cat]);
+      _activeTags
+        ..clear();
+      await prefs.remove(_actTagsKey);
+    }
+    setState(() {});
+  }
+
+  Future<void> _clearActiveFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_actTagsKey);
+    await prefs.remove(_actCatsKey);
+    setState(() {
+      _activeTags.clear();
+      _activeCategories.clear();
+    });
+  }
+
   Future<void> _toggleDifficulty(int level) async {
     final prefs = await SharedPreferences.getInstance();
     if (!_difficultyFilters.add(level)) {
@@ -320,9 +374,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_selTagsKey);
     await prefs.remove(_selCatsKey);
+    await prefs.remove(_actTagsKey);
+    await prefs.remove(_actCatsKey);
     setState(() {
       _selectedTags.clear();
       _selectedCategories.clear();
+      _activeTags.clear();
+      _activeCategories.clear();
     });
   }
 
@@ -539,16 +597,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   bool _matchesTagsOrCategories(TrainingPackTemplate t) {
-    if (_selectedTags.isNotEmpty && t.tags.any(_selectedTags.contains)) {
+    final tags = {..._selectedTags, ..._activeTags};
+    final cats = {..._selectedCategories, ..._activeCategories};
+    if (tags.isNotEmpty && t.tags.any(tags.contains)) {
       return true;
     }
-    if (_selectedCategories.isNotEmpty) {
+    if (cats.isNotEmpty) {
       for (final h in t.hands) {
         final c = h.category;
-        if (c != null && _selectedCategories.contains(c)) return true;
+        if (c != null && cats.contains(c)) return true;
       }
     }
-    return _selectedTags.isEmpty && _selectedCategories.isEmpty;
+    return tags.isEmpty && cats.isEmpty;
   }
 
   List<TrainingPackTemplate> _applyFilters(
@@ -603,7 +663,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             t
       ];
     }
-    if (_selectedTags.isNotEmpty || _selectedCategories.isNotEmpty) {
+    if (_selectedTags.isNotEmpty ||
+        _selectedCategories.isNotEmpty ||
+        _activeTags.isNotEmpty ||
+        _activeCategories.isNotEmpty) {
       visible = [
         for (final t in visible)
           if (_matchesTagsOrCategories(t)) t
@@ -1192,8 +1255,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final visible = _applyFilters(templates);
     final sortedVisible = _applySorting(visible);
     final query = _searchCtrl.text.trim().toLowerCase();
-    final filtersCount =
-        _selectedTags.length + _selectedCategories.length + _difficultyFilters.length;
+    final filtersCount = _selectedTags.length +
+        _selectedCategories.length +
+        _activeTags.length +
+        _activeCategories.length +
+        _difficultyFilters.length;
     final hasResults = sortedVisible.isNotEmpty;
     final filteringActive = query.isNotEmpty ||
         _filter != 'all' ||
@@ -1203,6 +1269,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _recommendedOnly ||
         _selectedTags.isNotEmpty ||
         _selectedCategories.isNotEmpty ||
+        _activeTags.isNotEmpty ||
+        _activeCategories.isNotEmpty ||
         _difficultyFilters.isNotEmpty;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
@@ -1389,11 +1457,48 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               );
             },
           ),
+          if (cache.popularTags.isNotEmpty || cache.popularCategories.isNotEmpty)
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  for (final tag in cache.popularTags)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(tag),
+                        selected: _activeTags.contains(tag),
+                        onSelected: (_) => _setActiveTag(tag),
+                      ),
+                    ),
+                  for (final cat in cache.popularCategories)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(translateCategory(cat)),
+                        selected: _activeCategories.contains(cat),
+                        onSelected: (_) => _setActiveCategory(cat),
+                      ),
+                    ),
+                  if (_activeTags.isNotEmpty || _activeCategories.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        color: Colors.white70,
+                        onPressed: _clearActiveFilters,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Wrap(
-            spacing: 8,
-            children: [
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Wrap(
+              spacing: 8,
+              children: [
               FilterChip(
                 label: Text(l.needsPractice),
                 selected: _needsPractice,
