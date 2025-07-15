@@ -228,6 +228,26 @@ class TrainingPackStatsService {
     return list;
   }
 
+  static Future<List<String>> getPopularTemplates({int minCount = 5}) async {
+    if (!Hive.isBoxOpen('session_logs')) {
+      await Hive.initFlutter();
+      await Hive.openBox('session_logs');
+    }
+    final box = Hive.box('session_logs');
+    final cutoff = DateTime.now().subtract(const Duration(days: 7));
+    final count = <String, int>{};
+    for (final v in box.values.whereType<Map>()) {
+      final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
+      if (log.completedAt.isBefore(cutoff)) continue;
+      count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
+    }
+    final list = count.entries
+        .where((e) => e.value >= minCount)
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return [for (final e in list) e.key];
+  }
+
   static Future<List<TrainingPackStat>> history(String id) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('$_histPrefix$id');

@@ -134,6 +134,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   List<TrainingPackTemplate> _recent = [];
   List<TrainingPackTemplate> _popular = [];
+  List<String> _popularIds = [];
   final Map<String, TrainingPackStat?> _stats = {};
   final Map<String, int> _playCounts = {};
   final Map<String, int> _handsCompleted = {};
@@ -512,6 +513,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_popularOnlyKey, value);
     setState(() => _popularOnly = value);
+    if (value) unawaited(_updatePopular());
   }
 
   Future<void> _setRecommendedOnly(bool value) async {
@@ -549,17 +551,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _updatePopular() async {
     final templates = context.read<TemplateStorageService>().templates;
-    final list = [
-      for (final t in templates)
-        if (_playCounts[t.id] != null) t
-    ]..sort((a, b) {
-        final pa = _playCounts[a.id] ?? 0;
-        final pb = _playCounts[b.id] ?? 0;
-        final r = pb.compareTo(pa);
-        return r == 0 ? a.name.compareTo(b.name) : r;
-      });
+    final ids = await TrainingPackStatsService.getPopularTemplates();
+    final map = {for (final t in templates) t.id: t};
+    final list = [for (final id in ids) if (map[id] != null) map[id]!];
     if (!mounted) return;
-    setState(() => _popular = list.take(5).toList());
+    setState(() {
+      _popularIds = ids;
+      _popular = list.take(5).toList();
+    });
   }
 
   Future<void> _loadStats() async {
@@ -892,12 +891,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ];
     }
     if (_popularOnly) {
-      final cache = context.read<TagCacheService>();
       visible = [
         for (final t in visible)
-          if (t.tags.any(cache.popularTags.contains) ||
-              t.hands.any((h) => cache.popularCategories.contains(h.category)))
-            t
+          if (_popularIds.contains(t.id)) t
       ];
     }
     if (_recommendedOnly) {
@@ -2151,6 +2147,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             child: hasResults
                 ? ListView(
                     children: [
+                      if (_popularOnly && popularFiltered.isNotEmpty) ...[
+                        ListTile(title: Text(l.popularPacks)),
+                        for (final t in popularFiltered) _item(t),
+                        if (pinnedTemplates.isNotEmpty ||
+                            repeatList.isNotEmpty ||
+                            sortedFav.isNotEmpty ||
+                            _recent.isNotEmpty ||
+                            featured.isNotEmpty)
+                          const Divider(),
+                      ],
                       if (pinnedTemplates.isNotEmpty) ...[
                         ListTile(title: Text(l.pinnedPacks)),
                         for (final t in pinnedTemplates) _item(t),
@@ -2160,7 +2166,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             user.isNotEmpty ||
                             _recent.isNotEmpty ||
                             featured.isNotEmpty ||
-                            popularFiltered.length >= 3)
+                            (!_popularOnly && popularFiltered.length >= 3) ||
+                            (_popularOnly && popularFiltered.isNotEmpty))
                           const Divider(),
                       ],
                       if (repeatList.isNotEmpty) ...[
@@ -2172,7 +2179,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             user.isNotEmpty ||
                             _recent.isNotEmpty ||
                             featured.isNotEmpty ||
-                            popularFiltered.length >= 3)
+                            (!_popularOnly && popularFiltered.length >= 3) ||
+                            (_popularOnly && popularFiltered.isNotEmpty))
                           const Divider(),
                       ],
                       if (sortedFav.isNotEmpty) ...[
@@ -2189,7 +2197,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             user.isNotEmpty)
                           const Divider(),
                       ],
-                      if (popularFiltered.length >= 3) ...[
+                      if (!_popularOnly && popularFiltered.length >= 3) ...[
                         ListTile(title: Text(l.popularPacks)),
                         for (final t in popularFiltered) _item(t),
                         if (_recent.isNotEmpty ||
@@ -2230,7 +2238,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                           categories: _weakCategories,
                           onTap: _setActiveCategory,
                         ),
-                        if (popularFiltered.length >= 3 ||
+                        if ((_popularOnly && popularFiltered.isNotEmpty) ||
+                            (!_popularOnly && popularFiltered.length >= 3) ||
                             builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
                             user.isNotEmpty)
