@@ -102,7 +102,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       var statusOk = true;
       if (_statusFilters.isNotEmpty) {
         final now = DateTime.now();
-        final total = p.spots.length;
+        final total = p.totalWeight;
         final evPct = total == 0 ? 0 : p.evCovered * 100 / total;
         final icmPct = total == 0 ? 0 : p.icmCovered * 100 / total;
         final isNew = now.difference(p.createdAt).inDays < 3;
@@ -150,7 +150,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           if (r != 0) return r;
           return b.createdAt.compareTo(a.createdAt);
         case 'mostSpots':
-          final r = b.spots.length.compareTo(a.spots.length);
+          final r = b.totalWeight.compareTo(a.totalWeight);
           if (r != 0) return r;
           return b.createdAt.compareTo(a.createdAt);
         case 'newest':
@@ -393,14 +393,16 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         DateTime.now().difference(t.createdAt).inDays < 3;
     final isUpdated = t.updatedDate != null &&
         DateTime.now().difference(t.updatedDate!).inDays < 3;
-    final total = t.spots.length;
+    final total = t.totalWeight;
     final trained = _trainedHands[t.id] ?? 0;
     final done = trained.clamp(0, total);
     final ratio = total == 0 ? 0.0 : done / total;
-    final evDone =
-        t.spots.where((s) => s.heroEv != null && !s.dirty).length;
-    final icmDone =
-        t.spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+    final evDone = t.spots
+        .where((s) => s.heroEv != null && !s.dirty)
+        .fold(0, (a, b) => a + b.priority);
+    final icmDone = t.spots
+        .where((s) => s.heroIcmEv != null && !s.dirty)
+        .fold(0, (a, b) => a + b.priority);
     final solvedAll =
         t.spots.every((s) => s.heroEv != null && s.heroIcmEv != null);
     final coveragePct = total == 0
@@ -807,7 +809,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       return const SizedBox.shrink();
                     }
                     final progress =
-                        (session.index / template.spots.length * 100).clamp(0, 100);
+                        (session.index / template.totalWeight * 100).clamp(0, 100);
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                       child: Card(
@@ -823,7 +825,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                                         style: const TextStyle(fontSize: 16)),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '${session.index + 1} / ${template.spots.length}',
+                                      '${session.index + 1} / ${template.totalWeight}',
                                       style: const TextStyle(color: Colors.white70),
                                     ),
                                     const SizedBox(height: 4),
@@ -855,11 +857,11 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                   builder: (context) {
                     final suggest = _packs
                         .where((p) =>
-                            (p.evCovered + p.icmCovered) < p.spots.length * 2)
+                            (p.evCovered + p.icmCovered) < p.totalWeight * 2)
                         .minBy((p) =>
-                            (p.evCovered + p.icmCovered) / p.spots.length);
+                            (p.evCovered + p.icmCovered) / p.totalWeight);
                     if (suggest == null) return const SizedBox.shrink();
-                    final total = suggest.spots.length;
+                    final total = suggest.totalWeight;
                     final evPct =
                         total == 0 ? 0 : suggest.evCovered * 100 / total;
                     final icmPct =

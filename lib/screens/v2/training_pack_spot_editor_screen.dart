@@ -33,6 +33,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
   late List<CardModel> _heroCards;
   late HeroPosition _position;
   late List<ActionEntry> _actions;
+  int _priority = 3;
   bool _loading = false;
 
   Set<String> _usedCards() {
@@ -197,6 +198,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     _position = widget.spot.hand.position;
     if (_position == HeroPosition.unknown) _position = HeroPosition.sb;
     _actions = List<ActionEntry>.from(widget.spot.hand.actions[0] ?? []);
+    _priority = widget.spot.priority;
     widget.spot.hand.playerCount = 2;
     widget.spot.hand.heroIndex = 0;
   }
@@ -221,6 +223,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     widget.spot.hand.playerCount = 2;
     widget.spot.hand.heroIndex = 0;
     widget.spot.hand.actions[0] = List<ActionEntry>.from(_actions);
+    widget.spot.priority = _priority;
   }
 
   Future<void> _save() async {
@@ -302,6 +305,15 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
                   onPressed: _addTagDialog,
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            DropdownButton<int>(
+              value: _priority,
+              items: [
+                for (int i = 1; i <= 5; i++)
+                  DropdownMenuItem(value: i, child: Text('Priority $i'))
+              ],
+              onChanged: (v) => setState(() => _priority = v ?? 3),
             ),
             const SizedBox(height: 24),
             const Text('Hero Cards', style: TextStyle(fontWeight: FontWeight.bold)),

@@ -314,7 +314,7 @@ class TrainingSessionService extends ChangeNotifier {
   }) async {
     if (persist) await _openBox();
     _template = template;
-    final total = template.spots.length;
+    final total = template.totalWeight;
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
     _preIcmPct = total == 0 ? 0 : template.icmCovered * 100 / total;
     _spots = List<TrainingPackSpot>.from(template.spots);

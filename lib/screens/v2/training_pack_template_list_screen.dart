@@ -859,8 +859,8 @@ class _TrainingPackTemplateListScreenState
         ? streetFiltered
         : [
             for (final t in streetFiltered)
-              if (t.evCovered < t.spots.length ||
-                  t.icmCovered < t.spots.length)
+              if (t.evCovered < t.totalWeight ||
+                  t.icmCovered < t.totalWeight)
                 t
           ];
     final completed = _completedOnly
@@ -910,7 +910,7 @@ class _TrainingPackTemplateListScreenState
       final messenger = ScaffoldMessenger.maybeOf(context);
       final list = [
         for (final t in _visibleTemplates())
-          if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
+          if (t.evCovered < t.totalWeight || t.icmCovered < t.totalWeight) t
       ];
       var refreshed = 0;
       for (final t in list) {
@@ -1468,7 +1468,7 @@ class _TrainingPackTemplateListScreenState
                     child: Text(l.noContent, style: const TextStyle(color: Colors.white54)),
                   ),
             if (!_showNeedsEvalOnly &&
-                (t.evCovered < t.spots.length || t.icmCovered < t.spots.length))
+                (t.evCovered < t.totalWeight || t.icmCovered < t.totalWeight))
               const Tooltip(
                 message: 'Some spots are missing EV/ICM analysis',
                 child: Icon(Icons.auto_fix_high, color: Colors.redAccent, size: 16),
@@ -2568,7 +2568,7 @@ class _TrainingPackTemplateListScreenState
   Future<void> _generateMissingEvIcmAll() async {
     final list = [
       for (final t in _templates)
-        if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
+        if (t.evCovered < t.totalWeight || t.icmCovered < t.totalWeight) t
     ];
     if (list.isEmpty) {
       ScaffoldMessenger.of(context)
@@ -3046,8 +3046,8 @@ class _TrainingPackTemplateListScreenState
         ? posFiltered
         : [
             for (final t in posFiltered)
-              if (t.evCovered < t.spots.length ||
-                  t.icmCovered < t.spots.length)
+              if (t.evCovered < t.totalWeight ||
+                  t.icmCovered < t.totalWeight)
                 t
           ];
     final completed = _completedOnly

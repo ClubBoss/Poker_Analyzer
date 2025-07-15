@@ -107,11 +107,16 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     return 'Keep training!';
   }
 
-  List<double> get _evs => [for (final s in widget.template.spots) if (s.heroEv != null && widget.results.containsKey(s.id)) s.heroEv!];
+  List<double> get _evs => [
+        for (final s in widget.template.spots)
+          if (s.heroEv != null && widget.results.containsKey(s.id))
+            s.heroEv! * s.priority
+      ];
 
   List<double> get _icmEvs => [
         for (final s in widget.template.spots)
-          if (s.heroIcmEv != null && widget.results.containsKey(s.id)) s.heroIcmEv!
+          if (s.heroIcmEv != null && widget.results.containsKey(s.id))
+            s.heroIcmEv! * s.priority
       ];
 
   double get _evSum => _evs.fold(0.0, (a, b) => a + b);
@@ -124,7 +129,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       if (ans == null) continue;
       final hero = _actionEv(s, ans);
       final best = _bestEv(s);
-      if (hero != null && best != null) list.add(hero - best);
+      if (hero != null && best != null) list.add((hero - best) * s.priority);
     }
     return list;
   }
@@ -136,7 +141,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       if (ans == null) continue;
       final hero = _actionIcmEv(s, ans);
       final best = _bestIcmEv(s);
-      if (hero != null && best != null) list.add(hero - best);
+      if (hero != null && best != null) list.add((hero - best) * s.priority);
     }
     return list;
   }
@@ -263,7 +268,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
         );
       }
     }
-    final total = widget.template.spots.length;
+    final total = widget.template.totalWeight;
     final preEv = total == 0 ? 0.0 : widget.original.evCovered * 100 / total;
     final preIcm = total == 0 ? 0.0 : widget.original.icmCovered * 100 / total;
     final postEv = total == 0 ? 0.0 : widget.template.evCovered * 100 / total;

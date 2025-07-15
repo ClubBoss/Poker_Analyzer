@@ -33,6 +33,9 @@ part of 'training_pack_template_editor_screen.dart';
       if (_quickFilter == 'Mistake spots' && !(res != null && !res.correct)) {
         return false;
       }
+      if (_quickFilter == 'High priority' && s.priority < 4) {
+        return false;
+      }
       if (_heroPushOnly) {
         final acts = s.hand.actions[0] ?? [];
         final hero = acts.where((a) => a.playerIndex == s.hand.heroIndex);
