@@ -76,6 +76,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _diffKey = 'lib_difficulty_filter';
   static const _actTagsKey = 'lib_act_tags';
   static const _actCatsKey = 'lib_act_cats';
+  static const _lastCatKey = 'lib_last_selected_category';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
   static const kSortEdited = 'edited';
@@ -124,6 +125,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<TrainingPackTemplate> _popular = [];
   final Map<String, TrainingPackStat?> _stats = {};
   final Map<String, int> _playCounts = {};
+  List<String> _weakCategories = [];
 
   @override
   void initState() {
@@ -141,6 +143,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _updatePopular();
     await _loadStats();
     await _loadPlayCounts();
+    await _loadWeakCategories();
     await context.read<TagCacheService>().updateFrom(
       context.read<TemplateStorageService>().templates,
       context.read<TrainingPackStorageService>().packs,
@@ -202,6 +205,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _activeCategories
         ..clear()
         ..addAll(prefs.getStringList(_actCatsKey) ?? []);
+      if (_activeCategories.isEmpty) {
+        final c = prefs.getString(_lastCatKey);
+        if (c != null && c.isNotEmpty) _activeCategories.add(c);
+      }
       _difficultyFilters
         ..clear()
         ..addAll(prefs
@@ -385,11 +392,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (_activeCategories.contains(cat)) {
       _activeCategories.clear();
       await prefs.remove(_actCatsKey);
+      await prefs.remove(_lastCatKey);
     } else {
       _activeCategories
         ..clear()
         ..add(cat);
       await prefs.setStringList(_actCatsKey, [cat]);
+      await prefs.setString(_lastCatKey, cat);
       _activeTags
         ..clear();
       await prefs.remove(_actTagsKey);
@@ -401,6 +410,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_actTagsKey);
     await prefs.remove(_actCatsKey);
+    await prefs.remove(_lastCatKey);
     setState(() {
       _activeTags.clear();
       _activeCategories.clear();
@@ -512,6 +522,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _playCounts
         ..clear()
         ..addAll(counts);
+    });
+  }
+
+  Future<void> _loadWeakCategories() async {
+    final map = await TrainingPackStatsService.getCategoryStats();
+    final list = map.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    final limit = list.length > 5 ? 5 : list.length;
+    if (!mounted) return;
+    setState(() {
+      _weakCategories = [for (final e in list.take(limit)) e.key];
     });
   }
 
@@ -1569,6 +1590,30 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         onPressed: _clearActiveFilters,
                       ),
                     ),
+                ],
+              ),
+            ),
+          if (_weakCategories.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('📊 Мои категории',
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final cat in _weakCategories)
+                        ChoiceChip(
+                          label: Text(translateCategory(cat)),
+                          selected: _activeCategories.contains(cat),
+                          onSelected: (_) => _setActiveCategory(cat),
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ),
