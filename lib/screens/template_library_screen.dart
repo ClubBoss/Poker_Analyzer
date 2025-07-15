@@ -1764,6 +1764,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (!t.isBuiltIn) t
     ]);
+    final masteredProgress = [
+      for (final t in templates)
+        if (_progressPercentFor(t) == 100) t
+    ]
+      ..sort((a, b) {
+        final ad = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bd = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bd.compareTo(ad);
+      });
     final popularFiltered = _applyFilters([
       for (final t in _popular)
         if (!_pinned.contains(t.id) && !_favorites.contains(t.id)) t
@@ -2373,6 +2382,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         for (final t in user) _item(t),
                       ] else if (filteringActive) ...[
                         _emptyTile,
+                      ],
+                      if (masteredProgress.length >= 2) ...[
+                        ListTile(title: Text(l.masteredPacks)),
+                        for (final t in masteredProgress) _item(t),
                       ],
                     ],
                   )
