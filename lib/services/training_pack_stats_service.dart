@@ -55,6 +55,7 @@ class TrainingPackStat {
 class TrainingPackStatsService {
   static const _prefix = 'tpl_stat_';
   static const _histPrefix = 'tpl_hist_';
+  static const _skillKey = 'stats_skill_stats';
 
   static Future<void> recordSession(
     String templateId,
@@ -221,5 +222,29 @@ class TrainingPackStatsService {
       }
     } catch (_) {}
     return [];
+  }
+
+  static Future<Map<String, double>> getCategoryStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_skillKey);
+    if (raw == null) return {};
+    try {
+      final data = jsonDecode(raw);
+      if (data is Map) {
+        final map = <String, double>{};
+        for (final e in data.entries) {
+          final v = e.value;
+          if (v is Map) {
+            final played = (v['hands'] as num?)?.toInt() ?? 0;
+            final miss = (v['mistakes'] as num?)?.toInt() ?? 0;
+            if (played > 0) {
+              map[e.key as String] = (played - miss) / played;
+            }
+          }
+        }
+        return map;
+      }
+    } catch (_) {}
+    return {};
   }
 }
