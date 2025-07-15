@@ -79,6 +79,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _duplicatesOnly = false;
   bool _newOnly = false;
   bool _showMissingOnly = false;
+  int? _priorityFilter;
   final FocusNode _focusNode = FocusNode();
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
@@ -93,6 +94,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsDupOnlyKey = 'dup_only';
   static const _prefsPinnedOnlyKey = 'pinned_only';
   static const _prefsNewOnlyKey = 'new_only';
+  static const _prefsPriorityFilterKey = 'priority_filter';
   static const _prefsSortMode2Key = 'sort_mode2';
   static const _prefsPreviewModeKey = 'preview_mode';
   static const _prefsPreviewJsonPngKey = 'preview_json_png';
@@ -225,6 +227,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     prefs.setBool(_prefsNewOnlyKey, _newOnly);
   }
 
+  void _storePriorityFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_priorityFilter == null) {
+      prefs.remove(_prefsPriorityFilterKey);
+    } else {
+      prefs.setInt(_prefsPriorityFilterKey, _priorityFilter!);
+    }
+  }
+
+  void _storePriorityFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_priorityFilter == null) {
+      prefs.remove(_prefsPriorityFilterKey);
+    } else {
+      prefs.setInt(_prefsPriorityFilterKey, _priorityFilter!);
+    }
+  }
+
   void _storeSortMode() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(_prefsSortMode2Key, _sortMode.name);
@@ -308,6 +328,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
       final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
       final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
+      final priorityFilter = prefs.getInt(_prefsPriorityFilterKey);
       final preview = prefs.getBool(_prefsPreviewModeKey) ?? false;
       final png = prefs.getBool(_prefsPreviewJsonPngKey) ?? false;
       final multiTip = prefs.getBool(_prefsMultiTipKey) ?? false;
@@ -354,6 +375,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _duplicatesOnly = dupOnly;
           _pinnedOnly = pinnedOnly;
           _newOnly = newOnly;
+          _priorityFilter = priorityFilter;
           _snapshots = snaps;
           _previewMode = preview;
           _previewJsonPng = png;
@@ -2852,6 +2874,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   prefs.setString(_prefsEvFilterKey, val);
                 },
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int?>(
+                value: _priorityFilter,
+                decoration: const InputDecoration(labelText: 'Priority'),
+                items: [
+                  const DropdownMenuItem(value: null, child: Text('All')),
+                  for (int i = 1; i <= 5; i++)
+                    DropdownMenuItem(value: i, child: Text('$i')),
+                ],
+                onChanged: (v) async {
+                  set(() => _priorityFilter = v);
+                  this.setState(() {});
+                  _storePriorityFilter();
+                },
+              ),
             ],
           ),
         ),
@@ -3466,6 +3503,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           selected: _sortEvAsc,
                           onSelected: (_) =>
                               setState(() => _sortEvAsc = !_sortEvAsc),
+                        ),
+                        const SizedBox(width: 8),
+                        DropdownButton<int?>(
+                          value: _priorityFilter,
+                          hint: const Text('Priority', style: TextStyle(color: Colors.white70)),
+                          dropdownColor: AppColors.cardBackground,
+                          style: const TextStyle(color: Colors.white),
+                          underline: const SizedBox(),
+                          items: [
+                            const DropdownMenuItem(value: null, child: Text('All')),
+                            for (int i = 1; i <= 5; i++)
+                              DropdownMenuItem(value: i, child: Text('$i')),
+                          ],
+                          onChanged: (v) {
+                            setState(() => _priorityFilter = v);
+                            _storePriorityFilter();
+                          },
                         ),
                       ],
                     );
@@ -5299,6 +5353,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _duplicatesOnly = false;
   bool _newOnly = false;
   bool _showMissingOnly = false;
+  int? _priorityFilter;
   final FocusNode _focusNode = FocusNode();
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
@@ -5313,6 +5368,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsDupOnlyKey = 'dup_only';
   static const _prefsPinnedOnlyKey = 'pinned_only';
   static const _prefsNewOnlyKey = 'new_only';
+  static const _prefsPriorityFilterKey = 'priority_filter';
   static const _prefsSortMode2Key = 'sort_mode2';
   static const _prefsPreviewModeKey = 'preview_mode';
   static const _prefsPreviewJsonPngKey = 'preview_json_png';
@@ -5528,6 +5584,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
       final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
       final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
+      final priorityFilter = prefs.getInt(_prefsPriorityFilterKey);
       final preview = prefs.getBool(_prefsPreviewModeKey) ?? false;
       final png = prefs.getBool(_prefsPreviewJsonPngKey) ?? false;
       final multiTip = prefs.getBool(_prefsMultiTipKey) ?? false;
@@ -5574,6 +5631,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _duplicatesOnly = dupOnly;
           _pinnedOnly = pinnedOnly;
           _newOnly = newOnly;
+          _priorityFilter = priorityFilter;
           _snapshots = snaps;
           _previewMode = preview;
           _previewJsonPng = png;
@@ -8081,6 +8139,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   prefs.setString(_prefsEvFilterKey, val);
                 },
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int?>(
+                value: _priorityFilter,
+                decoration: const InputDecoration(labelText: 'Priority'),
+                items: [
+                  const DropdownMenuItem(value: null, child: Text('All')),
+                  for (int i = 1; i <= 5; i++)
+                    DropdownMenuItem(value: i, child: Text('$i')),
+                ],
+                onChanged: (v) async {
+                  set(() => _priorityFilter = v);
+                  this.setState(() {});
+                  _storePriorityFilter();
+                },
+              ),
             ],
           ),
         ),
@@ -8692,6 +8765,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           selected: _sortEvAsc,
                           onSelected: (_) =>
                               setState(() => _sortEvAsc = !_sortEvAsc),
+                        ),
+                        const SizedBox(width: 8),
+                        DropdownButton<int?>(
+                          value: _priorityFilter,
+                          hint: const Text('Priority', style: TextStyle(color: Colors.white70)),
+                          dropdownColor: AppColors.cardBackground,
+                          style: const TextStyle(color: Colors.white),
+                          underline: const SizedBox(),
+                          items: [
+                            const DropdownMenuItem(value: null, child: Text('All')),
+                            for (int i = 1; i <= 5; i++)
+                              DropdownMenuItem(value: i, child: Text('$i')),
+                          ],
+                          onChanged: (v) {
+                            setState(() => _priorityFilter = v);
+                            _storePriorityFilter();
+                          },
                         ),
                       ],
                     );
