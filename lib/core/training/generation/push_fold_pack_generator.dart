@@ -15,42 +15,48 @@ class PushFoldPackGenerator {
 
   TrainingPackTemplate generate({
     required GameType gameType,
-    required int bb,
+    int bb = 0,
+    List<int>? bbList,
     required List<String> positions,
     int count = 25,
     bool multiplePositions = false,
   }) {
+    final stacks = bbList == null || bbList.isEmpty ? [bb] : bbList;
     final posList = positions.map(parseHeroPosition).toList();
     final availableHands = PackGeneratorService.topNHands(count).toList();
     final limit = availableHands.length < count ? availableHands.length : count;
     final hands = availableHands.take(limit).toList();
     final spots = <TrainingPackSpot>[];
     var index = 1;
-    for (final pos in posList) {
-      for (final hand in hands) {
-        final cards = _firstCombo(hand);
-        final data = HandData.fromSimpleInput(cards, pos, bb);
-        spots.add(
-          TrainingPackSpot(
-            id: '${_uuid.v4()}_${index++}',
-            title:
-                multiplePositions ? '$hand push from ${pos.label}' : '$hand push',
-            hand: data,
-            tags: const ['pushfold'],
-          ),
-        );
+    for (final stack in stacks) {
+      for (final pos in posList) {
+        for (final hand in hands) {
+          final cards = _firstCombo(hand);
+          final data = HandData.fromSimpleInput(cards, pos, stack);
+          spots.add(
+            TrainingPackSpot(
+              id: '${_uuid.v4()}_${index++}',
+              title: multiplePositions
+                  ? '$hand push ${stack}BB from ${pos.label}'
+                  : '$hand push ${stack}BB',
+              hand: data,
+              tags: const ['pushfold'],
+            ),
+          );
+        }
+        if (!multiplePositions) break;
       }
-      if (!multiplePositions) break;
     }
     final now = DateTime.now();
+    final firstStack = stacks.first;
     final tpl = TrainingPackTemplate(
       id: _uuid.v4(),
-      name: 'Push/Fold ${bb}BB',
-      description: 'Auto pack ${bb}BB ${positions.join(', ')}',
+      name: 'Push/Fold ${firstStack}BB',
+      description: 'Auto pack ${stacks.join(',')}BB ${positions.join(', ')}',
       gameType: gameType,
       spots: spots,
-      heroBbStack: bb,
-      playerStacksBb: [bb, bb],
+      heroBbStack: firstStack,
+      playerStacksBb: [firstStack, firstStack],
       heroPos: posList.isEmpty ? HeroPosition.sb : posList.first,
       spotCount: spots.length,
       anteBb: 0,

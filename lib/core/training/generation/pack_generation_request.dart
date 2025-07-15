@@ -3,6 +3,7 @@ import '../../../models/game_type.dart';
 class PackGenerationRequest {
   final GameType gameType;
   final int bb;
+  final List<int>? bbList;
   final List<String> positions;
   final String title;
   final String description;
@@ -11,7 +12,8 @@ class PackGenerationRequest {
   final bool multiplePositions;
   const PackGenerationRequest({
     required this.gameType,
-    required this.bb,
+    this.bb = 0,
+    this.bbList,
     required this.positions,
     this.title = '',
     this.description = '',
