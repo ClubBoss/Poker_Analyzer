@@ -38,6 +38,7 @@ import 'services/xp_tracker_service.dart';
 import 'services/reward_service.dart';
 import 'services/goal_engine.dart';
 import 'services/daily_challenge_service.dart';
+import 'services/daily_spotlight_service.dart';
 import 'services/weekly_challenge_service.dart';
 import 'services/streak_counter_service.dart';
 import 'services/spot_of_the_day_service.dart';
@@ -213,6 +214,11 @@ List<SingleChildWidget> buildTrainingProviders() {
               adaptive: context.read<AdaptiveTrainingService>(),
               templates: context.read<TemplateStorageService>(),
               xp: context.read<XPTrackerService>(),
+            )..load(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => DailySpotlightService(
+              templates: context.read<TemplateStorageService>(),
             )..load(),
           ),
           ChangeNotifierProvider(

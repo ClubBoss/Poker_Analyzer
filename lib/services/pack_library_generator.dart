@@ -71,6 +71,7 @@ class PackLibraryGenerator {
       );
       tpl.tags = [for (final tag in t.tags) if (tag.trim().isNotEmpty) tag];
       tpl.trending = t.trending;
+      tpl.recommended = t.recommended;
       _packs.add(tpl);
     }
   }
