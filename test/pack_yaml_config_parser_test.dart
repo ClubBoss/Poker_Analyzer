@@ -79,4 +79,36 @@ packs:
     expect(list.first.bbList, [10, 20]);
     expect(list.first.bb, 0);
   });
+
+  test('parse applies default count and multiple positions', () {
+    const yaml = '''
+defaultCount: 5
+defaultMultiplePositions: true
+packs:
+  - gameType: tournament
+    bb: 15
+    positions: [btn, sb]
+''';
+    final parser = PackYamlConfigParser();
+    final list = parser.parse(yaml);
+    expect(list.first.count, 5);
+    expect(list.first.multiplePositions, true);
+  });
+
+  test('local values override defaults', () {
+    const yaml = '''
+defaultCount: 5
+defaultMultiplePositions: true
+packs:
+  - gameType: tournament
+    bb: 15
+    positions: [btn]
+    count: 3
+    multiplePositions: false
+''';
+    final parser = PackYamlConfigParser();
+    final list = parser.parse(yaml);
+    expect(list.first.count, 3);
+    expect(list.first.multiplePositions, false);
+  });
 }
