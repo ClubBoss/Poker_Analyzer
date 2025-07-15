@@ -17,6 +17,8 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
   String? previewPath;
   bool completed = false;
   bool inProgress = false;
+  TrainingPackStat? _stat;
+  double _progress = 0;
   @override
   void initState() {
     super.initState();
@@ -28,8 +30,9 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
     final stat = await TrainingPackStatsService.getStats(widget.template.id);
     final done = await _isFullyCompleted(widget.template);
     var progress = false;
+    double pct = 0;
     if (stat != null && widget.template.spots.isNotEmpty) {
-      final pct = ((stat.lastIndex + 1) * 100 / widget.template.spots.length).clamp(0, 100);
+      pct = ((stat.lastIndex + 1) * 100 / widget.template.spots.length).clamp(0, 100).toDouble();
       progress = pct > 0 && pct < 100;
     }
     if (!mounted) return;
@@ -37,6 +40,8 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
       previewPath = path;
       completed = done;
       inProgress = progress;
+      _stat = stat;
+      _progress = pct;
     });
   }
 
@@ -51,10 +56,38 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
 
   @override
   Widget build(BuildContext context) {
+    final lines = <Widget>[
+      Text(
+        widget.template.name,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    ];
+    if (_stat != null && _progress > 0) {
+      final ev = _stat!.postEvPct > 0 ? _stat!.postEvPct : _stat!.preEvPct;
+      final icm = _stat!.postIcmPct > 0 ? _stat!.postIcmPct : _stat!.preIcmPct;
+      final acc = _stat!.accuracy * 100;
+      lines.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            'EV: ${ev.round()}% · ICM: ${icm.round()}% · Acc: ${acc.round()}%',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.white70,
+              fontWeight: completed ? FontWeight.bold : FontWeight.normal,
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ),
+      );
+    }
     final content = Padding(
       padding: const EdgeInsets.all(16),
-      child: Text(widget.template.name,
-          style: const TextStyle(fontWeight: FontWeight.bold)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: lines,
+      ),
     );
     return GestureDetector(
       onTap: widget.onTap,
