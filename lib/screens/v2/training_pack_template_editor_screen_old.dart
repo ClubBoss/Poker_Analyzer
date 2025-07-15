@@ -4472,6 +4472,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 scrollDirection: Axis.horizontal,
                 child: RangeMatrixPicker(
                   selected: range,
+                  highlight: widget.template.heroRange?.toSet(),
                   onChanged: (_) {},
                   readOnly: true,
                 ),
@@ -9783,6 +9784,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 scrollDirection: Axis.horizontal,
                 child: RangeMatrixPicker(
                   selected: range,
+                  highlight: widget.template.heroRange?.toSet(),
                   onChanged: (_) {},
                   readOnly: true,
                 ),

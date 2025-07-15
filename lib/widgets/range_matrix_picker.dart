@@ -4,12 +4,14 @@ class RangeMatrixPicker extends StatelessWidget {
   final Set<String> selected;
   final ValueChanged<Set<String>> onChanged;
   final bool readOnly;
+  final Set<String>? highlight;
 
   const RangeMatrixPicker({
     super.key,
     required this.selected,
     required this.onChanged,
     this.readOnly = false,
+    this.highlight,
   });
 
   static const _ranks = [
@@ -56,6 +58,7 @@ class RangeMatrixPicker extends StatelessWidget {
                   label: _label(row, col),
                   color: _baseColor(row, col),
                   selected: selected.contains(_label(row, col)),
+                  highlighted: highlight?.contains(_label(row, col)) ?? false,
                   readOnly: readOnly,
                   onTap: () {
                     final newSet = Set<String>.from(selected);
@@ -75,6 +78,7 @@ class _Cell extends StatelessWidget {
   final String label;
   final Color color;
   final bool selected;
+  final bool highlighted;
   final VoidCallback onTap;
   final bool readOnly;
 
@@ -83,6 +87,7 @@ class _Cell extends StatelessWidget {
     required this.color,
     required this.selected,
     required this.onTap,
+    this.highlighted = false,
     this.readOnly = false,
   });
 
@@ -92,23 +97,39 @@ class _Cell extends StatelessWidget {
     return GestureDetector(
       onTap: readOnly ? null : onTap,
       onLongPress: readOnly ? null : onTap,
-      child: Container(
-        width: 24,
-        height: 24,
-        margin: const EdgeInsets.all(1),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: bg,
-          border: Border.all(color: Colors.white24, width: 0.5),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
+      child: Stack(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            margin: const EdgeInsets.all(1),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: bg,
+              border: Border.all(color: Colors.white24, width: 0.5),
+            ),
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-        ),
+          if (highlighted)
+            IgnorePointer(
+              child: Container(
+                width: 24,
+                height: 24,
+                margin: const EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  color: Colors.lightGreen.withOpacity(0.3),
+                  border: Border.all(color: Colors.transparent),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
