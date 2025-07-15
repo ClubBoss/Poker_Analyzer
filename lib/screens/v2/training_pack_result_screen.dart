@@ -279,6 +279,8 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       evSum: _evDeltaSum,
       icmSum: _icmDeltaSum,
     ));
+    SharedPreferences.getInstance().then((p) =>
+        p.setString('last_trained_tpl_${widget.original.id}', DateTime.now().toIso8601String()));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _firstKey.currentContext;
       if (ctx != null) {
