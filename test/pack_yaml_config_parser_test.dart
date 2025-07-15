@@ -13,6 +13,7 @@ packs:
     title: Test
     description: Desc
     tags: [pushfold]
+    count: 20
   - gameType: cash
     bb: 50
     positions: [btn]
@@ -28,6 +29,8 @@ packs:
     expect(list.first.positions, ['sb', 'bb']);
     expect(list.first.title, 'Test');
     expect(list.first.tags, ['pushfold']);
+    expect(list.first.count, 20);
+    expect(list.last.count, 25);
     expect(list.last.gameType, GameType.cash);
   });
 }

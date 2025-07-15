@@ -17,9 +17,12 @@ class PushFoldPackGenerator {
     required GameType gameType,
     required int bb,
     required List<String> positions,
+    int count = 25,
   }) {
     final posList = positions.map(parseHeroPosition).toList();
-    final hands = PackGeneratorService.topNHands(25).toList();
+    final availableHands = PackGeneratorService.topNHands(count).toList();
+    final limit = availableHands.length < count ? availableHands.length : count;
+    final hands = availableHands.take(limit).toList();
     final spots = <TrainingPackSpot>[];
     var index = 1;
     for (final pos in posList) {

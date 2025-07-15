@@ -7,6 +7,7 @@ class PackGenerationRequest {
   final String title;
   final String description;
   final List<String> tags;
+  final int count;
   const PackGenerationRequest({
     required this.gameType,
     required this.bb,
@@ -14,5 +15,6 @@ class PackGenerationRequest {
     this.title = '',
     this.description = '',
     List<String>? tags,
+    this.count = 25,
   }) : tags = tags ?? const [];
 }

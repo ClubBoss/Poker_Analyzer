@@ -24,7 +24,10 @@ class PackYamlConfigParser {
             ],
             title: item['title']?.toString() ?? '',
             description: item['description']?.toString() ?? '',
-            tags: [for (final t in (item['tags'] as List? ?? const [])) t.toString()],
+            tags: [
+              for (final t in (item['tags'] as List? ?? const [])) t.toString()
+            ],
+            count: (item['count'] as num?)?.toInt() ?? 25,
           )
     ];
   }

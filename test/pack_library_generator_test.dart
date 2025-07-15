@@ -11,6 +11,7 @@ packs:
     title: Example
     description: Test
     tags: [pushfold]
+    count: 5
 ''';
     final generator = PackLibraryGenerator();
     final list = generator.generateFromYaml(yaml);
@@ -19,6 +20,7 @@ packs:
     expect(tpl.name, 'Example');
     expect(tpl.description, 'Test');
     expect(tpl.tags, ['pushfold']);
+    expect(tpl.spots.length, 5);
     expect(tpl.spotCount, tpl.spots.length);
     expect(tpl.id.isNotEmpty, true);
   });

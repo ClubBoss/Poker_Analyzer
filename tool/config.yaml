@@ -5,9 +5,11 @@ packs:
     title: Example Pack
     description: Example tournament pack
     tags: [pushfold]
+    count: 10
   - gameType: cash
     bb: 50
     positions: [btn]
     title: Cash Pack
     description: Example cash pack
     tags: [cash]
+    count: 10
