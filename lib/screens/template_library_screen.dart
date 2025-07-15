@@ -531,8 +531,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final list = [
       for (final t in templates)
         if (_playCounts[t.id] != null) t
-    ]
-      ..sort((a, b) {
+    ]..sort((a, b) {
         final pa = _playCounts[a.id] ?? 0;
         final pb = _playCounts[b.id] ?? 0;
         final r = pb.compareTo(pa);
@@ -1092,7 +1091,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Future<void> _weakCategoriesDrill() async {
-    final tpl = await TrainingPackService.createDrillFromWeakCategories(context);
+    final tpl =
+        await TrainingPackService.createDrillFromWeakCategories(context);
     if (tpl == null) return;
     await context.read<TrainingSessionService>().startSession(tpl);
     if (!mounted) return;
@@ -1104,6 +1104,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _worstCategoryDrill() async {
     final tpl = await TrainingPackService.createDrillFromWorstCategory(context);
+    if (tpl == null) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
+  Future<void> _repeatCorrected() async {
+    final tpl = await TrainingPackService.createRepeatForCorrected(context);
     if (tpl == null) return;
     await context.read<TrainingSessionService>().startSession(tpl);
     if (!mounted) return;
@@ -1140,6 +1151,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ),
       );
     }
+
     final tagsWidget = tags.isNotEmpty
         ? Padding(
             padding: const EdgeInsets.only(top: 4),
@@ -1195,8 +1207,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) =>
-                        CreatePackFromTemplateScreen(template: t)),
+                    builder: (_) => CreatePackFromTemplateScreen(template: t)),
               );
             }
           },
@@ -2092,8 +2103,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       ],
                       if (weakMap.isNotEmpty) ...[
                         const ListTile(
-                            title:
-                                Text('🧠 \u041f\u043e\u0432\u0442\u043e\u0440\u044b \u043f\u043e \u0441\u043b\u0430\u0431\u044b\u043c \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f\u043c')),
+                            title: Text(
+                                '🧠 \u041f\u043e\u0432\u0442\u043e\u0440\u044b \u043f\u043e \u0441\u043b\u0430\u0431\u044b\u043c \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f\u043c')),
                         for (final e in weakMap.entries) ...[
                           Padding(
                             padding: const EdgeInsets.symmetric(
@@ -2106,7 +2117,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             ),
                           ),
                           for (final t in e.value)
-                            _item(t, 'Weak Category: ${translateCategory(e.key)}'),
+                            _item(t,
+                                'Weak Category: ${translateCategory(e.key)}'),
                         ],
                         if (builtInStarter.isNotEmpty ||
                             builtInOther.isNotEmpty ||
@@ -2204,6 +2216,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             onPressed: _worstCategoryDrill,
             label: const Text('Частые ошибки (EV Loss)'),
             icon: const Icon(Icons.error_outline),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'repeatCorrectedFab',
+            onPressed: _repeatCorrected,
+            label: const Text('Повторить исправленную'),
+            icon: const Icon(Icons.repeat),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
