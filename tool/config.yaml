@@ -1,0 +1,13 @@
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb, bb]
+    title: Example Pack
+    description: Example tournament pack
+    tags: [pushfold]
+  - gameType: cash
+    bb: 50
+    positions: [btn]
+    title: Cash Pack
+    description: Example cash pack
+    tags: [cash]
