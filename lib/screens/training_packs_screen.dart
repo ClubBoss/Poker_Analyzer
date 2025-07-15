@@ -28,6 +28,7 @@ import '../services/smart_suggestion_service.dart';
 import 'training_session_screen.dart';
 import '../models/saved_hand.dart';
 import 'top_packs_screen.dart';
+import 'popular_now_screen.dart';
 
 enum _PackSort { recommended, newest, hardest }
 
@@ -80,6 +81,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const TopPacksScreen()),
+    );
+  }
+
+  void _openPopularNow() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const PopularNowScreen()),
     );
   }
 
@@ -227,6 +235,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
               onPressed: _openTopPacks,
               child: const Text('🏆 Топ паки'),
             ),
+            TextButton(
+              onPressed: _openPopularNow,
+              child: const Text('🔥 Популярное'),
+            ),
             SyncStatusIcon.of(context)
           ],
         ),
@@ -337,6 +349,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
               onPressed: _openTopPacks,
               child: const Text('🏆 Топ паки'),
             ),
+            TextButton(
+              onPressed: _openPopularNow,
+              child: const Text('🔥 Популярное'),
+            ),
             SyncStatusIcon.of(context)
           ],
         ),
@@ -390,6 +406,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           TextButton(
             onPressed: _openTopPacks,
             child: const Text('🏆 Топ паки'),
+          ),
+          TextButton(
+            onPressed: _openPopularNow,
+            child: const Text('🔥 Популярное'),
           ),
           SyncStatusIcon.of(context)
         ],
