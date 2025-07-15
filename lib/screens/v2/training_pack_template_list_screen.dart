@@ -86,6 +86,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsDifficultyKey = 'tpl_diff_filter';
   static const _prefsStreetKey = 'tpl_street_filter';
   static const _prefsRecentKey = 'tpl_recent_packs';
+  static const _prefsInProgressKey = 'tpl_in_progress';
   static const _stackRanges = ['0-9', '10-15', '16-25', '26+'];
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
@@ -119,6 +120,7 @@ class _TrainingPackTemplateListScreenState
   final Set<String> _favorites = {};
   bool _showFavoritesOnly = false;
   bool _showNeedsEvalOnly = false;
+  bool _showInProgressOnly = false;
   bool _autoEvalRunning = false;
   Timer? _autoEvalTimer;
   bool _autoEvalQueued = false;
@@ -446,10 +448,23 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadShowInProgressOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() => _showInProgressOnly = prefs.getBool(_prefsInProgressKey) ?? false);
+    }
+  }
+
   Future<void> _setShowFavoritesOnly(bool value) async {
     setState(() => _showFavoritesOnly = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefsShowFavOnlyKey, value);
+  }
+
+  Future<void> _setShowInProgressOnly(bool value) async {
+    setState(() => _showInProgressOnly = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsInProgressKey, value);
   }
 
   Future<void> _saveFavorites() async {
@@ -861,8 +876,16 @@ class _TrainingPackTemplateListScreenState
                 t
           ]
         : completed;
+    final inProgressFiltered = !_showInProgressOnly
+        ? visible
+        : [
+            for (final t in visible)
+              if ((_stats[t.id]?.lastIndex ?? 0) > 0 &&
+                  (_stats[t.id]?.accuracy ?? 1.0) < 1.0)
+                t
+          ];
     return [
-      for (final t in visible)
+      for (final t in inProgressFiltered)
         if ((_query.isEmpty || t.name.toLowerCase().contains(_query)) &&
             (_tagFilters.isEmpty ||
                 t.tags.any((tag) => _tagFilters.contains(tag))))
@@ -1570,6 +1593,7 @@ class _TrainingPackTemplateListScreenState
       _loadGroupByType();
       _loadFavorites();
       _loadShowFavoritesOnly();
+      _loadShowInProgressOnly();
       _loadStackFilter();
       _loadPosFilter();
       _loadDifficultyFilter();
@@ -2634,6 +2658,12 @@ class _TrainingPackTemplateListScreenState
                     setState(() => _completedOnly = !_completedOnly),
               ),
               ChoiceChip(
+                label: const Text('🟡 В процессе'),
+                selected: _showInProgressOnly,
+                onSelected: (_) =>
+                    _setShowInProgressOnly(!_showInProgressOnly),
+              ),
+              ChoiceChip(
                 label: const Text('ICM Only'),
                 selected: _icmOnly,
                 onSelected: (_) => setState(() => _icmOnly = !_icmOnly),
@@ -3322,6 +3352,12 @@ class _TrainingPackTemplateListScreenState
                           selected: _completedOnly,
                           onSelected: (_) =>
                               setState(() => _completedOnly = !_completedOnly),
+                        ),
+                        ChoiceChip(
+                          label: const Text('🟡 В процессе'),
+                          selected: _showInProgressOnly,
+                          onSelected: (_) =>
+                              _setShowInProgressOnly(!_showInProgressOnly),
                         ),
                         ChoiceChip(
                           label: const Text('ICM Only'),

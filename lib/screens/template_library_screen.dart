@@ -60,6 +60,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _favOnlyKey = 'lib_fav_only';
   static const _recentOnlyKey = 'lib_recent_only';
+  static const _inProgressKey = 'lib_in_progress';
   static const _selTagKey = 'lib_sel_tag';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
@@ -87,6 +88,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _needsPracticeIds = {};
   final Set<String> _favorites = {};
   bool _favoritesOnly = false;
+  bool _inProgressOnly = false;
   bool _showRecent = true;
   String? _selectedTag;
   bool _importing = false;
@@ -157,6 +159,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _favoritesOnly = prefs.getBool(_favOnlyKey) ?? false;
       _selectedTag = prefs.getString(_selTagKey);
       _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
+      _inProgressOnly = prefs.getBool(_inProgressKey) ?? false;
     });
     final cloud = context.read<CloudSyncService>();
     final remoteRaw = await cloud.load(_favKey);
@@ -253,6 +256,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_recentOnlyKey, value);
     setState(() => _showRecent = value);
+  }
+
+  Future<void> _setInProgressOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_inProgressKey, value);
+    setState(() => _inProgressOnly = value);
   }
 
   Future<void> _updateRecent() async {
@@ -423,6 +432,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     }
     if (_favoritesOnly) {
       visible = [for (final t in visible) if (_favorites.contains(t.id)) t];
+    }
+    if (_inProgressOnly) {
+      visible = [
+        for (final t in visible)
+          if ((_stats[t.id]?.lastIndex ?? 0) > 0 &&
+              (_stats[t.id]?.accuracy ?? 1.0) < 1.0)
+            t
+      ];
     }
     if (_selectedTag != null) {
       visible = [for (final t in visible) if (t.tags.contains(_selectedTag)) t];
@@ -1171,6 +1188,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 label: Text(l.favorites),
                 selected: _favoritesOnly,
                 onSelected: (v) => _setFavoritesOnly(v),
+              ),
+              ChoiceChip(
+                label: const Text('🟡 В процессе'),
+                selected: _inProgressOnly,
+                onSelected: (v) => _setInProgressOnly(v),
               ),
               FilterChip(
                 label: Text(l.recentPacks),
