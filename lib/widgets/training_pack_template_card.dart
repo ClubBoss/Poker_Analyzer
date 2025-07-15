@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/v2/training_pack_template.dart';
-import '../services/preview_cache_service.dart';
+import '../services/thumbnail_cache_service.dart';
 
 class TrainingPackTemplateCard extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -21,12 +21,9 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
   }
 
   void _load() async {
-    final png = widget.template.png;
-    if (png != null) {
-      final path = await PreviewCacheService.instance.getPreviewPath(png);
-      if (!mounted) return;
-      setState(() => previewPath = path);
-    }
+    final path = await ThumbnailCacheService.instance.getThumbnail(widget.template);
+    if (!mounted) return;
+    setState(() => previewPath = path);
   }
 
   @override
