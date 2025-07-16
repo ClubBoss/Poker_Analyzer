@@ -19,6 +19,67 @@ class PackLibraryGenerator {
         generator = pushFoldGenerator ?? const PushFoldPackGenerator(),
         engine = packEngine ?? const TrainingPackGeneratorEngine();
 
+  List<String> autoTags(TrainingPackTemplate template) {
+    final set = <String>{};
+    final positions = <HeroPosition>{template.heroPos};
+    var maxPlayers = 0;
+    final stacks = <int>{};
+    var maxStack = 0;
+    var minStack = 1 << 20;
+    var flop = false;
+    var turn = false;
+    var river = false;
+    for (final s in template.spots) {
+      positions.add(s.hand.position);
+      maxPlayers =
+          s.hand.playerCount > maxPlayers ? s.hand.playerCount : maxPlayers;
+      final st = s.hand.stacks['${s.hand.heroIndex}']?.round();
+      if (st != null) {
+        stacks.add(st);
+        if (st > maxStack) maxStack = st;
+        if (st < minStack) minStack = st;
+      }
+      final len = s.hand.board.length;
+      if (len >= 3) flop = true;
+      if (len >= 4) turn = true;
+      if (len >= 5) river = true;
+    }
+    for (final p in positions) {
+      if (p != HeroPosition.unknown) set.add(p.name.toUpperCase());
+    }
+    if (maxPlayers <= 2) {
+      set.add('HU');
+    } else if (maxPlayers == 3) {
+      set.add('3way');
+    } else {
+      set.add('4way+');
+    }
+    for (final st in stacks) {
+      set.add('${st}bb');
+    }
+    if (minStack <= 10) set.add('short');
+    if (maxStack >= 40) set.add('deep');
+    if (flop) set.add('flop');
+    if (turn) set.add('turn');
+    if (river) set.add('river');
+    final list = set.toList();
+    list.sort();
+    return list;
+  }
+
+  List<String> _autoTagsV2(TrainingPackTemplateV2 t) {
+    final tmp = TrainingPackTemplate(
+      id: t.id,
+      name: t.name,
+      spots: [for (final s in t.spots) TrainingPackSpot.fromJson(s.toJson())],
+      heroPos: t.positions.isNotEmpty
+          ? parseHeroPosition(t.positions.first)
+          : HeroPosition.unknown,
+      heroBbStack: t.bb,
+    );
+    return autoTags(tmp);
+  }
+
   int _estimateDifficultyFromSpots(List<TrainingPackSpot> spots) {
     var diff = 1;
     final streets = <int>{};
@@ -69,6 +130,7 @@ class PackLibraryGenerator {
       if (tags.isNotEmpty) tpl.tags = tags;
       tpl.spotCount = tpl.spots.length;
       tpl.meta['difficulty'] = estimateDifficulty(tpl);
+      tpl.tags = {...tpl.tags, ...autoTags(tpl)}.toList();
       list.add(tpl);
     }
     return list;
@@ -82,6 +144,7 @@ class PackLibraryGenerator {
       if (t.spots.isEmpty) continue;
       if (t.meta['enabled'] == false) continue;
       t.meta['difficulty'] = estimateDifficultyV2(t);
+      t.tags = {...t.tags, ..._autoTagsV2(t)}.toList();
       final pack = await engine.generateFromTemplate(t);
       list.add(pack);
     }

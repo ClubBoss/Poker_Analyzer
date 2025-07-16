@@ -10,8 +10,11 @@ import 'package:poker_analyzer/core/training/generation/training_pack_generator_
 class FakeEngine extends TrainingPackGeneratorEngine {
   const FakeEngine();
   @override
-  Future<TrainingPackV2> generateFromTemplate(TrainingPackTemplateV2 template) async {
-    final spots = [for (final s in template.spots) TrainingPackSpot.fromJson(s.toJson())];
+  Future<TrainingPackV2> generateFromTemplate(
+      TrainingPackTemplateV2 template) async {
+    final spots = [
+      for (final s in template.spots) TrainingPackSpot.fromJson(s.toJson())
+    ];
     return TrainingPackV2(
       id: template.id,
       sourceTemplateId: template.id,
@@ -25,7 +28,9 @@ class FakeEngine extends TrainingPackGeneratorEngine {
       gameType: template.gameType,
       bb: template.bb,
       positions: List<String>.from(template.positions),
-      difficulty: template.meta['difficulty'] is int ? template.meta['difficulty'] as int : spots.length,
+      difficulty: template.meta['difficulty'] is int
+          ? template.meta['difficulty'] as int
+          : spots.length,
       meta: Map<String, dynamic>.from(template.meta),
     );
   }
@@ -56,7 +61,8 @@ void main() {
       type: TrainingType.pushfold,
     );
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
-    final res = await generator.generateFromTemplates([enabled, disabled, empty]);
+    final res =
+        await generator.generateFromTemplates([enabled, disabled, empty]);
     expect(res.length, 1);
     expect(res.first.sourceTemplateId, '1');
   });
@@ -110,5 +116,32 @@ void main() {
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
     final res = await generator.generateFromTemplates([tpl]);
     expect(res.first.meta['difficulty'], 3);
+  });
+
+  test('generateFromTemplates adds auto tags', () async {
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData(
+        position: HeroPosition.bb,
+        heroIndex: 0,
+        playerCount: 3,
+        stacks: {'0': 20, '1': 20, '2': 20},
+        board: ['2h', '3d', '4s', '5c'],
+      ),
+    );
+    final tpl = TrainingPackTemplateV2(
+      id: 'x',
+      name: 'X',
+      type: TrainingType.pushfold,
+      spots: [spot],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    final tags = res.first.tags;
+    expect(tags.contains('BB'), true);
+    expect(tags.contains('3way'), true);
+    expect(tags.contains('20bb'), true);
+    expect(tags.contains('flop'), true);
+    expect(tags.contains('turn'), true);
   });
 }
