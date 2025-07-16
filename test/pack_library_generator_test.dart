@@ -66,4 +66,16 @@ packs:
     final list = generator.generateFromYaml(yaml);
     expect(list.first.tags.contains('top10'), true);
   });
+
+  test('generateFromYaml generates default title', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.name, 'SB Push 10bb (Tournament)');
+  });
 }

@@ -6,6 +6,7 @@ import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../models/v2/training_pack_v2.dart';
 import '../../../models/v2/training_pack_spot.dart';
 import '../../../models/v2/hero_position.dart';
+import '../engine/training_type_engine.dart';
 
 class PackLibraryGenerator {
   final PackYamlConfigParser parser;
@@ -80,6 +81,31 @@ class PackLibraryGenerator {
     return autoTags(tmp);
   }
 
+  String generateTitle(TrainingPackTemplate template,
+      [TrainingType type = TrainingType.pushfold]) {
+    final pos = template.heroPos.label;
+    final bb = template.heroBbStack;
+    final game = template.gameType.label;
+    if (type == TrainingType.pushfold) {
+      return '$pos Push ${bb}bb ($game)';
+    }
+    final stack = bb >= 40 ? 'DeepStack Pack' : '${bb}bb Pack';
+    return '$pos $stack';
+  }
+
+  String _generateTitleV2(TrainingPackTemplateV2 t) {
+    final pos = t.positions.isNotEmpty
+        ? parseHeroPosition(t.positions.first).label
+        : HeroPosition.unknown.label;
+    final bb = t.bb;
+    final game = t.gameType.label;
+    if (t.type == TrainingType.pushfold) {
+      return '$pos Push ${bb}bb ($game)';
+    }
+    final stack = bb >= 40 ? 'DeepStack Pack' : '${bb}bb Pack';
+    return '$pos $stack';
+  }
+
   int _estimateDifficultyFromSpots(List<TrainingPackSpot> spots) {
     var diff = 1;
     final streets = <int>{};
@@ -118,7 +144,11 @@ class PackLibraryGenerator {
         rangeGroup: r.rangeGroup,
         multiplePositions: r.multiplePositions,
       );
-      if (r.title.isNotEmpty) tpl.name = r.title;
+      if (r.title.isNotEmpty) {
+        tpl.name = r.title;
+      } else {
+        tpl.name = generateTitle(tpl);
+      }
       if (r.description.isNotEmpty) tpl.description = r.description;
       final tags = List<String>.from(r.tags);
       if (config.rangeTags &&
@@ -143,6 +173,9 @@ class PackLibraryGenerator {
     for (final t in templates) {
       if (t.spots.isEmpty) continue;
       if (t.meta['enabled'] == false) continue;
+      if (t.name.isEmpty) {
+        t.name = _generateTitleV2(t);
+      }
       t.meta['difficulty'] = estimateDifficultyV2(t);
       t.tags = {...t.tags, ..._autoTagsV2(t)}.toList();
       final pack = await engine.generateFromTemplate(t);
