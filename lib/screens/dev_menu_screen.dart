@@ -20,6 +20,7 @@ class DevMenuScreen extends StatefulWidget {
 
 class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _loading = false;
+  bool _batchLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -106,15 +107,15 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
           await file.writeAsString(yaml);
           if (mounted) {
             final name = file.path.split(Platform.pathSeparator).last;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Файл сохранён: $name')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
           }
         } catch (_) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Ошибка сохранения')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Ошибка сохранения')));
           }
         }
         final tpl = await TrainingTypeEngine().build(
@@ -153,6 +154,90 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _generateYamlBatch(
+    List<(String audience, List<String> tags)> items,
+  ) async {
+    if (_batchLoading) return;
+    setState(() => _batchLoading = true);
+    final total = items.length.clamp(0, 10);
+    var success = 0;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        var progress = 0.0;
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                final gpt = GptPackTemplateGenerator(apiKey: _apiKey);
+                final parser = const PackYamlConfigParser();
+                final dir = await getApplicationDocumentsDirectory();
+                final custom = Directory('${dir.path}/training_packs/custom');
+                await custom.create(recursive: true);
+                for (var i = 0; i < total; i++) {
+                  final item = items[i];
+                  final tags = item.$2.length > 5
+                      ? item.$2.sublist(0, 5)
+                      : List<String>.from(item.$2);
+                  final tagStr = tags.join(', ');
+                  final prompt =
+                      '$_basePrompt для audience: ${item.$1}, tags: $tagStr, формат: 10 BB турниры';
+                  final yaml = await gpt.generateYamlTemplate(prompt);
+                  if (yaml.isNotEmpty) {
+                    try {
+                      final cfg = parser.parse(yaml);
+                      if (cfg.requests.isNotEmpty) {
+                        final ts = DateFormat(
+                          'yyyyMMdd_HHmm',
+                        ).format(DateTime.now());
+                        final safeA = item.$1.replaceAll(' ', '_');
+                        final safeT = tags.isNotEmpty
+                            ? tags.first.replaceAll(' ', '_')
+                            : 'pack';
+                        final file = File(
+                          '${custom.path}/pack_${safeA}_${safeT}_$ts.yaml',
+                        );
+                        await file.writeAsString(yaml);
+                        success++;
+                      }
+                    } catch (_) {}
+                  }
+                  setStateDialog(() {
+                    progress = (i + 1) / total;
+                  });
+                }
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return AlertDialog(
+              backgroundColor: const Color(0xFF121212),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LinearProgressIndicator(value: progress),
+                  const SizedBox(height: 16),
+                  Text(
+                    '$success / $total',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Готово: $success / $total')));
+    }
+    setState(() => _batchLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,7 +253,10 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               decoration: const InputDecoration(labelText: 'Audience'),
               items: const [
                 DropdownMenuItem(value: 'Beginner', child: Text('Beginner')),
-                DropdownMenuItem(value: 'Intermediate', child: Text('Intermediate')),
+                DropdownMenuItem(
+                  value: 'Intermediate',
+                  child: Text('Intermediate'),
+                ),
                 DropdownMenuItem(value: 'Advanced', child: Text('Advanced')),
               ],
               onChanged: (v) => setState(() => _audience = v ?? _audience),
@@ -190,6 +278,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                       child: CircularProgressIndicator(),
                     )
                   : const Text('Создать тренировку (GPT)'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _batchLoading
+                  ? null
+                  : () => _generateYamlBatch([(_audience, _tags.toList())]),
+              child: _batchLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(),
+                    )
+                  : const Text('Сгенерировать партию (GPT)'),
             ),
           ],
         ),
