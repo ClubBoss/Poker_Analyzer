@@ -70,7 +70,7 @@ packs:
     expect(config.defaultTags, ['pushfold']);
   });
 
-  test('parse handles tags string and empty list', () {
+  test('parse handles tags string and empty list override', () {
     const yaml = '''
 defaultTags: pushfold
 packs:
@@ -87,7 +87,7 @@ packs:
     final config = parser.parse(yaml);
     final list = config.requests;
     expect(list.first.tags, ['cash']);
-    expect(list.last.tags, ['pushfold']);
+    expect(list.last.tags, isEmpty);
   });
 
   test('parse reads multiplePositions flag', () {
