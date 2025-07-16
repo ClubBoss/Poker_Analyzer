@@ -148,6 +148,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Map<String, int> _handsCompleted = {};
   List<String> _weakCategories = [];
   final Set<String> _mastered = {};
+  final Set<String> _libraryTags = {};
 
   @override
   void initState() {
@@ -163,6 +164,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
     await PackLibraryLoaderService.instance.loadLibrary();
+    _libraryTags
+      ..clear()
+      ..addAll({
+        for (final p in PackLibraryLoaderService.instance.library) ...p.tags
+      });
     await _load(prefs);
     await _autoImport(prefs);
     await _loadPlayCounts();
@@ -1763,7 +1769,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final templates = context.watch<TemplateStorageService>().templates;
     final cache = context.watch<TagCacheService>();
     final showNew = _newPacks.length >= 3;
-    final tagSet = <String>{for (final t in templates) ...t.tags};
+    final tagSet = <String>{
+      for (final t in templates) ...t.tags,
+      ..._libraryTags,
+    };
     final catSet = <String>{
       for (final t in templates)
         for (final h in t.hands)
