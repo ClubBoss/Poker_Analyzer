@@ -118,6 +118,19 @@ packs:
     expect(list.first.bb, 0);
   });
 
+  test('parse reads goal', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    goal: Learn push
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    expect(config.requests.first.goal, 'Learn push');
+  });
+
   test('parse applies defaultGameType', () {
     const yaml = '''
 defaultGameType: tournament

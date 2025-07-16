@@ -27,6 +27,7 @@ class PushFoldPackBuilder implements TrainingPackBuilder {
     );
     if (request.title.isNotEmpty) tpl.name = request.title;
     if (request.description.isNotEmpty) tpl.description = request.description;
+    if (request.goal.isNotEmpty) tpl.goal = request.goal;
     if (request.tags.isNotEmpty) tpl.tags = List<String>.from(request.tags);
     tpl.spotCount = tpl.spots.length;
     return TrainingPackTemplateV2.fromTemplate(

@@ -197,6 +197,7 @@ class PackLibraryGenerator {
         tpl.name = generateTitle(tpl);
       }
       if (r.description.isNotEmpty) tpl.description = r.description;
+      if (r.goal.isNotEmpty) tpl.goal = r.goal;
       final tags = List<String>.from(r.tags);
       if (config.rangeTags && r.rangeGroup != null && r.rangeGroup!.isNotEmpty && !tags.contains(r.rangeGroup)) {
         tags.add(r.rangeGroup!);
@@ -210,6 +211,10 @@ class PackLibraryGenerator {
       if (tpl.description.isEmpty) {
         tpl.description = generateDescription(tpl);
       }
+      if (tpl.goal.isEmpty) {
+        tpl.goal = generateDescription(tpl);
+      }
+      tpl.meta['goal'] = tpl.goal;
       list.add(tpl);
     }
     return list;
@@ -231,6 +236,10 @@ class PackLibraryGenerator {
       if (t.description.isEmpty) {
         t.description = _generateDescriptionV2(t);
       }
+      if (t.goal.isEmpty) {
+        t.goal = _generateDescriptionV2(t);
+      }
+      t.meta['goal'] = t.goal;
       final pack = await engine.generateFromTemplate(t);
       list.add(pack);
     }
