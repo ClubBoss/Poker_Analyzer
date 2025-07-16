@@ -191,6 +191,10 @@ class PackLibraryGenerator {
         source: PackSource.yaml.name,
       );
       tpl.meta['source'] ??= PackSource.yaml.name;
+      if (r.recommended) {
+        tpl.recommended = true;
+        tpl.meta['recommended'] = true;
+      }
       if (r.title.isNotEmpty) {
         tpl.name = r.title;
       } else {
@@ -227,6 +231,7 @@ class PackLibraryGenerator {
       tagger.tag(t, source: PackSource.auto.name);
       if (t.spots.isEmpty) continue;
       if (t.meta['enabled'] == false) continue;
+      if (t.recommended) t.meta['recommended'] = true;
       if (t.name.isEmpty) {
         t.name = _generateTitleV2(t);
       }

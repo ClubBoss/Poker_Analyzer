@@ -117,4 +117,18 @@ packs:
     final list = generator.generateFromYaml(yaml);
     expect(list.first.meta['audience'], 'Beginner');
   });
+
+  test('generateFromYaml stores recommended', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    recommended: true
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.recommended, true);
+    expect(list.first.meta['recommended'], true);
+  });
 }
