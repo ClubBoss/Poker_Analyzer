@@ -15,7 +15,7 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen> {
   bool _loading = true;
   List<TrainingPackV2> _packs = [];
-  Set<String> _tags = {};
+  List<String> _tags = [];
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
 
@@ -44,9 +44,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
     BuiltInLibraryController.instance.preload().then((_) {
       if (!mounted) return;
       final list = BuiltInLibraryController.instance.getPacks();
+      final counts = <String, int>{};
+      for (final p in list) {
+        for (final t in p.tags) {
+          counts[t] = (counts[t] ?? 0) + 1;
+        }
+      }
+      final tags = counts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
       setState(() {
         _packs = list;
-        _tags = {for (final p in list) ...p.tags};
+        _tags = [for (final e in tags.take(20)) e.key];
         _loading = false;
       });
     });
@@ -62,8 +70,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final visible = [
       for (final p in _packs)
         if ((_selectedTags.isEmpty ||
-                p.tags.toSet().intersection(_selectedTags).length ==
-                    _selectedTags.length) &&
+                p.tags.toSet().intersection(_selectedTags).isNotEmpty) &&
             (_selectedDifficulties.isEmpty
                 ? true
                 : (_selectedDifficulties.contains(_difficultyLevel(p)) &&
@@ -88,9 +95,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         for (final tag in _tags)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: FilterChip(
+                            child: ChoiceChip(
                               label: Text(tag),
                               selected: _selectedTags.contains(tag),
+                              selectedColor: AppColors.accent,
+                              backgroundColor: Colors.grey[700],
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               onSelected: (_) {
                                 setState(() {
                                   if (_selectedTags.contains(tag)) {
