@@ -20,6 +20,7 @@ import '../services/pack_library_duplicate_cleaner.dart';
 import '../services/pack_library_merge_service.dart';
 import '../services/pack_library_refactor_service.dart';
 import '../services/training_pack_ranking_engine.dart';
+import '../services/tag_health_check_service.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -42,6 +43,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _mergeLoading = false;
   bool _refactorLoading = false;
   bool _rankLoading = false;
+  bool _tagHealthLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -385,6 +387,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         .showSnackBar(SnackBar(content: Text('Пересчитано: $count')));
   }
 
+  Future<void> _checkTagHealth() async {
+    if (_tagHealthLoading || !kDebugMode) return;
+    setState(() => _tagHealthLoading = true);
+    final ok = await compute(_tagHealthTask, '');
+    if (!mounted) return;
+    setState(() => _tagHealthLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -522,6 +534,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('🔍 Проверка качества тегов'),
+                onTap: _tagHealthLoading ? null : _checkTagHealth,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🚨 Конфликты библиотеки'),
                 onTap: () {
                   Navigator.push(
@@ -554,4 +571,13 @@ Future<List<(String, String)>> _validateYamlTask(String _) async {
 
 Future<int> _rankTask(String _) async {
   return const TrainingPackRankingEngine().computeRankings();
+}
+
+Future<bool> _tagHealthTask(String _) async {
+  try {
+    await const TagHealthCheckService().runChecks();
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
