@@ -13,6 +13,7 @@ import '../services/tag_service.dart';
 import '../services/pack_batch_generator_service.dart';
 import '../ui/tools/training_pack_yaml_previewer.dart';
 import '../services/training_coverage_service.dart';
+import 'yaml_library_preview_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -339,6 +340,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📊 Покрытие тем (coverage_report.json)'),
                 onTap: _exportCoverage,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📂 Просмотр YAML паков'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const YamlLibraryPreviewScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
