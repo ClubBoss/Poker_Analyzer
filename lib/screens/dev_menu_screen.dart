@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import '../core/training/generation/gpt_pack_template_generator.dart';
 import '../core/training/generation/pack_yaml_config_parser.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../services/tag_service.dart';
+import '../services/pack_batch_generator_service.dart';
 import '../ui/tools/training_pack_yaml_previewer.dart';
 
 class DevMenuScreen extends StatefulWidget {
@@ -21,6 +23,7 @@ class DevMenuScreen extends StatefulWidget {
 class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _loading = false;
   bool _batchLoading = false;
+  bool _libraryLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -238,6 +241,32 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _batchLoading = false);
   }
 
+  Future<void> _generatePackLibrary() async {
+    if (_libraryLoading || !kDebugMode) return;
+    setState(() => _libraryLoading = true);
+    final gpt = GptPackTemplateGenerator(apiKey: _apiKey);
+    final service =
+        PackBatchGeneratorService(gpt: gpt);
+    try {
+      final count = await service.generateFullLibrary([
+        ('Beginner', ['pushfold']),
+        ('Intermediate', ['call']),
+        ('Advanced', ['icm']),
+      ]);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$count паков сгенерировано')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('ошибка')));
+      }
+    }
+    if (mounted) setState(() => _libraryLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -292,9 +321,14 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     )
                   : const Text('Сгенерировать партию (GPT)'),
             ),
-          ],
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔁 Генерировать библиотеку паков'),
+                onTap: _libraryLoading ? null : _generatePackLibrary,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }
