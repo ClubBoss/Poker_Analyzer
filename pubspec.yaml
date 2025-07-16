@@ -96,6 +96,7 @@ flutter:
     - assets/ranges/btn_15bb.json
     - assets/ranges/
     - assets/packs/
+    - assets/packs/v2/
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo
