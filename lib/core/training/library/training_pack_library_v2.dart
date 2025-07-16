@@ -6,6 +6,7 @@ import '../engine/training_type_engine.dart';
 import '../../../asset_manifest.dart';
 
 class TrainingPackLibraryV2 {
+  static const packsDir = 'assets/packs/v2/';
   TrainingPackLibraryV2._();
   static final instance = TrainingPackLibraryV2._();
 
@@ -14,20 +15,24 @@ class TrainingPackLibraryV2 {
 
   List<TrainingPackTemplateV2> get packs => List.unmodifiable(_packs);
 
+  void clear() {
+    _packs.clear();
+    _index.clear();
+  }
+
   void addPack(TrainingPackTemplateV2 pack) {
     if (_index.containsKey(pack.id)) return;
     _packs.add(pack);
     _index[pack.id] = pack;
   }
 
-  Future<void> loadFromFolder() async {
+  Future<void> loadFromFolder([String path = packsDir]) async {
     final manifest = await AssetManifest.instance;
     final paths = manifest.keys.where(
-      (p) => p.startsWith('assets/packs/v2/') && p.endsWith('.yaml'),
+      (p) => p.startsWith(path) && p.endsWith('.yaml'),
     );
     if (paths.isEmpty) return;
-    _packs.clear();
-    _index.clear();
+    clear();
     const reader = YamlReader();
     for (final p in paths) {
       try {
@@ -37,6 +42,8 @@ class TrainingPackLibraryV2 {
       } catch (_) {}
     }
   }
+
+  Future<void> reload() => loadFromFolder();
 
   List<TrainingPackTemplateV2> filterBy({
     GameType? gameType,
