@@ -12,6 +12,7 @@ import '../core/training/engine/training_type_engine.dart';
 import '../services/tag_service.dart';
 import '../services/pack_batch_generator_service.dart';
 import '../ui/tools/training_pack_yaml_previewer.dart';
+import '../services/training_coverage_service.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -267,6 +268,14 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _libraryLoading = false);
   }
 
+  Future<void> _exportCoverage() async {
+    if (!kDebugMode) return;
+    final ok = await compute(_coverageTask, '');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -326,9 +335,23 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🔁 Генерировать библиотеку паков'),
                 onTap: _libraryLoading ? null : _generatePackLibrary,
               ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Покрытие тем (coverage_report.json)'),
+                onTap: _exportCoverage,
+              ),
             ],
           ),
         ),
       );
+  }
+}
+
+Future<bool> _coverageTask(String _) async {
+  try {
+    await const TrainingCoverageService().exportCoverageReport();
+    return true;
+  } catch (_) {
+    return false;
   }
 }
