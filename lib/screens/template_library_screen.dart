@@ -1878,9 +1878,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (!cache.popularCategories.contains(c)) c
       ]
     ];
-    final templateCategoryList = [
-      for (final c in templateCatSet.toList()..sort()) c
-    ];
+      final templateCategoryList = [
+        for (final c in templateCatSet.toList()..sort()) c
+      ];
+      final libraryPopularTags = [
+        for (final t in cache.getPopularTags(limit: 8))
+          if (_libraryTags.contains(t)) t
+      ];
     final pinnedTemplates = _applySorting([
       for (final t in templates)
         if (_pinned.contains(t.id) &&
@@ -2648,6 +2652,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             ],
                           ),
                         ),
+                        if (libraryPopularTags.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                            child: Wrap(
+                              spacing: 8,
+                              children: [
+                                for (final tag in libraryPopularTags)
+                                  FilterChip(
+                                    label: Text(tag),
+                                    selected: _activeTags.contains(tag),
+                                    onSelected: (_) => _toggleActiveTag(tag),
+                                  ),
+                                if (_activeTags.isNotEmpty)
+                                  ActionChip(
+                                    label: const Text('Очистить'),
+                                    onPressed: _clearActiveTags,
+                                  ),
+                              ],
+                            ),
+                          ),
                         if (_libraryTags.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -2659,11 +2683,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                                     label: Text(tag),
                                     selected: _activeTags.contains(tag),
                                     onSelected: (_) => _toggleActiveTag(tag),
-                                  ),
-                                if (_activeTags.isNotEmpty)
-                                  ActionChip(
-                                    label: Text(l.resetFilters),
-                                    onPressed: _clearActiveTags,
                                   ),
                               ],
                             ),
