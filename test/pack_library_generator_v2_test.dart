@@ -87,6 +87,44 @@ void main() {
     expect(res.first.meta['difficulty'], 3);
   });
 
+  test('estimateDifficulty medium pack', () async {
+    final s1 = TrainingPackSpot(
+      id: 'm1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
+    final s2 = TrainingPackSpot(
+      id: 'm2',
+      hand: HandData.fromSimpleInput('KdQd', HeroPosition.sb, 10)
+        ..board.addAll(['2h', '3d', '4s']),
+    );
+    final tpl = TrainingPackTemplateV2(
+      id: 'm',
+      name: 'M',
+      type: TrainingType.pushfold,
+      spots: [s1, s2],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['difficulty'], 2);
+  });
+
+  test('estimateDifficulty respects override', () async {
+    final spot = TrainingPackSpot(
+      id: 'o1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
+    final tpl = TrainingPackTemplateV2(
+      id: 'o',
+      name: 'O',
+      type: TrainingType.pushfold,
+      spots: [spot],
+      meta: {'difficulty': 3},
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['difficulty'], 3);
+  });
+
   test('generateFromTemplates adds auto tags', () async {
     final spot = TrainingPackSpot(
       id: 's1',

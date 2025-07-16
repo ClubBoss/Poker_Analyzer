@@ -146,7 +146,6 @@ class PackLibraryGenerator {
   }
 
   int _estimateDifficultyFromSpots(List<TrainingPackSpot> spots) {
-    var diff = 1;
     final streets = <int>{};
     final positions = <HeroPosition>{};
     var customStack = false;
@@ -156,11 +155,13 @@ class PackLibraryGenerator {
       final stack = s.hand.stacks['${s.hand.heroIndex}']?.round();
       if (stack != null && stack != 10 && stack != 20) customStack = true;
     }
-    if (streets.length >= 3) diff++;
-    if (positions.length >= 3) diff++;
-    if (customStack) diff++;
-    if (diff > 3) diff = 3;
-    return diff;
+    if (streets.length >= 3 || positions.length >= 3 || customStack) {
+      return 3;
+    }
+    if (streets.length > 1 || positions.length > 1) {
+      return 2;
+    }
+    return 1;
   }
 
   int estimateDifficulty(TrainingPackTemplate template) => _estimateDifficultyFromSpots(template.spots);
@@ -193,7 +194,9 @@ class PackLibraryGenerator {
       }
       if (tags.isNotEmpty) tpl.tags = tags;
       tpl.spotCount = tpl.spots.length;
-      tpl.meta['difficulty'] = estimateDifficulty(tpl);
+      if (tpl.meta['difficulty'] is! int) {
+        tpl.meta['difficulty'] = estimateDifficulty(tpl);
+      }
       tpl.tags = {...tpl.tags, ...autoTags(tpl)}.toList();
       if (tpl.description.isEmpty) {
         tpl.description = generateDescription(tpl);
@@ -211,7 +214,9 @@ class PackLibraryGenerator {
       if (t.name.isEmpty) {
         t.name = _generateTitleV2(t);
       }
-      t.meta['difficulty'] = estimateDifficultyV2(t);
+      if (t.meta['difficulty'] is! int) {
+        t.meta['difficulty'] = estimateDifficultyV2(t);
+      }
       t.tags = {...t.tags, ..._autoTagsV2(t)}.toList();
       if (t.description.isEmpty) {
         t.description = _generateDescriptionV2(t);
