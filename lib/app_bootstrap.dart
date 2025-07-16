@@ -9,6 +9,7 @@ import 'services/training_pack_service.dart';
 import 'services/service_registry.dart';
 import 'helpers/training_pack_storage.dart';
 import 'core/plugin_runtime.dart';
+import 'core/training/library/training_pack_library_v2.dart';
 
 class AppBootstrap {
   const AppBootstrap._();
@@ -26,6 +27,7 @@ class AppBootstrap {
     await runtime.initialize();
     final ServiceRegistry registry = runtime.registry.createChild();
     await TrainingPackAssetLoader.instance.loadAll();
+    await TrainingPackLibraryV2.instance.loadFromFolder();
     await FavoritePackService.instance.init();
     await PinnedPackService.instance.init();
     if (cloud != null) {
