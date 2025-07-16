@@ -1,5 +1,14 @@
+import 'dart:io';
+
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/training/generation/yaml_reader.dart';
 import '../models/training_pack.dart';
 import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_template_v2.dart';
+import 'pack_tag_index_service.dart';
 import 'training_pack_storage_service.dart';
 import 'template_storage_service.dart';
 import 'goals_service.dart';
@@ -82,5 +91,37 @@ class SmartSuggestionService {
       'goal': goalPacks,
       'mistakes': mistakeList,
     };
+  }
+
+  Future<List<String>> suggestRelated(List<String> tags) async {
+    final index = const PackTagIndexService();
+    final paths = await index.search(tags, mode: TagFilterMode.and);
+    if (paths.isEmpty) return [];
+    final prefs = await SharedPreferences.getInstance();
+    final completed = prefs
+        .getKeys()
+        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .map((k) => k.substring('completed_tpl_'.length))
+        .toSet();
+    final docs = await getApplicationDocumentsDirectory();
+    final dir = Directory(p.join(docs.path, 'training_packs', 'library'));
+    const reader = YamlReader();
+    final query = [for (final t in tags) t.trim().toLowerCase()];
+    final entries = <MapEntry<String, double>>[];
+    for (final rel in paths) {
+      final file = File(p.join(dir.path, rel));
+      if (!file.existsSync()) continue;
+      try {
+        final map = reader.read(await file.readAsString());
+        final tpl = TrainingPackTemplateV2.fromJson(map);
+        if (completed.contains(tpl.id)) continue;
+        final tplTags = [for (final t in tpl.tags) t.trim().toLowerCase()];
+        final matches = query.where(tplTags.contains).length.toDouble();
+        final rank = (tpl.meta['rankScore'] as num?)?.toDouble() ?? 0;
+        entries.add(MapEntry(rel, matches + rank));
+      } catch (_) {}
+    }
+    entries.sort((a, b) => b.value.compareTo(a.value));
+    return [for (final e in entries.take(5)) e.key];
   }
 }
