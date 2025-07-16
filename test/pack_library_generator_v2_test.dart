@@ -144,4 +144,23 @@ void main() {
     expect(tags.contains('flop'), true);
     expect(tags.contains('turn'), true);
   });
+
+  test('generateFromTemplates generates title when empty', () async {
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
+    final tpl = TrainingPackTemplateV2(
+      id: 'z',
+      name: '',
+      type: TrainingType.pushfold,
+      gameType: GameType.tournament,
+      bb: 10,
+      positions: ['sb'],
+      spots: [spot],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.name, 'SB Push 10bb (Tournament)');
+  });
 }
