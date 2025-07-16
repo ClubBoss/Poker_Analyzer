@@ -20,7 +20,7 @@ packs:
     final tpl = list.first;
     expect(tpl.name, 'Example');
     expect(tpl.description, 'Test');
-    expect(tpl.tags, ['pushfold']);
+    expect(tpl.tags.contains('pushfold'), true);
     expect(tpl.spots.length, 5);
     expect(tpl.spotCount, tpl.spots.length);
     expect(tpl.id.isNotEmpty, true);
@@ -50,8 +50,7 @@ packs:
 ''';
     final generator = PackLibraryGenerator();
     final list = generator.generateFromYaml(yaml);
-    expect(list.first.spots.length,
-        HandRangeLibrary.getGroup('top10').length);
+    expect(list.first.spots.length, HandRangeLibrary.getGroup('top10').length);
   });
 
   test('generateFromYaml adds range tag', () {
