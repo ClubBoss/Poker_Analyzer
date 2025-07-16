@@ -1798,6 +1798,42 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Widget _libraryTile(v2.TrainingPackTemplate t) {
+    Widget row(IconData icon, String text) => Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 16, color: Colors.white70),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  text,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+              ),
+            ],
+          ),
+        );
+    final meta = t.meta.isNotEmpty ? jsonEncode(t.meta) : '';
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        title: Text(t.name),
+        subtitle: Text(t.goal, maxLines: 2, overflow: TextOverflow.ellipsis),
+        children: [
+          if (t.goal.isNotEmpty) row(Icons.flag, t.goal),
+          if (t.tags.isNotEmpty) row(Icons.sell, t.tags.join(', ')),
+          if (t.audience != null && t.audience!.isNotEmpty)
+            row(Icons.person, t.audience!),
+          if (meta.isNotEmpty) row(Icons.info_outline, meta),
+        ],
+      ),
+    );
+  }
+
   Widget get _emptyTile => const ListTile(
         title: Center(
           child: Text(
@@ -2617,15 +2653,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                               ],
                             ),
                           ),
-                        for (final t in libraryFiltered)
-                          Card(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 4),
-                            child: ListTile(
-                              title: Text(t.name),
-                              subtitle: Text(t.goal),
-                            ),
-                          ),
+                        for (final t in libraryFiltered) _libraryTile(t),
                         if (user.isNotEmpty) const Divider(),
                       ] else if (filteringActive) ...[
                         _emptyTile,
