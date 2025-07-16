@@ -19,6 +19,7 @@ import '../services/pack_library_export_service.dart';
 import '../services/pack_library_duplicate_cleaner.dart';
 import '../services/pack_library_merge_service.dart';
 import '../services/pack_library_refactor_service.dart';
+import '../services/training_pack_ranking_engine.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -40,6 +41,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _cleanLoading = false;
   bool _mergeLoading = false;
   bool _refactorLoading = false;
+  bool _rankLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -373,6 +375,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         .showSnackBar(SnackBar(content: Text('Отрефакторено: $count')));
   }
 
+  Future<void> _recalcRanking() async {
+    if (_rankLoading || !kDebugMode) return;
+    setState(() => _rankLoading = true);
+    final count = await compute(_rankTask, '');
+    if (!mounted) return;
+    setState(() => _rankLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Пересчитано: $count')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -464,6 +476,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('🏅 Пересчитать рейтинг паков'),
+                onTap: _rankLoading ? null : _recalcRanking,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('📦 Объединить библиотеки'),
                 onTap: _mergeLoading ? null : _mergeLibraries,
               ),
@@ -533,4 +550,8 @@ Future<bool> _coverageTask(String _) async {
 
 Future<List<(String, String)>> _validateYamlTask(String _) async {
   return const YamlValidationService().validateAll();
+}
+
+Future<int> _rankTask(String _) async {
+  return const TrainingPackRankingEngine().computeRankings();
 }
