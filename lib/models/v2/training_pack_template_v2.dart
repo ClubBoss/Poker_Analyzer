@@ -15,6 +15,7 @@ class TrainingPackTemplateV2 {
   String goal;
   String? audience;
   List<String> tags;
+  String? category;
   final TrainingType type;
   List<SpotTemplate> spots;
   int spotCount;
@@ -32,6 +33,7 @@ class TrainingPackTemplateV2 {
     this.goal = '',
     this.audience,
     List<String>? tags,
+    this.category,
     required this.type,
     List<SpotTemplate>? spots,
     this.spotCount = 0,
@@ -45,10 +47,12 @@ class TrainingPackTemplateV2 {
         spots = spots ?? [],
         positions = positions ?? [],
         created = created ?? DateTime.now(),
-        meta = meta ?? {};
+        meta = meta ?? {} {
+    category ??= this.tags.isNotEmpty ? this.tags.first : null;
+  }
 
-  factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) =>
-      TrainingPackTemplateV2(
+  factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) {
+    final tpl = TrainingPackTemplateV2(
         id: j['id'] as String? ?? '',
         name: j['name'] as String? ?? '',
         description: j['description'] as String? ?? '',
@@ -56,6 +60,7 @@ class TrainingPackTemplateV2 {
         audience: j['audience'] as String? ??
             (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
+        category: (j['category'] ?? j['mainTag'])?.toString(),
         type: TrainingType.values.firstWhere(
           (e) => e.name == j['type'],
           orElse: () => TrainingType.pushfold,
@@ -72,7 +77,10 @@ class TrainingPackTemplateV2 {
         meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
         recommended: j['recommended'] as bool? ??
             (j['meta'] is Map ? j['meta']['recommended'] == true : false),
-      );
+    );
+    tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
+    return tpl;
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -81,6 +89,7 @@ class TrainingPackTemplateV2 {
         if (goal.isNotEmpty) 'goal': goal,
         if (audience != null && audience!.isNotEmpty) 'audience': audience,
         if (tags.isNotEmpty) 'tags': tags,
+        if (category != null && category!.isNotEmpty) 'category': category,
         'type': type.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
         'spotCount': spotCount,
@@ -110,6 +119,7 @@ class TrainingPackTemplateV2 {
         goal: template.goal,
         audience: template.meta['audience'] as String?,
         tags: List<String>.from(template.tags),
+        category: template.tags.isNotEmpty ? template.tags.first : null,
         type: type,
         spots: List<SpotTemplate>.from(template.spots),
         spotCount: template.spotCount,
