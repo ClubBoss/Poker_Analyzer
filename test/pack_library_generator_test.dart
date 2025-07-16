@@ -78,4 +78,16 @@ packs:
     final list = generator.generateFromYaml(yaml);
     expect(list.first.name, 'SB Push 10bb (Tournament)');
   });
+
+  test('generateFromYaml generates description when empty', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.description.isNotEmpty, true);
+  });
 }
