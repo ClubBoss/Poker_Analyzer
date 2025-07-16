@@ -39,6 +39,7 @@ import 'progress_dashboard_screen.dart';
 import 'position_tag_analytics_screen.dart';
 import 'weakness_overview_screen.dart';
 import 'notification_settings_screen.dart';
+import 'dev_menu_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
@@ -281,6 +282,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     ),
                   );
                   break;
+                case 'dev':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DevMenuScreen(),
+                    ),
+                  );
+                  break;
                 case 'notifications':
                   Navigator.push(
                     context,
@@ -304,6 +313,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               PopupMenuItem(value: 'evstats', child: Text('EV Stats')),
               PopupMenuItem(value: 'pos_tag', child: Text('Позиции/Теги')),
               PopupMenuItem(value: 'dashboard', child: Text('📈 Dashboard')),
+              PopupMenuItem(value: 'dev', child: Text('Dev Menu')),
               PopupMenuItem(value: 'about', child: Text('About')),
             ],
           ),
