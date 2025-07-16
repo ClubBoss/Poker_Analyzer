@@ -21,6 +21,7 @@ import '../services/pack_library_merge_service.dart';
 import '../services/pack_library_refactor_service.dart';
 import '../services/training_pack_ranking_engine.dart';
 import '../services/tag_health_check_service.dart';
+import '../services/pack_tag_index_service.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -44,6 +45,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _refactorLoading = false;
   bool _rankLoading = false;
   bool _tagHealthLoading = false;
+  bool _tagIndexLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -397,6 +399,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
   }
 
+  Future<void> _buildTagIndex() async {
+    if (_tagIndexLoading || !kDebugMode) return;
+    setState(() => _tagIndexLoading = true);
+    final count = await compute(_tagIndexTask, '');
+    if (!mounted) return;
+    setState(() => _tagIndexLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Индекс: $count')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -539,6 +551,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('📇 Построить индекс тегов'),
+                onTap: _tagIndexLoading ? null : _buildTagIndex,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🚨 Конфликты библиотеки'),
                 onTap: () {
                   Navigator.push(
@@ -580,4 +597,8 @@ Future<bool> _tagHealthTask(String _) async {
   } catch (_) {
     return false;
   }
+}
+
+Future<int> _tagIndexTask(String _) async {
+  return const PackTagIndexService().buildIndex();
 }
