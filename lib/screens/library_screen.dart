@@ -17,13 +17,22 @@ class _LibraryScreenState extends State<LibraryScreen> {
   List<TrainingPackV2> _packs = [];
   Set<String> _tags = {};
   final Set<String> _selectedTags = {};
+  final Set<int> _selectedDifficulties = {};
 
   String _difficultyIcon(TrainingPackV2 pack) {
-    final diff = (pack.meta['difficulty'] as num?)?.toInt() ?? pack.difficulty;
+    final diff = _difficultyLevel(pack);
     if (diff == 1) return '🟢';
     if (diff == 2) return '🟡';
     if (diff >= 3) return '🔴';
     return '⚪️';
+  }
+
+  int _difficultyLevel(TrainingPackV2 pack) {
+    final diff = (pack.meta['difficulty'] as num?)?.toInt() ?? pack.difficulty;
+    if (diff == 1) return 1;
+    if (diff == 2) return 2;
+    if (diff >= 3) return 3;
+    return 0;
   }
 
   @override
@@ -47,33 +56,35 @@ class _LibraryScreenState extends State<LibraryScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    final visible = _selectedTags.isEmpty
-        ? _packs
-        : [
-            for (final p in _packs)
-              if (p.tags.toSet().intersection(_selectedTags).length ==
-                  _selectedTags.length)
-                p
-          ];
+    final visible = [
+      for (final p in _packs)
+        if ((_selectedTags.isEmpty ||
+                p.tags.toSet().intersection(_selectedTags).length ==
+                    _selectedTags.length) &&
+            (_selectedDifficulties.isEmpty
+                ? true
+                : (_selectedDifficulties.contains(_difficultyLevel(p)) &&
+                    _difficultyLevel(p) != 0)))
+          p
+    ];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Library')),
       body: Column(
         children: [
-          if (_tags.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_tags.isNotEmpty)
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
                         for (final tag in _tags)
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: FilterChip(
                               label: Text(tag),
                               selected: _selectedTags.contains(tag),
@@ -91,23 +102,51 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      if (_selectedTags.isNotEmpty)
-                        TextButton(
-                          onPressed: () =>
-                              setState(() => _selectedTags.clear()),
-                          child: const Text('Сбросить'),
-                        ),
-                      if (_selectedTags.isNotEmpty)
-                        const SizedBox(width: 12),
-                      Text('Найдено: ${visible.length}')
-                    ],
-                  )
-                ],
-              ),
+                if (_tags.isNotEmpty) const SizedBox(height: 8),
+                Wrap(
+                  spacing: 4,
+                  children: [
+                    for (final d in [1, 2, 3])
+                      FilterChip(
+                        label: Text(d == 1
+                            ? '🟢 Easy'
+                            : d == 2
+                                ? '🟡 Medium'
+                                : '🔴 Hard'),
+                        selected: _selectedDifficulties.contains(d),
+                        onSelected: (_) {
+                          setState(() {
+                            if (_selectedDifficulties.contains(d)) {
+                              _selectedDifficulties.remove(d);
+                            } else {
+                              _selectedDifficulties.add(d);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (_selectedTags.isNotEmpty ||
+                        _selectedDifficulties.isNotEmpty)
+                      TextButton(
+                        onPressed: () => setState(() {
+                          _selectedTags.clear();
+                          _selectedDifficulties.clear();
+                        }),
+                        child: const Text('Сбросить'),
+                      ),
+                    if (_selectedTags.isNotEmpty ||
+                        _selectedDifficulties.isNotEmpty)
+                      const SizedBox(width: 12),
+                    Text('Найдено: ${visible.length}')
+                  ],
+                )
+              ],
             ),
+          ),
           Expanded(
             child: visible.isEmpty
                 ? Center(
@@ -115,10 +154,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text('По текущему фильтру пакетов не найдено'),
-                        if (_selectedTags.isNotEmpty)
+                        if (_selectedTags.isNotEmpty ||
+                            _selectedDifficulties.isNotEmpty)
                           TextButton(
-                            onPressed: () =>
-                                setState(() => _selectedTags.clear()),
+                            onPressed: () => setState(() {
+                              _selectedTags.clear();
+                              _selectedDifficulties.clear();
+                            }),
                             child: const Text('Сбросить'),
                           ),
                       ],
