@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import '../core/error_logger.dart';
 import '../core/training/generation/gpt_pack_template_generator.dart';
 import '../core/training/generation/pack_yaml_config_parser.dart';
+import 'pack_matrix_config.dart';
 
 class PackBatchGeneratorService {
   const PackBatchGeneratorService({required this.gpt, PackYamlConfigParser? parser})
@@ -15,9 +16,10 @@ class PackBatchGeneratorService {
   final PackYamlConfigParser parser;
   static const _basePrompt = 'Создай тренировочный YAML пак';
 
-  Future<int> generateFullLibrary(
-    List<(String audience, List<String> tags)> matrix,
-  ) async {
+  Future<int> generateFullLibrary([
+    List<(String audience, List<String> tags)>? matrix,
+  ]) async {
+    matrix ??= await const PackMatrixConfig().loadMatrix();
     final dir = await getApplicationDocumentsDirectory();
     final out = Directory('${dir.path}/training_packs/library');
     await out.create(recursive: true);
