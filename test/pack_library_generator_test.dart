@@ -90,4 +90,18 @@ packs:
     final list = generator.generateFromYaml(yaml);
     expect(list.first.description.isNotEmpty, true);
   });
+
+  test('generateFromYaml stores goal', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    goal: Learn push
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.goal, 'Learn push');
+    expect(list.first.meta['goal'], 'Learn push');
+  });
 }

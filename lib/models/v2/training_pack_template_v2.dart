@@ -12,6 +12,7 @@ class TrainingPackTemplateV2 {
   final String id;
   String name;
   String description;
+  String goal;
   List<String> tags;
   final TrainingType type;
   List<SpotTemplate> spots;
@@ -26,6 +27,7 @@ class TrainingPackTemplateV2 {
     required this.id,
     required this.name,
     this.description = '',
+    this.goal = '',
     List<String>? tags,
     required this.type,
     List<SpotTemplate>? spots,
@@ -46,6 +48,7 @@ class TrainingPackTemplateV2 {
         id: j['id'] as String? ?? '',
         name: j['name'] as String? ?? '',
         description: j['description'] as String? ?? '',
+        goal: j['goal'] as String? ?? '',
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
         type: TrainingType.values.firstWhere(
           (e) => e.name == j['type'],
@@ -67,6 +70,7 @@ class TrainingPackTemplateV2 {
         'id': id,
         'name': name,
         'description': description,
+        if (goal.isNotEmpty) 'goal': goal,
         if (tags.isNotEmpty) 'tags': tags,
         'type': type.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
@@ -93,6 +97,7 @@ class TrainingPackTemplateV2 {
         id: template.id,
         name: template.name,
         description: template.description,
+        goal: template.goal,
         tags: List<String>.from(template.tags),
         type: type,
         spots: List<SpotTemplate>.from(template.spots),

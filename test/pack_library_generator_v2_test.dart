@@ -179,4 +179,35 @@ void main() {
     final res = await generator.generateFromTemplates([tpl]);
     expect(res.first.description.isNotEmpty, true);
   });
+
+  test('generateFromTemplates stores goal', () async {
+    final spot = TrainingPackSpot(id: 'g1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final tpl = TrainingPackTemplateV2(
+      id: 'g',
+      name: 'T',
+      goal: 'Push practice',
+      type: TrainingType.pushfold,
+      spots: [spot],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['goal'], 'Push practice');
+  });
+
+  test('generateFromTemplates auto generates goal', () async {
+    final spot = TrainingPackSpot(id: 'ag1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final tpl = TrainingPackTemplateV2(
+      id: 'ag',
+      name: 'Auto',
+      goal: '',
+      type: TrainingType.pushfold,
+      gameType: GameType.tournament,
+      bb: 10,
+      positions: ['sb'],
+      spots: [spot],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['goal'], isNotEmpty);
+  });
 }
