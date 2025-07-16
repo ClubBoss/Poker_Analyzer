@@ -25,6 +25,15 @@ class PackBatchGeneratorService {
     final dir = await getApplicationDocumentsDirectory();
     final out = Directory('${dir.path}/training_packs/library');
     await out.create(recursive: true);
+    for (final f in out
+        .listSync(recursive: true)
+        .whereType<File>()) {
+      if (f.path.toLowerCase().endsWith('.yaml')) {
+        try {
+          f.deleteSync();
+        } catch (_) {}
+      }
+    }
     var success = 0;
     for (final item in matrix) {
       final audience = item.$1;
