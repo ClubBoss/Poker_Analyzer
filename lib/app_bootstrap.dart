@@ -7,6 +7,7 @@ import 'services/connectivity_sync_controller.dart';
 import 'services/evaluation_executor_service.dart';
 import 'services/training_pack_service.dart';
 import 'services/service_registry.dart';
+import 'services/pack_library_loader_service.dart';
 import 'helpers/training_pack_storage.dart';
 import 'core/plugin_runtime.dart';
 import 'core/training/library/training_pack_library_v2.dart';
@@ -27,6 +28,7 @@ class AppBootstrap {
     await runtime.initialize();
     final ServiceRegistry registry = runtime.registry.createChild();
     await TrainingPackAssetLoader.instance.loadAll();
+    await PackLibraryLoaderService.instance.loadLibrary();
     await TrainingPackLibraryV2.instance.loadFromFolder();
     await FavoritePackService.instance.init();
     await PinnedPackService.instance.init();

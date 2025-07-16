@@ -47,6 +47,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../services/pack_library_loader_service.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
@@ -161,6 +162,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
+    await PackLibraryLoaderService.instance.loadLibrary();
     await _load(prefs);
     await _autoImport(prefs);
     await _loadPlayCounts();
