@@ -15,6 +15,7 @@ import '../ui/tools/training_pack_yaml_previewer.dart';
 import '../services/training_coverage_service.dart';
 import '../services/yaml_validation_service.dart';
 import 'yaml_library_preview_screen.dart';
+import 'pack_library_health_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -373,6 +374,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('Проверка YAML'),
                 onTap: _validateYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📋 Проверка библиотеки'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PackLibraryHealthScreen(),
+                    ),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
