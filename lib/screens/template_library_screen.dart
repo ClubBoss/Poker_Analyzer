@@ -728,6 +728,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         .toDouble();
   }
 
+  double _progressPercentForLib(v2.TrainingPackTemplate t) {
+    final stat = _stats[t.id];
+    final count = t.spots.isNotEmpty ? t.spots.length : t.spotCount;
+    if (stat == null || count == 0) return 0;
+    return ((stat.lastIndex + 1) * 100 / count).clamp(0, 100).toDouble();
+  }
+
   int _compareCombinedTrending(TrainingPackTemplate a, TrainingPackTemplate b) {
     final ta = (a as dynamic).trending == true;
     final tb = (b as dynamic).trending == true;
@@ -1449,6 +1456,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       Widget card = Card(
         child: ListTile(
           dense: true,
+          trailing: _progressPercentFor(t) == 100
+              ? const Tooltip(
+                  message: 'Пройден на 100%',
+                  child: Icon(Icons.star, size: 16, color: Colors.amber),
+                )
+              : null,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1569,6 +1582,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   Text(
                     l.masteredBadge,
                     style: const TextStyle(color: Colors.green, fontSize: 12),
+                  ),
+                ],
+                if (_progressPercentFor(t) == 100) ...[
+                  const SizedBox(width: 4),
+                  const Tooltip(
+                    message: 'Пройден на 100%',
+                    child: Icon(Icons.star, size: 16, color: Colors.amber),
                   ),
                 ],
                 AnimatedSwitcher(
@@ -1824,7 +1844,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        title: Text(t.name),
+        title: Row(
+          children: [
+            Expanded(child: Text(t.name)),
+            if (_progressPercentForLib(t) == 100)
+              const Tooltip(
+                message: 'Пройден на 100%',
+                child: Icon(Icons.star, size: 16, color: Colors.amber),
+              ),
+          ],
+        ),
         subtitle: Text(t.goal, maxLines: 2, overflow: TextOverflow.ellipsis),
         children: [
           if (t.goal.isNotEmpty) row(Icons.flag, t.goal),
