@@ -22,6 +22,10 @@ import '../services/pack_library_refactor_service.dart';
 import '../services/training_pack_ranking_engine.dart';
 import '../services/tag_health_check_service.dart';
 import '../services/pack_tag_index_service.dart';
+import '../services/auto_tag_generator_service.dart';
+import '../models/v2/training_pack_template.dart';
+import '../core/training/generation/yaml_reader.dart';
+import 'package:file_picker/file_picker.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -47,6 +51,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _rankLoading = false;
   bool _tagHealthLoading = false;
   bool _tagIndexLoading = false;
+  bool _tagSuggestLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -276,14 +281,15 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         ('Advanced', ['icm']),
       ]);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$count паков сгенерировано')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$count паков сгенерировано')));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('ошибка')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('ошибка')));
       }
     }
     if (mounted) setState(() => _libraryLoading = false);
@@ -297,8 +303,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _importLoading = false);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content:
-              Text('Импортировано: ${res.success}, ошибок: ${res.failed}')),
+        content: Text('Импортировано: ${res.success}, ошибок: ${res.failed}'),
+      ),
     );
   }
 
@@ -306,8 +312,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!kDebugMode) return;
     final ok = await compute(_coverageTask, '');
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
   }
 
   Future<void> _validateYaml() async {
@@ -315,8 +322,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final errors = await compute(_validateYamlTask, '');
     if (!mounted) return;
     if (errors.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибок нет')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибок нет')));
       return;
     }
     final text = errors.map((e) => '${e.$1}: ${e.$2}').join('\n');
@@ -343,8 +351,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final count = await const PackLibraryExportService().exportAll();
     if (!mounted) return;
     setState(() => _exportLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
   }
 
   Future<void> _cleanDuplicates() async {
@@ -353,20 +362,24 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final count = await const PackLibraryDuplicateCleaner().removeDuplicates();
     if (!mounted) return;
     setState(() => _cleanLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Удалено: $count')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Удалено: $count')));
   }
 
   Future<void> _mergeLibraries() async {
     if (_mergeLoading || !kDebugMode) return;
     setState(() => _mergeLoading = true);
-    final res = await const PackLibraryMergeService().mergeAll(
-      ['/import_a', '/import_b'],
-    );
+    final res = await const PackLibraryMergeService().mergeAll([
+      '/import_a',
+      '/import_b',
+    ]);
     if (!mounted) return;
     setState(() => _mergeLoading = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Объединено: ${res.success}, ошибок: ${res.failed}')),
+      SnackBar(
+        content: Text('Объединено: ${res.success}, ошибок: ${res.failed}'),
+      ),
     );
   }
 
@@ -376,8 +389,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final count = await const PackLibraryRefactorService().refactorAll();
     if (!mounted) return;
     setState(() => _refactorLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Отрефакторено: $count')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Отрефакторено: $count')));
   }
 
   Future<void> _recalcRanking() async {
@@ -386,8 +400,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final count = await compute(_rankTask, '');
     if (!mounted) return;
     setState(() => _rankLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Пересчитано: $count')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Пересчитано: $count')));
   }
 
   Future<void> _checkTagHealth() async {
@@ -396,8 +411,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final ok = await compute(_tagHealthTask, '');
     if (!mounted) return;
     setState(() => _tagHealthLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
   }
 
   Future<void> _buildTagIndex() async {
@@ -406,8 +422,40 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final count = await compute(_tagIndexTask, '');
     if (!mounted) return;
     setState(() => _tagIndexLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Индекс: $count')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Индекс: $count')));
+  }
+
+  Future<void> _suggestTags() async {
+    if (_tagSuggestLoading || !kDebugMode) return;
+    setState(() => _tagSuggestLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    List<String> tags = [];
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) tags = await compute(_suggestTagsTask, path);
+    }
+    if (!mounted) return;
+    setState(() => _tagSuggestLoading = false);
+    if (tags.isEmpty) return;
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Рекомендованные теги'),
+        content: Text(tags.join(', ')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -557,6 +605,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('📎 Предложить теги'),
+                onTap: _tagSuggestLoading ? null : _suggestTags,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🚨 Конфликты библиотеки'),
                 onTap: () {
                   Navigator.push(
@@ -614,4 +667,13 @@ Future<bool> _tagHealthTask(String _) async {
 
 Future<int> _tagIndexTask(String _) async {
   return const PackTagIndexService().buildIndex();
+}
+
+Future<List<String>> _suggestTagsTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return [];
+  final yaml = await file.readAsString();
+  final map = const YamlReader().read(yaml);
+  final tpl = TrainingPackTemplate.fromJson(map);
+  return const AutoTagGeneratorService().generateTags(tpl);
 }
