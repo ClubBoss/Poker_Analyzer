@@ -4,6 +4,8 @@ import 'training_pack_generator_engine.dart';
 import '../../../models/v2/training_pack_template.dart';
 import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../models/v2/training_pack_v2.dart';
+import '../../../models/v2/training_pack_spot.dart';
+import '../../../models/v2/hero_position.dart';
 
 class PackLibraryGenerator {
   final PackYamlConfigParser parser;
@@ -16,6 +18,30 @@ class PackLibraryGenerator {
   })  : parser = yamlParser ?? const PackYamlConfigParser(),
         generator = pushFoldGenerator ?? const PushFoldPackGenerator(),
         engine = packEngine ?? const TrainingPackGeneratorEngine();
+
+  int _estimateDifficultyFromSpots(List<TrainingPackSpot> spots) {
+    var diff = 1;
+    final streets = <int>{};
+    final positions = <HeroPosition>{};
+    var customStack = false;
+    for (final s in spots) {
+      streets.add(s.street);
+      positions.add(s.hand.position);
+      final stack = s.hand.stacks['${s.hand.heroIndex}']?.round();
+      if (stack != null && stack != 10 && stack != 20) customStack = true;
+    }
+    if (streets.length >= 3) diff++;
+    if (positions.length >= 3) diff++;
+    if (customStack) diff++;
+    if (diff > 3) diff = 3;
+    return diff;
+  }
+
+  int estimateDifficulty(TrainingPackTemplate template) =>
+      _estimateDifficultyFromSpots(template.spots);
+
+  int estimateDifficultyV2(TrainingPackTemplateV2 template) =>
+      _estimateDifficultyFromSpots(template.spots);
 
   List<TrainingPackTemplate> generateFromYaml(String yaml) {
     final config = parser.parse(yaml);
@@ -42,6 +68,7 @@ class PackLibraryGenerator {
       }
       if (tags.isNotEmpty) tpl.tags = tags;
       tpl.spotCount = tpl.spots.length;
+      tpl.meta['difficulty'] = estimateDifficulty(tpl);
       list.add(tpl);
     }
     return list;
@@ -54,6 +81,7 @@ class PackLibraryGenerator {
     for (final t in templates) {
       if (t.spots.isEmpty) continue;
       if (t.meta['enabled'] == false) continue;
+      t.meta['difficulty'] = estimateDifficultyV2(t);
       final pack = await engine.generateFromTemplate(t);
       list.add(pack);
     }
