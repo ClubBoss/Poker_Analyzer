@@ -18,6 +18,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Set<String> _tags = {};
   final Set<String> _selectedTags = {};
 
+  String _difficultyIcon(TrainingPackV2 pack) {
+    final diff = (pack.meta['difficulty'] as num?)?.toInt() ?? pack.difficulty;
+    if (diff == 1) return '🟢';
+    if (diff == 2) return '🟡';
+    if (diff >= 3) return '🔴';
+    return '⚪️';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -184,17 +192,24 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                   ],
                                 ),
                               ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.cardBackground,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '${pack.spotCount}',
-                            style: const TextStyle(color: Colors.white70),
-                          ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(_difficultyIcon(pack)),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardBackground,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '${pack.spotCount}',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
