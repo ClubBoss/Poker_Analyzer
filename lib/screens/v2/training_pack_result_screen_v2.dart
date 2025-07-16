@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:csv/csv.dart';
@@ -14,8 +15,12 @@ import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
 import '../../services/mistake_review_pack_service.dart';
 import '../../utils/responsive.dart';
+import '../../services/smart_suggestion_service.dart';
+import '../../services/training_session_service.dart';
+import '../../core/training/generation/yaml_reader.dart';
+import '../../core/training/generation/yaml_reader.dart';
 
-class TrainingPackResultScreenV2 extends StatelessWidget {
+class TrainingPackResultScreenV2 extends StatefulWidget {
   final TrainingPackTemplate template;
   final TrainingPackTemplate original;
   final Map<String, String> results;
@@ -25,6 +30,35 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
     required this.results,
     TrainingPackTemplate? original,
   }) : original = original ?? template;
+
+  @override
+  State<TrainingPackResultScreenV2> createState() => _TrainingPackResultScreenV2State();
+}
+
+class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2> {
+  final List<TrainingPackTemplate> _related = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRelated();
+  }
+
+  Future<void> _loadRelated() async {
+    final service = context.read<SmartSuggestionService>();
+    final paths = await service.suggestRelated(widget.template.tags);
+    final docs = await getApplicationDocumentsDirectory();
+    const reader = YamlReader();
+    for (final rel in paths) {
+      final file = File(p.join(docs.path, 'training_packs', 'library', rel));
+      if (!file.existsSync()) continue;
+      try {
+        final map = reader.read(await file.readAsString());
+        _related.add(TrainingPackTemplate.fromJson(map));
+      } catch (_) {}
+    }
+    if (mounted) setState(() {});
+  }
 
   String? _expected(TrainingPackSpot s) {
     final eval = s.evalResult?.expectedAction;
@@ -77,23 +111,23 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
 
   Future<void> _repeat(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('tpl_seq_${original.id}');
-    await prefs.remove('tpl_prog_${original.id}');
-    await prefs.remove('tpl_res_${original.id}');
-    await prefs.remove('tpl_ts_${original.id}');
-    if (original.targetStreet != null) {
-      await prefs.remove('tpl_street_${original.id}');
+    await prefs.remove('tpl_seq_${widget.original.id}');
+    await prefs.remove('tpl_prog_${widget.original.id}');
+    await prefs.remove('tpl_res_${widget.original.id}');
+    await prefs.remove('tpl_ts_${widget.original.id}');
+    if (widget.original.targetStreet != null) {
+      await prefs.remove('tpl_street_${widget.original.id}');
     }
-    if (original.focusHandTypes.isNotEmpty) {
-      await prefs.remove('tpl_hand_${original.id}');
+    if (widget.original.focusHandTypes.isNotEmpty) {
+      await prefs.remove('tpl_hand_${widget.original.id}');
     }
     if (!context.mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => TrainingPackPlayScreen(
-          template: template,
-          original: original,
+          template: widget.template,
+          original: widget.original,
         ),
       ),
     );
@@ -107,8 +141,8 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
     final rows = <List<dynamic>>[
       ['Title', 'Your', 'Correct', 'EV diff', 'ICM diff']
     ];
-    for (final s in template.spots) {
-      final ans = results[s.id];
+    for (final s in widget.template.spots) {
+      final ans = widget.results[s.id];
       final exp = _expected(s);
       if (ans == null || exp == null) continue;
       final heroEv = _actionEv(s, ans);
@@ -137,19 +171,19 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (template.id == MistakeReviewPackService.cachedTemplate?.id) {
+    if (widget.template.id == MistakeReviewPackService.cachedTemplate?.id) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<MistakeReviewPackService>().setProgress(0);
       });
     }
-    final spots = template.spots;
+    final spots = widget.template.spots;
     if (spots.isEmpty) return _emptyResultState();
     int correct = 0;
     final diffs = <double>[];
     final icmDiffs = <double>[];
     final mistakes = <_MistakeData>[];
     for (final s in spots) {
-      final ans = results[s.id];
+      final ans = widget.results[s.id];
       final exp = _expected(s);
       if (ans == null || exp == null) continue;
       final heroEv = _actionEv(s, ans);
@@ -262,6 +296,33 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
               ),
             ] else
               const Spacer(),
+            if (_related.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Text('📌 Похожие паки',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              for (final r in _related)
+                ListTile(
+                  title: Text(r.name),
+                  onTap: () async {
+                    final session = await context
+                        .read<TrainingSessionService>()
+                        .startFromTemplate(r);
+                    if (!mounted) return;
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => TrainingPackPlayScreen(
+                                template: r,
+                                original: r,
+                              )),
+                    );
+                  },
+                ),
+            ],
             ElevatedButton(
               onPressed: () => _repeat(context),
               child: const Text('Повторить тренировку'),
