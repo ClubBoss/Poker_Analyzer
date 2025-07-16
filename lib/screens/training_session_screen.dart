@@ -62,6 +62,20 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   bool _continue = false;
   bool _summaryShown = false;
 
+  void _restart() {
+    final pack = widget.pack;
+    if (pack == null) return;
+    final tpl = _fromPack(pack);
+    context.read<TrainingSessionService>().startSession(tpl, persist: false);
+    if (widget.onSessionEnd != null) _endlessStats.reset();
+    setState(() {
+      _selected = null;
+      _correct = null;
+      _continue = false;
+      _summaryShown = false;
+    });
+  }
+
   TrainingPackTemplate _fromPack(TrainingPackV2 p) => TrainingPackTemplate(
         id: p.id,
         name: p.name,
@@ -83,8 +97,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     super.initState();
     if (widget.pack != null) {
       final tpl = _fromPack(widget.pack!);
-      Future.microtask(() =>
-          context.read<TrainingSessionService>().startSession(tpl, persist: false));
+      Future.microtask(() => context
+          .read<TrainingSessionService>()
+          .startSession(tpl, persist: false));
     }
     if (widget.onSessionEnd != null &&
         _endlessStats.total == 0 &&
@@ -359,6 +374,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             appBar: AppBar(
               title: const Text('Training'),
               actions: [
+                if (widget.pack != null)
+                  IconButton(
+                    onPressed: _restart,
+                    icon: const Icon(Icons.replay),
+                  ),
                 IconButton(
                   onPressed: service.isPaused ? service.resume : service.pause,
                   icon: Icon(service.isPaused ? Icons.play_arrow : Icons.pause),
