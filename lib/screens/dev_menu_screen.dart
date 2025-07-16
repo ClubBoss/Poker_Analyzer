@@ -1,10 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import '../core/training/generation/gpt_pack_template_generator.dart';
 import '../core/training/generation/pack_yaml_config_parser.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../ui/tools/training_pack_yaml_previewer.dart';
-import '../models/v2/training_pack_template_v2.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -27,6 +30,26 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     try {
       final config = const PackYamlConfigParser().parse(yaml);
       if (config.requests.isNotEmpty) {
+        try {
+          final dir = await getApplicationDocumentsDirectory();
+          final custom = Directory('${dir.path}/training_packs/custom');
+          await custom.create(recursive: true);
+          final ts = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
+          final file = File('${custom.path}/pack_$ts.yaml');
+          await file.writeAsString(yaml);
+          if (mounted) {
+            final name = file.path.split(Platform.pathSeparator).last;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Файл сохранён: $name')),
+            );
+          }
+        } catch (_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Ошибка сохранения')),
+            );
+          }
+        }
         final tpl = await TrainingTypeEngine().build(
           TrainingType.pushfold,
           config.requests.first,
