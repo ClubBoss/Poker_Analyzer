@@ -12,6 +12,10 @@ import '../services/cloud_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
+import '../models/v2/training_pack_v2.dart';
+import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hero_position.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -38,7 +42,13 @@ class _EndlessStats {
 class TrainingSessionScreen extends StatefulWidget {
   final VoidCallback? onSessionEnd;
   final TrainingSession? session;
-  const TrainingSessionScreen({super.key, this.onSessionEnd, this.session});
+  final TrainingPackV2? pack;
+  const TrainingSessionScreen({
+    super.key,
+    this.onSessionEnd,
+    this.session,
+    this.pack,
+  });
 
   @override
   State<TrainingSessionScreen> createState() => _TrainingSessionScreenState();
@@ -52,9 +62,30 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   bool _continue = false;
   bool _summaryShown = false;
 
+  TrainingPackTemplate _fromPack(TrainingPackV2 p) => TrainingPackTemplate(
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        gameType: p.gameType,
+        spots: List<TrainingPackSpot>.from(p.spots),
+        tags: List<String>.from(p.tags),
+        heroBbStack: p.bb,
+        heroPos: p.positions.isNotEmpty
+            ? parseHeroPosition(p.positions.first)
+            : HeroPosition.sb,
+        spotCount: p.spotCount,
+        meta: Map<String, dynamic>.from(p.meta),
+        isBuiltIn: true,
+      );
+
   @override
   void initState() {
     super.initState();
+    if (widget.pack != null) {
+      final tpl = _fromPack(widget.pack!);
+      Future.microtask(() =>
+          context.read<TrainingSessionService>().startSession(tpl, persist: false));
+    }
     if (widget.onSessionEnd != null &&
         _endlessStats.total == 0 &&
         _endlessStats.elapsed == Duration.zero) {
