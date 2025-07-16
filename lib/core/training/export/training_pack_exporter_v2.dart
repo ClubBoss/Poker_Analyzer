@@ -12,13 +12,9 @@ class TrainingPackExporterV2 {
     String? fileName,
   }) async {
     final generatedDir = Directory('packs/generated');
-    final exportedDir = Directory('packs/exported');
-    Directory dir;
-    if (await generatedDir.exists()) {
-      dir = generatedDir;
-    } else {
-      dir = exportedDir;
-    }
+    final dir = await generatedDir.exists()
+        ? generatedDir
+        : Directory('packs/exported');
     await dir.create(recursive: true);
     final safeName = (fileName ?? pack.name)
         .replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')
