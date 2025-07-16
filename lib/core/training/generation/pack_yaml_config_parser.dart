@@ -71,8 +71,9 @@ class PackYamlConfigParser {
               return desc.isNotEmpty ? desc : defaultDescription;
             }(),
             tags: () {
-              final local = _readTags(item['tags']);
-              final tags = local.isEmpty ? defaultTags : local;
+              final tags = item.containsKey('tags')
+                  ? _readTags(item['tags'])
+                  : defaultTags;
               return List<String>.from(tags);
             }(),
             count: (item['count'] as num?)?.toInt() ?? defaultCount,
