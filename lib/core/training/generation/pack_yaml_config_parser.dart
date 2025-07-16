@@ -79,6 +79,7 @@ class PackYamlConfigParser {
               return desc.isNotEmpty ? desc : defaultDescription;
             }(),
             goal: item['goal']?.toString() ?? '',
+            audience: item['audience']?.toString() ?? '',
             tags: () {
               final tags = item.containsKey('tags')
                   ? _readTags(item['tags'])

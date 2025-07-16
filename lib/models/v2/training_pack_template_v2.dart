@@ -13,6 +13,7 @@ class TrainingPackTemplateV2 {
   String name;
   String description;
   String goal;
+  String? audience;
   List<String> tags;
   final TrainingType type;
   List<SpotTemplate> spots;
@@ -28,6 +29,7 @@ class TrainingPackTemplateV2 {
     required this.name,
     this.description = '',
     this.goal = '',
+    this.audience,
     List<String>? tags,
     required this.type,
     List<SpotTemplate>? spots,
@@ -49,6 +51,8 @@ class TrainingPackTemplateV2 {
         name: j['name'] as String? ?? '',
         description: j['description'] as String? ?? '',
         goal: j['goal'] as String? ?? '',
+        audience: j['audience'] as String? ??
+            (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
         type: TrainingType.values.firstWhere(
           (e) => e.name == j['type'],
@@ -71,6 +75,7 @@ class TrainingPackTemplateV2 {
         'name': name,
         'description': description,
         if (goal.isNotEmpty) 'goal': goal,
+        if (audience != null && audience!.isNotEmpty) 'audience': audience,
         if (tags.isNotEmpty) 'tags': tags,
         'type': type.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
@@ -98,6 +103,7 @@ class TrainingPackTemplateV2 {
         name: template.name,
         description: template.description,
         goal: template.goal,
+        audience: template.meta['audience'] as String?,
         tags: List<String>.from(template.tags),
         type: type,
         spots: List<SpotTemplate>.from(template.spots),

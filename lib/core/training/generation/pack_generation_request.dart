@@ -8,6 +8,7 @@ class PackGenerationRequest {
   final String title;
   final String description;
   final String goal;
+  final String audience;
   final List<String> tags;
   final int count;
   final String? rangeGroup;
@@ -20,6 +21,7 @@ class PackGenerationRequest {
     this.title = '',
     this.description = '',
     this.goal = '',
+    this.audience = '',
     List<String>? tags,
     this.count = 25,
     this.rangeGroup,

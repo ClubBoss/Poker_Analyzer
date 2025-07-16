@@ -28,12 +28,15 @@ class PushFoldPackBuilder implements TrainingPackBuilder {
     if (request.title.isNotEmpty) tpl.name = request.title;
     if (request.description.isNotEmpty) tpl.description = request.description;
     if (request.goal.isNotEmpty) tpl.goal = request.goal;
+    if (request.audience.isNotEmpty) tpl.meta['audience'] = request.audience;
     if (request.tags.isNotEmpty) tpl.tags = List<String>.from(request.tags);
     tpl.spotCount = tpl.spots.length;
-    return TrainingPackTemplateV2.fromTemplate(
+    final res = TrainingPackTemplateV2.fromTemplate(
       tpl,
       type: TrainingType.pushfold,
     );
+    res.audience = tpl.meta['audience'] as String?;
+    return res;
   }
 }
 

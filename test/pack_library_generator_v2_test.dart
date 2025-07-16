@@ -194,6 +194,20 @@ void main() {
     expect(res.first.meta['goal'], 'Push practice');
   });
 
+  test('generateFromTemplates stores audience', () async {
+    final spot = TrainingPackSpot(id: 'a1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final tpl = TrainingPackTemplateV2(
+      id: 'a',
+      name: 'T',
+      audience: 'Advanced',
+      type: TrainingType.pushfold,
+      spots: [spot],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['audience'], 'Advanced');
+  });
+
   test('generateFromTemplates auto generates goal', () async {
     final spot = TrainingPackSpot(id: 'ag1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
     final tpl = TrainingPackTemplateV2(
