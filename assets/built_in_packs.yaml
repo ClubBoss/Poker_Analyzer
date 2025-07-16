@@ -1,0 +1,9 @@
+packs:
+  - gameType: tournament
+    bbList: [10, 12, 15]
+    positions: [sb]
+    title: SB Trainer
+  - gameType: tournament
+    bbList: [10, 12, 15]
+    positions: [btn]
+    title: BTN Trainer
