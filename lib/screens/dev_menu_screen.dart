@@ -16,6 +16,7 @@ import '../services/training_coverage_service.dart';
 import '../services/yaml_validation_service.dart';
 import '../services/pack_library_import_service.dart';
 import '../services/pack_library_export_service.dart';
+import '../services/pack_library_duplicate_cleaner.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 
@@ -32,6 +33,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _libraryLoading = false;
   bool _importLoading = false;
   bool _exportLoading = false;
+  bool _cleanLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -253,8 +255,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (_libraryLoading || !kDebugMode) return;
     setState(() => _libraryLoading = true);
     final gpt = GptPackTemplateGenerator(apiKey: _apiKey);
-    final service =
-        PackBatchGeneratorService(gpt: gpt);
+    final service = PackBatchGeneratorService(gpt: gpt);
     try {
       final count = await service.generateFullLibrary([
         ('Beginner', ['pushfold']),
@@ -282,7 +283,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _importLoading = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Импортировано: ${res.success}, ошибок: ${res.failed}')),
+      SnackBar(
+          content:
+              Text('Импортировано: ${res.success}, ошибок: ${res.failed}')),
     );
   }
 
@@ -329,6 +332,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _exportLoading = false);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
+  }
+
+  Future<void> _cleanDuplicates() async {
+    if (_cleanLoading || !kDebugMode) return;
+    setState(() => _cleanLoading = true);
+    final count = await const PackLibraryDuplicateCleaner().removeDuplicates();
+    if (!mounted) return;
+    setState(() => _cleanLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Удалено: $count')));
   }
 
   @override
@@ -412,6 +425,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('🧹 Очистить дубликаты'),
+                onTap: _cleanLoading ? null : _cleanDuplicates,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('📋 Проверка библиотеки'),
                 onTap: () {
                   Navigator.push(
@@ -434,10 +452,10 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   );
                 },
               ),
-            ],
-          ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }
 
