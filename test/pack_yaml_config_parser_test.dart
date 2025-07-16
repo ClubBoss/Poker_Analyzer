@@ -145,6 +145,18 @@ packs:
     expect(list.first.gameType, GameType.cash);
   });
 
+  test('parse stores defaultGameType', () {
+    const yaml = '''
+defaultGameType: tournament
+packs:
+  - bb: 5
+    positions: [sb]
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    expect(config.defaultGameType, GameType.tournament);
+  });
+
   test('parse applies default count and multiple positions', () {
     const yaml = '''
 defaultCount: 5
