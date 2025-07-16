@@ -198,6 +198,7 @@ class PackLibraryGenerator {
       }
       if (r.description.isNotEmpty) tpl.description = r.description;
       if (r.goal.isNotEmpty) tpl.goal = r.goal;
+      if (r.audience.isNotEmpty) tpl.meta['audience'] = r.audience;
       final tags = List<String>.from(r.tags);
       if (config.rangeTags && r.rangeGroup != null && r.rangeGroup!.isNotEmpty && !tags.contains(r.rangeGroup)) {
         tags.add(r.rangeGroup!);
@@ -231,6 +232,9 @@ class PackLibraryGenerator {
       }
       if (t.meta['difficulty'] is! int) {
         t.meta['difficulty'] = estimateDifficultyV2(t);
+      }
+      if (t.audience != null && t.audience!.isNotEmpty) {
+        t.meta['audience'] = t.audience;
       }
       t.tags = {...t.tags, ..._autoTagsV2(t)}.toList();
       if (t.description.isEmpty) {

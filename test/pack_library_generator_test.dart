@@ -104,4 +104,17 @@ packs:
     expect(list.first.goal, 'Learn push');
     expect(list.first.meta['goal'], 'Learn push');
   });
+
+  test('generateFromYaml stores audience', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    audience: Beginner
+''';
+    final generator = PackLibraryGenerator();
+    final list = generator.generateFromYaml(yaml);
+    expect(list.first.meta['audience'], 'Beginner');
+  });
 }

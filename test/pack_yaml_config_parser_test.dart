@@ -131,6 +131,19 @@ packs:
     expect(config.requests.first.goal, 'Learn push');
   });
 
+  test('parse reads audience', () {
+    const yaml = '''
+packs:
+  - gameType: tournament
+    bb: 10
+    positions: [sb]
+    audience: Beginner
+''';
+    final parser = PackYamlConfigParser();
+    final config = parser.parse(yaml);
+    expect(config.requests.first.audience, 'Beginner');
+  });
+
   test('parse applies defaultGameType', () {
     const yaml = '''
 defaultGameType: tournament
