@@ -43,6 +43,7 @@ import '../services/motivation_service.dart';
 import 'mistake_review_screen.dart';
 import '../services/tag_cache_service.dart';
 import '../services/recommended_pack_service.dart';
+import '../services/smart_pack_suggestion_engine.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -1326,6 +1327,23 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _startRecommendedPack() async {
+    final engine = context.read<SmartPackSuggestionEngine>();
+    final profile = UserProfile(
+      recentTags: context.read<RecommendedPackService>().preferredTags,
+      weakTags: _weakCategories,
+    );
+    final list = await engine.suggestTopPacks(profile);
+    if (list.isEmpty) return;
+    final tpl = list.first;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
   Widget _recommendedCategoryCard() {
     return FutureBuilder<String?>(
       future: context
@@ -2155,6 +2173,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 child: Text(l.packOfDay),
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: _startRecommendedPack,
+              child: Text('🎯 ${l.recommendedPacks}'),
+            ),
+          ),
           _recommendedCategoryCard(),
           SwitchListTile(
             title: Text(l.favorites),
