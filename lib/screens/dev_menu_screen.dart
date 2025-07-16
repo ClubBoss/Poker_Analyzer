@@ -21,6 +21,7 @@ import '../services/pack_library_merge_service.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
+import 'pack_library_conflicts_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -481,6 +482,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const PackLibraryStatsScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🚨 Конфликты библиотеки'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PackLibraryConflictsScreen(),
                     ),
                   );
                 },
