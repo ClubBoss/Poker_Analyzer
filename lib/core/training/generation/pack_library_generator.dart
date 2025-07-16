@@ -2,6 +2,7 @@ import 'pack_yaml_config_parser.dart';
 import 'push_fold_pack_generator.dart';
 import 'training_pack_generator_engine.dart';
 import 'training_pack_source_tagger.dart';
+import 'training_pack_tags_engine.dart';
 import '../../../models/v2/training_pack_template.dart';
 import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../models/v2/training_pack_v2.dart';
@@ -14,15 +15,18 @@ class PackLibraryGenerator {
   final PushFoldPackGenerator generator;
   final TrainingPackGeneratorEngine engine;
   final TrainingPackSourceTagger tagger;
+  final TrainingPackTagsEngine tagsEngine;
   const PackLibraryGenerator({
     PackYamlConfigParser? yamlParser,
     PushFoldPackGenerator? pushFoldGenerator,
     TrainingPackGeneratorEngine? packEngine,
     TrainingPackSourceTagger? sourceTagger,
+    TrainingPackTagsEngine? tagsEngine,
   }) : parser = yamlParser ?? const PackYamlConfigParser(),
        generator = pushFoldGenerator ?? const PushFoldPackGenerator(),
        engine = packEngine ?? const TrainingPackGeneratorEngine(),
-       tagger = sourceTagger ?? const TrainingPackSourceTagger();
+       tagger = sourceTagger ?? const TrainingPackSourceTagger(),
+       tagsEngine = tagsEngine ?? const TrainingPackTagsEngine();
 
   List<String> autoTags(TrainingPackTemplate template) {
     final set = <String>{};
@@ -208,11 +212,16 @@ class PackLibraryGenerator {
         tags.add(r.rangeGroup!);
       }
       if (tags.isNotEmpty) tpl.tags = tags;
+      final tV2 = TrainingPackTemplateV2.fromTemplate(
+        tpl,
+        type: TrainingType.pushfold,
+      );
+      final autoTagList = tagsEngine.generate(tV2);
       tpl.spotCount = tpl.spots.length;
       if (tpl.meta['difficulty'] is! int) {
         tpl.meta['difficulty'] = estimateDifficulty(tpl);
       }
-      tpl.tags = {...tpl.tags, ...autoTags(tpl)}.toList();
+      tpl.tags = {...tpl.tags, ...autoTags(tpl), ...autoTagList}.toList();
       if (tpl.description.isEmpty) {
         tpl.description = generateDescription(tpl);
       }
@@ -241,7 +250,11 @@ class PackLibraryGenerator {
       if (t.audience != null && t.audience!.isNotEmpty) {
         t.meta['audience'] = t.audience;
       }
-      t.tags = {...t.tags, ..._autoTagsV2(t)}.toList();
+      t.tags = {
+        ...t.tags,
+        ..._autoTagsV2(t),
+        ...tagsEngine.generate(t)
+      }.toList();
       if (t.description.isEmpty) {
         t.description = _generateDescriptionV2(t);
       }
