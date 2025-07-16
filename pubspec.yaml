@@ -98,6 +98,7 @@ flutter:
     - assets/packs/
     - assets/packs/v2/
     - assets/built_in_packs.yaml
+    - assets/pack_matrix.json
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo
