@@ -2646,36 +2646,42 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  'Library: '
-                                  '${_audienceFilter == 'all' ? 'All' : _audienceFilter}',
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                ),
+                              Text(
+                                'Library',
+                                style:
+                                    Theme.of(context).textTheme.titleMedium,
                               ),
-                              DropdownButton<String>(
-                                value: _audienceFilter,
-                                dropdownColor: Colors.grey[900],
-                                underline: const SizedBox.shrink(),
-                                onChanged: (v) =>
-                                    v != null ? _setAudience(v) : null,
-                                items: const [
-                                  DropdownMenuItem(
-                                      value: 'all', child: Text('All')),
-                                  DropdownMenuItem(
-                                      value: 'Beginner',
-                                      child: Text('Beginner')),
-                                  DropdownMenuItem(
-                                      value: 'Intermediate',
-                                      child: Text('Intermediate')),
-                                  DropdownMenuItem(
-                                      value: 'Advanced',
-                                      child: Text('Advanced')),
-                                  DropdownMenuItem(
-                                      value: 'Pro', child: Text('Pro')),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  ChoiceChip(
+                                    label: const Text('Новички'),
+                                    selected: _audienceFilter == 'Beginner',
+                                    onSelected: (_) => _setAudience(
+                                        _audienceFilter == 'Beginner'
+                                            ? 'all'
+                                            : 'Beginner'),
+                                  ),
+                                  ChoiceChip(
+                                    label: const Text('Средний'),
+                                    selected: _audienceFilter == 'Intermediate',
+                                    onSelected: (_) => _setAudience(
+                                        _audienceFilter == 'Intermediate'
+                                            ? 'all'
+                                            : 'Intermediate'),
+                                  ),
+                                  ChoiceChip(
+                                    label: const Text('Профи'),
+                                    selected: _audienceFilter == 'Advanced',
+                                    onSelected: (_) => _setAudience(
+                                        _audienceFilter == 'Advanced'
+                                            ? 'all'
+                                            : 'Advanced'),
+                                  ),
                                 ],
                               ),
                             ],
