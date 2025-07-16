@@ -16,8 +16,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
   bool _loading = true;
   List<TrainingPackV2> _packs = [];
   List<String> _tags = [];
+  List<String> _audiences = [];
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
+  final Set<String> _selectedAudiences = {};
 
   String _difficultyIcon(TrainingPackV2 pack) {
     final diff = _difficultyLevel(pack);
@@ -45,16 +47,24 @@ class _LibraryScreenState extends State<LibraryScreen> {
       if (!mounted) return;
       final list = BuiltInLibraryController.instance.getPacks();
       final counts = <String, int>{};
+      final acounts = <String, int>{};
       for (final p in list) {
         for (final t in p.tags) {
           counts[t] = (counts[t] ?? 0) + 1;
         }
+        final a = p.meta['audience']?.toString();
+        if (a != null && a.isNotEmpty) {
+          acounts[a] = (acounts[a] ?? 0) + 1;
+        }
       }
       final tags = counts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      final auds = acounts.entries.toList()
         ..sort((a, b) => b.value.compareTo(a.value));
       setState(() {
         _packs = list;
         _tags = [for (final e in tags.take(20)) e.key];
+        _audiences = [for (final e in auds.take(7)) e.key];
         _loading = false;
       });
     });
@@ -74,7 +84,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
             (_selectedDifficulties.isEmpty
                 ? true
                 : (_selectedDifficulties.contains(_difficultyLevel(p)) &&
-                    _difficultyLevel(p) != 0)))
+                    _difficultyLevel(p) != 0)) &&
+            (_selectedAudiences.isEmpty
+                ? true
+                : _selectedAudiences
+                    .contains(p.meta['audience']?.toString() ?? '')))
           p
     ];
 
@@ -118,6 +132,37 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ),
                   ),
                 if (_tags.isNotEmpty) const SizedBox(height: 8),
+                if (_audiences.isNotEmpty)
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final a in _audiences)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ChoiceChip(
+                              label: Text(a),
+                              selected: _selectedAudiences.contains(a),
+                              selectedColor: AppColors.accent,
+                              backgroundColor: Colors.grey[700],
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              onSelected: (_) {
+                                setState(() {
+                                  if (_selectedAudiences.contains(a)) {
+                                    _selectedAudiences.remove(a);
+                                  } else {
+                                    _selectedAudiences.add(a);
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                if (_audiences.isNotEmpty) const SizedBox(height: 8),
                 Wrap(
                   spacing: 4,
                   children: [
@@ -145,16 +190,19 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 Row(
                   children: [
                     if (_selectedTags.isNotEmpty ||
-                        _selectedDifficulties.isNotEmpty)
+                        _selectedDifficulties.isNotEmpty ||
+                        _selectedAudiences.isNotEmpty)
                       TextButton(
                         onPressed: () => setState(() {
                           _selectedTags.clear();
                           _selectedDifficulties.clear();
+                          _selectedAudiences.clear();
                         }),
                         child: const Text('Сбросить'),
                       ),
                     if (_selectedTags.isNotEmpty ||
-                        _selectedDifficulties.isNotEmpty)
+                        _selectedDifficulties.isNotEmpty ||
+                        _selectedAudiences.isNotEmpty)
                       const SizedBox(width: 12),
                     Text('Найдено: ${visible.length}')
                   ],
@@ -170,11 +218,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       children: [
                         const Text('По текущему фильтру пакетов не найдено'),
                         if (_selectedTags.isNotEmpty ||
-                            _selectedDifficulties.isNotEmpty)
+                            _selectedDifficulties.isNotEmpty ||
+                            _selectedAudiences.isNotEmpty)
                           TextButton(
                             onPressed: () => setState(() {
                               _selectedTags.clear();
                               _selectedDifficulties.clear();
+                              _selectedAudiences.clear();
                             }),
                             child: const Text('Сбросить'),
                           ),
