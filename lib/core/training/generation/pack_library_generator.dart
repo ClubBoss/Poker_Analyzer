@@ -1,6 +1,7 @@
 import 'pack_yaml_config_parser.dart';
 import 'push_fold_pack_generator.dart';
 import 'training_pack_generator_engine.dart';
+import 'training_pack_source_tagger.dart';
 import '../../../models/v2/training_pack_template.dart';
 import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../models/v2/training_pack_v2.dart';
@@ -12,13 +13,16 @@ class PackLibraryGenerator {
   final PackYamlConfigParser parser;
   final PushFoldPackGenerator generator;
   final TrainingPackGeneratorEngine engine;
+  final TrainingPackSourceTagger tagger;
   const PackLibraryGenerator({
     PackYamlConfigParser? yamlParser,
     PushFoldPackGenerator? pushFoldGenerator,
     TrainingPackGeneratorEngine? packEngine,
+    TrainingPackSourceTagger? sourceTagger,
   }) : parser = yamlParser ?? const PackYamlConfigParser(),
        generator = pushFoldGenerator ?? const PushFoldPackGenerator(),
-       engine = packEngine ?? const TrainingPackGeneratorEngine();
+       engine = packEngine ?? const TrainingPackGeneratorEngine(),
+       tagger = sourceTagger ?? const TrainingPackSourceTagger();
 
   List<String> autoTags(TrainingPackTemplate template) {
     final set = <String>{};
@@ -182,6 +186,11 @@ class PackLibraryGenerator {
         rangeGroup: r.rangeGroup,
         multiplePositions: r.multiplePositions,
       );
+      tagger.tag(
+        TrainingPackTemplateV2.fromTemplate(tpl, type: TrainingType.pushfold),
+        source: PackSource.yaml.name,
+      );
+      tpl.meta['source'] ??= PackSource.yaml.name;
       if (r.title.isNotEmpty) {
         tpl.name = r.title;
       } else {
@@ -209,6 +218,7 @@ class PackLibraryGenerator {
   Future<List<TrainingPackV2>> generateFromTemplates(List<TrainingPackTemplateV2> templates) async {
     final list = <TrainingPackV2>[];
     for (final t in templates) {
+      tagger.tag(t, source: PackSource.auto.name);
       if (t.spots.isEmpty) continue;
       if (t.meta['enabled'] == false) continue;
       if (t.name.isEmpty) {
