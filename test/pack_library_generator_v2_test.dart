@@ -85,4 +85,30 @@ void main() {
     expect(res.first.sourceTemplateId, '2');
     expect(res.last.sourceTemplateId, '1');
   });
+
+  test('estimateDifficulty sets meta', () async {
+    final s1 = TrainingPackSpot(
+      id: 's1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
+    final s2 = TrainingPackSpot(
+      id: 's2',
+      hand: HandData.fromSimpleInput('KdQd', HeroPosition.bb, 20)
+        ..board.addAll(['2h', '3d', '4s']),
+    );
+    final s3 = TrainingPackSpot(
+      id: 's3',
+      hand: HandData.fromSimpleInput('JcJs', HeroPosition.btn, 15)
+        ..board.addAll(['2h', '3d', '4s', '5c']),
+    );
+    final tpl = TrainingPackTemplateV2(
+      id: 't',
+      name: 'T',
+      type: TrainingType.pushfold,
+      spots: [s1, s2, s3],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['difficulty'], 3);
+  });
 }
