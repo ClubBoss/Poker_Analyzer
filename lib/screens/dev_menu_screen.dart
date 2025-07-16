@@ -25,6 +25,7 @@ import '../services/pack_tag_index_service.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
+import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
@@ -562,6 +563,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const PackLibraryConflictsScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔎 Фильтр паков'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PackFilterDebugScreen(),
                     ),
                   );
                 },
