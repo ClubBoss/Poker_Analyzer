@@ -91,6 +91,7 @@ class PackYamlConfigParser {
             multiplePositions: item.containsKey('multiplePositions')
                 ? item['multiplePositions'] == true
                 : defaultMultiplePositions,
+            recommended: item['recommended'] == true,
           ),
     ];
     return PackYamlConfig(

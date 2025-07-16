@@ -13,6 +13,7 @@ class PackGenerationRequest {
   final int count;
   final String? rangeGroup;
   final bool multiplePositions;
+  final bool recommended;
   const PackGenerationRequest({
     required this.gameType,
     this.bb = 0,
@@ -26,5 +27,6 @@ class PackGenerationRequest {
     this.count = 25,
     this.rangeGroup,
     this.multiplePositions = false,
+    this.recommended = false,
   }) : tags = tags ?? const [];
 }

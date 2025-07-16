@@ -23,6 +23,7 @@ class TrainingPackTemplateV2 {
   int bb;
   List<String> positions;
   Map<String, dynamic> meta;
+  bool recommended;
 
   TrainingPackTemplateV2({
     required this.id,
@@ -39,6 +40,7 @@ class TrainingPackTemplateV2 {
     this.bb = 0,
     List<String>? positions,
     Map<String, dynamic>? meta,
+    this.recommended = false,
   })  : tags = tags ?? [],
         spots = spots ?? [],
         positions = positions ?? [],
@@ -68,6 +70,8 @@ class TrainingPackTemplateV2 {
         bb: (j['bb'] as num?)?.toInt() ?? 0,
         positions: [for (final p in (j['positions'] as List? ?? [])) p.toString()],
         meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
+        recommended: j['recommended'] as bool? ??
+            (j['meta'] is Map ? j['meta']['recommended'] == true : false),
       );
 
   Map<String, dynamic> toJson() => {
@@ -85,6 +89,7 @@ class TrainingPackTemplateV2 {
         'bb': bb,
         if (positions.isNotEmpty) 'positions': positions,
         if (meta.isNotEmpty) 'meta': meta,
+        if (recommended) 'recommended': true,
       };
 
   factory TrainingPackTemplateV2.fromYaml(String source) {
@@ -113,5 +118,6 @@ class TrainingPackTemplateV2 {
         bb: template.heroBbStack,
         positions: [template.heroPos.name],
         meta: Map<String, dynamic>.from(template.meta),
+        recommended: template.recommended,
       );
 }

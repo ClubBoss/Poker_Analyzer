@@ -224,4 +224,18 @@ void main() {
     final res = await generator.generateFromTemplates([tpl]);
     expect(res.first.meta['goal'], isNotEmpty);
   });
+
+  test('generateFromTemplates stores recommended', () async {
+    final spot = TrainingPackSpot(id: 'r1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final tpl = TrainingPackTemplateV2(
+      id: 'r',
+      name: 'R',
+      type: TrainingType.pushfold,
+      spots: [spot],
+      recommended: true,
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['recommended'], true);
+  });
 }
