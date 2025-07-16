@@ -84,6 +84,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
   static const _diffKey = 'lib_difficulty_filter';
+  static const _audienceKey = 'lib_audience_filter';
   static const _actTagsKey = 'lib_act_tags';
   static const _actCatsKey = 'lib_act_cats';
   static const _lastCatKey = 'lib_last_selected_category';
@@ -136,6 +137,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _activeTags = {};
   final Set<String> _activeCategories = {};
   final Set<int> _difficultyFilters = {};
+  String _audienceFilter = 'all';
   bool _importing = false;
   String _dailyQuote = '';
 
@@ -239,6 +241,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         final c = prefs.getString(_lastCatKey);
         if (c != null && c.isNotEmpty) _activeCategories.add(c);
       }
+      _audienceFilter = prefs.getString(_audienceKey) ?? 'all';
       _difficultyFilters
         ..clear()
         ..addAll(
@@ -489,6 +492,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           _diffKey, _difficultyFilters.map((e) => e.toString()).toList());
     }
     setState(() {});
+  }
+
+  Future<void> _setAudience(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value == 'all') {
+      await prefs.remove(_audienceKey);
+    } else {
+      await prefs.setString(_audienceKey, value);
+    }
+    setState(() => _audienceFilter = value);
   }
 
   Future<void> _clearTagFilters() async {
@@ -752,6 +765,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         });
     }
     return copy;
+  }
+
+  List<v2.TrainingPackTemplate> _applyAudienceFilter(
+      List<v2.TrainingPackTemplate> list) {
+    if (_audienceFilter == 'all') return list;
+    return [for (final t in list) if (t.audience == _audienceFilter) t];
   }
 
   Widget _buildSortButtons(AppLocalizations l) {
@@ -1863,6 +1882,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (t.isBuiltIn && !_isStarter(t)) t
     ]);
+    final libraryFiltered = _applyAudienceFilter(
+        PackLibraryLoaderService.instance.library);
     final user = _applySorting([
       for (final t in remaining)
         if (!t.isBuiltIn) t
@@ -2497,6 +2518,57 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       if (builtInOther.isNotEmpty) ...[
                         ListTile(title: Text(l.builtInPacks)),
                         for (final t in builtInOther) _item(t),
+                        if (libraryFiltered.isNotEmpty || user.isNotEmpty)
+                          const Divider(),
+                      ] else if (filteringActive) ...[
+                        _emptyTile,
+                        if (libraryFiltered.isNotEmpty || user.isNotEmpty)
+                          const Divider(),
+                      ],
+                      if (libraryFiltered.isNotEmpty) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Library: '
+                                      '${_audienceFilter == 'all' ? 'All' : _audienceFilter}',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                              ),
+                              DropdownButton<String>(
+                                value: _audienceFilter,
+                                dropdownColor: Colors.grey[900],
+                                underline: const SizedBox.shrink(),
+                                onChanged: (v) => v != null ? _setAudience(v) : null,
+                                items: const [
+                                  DropdownMenuItem(
+                                      value: 'all', child: Text('All')),
+                                  DropdownMenuItem(
+                                      value: 'Beginner', child: Text('Beginner')),
+                                  DropdownMenuItem(
+                                      value: 'Intermediate',
+                                      child: Text('Intermediate')),
+                                  DropdownMenuItem(
+                                      value: 'Advanced', child: Text('Advanced')),
+                                  DropdownMenuItem(value: 'Pro', child: Text('Pro')),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        for (final t in libraryFiltered)
+                          Card(
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
+                            child: ListTile(
+                              title: Text(t.name),
+                              subtitle: Text(t.goal),
+                            ),
+                          ),
                         if (user.isNotEmpty) const Divider(),
                       ] else if (filteringActive) ...[
                         _emptyTile,
