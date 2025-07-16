@@ -35,6 +35,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return 0;
   }
 
+  String _goalText(TrainingPackV2 pack) =>
+      (pack.meta['goal'] as String? ?? '').trim();
+
   @override
   void initState() {
     super.initState();
@@ -191,49 +194,59 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           );
                         },
                         title: Text(pack.name),
-                        subtitle: pack.tags.isEmpty
-                            ? null
-                            : Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Wrap(
-                                  spacing: 4,
-                                  runSpacing: 4,
-                                  children: [
-                                    for (final tag in pack.tags.take(3))
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[800],
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          tag,
-                                          style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.white70),
-                                        ),
-                                      ),
-                                    if (pack.tags.length > 3)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[800],
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          '+${pack.tags.length - 3}',
-                                          style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.white70),
-                                        ),
-                                      ),
-                                  ],
-                                ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_goalText(pack).isNotEmpty)
+                              Text(
+                                _goalText(pack),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 12, color: Colors.white60),
                               ),
+                            if (pack.tags.isNotEmpty) ...[
+                              if (_goalText(pack).isNotEmpty)
+                                const SizedBox(height: 4),
+                              Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
+                                children: [
+                                  for (final tag in pack.tags.take(3))
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[800],
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        tag,
+                                        style: const TextStyle(
+                                            fontSize: 11, color: Colors.white70),
+                                      ),
+                                    ),
+                                  if (pack.tags.length > 3)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[800],
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        '+${pack.tags.length - 3}',
+                                        style: const TextStyle(
+                                            fontSize: 11, color: Colors.white70),
+                                      ),
+                                    ),
+                                ],
+                              )
+                            ]
+                          ],
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
