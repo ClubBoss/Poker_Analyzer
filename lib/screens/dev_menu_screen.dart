@@ -17,6 +17,7 @@ import '../services/yaml_validation_service.dart';
 import '../services/pack_library_import_service.dart';
 import '../services/pack_library_export_service.dart';
 import '../services/pack_library_duplicate_cleaner.dart';
+import '../services/pack_library_merge_service.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -35,6 +36,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _importLoading = false;
   bool _exportLoading = false;
   bool _cleanLoading = false;
+  bool _mergeLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -345,6 +347,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         .showSnackBar(SnackBar(content: Text('Удалено: $count')));
   }
 
+  Future<void> _mergeLibraries() async {
+    if (_mergeLoading || !kDebugMode) return;
+    setState(() => _mergeLoading = true);
+    final res = await const PackLibraryMergeService().mergeAll(
+      ['/import_a', '/import_b'],
+    );
+    if (!mounted) return;
+    setState(() => _mergeLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Объединено: ${res.success}, ошибок: ${res.failed}')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -428,6 +443,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧹 Очистить дубликаты'),
                 onTap: _cleanLoading ? null : _cleanDuplicates,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📦 Объединить библиотеки'),
+                onTap: _mergeLoading ? null : _mergeLibraries,
               ),
             if (kDebugMode)
               ListTile(
