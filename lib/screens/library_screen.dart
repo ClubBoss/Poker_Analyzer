@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/training/controller/built_in_library_controller.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../theme/app_colors.dart';
+import 'training_session_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -51,6 +52,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
           }
           final pack = _packs[index - 1];
           return ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TrainingSessionScreen(pack: pack),
+                ),
+              );
+            },
             title: Text(pack.name),
             subtitle: pack.tags.isEmpty
                 ? null
