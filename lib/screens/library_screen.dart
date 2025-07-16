@@ -16,7 +16,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   bool _loading = true;
   List<TrainingPackV2> _packs = [];
   Set<String> _tags = {};
-  String? _selectedTag;
+  final Set<String> _selectedTags = {};
 
   @override
   void initState() {
@@ -39,11 +39,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    final visible = _selectedTag == null
+    final visible = _selectedTags.isEmpty
         ? _packs
         : [
             for (final p in _packs)
-              if (p.tags.contains(_selectedTag)) p
+              if (p.tags.toSet().intersection(_selectedTags).length ==
+                  _selectedTags.length)
+                p
           ];
 
     return Scaffold(
@@ -53,27 +55,48 @@ class _LibraryScreenState extends State<LibraryScreen> {
           if (_tags.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: _selectedTag,
-                      hint: const Text('Тег'),
-                      underline: const SizedBox.shrink(),
-                      onChanged: (v) => setState(() => _selectedTag = v),
-                      items: _tags
-                          .map(
-                              (t) => DropdownMenuItem(value: t, child: Text(t)))
-                          .toList(),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final tag in _tags)
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4),
+                            child: FilterChip(
+                              label: Text(tag),
+                              selected: _selectedTags.contains(tag),
+                              onSelected: (_) {
+                                setState(() {
+                                  if (_selectedTags.contains(tag)) {
+                                    _selectedTags.remove(tag);
+                                  } else {
+                                    _selectedTags.add(tag);
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  if (_selectedTag != null)
-                    TextButton(
-                      onPressed: () => setState(() => _selectedTag = null),
-                      child: const Text('Сбросить'),
-                    ),
-                  const SizedBox(width: 12),
-                  Text('Найдено: ${visible.length}')
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      if (_selectedTags.isNotEmpty)
+                        TextButton(
+                          onPressed: () =>
+                              setState(() => _selectedTags.clear()),
+                          child: const Text('Сбросить'),
+                        ),
+                      if (_selectedTags.isNotEmpty)
+                        const SizedBox(width: 12),
+                      Text('Найдено: ${visible.length}')
+                    ],
+                  )
                 ],
               ),
             ),
@@ -84,10 +107,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text('По текущему фильтру пакетов не найдено'),
-                        if (_selectedTag != null)
+                        if (_selectedTags.isNotEmpty)
                           TextButton(
                             onPressed: () =>
-                                setState(() => _selectedTag = null),
+                                setState(() => _selectedTags.clear()),
                             child: const Text('Сбросить'),
                           ),
                       ],
