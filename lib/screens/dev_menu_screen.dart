@@ -18,6 +18,7 @@ import '../services/pack_library_import_service.dart';
 import '../services/pack_library_export_service.dart';
 import '../services/pack_library_duplicate_cleaner.dart';
 import '../services/pack_library_merge_service.dart';
+import '../services/pack_library_refactor_service.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -38,6 +39,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _exportLoading = false;
   bool _cleanLoading = false;
   bool _mergeLoading = false;
+  bool _refactorLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -361,6 +363,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _refactorLibrary() async {
+    if (_refactorLoading || !kDebugMode) return;
+    setState(() => _refactorLoading = true);
+    final count = await const PackLibraryRefactorService().refactorAll();
+    if (!mounted) return;
+    setState(() => _refactorLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Отрефакторено: $count')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -444,6 +456,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧹 Очистить дубликаты'),
                 onTap: _cleanLoading ? null : _cleanDuplicates,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('♻️ Автоочистка и улучшения'),
+                onTap: _refactorLoading ? null : _refactorLibrary,
               ),
             if (kDebugMode)
               ListTile(
