@@ -74,6 +74,7 @@ import 'services/session_log_service.dart';
 import 'services/suggested_pack_service.dart';
 import 'services/recommended_pack_service.dart';
 import 'services/smart_suggestion_service.dart';
+import 'services/smart_pack_suggestion_engine.dart';
 import 'services/evaluation_executor_service.dart';
 import 'services/session_analysis_service.dart';
 import 'services/user_action_logger.dart';
@@ -393,11 +394,12 @@ List<SingleChildWidget> buildTrainingProviders() {
             ),
           ),
           Provider(
-            create: (context) => SmartSuggestionService(
-              storage: context.read<TrainingPackStorageService>(),
-              templates: context.read<TemplateStorageService>(),
-            ),
+          create: (context) => SmartSuggestionService(
+            storage: context.read<TrainingPackStorageService>(),
+            templates: context.read<TemplateStorageService>(),
           ),
+        ),
+        Provider(create: (_) => const SmartPackSuggestionEngine()),
   ];
 }
 
