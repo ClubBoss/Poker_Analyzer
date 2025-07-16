@@ -15,14 +15,18 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen> {
   bool _loading = true;
   List<TrainingPackV2> _packs = [];
+  Set<String> _tags = {};
+  String? _selectedTag;
 
   @override
   void initState() {
     super.initState();
     BuiltInLibraryController.instance.preload().then((_) {
       if (!mounted) return;
+      final list = BuiltInLibraryController.instance.getPacks();
       setState(() {
-        _packs = BuiltInLibraryController.instance.getPacks();
+        _packs = list;
+        _tags = {for (final p in list) ...p.tags};
         _loading = false;
       });
     });
@@ -35,85 +39,145 @@ class _LibraryScreenState extends State<LibraryScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    final visible = _selectedTag == null
+        ? _packs
+        : [
+            for (final p in _packs)
+              if (p.tags.contains(_selectedTag)) p
+          ];
+
     return Scaffold(
       appBar: AppBar(title: const Text('Library')),
-      body: ListView.separated(
-        itemCount: _packs.length + 1,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Встроенные тренировки',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      body: Column(
+        children: [
+          if (_tags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: _selectedTag,
+                      hint: const Text('Тег'),
+                      underline: const SizedBox.shrink(),
+                      onChanged: (v) => setState(() => _selectedTag = v),
+                      items: _tags
+                          .map(
+                              (t) => DropdownMenuItem(value: t, child: Text(t)))
+                          .toList(),
+                    ),
+                  ),
+                  if (_selectedTag != null)
+                    TextButton(
+                      onPressed: () => setState(() => _selectedTag = null),
+                      child: const Text('Сбросить'),
+                    ),
+                  const SizedBox(width: 12),
+                  Text('Найдено: ${visible.length}')
+                ],
               ),
-            );
-          }
-          final pack = _packs[index - 1];
-          return ListTile(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => TrainingSessionScreen(pack: pack),
-                ),
-              );
-            },
-            title: Text(pack.name),
-            subtitle: pack.tags.isEmpty
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Wrap(
-                      spacing: 4,
-                      runSpacing: 4,
+            ),
+          Expanded(
+            child: visible.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        for (final tag in pack.tags.take(3))
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[800],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              tag,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.white70),
-                            ),
-                          ),
-                        if (pack.tags.length > 3)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[800],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '+${pack.tags.length - 3}',
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.white70),
-                            ),
+                        const Text('По текущему фильтру пакетов не найдено'),
+                        if (_selectedTag != null)
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _selectedTag = null),
+                            child: const Text('Сбросить'),
                           ),
                       ],
                     ),
+                  )
+                : ListView.separated(
+                    itemCount: visible.length + 1,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                            'Встроенные тренировки',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        );
+                      }
+                      final pack = visible[index - 1];
+                      return ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TrainingSessionScreen(pack: pack),
+                            ),
+                          );
+                        },
+                        title: Text(pack.name),
+                        subtitle: pack.tags.isEmpty
+                            ? null
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Wrap(
+                                  spacing: 4,
+                                  runSpacing: 4,
+                                  children: [
+                                    for (final tag in pack.tags.take(3))
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[800],
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          tag,
+                                          style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.white70),
+                                        ),
+                                      ),
+                                    if (pack.tags.length > 3)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[800],
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          '+${pack.tags.length - 3}',
+                                          style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.white70),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardBackground,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${pack.spotCount}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-            trailing: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppColors.cardBackground,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                '${pack.spotCount}',
-                style: const TextStyle(color: Colors.white70),
-              ),
-            ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
