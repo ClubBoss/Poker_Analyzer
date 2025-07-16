@@ -14,6 +14,7 @@ import '../services/pack_batch_generator_service.dart';
 import '../ui/tools/training_pack_yaml_previewer.dart';
 import '../services/training_coverage_service.dart';
 import '../services/yaml_validation_service.dart';
+import '../services/pack_library_import_service.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 
@@ -28,6 +29,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _loading = false;
   bool _batchLoading = false;
   bool _libraryLoading = false;
+  bool _importLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -271,6 +273,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _libraryLoading = false);
   }
 
+  Future<void> _importPacks() async {
+    if (_importLoading || !kDebugMode) return;
+    setState(() => _importLoading = true);
+    final res = await const PackLibraryImportService().importFromExternalDir();
+    if (!mounted) return;
+    setState(() => _importLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Импортировано: ${res.success}, ошибок: ${res.failed}')),
+    );
+  }
+
   Future<void> _exportCoverage() async {
     if (!kDebugMode) return;
     final ok = await compute(_coverageTask, '');
@@ -374,6 +387,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('Проверка YAML'),
                 onTap: _validateYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⬇ Импортировать паки из /import'),
+                onTap: _importLoading ? null : _importPacks,
               ),
             if (kDebugMode)
               ListTile(
