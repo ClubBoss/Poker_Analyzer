@@ -8,6 +8,7 @@ import '../core/training/generation/gpt_pack_template_generator.dart';
 import '../core/training/generation/pack_yaml_config_parser.dart';
 import 'pack_matrix_config.dart';
 import 'tag_frequency_analyzer.dart';
+import 'training_pack_index_writer.dart';
 
 class PackBatchGeneratorService {
   const PackBatchGeneratorService({required this.gpt, PackYamlConfigParser? parser})
@@ -51,6 +52,7 @@ class PackBatchGeneratorService {
         ErrorLogger.instance.logError('Pack gen error', e as Object?);
       }
     }
+    await const TrainingPackIndexWriter().writeIndex();
     await const TagFrequencyAnalyzer().generate();
     return success;
   }
