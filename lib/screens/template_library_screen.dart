@@ -1949,14 +1949,24 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (t.isBuiltIn && !_isStarter(t)) t
     ]);
-    final libAll = _applyAudienceFilter(
-        PackLibraryLoaderService.instance.library);
+    final libAll =
+        _applyAudienceFilter(PackLibraryLoaderService.instance.library);
     final libraryFiltered = _activeTags.isEmpty
         ? libAll
         : [
             for (final t in libAll)
               if (t.tags.any(_activeTags.contains)) t
           ];
+    final libraryMap = <String, List<v2.TrainingPackTemplate>>{};
+    for (final t in libraryFiltered) {
+      final tag = t.tags.isNotEmpty ? t.tags.first : 'Other';
+      libraryMap.putIfAbsent(tag, () => []).add(t);
+    }
+    final librarySections = libraryMap.keys.toList()
+      ..sort((a, b) {
+        final cmp = libraryMap[b]!.length.compareTo(libraryMap[a]!.length);
+        return cmp == 0 ? a.compareTo(b) : cmp;
+      });
     final user = _applySorting([
       for (final t in remaining)
         if (!t.isBuiltIn) t
@@ -2653,7 +2663,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                               ],
                             ),
                           ),
-                        for (final t in libraryFiltered) _libraryTile(t),
+                        for (final tag in librarySections)
+                          ...[
+                            ListTile(title: Text(tag)),
+                            for (final t in libraryMap[tag]!) _libraryTile(t),
+                            if (tag != librarySections.last) const Divider(),
+                          ],
                         if (user.isNotEmpty) const Divider(),
                       ] else if (filteringActive) ...[
                         _emptyTile,
