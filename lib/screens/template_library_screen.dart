@@ -140,6 +140,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   String _audienceFilter = 'all';
   bool _importing = false;
   String _dailyQuote = '';
+  List<String> _libraryTags = [];
 
   List<TrainingPackTemplate> _recent = [];
   List<TrainingPackTemplate> _popular = [];
@@ -165,6 +166,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
     await PackLibraryLoaderService.instance.loadLibrary();
+    final counts = <String, int>{};
+    for (final t in PackLibraryLoaderService.instance.library) {
+      for (final tag in t.tags) {
+        counts.update(tag, (v) => v + 1, ifAbsent: () => 1);
+      }
+    }
+    _libraryTags = counts.keys.toList()
+      ..sort((a, b) {
+        final ca = counts[a]!;
+        final cb = counts[b]!;
+        final r = cb.compareTo(ca);
+        return r == 0 ? a.compareTo(b) : r;
+      });
     await _load(prefs);
     await _autoImport(prefs);
     await _loadPlayCounts();
@@ -449,6 +463,23 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       await prefs.remove(_actCatsKey);
     }
     setState(() {});
+  }
+
+  Future<void> _toggleActiveTag(String tag) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!_activeTags.add(tag)) _activeTags.remove(tag);
+    if (_activeTags.isEmpty) {
+      await prefs.remove(_actTagsKey);
+    } else {
+      await prefs.setStringList(_actTagsKey, _activeTags.toList());
+    }
+    setState(() {});
+  }
+
+  Future<void> _clearActiveTags() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_actTagsKey);
+    setState(() => _activeTags.clear());
   }
 
   Future<void> _setActiveCategory(String cat) async {
@@ -1882,8 +1913,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (t.isBuiltIn && !_isStarter(t)) t
     ]);
-    final libraryFiltered = _applyAudienceFilter(
+    final libAll = _applyAudienceFilter(
         PackLibraryLoaderService.instance.library);
+    final libraryFiltered = _activeTags.isEmpty
+        ? libAll
+        : [
+            for (final t in libAll)
+              if (t.tags.any(_activeTags.contains)) t
+          ];
     final user = _applySorting([
       for (final t in remaining)
         if (!t.isBuiltIn) t
@@ -2560,6 +2597,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             ],
                           ),
                         ),
+                        if (_libraryTags.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                            child: Wrap(
+                              spacing: 8,
+                              children: [
+                                for (final tag in _libraryTags)
+                                  FilterChip(
+                                    label: Text(tag),
+                                    selected: _activeTags.contains(tag),
+                                    onSelected: (_) => _toggleActiveTag(tag),
+                                  ),
+                                if (_activeTags.isNotEmpty)
+                                  ActionChip(
+                                    label: Text(l.resetFilters),
+                                    onPressed: _clearActiveTags,
+                                  ),
+                              ],
+                            ),
+                          ),
                         for (final t in libraryFiltered)
                           Card(
                             margin: const EdgeInsets.symmetric(
