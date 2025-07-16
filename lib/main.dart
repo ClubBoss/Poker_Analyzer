@@ -146,11 +146,8 @@ Future<void> main() async {
   );
   await EvaluationSettingsService.instance.load();
   await MistakeHintService.instance.load();
-  tagCache = TagCacheService(
-    templates: templateStorage,
-    packs: packStorage,
-  );
-  await tagCache.updateFrom(templateStorage.templates, packStorage.packs);
+  tagCache = TagCacheService();
+  await tagCache.load();
   runApp(
     MultiProvider(
       providers: buildAppProviders(cloud),
@@ -258,8 +255,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     if (ctx == null) return;
     final templates = TrainingPackTemplateService.getAllTemplates(ctx);
     final prefs = await SharedPreferences.getInstance();
-    final valid =
-        templates.where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false)).toList();
+    final valid = templates
+        .where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false))
+        .toList();
     if (valid.isEmpty) {
       Navigator.push(
         ctx,
@@ -274,7 +272,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     final stat = await TrainingPackStatsService.getStats(pinned.id);
     final idx = stat?.lastIndex ?? 0;
     if (completed && idx >= pinned.spots.length - 1) {
-      final rec = await ctx.read<PersonalRecommendationService>().getTopRecommended();
+      final rec =
+          await ctx.read<PersonalRecommendationService>().getTopRecommended();
       if (rec == null) return;
       await ctx.read<TrainingSessionService>().startSession(rec);
     } else {

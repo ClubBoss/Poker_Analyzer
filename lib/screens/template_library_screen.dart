@@ -188,10 +188,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadStats();
     await _loadHandsCompleted();
     await _loadWeakCategories();
-    await context.read<TagCacheService>().updateFrom(
-          context.read<TemplateStorageService>().templates,
-          context.read<TrainingPackStorageService>().packs,
-        );
     if (!mounted) return;
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
@@ -617,7 +613,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final templates = context.read<TemplateStorageService>().templates;
     final ids = await TrainingPackStatsService.getPopularTemplates();
     final map = {for (final t in templates) t.id: t};
-    final list = [for (final id in ids) if (map[id] != null) map[id]!];
+    final list = [
+      for (final id in ids)
+        if (map[id] != null) map[id]!
+    ];
     if (!mounted) return;
     setState(() {
       _popularIds = ids;
@@ -724,7 +723,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   double _progressPercentFor(TrainingPackTemplate t) {
     final stat = _stats[t.id];
     if (stat == null || t.spots.isEmpty) return 0;
-    return ((stat.lastIndex + 1) * 100 / t.spots.length).clamp(0, 100).toDouble();
+    return ((stat.lastIndex + 1) * 100 / t.spots.length)
+        .clamp(0, 100)
+        .toDouble();
   }
 
   int _compareCombinedTrending(TrainingPackTemplate a, TrainingPackTemplate b) {
@@ -801,7 +802,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<v2.TrainingPackTemplate> _applyAudienceFilter(
       List<v2.TrainingPackTemplate> list) {
     if (_audienceFilter == 'all') return list;
-    return [for (final t in list) if (t.audience == _audienceFilter) t];
+    return [
+      for (final t in list)
+        if (t.audience == _audienceFilter) t
+    ];
   }
 
   Widget _buildSortButtons(AppLocalizations l) {
@@ -957,8 +961,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (_inProgressOnly) {
       visible = [
         for (final t in visible)
-          if (_progressPercentFor(t) > 0 && _progressPercentFor(t) < 100)
-            t
+          if (_progressPercentFor(t) > 0 && _progressPercentFor(t) < 100) t
       ];
     }
     if (_masteredOnly) {
@@ -1448,26 +1451,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           dense: true,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              t.name,
-              style: t.isBuiltIn
-                  ? TextStyle(
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    )
-                  : null,
-            ),
-            if (t.category != null && t.category!.isNotEmpty)
+            children: [
               Text(
-                translateCategory(t.category),
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                t.name,
+                style: t.isBuiltIn
+                    ? TextStyle(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      )
+                    : null,
               ),
-            handsProgress(),
-            progress(),
-            if (tags.isNotEmpty) tagsWidget,
-          ],
-        ),
+              if (t.category != null && t.category!.isNotEmpty)
+                Text(
+                  translateCategory(t.category),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              handsProgress(),
+              progress(),
+              if (tags.isNotEmpty) tagsWidget,
+            ],
+          ),
           onTap: () async {
             final create = await showDialog<bool>(
               context: context,
@@ -1926,8 +1929,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final continueList = [
       for (final t in nonFavRest)
         if (_progressPercentFor(t) >= 1 && _progressPercentFor(t) < 100) t
-    ]
-      ..sort((a, b) {
+    ]..sort((a, b) {
         final ad = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         final bd = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         return bd.compareTo(ad);
@@ -1974,8 +1976,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final masteredProgress = [
       for (final t in templates)
         if (_progressPercentFor(t) == 100) t
-    ]
-      ..sort((a, b) {
+    ]..sort((a, b) {
         final ad = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         final bd = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         return bd.compareTo(ad);
@@ -2617,7 +2618,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                               Expanded(
                                 child: Text(
                                   'Library: '
-                                      '${_audienceFilter == 'all' ? 'All' : _audienceFilter}',
+                                  '${_audienceFilter == 'all' ? 'All' : _audienceFilter}',
                                   style:
                                       Theme.of(context).textTheme.titleMedium,
                                 ),
@@ -2626,18 +2627,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                                 value: _audienceFilter,
                                 dropdownColor: Colors.grey[900],
                                 underline: const SizedBox.shrink(),
-                                onChanged: (v) => v != null ? _setAudience(v) : null,
+                                onChanged: (v) =>
+                                    v != null ? _setAudience(v) : null,
                                 items: const [
                                   DropdownMenuItem(
                                       value: 'all', child: Text('All')),
                                   DropdownMenuItem(
-                                      value: 'Beginner', child: Text('Beginner')),
+                                      value: 'Beginner',
+                                      child: Text('Beginner')),
                                   DropdownMenuItem(
                                       value: 'Intermediate',
                                       child: Text('Intermediate')),
                                   DropdownMenuItem(
-                                      value: 'Advanced', child: Text('Advanced')),
-                                  DropdownMenuItem(value: 'Pro', child: Text('Pro')),
+                                      value: 'Advanced',
+                                      child: Text('Advanced')),
+                                  DropdownMenuItem(
+                                      value: 'Pro', child: Text('Pro')),
                                 ],
                               ),
                             ],
@@ -2663,12 +2668,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                               ],
                             ),
                           ),
-                        for (final tag in librarySections)
-                          ...[
-                            ListTile(title: Text(tag)),
-                            for (final t in libraryMap[tag]!) _libraryTile(t),
-                            if (tag != librarySections.last) const Divider(),
-                          ],
+                        for (final tag in librarySections) ...[
+                          ListTile(title: Text(tag)),
+                          for (final t in libraryMap[tag]!) _libraryTile(t),
+                          if (tag != librarySections.last) const Divider(),
+                        ],
                         if (user.isNotEmpty) const Divider(),
                       ] else if (filteringActive) ...[
                         _emptyTile,
