@@ -13,6 +13,7 @@ import '../services/tag_service.dart';
 import '../services/pack_batch_generator_service.dart';
 import '../ui/tools/training_pack_yaml_previewer.dart';
 import '../services/training_coverage_service.dart';
+import '../services/yaml_validation_service.dart';
 import 'yaml_library_preview_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
@@ -277,6 +278,33 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
   }
 
+  Future<void> _validateYaml() async {
+    if (!kDebugMode) return;
+    final errors = await compute(_validateYamlTask, '');
+    if (!mounted) return;
+    if (errors.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Ошибок нет')));
+      return;
+    }
+    final text = errors.map((e) => '${e.$1}: ${e.$2}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -343,6 +371,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('Проверка YAML'),
+                onTap: _validateYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('📂 Просмотр YAML паков'),
                 onTap: () {
                   Navigator.push(
@@ -367,4 +400,8 @@ Future<bool> _coverageTask(String _) async {
   } catch (_) {
     return false;
   }
+}
+
+Future<List<(String, String)>> _validateYamlTask(String _) async {
+  return const YamlValidationService().validateAll();
 }
