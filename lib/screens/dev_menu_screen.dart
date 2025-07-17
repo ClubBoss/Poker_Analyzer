@@ -26,6 +26,7 @@ import '../services/tag_health_check_service.dart';
 import '../services/pack_tag_index_service.dart';
 import '../services/auto_tag_generator_service.dart';
 import '../services/training_pack_filter_engine.dart';
+import '../services/smart_pack_recommendation_engine.dart';
 import '../models/v2/training_pack_template.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'package:file_picker/file_picker.dart';
@@ -58,6 +59,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _tagIndexLoading = false;
   bool _tagSuggestLoading = false;
   bool _bestLoading = false;
+  bool _recommendLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -508,6 +510,39 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _recommendPacks() async {
+    if (_recommendLoading || !kDebugMode) return;
+    setState(() => _recommendLoading = true);
+    final list = await const SmartPackRecommendationEngine().recommend(
+      audience: _audience,
+      interests: _tags.toList(),
+    );
+    if (!mounted) return;
+    setState(() => _recommendLoading = false);
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нет рекомендаций')),
+      );
+      return;
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Рекомендации'),
+        content: SingleChildScrollView(
+          child: Text(list.map((e) => e.name).join('\n')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -703,6 +738,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🏆 Отбор лучших паков'),
                 onTap: _bestLoading ? null : _selectBestPacks,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔮 Рекомендовать паки'),
+                onTap: _recommendLoading ? null : _recommendPacks,
               ),
           ],
         ),
