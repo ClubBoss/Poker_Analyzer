@@ -56,6 +56,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/user_action_logger.dart';
 import '../widgets/category_section.dart';
 import '../services/weak_spot_recommendation_service.dart';
+import '../widgets/pack_suggestion_banner.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -2501,6 +2502,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             child: hasResults
                 ? ListView(
                     children: [
+                      const PackSuggestionBanner(),
                       if (_popularOnly && popularFiltered.isNotEmpty) ...[
                         ListTile(title: Text(l.popularPacks)),
                         for (final t in popularFiltered) _item(t),
