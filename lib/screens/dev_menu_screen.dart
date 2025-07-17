@@ -62,6 +62,8 @@ import 'yaml_coverage_stats_screen.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
+import '../services/pack_library_rating_engine.dart';
+import '../models/pack_library_rating_report.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -95,6 +97,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _autoFixLoading = false;
   bool _refactorYamlPackLoading = false;
   bool _ratePackLoading = false;
+  bool _libraryRatingLoading = false;
   bool _recommendPacksLoading = false;
   bool _jsonLibraryLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
@@ -432,8 +435,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   Future<void> _removeYamlDuplicates() async {
     if (_yamlDupeLoading || !kDebugMode) return;
     setState(() => _yamlDupeLoading = true);
-    final list = await const YamlPackDuplicateCleanerService()
-        .removeDuplicates();
+    final list =
+        await const YamlPackDuplicateCleanerService().removeDuplicates();
     if (!mounted) return;
     setState(() => _yamlDupeLoading = false);
     ScaffoldMessenger.of(
@@ -490,6 +493,31 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Пересчитано: $count')));
+  }
+
+  Future<void> _rateLibrary() async {
+    if (_libraryRatingLoading || !kDebugMode) return;
+    setState(() => _libraryRatingLoading = true);
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final packs = PackLibraryLoaderService.instance.library;
+    final report = await const PackLibraryRatingEngine().rateLibrary(packs);
+    if (!mounted) return;
+    setState(() => _libraryRatingLoading = false);
+    final text = report.topRatedPacks.map((e) => '${e.$1}: ${e.$2}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Рейтинг библиотеки'),
+        content: SingleChildScrollView(child: Text(text)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _checkTagHealth() async {
@@ -1062,6 +1090,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🏅 Пересчитать рейтинг паков'),
                 onTap: _ratingLoading ? null : _recalcRating,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⭐️ Рейтинг библиотеки'),
+                onTap: _libraryRatingLoading ? null : _rateLibrary,
               ),
             if (kDebugMode)
               ListTile(
