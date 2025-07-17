@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../services/pack_library_index_loader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -19,6 +21,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
   final Set<String> _selectedAudiences = {};
+  static const _prefKey = 'hasLoadedLibraryOnce';
 
   String _difficultyIcon(TrainingPackTemplateV2 pack) {
     final diff = _difficultyLevel(pack);
@@ -44,29 +47,40 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   void initState() {
     super.initState();
-    PackLibraryIndexLoader.instance.load().then((list) {
-      if (!mounted) return;
-      final counts = <String, int>{};
-      final acounts = <String, int>{};
-      for (final p in list) {
-        for (final t in p.tags) {
-          counts[t] = (counts[t] ?? 0) + 1;
-        }
-        final a = p.audience ?? p.meta['audience']?.toString();
-        if (a != null && a.isNotEmpty) {
-          acounts[a] = (acounts[a] ?? 0) + 1;
-        }
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<TrainingPackTemplateV2> list;
+    if (prefs.getBool(_prefKey) ?? false) {
+      list = PackLibraryIndexLoader.instance.library;
+      if (list.isEmpty) list = await PackLibraryIndexLoader.instance.load();
+    } else {
+      list = await PackLibraryIndexLoader.instance.load();
+      await prefs.setBool(_prefKey, true);
+    }
+    if (!mounted) return;
+    final counts = <String, int>{};
+    final acounts = <String, int>{};
+    for (final p in list) {
+      for (final t in p.tags) {
+        counts[t] = (counts[t] ?? 0) + 1;
       }
-      final tags = counts.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-      final auds = acounts.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-      setState(() {
-        _packs = list;
-        _tags = [for (final e in tags.take(20)) e.key];
-        _audiences = [for (final e in auds.take(7)) e.key];
-        _loading = false;
-      });
+      final a = p.audience ?? p.meta['audience']?.toString();
+      if (a != null && a.isNotEmpty) {
+        acounts[a] = (acounts[a] ?? 0) + 1;
+      }
+    }
+    final tags = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final auds = acounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    setState(() {
+      _packs = list;
+      _tags = [for (final e in tags.take(20)) e.key];
+      _audiences = [for (final e in auds.take(7)) e.key];
+      _loading = false;
     });
   }
 
