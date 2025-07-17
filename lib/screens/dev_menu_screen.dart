@@ -74,6 +74,7 @@ import '../services/pack_library_rating_engine.dart';
 import '../models/pack_library_rating_report.dart';
 import '../services/yaml_pack_history_service.dart';
 import 'yaml_pack_history_screen.dart';
+import 'yaml_pack_archive_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -1456,6 +1457,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const YamlPackHistoryScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🗄️ Архив паков'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const YamlPackArchiveScreen(),
                     ),
                   );
                 },
