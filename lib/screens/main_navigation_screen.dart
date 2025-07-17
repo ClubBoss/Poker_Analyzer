@@ -16,6 +16,7 @@ import '../widgets/suggested_drill_card.dart';
 import '../widgets/feedback_banner.dart';
 import '../widgets/recent_unlocks_banner.dart';
 import '../widgets/today_progress_banner.dart';
+import '../widgets/pack_suggestion_banner.dart';
 import '../widgets/ev_goal_banner.dart';
 import '../widgets/repeat_last_corrected_card.dart';
 import '../widgets/repeat_corrected_drill_card.dart';
@@ -151,6 +152,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               )
             : const SizedBox.shrink(),
         const SpotOfTheDayCard(),
+        const PackSuggestionBanner(),
         const StreakChart(),
         const TodayProgressBanner(),
         const StreakMiniCard(),
