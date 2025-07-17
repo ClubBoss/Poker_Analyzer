@@ -35,7 +35,7 @@ import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/training_goal_suggestion_engine.dart';
 import '../services/pack_library_review_engine.dart';
-import '../services/training_pack_auto_fix_engine.dart';
+import '../services/pack_library_auto_fix_engine.dart';
 import '../services/training_pack_template_validator.dart';
 import '../models/validation_issue.dart';
 import '../models/yaml_pack_review_report.dart';
@@ -1439,9 +1439,8 @@ Future<bool> _autoFixTask(String path) async {
   final yaml = await file.readAsString();
   final map = const YamlReader().read(yaml);
   final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
-  final report = const PackLibraryReviewEngine().review(tpl);
-  const TrainingPackAutoFixEngine().autoFix(tpl, report);
-  await const YamlWriter().write(tpl.toJson(), path);
+  final fixed = const PackLibraryAutoFixEngine().autoFix(tpl);
+  await const YamlWriter().write(fixed.toJson(), path);
   return true;
 }
 
