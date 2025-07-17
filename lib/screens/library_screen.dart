@@ -147,60 +147,57 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ),
                 if (_tags.isNotEmpty) const SizedBox(height: 8),
                 if (_audiences.isNotEmpty)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (final a in _audiences)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: ChoiceChip(
-                              label: Text(a),
-                              selected: _selectedAudiences.contains(a),
-                              selectedColor: AppColors.accent,
-                              backgroundColor: Colors.grey[700],
-                              visualDensity: VisualDensity.compact,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              onSelected: (_) {
-                                setState(() {
-                                  if (_selectedAudiences.contains(a)) {
-                                    _selectedAudiences.remove(a);
-                                  } else {
-                                    _selectedAudiences.add(a);
-                                  }
-                                });
-                              },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButton<String>(
+                          value: _selectedAudiences.isEmpty
+                              ? ''
+                              : _selectedAudiences.first,
+                          hint: const Text('Audience'),
+                          isExpanded: true,
+                          items: [
+                            const DropdownMenuItem(
+                              value: '',
+                              child: Text('All'),
                             ),
-                          ),
-                      ],
-                    ),
-                  ),
-                if (_audiences.isNotEmpty) const SizedBox(height: 8),
-                Wrap(
-                  spacing: 4,
-                  children: [
-                    for (final d in [1, 2, 3])
-                      FilterChip(
-                        label: Text(d == 1
-                            ? '🟢 Easy'
-                            : d == 2
-                                ? '🟡 Medium'
-                                : '🔴 Hard'),
-                        selected: _selectedDifficulties.contains(d),
-                        onSelected: (_) {
+                            for (final a in _audiences)
+                              DropdownMenuItem(value: a, child: Text(a)),
+                          ],
+                          onChanged: (v) {
+                            setState(() {
+                              _selectedAudiences.clear();
+                              if (v != null && v.isNotEmpty) {
+                                _selectedAudiences.add(v);
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      DropdownButton<int>(
+                        value: _selectedDifficulties.isEmpty
+                            ? 0
+                            : _selectedDifficulties.first,
+                        hint: const Text('Difficulty'),
+                        items: const [
+                          DropdownMenuItem(value: 0, child: Text('Any')),
+                          DropdownMenuItem(value: 1, child: Text('🟢 1')),
+                          DropdownMenuItem(value: 2, child: Text('🟡 2')),
+                          DropdownMenuItem(value: 3, child: Text('🔴 3')),
+                        ],
+                        onChanged: (v) {
                           setState(() {
-                            if (_selectedDifficulties.contains(d)) {
-                              _selectedDifficulties.remove(d);
-                            } else {
-                              _selectedDifficulties.add(d);
+                            _selectedDifficulties.clear();
+                            if (v != null && v > 0) {
+                              _selectedDifficulties.add(v);
                             }
                           });
                         },
                       ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+                    ],
+                  ),
+                if (_audiences.isNotEmpty) const SizedBox(height: 8),
                 Row(
                   children: [
                     if (_selectedTags.isNotEmpty ||
