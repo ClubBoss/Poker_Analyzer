@@ -8,6 +8,8 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import 'yaml_viewer_screen.dart';
 import 'yaml_pack_diff_screen.dart';
+import '../services/yaml_pack_diff_service.dart';
+import '../widgets/markdown_preview_dialog.dart';
 
 class YamlPackArchiveScreen extends StatefulWidget {
   const YamlPackArchiveScreen({super.key});
@@ -84,6 +86,11 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
               onPressed: () => Navigator.pop(context, 'diff'),
               child: const Text('Сравнить'),
             ),
+          if (current != null)
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'md'),
+              child: const Text('📊 Сравнить с текущим'),
+            ),
           if (path != null && path.isNotEmpty)
             TextButton(
               onPressed: () => Navigator.pop(context, 'restore'),
@@ -108,6 +115,12 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
           builder: (_) => YamlPackDiffScreen(packA: bak, packB: current!),
         ),
       );
+    } else if (action == 'md' && current != null) {
+      final md = const YamlPackDiffService()
+          .generateMarkdownDiff(bak, current!);
+      if (md.isNotEmpty && mounted) {
+        await showMarkdownPreviewDialog(context, md);
+      }
     } else if (action == 'restore' && path != null && path.isNotEmpty) {
       await File(path).writeAsString(yaml);
       if (mounted) {
