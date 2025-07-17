@@ -544,7 +544,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
-                title: const Text('♻️ Автоочистка и улучшения'),
+                title: const Text('🧹 Рефакторинг библиотеки'),
                 onTap: _refactorLoading ? null : _refactorLibrary,
               ),
             if (kDebugMode)
