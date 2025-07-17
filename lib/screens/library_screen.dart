@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../core/training/controller/built_in_library_controller.dart';
-import '../models/v2/training_pack_v2.dart';
+import '../services/pack_library_index_loader.dart';
+import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
-import 'training_session_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -14,14 +13,14 @@ class LibraryScreen extends StatefulWidget {
 
 class _LibraryScreenState extends State<LibraryScreen> {
   bool _loading = true;
-  List<TrainingPackV2> _packs = [];
+  List<TrainingPackTemplateV2> _packs = [];
   List<String> _tags = [];
   List<String> _audiences = [];
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
   final Set<String> _selectedAudiences = {};
 
-  String _difficultyIcon(TrainingPackV2 pack) {
+  String _difficultyIcon(TrainingPackTemplateV2 pack) {
     final diff = _difficultyLevel(pack);
     if (diff == 1) return '🟢';
     if (diff == 2) return '🟡';
@@ -29,30 +28,31 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return '⚪️';
   }
 
-  int _difficultyLevel(TrainingPackV2 pack) {
-    final diff = (pack.meta['difficulty'] as num?)?.toInt() ?? pack.difficulty;
+  int _difficultyLevel(TrainingPackTemplateV2 pack) {
+    final diff = (pack.meta['difficulty'] as num?)?.toInt();
     if (diff == 1) return 1;
     if (diff == 2) return 2;
     if (diff >= 3) return 3;
     return 0;
   }
 
-  String _goalText(TrainingPackV2 pack) =>
-      (pack.meta['goal'] as String? ?? '').trim();
+  String _goalText(TrainingPackTemplateV2 pack) =>
+      pack.goal.isNotEmpty
+          ? pack.goal
+          : (pack.meta['goal'] as String? ?? '').trim();
 
   @override
   void initState() {
     super.initState();
-    BuiltInLibraryController.instance.preload().then((_) {
+    PackLibraryIndexLoader.instance.load().then((list) {
       if (!mounted) return;
-      final list = BuiltInLibraryController.instance.getPacks();
       final counts = <String, int>{};
       final acounts = <String, int>{};
       for (final p in list) {
         for (final t in p.tags) {
           counts[t] = (counts[t] ?? 0) + 1;
         }
-        final a = p.meta['audience']?.toString();
+        final a = p.audience ?? p.meta['audience']?.toString();
         if (a != null && a.isNotEmpty) {
           acounts[a] = (acounts[a] ?? 0) + 1;
         }
@@ -88,7 +88,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             (_selectedAudiences.isEmpty
                 ? true
                 : _selectedAudiences
-                    .contains(p.meta['audience']?.toString() ?? '')))
+                    .contains((p.audience ?? p.meta['audience']?.toString()) ?? '')))
           p
     ];
 
@@ -247,14 +247,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       }
                       final pack = visible[index - 1];
                       return ListTile(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => TrainingSessionScreen(pack: pack),
-                            ),
-                          );
-                        },
                         title: Text(pack.name),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

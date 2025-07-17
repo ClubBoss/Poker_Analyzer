@@ -97,6 +97,7 @@ flutter:
     - assets/ranges/
     - assets/packs/
     - assets/packs/v2/
+    - assets/packs/v2/library_index.json
     - assets/built_in_packs.yaml
     - assets/pack_matrix.json
 
