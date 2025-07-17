@@ -27,6 +27,7 @@ import '../services/pack_tag_index_service.dart';
 import '../services/auto_tag_generator_service.dart';
 import '../services/training_pack_filter_engine.dart';
 import '../services/smart_pack_recommendation_engine.dart';
+import '../services/training_pack_suggestion_service.dart';
 import '../models/v2/training_pack_template.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'package:file_picker/file_picker.dart';
@@ -60,6 +61,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _tagSuggestLoading = false;
   bool _bestLoading = false;
   bool _recommendLoading = false;
+  bool _historyLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -378,8 +380,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   Future<void> _removeYamlDuplicates() async {
     if (_yamlDupeLoading || !kDebugMode) return;
     setState(() => _yamlDupeLoading = true);
-    final list = await const YamlPackDuplicateCleanerService()
-        .removeDuplicates();
+    final list =
+        await const YamlPackDuplicateCleanerService().removeDuplicates();
     if (!mounted) return;
     setState(() => _yamlDupeLoading = false);
     ScaffoldMessenger.of(
@@ -530,6 +532,37 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF121212),
         title: const Text('Рекомендации'),
+        content: SingleChildScrollView(
+          child: Text(list.map((e) => e.name).join('\n')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _suggestNext() async {
+    if (_historyLoading || !kDebugMode) return;
+    setState(() => _historyLoading = true);
+    final service = context.read<TrainingPackSuggestionService>();
+    final list = await service.suggestNext(userId: 'local');
+    if (!mounted) return;
+    setState(() => _historyLoading = false);
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нет рекомендаций')),
+      );
+      return;
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Следующие паки'),
         content: SingleChildScrollView(
           child: Text(list.map((e) => e.name).join('\n')),
         ),
@@ -743,6 +776,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🔮 Рекомендовать паки'),
                 onTap: _recommendLoading ? null : _recommendPacks,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📈 Следующие паки по истории'),
+                onTap: _historyLoading ? null : _suggestNext,
               ),
           ],
         ),
