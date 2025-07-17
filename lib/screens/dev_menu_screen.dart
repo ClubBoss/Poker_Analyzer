@@ -29,7 +29,10 @@ import '../services/training_pack_filter_engine.dart';
 import '../services/smart_pack_recommendation_engine.dart';
 import '../services/training_pack_suggestion_service.dart';
 import '../services/smart_suggestion_engine.dart';
+import '../services/yaml_pack_balance_analyzer.dart';
+import '../models/pack_balance_issue.dart';
 import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_template_v2.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'package:file_picker/file_picker.dart';
 import 'pack_matrix_config_editor_screen.dart';
@@ -67,6 +70,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _recommendLoading = false;
   bool _historyLoading = false;
   bool _smartHistoryLoading = false;
+  bool _balanceLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -485,6 +489,47 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _analyzeBalance() async {
+    if (_balanceLoading || !kDebugMode) return;
+    setState(() => _balanceLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    List<PackBalanceIssue> items = [];
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        final data = await compute(_balanceTask, path);
+        items = [for (final j in data) PackBalanceIssue.fromJson(j)];
+      }
+    }
+    if (!mounted) return;
+    setState(() => _balanceLoading = false);
+    if (items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Баланс OK')),
+      );
+      return;
+    }
+    final text = items.map((e) => '${e.type}: ${e.description}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _selectBestPacks() async {
     if (_bestLoading || !kDebugMode) return;
     setState(() => _bestLoading = true);
@@ -682,6 +727,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('Проверка YAML'),
                 onTap: _validateYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔍 Анализ пака на баланс'),
+                onTap: _balanceLoading ? null : _analyzeBalance,
               ),
             if (kDebugMode)
               ListTile(
@@ -885,4 +935,14 @@ Future<List<String>> _suggestTagsTask(String path) async {
   final map = const YamlReader().read(yaml);
   final tpl = TrainingPackTemplate.fromJson(map);
   return const AutoTagGeneratorService().generateTags(tpl);
+}
+
+Future<List<Map<String, dynamic>>> _balanceTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return [];
+  final yaml = await file.readAsString();
+  final map = const YamlReader().read(yaml);
+  final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+  final issues = const YamlPackBalanceAnalyzer().analyze(tpl);
+  return [for (final i in issues) i.toJson()];
 }
