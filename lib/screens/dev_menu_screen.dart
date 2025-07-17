@@ -23,6 +23,7 @@ import '../services/pack_library_refactor_service.dart';
 import '../services/training_pack_ranking_engine.dart';
 import '../services/training_pack_rating_engine.dart';
 import '../services/tag_health_check_service.dart';
+import '../services/pack_library_refactor_engine.dart';
 import '../services/pack_tag_index_service.dart';
 import '../services/auto_tag_generator_service.dart';
 import '../services/training_pack_filter_engine.dart';
@@ -71,6 +72,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
+  bool _normalizeYamlLoading = false;
   bool _tagIndexLoading = false;
   bool _tagSuggestLoading = false;
   bool _bestLoading = false;
@@ -432,6 +434,15 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text('Отрефакторено: $count')));
   }
+  Future<void> _normalizeYamlLibrary() async {
+    if (_normalizeYamlLoading || !kDebugMode) return;
+    setState(() => _normalizeYamlLoading = true);
+    await const PackLibraryRefactorEngine().refactorAll("training_packs/library");
+    if (!mounted) return;
+    setState(() => _normalizeYamlLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Готово")));
+  }
+
 
   Future<void> _recalcRating() async {
     if (_ratingLoading || !kDebugMode) return;
@@ -809,6 +820,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧹 Рефакторинг библиотеки'),
                 onTap: _refactorLoading ? null : _refactorLibrary,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text("🧹 Нормализовать YAML библиотеку"),
+                onTap: _normalizeYamlLoading ? null : _normalizeYamlLibrary,
               ),
             if (kDebugMode)
               ListTile(
