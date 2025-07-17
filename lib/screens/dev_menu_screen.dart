@@ -20,6 +20,7 @@ import '../services/pack_library_duplicate_cleaner.dart';
 import '../services/pack_library_generation_engine.dart';
 import '../services/yaml_pack_duplicate_cleaner_service.dart';
 import '../services/pack_library_merge_service.dart';
+import '../services/yaml_pack_merge_engine.dart';
 import '../services/pack_library_refactor_service.dart';
 import '../services/training_pack_ranking_engine.dart';
 import '../services/training_pack_rating_engine.dart';
@@ -87,6 +88,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _yamlDupeLoading = false;
   bool _yamlAssetsDupeLoading = false;
   bool _mergeLoading = false;
+  bool _yamlMergeLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
@@ -478,6 +480,46 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         content: Text('Объединено: ${res.success}, ошибок: ${res.failed}'),
       ),
     );
+  }
+
+  Future<void> _mergeYamlPacks() async {
+    if (_yamlMergeLoading || !kDebugMode) return;
+    setState(() => _yamlMergeLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    final packs = <TrainingPackTemplateV2>[];
+    if (result != null && result.files.isNotEmpty) {
+      const reader = YamlReader();
+      for (final f in result.files) {
+        final path = f.path;
+        if (path == null) continue;
+        try {
+          final map = reader.read(await File(path).readAsString());
+          packs.add(
+            TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map)),
+          );
+        } catch (_) {}
+      }
+    }
+    if (!mounted) return;
+    setState(() => _yamlMergeLoading = false);
+    if (packs.isEmpty) return;
+    final merged = const YamlPackMergeEngine().merge(packs);
+    await showTrainingPackYamlPreviewer(context, merged);
+    if (!mounted) return;
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save YAML',
+      fileName: '${merged.id}.yaml',
+      type: FileType.custom,
+      allowedExtensions: ['yaml'],
+    );
+    if (savePath == null) return;
+    await const YamlWriter().write(merged.toJson(), savePath);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
   }
 
   Future<void> _refactorLibrary() async {
@@ -1382,6 +1424,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧬 Объединить YAML паки'),
+                onTap: _yamlMergeLoading ? null : _mergeYamlPacks,
               ),
             if (kDebugMode)
               ListTile(
