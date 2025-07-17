@@ -5,8 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import '../theme/app_colors.dart';
 import '../core/training/generation/yaml_reader.dart';
+import '../core/training/generation/yaml_writer.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../services/yaml_pack_markdown_preview_service.dart';
+import '../services/yaml_pack_validator_service.dart';
+import '../services/yaml_pack_auto_fix_engine.dart';
+import '../widgets/markdown_preview_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -68,6 +72,66 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
     _mdCtrl.jumpTo(0);
   }
 
+  Future<void> _validate(File file) async {
+    try {
+      final yaml = await file.readAsString();
+      final map = const YamlReader().read(yaml);
+      final tpl =
+          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final report = const YamlPackValidatorService().validate(tpl);
+      if (!mounted) return;
+      final msg = report.errors.isEmpty && report.warnings.isEmpty
+          ? 'OK'
+          : 'Ошибки: ${report.errors.length} \u2022 Предупреждения: ${report.warnings.length}';
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(msg)));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Ошибка')));
+      }
+    }
+  }
+
+  Future<void> _autoFix(File file) async {
+    try {
+      final yaml = await file.readAsString();
+      final map = const YamlReader().read(yaml);
+      final tpl =
+          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final fixed = const YamlPackAutoFixEngine().autoFix(tpl);
+      await const YamlWriter().write(fixed.toJson(), file.path);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Готово')));
+        if (_selected >= 0 && _files[_selected].path == file.path) {
+          _markdown =
+              const YamlPackMarkdownPreviewService().generateMarkdownPreview(fixed);
+          setState(() {});
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Ошибка')));
+      }
+    }
+  }
+
+  Future<void> _previewMarkdown(File file) async {
+    try {
+      final yaml = await file.readAsString();
+      final map = const YamlReader().read(yaml);
+      final tpl =
+          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final md =
+          const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl);
+      if (md != null && mounted) {
+        await showMarkdownPreviewDialog(context, md);
+      }
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _mdCtrl.dispose();
@@ -91,11 +155,39 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                     final name = f.path.split(Platform.pathSeparator).last;
                     final date = DateFormat('yyyy-MM-dd HH:mm')
                         .format(f.statSync().modified);
-                    return ListTile(
-                      selected: i == _selected,
-                      title: Text(name),
-                      subtitle: Text(date),
-                      onTap: () => _select(f, i),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ListTile(
+                          selected: i == _selected,
+                          title: Text(name),
+                          subtitle: Text(date),
+                          onTap: () => _select(f, i),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8, bottom: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                tooltip: 'Проверить',
+                                icon: const Icon(Icons.check),
+                                onPressed: () => _validate(f),
+                              ),
+                              IconButton(
+                                tooltip: 'Автофикс',
+                                icon: const Icon(Icons.build),
+                                onPressed: () => _autoFix(f),
+                              ),
+                              IconButton(
+                                tooltip: 'MD',
+                                icon: const Icon(Icons.description),
+                                onPressed: () => _previewMarkdown(f),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     );
                   },
                 );
