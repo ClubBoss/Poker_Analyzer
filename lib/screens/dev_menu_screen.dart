@@ -41,6 +41,7 @@ import 'package:file_picker/file_picker.dart';
 import 'pack_matrix_config_editor_screen.dart';
 import 'yaml_library_preview_screen.dart';
 import 'yaml_pack_quick_preview_screen.dart';
+import 'yaml_pack_editor_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
 import 'pack_filter_debug_screen.dart';
@@ -851,6 +852,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const YamlPackQuickPreviewScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📝 Редактор YAML пака'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const YamlPackEditorScreen(),
                     ),
                   );
                 },
