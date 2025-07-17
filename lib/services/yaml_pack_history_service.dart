@@ -22,4 +22,26 @@ class YamlPackHistoryService {
     final map = const YamlReader().read(formatted);
     await const YamlWriter().write(map, file.path);
   }
+
+  TrainingPackTemplateV2 addChangeLog(
+    TrainingPackTemplateV2 pack,
+    String action,
+    String author,
+    String comment,
+  ) {
+    final entry = {
+      'action': action,
+      'author': author,
+      'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      'comment': comment,
+    };
+    final list = (pack.meta['changeLog'] as List?)
+            ?.map((e) => Map<String, String>.from(e as Map))
+            .toList() ??
+        <Map<String, String>>[];
+    list.add(Map<String, String>.from(entry));
+    pack.meta['changeLog'] = list;
+    pack.meta.putIfAbsent('schemaVersion', () => '2.0.0');
+    return pack;
+  }
 }

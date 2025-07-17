@@ -26,6 +26,7 @@ class YamlLibraryPreviewScreen extends StatefulWidget {
 
 class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
   final List<File> _files = [];
+  final Map<String, bool> _outdated = {};
   bool _loading = true;
   int _selected = -1;
   String? _markdown;
@@ -46,6 +47,19 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
         .where((f) => f.path.toLowerCase().endsWith('.yaml'))
         .toList();
     list.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+    _outdated.clear();
+    for (final f in list) {
+      var outdated = false;
+      try {
+        final yaml = await f.readAsString();
+        final map = const YamlReader().read(yaml);
+        final tpl =
+            TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        final v = tpl.meta['schemaVersion']?.toString();
+        outdated = _versionLess(v, '2.0.0');
+      } catch (_) {}
+      _outdated[f.path] = outdated;
+    }
     if (mounted) {
       setState(() {
         _files
@@ -102,6 +116,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
           TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       await const YamlPackHistoryService().saveSnapshot(tpl, 'fix');
       final fixed = const YamlPackAutoFixEngine().autoFix(tpl);
+      const service = YamlPackHistoryService();
+      service.addChangeLog(fixed, 'fix', 'editor', 'auto');
       await const YamlWriter().write(fixed.toJson(), file.path);
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -109,6 +125,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
         if (_selected >= 0 && _files[_selected].path == file.path) {
           _markdown = const YamlPackMarkdownPreviewService()
               .generateMarkdownPreview(fixed);
+          await _load();
           setState(() {});
         }
       }
@@ -127,6 +144,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final tpl =
           TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       await const YamlPackHistoryService().saveSnapshot(tpl, 'format');
+      const service = YamlPackHistoryService();
+      service.addChangeLog(tpl, 'format', 'editor', 'format');
       final formatted = const YamlPackFormatterService().format(tpl);
       final outMap = const YamlReader().read(formatted);
       await const YamlWriter().write(outMap, file.path);
@@ -136,6 +155,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
         if (_selected >= 0 && _files[_selected].path == file.path) {
           _markdown = const YamlPackMarkdownPreviewService()
               .generateMarkdownPreview(tpl);
+          await _load();
           setState(() {});
         }
       }
@@ -167,6 +187,19 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
     super.dispose();
   }
 
+  bool _versionLess(String? v, String target) {
+    if (v == null || v.isEmpty) return true;
+    final a = v.split('.').map(int.parse).toList();
+    final b = target.split('.').map(int.parse).toList();
+    while (a.length < 3) a.add(0);
+    while (b.length < 3) b.add(0);
+    for (var i = 0; i < 3; i++) {
+      if (a[i] < b[i]) return true;
+      if (a[i] > b[i]) return false;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
@@ -184,6 +217,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                     final name = f.path.split(Platform.pathSeparator).last;
                     final date = DateFormat('yyyy-MM-dd HH:mm')
                         .format(f.statSync().modified);
+                    final outdated = _outdated[f.path] == true;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -191,6 +225,12 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                           selected: i == _selected,
                           title: Text(name),
                           subtitle: Text(date),
+                          trailing: outdated
+                              ? const Text(
+                                  '⚠ Устаревшая схема',
+                                  style: TextStyle(color: Colors.amber),
+                                )
+                              : null,
                           onTap: () => _select(f, i),
                         ),
                         Padding(
