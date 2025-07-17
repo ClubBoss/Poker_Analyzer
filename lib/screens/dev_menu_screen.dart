@@ -30,6 +30,8 @@ import '../services/smart_pack_recommendation_engine.dart';
 import '../services/training_pack_suggestion_service.dart';
 import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
+import '../services/pack_library_loader_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pack_balance_issue.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -67,10 +69,10 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _tagIndexLoading = false;
   bool _tagSuggestLoading = false;
   bool _bestLoading = false;
-  bool _recommendLoading = false;
   bool _historyLoading = false;
   bool _smartHistoryLoading = false;
   bool _balanceLoading = false;
+  bool _recommendPacksLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -563,34 +565,36 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   }
 
   Future<void> _recommendPacks() async {
-    if (_recommendLoading || !kDebugMode) return;
-    setState(() => _recommendLoading = true);
-    final list = await const SmartPackRecommendationEngine().recommend(
-      audience: _audience,
-      interests: _tags.toList(),
+    if (_recommendPacksLoading || !kDebugMode) return;
+    setState(() => _recommendPacksLoading = true);
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final prefs = await SharedPreferences.getInstance();
+    final completed = prefs
+        .getKeys()
+        .where(
+            (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .map((k) => k.substring('completed_tpl_'.length))
+        .toSet();
+    final profile = UserProfile(
+      completedPackIds: completed,
+      tags: _tags.toList(),
+    );
+    final list = const SmartPackRecommendationEngine().recommend(
+      profile,
+      PackLibraryLoaderService.instance.library,
     );
     if (!mounted) return;
-    setState(() => _recommendLoading = false);
+    setState(() => _recommendPacksLoading = false);
     if (list.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Нет рекомендаций')),
       );
       return;
     }
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF121212),
-        title: const Text('Рекомендации'),
-        content: SingleChildScrollView(
-          child: Text(list.map((e) => e.name).join('\n')),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PackSuggestionPreviewScreen(packs: list),
       ),
     );
   }
@@ -875,7 +879,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             if (kDebugMode)
               ListTile(
                 title: const Text('🔮 Рекомендовать паки'),
-                onTap: _recommendLoading ? null : _recommendPacks,
+                onTap: _recommendPacksLoading ? null : _recommendPacks,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📦 Рекомендованные паки'),
+                onTap: _recommendPacksLoading ? null : _recommendPacks,
               ),
             if (kDebugMode)
               ListTile(
