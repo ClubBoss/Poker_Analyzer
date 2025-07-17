@@ -10,6 +10,7 @@ import 'yaml_viewer_screen.dart';
 import 'yaml_pack_diff_screen.dart';
 import '../services/yaml_pack_diff_service.dart';
 import '../widgets/markdown_preview_dialog.dart';
+import '../services/yaml_pack_changelog_service.dart';
 
 class YamlPackArchiveScreen extends StatefulWidget {
   const YamlPackArchiveScreen({super.key});
@@ -122,10 +123,35 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
         await showMarkdownPreviewDialog(context, md);
       }
     } else if (action == 'restore' && path != null && path.isNotEmpty) {
-      await File(path).writeAsString(yaml);
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Восстановлено')));
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text('Подтверждение'),
+          content: const Text('Восстановить пак из архива?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      if (ok == true) {
+        await File(path).writeAsString(yaml);
+        await const YamlPackChangelogService().appendChangeLog(
+          bak,
+          'восстановление из архива ${DateTime.now().toIso8601String()}',
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Пак успешно восстановлен из архива')),
+          );
+        }
       }
     } else if (action == 'copy') {
       Navigator.push(
