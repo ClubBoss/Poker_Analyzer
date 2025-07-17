@@ -21,6 +21,7 @@ import '../services/yaml_pack_duplicate_cleaner_service.dart';
 import '../services/pack_library_merge_service.dart';
 import '../services/pack_library_refactor_service.dart';
 import '../services/training_pack_ranking_engine.dart';
+import '../services/training_pack_rating_engine.dart';
 import '../services/tag_health_check_service.dart';
 import '../services/pack_tag_index_service.dart';
 import '../services/auto_tag_generator_service.dart';
@@ -51,7 +52,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _yamlDupeLoading = false;
   bool _mergeLoading = false;
   bool _refactorLoading = false;
-  bool _rankLoading = false;
+  bool _ratingLoading = false;
   bool _tagHealthLoading = false;
   bool _tagIndexLoading = false;
   bool _tagSuggestLoading = false;
@@ -409,12 +410,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ).showSnackBar(SnackBar(content: Text('Отрефакторено: $count')));
   }
 
-  Future<void> _recalcRanking() async {
-    if (_rankLoading || !kDebugMode) return;
-    setState(() => _rankLoading = true);
-    final count = await compute(_rankTask, '');
+  Future<void> _recalcRating() async {
+    if (_ratingLoading || !kDebugMode) return;
+    setState(() => _ratingLoading = true);
+    final count = await compute(_ratingTask, '');
     if (!mounted) return;
-    setState(() => _rankLoading = false);
+    setState(() => _ratingLoading = false);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Пересчитано: $count')));
@@ -570,7 +571,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             if (kDebugMode)
               ListTile(
                 title: const Text('🏅 Пересчитать рейтинг паков'),
-                onTap: _rankLoading ? null : _recalcRanking,
+                onTap: _ratingLoading ? null : _recalcRating,
               ),
             if (kDebugMode)
               ListTile(
@@ -686,6 +687,10 @@ Future<List<(String, String)>> _validateYamlTask(String _) async {
 
 Future<int> _rankTask(String _) async {
   return const TrainingPackRankingEngine().computeRankings();
+}
+
+Future<int> _ratingTask(String _) async {
+  return const TrainingPackRatingEngine().rateAll();
 }
 
 Future<bool> _tagHealthTask(String _) async {
