@@ -25,6 +25,7 @@ import '../services/training_pack_rating_engine.dart';
 import '../services/tag_health_check_service.dart';
 import '../services/pack_tag_index_service.dart';
 import '../services/auto_tag_generator_service.dart';
+import '../services/training_pack_filter_engine.dart';
 import '../models/v2/training_pack_template.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'package:file_picker/file_picker.dart';
@@ -56,6 +57,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _tagHealthLoading = false;
   bool _tagIndexLoading = false;
   bool _tagSuggestLoading = false;
+  bool _bestLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -474,6 +476,38 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _selectBestPacks() async {
+    if (_bestLoading || !kDebugMode) return;
+    setState(() => _bestLoading = true);
+    final list = await const TrainingPackFilterEngine().filter(
+      minRating: 80,
+    );
+    if (!mounted) return;
+    setState(() => _bestLoading = false);
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нет паков')),
+      );
+      return;
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Лучшие паки'),
+        content: SingleChildScrollView(
+          child: Text(list.map((e) => e.name).join('\n')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -664,6 +698,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🏆 Отбор лучших паков'),
+                onTap: _bestLoading ? null : _selectBestPacks,
               ),
           ],
         ),
