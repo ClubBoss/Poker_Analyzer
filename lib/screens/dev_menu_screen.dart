@@ -17,6 +17,7 @@ import '../services/yaml_validation_service.dart';
 import '../services/pack_library_import_service.dart';
 import '../services/pack_library_export_service.dart';
 import '../services/pack_library_duplicate_cleaner.dart';
+import '../services/pack_library_generation_engine.dart';
 import '../services/yaml_pack_duplicate_cleaner_service.dart';
 import '../services/pack_library_merge_service.dart';
 import '../services/pack_library_refactor_service.dart';
@@ -92,6 +93,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _autoFixLoading = false;
   bool _refactorYamlPackLoading = false;
   bool _recommendPacksLoading = false;
+  bool _jsonLibraryLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -333,6 +335,22 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       }
     }
     if (mounted) setState(() => _libraryLoading = false);
+  }
+
+  Future<void> _generateJsonLibrary() async {
+    if (_jsonLibraryLoading || !kDebugMode) return;
+    setState(() => _jsonLibraryLoading = true);
+    final docs = await getApplicationDocumentsDirectory();
+    await const PackLibraryGenerationEngine().generate(
+      inputDir: '${docs.path}/training_packs/library',
+      outputPath: 'assets/packs/v2/library_index.json',
+      audience: _audience,
+      tags: _tags.toList(),
+    );
+    if (!mounted) return;
+    setState(() => _jsonLibraryLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Готово')));
   }
 
   Future<void> _importPacks() async {
@@ -897,6 +915,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🔁 Генерировать библиотеку паков'),
                 onTap: _libraryLoading ? null : _generatePackLibrary,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📦 Сгенерировать библиотеку паков'),
+                onTap: _jsonLibraryLoading ? null : _generateJsonLibrary,
               ),
             if (kDebugMode)
               ListTile(
