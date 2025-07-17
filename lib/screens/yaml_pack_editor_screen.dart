@@ -12,6 +12,7 @@ import '../services/yaml_pack_exporter_service.dart';
 import '../services/yaml_pack_changelog_service.dart';
 import '../theme/app_colors.dart';
 import 'package:open_filex/open_filex.dart';
+import '../widgets/markdown_preview_dialog.dart';
 import 'v2/training_pack_spot_editor_screen.dart';
 
 class YamlPackEditorScreen extends StatefulWidget {
@@ -186,6 +187,20 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     );
   }
 
+  Future<void> _showHistory() async {
+    final pack = _pack;
+    if (pack == null) return;
+    final md = await const YamlPackChangelogService().loadChangeLog(pack.id);
+    if (!mounted) return;
+    if (md == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('История изменений отсутствует')),
+      );
+    } else {
+      await showMarkdownPreviewDialog(context, md);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
@@ -197,6 +212,7 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
         actions: [
           IconButton(icon: const Icon(Icons.save), onPressed: _save),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
+          IconButton(icon: const Icon(Icons.history), onPressed: _showHistory),
         ],
       ),
       backgroundColor: AppColors.background,

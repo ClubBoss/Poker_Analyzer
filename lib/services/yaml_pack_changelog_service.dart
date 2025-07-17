@@ -17,4 +17,12 @@ class YamlPackChangelogService {
     final version = pack.meta['schemaVersion'] ?? '2.0.0';
     await file.writeAsString('- [$date] $reason (v$version)\n', mode: FileMode.append);
   }
+
+  Future<String?> loadChangeLog(String packId) async {
+    if (packId.trim().isEmpty) return null;
+    final docs = await getApplicationDocumentsDirectory();
+    final file = File(p.join(docs.path, 'training_packs', 'history', '${packId}_changelog.md'));
+    if (!await file.exists()) return null;
+    return file.readAsString();
+  }
 }
