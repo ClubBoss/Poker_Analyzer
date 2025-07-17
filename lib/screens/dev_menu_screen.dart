@@ -36,7 +36,9 @@ import '../services/training_goal_suggestion_engine.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/training_pack_auto_fix_engine.dart';
 import '../models/yaml_pack_review_report.dart';
+import '../models/yaml_pack_validation_report.dart';
 import '../services/yaml_pack_refactor_engine.dart';
+import '../services/pack_validation_engine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pack_balance_issue.dart';
 import '../models/v2/training_pack_template.dart';
@@ -86,6 +88,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _goalLoading = false;
   bool _balanceLoading = false;
   bool _reviewLoading = false;
+  bool _validatePackLoading = false;
   bool _autoFixLoading = false;
   bool _refactorYamlPackLoading = false;
   bool _recommendPacksLoading = false;
@@ -557,6 +560,48 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _validateYamlPack() async {
+    if (_validatePackLoading || !kDebugMode) return;
+    setState(() => _validatePackLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    YamlPackValidationReport? report;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        final data = await compute(_validatePackTask, path);
+        report = YamlPackValidationReport.fromJson(data);
+      }
+    }
+    if (!mounted) return;
+    setState(() => _validatePackLoading = false);
+    if (report == null) return;
+    final text = [
+      if (report.errors.isNotEmpty) 'Errors:\n${report.errors.join('\n')}',
+      if (report.warnings.isNotEmpty) 'Warnings:\n${report.warnings.join('\n')}',
+    ].join('\n\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(
+            text.isEmpty ? 'OK' : text,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _reviewYamlPack() async {
     if (_reviewLoading || !kDebugMode) return;
     setState(() => _reviewLoading = true);
@@ -877,6 +922,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('✅ Проверить YAML пак'),
+                onTap: _validatePackLoading ? null : _validateYamlPack,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('📋 Проверить YAML пак'),
                 onTap: _reviewLoading ? null : _reviewYamlPack,
               ),
@@ -1170,6 +1220,16 @@ Future<List<Map<String, dynamic>>> _balanceTask(String path) async {
   final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
   final issues = const YamlPackBalanceAnalyzer().analyze(tpl);
   return [for (final i in issues) i.toJson()];
+}
+
+Future<Map<String, dynamic>> _validatePackTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return const YamlPackValidationReport().toJson();
+  final yaml = await file.readAsString();
+  final map = const YamlReader().read(yaml);
+  final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+  final report = const PackValidationEngine().validate(tpl);
+  return report.toJson();
 }
 
 Future<Map<String, dynamic>> _reviewTask(String path) async {
