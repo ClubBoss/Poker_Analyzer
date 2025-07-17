@@ -12,6 +12,8 @@ import '../services/yaml_pack_validator_service.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/yaml_pack_formatter_service.dart';
 import '../services/yaml_pack_history_service.dart';
+import '../services/yaml_pack_exporter_service.dart';
+import 'package:open_filex/open_filex.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -181,6 +183,43 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
     } catch (_) {}
   }
 
+  Future<void> _export(File file) async {
+    final format = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('YAML'),
+              onTap: () => Navigator.pop(context, 'yaml'),
+            ),
+            ListTile(
+              title: const Text('Markdown'),
+              onTap: () => Navigator.pop(context, 'markdown'),
+            ),
+            ListTile(
+              title: const Text('Text'),
+              onTap: () => Navigator.pop(context, 'plain'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (format == null) return;
+    final fileOut = await const YamlPackExporterService().exportToTextFile(file, format);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Файл сохранён: ${fileOut.path}'),
+        action: SnackBarAction(
+          label: '📂 Открыть',
+          onPressed: () => OpenFilex.open(fileOut.path),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _mdCtrl.dispose();
@@ -257,6 +296,11 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                                 tooltip: 'MD',
                                 icon: const Icon(Icons.description),
                                 onPressed: () => _previewMarkdown(f),
+                              ),
+                              IconButton(
+                                tooltip: 'Экспорт',
+                                icon: const Icon(Icons.download),
+                                onPressed: () => _export(f),
                               ),
                             ],
                           ),
