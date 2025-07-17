@@ -77,6 +77,7 @@ import 'yaml_pack_history_screen.dart';
 import 'yaml_pack_archive_screen.dart';
 import 'yaml_pack_archive_cleanup_screen.dart';
 import 'yaml_pack_archive_stats_screen.dart';
+import 'yaml_pack_archive_duplicates_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -1495,6 +1496,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const YamlPackArchiveStatsScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📁 Дубликаты архивов'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const YamlPackArchiveDuplicatesScreen(),
                     ),
                   );
                 },
