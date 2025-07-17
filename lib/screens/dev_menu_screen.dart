@@ -37,7 +37,7 @@ import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/training_goal_suggestion_engine.dart';
 import '../services/pack_library_review_engine.dart';
-import '../services/pack_library_auto_fix_engine.dart';
+import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
 import '../services/training_pack_template_validator.dart';
 import '../models/validation_issue.dart';
@@ -894,16 +894,44 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       type: FileType.custom,
       allowedExtensions: ['yaml', 'yml'],
     );
-    var ok = false;
+    Map<String, dynamic>? json;
+    String? path;
     if (result != null && result.files.isNotEmpty) {
-      final path = result.files.single.path;
-      if (path != null) ok = await compute(_autoFixTask, path);
+      path = result.files.single.path;
+      if (path != null) json = await compute(_autoFixTask, path);
     }
     if (!mounted) return;
     setState(() => _autoFixLoading = false);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+    if (json == null || json!.isEmpty || path == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Ошибка')));
+      return;
+    }
+    final pack = TrainingPackTemplateV2.fromJson(json!);
+    await showTrainingPackYamlPreviewer(context, pack);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.background,
+        title: const Text('Сохранить?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Нет'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Да'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await const YamlWriter().write(json!, path);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Готово')));
+    }
   }
 
   Future<void> _refactorYamlPack() async {
@@ -1663,15 +1691,14 @@ Future<Map<String, dynamic>> _reviewTask(String path) async {
   return report.toJson();
 }
 
-Future<bool> _autoFixTask(String path) async {
+Future<Map<String, dynamic>> _autoFixTask(String path) async {
   final file = File(path);
-  if (!file.existsSync()) return false;
+  if (!file.existsSync()) return {};
   final yaml = await file.readAsString();
   final map = const YamlReader().read(yaml);
   final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
-  final fixed = const PackLibraryAutoFixEngine().autoFix(tpl);
-  await const YamlWriter().write(fixed.toJson(), path);
-  return true;
+  final fixed = const YamlPackAutoFixEngine().autoFix(tpl);
+  return fixed.toJson();
 }
 
 Future<Map<String, dynamic>> _refactorYamlPackTask(String path) async {
