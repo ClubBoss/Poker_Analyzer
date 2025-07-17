@@ -9,6 +9,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/yaml_pack_history_service.dart';
 import '../services/yaml_pack_exporter_service.dart';
+import '../services/yaml_pack_changelog_service.dart';
 import '../theme/app_colors.dart';
 import 'package:open_filex/open_filex.dart';
 import 'v2/training_pack_spot_editor_screen.dart';
@@ -96,6 +97,8 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     await const YamlPackHistoryService().saveSnapshot(pack, 'save');
     const service = YamlPackHistoryService();
     service.addChangeLog(pack, 'save', 'editor', 'save');
+    await const YamlPackChangelogService()
+        .appendChangeLog(pack, 'ручное обновление');
     await file.writeAsString(pack.toYaml());
     if (!mounted) return;
     ScaffoldMessenger.of(context)

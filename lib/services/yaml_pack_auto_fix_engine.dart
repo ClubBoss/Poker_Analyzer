@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:uuid/uuid.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
+import 'yaml_pack_changelog_service.dart';
 
 class YamlPackAutoFixEngine {
   final Uuid _uuid;
@@ -30,7 +32,7 @@ class YamlPackAutoFixEngine {
       spots.add(s);
     }
 
-    return TrainingPackTemplateV2(
+    final result = TrainingPackTemplateV2(
       id: id,
       name: pack.name,
       description: pack.description,
@@ -48,5 +50,12 @@ class YamlPackAutoFixEngine {
       meta: meta,
       recommended: pack.recommended,
     );
+    unawaited(
+      const YamlPackChangelogService().appendChangeLog(
+        result,
+        'Автофикс: добавлены id, удалены дубликаты',
+      ),
+    );
+    return result;
   }
 }
