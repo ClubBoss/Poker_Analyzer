@@ -8,7 +8,9 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/yaml_pack_history_service.dart';
+import '../services/yaml_pack_exporter_service.dart';
 import '../theme/app_colors.dart';
+import 'package:open_filex/open_filex.dart';
 import 'v2/training_pack_spot_editor_screen.dart';
 
 class YamlPackEditorScreen extends StatefulWidget {
@@ -142,6 +144,45 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     }
   }
 
+  Future<void> _export() async {
+    final pack = _pack;
+    if (pack == null) return;
+    final format = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('YAML'),
+              onTap: () => Navigator.pop(context, 'yaml'),
+            ),
+            ListTile(
+              title: const Text('Markdown'),
+              onTap: () => Navigator.pop(context, 'markdown'),
+            ),
+            ListTile(
+              title: const Text('Text'),
+              onTap: () => Navigator.pop(context, 'plain'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (format == null) return;
+    final file = await const YamlPackExporterService().exportToTextFile(pack, format);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Файл сохранён: ${file.path}'),
+        action: SnackBarAction(
+          label: '📂 Открыть',
+          onPressed: () => OpenFilex.open(file.path),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
@@ -150,7 +191,10 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(file == null ? 'YAML Pack' : file.path.split(Platform.pathSeparator).last),
-        actions: [IconButton(icon: const Icon(Icons.save), onPressed: _save)],
+        actions: [
+          IconButton(icon: const Icon(Icons.save), onPressed: _save),
+          IconButton(icon: const Icon(Icons.download), onPressed: _export),
+        ],
       ),
       backgroundColor: AppColors.background,
       body: pack == null
