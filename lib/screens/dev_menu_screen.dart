@@ -82,6 +82,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _exportLoading = false;
   bool _cleanLoading = false;
   bool _yamlDupeLoading = false;
+  bool _yamlAssetsDupeLoading = false;
   bool _mergeLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
@@ -445,6 +446,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Удалено: ${list.length}')));
+  }
+
+  Future<void> _cleanYamlPackAssets() async {
+    if (_yamlAssetsDupeLoading || !kDebugMode) return;
+    setState(() => _yamlAssetsDupeLoading = true);
+    final count = await const PackLibraryDuplicateCleaner().clean('assets/packs');
+    if (!mounted) return;
+    setState(() => _yamlAssetsDupeLoading = false);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Удалено: $count')));
   }
 
   Future<void> _mergeLibraries() async {
@@ -1121,6 +1133,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧹 Удалить дубликаты паков'),
                 onTap: _yamlDupeLoading ? null : _removeYamlDuplicates,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧽 Удалить дубликаты YAML паков'),
+                onTap: _yamlAssetsDupeLoading ? null : _cleanYamlPackAssets,
               ),
             if (kDebugMode)
               ListTile(
