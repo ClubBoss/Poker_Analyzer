@@ -38,6 +38,7 @@ import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
+import 'pack_suggestion_preview_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -591,20 +592,10 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       );
       return;
     }
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF121212),
-        title: const Text('Следующее по истории'),
-        content: SingleChildScrollView(
-          child: Text(list.map((e) => e.name).join('\n')),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PackSuggestionPreviewScreen(packs: list),
       ),
     );
   }
