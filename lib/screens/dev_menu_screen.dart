@@ -34,12 +34,14 @@ import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/training_goal_suggestion_engine.dart';
 import '../services/pack_library_review_engine.dart';
+import '../services/training_pack_auto_fix_engine.dart';
 import '../models/yaml_pack_review_report.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pack_balance_issue.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../core/training/generation/yaml_reader.dart';
+import '../core/training/generation/yaml_writer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'pack_matrix_config_editor_screen.dart';
 import 'yaml_library_preview_screen.dart';
@@ -83,6 +85,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _goalLoading = false;
   bool _balanceLoading = false;
   bool _reviewLoading = false;
+  bool _autoFixLoading = false;
   bool _recommendPacksLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
@@ -592,6 +595,24 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _autoFixYamlPack() async {
+    if (_autoFixLoading || !kDebugMode) return;
+    setState(() => _autoFixLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    var ok = false;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) ok = await compute(_autoFixTask, path);
+    }
+    if (!mounted) return;
+    setState(() => _autoFixLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+  }
+
   Future<void> _selectBestPacks() async {
     if (_bestLoading || !kDebugMode) return;
     setState(() => _bestLoading = true);
@@ -838,6 +859,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📋 Проверить YAML пак'),
                 onTap: _reviewLoading ? null : _reviewYamlPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🛠 Автоисправление YAML пака'),
+                onTap: _autoFixLoading ? null : _autoFixYamlPack,
               ),
             if (kDebugMode)
               ListTile(
@@ -1129,4 +1155,16 @@ Future<Map<String, dynamic>> _reviewTask(String path) async {
   final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
   final report = const PackLibraryReviewEngine().review(tpl);
   return report.toJson();
+}
+
+Future<bool> _autoFixTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return false;
+  final yaml = await file.readAsString();
+  final map = const YamlReader().read(yaml);
+  final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+  final report = const PackLibraryReviewEngine().review(tpl);
+  const TrainingPackAutoFixEngine().autoFix(tpl, report);
+  await const YamlWriter().write(tpl.toJson(), path);
+  return true;
 }
