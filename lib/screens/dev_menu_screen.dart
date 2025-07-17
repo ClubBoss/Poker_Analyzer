@@ -36,11 +36,13 @@ import '../services/pack_library_loader_service.dart';
 import '../services/training_goal_suggestion_engine.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/pack_library_auto_fix_engine.dart';
+import '../services/pack_library_smart_validator.dart';
 import '../services/training_pack_template_validator.dart';
 import '../models/validation_issue.dart';
 import '../models/yaml_pack_review_report.dart';
 import '../models/yaml_pack_validation_report.dart';
 import '../models/pack_rating_report.dart';
+import '../models/smart_validation_result.dart';
 import '../services/yaml_pack_refactor_engine.dart';
 import '../services/pack_validation_engine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -104,6 +106,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _libraryRatingLoading = false;
   bool _recommendPacksLoading = false;
   bool _jsonLibraryLoading = false;
+  bool _smartValidateLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -830,6 +833,30 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _smartValidateYamlPack() async {
+    if (_smartValidateLoading || !kDebugMode) return;
+    setState(() => _smartValidateLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    SmartValidationResult? report;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        final data = await compute(_smartValidateTask, path);
+        report = SmartValidationResult.fromJson(data);
+      }
+    }
+    if (!mounted) return;
+    setState(() => _smartValidateLoading = false);
+    if (report == null) return;
+    final text = 'Errors: \${report.before.errors.length}->\${report.after.errors.length}\n'
+        'Warnings: \${report.before.warnings.length}->\${report.after.warnings.length}\n'
+        'Fixed: \${report.fixed.length}';
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
   Future<void> _selectBestPacks() async {
     if (_bestLoading || !kDebugMode) return;
     setState(() => _bestLoading = true);
@@ -1083,17 +1110,22 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('✅ Проверить YAML пак'),
                 onTap: _validatePackLoading ? null : _validateYamlPack,
               ),
-            if (kDebugMode)
-              ListTile(
-                title: const Text('✅ Валидация YAML пака'),
-                onTap:
-                    _templateValidateLoading ? null : _validateYamlTemplate,
-              ),
-            if (kDebugMode)
-              ListTile(
-                title: const Text('📋 Проверить YAML пак'),
-                onTap: _reviewLoading ? null : _reviewYamlPack,
-              ),
+  if (kDebugMode)
+    ListTile(
+      title: const Text('✅ Валидация YAML пака'),
+      onTap:
+          _templateValidateLoading ? null : _validateYamlTemplate,
+    ),
+  if (kDebugMode)
+    ListTile(
+      title: const Text('✅ Smart Validation YAML пака'),
+      onTap: _smartValidateLoading ? null : _smartValidateYamlPack,
+    ),
+  if (kDebugMode)
+    ListTile(
+      title: const Text('📋 Проверить YAML пак'),
+      onTap: _reviewLoading ? null : _reviewYamlPack,
+    ),
             if (kDebugMode)
               ListTile(
                 title: const Text('🛠 Автоисправление YAML пака'),
@@ -1473,4 +1505,9 @@ Future<List<Map<String, dynamic>>> _validateTemplateTask(String path) async {
   final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
   final issues = const TrainingPackTemplateValidator().validate(tpl);
   return [for (final i in issues) i.toJson()];
+}
+
+Future<Map<String, dynamic>> _smartValidateTask(String path) async {
+  final result = await const PackLibrarySmartValidator().validateAndFix(path);
+  return result.toJson();
 }
