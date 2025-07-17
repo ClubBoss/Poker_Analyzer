@@ -31,6 +31,7 @@ import '../services/training_pack_suggestion_service.dart';
 import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/pack_library_loader_service.dart';
+import '../services/training_goal_suggestion_engine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pack_balance_issue.dart';
 import '../models/v2/training_pack_template.dart';
@@ -71,6 +72,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _bestLoading = false;
   bool _historyLoading = false;
   bool _smartHistoryLoading = false;
+  bool _goalLoading = false;
   bool _balanceLoading = false;
   bool _recommendPacksLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
@@ -651,6 +653,48 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _suggestGoals() async {
+    if (_goalLoading || !kDebugMode) return;
+    setState(() => _goalLoading = true);
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final prefs = await SharedPreferences.getInstance();
+    final completed = prefs
+        .getKeys()
+        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .map((k) => k.substring('completed_tpl_'.length))
+        .toSet();
+    final profile = UserProfile(
+      completedPackIds: completed,
+      tags: _tags.toList(),
+    );
+    final packs = PackLibraryLoaderService.instance.library;
+    final goals = const TrainingGoalSuggestionEngine().suggest(profile, packs);
+    if (!mounted) return;
+    setState(() => _goalLoading = false);
+    if (goals.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нет целей')),
+      );
+      return;
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Цели'),
+        content: SingleChildScrollView(
+          child: Text(goals.map((e) => e.title).join('\n')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -895,6 +939,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧠 Следующее по истории'),
                 onTap: _smartHistoryLoading ? null : _smartSuggestNext,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📌 Цели по истории'),
+                onTap: _goalLoading ? null : _suggestGoals,
               ),
           ],
         ),
