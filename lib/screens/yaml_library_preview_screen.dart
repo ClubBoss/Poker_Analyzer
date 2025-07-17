@@ -11,6 +11,7 @@ import '../services/yaml_pack_markdown_preview_service.dart';
 import '../services/yaml_pack_validator_service.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/yaml_pack_formatter_service.dart';
+import '../services/yaml_pack_history_service.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -99,6 +100,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final map = const YamlReader().read(yaml);
       final tpl =
           TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      await const YamlPackHistoryService().saveSnapshot(tpl, 'fix');
       final fixed = const YamlPackAutoFixEngine().autoFix(tpl);
       await const YamlWriter().write(fixed.toJson(), file.path);
       if (mounted) {
@@ -124,6 +126,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final map = const YamlReader().read(yaml);
       final tpl =
           TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      await const YamlPackHistoryService().saveSnapshot(tpl, 'format');
       final formatted = const YamlPackFormatterService().format(tpl);
       final outMap = const YamlReader().read(formatted);
       await const YamlWriter().write(outMap, file.path);

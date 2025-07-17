@@ -72,6 +72,8 @@ import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
 import '../services/pack_library_rating_engine.dart';
 import '../models/pack_library_rating_report.dart';
+import '../services/yaml_pack_history_service.dart';
+import 'yaml_pack_history_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -898,7 +900,13 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     String? path;
     if (result != null && result.files.isNotEmpty) {
       path = result.files.single.path;
-      if (path != null) json = await compute(_autoFixTask, path);
+      if (path != null) {
+        final raw = await File(path).readAsString();
+        final map = const YamlReader().read(raw);
+        final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        await const YamlPackHistoryService().saveSnapshot(tpl, 'fix');
+        json = await compute(_autoFixTask, path);
+      }
     }
     if (!mounted) return;
     setState(() => _autoFixLoading = false);
@@ -1436,6 +1444,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const YamlPackQuickPreviewScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📂 История паков'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const YamlPackHistoryScreen(),
                     ),
                   );
                 },
