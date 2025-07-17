@@ -14,6 +14,9 @@ import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_template_v2.dart';
+import '../services/training_history_service_v2.dart';
+import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
 
@@ -157,6 +160,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         await prefs.setBool('completed_tpl_${tpl.id}', true);
         await prefs.setString(
             'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
+        unawaited(TrainingHistoryServiceV2.logCompletion(
+            TrainingPackTemplateV2.fromTemplate(
+          tpl,
+          type: TrainingType.pushfold,
+        )));
       } else {
         await prefs.setInt(
             'progress_tpl_${tpl.id}', service.session?.index ?? 0);
