@@ -38,6 +38,7 @@ import '../services/pack_library_review_engine.dart';
 import '../services/training_pack_auto_fix_engine.dart';
 import '../models/yaml_pack_review_report.dart';
 import '../models/yaml_pack_validation_report.dart';
+import '../models/pack_rating_report.dart';
 import '../services/yaml_pack_refactor_engine.dart';
 import '../services/pack_validation_engine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -93,6 +94,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _validatePackLoading = false;
   bool _autoFixLoading = false;
   bool _refactorYamlPackLoading = false;
+  bool _ratePackLoading = false;
   bool _recommendPacksLoading = false;
   bool _jsonLibraryLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
@@ -350,8 +352,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
     if (!mounted) return;
     setState(() => _jsonLibraryLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Готово')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Готово')));
   }
 
   Future<void> _importPacks() async {
@@ -429,8 +432,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   Future<void> _removeYamlDuplicates() async {
     if (_yamlDupeLoading || !kDebugMode) return;
     setState(() => _yamlDupeLoading = true);
-    final list =
-        await const YamlPackDuplicateCleanerService().removeDuplicates();
+    final list = await const YamlPackDuplicateCleanerService()
+        .removeDuplicates();
     if (!mounted) return;
     setState(() => _yamlDupeLoading = false);
     ScaffoldMessenger.of(
@@ -464,15 +467,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text('Отрефакторено: $count')));
   }
+
   Future<void> _normalizeYamlLibrary() async {
     if (_normalizeYamlLoading || !kDebugMode) return;
     setState(() => _normalizeYamlLoading = true);
-    await const PackLibraryRefactorEngine().refactorAll("training_packs/library");
+    await const PackLibraryRefactorEngine().refactorAll(
+      "training_packs/library",
+    );
     if (!mounted) return;
     setState(() => _normalizeYamlLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Готово")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Готово")));
   }
-
 
   Future<void> _recalcRating() async {
     if (_ratingLoading || !kDebugMode) return;
@@ -556,9 +563,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _balanceLoading = false);
     if (items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Баланс OK')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Баланс OK')));
       return;
     }
     final text = items.map((e) => '${e.type}: ${e.description}').join('\n');
@@ -599,7 +606,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (report == null) return;
     final text = [
       if (report.errors.isNotEmpty) 'Errors:\n${report.errors.join('\n')}',
-      if (report.warnings.isNotEmpty) 'Warnings:\n${report.warnings.join('\n')}',
+      if (report.warnings.isNotEmpty)
+        'Warnings:\n${report.warnings.join('\n')}',
     ].join('\n\n');
     await showDialog(
       context: context,
@@ -640,9 +648,10 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _reviewLoading = false);
     if (report == null) return;
     final text = [
-      if (report.warnings.isNotEmpty) 'Warnings:\n${report.warnings.join('\n')}',
+      if (report.warnings.isNotEmpty)
+        'Warnings:\n${report.warnings.join('\n')}',
       if (report.suggestions.isNotEmpty)
-        'Suggestions:\n${report.suggestions.join('\n')}'
+        'Suggestions:\n${report.suggestions.join('\n')}',
     ].join('\n\n');
     await showDialog(
       context: context,
@@ -675,8 +684,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     }
     if (!mounted) return;
     setState(() => _autoFixLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
   }
 
   Future<void> _refactorYamlPack() async {
@@ -693,22 +703,63 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     }
     if (!mounted) return;
     setState(() => _refactorYamlPackLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+  }
+
+  Future<void> _rateYamlPack() async {
+    if (_ratePackLoading || !kDebugMode) return;
+    setState(() => _ratePackLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    PackRatingReport? report;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        final data = await compute(_ratePackTask, path);
+        report = PackRatingReport.fromJson(data);
+      }
+    }
+    if (!mounted) return;
+    setState(() => _ratePackLoading = false);
+    if (report == null) return;
+    final text = [
+      'Score: ${report.score}',
+      if (report.warnings.isNotEmpty)
+        'Warnings:\n${report.warnings.join('\n')}',
+      if (report.insights.isNotEmpty)
+        'Insights:\n${report.insights.join('\n')}',
+    ].join('\n\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _selectBestPacks() async {
     if (_bestLoading || !kDebugMode) return;
     setState(() => _bestLoading = true);
-    final list = await const TrainingPackFilterEngine().filter(
-      minRating: 80,
-    );
+    final list = await const TrainingPackFilterEngine().filter(minRating: 80);
     if (!mounted) return;
     setState(() => _bestLoading = false);
     if (list.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет паков')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет паков')));
       return;
     }
     await showDialog(
@@ -737,7 +788,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final completed = prefs
         .getKeys()
         .where(
-            (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+          (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true,
+        )
         .map((k) => k.substring('completed_tpl_'.length))
         .toSet();
     final profile = UserProfile(
@@ -751,9 +803,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _recommendPacksLoading = false);
     if (list.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет рекомендаций')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет рекомендаций')));
       return;
     }
     await Navigator.push(
@@ -772,9 +824,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _historyLoading = false);
     if (list.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет рекомендаций')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет рекомендаций')));
       return;
     }
     await showDialog(
@@ -803,9 +855,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _smartHistoryLoading = false);
     if (list.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет рекомендаций')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет рекомендаций')));
       return;
     }
     await Navigator.push(
@@ -823,7 +875,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final prefs = await SharedPreferences.getInstance();
     final completed = prefs
         .getKeys()
-        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .where(
+          (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true,
+        )
         .map((k) => k.substring('completed_tpl_'.length))
         .toSet();
     final profile = UserProfile(
@@ -835,9 +889,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _goalLoading = false);
     if (goals.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет целей')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет целей')));
       return;
     }
     await showDialog(
@@ -963,6 +1017,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧹 Рефакторинг YAML пака'),
                 onTap: _refactorYamlPackLoading ? null : _refactorYamlPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📈 Оценить YAML пак'),
+                onTap: _ratePackLoading ? null : _rateYamlPack,
               ),
             if (kDebugMode)
               ListTile(
@@ -1299,4 +1358,14 @@ Future<bool> _refactorYamlPackTask(String path) async {
   const YamlPackRefactorEngine().refactor(tpl);
   await const YamlWriter().write(tpl.toJson(), path);
   return true;
+}
+
+Future<Map<String, dynamic>> _ratePackTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return const PackRatingReport().toJson();
+  final yaml = await file.readAsString();
+  final map = const YamlReader().read(yaml);
+  final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+  final report = const TrainingPackRatingEngine().rate(tpl);
+  return report.toJson();
 }
