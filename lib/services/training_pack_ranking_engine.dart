@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
@@ -8,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import '../core/training/generation/yaml_reader.dart';
 import '../core/training/generation/yaml_writer.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import 'yaml_pack_rating_engine.dart';
 
 class TrainingPackRankingEngine {
   const TrainingPackRankingEngine();
@@ -101,5 +103,30 @@ class TrainingPackRankingEngine {
     await indexFile.create(recursive: true);
     await indexFile.writeAsString(jsonEncode(list), flush: true);
     return templates.length;
+  }
+
+  double rank(TrainingPackTemplateV2 pack, List<TrainingPackTemplateV2> all) {
+    final ratings = [for (final p in all) const YamlPackRatingEngine().rate(p).toDouble()];
+    if (ratings.isEmpty) return 0;
+    ratings.sort();
+    final median = ratings.length.isOdd
+        ? ratings[ratings.length ~/ 2]
+        : (ratings[ratings.length ~/ 2 - 1] + ratings[ratings.length ~/ 2]) / 2;
+    final avg = ratings.reduce((a, b) => a + b) / ratings.length;
+    final sd = sqrt(ratings.fold(0, (s, v) => s + pow(v - avg, 2)) / ratings.length);
+    if (sd == 0) return 0.5;
+    final r = const YamlPackRatingEngine().rate(pack).toDouble();
+    final z = (r - median) / sd;
+    return 1 / (1 + exp(-z));
+  }
+
+  Map<String, double> rankAll(List<TrainingPackTemplateV2> packs) {
+    final result = <String, double>{};
+    for (final p in packs) {
+      final rankScore = rank(p, packs);
+      p.meta['rankScore'] = double.parse(rankScore.toStringAsFixed(4));
+      result[p.id] = rankScore;
+    }
+    return result;
   }
 }
