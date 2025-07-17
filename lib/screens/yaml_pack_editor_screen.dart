@@ -7,6 +7,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../services/yaml_pack_history_service.dart';
 import '../theme/app_colors.dart';
 import 'v2/training_pack_spot_editor_screen.dart';
 
@@ -74,6 +75,7 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
           ..clear()
           ..addAll(_tags)
       ..spotCount = pack.spots.length;
+    await const YamlPackHistoryService().saveSnapshot(pack, 'save');
     await file.writeAsString(pack.toYaml());
     if (!mounted) return;
     ScaffoldMessenger.of(context)
