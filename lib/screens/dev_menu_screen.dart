@@ -28,6 +28,7 @@ import '../services/auto_tag_generator_service.dart';
 import '../services/training_pack_filter_engine.dart';
 import '../services/smart_pack_recommendation_engine.dart';
 import '../services/training_pack_suggestion_service.dart';
+import '../services/smart_suggestion_engine.dart';
 import '../models/v2/training_pack_template.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'package:file_picker/file_picker.dart';
@@ -62,6 +63,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _bestLoading = false;
   bool _recommendLoading = false;
   bool _historyLoading = false;
+  bool _smartHistoryLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -576,6 +578,37 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _smartSuggestNext() async {
+    if (_smartHistoryLoading || !kDebugMode) return;
+    setState(() => _smartHistoryLoading = true);
+    final engine = context.read<SmartSuggestionEngine>();
+    final list = await engine.suggestNext();
+    if (!mounted) return;
+    setState(() => _smartHistoryLoading = false);
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нет рекомендаций')),
+      );
+      return;
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Следующее по истории'),
+        content: SingleChildScrollView(
+          child: Text(list.map((e) => e.name).join('\n')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -781,6 +814,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📈 Следующие паки по истории'),
                 onTap: _historyLoading ? null : _suggestNext,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧠 Следующее по истории'),
+                onTap: _smartHistoryLoading ? null : _smartSuggestNext,
               ),
           ],
         ),
