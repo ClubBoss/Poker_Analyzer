@@ -48,6 +48,7 @@ dependencies:
   hive_flutter: ^1.1.0
   webview_flutter: ^4.2.2
   markdown: ^7.1.1
+  flutter_markdown: ^0.6.17
   table_calendar: ^3.0.9
   flutter_local_notifications: ^17.0.0
   timezone: ^0.9.2
