@@ -11,6 +11,7 @@ import 'yaml_pack_diff_screen.dart';
 import '../services/yaml_pack_diff_service.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import '../services/yaml_pack_changelog_service.dart';
+import '../widgets/selectable_list_item.dart';
 
 class YamlPackArchiveScreen extends StatefulWidget {
   const YamlPackArchiveScreen({super.key});
@@ -22,6 +23,10 @@ class YamlPackArchiveScreen extends StatefulWidget {
 class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
   final Map<String, List<File>> _items = {};
   bool _loading = true;
+  final Set<File> _selected = {};
+  String? _selectedPack;
+
+  bool get _selectionMode => _selected.isNotEmpty;
 
   @override
   void initState() {
@@ -55,6 +60,53 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
         ..addAll(map);
       _loading = false;
     });
+  }
+
+  void _toggleSelection(String id, File f) {
+    if (_selectedPack != null && _selectedPack != id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Выберите версии одного пака')),
+      );
+      return;
+    }
+    setState(() {
+      if (_selected.contains(f)) {
+        _selected.remove(f);
+        if (_selected.isEmpty) _selectedPack = null;
+      } else {
+        if (_selected.isEmpty) _selectedPack = id;
+        _selected.add(f);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() {
+      _selected.clear();
+      _selectedPack = null;
+    });
+  }
+
+  Future<void> _compareSelected() async {
+    if (_selected.length != 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нужно выбрать две версии')),
+      );
+      return;
+    }
+    final files = _selected.toList();
+    TrainingPackTemplateV2? a;
+    TrainingPackTemplateV2? b;
+    try {
+      a = TrainingPackTemplateV2.fromYaml(await files[0].readAsString());
+      b = TrainingPackTemplateV2.fromYaml(await files[1].readAsString());
+    } catch (_) {
+      return;
+    }
+    final md = const YamlPackDiffService().generateMarkdownDiff(a, b);
+    if (!mounted) return;
+    await showMarkdownPreviewDialog(context, md);
+    if (mounted) _clearSelection();
   }
 
   Future<void> _open(String id, File file) async {
@@ -117,8 +169,8 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
         ),
       );
     } else if (action == 'md' && current != null) {
-      final md = const YamlPackDiffService()
-          .generateMarkdownDiff(bak, current!);
+      final md =
+          const YamlPackDiffService().generateMarkdownDiff(bak, current!);
       if (md.isNotEmpty && mounted) {
         await showMarkdownPreviewDialog(context, md);
       }
@@ -157,8 +209,7 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              YamlViewerScreen(yamlText: yaml, title: '${id}_copy'),
+          builder: (_) => YamlViewerScreen(yamlText: yaml, title: '${id}_copy'),
         ),
       );
     }
@@ -168,7 +219,15 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
     return Scaffold(
-      appBar: AppBar(title: const Text('Архив паков')),
+      appBar: AppBar(
+        leading: _selectionMode
+            ? IconButton(
+                icon: const Icon(Icons.close), onPressed: _clearSelection)
+            : null,
+        title: _selectionMode
+            ? Text('${_selected.length}')
+            : const Text('Архив паков'),
+      ),
       backgroundColor: AppColors.background,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -179,17 +238,30 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
                     title: Text(e.key),
                     children: [
                       for (final f in e.value)
-                        ListTile(
-                          title: Text(DateFormat('yyyy-MM-dd HH:mm')
-                              .format(f.statSync().modified)),
-                          subtitle: Text(
-                              '${(f.lengthSync() / 1024).toStringAsFixed(1)} KB'),
-                          onTap: () => _open(e.key, f),
+                        SelectableListItem(
+                          selectionMode: _selectionMode,
+                          selected: _selected.contains(f),
+                          onTap: _selectionMode
+                              ? () => _toggleSelection(e.key, f)
+                              : () => _open(e.key, f),
+                          onLongPress: () => _toggleSelection(e.key, f),
+                          child: ListTile(
+                            title: Text(DateFormat('yyyy-MM-dd HH:mm')
+                                .format(f.statSync().modified)),
+                            subtitle: Text(
+                                '${(f.lengthSync() / 1024).toStringAsFixed(1)} KB'),
+                          ),
                         ),
                     ],
                   ),
               ],
             ),
+      floatingActionButton: _selected.length >= 2
+          ? FloatingActionButton.extended(
+              onPressed: _compareSelected,
+              label: const Text('📊 Сравнить выбранные'),
+            )
+          : null,
     );
   }
 }
