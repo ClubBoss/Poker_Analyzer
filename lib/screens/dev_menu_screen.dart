@@ -26,6 +26,7 @@ import '../services/auto_tag_generator_service.dart';
 import '../models/v2/training_pack_template.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'package:file_picker/file_picker.dart';
+import 'pack_matrix_config_editor_screen.dart';
 import 'yaml_library_preview_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -602,6 +603,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📇 Построить индекс тегов'),
                 onTap: _tagIndexLoading ? null : _buildTagIndex,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🎯 Редактор матрицы тегов'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PackMatrixConfigEditorScreen(),
+                    ),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
