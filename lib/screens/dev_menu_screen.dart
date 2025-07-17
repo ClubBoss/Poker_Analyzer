@@ -75,6 +75,7 @@ import '../models/pack_library_rating_report.dart';
 import '../services/yaml_pack_history_service.dart';
 import 'yaml_pack_history_screen.dart';
 import 'yaml_pack_archive_screen.dart';
+import 'yaml_pack_archive_cleanup_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -1469,6 +1470,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const YamlPackArchiveScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧹 Очистить архив паков'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const YamlPackArchiveCleanupScreen(),
                     ),
                   );
                 },
