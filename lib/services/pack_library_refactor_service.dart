@@ -1,4 +1,7 @@
+import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -18,7 +21,9 @@ class PackLibraryRefactorService {
     final matrix = await const PackMatrixConfig().loadMatrix();
     const reader = YamlReader();
     const writer = YamlWriter();
-    var count = 0;
+    final seen = <String, String>{};
+    var refactored = 0;
+    var removed = 0;
     for (final f in dir
         .listSync(recursive: true)
         .whereType<File>()
@@ -30,37 +35,52 @@ class PackLibraryRefactorService {
         continue;
       }
       final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
-      var changed = false;
       final tags = <String>{
         for (final t in tpl.tags) t.toString().trim().toLowerCase()
       }..removeWhere((t) => t.isEmpty);
-      if (!listEquals(tags.toList(), tpl.tags)) {
-        tpl.tags
-          ..clear()
-          ..addAll(tags);
-        changed = true;
-      }
+      tpl.tags
+        ..clear()
+        ..addAll(tags);
       if ((tpl.audience == null || tpl.audience!.isEmpty) && tpl.tags.isNotEmpty) {
         final aud = _detectAudience(tpl.tags, matrix);
-        if (aud != null) {
-          tpl.audience = aud;
-          changed = true;
-        }
+        if (aud != null) tpl.audience = aud;
       }
       if (map['evScore'] != null && tpl.meta['evScore'] == null) {
         tpl.meta['evScore'] = map['evScore'];
-        changed = true;
       }
       if (map['icmScore'] != null && tpl.meta['icmScore'] == null) {
         tpl.meta['icmScore'] = map['icmScore'];
-        changed = true;
       }
-      if (changed) {
-        await writer.write(tpl.toJson(), f.path);
-        count++;
+      final meta = Map<String, dynamic>.from(tpl.meta)
+        ..removeWhere((k, v) =>
+            v == null ||
+            (v is String && v.isEmpty) ||
+            (v is List && v.isEmpty) ||
+            (v is Map && v.isEmpty));
+      for (final k in ['createdAt', 'source', 'notes']) {
+        final v = meta[k];
+        if (v == null || (v is String && v.isEmpty)) meta.remove(k);
       }
+      tpl.meta
+        ..clear()
+        ..addAll(meta);
+      final spotHashes = [
+        for (final s in tpl.spots)
+          sha1.convert(utf8.encode(jsonEncode(s.hand.toJson()))).toString()
+      ]..sort();
+      final key = '${tpl.tags.join(',')}-${spotHashes.join()}';
+      if (seen.containsKey(key)) {
+        try {
+          f.deleteSync();
+          removed++;
+        } catch (_) {}
+        continue;
+      }
+      seen[key] = f.path;
+      await writer.write(_orderedMap(tpl), f.path);
+      refactored++;
     }
-    return count;
+    return refactored + removed;
   }
 
   String? _detectAudience(List<String> tags, List<(String, List<String>)> matrix) {
@@ -74,5 +94,18 @@ class PackLibraryRefactorService {
       }
     }
     return res.length == 1 ? res.first : null;
+  }
+
+  Map<String, dynamic> _orderedMap(TrainingPackTemplateV2 tpl) {
+    final json = tpl.toJson();
+    json['title'] = json.remove('name');
+    final map = LinkedHashMap<String, dynamic>();
+    for (final k in ['id', 'title', 'tags', 'meta', 'spots']) {
+      if (json.containsKey(k)) map[k] = json.remove(k);
+    }
+    for (final e in json.entries) {
+      map[e.key] = e.value;
+    }
+    return map;
   }
 }
