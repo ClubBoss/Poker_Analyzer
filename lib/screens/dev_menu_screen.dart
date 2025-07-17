@@ -72,6 +72,8 @@ import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
 import '../services/pack_library_rating_engine.dart';
 import '../models/pack_library_rating_report.dart';
+import 'markdown_preview_screen.dart';
+import '../services/yaml_pack_markdown_preview_service.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -102,6 +104,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _historyLoading = false;
   bool _smartHistoryLoading = false;
   bool _goalLoading = false;
+  bool _yamlMarkdownLoading = false;
   bool _balanceLoading = false;
   bool _reviewLoading = false;
   bool _yamlCheckLoading = false;
@@ -1210,6 +1213,44 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _previewYamlMarkdown() async {
+    if (_yamlMarkdownLoading || !kDebugMode) return;
+    setState(() => _yamlMarkdownLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    String? path;
+    if (result != null && result.files.isNotEmpty) {
+      path = result.files.single.path;
+    }
+    if (path == null) {
+      if (mounted) setState(() => _yamlMarkdownLoading = false);
+      return;
+    }
+    TrainingPackTemplateV2? pack;
+    try {
+      final yaml = await File(path).readAsString();
+      final map = const YamlReader().read(yaml);
+      pack = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    } catch (_) {}
+    if (pack == null) {
+      if (mounted) setState(() => _yamlMarkdownLoading = false);
+      return;
+    }
+    final markdown = const YamlPackMarkdownPreviewService()
+        .generateMarkdownPreview(pack);
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/yaml_preview.md');
+    await file.writeAsString(markdown);
+    if (!mounted) return;
+    setState(() => _yamlMarkdownLoading = false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => MarkdownPreviewScreen(path: file.path)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1439,6 +1480,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📄 Markdown-просмотр YAML-пака'),
+                onTap: _yamlMarkdownLoading ? null : _previewYamlMarkdown,
               ),
             if (kDebugMode)
               ListTile(
