@@ -13,6 +13,7 @@ import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/yaml_pack_formatter_service.dart';
 import '../services/yaml_pack_history_service.dart';
 import '../services/yaml_pack_exporter_service.dart';
+import '../services/yaml_pack_changelog_service.dart';
 import 'package:open_filex/open_filex.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import 'package:flutter/services.dart';
@@ -183,6 +184,22 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
     } catch (_) {}
   }
 
+  Future<void> _showHistory(File file) async {
+    try {
+      final yaml = await file.readAsString();
+      final map = const YamlReader().read(yaml);
+      final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final md = await const YamlPackChangelogService().loadChangeLog(tpl.id);
+      if (!mounted) return;
+      if (md == null) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('История изменений отсутствует')));
+      } else {
+        await showMarkdownPreviewDialog(context, md);
+      }
+    } catch (_) {}
+  }
+
   Future<void> _export(File file) async {
     final format = await showModalBottomSheet<String>(
       context: context,
@@ -301,6 +318,11 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                                 tooltip: 'Экспорт',
                                 icon: const Icon(Icons.download),
                                 onPressed: () => _export(f),
+                              ),
+                              IconButton(
+                                tooltip: 'История',
+                                icon: const Icon(Icons.history),
+                                onPressed: () => _showHistory(f),
                               ),
                             ],
                           ),
