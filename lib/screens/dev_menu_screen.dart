@@ -27,6 +27,7 @@ import '../services/tag_health_check_service.dart';
 import '../services/pack_library_refactor_engine.dart';
 import '../services/pack_tag_index_service.dart';
 import '../services/auto_tag_generator_service.dart';
+import '../services/tag_suggestion_engine.dart';
 import '../services/training_pack_filter_engine.dart';
 import '../services/smart_pack_recommendation_engine.dart';
 import '../services/training_pack_suggestion_service.dart';
@@ -92,6 +93,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _normalizeYamlLoading = false;
   bool _tagIndexLoading = false;
   bool _tagSuggestLoading = false;
+  bool _yamlTagSuggestLoading = false;
   bool _bestLoading = false;
   bool _historyLoading = false;
   bool _smartHistoryLoading = false;
@@ -585,6 +587,50 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _suggestYamlPackTags() async {
+    if (_yamlTagSuggestLoading || !kDebugMode) return;
+    setState(() => _yamlTagSuggestLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    List<String> tags = [];
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) tags = await compute(_yamlTagSuggestionTask, path);
+    }
+    if (!mounted) return;
+    setState(() => _yamlTagSuggestLoading = false);
+    if (tags.isEmpty) return;
+    final ctr = TextEditingController(text: tags.join(', '));
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Рекомендованные теги'),
+        content: TextField(
+          controller: ctr,
+          readOnly: true,
+          maxLines: null,
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: ctr.text));
+              Navigator.pop(context);
+            },
+            child: const Text('Copy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -1297,6 +1343,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('💡 Предложить теги для YAML пака'),
+                onTap:
+                    _yamlTagSuggestLoading ? null : _suggestYamlPackTags,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🚨 Конфликты библиотеки'),
                 onTap: () {
                   Navigator.push(
@@ -1433,6 +1485,15 @@ Future<List<String>> _suggestTagsTask(String path) async {
   final map = const YamlReader().read(yaml);
   final tpl = TrainingPackTemplate.fromJson(map);
   return const AutoTagGeneratorService().generateTags(tpl);
+}
+
+Future<List<String>> _yamlTagSuggestionTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return [];
+  final yaml = await file.readAsString();
+  final map = const YamlReader().read(yaml);
+  final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+  return const TagSuggestionEngine().suggestTags(tpl);
 }
 
 Future<List<Map<String, dynamic>>> _balanceTask(String path) async {
