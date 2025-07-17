@@ -1,42 +1,73 @@
 import 'package:uuid/uuid.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../core/training/engine/training_type_engine.dart';
 
 class YamlPackMergeEngine {
   final Uuid _uuid;
   const YamlPackMergeEngine({Uuid? uuid}) : _uuid = uuid ?? const Uuid();
 
-  TrainingPackTemplateV2 merge(
-    TrainingPackTemplateV2 a,
-    TrainingPackTemplateV2 b,
-  ) {
+  TrainingPackTemplateV2 merge(List<TrainingPackTemplateV2> packs) {
+    final list = packs.where((p) => p.spots.isNotEmpty).toList();
+    if (list.isEmpty) {
+      return TrainingPackTemplateV2(
+        id: _uuid.v4(),
+        name: 'Combined Pack',
+        description: 'Combined Pack',
+        type: TrainingType.pushfold,
+      );
+    }
+    final first = list.first;
     final id = _uuid.v4();
-    final tags = <String>{...a.tags, ...b.tags}
-      ..removeWhere((e) => e.trim().isEmpty);
+    final tags = <String>{};
+    final keywords = <String>{};
     final spots = <TrainingPackSpot>[];
-    final keys = <String>{};
-    String key(TrainingPackSpot s) =>
-        '${s.hand.toJson()}|${s.correctAction}|${s.explanation}';
-    void add(TrainingPackSpot s) {
-      final k = key(s);
-      if (keys.add(k)) spots.add(s);
+    final spotKeys = <String>{};
+    for (final p in list) {
+      for (final t in p.tags) {
+        final v = t.trim();
+        if (v.isNotEmpty) tags.add(v);
+      }
+      final kw = p.meta['keywords'];
+      if (kw is List) {
+        for (final v in kw) {
+          if (v is String && v.trim().isNotEmpty) keywords.add(v.trim());
+        }
+      } else if (kw is String) {
+        for (final v in kw.split(RegExp(r'[;, ]+'))) {
+          final w = v.trim();
+          if (w.isNotEmpty) keywords.add(w);
+        }
+      }
+      for (final s in p.spots) {
+        final k = s.hand.toJson().toString();
+        if (spotKeys.add(k)) spots.add(s);
+      }
     }
 
-    for (final s in a.spots) add(s);
-    for (final s in b.spots) add(s);
-
-    final meta = <String, dynamic>{...a.meta};
-    b.meta.forEach((k, v) => meta.putIfAbsent(k, () => v));
-    double? avg(String k) {
-      final x = (a.meta[k] as num?)?.toDouble();
-      final y = (b.meta[k] as num?)?.toDouble();
-      if (x != null && y != null) return (x + y) / 2;
-      return x ?? y;
+    final meta = <String, dynamic>{'schemaVersion': '2.0.0'};
+    double evScore = 0;
+    double icmScore = 0;
+    var count = 0;
+    for (final p in list) {
+      p.meta.forEach((k, v) {
+        meta.putIfAbsent(k, () => v);
+      });
+      final ev = (p.meta['evScore'] as num?)?.toDouble();
+      final icm = (p.meta['icmScore'] as num?)?.toDouble();
+      if (ev != null) {
+        evScore += ev;
+        count++;
+      }
+      if (icm != null) {
+        icmScore += icm;
+      }
     }
-    final evScore = avg('evScore');
-    final icmScore = avg('icmScore');
-    if (evScore != null) meta['evScore'] = evScore;
-    if (icmScore != null) meta['icmScore'] = icmScore;
+    if (count > 0) {
+      meta['evScore'] = evScore / count;
+      meta['icmScore'] = icmScore / count;
+    }
+    meta['keywords'] = keywords.toList();
 
     var ev = 0;
     var icm = 0;
@@ -53,21 +84,29 @@ class YamlPackMergeEngine {
 
     return TrainingPackTemplateV2(
       id: id,
-      name: '${a.name} + ${b.name}',
-      description: a.description.isNotEmpty ? a.description : b.description,
-      goal: a.goal.isNotEmpty ? a.goal : b.goal,
-      audience: a.audience?.isNotEmpty == true ? a.audience : b.audience,
+      name: 'Combined Pack',
+      description: 'Combined Pack',
+      goal: first.goal,
+      audience: first.audience,
       tags: tags.toList(),
-      category: a.category ?? b.category,
-      type: a.type,
+      category: first.category,
+      type: first.type,
       spots: spots,
       spotCount: spots.length,
       created: DateTime.now(),
-      gameType: a.gameType,
-      bb: a.bb,
-      positions: {...a.positions, ...b.positions}.toList(),
+      gameType: first.gameType,
+      bb: first.bb,
+      positions: {
+        for (final p in list) ...p.positions
+      }.toList(),
       meta: meta,
-      recommended: a.recommended || b.recommended,
+      recommended: list.any((p) => p.recommended),
     );
   }
+
+  TrainingPackTemplateV2 mergeTwo(
+    TrainingPackTemplateV2 a,
+    TrainingPackTemplateV2 b,
+  ) =>
+      merge([a, b]);
 }
