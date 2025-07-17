@@ -10,6 +10,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../services/yaml_pack_markdown_preview_service.dart';
 import '../services/yaml_pack_validator_service.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
+import '../services/yaml_pack_formatter_service.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -18,7 +19,8 @@ class YamlLibraryPreviewScreen extends StatefulWidget {
   const YamlLibraryPreviewScreen({super.key});
 
   @override
-  State<YamlLibraryPreviewScreen> createState() => _YamlLibraryPreviewScreenState();
+  State<YamlLibraryPreviewScreen> createState() =>
+      _YamlLibraryPreviewScreenState();
 }
 
 class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
@@ -61,8 +63,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final tpl = TrainingPackTemplateV2.fromJson(
         Map<String, dynamic>.from(map),
       );
-      md = const YamlPackMarkdownPreviewService()
-          .generateMarkdownPreview(tpl);
+      md = const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl);
     } catch (_) {}
     if (!mounted) return;
     setState(() {
@@ -83,8 +84,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final msg = report.errors.isEmpty && report.warnings.isEmpty
           ? 'OK'
           : 'Ошибки: ${report.errors.length} \u2022 Предупреждения: ${report.warnings.length}';
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -105,8 +105,34 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Готово')));
         if (_selected >= 0 && _files[_selected].path == file.path) {
-          _markdown =
-              const YamlPackMarkdownPreviewService().generateMarkdownPreview(fixed);
+          _markdown = const YamlPackMarkdownPreviewService()
+              .generateMarkdownPreview(fixed);
+          setState(() {});
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Ошибка')));
+      }
+    }
+  }
+
+  Future<void> _formatYaml(File file) async {
+    try {
+      final yaml = await file.readAsString();
+      final map = const YamlReader().read(yaml);
+      final tpl =
+          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final formatted = const YamlPackFormatterService().format(tpl);
+      final outMap = const YamlReader().read(formatted);
+      await const YamlWriter().write(outMap, file.path);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Готово')));
+        if (_selected >= 0 && _files[_selected].path == file.path) {
+          _markdown = const YamlPackMarkdownPreviewService()
+              .generateMarkdownPreview(tpl);
           setState(() {});
         }
       }
@@ -178,6 +204,11 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                                 tooltip: 'Автофикс',
                                 icon: const Icon(Icons.build),
                                 onPressed: () => _autoFix(f),
+                              ),
+                              IconButton(
+                                tooltip: 'Формат',
+                                icon: const Icon(Icons.straighten),
+                                onPressed: () => _formatYaml(f),
                               ),
                               IconButton(
                                 tooltip: 'MD',
