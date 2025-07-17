@@ -17,6 +17,7 @@ import '../services/yaml_validation_service.dart';
 import '../services/pack_library_import_service.dart';
 import '../services/pack_library_export_service.dart';
 import '../services/pack_library_duplicate_cleaner.dart';
+import '../services/yaml_pack_duplicate_cleaner_service.dart';
 import '../services/pack_library_merge_service.dart';
 import '../services/pack_library_refactor_service.dart';
 import '../services/training_pack_ranking_engine.dart';
@@ -47,6 +48,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _importLoading = false;
   bool _exportLoading = false;
   bool _cleanLoading = false;
+  bool _yamlDupeLoading = false;
   bool _mergeLoading = false;
   bool _refactorLoading = false;
   bool _rankLoading = false;
@@ -368,6 +370,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ).showSnackBar(SnackBar(content: Text('Удалено: $count')));
   }
 
+  Future<void> _removeYamlDuplicates() async {
+    if (_yamlDupeLoading || !kDebugMode) return;
+    setState(() => _yamlDupeLoading = true);
+    final list = await const YamlPackDuplicateCleanerService()
+        .removeDuplicates();
+    if (!mounted) return;
+    setState(() => _yamlDupeLoading = false);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Удалено: ${list.length}')));
+  }
+
   Future<void> _mergeLibraries() async {
     if (_mergeLoading || !kDebugMode) return;
     setState(() => _mergeLoading = true);
@@ -542,6 +556,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧹 Очистить дубликаты'),
                 onTap: _cleanLoading ? null : _cleanDuplicates,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧹 Удалить дубликаты паков'),
+                onTap: _yamlDupeLoading ? null : _removeYamlDuplicates,
               ),
             if (kDebugMode)
               ListTile(
