@@ -25,6 +25,22 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
   final _desc = TextEditingController();
   List<String> _tags = [];
 
+  bool get _outdated =>
+      _versionLess(_pack?.meta['schemaVersion']?.toString(), '2.0.0');
+
+  bool _versionLess(String? v, String target) {
+    if (v == null || v.isEmpty) return true;
+    final a = v.split('.').map(int.parse).toList();
+    final b = target.split('.').map(int.parse).toList();
+    while (a.length < 3) a.add(0);
+    while (b.length < 3) b.add(0);
+    for (var i = 0; i < 3; i++) {
+      if (a[i] < b[i]) return true;
+      if (a[i] > b[i]) return false;
+    }
+    return false;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +92,8 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
           ..addAll(_tags)
       ..spotCount = pack.spots.length;
     await const YamlPackHistoryService().saveSnapshot(pack, 'save');
+    const service = YamlPackHistoryService();
+    service.addChangeLog(pack, 'save', 'editor', 'save');
     await file.writeAsString(pack.toYaml());
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -142,6 +160,16 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (_outdated)
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      color: Colors.amber,
+                      child: const Text(
+                        '⚠ Устаревшая схема',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  if (_outdated) const SizedBox(height: 12),
                   TextField(
                     controller: _name,
                     decoration: const InputDecoration(labelText: 'Название'),
