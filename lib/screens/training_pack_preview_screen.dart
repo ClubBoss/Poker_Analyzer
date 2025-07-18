@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../services/pack_favorite_service.dart';
+import '../services/pack_rating_service.dart';
 import 'training_session_screen.dart';
 
 class TrainingPackPreviewScreen extends StatefulWidget {
@@ -15,16 +16,37 @@ class TrainingPackPreviewScreen extends StatefulWidget {
 
 class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
   late bool _favorite;
+  int? _userRating;
+  double? _average;
 
   @override
   void initState() {
     super.initState();
     _favorite = PackFavoriteService.instance.isFavorite(widget.template.id);
+    _loadRating();
+  }
+
+  Future<void> _loadRating() async {
+    final r = await PackRatingService.instance.getUserRating(widget.template.id);
+    final avg = await PackRatingService.instance.getAverageRating(widget.template.id);
+    if (mounted) setState(() {
+      _userRating = r;
+      _average = avg;
+    });
   }
 
   Future<void> _toggleFavorite() async {
     await PackFavoriteService.instance.toggleFavorite(widget.template.id);
     if (mounted) setState(() => _favorite = !_favorite);
+  }
+
+  Future<void> _setRating(int r) async {
+    await PackRatingService.instance.rate(widget.template.id, r);
+    final avg = await PackRatingService.instance.getAverageRating(widget.template.id);
+    if (mounted) setState(() {
+      _userRating = r;
+      _average = avg;
+    });
   }
 
   @override
@@ -50,6 +72,8 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
           Text(widget.template.name,
               style:
                   const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          _buildRatingRow(),
           const SizedBox(height: 8),
           Text('Type: ${widget.template.trainingType.name}',
               style: const TextStyle(color: Colors.white70)),
@@ -118,6 +142,30 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRatingRow() {
+    return Row(
+      children: [
+        for (int i = 1; i <= 5; i++)
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: Icon(
+              i <= (_userRating ?? 0) ? Icons.star : Icons.star_border,
+              color: Colors.amber,
+            ),
+            onPressed: () => _setRating(i),
+          ),
+        if (_average != null) ...[
+          const SizedBox(width: 8),
+          Text(
+            _average!.toStringAsFixed(1),
+            style: const TextStyle(color: Colors.white70),
+          ),
+        ],
+      ],
     );
   }
 }
