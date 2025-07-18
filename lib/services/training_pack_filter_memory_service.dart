@@ -15,6 +15,8 @@ class TrainingPackFilterMemoryService {
   Set<HeroPosition> positionFilters = {};
   String? difficulty;
   bool groupByTag = false;
+  bool groupByPosition = false;
+  bool groupByStack = false;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -22,18 +24,16 @@ class TrainingPackFilterMemoryService {
     if (data == null) return;
     try {
       final json = jsonDecode(data) as Map<String, dynamic>;
-      selectedTags = {
-        for (final t in json['tags'] as List? ?? []) t as String
-      };
-      stackFilters = {
-        for (final i in json['stack'] as List? ?? []) i as int
-      };
+      selectedTags = {for (final t in json['tags'] as List? ?? []) t as String};
+      stackFilters = {for (final i in json['stack'] as List? ?? []) i as int};
       positionFilters = {
         for (final p in json['pos'] as List? ?? [])
           HeroPosition.values.byName(p as String)
       };
       difficulty = json['difficulty'] as String?;
       groupByTag = json['groupByTag'] as bool? ?? false;
+      groupByPosition = json['groupByPosition'] as bool? ?? false;
+      groupByStack = json['groupByStack'] as bool? ?? false;
     } catch (_) {}
   }
 
@@ -45,6 +45,8 @@ class TrainingPackFilterMemoryService {
       'pos': [for (final p in positionFilters) p.name],
       'difficulty': difficulty,
       'groupByTag': groupByTag,
+      'groupByPosition': groupByPosition,
+      'groupByStack': groupByStack,
     });
     await prefs.setString(_prefsKey, jsonStr);
   }
@@ -55,6 +57,8 @@ class TrainingPackFilterMemoryService {
     positionFilters.clear();
     difficulty = null;
     groupByTag = false;
+    groupByPosition = false;
+    groupByStack = false;
     await save();
   }
 
@@ -64,12 +68,16 @@ class TrainingPackFilterMemoryService {
     required Set<HeroPosition> pos,
     required String? difficulty,
     required bool groupByTag,
+    required bool groupByPosition,
+    required bool groupByStack,
   }) async {
     selectedTags = {...tags};
     stackFilters = {...stack};
     positionFilters = {...pos};
     this.difficulty = difficulty;
     this.groupByTag = groupByTag;
+    this.groupByPosition = groupByPosition;
+    this.groupByStack = groupByStack;
     await save();
   }
 }
