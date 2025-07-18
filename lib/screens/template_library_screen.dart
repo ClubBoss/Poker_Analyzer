@@ -63,6 +63,7 @@ import '../services/weak_spot_recommendation_service.dart';
 import '../widgets/pack_suggestion_banner.dart';
 import '../services/weak_training_type_detector.dart';
 import '../widgets/training_gap_prompt_banner.dart';
+import '../widgets/training_type_gap_prompt_banner.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -1483,6 +1484,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return TrainingGapPromptBanner(category: cat, pack: pack);
   }
 
+  Widget _weakTypeBanner() {
+    final type = _weakestType;
+    if (type == null) return const SizedBox.shrink();
+    final pack = PackLibraryLoaderService.instance.library
+        .firstWhereOrNull((p) => p.trainingType == type);
+    if (pack == null) return const SizedBox.shrink();
+    return TrainingTypeGapPromptBanner(type: type, pack: pack);
+  }
+
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
@@ -2277,6 +2287,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ),
           _recommendedCategoryCard(),
           _weakCategoryBanner(),
+          _weakTypeBanner(),
           SwitchListTile(
             title: Text(l.favorites),
             value: _favoritesOnly,
