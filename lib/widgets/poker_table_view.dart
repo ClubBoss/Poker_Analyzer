@@ -44,6 +44,8 @@ class PokerTableView extends StatefulWidget {
   final List<List<CardModel>> revealedCards;
   final List<CardModel> boardCards;
   final int currentStreet;
+  final String? actionSeatId;
+  final bool highlightHeroAction;
   final double scale;
   final double sizeFactor;
   final TableTheme theme;
@@ -67,6 +69,8 @@ class PokerTableView extends StatefulWidget {
     this.revealedCards = const [],
     this.boardCards = const [],
     this.currentStreet = 0,
+    this.actionSeatId,
+    this.highlightHeroAction = false,
     this.scale = 1.0,
     this.sizeFactor = 1.0,
     this.theme = TableTheme.dark,
@@ -108,6 +112,12 @@ class _PokerTableViewState extends State<PokerTableView> {
           widget.playerStacks.where((s) => s > 0).toList(growable: false);
       final effectiveStack =
           positiveStacks.isEmpty ? 0.0 : positiveStacks.reduce(min);
+      int? actionSeatIndex;
+      if (widget.actionSeatId != null) {
+        actionSeatIndex = int.tryParse(widget.actionSeatId!);
+      } else if (widget.highlightHeroAction) {
+        actionSeatIndex = widget.heroIndex;
+      }
       final items = <Widget>[
         Positioned.fill(
             child:
@@ -221,6 +231,14 @@ class _PokerTableViewState extends State<PokerTableView> {
         final angle = 2 * pi * seatIndex / widget.playerCount + pi / 2;
         final stack =
             i < widget.playerStacks.length ? widget.playerStacks[i] : 0.0;
+        if (actionSeatIndex != null && i == actionSeatIndex) {
+          final radius = 24 * widget.scale;
+          items.add(Positioned(
+            left: offset.dx - radius,
+            top: offset.dy - radius,
+            child: _ActionSpotHighlight(scale: widget.scale),
+          ));
+        }
         items.add(Positioned(
           left: offset.dx,
           top: offset.dy,
@@ -574,5 +592,65 @@ class _PokerTableViewState extends State<PokerTableView> {
       return SizedBox(
           width: width, height: height, child: Stack(children: items));
     });
+  }
+}
+
+class _ActionSpotHighlight extends StatefulWidget {
+  final double scale;
+  const _ActionSpotHighlight({required this.scale});
+
+  @override
+  State<_ActionSpotHighlight> createState() => _ActionSpotHighlightState();
+}
+
+class _ActionSpotHighlightState extends State<_ActionSpotHighlight>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 1.0, end: 1.1)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double radius = 24 * widget.scale;
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _pulse.value,
+          child: child,
+        );
+      },
+      child: Container(
+        width: radius * 2,
+        height: radius * 2,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.yellow.withOpacity(0.6), width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.yellow.withOpacity(0.4),
+              blurRadius: 6 * widget.scale,
+              spreadRadius: 2 * widget.scale,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
