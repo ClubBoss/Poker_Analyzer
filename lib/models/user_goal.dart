@@ -8,6 +8,8 @@ class UserGoal {
   final int base;
   final DateTime createdAt;
   final DateTime? completedAt;
+  final String? tag;
+  final double? targetAccuracy;
 
   const UserGoal({
     required this.id,
@@ -17,6 +19,8 @@ class UserGoal {
     required this.base,
     required this.createdAt,
     this.completedAt,
+    this.tag,
+    this.targetAccuracy,
   });
 
   bool get completed => completedAt != null;
@@ -29,6 +33,8 @@ class UserGoal {
         base: base,
         createdAt: createdAt,
         completedAt: completedAt,
+        tag: tag,
+        targetAccuracy: targetAccuracy,
       );
 
   Map<String, dynamic> toJson() => {
@@ -39,6 +45,8 @@ class UserGoal {
         'base': base,
         'createdAt': createdAt.toIso8601String(),
         'completedAt': completedAt?.toIso8601String(),
+        if (tag != null) 'tag': tag,
+        if (targetAccuracy != null) 'targetAccuracy': targetAccuracy,
       };
 
   factory UserGoal.fromJson(Map<String, dynamic> json) => UserGoal(
@@ -51,6 +59,8 @@ class UserGoal {
         completedAt: json['completedAt'] != null
             ? DateTime.parse(json['completedAt'] as String)
             : null,
+        tag: json['tag'] as String?,
+        targetAccuracy: (json['targetAccuracy'] as num?)?.toDouble(),
       );
 
   static String encode(List<UserGoal> list) =>
