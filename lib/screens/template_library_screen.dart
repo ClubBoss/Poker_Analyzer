@@ -18,6 +18,8 @@ import '../services/template_storage_service.dart';
 import '../models/training_pack_template.dart';
 import '../models/training_pack_template_model.dart';
 import '../models/v2/training_pack_template.dart' as v2;
+import '../core/training/engine/training_type_engine.dart';
+import '../services/training_type_filter_service.dart';
 import '../utils/template_difficulty.dart';
 import '../services/training_session_service.dart';
 import 'training_session_screen.dart';
@@ -87,6 +89,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _selCatsKey = 'lib_sel_cats';
   static const _diffKey = 'lib_difficulty_filter';
   static const _audienceKey = 'lib_audience_filter';
+  static const _trainingTypeKey = 'lib_training_type';
   static const _actTagsKey = 'lib_act_tags';
   static const _actCatsKey = 'lib_act_cats';
   static const _lastCatKey = 'lib_last_selected_category';
@@ -140,6 +143,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _activeCategories = {};
   final Set<int> _difficultyFilters = {};
   String _audienceFilter = 'all';
+  TrainingType? _trainingType;
   bool _importing = false;
   String _dailyQuote = '';
   List<String> _libraryTags = [];
@@ -254,6 +258,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         if (c != null && c.isNotEmpty) _activeCategories.add(c);
       }
       _audienceFilter = prefs.getString(_audienceKey) ?? 'all';
+      final tName = prefs.getString(_trainingTypeKey);
+      if (tName != null && tName.isNotEmpty) {
+        try {
+          _trainingType =
+              TrainingType.values.firstWhere((e) => e.name == tName);
+        } catch (_) {
+          _trainingType = null;
+        }
+      } else {
+        _trainingType = null;
+      }
       _difficultyFilters
         ..clear()
         ..addAll(
@@ -531,6 +546,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       await prefs.setString(_audienceKey, value);
     }
     setState(() => _audienceFilter = value);
+  }
+
+  Future<void> _setTrainingType(TrainingType? type) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (type == null) {
+      await prefs.remove(_trainingTypeKey);
+    } else {
+      await prefs.setString(_trainingTypeKey, type.name);
+    }
+    setState(() => _trainingType = type);
   }
 
   Future<void> _clearTagFilters() async {
@@ -815,6 +840,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in list)
         if (t.audience == _audienceFilter) t
     ];
+  }
+
+  List<v2.TrainingPackTemplate> _applyTrainingTypeFilter(
+      List<v2.TrainingPackTemplate> list) {
+    if (_trainingType == null) return list;
+    return TrainingTypeFilterService.filterByType(list.toList(), {_trainingType!});
   }
 
   Widget _buildSortButtons(AppLocalizations l) {
@@ -1949,7 +1980,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _selectedCategories.length +
         _activeTags.length +
         _activeCategories.length +
-        _difficultyFilters.length;
+        _difficultyFilters.length +
+        (_trainingType == null ? 0 : 1);
     final hasResults = sortedVisible.isNotEmpty;
     final filteringActive = query.isNotEmpty ||
         _filter != 'all' ||
@@ -1964,7 +1996,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _selectedCategories.isNotEmpty ||
         _activeTags.isNotEmpty ||
         _activeCategories.isNotEmpty ||
-        _difficultyFilters.isNotEmpty;
+        _difficultyFilters.isNotEmpty ||
+        _trainingType != null;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
     for (final t in sortedVisible) {
@@ -2003,8 +2036,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (t.isBuiltIn && !_isStarter(t)) t
     ]);
-    final libAll =
-        _applyAudienceFilter(PackLibraryLoaderService.instance.library);
+    final libAll = _applyTrainingTypeFilter(
+        _applyAudienceFilter(PackLibraryLoaderService.instance.library));
     final libraryFiltered = _activeTags.isEmpty
         ? libAll
         : [
@@ -2079,6 +2112,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 const DropdownMenuItem(value: 'cash', child: Text('Cash')),
                 DropdownMenuItem(
                     value: 'mistakes', child: Text(l.filterMistakes)),
+              ],
+            ),
+            const SizedBox(width: 8),
+            DropdownButton<TrainingType?>(
+              value: _trainingType,
+              hint: const Text('Type'),
+              underline: const SizedBox.shrink(),
+              onChanged: _setTrainingType,
+              items: [
+                const DropdownMenuItem(value: null, child: Text('All')),
+                ...[
+                  for (final t in TrainingType.values)
+                    DropdownMenuItem(value: t, child: Text(t.label))
+                ]
               ],
             ),
             PopupMenuButton<String>(

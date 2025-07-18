@@ -3,6 +3,8 @@ import '../generation/pack_generation_request.dart';
 import '../../../models/v2/training_pack_template.dart';
 import '../../../models/v2/training_pack_template_v2.dart';
 
+import 'package:flutter/material.dart';
+
 enum TrainingType { pushFold, postflop, icm, bounty, custom, quiz }
 
 abstract class TrainingPackBuilder {
@@ -81,5 +83,43 @@ class TrainingTypeEngine {
         });
     if (allPfNoActions) return TrainingType.pushFold;
     return TrainingType.custom;
+  }
+}
+
+extension TrainingTypeInfo on TrainingType {
+  String get label {
+    switch (this) {
+      case TrainingType.pushFold:
+        return 'Push/Fold';
+      case TrainingType.postflop:
+        return 'Postflop';
+      case TrainingType.icm:
+        return 'ICM';
+      case TrainingType.bounty:
+        return 'Bounty';
+      case TrainingType.quiz:
+        return 'Quiz';
+      case TrainingType.custom:
+      default:
+        return 'Custom';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case TrainingType.pushFold:
+        return Icons.swap_vert;
+      case TrainingType.postflop:
+        return Icons.timeline;
+      case TrainingType.icm:
+        return Icons.pie_chart;
+      case TrainingType.bounty:
+        return Icons.local_activity;
+      case TrainingType.quiz:
+        return Icons.question_mark;
+      case TrainingType.custom:
+      default:
+        return Icons.extension;
+    }
   }
 }
