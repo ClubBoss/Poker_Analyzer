@@ -14,6 +14,7 @@ class TrainingPackTemplateV2 {
   String description;
   String goal;
   String? audience;
+  String? theme;
   List<String> tags;
   String? category;
   TrainingType trainingType;
@@ -33,6 +34,7 @@ class TrainingPackTemplateV2 {
     this.description = '',
     this.goal = '',
     this.audience,
+    this.theme,
     List<String>? tags,
     this.category,
     required this.trainingType,
@@ -50,6 +52,7 @@ class TrainingPackTemplateV2 {
         positions = positions ?? [],
         created = created ?? DateTime.now(),
         meta = meta ?? {} {
+    if (theme != null) meta['theme'] = theme;
     category ??= this.tags.isNotEmpty ? this.tags.first : null;
   }
 
@@ -61,6 +64,7 @@ class TrainingPackTemplateV2 {
       goal: j['goal'] as String? ?? '',
       audience: j['audience'] as String? ??
           (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
+      theme: j['meta'] is Map ? (j['meta']['theme'] as String?) : null,
       tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
       category: (j['category'] ?? j['mainTag'])?.toString(),
       trainingType: TrainingType.values.firstWhere(
@@ -85,31 +89,37 @@ class TrainingPackTemplateV2 {
       targetStreet: j['targetStreet'] as String?,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
+    if (tpl.theme != null) tpl.meta['theme'] = tpl.theme;
     if ((j['trainingType'] ?? j['type']) == null) {
       tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
     }
     return tpl;
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        if (goal.isNotEmpty) 'goal': goal,
-        if (audience != null && audience!.isNotEmpty) 'audience': audience,
-        if (tags.isNotEmpty) 'tags': tags,
-        if (category != null && category!.isNotEmpty) 'category': category,
-        'trainingType': trainingType.name,
-        if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
-        'spotCount': spotCount,
-        'created': created.toIso8601String(),
-        'gameType': gameType.name,
-        'bb': bb,
-        if (positions.isNotEmpty) 'positions': positions,
-        if (meta.isNotEmpty) 'meta': meta,
-        if (recommended) 'recommended': true,
-        if (targetStreet != null) 'targetStreet': targetStreet,
-      };
+  Map<String, dynamic> toJson() {
+    final map = {
+      'id': id,
+      'name': name,
+      'description': description,
+      if (goal.isNotEmpty) 'goal': goal,
+      if (audience != null && audience!.isNotEmpty) 'audience': audience,
+      if (tags.isNotEmpty) 'tags': tags,
+      if (category != null && category!.isNotEmpty) 'category': category,
+      'trainingType': trainingType.name,
+      if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
+      'spotCount': spotCount,
+      'created': created.toIso8601String(),
+      'gameType': gameType.name,
+      'bb': bb,
+      if (positions.isNotEmpty) 'positions': positions,
+      if (recommended) 'recommended': true,
+      if (targetStreet != null) 'targetStreet': targetStreet,
+    };
+    final metaMap = Map<String, dynamic>.from(meta);
+    if (theme != null) metaMap['theme'] = theme;
+    if (metaMap.isNotEmpty) map['meta'] = metaMap;
+    return map;
+  }
 
   factory TrainingPackTemplateV2.fromYaml(String source) {
     final map = const YamlReader().read(source);
@@ -160,6 +170,7 @@ class TrainingPackTemplateV2 {
         description: template.description,
         goal: template.goal,
         audience: template.meta['audience'] as String?,
+        theme: template.meta['theme'] as String?,
         tags: List<String>.from(template.tags),
         category: template.tags.isNotEmpty ? template.tags.first : null,
         trainingType: type,

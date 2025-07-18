@@ -214,6 +214,19 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (widget.template.meta['theme'] != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Chip(
+                            label: Text(widget.template.meta['theme'].toString(),
+                                style: const TextStyle(fontSize: 11)),
+                            backgroundColor: Colors.blueGrey,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            visualDensity:
+                                const VisualDensity(horizontal: -4, vertical: -4),
+                          ),
+                        ),
                       Row(
                         children: [
                           if (_pinned)
