@@ -9,6 +9,7 @@ import '../core/training/engine/training_type_engine.dart';
 import '../services/pack_filter_service.dart';
 import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
+import '../services/training_pack_tags_service.dart';
 import 'pack_library_search_screen.dart';
 
 enum _SortOption { newest, rating, difficulty }
@@ -86,24 +87,19 @@ class _LibraryScreenState extends State<LibraryScreen> {
       if (r != null) ratingMap[p.id] = r;
     }
     if (!mounted) return;
-    final counts = <String, int>{};
     final acounts = <String, int>{};
+    await TrainingPackTagsService.instance.load(list);
     for (final p in list) {
-      for (final t in p.tags) {
-        counts[t] = (counts[t] ?? 0) + 1;
-      }
       final a = p.audience ?? p.meta['audience']?.toString();
       if (a != null && a.isNotEmpty) {
         acounts[a] = (acounts[a] ?? 0) + 1;
       }
     }
-    final tags = counts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
     final auds = acounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     setState(() {
       _packs = list;
-      _tags = [for (final e in tags.take(20)) e.key];
+      _tags = TrainingPackTagsService.instance.topTags;
       _audiences = [for (final e in auds.take(7)) e.key];
       _ratings = ratingMap;
       _loading = false;
