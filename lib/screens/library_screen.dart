@@ -8,7 +8,10 @@ import '../theme/app_colors.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../services/pack_filter_service.dart';
 import '../services/pack_favorite_service.dart';
+import '../services/pack_rating_service.dart';
 import 'pack_library_search_screen.dart';
+
+enum _SortOption { newest, rating, difficulty }
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -29,6 +32,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final Set<TrainingType> _selectedTypes = {};
   bool _favoritesOnly = false;
   static const _prefKey = 'hasLoadedLibraryOnce';
+  static const _sortPrefKey = 'library_sort_option';
+
+  Map<String, double> _ratings = {};
+
+  _SortOption _sort = _SortOption.newest;
 
   String _difficultyIcon(TrainingPackTemplateV2 pack) {
     final diff = _difficultyLevel(pack);
@@ -59,6 +67,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
+    final sortVal = prefs.getInt(_sortPrefKey);
+    if (sortVal != null && sortVal >= 0 && sortVal < _SortOption.values.length) {
+      _sort = _SortOption.values[sortVal];
+    }
     List<TrainingPackTemplateV2> list;
     if (prefs.getBool(_prefKey) ?? false) {
       list = PackLibraryIndexLoader.instance.library;
@@ -66,6 +78,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
     } else {
       list = await PackLibraryIndexLoader.instance.load();
       await prefs.setBool(_prefKey, true);
+    }
+    final ratingService = PackRatingService.instance;
+    final ratingMap = <String, double>{};
+    for (final p in list) {
+      final r = await ratingService.getAverageRating(p.id);
+      if (r != null) ratingMap[p.id] = r;
     }
     if (!mounted) return;
     final counts = <String, int>{};
@@ -87,8 +105,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
       _packs = list;
       _tags = [for (final e in tags.take(20)) e.key];
       _audiences = [for (final e in auds.take(7)) e.key];
+      _ratings = ratingMap;
       _loading = false;
     });
+  }
+
+  Future<void> _setSort(_SortOption value) async {
+    if (_sort == value) return;
+    setState(() => _sort = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_sortPrefKey, value.index);
   }
 
   @override
@@ -111,6 +137,30 @@ class _LibraryScreenState extends State<LibraryScreen> {
           _selectedDifficulties.isEmpty ? null : _selectedDifficulties,
       audiences: _selectedAudiences.isEmpty ? null : _selectedAudiences,
     );
+
+    DateTime _createdAt(TrainingPackTemplateV2 p) {
+      final v = p.meta['createdAt'];
+      if (v is String) {
+        final dt = DateTime.tryParse(v);
+        if (dt != null) return dt;
+      }
+      return p.created;
+    }
+
+    visible.sort((a, b) {
+      if (_sort == _SortOption.rating) {
+        final ra = _ratings[a.id] ?? 0;
+        final rb = _ratings[b.id] ?? 0;
+        final r = rb.compareTo(ra);
+        if (r != 0) return r;
+      } else if (_sort == _SortOption.difficulty) {
+        final da = _difficultyLevel(a);
+        final db = _difficultyLevel(b);
+        final r = db.compareTo(da);
+        if (r != 0) return r;
+      }
+      return _createdAt(b).compareTo(_createdAt(a));
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -262,6 +312,24 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
+                    DropdownButton<_SortOption>(
+                      value: _sort,
+                      items: const [
+                        DropdownMenuItem(
+                            value: _SortOption.newest,
+                            child: Text('Сначала новые')),
+                        DropdownMenuItem(
+                            value: _SortOption.rating,
+                            child: Text('По рейтингу')),
+                        DropdownMenuItem(
+                            value: _SortOption.difficulty,
+                            child: Text('По сложности')),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) _setSort(v);
+                      },
+                    ),
+                    const Spacer(),
                     if (_selectedTags.isNotEmpty ||
                         _selectedDifficulties.isNotEmpty ||
                         _selectedAudiences.isNotEmpty ||
