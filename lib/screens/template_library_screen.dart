@@ -1673,15 +1673,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return TrainingGapPromptBanner(category: cat, pack: pack);
   }
 
-  /// Banner prompting the user to improve the weakest training type.
-  Widget _weakTypeBanner() {
-    final type = _weakestType;
-    if (type == null) return const SizedBox.shrink();
-    final pack = PackLibraryLoaderService.instance.library
-        .firstWhereOrNull((p) => p.trainingType == type);
-    if (pack == null) return const SizedBox.shrink();
-    return TrainingTypeGapPromptBanner(type: type, pack: pack);
-  }
 
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
@@ -2519,7 +2510,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ),
           _recommendedCategoryCard(),
           _weakCategoryBanner(),
-          _weakTypeBanner(),
+          TrainingTypeGapPromptBanner(
+            selectedTags: _selectedTags,
+            activeFilter: _trainingType,
+          ),
           SwitchListTile(
             title: Text(l.favorites),
             value: _favoritesOnly,
