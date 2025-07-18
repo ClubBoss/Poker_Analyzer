@@ -5,6 +5,7 @@ import '../models/v2/training_pack_template.dart';
 import 'training_gap_notification_service.dart';
 import 'training_history_service_v2.dart';
 import 'app_settings_service.dart';
+import 'daily_reminder_scheduler.dart';
 
 class SuggestedPackPushService {
   static final SuggestedPackPushService instance = SuggestedPackPushService._();
@@ -60,6 +61,7 @@ class SuggestedPackPushService {
         iOS: DarwinNotificationDetails(),
       ),
     );
+    await DailyReminderScheduler.instance.scheduleDailyReminder(packName: tpl.name);
     await prefs.setString(_lastPushKey, DateTime.now().toIso8601String());
   }
 }
