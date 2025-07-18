@@ -87,6 +87,24 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   int _street = 0;
   bool _streetAnswered = false;
 
+  int get _targetStreetIndex {
+    switch (widget.template.targetStreet) {
+      case 'flop':
+        return 1;
+      case 'turn':
+        return 2;
+      case 'river':
+        return 3;
+      case 'preflop':
+        return 0;
+      default:
+        return 0;
+    }
+  }
+
+  int get _currentStreet =>
+      widget.template.targetStreet != null ? _targetStreetIndex : _street;
+
   @override
   void initState() {
     super.initState();
@@ -96,7 +114,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   Future<void> _prepare() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _autoAdvance = prefs.getBool('auto_adv_${widget.template.id}') ?? false;
+      _autoAdvance =
+          widget.template.targetStreet == null &&
+              (prefs.getBool('auto_adv_${widget.template.id}') ?? false);
     });
     final seqKey = 'tpl_seq_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
@@ -187,7 +207,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
       _spots = spots;
       _results = results;
       _index = prefs.getInt(progKey)?.clamp(0, spots.length - 1) ?? 0;
-      _street = 0;
+      _street = widget.template.targetStreet != null ? _targetStreetIndex : 0;
       _streetAnswered = false;
       _streetCount = streetCount;
       _handCounts
@@ -232,7 +252,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     setState(() {
       _spots = spots;
       _index = 0;
-      _street = 0;
+      _street = widget.template.targetStreet != null ? _targetStreetIndex : 0;
       _streetAnswered = false;
       _streetCount = 0;
       _summaryShown = false;
@@ -253,7 +273,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   }
 
   List<String> _heroActions(TrainingPackSpot spot) {
-    final acts = spot.hand.actions[0] ?? [];
+    final idx = widget.template.targetStreet != null ? _targetStreetIndex : 0;
+    final acts = spot.hand.actions[idx] ?? [];
     final hero = spot.hand.heroIndex;
     final res = <String>[];
     for (final a in acts) {
@@ -307,13 +328,13 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
 
   double? _actionEv(TrainingPackSpot spot, String action) {
     final streets = spot.evalResult?.streets;
-    if (streets != null && _street < streets.length) {
-      final data = streets[_street];
+    if (streets != null && _currentStreet < streets.length) {
+      final data = streets[_currentStreet];
       final val = data[action] ?? data[action.toLowerCase()];
       if (val is num) return val.toDouble();
       if (val is Map && val['ev'] is num) return (val['ev'] as num).toDouble();
     }
-    for (final a in spot.hand.actions[_street] ?? []) {
+    for (final a in spot.hand.actions[_currentStreet] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex &&
           a.action.toLowerCase() == action.toLowerCase()) {
         return a.ev;
@@ -324,13 +345,13 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
 
   double? _actionIcmEv(TrainingPackSpot spot, String action) {
     final streets = spot.evalResult?.streets;
-    if (streets != null && _street < streets.length) {
-      final data = streets[_street];
+    if (streets != null && _currentStreet < streets.length) {
+      final data = streets[_currentStreet];
       final val = data['${action.toLowerCase()}Icm'] ?? data['${action.toLowerCase()}_icm'];
       if (val is num) return val.toDouble();
       if (val is Map && val['icmEv'] is num) return (val['icmEv'] as num).toDouble();
     }
-    for (final a in spot.hand.actions[_street] ?? []) {
+    for (final a in spot.hand.actions[_currentStreet] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex &&
           a.action.toLowerCase() == action.toLowerCase()) {
         return a.icmEv;
@@ -341,9 +362,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
 
   double? _bestEv(TrainingPackSpot spot) {
     final streets = spot.evalResult?.streets;
-    if (streets != null && _street < streets.length) {
+    if (streets != null && _currentStreet < streets.length) {
       double? best;
-      final data = streets[_street];
+      final data = streets[_currentStreet];
       for (final v in data.values) {
         final ev = v is num
             ? v.toDouble()
@@ -353,7 +374,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
       return best;
     }
     double? best;
-    for (final a in spot.hand.actions[_street] ?? []) {
+    for (final a in spot.hand.actions[_currentStreet] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.ev != null) {
         best = best == null ? a.ev! : max(best!, a.ev!);
       }
@@ -363,9 +384,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
 
   double? _bestIcmEv(TrainingPackSpot spot) {
     final streets = spot.evalResult?.streets;
-    if (streets != null && _street < streets.length) {
+    if (streets != null && _currentStreet < streets.length) {
       double? best;
-      final data = streets[_street];
+      final data = streets[_currentStreet];
       for (final v in data.values) {
         final ev = v is Map && v['icmEv'] is num
             ? (v['icmEv'] as num).toDouble()
@@ -375,7 +396,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
       return best;
     }
     double? best;
-    for (final a in spot.hand.actions[_street] ?? []) {
+    for (final a in spot.hand.actions[_currentStreet] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.icmEv != null) {
         best = best == null ? a.icmEv! : max(best!, a.icmEv!);
       }
@@ -481,6 +502,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   }
 
   void _nextStreet() {
+    if (widget.template.targetStreet != null) return;
     setState(() {
       _street++;
       _streetAnswered = false;
@@ -552,7 +574,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     if (_index + 1 < _spots.length) {
       setState(() {
         _index++;
-        _street = 0;
+        _street =
+            widget.template.targetStreet != null ? _targetStreetIndex : 0;
         _streetAnswered = false;
       });
       _save();
@@ -626,7 +649,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
         }
       }
 
-      if (spot.streetMode && _street < spot.street) {
+      if (spot.streetMode &&
+          widget.template.targetStreet == null &&
+          _currentStreet < spot.street) {
         _streetAnswered = true;
         _save();
         if (_autoAdvance) {
@@ -769,7 +794,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     final spot = _spots[_index];
     final progress = (_index + 1) / _spots.length;
     final actions = spot.streetMode
-        ? _heroActionsStreet(spot, _street)
+        ? _heroActionsStreet(spot, _currentStreet)
         : _heroActions(spot);
     final pushAction = actions.isEmpty ? 'push' : actions.first;
     return Scaffold(
@@ -781,7 +806,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
             .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
             .toList();
         final boardCards = [
-          for (final c in spot.hand.boardCardsForStreet(_street))
+          for (final c in spot.hand.boardCardsForStreet(_currentStreet))
             CardModel(rank: c[0], suit: c.substring(1))
         ];
         final count = spot.hand.playerCount;
@@ -801,7 +826,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                 title: widget.template.name,
                 index: _index,
                 total: _spots.length,
-                streetIndex: spot.streetMode ? _street : null,
+                streetIndex: spot.streetMode ? _currentStreet : null,
                 onExit: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
@@ -851,7 +876,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                 heroCards: heroCards,
                 revealedCards: const [],
                 boardCards: boardCards,
-                currentStreet: _street,
+                currentStreet: _currentStreet,
                 scale: scale,
               ),
             ),
@@ -978,7 +1003,10 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                             const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
                   ),
                 ),
-            if (spot.streetMode && _streetAnswered && _street < spot.street)
+            if (widget.template.targetStreet == null &&
+                spot.streetMode &&
+                _streetAnswered &&
+                _currentStreet < spot.street)
               Positioned(
                 bottom: 120,
                 left: 0,
