@@ -11,6 +11,7 @@ import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
 import '../services/training_pack_tags_service.dart';
 import '../services/training_pack_audience_service.dart';
+import '../services/training_pack_difficulty_service.dart';
 import 'pack_library_search_screen.dart';
 
 enum _SortOption { newest, rating, difficulty }
@@ -27,6 +28,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   List<TrainingPackTemplateV2> _packs = [];
   List<String> _tags = [];
   List<String> _audiences = [];
+  List<int> _difficulties = [];
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
   final Set<String> _selectedAudiences = {};
@@ -40,13 +42,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   _SortOption _sort = _SortOption.newest;
 
-  String _difficultyIcon(TrainingPackTemplateV2 pack) {
-    final diff = _difficultyLevel(pack);
-    if (diff == 1) return '🟢';
-    if (diff == 2) return '🟡';
-    if (diff >= 3) return '🔴';
+  String _difficultyIconFromLevel(int level) {
+    if (level == 1) return '🟢';
+    if (level == 2) return '🟡';
+    if (level >= 3) return '🔴';
     return '⚪️';
   }
+
+  String _difficultyIcon(TrainingPackTemplateV2 pack) =>
+      _difficultyIconFromLevel(_difficultyLevel(pack));
 
   int _difficultyLevel(TrainingPackTemplateV2 pack) {
     final diff = (pack.meta['difficulty'] as num?)?.toInt();
@@ -90,10 +94,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
     if (!mounted) return;
     await TrainingPackTagsService.instance.load(list);
     await TrainingPackAudienceService.instance.load(list);
+    await TrainingPackDifficultyService.instance.load(list);
     setState(() {
       _packs = list;
       _tags = TrainingPackTagsService.instance.topTags;
       _audiences = TrainingPackAudienceService.instance.topAudiences;
+      _difficulties = TrainingPackDifficultyService.instance.topDifficulties;
       _ratings = ratingMap;
       _loading = false;
     });
@@ -271,11 +277,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             ? 0
                             : _selectedDifficulties.first,
                         hint: const Text('Difficulty'),
-                        items: const [
-                          DropdownMenuItem(value: 0, child: Text('Any')),
-                          DropdownMenuItem(value: 1, child: Text('🟢 1')),
-                          DropdownMenuItem(value: 2, child: Text('🟡 2')),
-                          DropdownMenuItem(value: 3, child: Text('🔴 3')),
+                        items: [
+                          const DropdownMenuItem(value: 0, child: Text('Any')),
+                          for (final d in _difficulties)
+                            DropdownMenuItem(
+                              value: d,
+                              child:
+                                  Text('${_difficultyIconFromLevel(d)} $d'),
+                            ),
                         ],
                         onChanged: (v) {
                           setState(() {
