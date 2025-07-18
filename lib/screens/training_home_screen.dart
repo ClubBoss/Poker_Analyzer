@@ -44,6 +44,7 @@ import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
 import '../widgets/sync_status_widget.dart';
 import '../tutorial/tutorial_flow.dart';
+import '../widgets/suggestion_card_weak_spots.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   final TutorialFlow? tutorial;
@@ -116,6 +117,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const SpotOfTheDayCard(),
             const ProgressSummaryBox(),
             const XPProgressBar(),
+            const SuggestionCardWeakSpots(),
           ] else ...[
             const QuickContinueCard(),
             const DailyFocusRecapCard(),
@@ -132,6 +134,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const DailyChallengeCard(),
             const WeeklyChallengeCard(),
             const XPProgressBar(),
+            const SuggestionCardWeakSpots(),
             const AchievementsCard(),
             const WeakSpotCard(),
             const ReviewPastMistakesCard(),
