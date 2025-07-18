@@ -138,7 +138,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     _handTotals.clear();
     if (widget.template.targetStreet != null) {
       for (final id in results.keys) {
-        final s = spots.firstWhereOrNull((e) => e.id == id);
+        final base = id.split('_street').first;
+        final s = spots.firstWhereOrNull((e) => e.id == base);
         if (s != null && _matchStreet(s)) streetCount++;
       }
       streetCount = max(streetCount, prefs.getInt(streetKey) ?? 0);
@@ -154,7 +155,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
         }
       }
       for (final id in results.keys) {
-        final s = spots.firstWhereOrNull((e) => e.id == id);
+        final base = id.split('_street').first;
+        final s = spots.firstWhereOrNull((e) => e.id == base);
         if (s != null) {
           for (final g in widget.template.focusHandTypes) {
             final code = handCode(s.hand.heroCards);
@@ -304,7 +306,14 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   }
 
   double? _actionEv(TrainingPackSpot spot, String action) {
-    for (final a in spot.hand.actions[0] ?? []) {
+    final streets = spot.evalResult?.streets;
+    if (streets != null && _street < streets.length) {
+      final data = streets[_street];
+      final val = data[action] ?? data[action.toLowerCase()];
+      if (val is num) return val.toDouble();
+      if (val is Map && val['ev'] is num) return (val['ev'] as num).toDouble();
+    }
+    for (final a in spot.hand.actions[_street] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex &&
           a.action.toLowerCase() == action.toLowerCase()) {
         return a.ev;
@@ -314,7 +323,14 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   }
 
   double? _actionIcmEv(TrainingPackSpot spot, String action) {
-    for (final a in spot.hand.actions[0] ?? []) {
+    final streets = spot.evalResult?.streets;
+    if (streets != null && _street < streets.length) {
+      final data = streets[_street];
+      final val = data['${action.toLowerCase()}Icm'] ?? data['${action.toLowerCase()}_icm'];
+      if (val is num) return val.toDouble();
+      if (val is Map && val['icmEv'] is num) return (val['icmEv'] as num).toDouble();
+    }
+    for (final a in spot.hand.actions[_street] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex &&
           a.action.toLowerCase() == action.toLowerCase()) {
         return a.icmEv;
@@ -324,8 +340,20 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   }
 
   double? _bestEv(TrainingPackSpot spot) {
+    final streets = spot.evalResult?.streets;
+    if (streets != null && _street < streets.length) {
+      double? best;
+      final data = streets[_street];
+      for (final v in data.values) {
+        final ev = v is num
+            ? v.toDouble()
+            : (v is Map && v['ev'] is num ? (v['ev'] as num).toDouble() : null);
+        if (ev != null) best = best == null ? ev : max(best!, ev);
+      }
+      return best;
+    }
     double? best;
-    for (final a in spot.hand.actions[0] ?? []) {
+    for (final a in spot.hand.actions[_street] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.ev != null) {
         best = best == null ? a.ev! : max(best!, a.ev!);
       }
@@ -334,8 +362,20 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   }
 
   double? _bestIcmEv(TrainingPackSpot spot) {
+    final streets = spot.evalResult?.streets;
+    if (streets != null && _street < streets.length) {
+      double? best;
+      final data = streets[_street];
+      for (final v in data.values) {
+        final ev = v is Map && v['icmEv'] is num
+            ? (v['icmEv'] as num).toDouble()
+            : null;
+        if (ev != null) best = best == null ? ev : max(best!, ev);
+      }
+      return best;
+    }
     double? best;
-    for (final a in spot.hand.actions[0] ?? []) {
+    for (final a in spot.hand.actions[_street] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.icmEv != null) {
         best = best == null ? a.icmEv! : max(best!, a.icmEv!);
       }
@@ -573,7 +613,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   Future<void> _choose(String? act) async {
     final spot = _spots[_index];
     if (act != null) {
-      final key = spot.streetMode ? '${spot.id}_\$_street' : spot.id;
+      final key = spot.streetMode ? '${spot.id}_street\$_street' : spot.id;
       final first = !_results.containsKey(key);
       _results[key] = act.toLowerCase();
       if (first && (!spot.streetMode || _street == spot.street) &&
@@ -741,7 +781,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
             .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
             .toList();
         final boardCards = [
-          for (final c in spot.hand.board.take([0, 3, 4, 5][_street]))
+          for (final c in spot.hand.boardCardsForStreet(_street))
             CardModel(rank: c[0], suit: c.substring(1))
         ];
         final count = spot.hand.playerCount;
@@ -923,7 +963,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                 ),
               ),
             if (hint.isNotEmpty &&
-                _results[spot.streetMode ? '${spot.id}_\$_street' : spot.id] ==
+                _results[spot.streetMode ? '${spot.id}_street\$_street' : spot.id] ==
                     null)
               Positioned(
                 bottom: 72,

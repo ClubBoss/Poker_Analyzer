@@ -92,3 +92,12 @@ class HandData {
       },
     );
   }
+}
+
+extension HandDataStreet on HandData {
+  /// Returns the board cards visible on the given [street].
+  ///
+  /// Street indices: 0 (preflop), 1 (flop), 2 (turn), 3 (river).
+  List<String> boardCardsForStreet(int street) =>
+      board.take(const [0, 3, 4, 5][street]).toList();
+}
