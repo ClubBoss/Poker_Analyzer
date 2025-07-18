@@ -1,5 +1,6 @@
 import 'services/training_pack_asset_loader.dart';
 import 'services/favorite_pack_service.dart';
+import 'services/pack_favorite_service.dart';
 import 'services/pinned_pack_service.dart';
 import 'services/cloud_sync_service.dart';
 import 'services/session_note_service.dart';
@@ -30,6 +31,7 @@ class AppBootstrap {
     await TrainingPackAssetLoader.instance.loadAll();
     await PackLibraryLoaderService.instance.loadLibrary();
     await TrainingPackLibraryV2.instance.loadFromFolder();
+    await PackFavoriteService.instance.load();
     await FavoritePackService.instance.init();
     await PinnedPackService.instance.init();
     if (cloud != null) {
