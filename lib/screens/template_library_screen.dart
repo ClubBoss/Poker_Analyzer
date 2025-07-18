@@ -64,6 +64,7 @@ import '../widgets/pack_suggestion_banner.dart';
 import '../services/weak_training_type_detector.dart';
 import '../widgets/training_gap_prompt_banner.dart';
 import '../widgets/training_type_gap_prompt_banner.dart';
+import '../widgets/suggested_pack_tile.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -2666,6 +2667,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ? ListView(
                     children: [
                       const PackSuggestionBanner(),
+                      const SuggestedPackTile(),
                       if (_popularOnly && popularFiltered.isNotEmpty) ...[
                         ListTile(title: Text(l.popularPacks)),
                         for (final t in popularFiltered) _item(t),
