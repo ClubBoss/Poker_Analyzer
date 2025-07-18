@@ -7,6 +7,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../services/pack_filter_service.dart';
+import '../services/pack_favorite_service.dart';
 import 'pack_library_search_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final Set<String> _selectedAudiences = {};
   final List<TrainingType> _types = TrainingType.values;
   final Set<TrainingType> _selectedTypes = {};
+  bool _favoritesOnly = false;
   static const _prefKey = 'hasLoadedLibraryOnce';
 
   String _difficultyIcon(TrainingPackTemplateV2 pack) {
@@ -96,8 +98,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    final favIds = PackFavoriteService.instance.allFavorites.toSet();
+    final baseTemplates = _favoritesOnly
+        ? [for (final p in _packs) if (favIds.contains(p.id)) p]
+        : _packs;
+
     final visible = const PackFilterService().filter(
-      templates: _packs,
+      templates: baseTemplates,
       tags: _selectedTags.isEmpty ? null : _selectedTags,
       types: _selectedTypes.isEmpty ? null : _selectedTypes,
       difficulties:
@@ -243,6 +250,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ],
                   ),
                 if (_audiences.isNotEmpty) const SizedBox(height: 8),
+                CheckboxListTile(
+                  value: _favoritesOnly,
+                  title: const Text('⭐️ Только избранные'),
+                  activeColor: Colors.amber,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  onChanged: (v) =>
+                      setState(() => _favoritesOnly = v ?? false),
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     if (_selectedTags.isNotEmpty ||
