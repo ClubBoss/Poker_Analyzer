@@ -48,6 +48,7 @@ import '../services/tag_cache_service.dart';
 import '../services/recommended_pack_service.dart';
 import '../services/smart_pack_suggestion_engine.dart';
 import '../services/training_topic_suggestion_engine.dart';
+import '../services/pack_recommendation_engine.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -67,6 +68,7 @@ import '../services/weak_training_type_detector.dart';
 import '../widgets/training_gap_prompt_banner.dart';
 import '../widgets/training_type_gap_prompt_banner.dart';
 import '../widgets/suggested_pack_tile.dart';
+import 'pack_suggestion_preview_screen.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -1605,6 +1607,31 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _showRecommendedForYou() async {
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final all = PackLibraryLoaderService.instance.library;
+    final list = const PackRecommendationEngine().recommend(
+      all: all,
+      preferredTags: _activeTags.isEmpty ? null : _activeTags,
+      preferredAudiences:
+          _audienceFilter == 'all' ? null : {_audienceFilter},
+      preferredDifficulties:
+          _difficultyFilters.isEmpty ? null : _difficultyFilters,
+    );
+    if (!mounted) return;
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Нет рекомендаций')));
+      return;
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PackSuggestionPreviewScreen(packs: list),
+      ),
+    );
+  }
+
   Widget _recommendedCategoryCard() {
     return FutureBuilder<String?>(
       future: context
@@ -2493,19 +2520,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ),
               ),
             ),
-          if (context.watch<DailyPackService>().template != null)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: _startDailyPack,
-                child: Text(l.packOfDay),
-              ),
-            ),
+        if (context.watch<DailyPackService>().template != null)
           Padding(
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
-              onPressed: _startRecommendedPack,
-              child: Text('🎯 ${l.recommendedPacks}'),
+              onPressed: _startDailyPack,
+              child: Text(l.packOfDay),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: ElevatedButton(
+            onPressed: _showRecommendedForYou,
+            child: Text('🔍 ${l.recommendedForYou}'),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: ElevatedButton(
+            onPressed: _startRecommendedPack,
+            child: Text('🎯 ${l.recommendedPacks}'),
             ),
           ),
           _recommendedCategoryCard(),
