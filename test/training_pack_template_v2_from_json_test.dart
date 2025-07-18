@@ -10,13 +10,14 @@ void main() {
       'tags': ['a', 'b'],
       'goal': 'Learn',
       'audience': 'Beginners',
-      'meta': {'x': 1},
+      'meta': {'x': 1, 'theme': 'BTN vs BB'},
     });
     expect(tpl.tags, ['a', 'b']);
     expect(tpl.category, 'a');
     expect(tpl.goal, 'Learn');
     expect(tpl.audience, 'Beginners');
     expect(tpl.meta['x'], 1);
+    expect(tpl.theme, 'BTN vs BB');
   });
 
   test('category falls back to first tag', () {

@@ -72,6 +72,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
   final Set<String> _selectedTags = {};
+  final Set<String> _themeFilters = {};
   /// Current grouping mode: 'tag', 'position', 'stack' or 'none'.
   String _currentGroupKey = 'none';
   final Set<String> _mistakePacks = {};
@@ -93,6 +94,16 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     final entries = counts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return [for (final e in entries) e.key];
+  }
+
+  List<String> get _availableThemes {
+    final set = <String>{};
+    for (final p in _packs) {
+      final th = p.meta['theme']?.toString();
+      if (th != null && th.isNotEmpty) set.add(th);
+    }
+    final list = set.toList()..sort();
+    return list;
   }
 
   @override
@@ -143,7 +154,10 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       }
       final tagOk =
           _selectedTags.isEmpty || p.tags.any(_selectedTags.contains);
-      return diffOk && textOk && statusOk && posOk && stackOk && tagOk;
+      final theme = p.meta['theme']?.toString();
+      final themeOk = _themeFilters.isEmpty ||
+          (theme != null && _themeFilters.contains(theme));
+      return diffOk && textOk && statusOk && posOk && stackOk && tagOk && themeOk;
     }).toList();
     res.sort((a, b) {
       if (_sortMode == _SortMode.rating) {
@@ -258,6 +272,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           if (g is String && g.isNotEmpty) {
             _currentGroupKey = g;
           }
+          _themeFilters
+            ..clear()
+            ..addAll([for (final t in json['themes'] as List? ?? []) t as String]);
         });
       } catch (_) {}
     }
@@ -278,6 +295,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       _posFilters
         ..clear()
         ..addAll(memory.positionFilters);
+      _themeFilters
+        ..clear()
+        ..addAll(memory.themeFilters);
       if (memory.groupByTag) {
         _currentGroupKey = 'tag';
       } else if (memory.groupByPosition) {
@@ -295,6 +315,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       tags: _selectedTags,
       stack: {for (final r in _stackFilters) r.index},
       pos: _posFilters,
+      themes: _themeFilters,
       difficulty: _difficultyFilter,
       groupByTag: _currentGroupKey == 'tag',
       groupByPosition: _currentGroupKey == 'position',
@@ -307,6 +328,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       'pos': [for (final p in _posFilters) p.name],
       'stack': [for (final r in _stackFilters) r.index],
       'tags': _selectedTags.toList(),
+      'themes': _themeFilters.toList(),
       'group': _currentGroupKey,
       'difficulty': _difficultyFilter,
       'sort': _sortMode.index,
@@ -405,6 +427,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     setState(() {
       _selectedTags.clear();
       _stackFilters.clear();
+      _themeFilters.clear();
       _difficultyFilter = null;
       _query = '';
       _currentGroupKey = 'none';
@@ -421,7 +444,24 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     return Card(
       child: ListTile(
         dense: true,
-        title: Text(t.name),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (t.meta['theme'] != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Chip(
+                  label: Text(t.meta['theme'].toString(),
+                      style: const TextStyle(fontSize: 11)),
+                  backgroundColor: Colors.blueGrey,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity:
+                      const VisualDensity(horizontal: -4, vertical: -4),
+                ),
+              ),
+            Text(t.name),
+          ],
+        ),
         subtitle: t.tags.isNotEmpty
             ? Wrap(
                 spacing: 4,
@@ -482,6 +522,16 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (t.meta['theme'] != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Chip(
+                label: Text(t.meta['theme'].toString()),
+                backgroundColor: Colors.blueGrey,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+              ),
+            ),
           Row(
             children: [
               Expanded(
@@ -1117,6 +1167,28 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     ],
                   ),
                 ),
+                if (_availableThemes.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Wrap(
+                      spacing: 8,
+                      children: [
+                        for (final th in _availableThemes)
+                          FilterChip(
+                            label: Text(th),
+                            selected: _themeFilters.contains(th),
+                            onSelected: (_) {
+                              setState(() {
+                                _themeFilters.contains(th)
+                                    ? _themeFilters.remove(th)
+                                    : _themeFilters.add(th);
+                              });
+                              _saveState();
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
                 StreamBuilder<Set<String>>(
                   stream: context.read<FavoritePackService>().favorites$,
                   builder: (context, _) {

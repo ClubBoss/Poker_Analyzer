@@ -13,6 +13,7 @@ class TrainingPackFilterMemoryService {
   Set<String> selectedTags = {};
   Set<int> stackFilters = {};
   Set<HeroPosition> positionFilters = {};
+  Set<String> themeFilters = {};
   String? difficulty;
   bool groupByTag = false;
   bool groupByPosition = false;
@@ -30,6 +31,7 @@ class TrainingPackFilterMemoryService {
         for (final p in json['pos'] as List? ?? [])
           HeroPosition.values.byName(p as String)
       };
+      themeFilters = {for (final t in json['themes'] as List? ?? []) t as String};
       difficulty = json['difficulty'] as String?;
       groupByTag = json['groupByTag'] as bool? ?? false;
       groupByPosition = json['groupByPosition'] as bool? ?? false;
@@ -43,6 +45,7 @@ class TrainingPackFilterMemoryService {
       'tags': selectedTags.toList(),
       'stack': stackFilters.toList(),
       'pos': [for (final p in positionFilters) p.name],
+      'themes': themeFilters.toList(),
       'difficulty': difficulty,
       'groupByTag': groupByTag,
       'groupByPosition': groupByPosition,
@@ -55,6 +58,7 @@ class TrainingPackFilterMemoryService {
     selectedTags.clear();
     stackFilters.clear();
     positionFilters.clear();
+    themeFilters.clear();
     difficulty = null;
     groupByTag = false;
     groupByPosition = false;
@@ -66,6 +70,7 @@ class TrainingPackFilterMemoryService {
     required Set<String> tags,
     required Set<int> stack,
     required Set<HeroPosition> pos,
+    required Set<String> themes,
     required String? difficulty,
     required bool groupByTag,
     required bool groupByPosition,
@@ -74,6 +79,7 @@ class TrainingPackFilterMemoryService {
     selectedTags = {...tags};
     stackFilters = {...stack};
     positionFilters = {...pos};
+    themeFilters = {...themes};
     this.difficulty = difficulty;
     this.groupByTag = groupByTag;
     this.groupByPosition = groupByPosition;
