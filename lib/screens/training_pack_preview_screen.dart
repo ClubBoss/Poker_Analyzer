@@ -5,6 +5,7 @@ import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
 import '../services/training_pack_comments_service.dart';
 import '../widgets/pack_insights_banner.dart';
+import '../widgets/pack_recommendation_section.dart';
 import 'training_session_screen.dart';
 
 class TrainingPackPreviewScreen extends StatefulWidget {
@@ -183,6 +184,7 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
             },
             child: const Text('Начать тренировку'),
           ),
+          PackRecommendationSection(template: widget.template),
         ],
       ),
     );
