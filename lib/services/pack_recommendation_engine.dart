@@ -1,4 +1,5 @@
 import '../models/v2/training_pack_template_v2.dart';
+import 'user_profile_preference_service.dart';
 
 class PackRecommendationEngine {
   const PackRecommendationEngine();
@@ -9,11 +10,14 @@ class PackRecommendationEngine {
     Set<String>? preferredAudiences,
     Set<int>? preferredDifficulties,
   }) {
-    final tagSet =
-        preferredTags?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
-    final audienceSet =
-        preferredAudiences?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
-    final difficultySet = preferredDifficulties ?? {};
+    final profile = UserProfilePreferenceService.instance;
+    final tagSet = (preferredTags ?? profile.preferredTags)
+        .map((e) => e.trim().toLowerCase())
+        .toSet();
+    final audienceSet = (preferredAudiences ?? profile.preferredAudiences)
+        .map((e) => e.trim().toLowerCase())
+        .toSet();
+    final difficultySet = preferredDifficulties ?? profile.preferredDifficulties;
 
     final entries = <MapEntry<TrainingPackTemplateV2, int>>[];
 

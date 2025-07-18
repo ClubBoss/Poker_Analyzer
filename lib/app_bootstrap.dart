@@ -4,6 +4,7 @@ import 'services/pack_favorite_service.dart';
 import 'services/pack_rating_service.dart';
 import 'services/training_pack_comments_service.dart';
 import 'services/pinned_pack_service.dart';
+import 'services/user_profile_preference_service.dart';
 import 'services/cloud_sync_service.dart';
 import 'services/session_note_service.dart';
 import 'services/connectivity_sync_controller.dart';
@@ -38,6 +39,7 @@ class AppBootstrap {
     await TrainingPackCommentsService.instance.load();
     await FavoritePackService.instance.init();
     await PinnedPackService.instance.init();
+    await UserProfilePreferenceService.instance.load();
     if (cloud != null) {
       await cloud.init();
       await cloud.syncUp();

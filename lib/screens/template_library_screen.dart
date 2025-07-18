@@ -55,6 +55,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/training_type_stats_service.dart';
+import '../services/user_profile_preference_service.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
@@ -191,6 +192,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
+    await UserProfilePreferenceService.instance.load();
     await PackLibraryLoaderService.instance.loadLibrary();
     final counts = <String, int>{};
     for (final t in PackLibraryLoaderService.instance.library) {
@@ -206,6 +208,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         return r == 0 ? a.compareTo(b) : r;
       });
     await _load(prefs);
+    _applyProfilePreferences();
     await _autoImport(prefs);
     await _loadPlayCounts();
     await _updatePopular();
@@ -334,6 +337,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (_needsPractice) _updateNeedsPractice(true);
     if (_needsRepetition) _updateNeedsRepetition(true);
     if (_needsPracticeOnly) _updateNeedsPracticeOnly(true);
+  }
+
+  void _applyProfilePreferences() {
+    final profile = UserProfilePreferenceService.instance;
+    setState(() {
+      if (_activeTags.isEmpty && profile.preferredTags.isNotEmpty) {
+        _activeTags.addAll(profile.preferredTags);
+      }
+      if (_audienceFilter == 'all' && profile.preferredAudiences.isNotEmpty) {
+        _audienceFilter = profile.preferredAudiences.first;
+      }
+      if (_difficultyFilters.isEmpty &&
+          profile.preferredDifficulties.isNotEmpty) {
+        _difficultyFilters.addAll(profile.preferredDifficulties);
+      }
+    });
   }
 
   Future<void> _setFilter(String value) async {
@@ -505,6 +524,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _activeCategories..clear();
       await prefs.remove(_actCatsKey);
     }
+    await UserProfilePreferenceService.instance
+        .setPreferredTags(_activeTags);
     setState(() {});
   }
 
@@ -516,13 +537,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     } else {
       await prefs.setStringList(_actTagsKey, _activeTags.toList());
     }
+    await UserProfilePreferenceService.instance
+        .setPreferredTags(_activeTags);
     setState(() {});
   }
 
   Future<void> _clearActiveTags() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_actTagsKey);
-    setState(() => _activeTags.clear());
+    _activeTags.clear();
+    await UserProfilePreferenceService.instance.setPreferredTags(_activeTags);
+    setState(() {});
   }
 
   Future<void> _setActiveCategory(String cat) async {
@@ -548,10 +573,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await prefs.remove(_actTagsKey);
     await prefs.remove(_actCatsKey);
     await prefs.remove(_lastCatKey);
-    setState(() {
-      _activeTags.clear();
-      _activeCategories.clear();
-    });
+    _activeTags.clear();
+    _activeCategories.clear();
+    await UserProfilePreferenceService.instance
+        .setPreferredTags(_activeTags);
+    setState(() {});
   }
 
   Future<void> _setActiveTagForce(String tag) async {
@@ -562,6 +588,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await prefs.setStringList(_actTagsKey, [tag]);
     _activeCategories.clear();
     await prefs.remove(_actCatsKey);
+    await UserProfilePreferenceService.instance
+        .setPreferredTags(_activeTags);
     setState(() {});
   }
 
@@ -623,6 +651,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       await prefs.setStringList(
           _diffKey, _difficultyFilters.map((e) => e.toString()).toList());
     }
+    await UserProfilePreferenceService.instance
+        .setPreferredDifficulties(_difficultyFilters);
     setState(() {});
   }
 
@@ -633,6 +663,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     } else {
       await prefs.setString(_audienceKey, value);
     }
+    await UserProfilePreferenceService.instance.setPreferredAudiences(
+        value == 'all' ? {} : {value});
     setState(() => _audienceFilter = value);
   }
 
@@ -665,12 +697,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await prefs.remove(_selCatsKey);
     await prefs.remove(_actTagsKey);
     await prefs.remove(_actCatsKey);
-    setState(() {
-      _selectedTags.clear();
-      _selectedCategories.clear();
-      _activeTags.clear();
-      _activeCategories.clear();
-    });
+    _selectedTags.clear();
+    _selectedCategories.clear();
+    _activeTags.clear();
+    _activeCategories.clear();
+    await UserProfilePreferenceService.instance.setPreferredTags(_activeTags);
+    setState(() {});
   }
 
   Future<void> _setShowRecent(bool value) async {
