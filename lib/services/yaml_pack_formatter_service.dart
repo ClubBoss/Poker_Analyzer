@@ -13,7 +13,9 @@ class YamlPackFormatterService {
 
   Map<String, dynamic> _packMap(TrainingPackTemplateV2 p) {
     final map = LinkedHashMap<String, dynamic>();
-    if (p.meta.isNotEmpty) map['meta'] = _cleanMap(p.meta);
+    final meta = _cleanMap(p.meta);
+    meta['trainingType'] = p.trainingType.name;
+    if (meta.isNotEmpty) map['meta'] = meta;
     map['name'] = p.name;
     if (p.goal.trim().isNotEmpty) map['goal'] = p.goal;
     if (p.tags.isNotEmpty) {
