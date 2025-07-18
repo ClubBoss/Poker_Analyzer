@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/pack_search_index_service.dart';
 import '../services/training_pack_library_loader_service.dart';
 import '../models/v2/training_pack_template_v2.dart';
-import '../models/v2/training_pack_v2.dart';
-import '../services/training_session_service.dart';
-import 'training_session_screen.dart';
+import 'training_pack_preview_screen.dart';
 import '../widgets/pack_card.dart';
 import '../theme/app_colors.dart';
-import 'package:provider/provider.dart';
 
 class PackLibrarySearchScreen extends StatefulWidget {
   const PackLibrarySearchScreen({super.key});
@@ -43,12 +40,11 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
   }
 
   Future<void> _open(TrainingPackTemplateV2 tpl) async {
-    final pack = TrainingPackV2.fromTemplate(tpl, tpl.id);
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TrainingSessionScreen(pack: pack)),
+      MaterialPageRoute(
+        builder: (_) => TrainingPackPreviewScreen(template: tpl),
+      ),
     );
   }
 
