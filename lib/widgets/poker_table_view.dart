@@ -50,6 +50,8 @@ class PokerTableView extends StatefulWidget {
   final double sizeFactor;
   final TableTheme theme;
   final void Function(TableTheme)? onThemeChanged;
+  final bool compactMode;
+  final bool showStackValues;
   const PokerTableView({
     super.key,
     required this.heroIndex,
@@ -75,6 +77,8 @@ class PokerTableView extends StatefulWidget {
     this.sizeFactor = 1.0,
     this.theme = TableTheme.dark,
     this.onThemeChanged,
+    this.compactMode = false,
+    this.showStackValues = true,
   });
 
   @override
@@ -382,6 +386,38 @@ class _PokerTableViewState extends State<PokerTableView> {
             ),
           ),
         ));
+        if (widget.showStackValues) {
+          final textColor = stack > 100
+              ? Colors.green
+              : (stack >= 20 ? Colors.yellow : Colors.red);
+          final text = widget.compactMode
+              ? stack.toStringAsFixed(0)
+              : '${stack.toStringAsFixed(0)} BB';
+          final fontSize = (widget.compactMode ? 8 : 10) * widget.scale;
+          final dx = widget.compactMode ? 28 * widget.scale : 0.0;
+          final dy =
+              widget.compactMode ? -4 * widget.scale : -10 * widget.scale;
+          items.add(Positioned(
+            left: offset.dx + dx,
+            top: offset.dy + dy,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: 2 * widget.scale, vertical: 1 * widget.scale),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
+              ),
+            ),
+          ));
+        }
         final action = i < widget.playerActions.length
             ? widget.playerActions[i]
             : PlayerAction.none;
