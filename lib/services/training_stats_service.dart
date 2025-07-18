@@ -43,6 +43,7 @@ class TrainingStatsService extends ChangeNotifier {
   static const _evalCorrectKey = 'stats_eval_correct';
   static const _evalHistoryKey = 'stats_eval_history';
   static const _skillStatsKey = 'stats_skill_stats';
+  static const _mistakeCountsKey = 'stats_mistake_counts';
   static const _timeKey = 'stats_updated';
 
   int _sessions = 0;
@@ -60,6 +61,7 @@ class TrainingStatsService extends ChangeNotifier {
   Map<String, int> _handsPerDay = {};
   Map<String, int> _mistakesPerDay = {};
   Map<String, SkillStat> _skillStats = {};
+  Map<String, int> _mistakeCounts = {};
 
   Map<DateTime, int> get handsPerDay =>
       {for (final e in _handsPerDay.entries) DateTime.parse(e.key): e.value};
@@ -79,6 +81,7 @@ class TrainingStatsService extends ChangeNotifier {
       _evalTotal > 0 ? _evalCorrect / _evalTotal : 0.0;
   List<double> get evalHistory => List.unmodifiable(_evalHistory);
   Map<String, SkillStat> get skillStats => _skillStats;
+  Map<String, int> get mistakeCounts => Map.unmodifiable(_mistakeCounts);
 
   Stream<int> get sessionsStream => _sessionController.stream;
   Stream<int> get handsStream => _handsController.stream;
@@ -465,6 +468,12 @@ class TrainingStatsService extends ChangeNotifier {
           e.key: SkillStat.fromJson(Map<String, dynamic>.from(e.value))
       };
     }
+    final countsRaw = prefs.getString(_mistakeCountsKey);
+    if (countsRaw != null) {
+      final data = jsonDecode(countsRaw) as Map<String, dynamic>;
+      _mistakeCounts =
+          {for (final e in data.entries) e.key: (e.value as num).toInt()};
+    }
     _currentStreak = prefs.getInt(_currentStreakKey) ?? 0;
     _bestStreak = prefs.getInt(_bestStreakKey) ?? 0;
     if (cloud != null) {
@@ -510,6 +519,11 @@ class TrainingStatsService extends ChangeNotifier {
                     SkillStat.fromJson(Map<String, dynamic>.from(e.value as Map))
             };
           }
+          final counts = remote['mistakeCounts'];
+          if (counts is Map) {
+            _mistakeCounts =
+                {for (final e in counts.entries) e.key: (e.value as num).toInt()};
+          }
           await _persist(remoteAt);
         } else if (localAt.isAfter(remoteAt)) {
           await cloud!.uploadTrainingStats(_toMap());
@@ -535,6 +549,7 @@ class TrainingStatsService extends ChangeNotifier {
         'skills': {
           for (final e in _skillStats.entries) e.key: e.value.toJson()
         },
+        'mistakeCounts': _mistakeCounts,
         'updatedAt': DateTime.now().toIso8601String(),
       };
 
@@ -556,6 +571,7 @@ class TrainingStatsService extends ChangeNotifier {
       _skillStatsKey,
       jsonEncode({for (final e in _skillStats.entries) e.key: e.value.toJson()}),
     );
+    await prefs.setString(_mistakeCountsKey, jsonEncode(_mistakeCounts));
     await prefs.setString(_timeKey, ts.toIso8601String());
   }
 
@@ -596,6 +612,18 @@ class TrainingStatsService extends ChangeNotifier {
     await _save();
     notifyListeners();
     _mistakeController.add(_mistakes);
+  }
+
+  Future<void> overwriteMistakeCounts(Map<String, int> map) async {
+    _mistakeCounts
+      ..clear()
+      ..addAll(map);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_mistakeCountsKey, jsonEncode(_mistakeCounts));
+    if (cloud != null) {
+      await cloud!.uploadTrainingStats(_toMap());
+    }
+    notifyListeners();
   }
 
   Future<void> updateSkill(String? category, double? ev, bool mistake) async {

@@ -12,6 +12,7 @@ import 'cloud_retry_policy.dart';
 import '../models/saved_hand.dart';
 import '../models/session_log.dart';
 import 'pack_launch_history_sync_service.dart';
+import 'mistake_history_sync_service.dart';
 
 class CloudSyncService {
   CloudSyncService({FirebaseFirestore? firestore, FirebaseAuth? auth})
@@ -87,6 +88,7 @@ class CloudSyncService {
     });
 
     await PackLaunchHistorySyncService(uid: uid).sync();
+    await MistakeHistorySyncService(uid: uid).sync();
   }
 
   Future<void> syncUp() async {
