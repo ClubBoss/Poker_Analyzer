@@ -794,6 +794,53 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return Colors.red;
   }
 
+  String getStreetLabel(String code) {
+    switch (code) {
+      case 'preflop':
+        return 'Preflop';
+      case 'flop':
+        return 'Flop';
+      case 'turn':
+        return 'Turn';
+      case 'river':
+        return 'River';
+      default:
+        return code;
+    }
+  }
+
+  Color _streetColor(String code) {
+    switch (code) {
+      case 'preflop':
+        return Colors.deepPurple;
+      case 'flop':
+        return Colors.green;
+      case 'turn':
+        return Colors.orange;
+      case 'river':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _streetBadge(String street, {required bool compact}) {
+    final color = _streetColor(street);
+    final label = getStreetLabel(street);
+    return Container(
+      margin: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        compact ? '🔥' : '🔥 $label',
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
+
   double _effectivenessScore(TrainingPackTemplate t) {
     final count = _playCounts[t.id] ?? 0;
     final ev = _stats[t.id]?.evSum ?? 0.0;
@@ -1594,14 +1641,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                t.name,
-                style: t.isBuiltIn
-                    ? TextStyle(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      )
-                    : null,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.name,
+                      style: t.isBuiltIn
+                          ? TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            )
+                          : null,
+                    ),
+                  ),
+                  if (t.targetStreet != null)
+                    _streetBadge(t.targetStreet!, compact: true),
+                ],
               ),
               if (t.category != null && t.category!.isNotEmpty)
                 Text(
@@ -1699,6 +1754,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         : null,
                   ),
                 ),
+                if (t.targetStreet != null) _streetBadge(t.targetStreet!, compact: false),
                 if (t.category != null && t.category!.isNotEmpty) ...[
                   const SizedBox(width: 4),
                   Text(
