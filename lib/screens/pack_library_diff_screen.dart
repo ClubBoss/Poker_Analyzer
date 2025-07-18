@@ -12,7 +12,9 @@ import '../services/yaml_pack_diff_service.dart';
 import '../widgets/markdown_preview_dialog.dart';
 
 class PackLibraryDiffScreen extends StatefulWidget {
-  const PackLibraryDiffScreen({super.key});
+  final TrainingPackTemplateV2? packA;
+  final TrainingPackTemplateV2? packB;
+  const PackLibraryDiffScreen({super.key, this.packA, this.packB});
 
   @override
   State<PackLibraryDiffScreen> createState() => _PackLibraryDiffScreenState();
@@ -23,6 +25,13 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
   TrainingPackTemplateV2? _packB;
   String? _fileA;
   String? _fileB;
+
+  @override
+  void initState() {
+    super.initState();
+    _packA = widget.packA;
+    _packB = widget.packB;
+  }
 
   Future<void> _pickA() async {
     final result = await FilePicker.platform.pickFiles(
