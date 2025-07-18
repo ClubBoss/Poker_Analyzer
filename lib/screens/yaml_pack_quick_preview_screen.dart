@@ -36,8 +36,8 @@ class _YamlPackQuickPreviewScreenState extends State<YamlPackQuickPreviewScreen>
         .whereType<File>()
         .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
-        final map = reader.read(await f.readAsString());
-        list.add((f, TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map))));
+        final yaml = await f.readAsString();
+        list.add((f, TrainingPackTemplateV2.fromYamlAuto(yaml)));
       } catch (_) {}
     }
     list.sort((a, b) => b.$1.statSync().modified.compareTo(a.$1.statSync().modified));

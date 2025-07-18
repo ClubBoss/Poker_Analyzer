@@ -38,8 +38,9 @@ class PackStatsIndexService {
         .where((f) => f.path.toLowerCase().endsWith('.yaml'));
     for (final f in files) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await f.readAsString();
+        final map = reader.read(yaml);
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         final tags = <String>{for (final t in tpl.tags) t.trim().toLowerCase()}
           ..removeWhere((e) => e.isEmpty);
         final uniq = tags.where((t) => tagCounts[t] == 1).length;

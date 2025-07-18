@@ -26,8 +26,9 @@ class PackLibraryConflictScanner {
         .whereType<File>()
         .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await f.readAsString();
+        final map = reader.read(yaml);
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         if (idMap.containsKey(tpl.id)) {
           duplicates.add(f.path);
         } else {

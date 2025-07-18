@@ -109,6 +109,15 @@ class TrainingPackTemplateV2 {
     return TrainingPackTemplateV2.fromJson(map);
   }
 
+  factory TrainingPackTemplateV2.fromYamlAuto(String source) {
+    final map = const YamlReader().read(source);
+    final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    if ((map['trainingType'] ?? map['type']) == null) {
+      tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
+    }
+    return tpl;
+  }
+
   String toYaml() => const YamlEncoder().convert(toJson());
 
   factory TrainingPackTemplateV2.fromTemplate(

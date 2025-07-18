@@ -21,8 +21,9 @@ class PackLibraryDuplicateCleaner {
         .whereType<File>()
         .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        final yaml = await f.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+        final map = reader.read(yaml);
         final json = jsonEncode(tpl.toJson());
         if (ids.containsKey(tpl.id) || hashes.containsKey(json)) {
           await f.delete();

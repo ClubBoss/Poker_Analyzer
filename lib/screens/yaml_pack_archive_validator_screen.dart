@@ -119,7 +119,7 @@ Future<List<Map<String, dynamic>>> _validateTask(String _) async {
             String? err;
             try {
               final content = await f.readAsString();
-              final tpl = TrainingPackTemplateV2.fromYaml(content);
+              final tpl = TrainingPackTemplateV2.fromYamlAuto(content);
               final v = tpl.meta['schemaVersion']?.toString();
               if (versionLess(v)) err = 'outdated';
             } on FormatException catch (_) {

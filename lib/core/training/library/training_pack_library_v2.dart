@@ -33,11 +33,10 @@ class TrainingPackLibraryV2 {
     );
     if (paths.isEmpty) return;
     clear();
-    const reader = YamlReader();
     for (final p in paths) {
       try {
-        final map = reader.read(await rootBundle.loadString(p));
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await rootBundle.loadString(p);
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         addPack(tpl);
       } catch (_) {}
     }

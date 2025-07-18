@@ -47,8 +47,8 @@ class PackLibraryImportService {
         final bytes = await f.readAsBytes();
         final hash = md5.convert(bytes).toString();
         if (hashes.contains(hash)) continue;
-        final map = const YamlReader().read(utf8.decode(bytes));
-        TrainingPackTemplateV2.fromJson(map);
+        final yaml = utf8.decode(bytes);
+        TrainingPackTemplateV2.fromYamlAuto(yaml);
         await File(p.join(libDir.path, name)).writeAsBytes(bytes, flush: true);
         names.add(name);
         hashes.add(hash);

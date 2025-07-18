@@ -55,9 +55,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       var outdated = false;
       try {
         final yaml = await f.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         final map = const YamlReader().read(yaml);
-        final tpl =
-            TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
         final v = tpl.meta['schemaVersion']?.toString();
         outdated = _versionLess(v, '2.0.0');
       } catch (_) {}
@@ -78,9 +77,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
     try {
       final yaml = await file.readAsString();
       final map = const YamlReader().read(yaml);
-      final tpl = TrainingPackTemplateV2.fromJson(
-        Map<String, dynamic>.from(map),
-      );
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       md = const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl);
     } catch (_) {}
     if (!mounted) return;
@@ -94,9 +91,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
   Future<void> _validate(File file) async {
     try {
       final yaml = await file.readAsString();
-      final map = const YamlReader().read(yaml);
-      final tpl =
-          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final report = const YamlPackValidatorService().validate(tpl);
       if (!mounted) return;
       final msg = report.errors.isEmpty && report.warnings.isEmpty
@@ -114,9 +109,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
   Future<void> _autoFix(File file) async {
     try {
       final yaml = await file.readAsString();
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final map = const YamlReader().read(yaml);
-      final tpl =
-          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       await const YamlPackHistoryService().saveSnapshot(tpl, 'fix');
       final fixed = const YamlPackAutoFixEngine().autoFix(tpl);
       const service = YamlPackHistoryService();
@@ -143,9 +137,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
   Future<void> _formatYaml(File file) async {
     try {
       final yaml = await file.readAsString();
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final map = const YamlReader().read(yaml);
-      final tpl =
-          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       await const YamlPackHistoryService().saveSnapshot(tpl, 'format');
       const service = YamlPackHistoryService();
       service.addChangeLog(tpl, 'format', 'editor', 'format');
@@ -173,9 +166,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
   Future<void> _previewMarkdown(File file) async {
     try {
       final yaml = await file.readAsString();
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final map = const YamlReader().read(yaml);
-      final tpl =
-          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       final md =
           const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl);
       if (md != null && mounted) {
@@ -187,8 +179,7 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
   Future<void> _showHistory(File file) async {
     try {
       final yaml = await file.readAsString();
-      final map = const YamlReader().read(yaml);
-      final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final md = await const YamlPackChangelogService().loadChangeLog(tpl.id);
       if (!mounted) return;
       if (md == null) {

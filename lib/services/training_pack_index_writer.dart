@@ -24,8 +24,8 @@ class TrainingPackIndexWriter {
     final list = <Map<String, dynamic>>[];
     for (final file in files) {
       try {
-        final map = reader.read(await file.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await file.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         list.add({
           'title': tpl.name,
           if (tpl.tags.isNotEmpty) 'tags': tpl.tags,

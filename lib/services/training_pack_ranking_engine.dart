@@ -36,8 +36,8 @@ class TrainingPackRankingEngine {
     final paths = <TrainingPackTemplateV2, String>{};
     for (final f in files) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await f.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         templates.add(tpl);
         paths[tpl] = f.path;
       } catch (_) {}

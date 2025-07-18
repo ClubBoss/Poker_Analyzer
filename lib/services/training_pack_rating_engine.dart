@@ -96,8 +96,9 @@ class TrainingPackRatingEngine {
             .whereType<File>()
             .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
       try {
-        final map = reader.read(await file.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await file.readAsString();
+        final map = reader.read(yaml);
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         final rating = _calcRating(tpl);
         final meta = Map<String, dynamic>.from(tpl.meta);
         meta['rating'] = rating;

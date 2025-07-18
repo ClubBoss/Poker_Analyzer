@@ -20,8 +20,9 @@ class EvaluationScoringService {
         .whereType<File>()
         .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
       try {
-        final map = reader.read(await file.readAsString());
-        TrainingPackTemplateV2.fromJson(map);
+        final yaml = await file.readAsString();
+        final map = reader.read(yaml);
+        TrainingPackTemplateV2.fromYamlAuto(yaml);
         final spots = map['spots'] as List? ?? [];
         var evSum = 0.0;
         var evCount = 0;

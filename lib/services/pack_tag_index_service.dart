@@ -25,8 +25,8 @@ class PackTagIndexService {
         .where((f) => f.path.toLowerCase().endsWith('.yaml'));
     for (final f in files) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await f.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         final rel = p.relative(f.path, from: dir.path);
         final tags = <String>{
           for (final t in tpl.tags) t.trim().toLowerCase()

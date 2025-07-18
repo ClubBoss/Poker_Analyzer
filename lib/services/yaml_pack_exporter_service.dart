@@ -16,8 +16,7 @@ class YamlPackExporterService {
       tpl = pack;
     } else if (pack is File) {
       final yaml = await pack.readAsString();
-      final map = const YamlReader().read(yaml);
-      tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
     } else {
       throw ArgumentError('pack');
     }

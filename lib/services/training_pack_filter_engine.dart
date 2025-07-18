@@ -26,8 +26,9 @@ class TrainingPackFilterEngine {
         .whereType<File>()
         .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(map);
+        final yaml = await f.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+        final map = tpl.toJson();
         final meta = tpl.meta;
         final ev = (meta['evScore'] as num?)?.toDouble();
         final rating = (meta['rating'] as num?)?.toDouble();

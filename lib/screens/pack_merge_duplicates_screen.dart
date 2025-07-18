@@ -102,8 +102,8 @@ Future<List<YamlPackConflict>> _conflictTask(String _) async {
       .whereType<File>()
       .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
     try {
-      final map = reader.read(await f.readAsString());
-      packs.add(TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map)));
+      final yaml = await f.readAsString();
+      packs.add(TrainingPackTemplateV2.fromYamlAuto(yaml));
     } catch (_) {}
   }
   final res = const YamlPackConflictDetector().detectConflicts(packs);
