@@ -877,6 +877,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                 revealedCards: const [],
                 boardCards: boardCards,
                 currentStreet: _currentStreet,
+                showPlayerActions: true,
                 scale: scale,
               ),
             ),
