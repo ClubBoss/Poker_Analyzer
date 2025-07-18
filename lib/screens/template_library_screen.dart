@@ -850,6 +850,51 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Color _trainingTypeColor(String type) {
+    switch (type) {
+      case 'coverage':
+        return Colors.blue;
+      case 'mistakes':
+        return Colors.orange;
+      case 'streaks':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget trainingTypeBadge(String type, {required bool compact}) {
+    final color = _trainingTypeColor(type);
+    final label = switch (type) {
+      'coverage' => 'Coverage',
+      'mistakes' => 'Mistakes',
+      'streaks' => 'Streaks',
+      _ => 'Custom'
+    };
+    final icon = switch (type) {
+      'coverage' => '📘',
+      'mistakes' => '⚠️',
+      'streaks' => '🔁',
+      _ => '🛠'
+    };
+    final badge = Container(
+      margin: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        compact ? icon : '$icon $label',
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+    if (!kIsWeb && (Platform.isMacOS || Platform.isLinux || Platform.isWindows)) {
+      return Tooltip(message: label, child: badge);
+    }
+    return badge;
+  }
+
   double _effectivenessScore(TrainingPackTemplate t) {
     final count = _playCounts[t.id] ?? 0;
     final ev = _stats[t.id]?.evSum ?? 0.0;
@@ -1667,6 +1712,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   ),
                   if (t.targetStreet != null)
                     _streetBadge(t.targetStreet!, compact: true),
+                  trainingTypeBadge(t.trainingType.name, compact: true),
                 ],
               ),
               if (t.category != null && t.category!.isNotEmpty)
@@ -1766,6 +1812,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   ),
                 ),
                 if (t.targetStreet != null) _streetBadge(t.targetStreet!, compact: false),
+                trainingTypeBadge(t.trainingType.name, compact: false),
                 if (t.category != null && t.category!.isNotEmpty) ...[
                   const SizedBox(width: 4),
                   Text(
@@ -2043,6 +2090,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         title: Row(
           children: [
             Expanded(child: Text(t.name)),
+            if (t.trainingType.name.isNotEmpty)
+              trainingTypeBadge(t.trainingType.name, compact: false),
             if (_progressPercentForLib(t) == 100)
               const Tooltip(
                 message: 'Пройден на 100%',
