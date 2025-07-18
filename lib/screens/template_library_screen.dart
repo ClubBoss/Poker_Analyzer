@@ -96,7 +96,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _diffKey = 'lib_difficulty_filter';
   static const _audienceKey = 'lib_audience_filter';
   static const _trainingTypeKey = 'lib_training_type';
-  static const _streetKey = 'lib_target_street';
+  static const _streetKey = 'lib_target_streets';
   static const _actTagsKey = 'lib_act_tags';
   static const _actCatsKey = 'lib_act_cats';
   static const _lastCatKey = 'lib_last_selected_category';
@@ -151,7 +151,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<int> _difficultyFilters = {};
   String _audienceFilter = 'all';
   TrainingType? _trainingType;
-  String? _streetFilter;
+  final Set<String> _streetFilters = {};
   bool _importing = false;
   String _dailyQuote = '';
   List<String> _libraryTags = [];
@@ -283,7 +283,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       } else {
         _trainingType = null;
       }
-      _streetFilter = prefs.getString(_streetKey);
+      _streetFilters
+        ..clear()
+        ..addAll(prefs.getStringList(_streetKey) ?? []);
+      if (_streetFilters.isEmpty) {
+        final legacy = prefs.getString('lib_target_street');
+        if (legacy != null && legacy.isNotEmpty) _streetFilters.add(legacy);
+      }
       _difficultyFilters
         ..clear()
         ..addAll(
@@ -573,14 +579,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() => _trainingType = type);
   }
 
-  Future<void> _setStreetFilter(String? street) async {
+  Future<void> _toggleStreet(String street) async {
     final prefs = await SharedPreferences.getInstance();
-    if (street == null) {
+    if (!_streetFilters.add(street)) {
+      _streetFilters.remove(street);
+    }
+    if (_streetFilters.isEmpty) {
       await prefs.remove(_streetKey);
     } else {
-      await prefs.setString(_streetKey, street);
+      await prefs.setStringList(_streetKey, _streetFilters.toList());
     }
-    setState(() => _streetFilter = street);
+    setState(() {});
   }
 
   Future<void> _clearTagFilters() async {
@@ -1159,10 +1168,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (_difficultyFilters.contains((t as dynamic).difficultyLevel)) t
       ];
     }
-    if (_streetFilter != null) {
+    if (_streetFilters.isNotEmpty) {
       visible = [
         for (final t in visible)
-          if ((t as dynamic).targetStreet == _streetFilter) t
+          if ((t as dynamic).targetStreet != null &&
+              _streetFilters.contains((t as dynamic).targetStreet))
+            t
       ];
     }
     return visible;
@@ -2117,7 +2128,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _activeCategories.length +
         _difficultyFilters.length +
         (_trainingType == null ? 0 : 1) +
-        (_streetFilter == null ? 0 : 1);
+        _streetFilters.length;
     final hasResults = sortedVisible.isNotEmpty;
     final filteringActive = query.isNotEmpty ||
         _filter != 'all' ||
@@ -2134,7 +2145,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _activeCategories.isNotEmpty ||
         _difficultyFilters.isNotEmpty ||
         _trainingType != null ||
-        _streetFilter != null;
+        _streetFilters.isNotEmpty;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
     for (final t in sortedVisible) {
@@ -2266,17 +2277,23 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ],
             ),
             const SizedBox(width: 8),
-            DropdownButton<String>(
-              value: _streetFilter ?? 'any',
-              underline: const SizedBox.shrink(),
-              onChanged: (v) => _setStreetFilter(v == 'any' ? null : v),
-              items: const [
-                DropdownMenuItem(value: 'any', child: Text('Все')),
-                DropdownMenuItem(value: 'preflop', child: Text('Preflop')),
-                DropdownMenuItem(value: 'flop', child: Text('Flop')),
-                DropdownMenuItem(value: 'turn', child: Text('Turn')),
-                DropdownMenuItem(value: 'river', child: Text('River')),
+            PopupMenuButton<String>(
+              tooltip: 'Street',
+              onSelected: _toggleStreet,
+              itemBuilder: (ctx) => [
+                for (final street in ['preflop', 'flop', 'turn', 'river'])
+                  CheckedPopupMenuItem(
+                    value: street,
+                    checked: _streetFilters.contains(street),
+                    child: Text(getStreetLabel(street)),
+                  ),
               ],
+              child: Row(
+                children: [
+                  const Icon(Icons.filter_alt, color: Colors.white70),
+                  for (final s in _streetFilters) _streetBadge(s, compact: true),
+                ],
+              ),
             ),
             PopupMenuButton<String>(
               icon: Icon(_sortIcons[_sort], color: Colors.white70),
@@ -2701,18 +2718,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   selected: _difficultyFilters.contains(3),
                   onSelected: (_) => _toggleDifficulty(3),
                 ),
-                DropdownButton<String>(
-                  value: _streetFilter ?? 'any',
-                  underline: const SizedBox.shrink(),
-                  onChanged: (v) => _setStreetFilter(v == 'any' ? null : v),
-                  items: const [
-                    DropdownMenuItem(value: 'any', child: Text('Все')),
-                    DropdownMenuItem(value: 'preflop', child: Text('Preflop')),
-                    DropdownMenuItem(value: 'flop', child: Text('Flop')),
-                    DropdownMenuItem(value: 'turn', child: Text('Turn')),
-                    DropdownMenuItem(value: 'river', child: Text('River')),
-                  ],
-                ),
+                for (final street in ['preflop', 'flop', 'turn', 'river'])
+                  FilterChip(
+                    label: Text(getStreetLabel(street)),
+                    selected: _streetFilters.contains(street),
+                    onSelected: (_) => _toggleStreet(street),
+                  ),
               ],
             ),
           ),
