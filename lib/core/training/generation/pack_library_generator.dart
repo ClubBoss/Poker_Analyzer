@@ -86,11 +86,11 @@ class PackLibraryGenerator {
     return autoTags(tmp);
   }
 
-  String generateTitle(TrainingPackTemplate template, [TrainingType type = TrainingType.pushfold]) {
+  String generateTitle(TrainingPackTemplate template, [TrainingType type = TrainingType.pushFold]) {
     final pos = template.heroPos.label;
     final bb = template.heroBbStack;
     final game = template.gameType.label;
-    if (type == TrainingType.pushfold) {
+    if (type == TrainingType.pushFold) {
       return '$pos Push ${bb}bb ($game)';
     }
     final stack = bb >= 40 ? 'DeepStack Pack' : '${bb}bb Pack';
@@ -101,7 +101,7 @@ class PackLibraryGenerator {
     final pos = t.positions.isNotEmpty ? parseHeroPosition(t.positions.first).label : HeroPosition.unknown.label;
     final bb = t.bb;
     final game = t.gameType.label;
-    if (t.type == TrainingType.pushfold) {
+    if (t.trainingType == TrainingType.pushFold) {
       return '$pos Push ${bb}bb ($game)';
     }
     final stack = bb >= 40 ? 'DeepStack Pack' : '${bb}bb Pack';
@@ -191,7 +191,7 @@ class PackLibraryGenerator {
         multiplePositions: r.multiplePositions,
       );
       tagger.tag(
-        TrainingPackTemplateV2.fromTemplate(tpl, type: TrainingType.pushfold),
+        TrainingPackTemplateV2.fromTemplate(tpl, type: TrainingType.pushFold),
         source: PackSource.yaml.name,
       );
       tpl.meta['source'] ??= PackSource.yaml.name;
@@ -214,7 +214,7 @@ class PackLibraryGenerator {
       if (tags.isNotEmpty) tpl.tags = tags;
       final tV2 = TrainingPackTemplateV2.fromTemplate(
         tpl,
-        type: TrainingType.pushfold,
+        type: TrainingType.pushFold,
       );
       final autoTagList = tagsEngine.generate(tV2);
       tpl.spotCount = tpl.spots.length;

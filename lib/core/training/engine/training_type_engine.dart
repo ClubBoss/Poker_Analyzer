@@ -3,7 +3,7 @@ import '../generation/pack_generation_request.dart';
 import '../../../models/v2/training_pack_template.dart';
 import '../../../models/v2/training_pack_template_v2.dart';
 
-enum TrainingType { pushfold, postflop, exploit, bluffcatch, callrange }
+enum TrainingType { pushFold, postflop, icm, bounty, custom, quiz }
 
 abstract class TrainingPackBuilder {
   Future<TrainingPackTemplateV2> build(PackGenerationRequest request);
@@ -33,7 +33,7 @@ class PushFoldPackBuilder implements TrainingPackBuilder {
     tpl.spotCount = tpl.spots.length;
     final res = TrainingPackTemplateV2.fromTemplate(
       tpl,
-      type: TrainingType.pushfold,
+      type: TrainingType.pushFold,
     );
     res.audience = tpl.meta['audience'] as String?;
     return res;
@@ -44,7 +44,7 @@ class TrainingTypeEngine {
   final Map<TrainingType, TrainingPackBuilder> _builders;
   TrainingTypeEngine({Map<TrainingType, TrainingPackBuilder>? builders})
       : _builders =
-            builders ?? const {TrainingType.pushfold: PushFoldPackBuilder()};
+            builders ?? const {TrainingType.pushFold: PushFoldPackBuilder()};
 
   Future<TrainingPackTemplateV2> build(
     TrainingType type,
@@ -55,5 +55,31 @@ class TrainingTypeEngine {
       throw UnsupportedError('Unsupported training type: $type');
     }
     return builder.build(request);
+  }
+
+  TrainingType detectTrainingType(TrainingPackTemplateV2 pack) {
+    final tags = {
+      ...pack.tags.map((e) => e.toLowerCase()),
+      if (pack.meta['tags'] is List)
+        ...List.from(pack.meta['tags']).map((e) => e.toString().toLowerCase())
+    };
+    if (tags.contains('quiz')) return TrainingType.quiz;
+    if (tags.contains('bounty')) return TrainingType.bounty;
+    if (tags.contains('icm')) return TrainingType.icm;
+    final hasPostflop = pack.spots.any((s) {
+      if (s.hand.board.isNotEmpty) return true;
+      return s.hand.actions.entries.any((e) => e.key > 0 && e.value.isNotEmpty);
+    });
+    if (hasPostflop) return TrainingType.postflop;
+    final allPfNoActions = pack.spots.isNotEmpty &&
+        pack.spots.every((s) {
+          final noActions =
+              s.hand.actions.values.every((l) => l.isEmpty);
+          final preflopOnly = s.hand.board.isEmpty &&
+              s.hand.actions.keys.every((k) => k == 0);
+          return preflopOnly && noActions;
+        });
+    if (allPfNoActions) return TrainingType.pushFold;
+    return TrainingType.custom;
   }
 }

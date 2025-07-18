@@ -31,7 +31,7 @@ void main() {
       description: 'desc',
       goal: 'goal',
       meta: {'evScore': 80, 'rankScore': 0.5},
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [spot(10), spot(15)],
     );
     final rating = const YamlPackRatingEngine().rate(tpl);
@@ -39,8 +39,8 @@ void main() {
   });
 
   test('rateAll returns map by id', () {
-    final a = TrainingPackTemplateV2(id: 'a', name: 'A', type: TrainingType.pushfold);
-    final b = TrainingPackTemplateV2(id: 'b', name: 'B', type: TrainingType.pushfold);
+    final a = TrainingPackTemplateV2(id: 'a', name: 'A', trainingType: TrainingType.pushFold);
+    final b = TrainingPackTemplateV2(id: 'b', name: 'B', trainingType: TrainingType.pushFold);
     final res = const YamlPackRatingEngine().rateAll([a, b]);
     expect(res.keys, containsAll(['a', 'b']));
   });

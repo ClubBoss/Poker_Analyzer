@@ -14,7 +14,7 @@ class YamlPackMergeEngine {
         id: _uuid.v4(),
         name: 'Combined Pack',
         description: 'Combined Pack',
-        type: TrainingType.pushfold,
+        trainingType: TrainingType.pushFold,
       );
     }
     final first = list.first;
@@ -90,7 +90,7 @@ class YamlPackMergeEngine {
       audience: first.audience,
       tags: tags.toList(),
       category: first.category,
-      type: first.type,
+      trainingType: first.trainingType,
       spots: spots,
       spotCount: spots.length,
       created: DateTime.now(),

@@ -163,7 +163,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         unawaited(TrainingHistoryServiceV2.logCompletion(
             TrainingPackTemplateV2.fromTemplate(
           tpl,
-          type: TrainingType.pushfold,
+          type: TrainingType.pushFold,
         )));
       } else {
         await prefs.setInt(

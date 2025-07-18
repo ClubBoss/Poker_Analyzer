@@ -35,7 +35,7 @@ class PackLibraryAutoFixEngine {
       audience: pack.audience,
       tags: tags.toList(),
       category: pack.category,
-      type: pack.type,
+      trainingType: pack.trainingType,
       spots: pack.spots,
       spotCount: pack.spots.length,
       created: pack.created,

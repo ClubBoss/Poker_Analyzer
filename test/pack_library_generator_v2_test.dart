@@ -18,7 +18,7 @@ class FakeEngine extends TrainingPackGeneratorEngine {
       name: template.name,
       description: template.description,
       tags: List<String>.from(template.tags),
-      type: template.type,
+      type: template.trainingType,
       spots: spots,
       spotCount: spots.length,
       generatedAt: DateTime.now(),
@@ -34,15 +34,15 @@ class FakeEngine extends TrainingPackGeneratorEngine {
 void main() {
   test('generateFromTemplates skips disabled and empty', () async {
     final spot = TrainingPackSpot(id: 's1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
-    final enabled = TrainingPackTemplateV2(id: '1', name: 'A', type: TrainingType.pushfold, spots: [spot]);
+    final enabled = TrainingPackTemplateV2(id: '1', name: 'A', trainingType: TrainingType.pushFold, spots: [spot]);
     final disabled = TrainingPackTemplateV2(
       id: '2',
       name: 'B',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       meta: {'enabled': false},
       spots: [spot],
     );
-    final empty = TrainingPackTemplateV2(id: '3', name: 'C', type: TrainingType.pushfold);
+    final empty = TrainingPackTemplateV2(id: '3', name: 'C', trainingType: TrainingType.pushFold);
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
     final res = await generator.generateFromTemplates([enabled, disabled, empty]);
     expect(res.length, 1);
@@ -54,14 +54,14 @@ void main() {
     final high = TrainingPackTemplateV2(
       id: '1',
       name: 'High',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       meta: {'priority': 2},
       spots: [spot],
     );
     final low = TrainingPackTemplateV2(
       id: '2',
       name: 'Low',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       meta: {'priority': 1},
       spots: [spot],
     );
@@ -81,7 +81,7 @@ void main() {
       id: 's3',
       hand: HandData.fromSimpleInput('JcJs', HeroPosition.btn, 15)..board.addAll(['2h', '3d', '4s', '5c']),
     );
-    final tpl = TrainingPackTemplateV2(id: 't', name: 'T', type: TrainingType.pushfold, spots: [s1, s2, s3]);
+    final tpl = TrainingPackTemplateV2(id: 't', name: 'T', trainingType: TrainingType.pushFold, spots: [s1, s2, s3]);
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
     final res = await generator.generateFromTemplates([tpl]);
     expect(res.first.meta['difficulty'], 3);
@@ -100,7 +100,7 @@ void main() {
     final tpl = TrainingPackTemplateV2(
       id: 'm',
       name: 'M',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [s1, s2],
     );
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
@@ -116,7 +116,7 @@ void main() {
     final tpl = TrainingPackTemplateV2(
       id: 'o',
       name: 'O',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [spot],
       meta: {'difficulty': 3},
     );
@@ -136,7 +136,7 @@ void main() {
         board: ['2h', '3d', '4s', '5c'],
       ),
     );
-    final tpl = TrainingPackTemplateV2(id: 'x', name: 'X', type: TrainingType.pushfold, spots: [spot]);
+    final tpl = TrainingPackTemplateV2(id: 'x', name: 'X', trainingType: TrainingType.pushFold, spots: [spot]);
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
     final res = await generator.generateFromTemplates([tpl]);
     final tags = res.first.tags;
@@ -152,7 +152,7 @@ void main() {
     final tpl = TrainingPackTemplateV2(
       id: 'z',
       name: '',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       gameType: GameType.tournament,
       bb: 10,
       positions: ['sb'],
@@ -169,7 +169,7 @@ void main() {
       id: 'y',
       name: 'T',
       description: '',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       gameType: GameType.tournament,
       bb: 10,
       positions: ['sb'],
@@ -186,7 +186,7 @@ void main() {
       id: 'g',
       name: 'T',
       goal: 'Push practice',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [spot],
     );
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
@@ -200,7 +200,7 @@ void main() {
       id: 'a',
       name: 'T',
       audience: 'Advanced',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [spot],
     );
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
@@ -214,7 +214,7 @@ void main() {
       id: 'ag',
       name: 'Auto',
       goal: '',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       gameType: GameType.tournament,
       bb: 10,
       positions: ['sb'],
@@ -230,7 +230,7 @@ void main() {
     final tpl = TrainingPackTemplateV2(
       id: 'r',
       name: 'R',
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [spot],
       recommended: true,
     );

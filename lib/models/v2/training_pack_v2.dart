@@ -48,7 +48,7 @@ class TrainingPackV2 {
     tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
     type: TrainingType.values.firstWhere(
       (e) => e.name == j['type'],
-      orElse: () => TrainingType.pushfold,
+      orElse: () => TrainingType.pushFold,
     ),
     spots: [
       for (final s in (j['spots'] as List? ?? []))
@@ -88,7 +88,7 @@ class TrainingPackV2 {
         name: t.name,
         description: t.description,
         tags: List<String>.from(t.tags),
-        type: t.type,
+        type: t.trainingType,
         spots: [for (final s in t.spots) TrainingPackSpot.fromJson(s.toJson())],
         spotCount: t.spotCount,
         generatedAt: DateTime.now(),

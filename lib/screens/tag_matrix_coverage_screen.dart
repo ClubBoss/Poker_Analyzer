@@ -196,7 +196,7 @@ Future<Map<String, dynamic>> _coverageTask(Map args) async {
         final map = reader.read(await f.readAsString());
         final tpl = TrainingPackTemplateV2.fromJson(map);
         final type = args['type'] as String?;
-        if (type != null && type.isNotEmpty && tpl.type.name != type) continue;
+        if (type != null && type.isNotEmpty && tpl.trainingType.name != type) continue;
         if (args['starter'] == true &&
             !tpl.tags.any((t) => t.toLowerCase().contains('starter'))) {
           continue;

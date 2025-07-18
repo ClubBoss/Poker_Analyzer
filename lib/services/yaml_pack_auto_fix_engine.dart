@@ -40,7 +40,7 @@ class YamlPackAutoFixEngine {
       audience: pack.audience,
       tags: List<String>.from(pack.tags),
       category: pack.category,
-      type: pack.type,
+      trainingType: pack.trainingType,
       spots: spots,
       spotCount: spots.length,
       created: pack.created,

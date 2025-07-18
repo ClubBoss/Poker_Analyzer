@@ -14,7 +14,7 @@ class BuiltInPackSeeder {
     final typeEngine = TrainingTypeEngine();
     final templates = <TrainingPackTemplateV2>[];
     for (final r in config.requests) {
-      final t = await typeEngine.build(TrainingType.pushfold, r);
+      final t = await typeEngine.build(TrainingType.pushFold, r);
       if (config.rangeTags &&
           r.rangeGroup != null &&
           r.rangeGroup!.isNotEmpty &&

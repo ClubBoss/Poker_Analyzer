@@ -36,7 +36,7 @@ class YamlPackFormatterService {
     if (p.category != null && p.category!.trim().isNotEmpty) {
       map['category'] = p.category;
     }
-    map['type'] = p.type.name;
+    map['trainingType'] = p.trainingType.name;
     map['spotCount'] = spots.length;
     map['created'] = p.created.toIso8601String();
     map['gameType'] = p.gameType.name;
