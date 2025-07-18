@@ -53,30 +53,33 @@ class TrainingPackTemplateV2 {
 
   factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) {
     final tpl = TrainingPackTemplateV2(
-        id: j['id'] as String? ?? '',
-        name: j['name'] as String? ?? '',
-        description: j['description'] as String? ?? '',
-        goal: j['goal'] as String? ?? '',
-        audience: j['audience'] as String? ??
-            (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
-        tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
-        category: (j['category'] ?? j['mainTag'])?.toString(),
-        trainingType: TrainingType.values.firstWhere(
-          (e) => e.name == (j['trainingType'] ?? j['type']),
-          orElse: () => TrainingType.pushFold,
-        ),
-        spots: [
-          for (final s in (j['spots'] as List? ?? []))
-            TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
-        ],
-        spotCount: j['spotCount'] as int? ?? (j['spots'] as List? ?? []).length,
-        created: DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
-        gameType: parseGameType(j['gameType']),
-        bb: (j['bb'] as num?)?.toInt() ?? 0,
-        positions: [for (final p in (j['positions'] as List? ?? [])) p.toString()],
-        meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
-        recommended: j['recommended'] as bool? ??
-            (j['meta'] is Map ? j['meta']['recommended'] == true : false),
+      id: j['id'] as String? ?? '',
+      name: j['name'] as String? ?? '',
+      description: j['description'] as String? ?? '',
+      goal: j['goal'] as String? ?? '',
+      audience: j['audience'] as String? ??
+          (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
+      tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
+      category: (j['category'] ?? j['mainTag'])?.toString(),
+      trainingType: TrainingType.values.firstWhere(
+        (e) => e.name == (j['trainingType'] ?? j['type']),
+        orElse: () => TrainingType.pushFold,
+      ),
+      spots: [
+        for (final s in (j['spots'] as List? ?? []))
+          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
+      ],
+      spotCount: j['spotCount'] as int? ?? (j['spots'] as List? ?? []).length,
+      created:
+          DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
+      gameType: parseGameType(j['gameType']),
+      bb: (j['bb'] as num?)?.toInt() ?? 0,
+      positions: [
+        for (final p in (j['positions'] as List? ?? [])) p.toString()
+      ],
+      meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
+      recommended: j['recommended'] as bool? ??
+          (j['meta'] is Map ? j['meta']['recommended'] == true : false),
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
     if ((j['trainingType'] ?? j['type']) == null) {
@@ -118,7 +121,30 @@ class TrainingPackTemplateV2 {
     return tpl;
   }
 
-  String toYaml() => const YamlEncoder().convert(toJson());
+  /// Serializes this template to a YAML string. The resulting YAML always
+  /// contains the training type under `meta.trainingType` to improve
+  /// portability of exported packs.
+  String toYamlString() {
+    final map = toJson();
+
+    // Ensure the training type field is present. If somehow missing in the
+    // map (older objects) detect it automatically.
+    var typeName = map['trainingType'] as String?;
+    if (typeName == null || typeName.isEmpty) {
+      final detected = const TrainingTypeEngine().detectTrainingType(this);
+      typeName = detected.name;
+      map['trainingType'] = typeName;
+    }
+
+    final metaMap = Map<String, dynamic>.from(map['meta'] ?? {});
+    metaMap['trainingType'] = typeName;
+    map['meta'] = metaMap;
+
+    return const YamlEncoder().convert(map);
+  }
+
+  // Backwards compatible alias used across the code base.
+  String toYaml() => toYamlString();
 
   factory TrainingPackTemplateV2.fromTemplate(
     TrainingPackTemplate template, {

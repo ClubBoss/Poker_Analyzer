@@ -5,7 +5,7 @@ import '../../../models/v2/training_pack_template_v2.dart';
 class TrainingPackExporterV2 {
   const TrainingPackExporterV2();
 
-  String exportYaml(TrainingPackTemplateV2 pack) => pack.toYaml();
+  String exportYaml(TrainingPackTemplateV2 pack) => pack.toYamlString();
 
   Future<File> exportToFile(
     TrainingPackTemplateV2 pack, {
