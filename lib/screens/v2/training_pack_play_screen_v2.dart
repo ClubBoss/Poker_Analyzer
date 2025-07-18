@@ -31,6 +31,8 @@ import '../../services/training_pack_stats_service.dart';
 import '../../services/mistake_categorization_engine.dart';
 import '../../models/mistake.dart';
 import '../../widgets/poker_table_view.dart';
+import '../../widgets/training_pack_play_screen_v2_toolbar.dart';
+import '../../services/app_settings_service.dart';
 import 'package:uuid/uuid.dart';
 import '../../helpers/mistake_advice.dart';
 
@@ -670,112 +672,6 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     final progress = (_index + 1) / _spots.length;
     final actions = _heroActions(spot);
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final confirm = await showDialog<bool>(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: const Text('Exit training? Your progress will be saved.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Exit'),
-                  ),
-                ],
-              ),
-            );
-            if (confirm == true) {
-              _save();
-              Navigator.pop(context);
-            }
-          },
-        ),
-        title: Text(widget.template.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.flag),
-            onPressed: _saveCurrentSpot,
-          ),
-          IconButton(
-            tooltip: 'Auto-Advance on Correct',
-            icon: Icon(Icons.bolt,
-                color: _autoAdvance
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.white70),
-            onPressed: () async {
-              setState(() => _autoAdvance = !_autoAdvance);
-              final prefs = await SharedPreferences.getInstance();
-              prefs.setBool('auto_adv_${widget.template.id}', _autoAdvance);
-            },
-          ),
-          PopupMenuButton<dynamic>(
-            initialValue: _order,
-            onSelected: (choice) async {
-              if (choice == 'start') {
-                final ok = await _confirmStartOver(context);
-                if (ok) {
-                  setState(() {
-                    _index = 0;
-                    _results.clear();
-                  });
-                  final prefs = await SharedPreferences.getInstance();
-                  prefs
-                    ..remove('tpl_seq_${widget.template.id}')
-                    ..remove('tpl_res_${widget.template.id}')
-                    ..remove('tpl_prog_${widget.template.id}');
-                  if (widget.template.targetStreet != null) {
-                    prefs.remove('tpl_street_${widget.template.id}');
-                  }
-                  if (widget.template.focusHandTypes.isNotEmpty) {
-                    prefs.remove('tpl_hand_${widget.template.id}');
-                  }
-                  _save(ts: false);
-                }
-              } else if (choice is PlayOrder) {
-                setState(() => _order = choice);
-                await _startNew();
-              }
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'start', child: Text('Start over')),
-              PopupMenuDivider(),
-              PopupMenuItem(value: PlayOrder.sequential, child: Text('Sequential')),
-              PopupMenuItem(value: PlayOrder.random, child: Text('Random')),
-              PopupMenuItem(value: PlayOrder.mistakes, child: Text('Mistakes')),
-            ],
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(
-            widget.original.spots.length > widget.template.spots.length ? 32 : 4,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.original.spots.length > widget.template.spots.length)
-                Padding(
-                  padding: EdgeInsets.only(bottom: 4 * scale),
-                  child: Chip(
-                    label: Text(
-                      AppLocalizations.of(context)!.reviewMistakesOnly,
-                      style: TextStyle(fontSize: 12 * scale),
-                    ),
-                    backgroundColor: Colors.orange,
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ),
-              LinearProgressIndicator(value: progress, minHeight: 4 * scale),
-            ],
-          ),
-        ),
-      ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: Builder(builder: (context) {
         final heroCards = spot.hand.heroCards
@@ -792,6 +688,45 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
         return Stack(
           alignment: Alignment.center,
           children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: TrainingPackPlayScreenV2Toolbar(
+                title: widget.template.name,
+                index: _index,
+                total: _spots.length,
+                onExit: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title:
+                          const Text('Exit training? Your progress will be saved.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Exit'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    _save();
+                    Navigator.pop(context);
+                  }
+                },
+                onModeToggle: () async {
+                  final val = !AppSettingsService.instance.useIcm;
+                  await AppSettingsService.instance.setUseIcm(val);
+                  setState(() {});
+                },
+                mini: scale < 0.9,
+              ),
+            ),
             IgnorePointer(
               child: PokerTableView(
                 heroIndex: spot.hand.heroIndex,
