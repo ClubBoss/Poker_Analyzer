@@ -82,6 +82,7 @@ import 'yaml_pack_archive_duplicates_screen.dart';
 import 'yaml_pack_archive_validator_screen.dart';
 
 import 'pack_library_diff_screen.dart';
+import 'pack_merge_explorer_screen.dart';
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
 
@@ -1628,6 +1629,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const PackConflictAnalysisScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📂 Pack Merge Explorer'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PackMergeExplorerScreen(),
                     ),
                   );
                 },
