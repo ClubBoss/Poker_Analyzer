@@ -10,6 +10,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
   final VoidCallback onExit;
   final VoidCallback onModeToggle;
   final bool mini;
+  final int? streetIndex;
   const TrainingPackPlayScreenV2Toolbar({
     super.key,
     required this.title,
@@ -18,6 +19,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
     required this.onExit,
     required this.onModeToggle,
     this.mini = false,
+    this.streetIndex,
   });
 
   bool get _showHintButton => !UserPreferences.instance.showActionHints;
@@ -49,10 +51,34 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  '$title — ${index + 1}/$total',
-                  style: textStyle,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$title — ${index + 1}/$total',
+                      style: textStyle,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (streetIndex != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(4, (i) {
+                            final names = ['Preflop', 'Flop', 'Turn', 'River'];
+                            final style = textStyle.copyWith(
+                                color: i == streetIndex
+                                    ? Theme.of(context).colorScheme.primary
+                                    : textStyle.color,
+                                fontSize: (mini ? 10 : 12));
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 2),
+                              child: Text(names[i], style: style),
+                            );
+                          }),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               if (_showHintButton)

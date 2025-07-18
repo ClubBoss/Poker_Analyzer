@@ -84,6 +84,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   Timer? _feedbackTimer;
   bool _showActionHints = UserPreferences.instance.showActionHints;
   String? _pressedAction;
+  int _street = 0;
+  bool _streetAnswered = false;
 
   @override
   void initState() {
@@ -183,6 +185,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
       _spots = spots;
       _results = results;
       _index = prefs.getInt(progKey)?.clamp(0, spots.length - 1) ?? 0;
+      _street = 0;
+      _streetAnswered = false;
       _streetCount = streetCount;
       _handCounts
         ..clear()
@@ -226,6 +230,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     setState(() {
       _spots = spots;
       _index = 0;
+      _street = 0;
+      _streetAnswered = false;
       _streetCount = 0;
       _summaryShown = false;
       _handCounts
@@ -246,6 +252,19 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
 
   List<String> _heroActions(TrainingPackSpot spot) {
     final acts = spot.hand.actions[0] ?? [];
+    final hero = spot.hand.heroIndex;
+    final res = <String>[];
+    for (final a in acts) {
+      if (a.playerIndex == hero) {
+        final name = a.action.toLowerCase();
+        if (!res.contains(name)) res.add(name);
+      }
+    }
+    return res;
+  }
+
+  List<String> _heroActionsStreet(TrainingPackSpot spot, int street) {
+    final acts = spot.hand.actions[street] ?? [];
     final hero = spot.hand.heroIndex;
     final res = <String>[];
     for (final a in acts) {
@@ -421,6 +440,13 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     }
   }
 
+  void _nextStreet() {
+    setState(() {
+      _street++;
+      _streetAnswered = false;
+    });
+  }
+
   Future<void> _handleAction(String action) async {
     if (_showActionHints) {
       await UserPreferences.instance.setShowActionHints(false);
@@ -484,7 +510,11 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   Future<void> _next() async {
     _hideFeedback();
     if (_index + 1 < _spots.length) {
-      setState(() => _index++);
+      setState(() {
+        _index++;
+        _street = 0;
+        _streetAnswered = false;
+      });
       _save();
     } else {
       _index = _spots.length - 1;
@@ -543,15 +573,28 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   Future<void> _choose(String? act) async {
     final spot = _spots[_index];
     if (act != null) {
-      final first = !_results.containsKey(spot.id);
-      _results[spot.id] = act.toLowerCase();
-      if (first && _matchStreet(spot)) _streetCount++;
+      final key = spot.streetMode ? '${spot.id}_\$_street' : spot.id;
+      final first = !_results.containsKey(key);
+      _results[key] = act.toLowerCase();
+      if (first && (!spot.streetMode || _street == spot.street) &&
+          _matchStreet(spot)) _streetCount++;
       if (first) {
         for (final g in widget.template.focusHandTypes) {
           if (_matchHandTypeLabel(spot, g.label)) {
             _handCounts[g.label] = (_handCounts[g.label] ?? 0) + 1;
           }
         }
+      }
+
+      if (spot.streetMode && _street < spot.street) {
+        _streetAnswered = true;
+        _save();
+        if (_autoAdvance) {
+          await Future.delayed(const Duration(seconds: 1));
+          if (!mounted) return;
+          _nextStreet();
+        }
+        return;
       }
 
       final evalSpot = _toSpot(spot);
@@ -685,7 +728,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _spots[_index];
     final progress = (_index + 1) / _spots.length;
-    final actions = _heroActions(spot);
+    final actions = spot.streetMode
+        ? _heroActionsStreet(spot, _street)
+        : _heroActions(spot);
     final pushAction = actions.isEmpty ? 'push' : actions.first;
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),
@@ -695,6 +740,10 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
             .where((e) => e.isNotEmpty)
             .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
             .toList();
+        final boardCards = [
+          for (final c in spot.hand.board.take([0, 3, 4, 5][_street]))
+            CardModel(rank: c[0], suit: c.substring(1))
+        ];
         final count = spot.hand.playerCount;
         final names = [for (int i = 0; i < count; i++) 'P${i + 1}'];
         final stacks = [for (int i = 0; i < count; i++) spot.hand.stacks['$i']?.toDouble() ?? 0.0];
@@ -712,6 +761,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                 title: widget.template.name,
                 index: _index,
                 total: _spots.length,
+                streetIndex: spot.streetMode ? _street : null,
                 onExit: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
@@ -760,6 +810,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                 onPotChanged: (_) {},
                 heroCards: heroCards,
                 revealedCards: const [],
+                boardCards: boardCards,
+                currentStreet: _street,
                 scale: scale,
               ),
             ),
@@ -870,7 +922,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                   ),
                 ),
               ),
-            if (hint.isNotEmpty && _results[spot.id] == null)
+            if (hint.isNotEmpty &&
+                _results[spot.streetMode ? '${spot.id}_\$_street' : spot.id] ==
+                    null)
               Positioned(
                 bottom: 72,
                 left: 16,
@@ -884,6 +938,18 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                             const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
                   ),
                 ),
+            if (spot.streetMode && _streetAnswered && _street < spot.street)
+              Positioned(
+                bottom: 120,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: _nextStreet,
+                    child: const Text('Next Street'),
+                  ),
+                ),
+              ),
             if (_showActionHints)
               Positioned(
                 bottom: 32,

@@ -905,7 +905,9 @@ class _HandEditorScreenState extends State<HandEditorScreen>
               onPotChanged: (_) {},
               heroCards: _heroCards,
               revealedCards: _revealedCards,
-            ),
+              boardCards: _boardCards,
+              currentStreet: _tabController.index.clamp(0, 3),
+              ),
             ),
             _buildBoardRow(),
             StreetHudBar(

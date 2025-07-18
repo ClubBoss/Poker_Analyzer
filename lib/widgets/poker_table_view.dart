@@ -9,6 +9,7 @@ import 'position_label.dart';
 import 'pot_chip_stack_painter.dart';
 import 'dealer_button_indicator.dart';
 import 'blind_chip_indicator.dart';
+import 'board_cards_widget.dart';
 import '../models/table_state.dart';
 import '../services/table_edit_history.dart';
 import '../models/card_model.dart';
@@ -41,6 +42,8 @@ class PokerTableView extends StatefulWidget {
   final void Function(double newPot) onPotChanged;
   final List<CardModel> heroCards;
   final List<List<CardModel>> revealedCards;
+  final List<CardModel> boardCards;
+  final int currentStreet;
   final double scale;
   final TableTheme theme;
   final void Function(TableTheme)? onThemeChanged;
@@ -61,6 +64,8 @@ class PokerTableView extends StatefulWidget {
     required this.onPotChanged,
     this.heroCards = const [],
     this.revealedCards = const [],
+    this.boardCards = const [],
+    this.currentStreet = 0,
     this.scale = 1.0,
     this.theme = TableTheme.dark,
     this.onThemeChanged,
@@ -110,6 +115,16 @@ class _PokerTableViewState extends State<PokerTableView> {
                       PotChipStackPainter(chipCount: 4, color: Colors.orange),
                 ),
               ),
+              if (widget.boardCards.isNotEmpty)
+                BoardCardsWidget(
+                  currentStreet: widget.currentStreet,
+                  boardCards: widget.boardCards,
+                  onCardSelected: (_, __) {},
+                  onCardLongPress: null,
+                  usedCards: const {},
+                  editingDisabled: true,
+                  scale: widget.scale,
+                ),
               GestureDetector(
                 onTap: () async {
                   final controller =
