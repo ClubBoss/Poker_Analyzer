@@ -90,8 +90,8 @@ class TrainingCoverageService {
             .where((f) => f.path.toLowerCase().endsWith('.yaml'));
         for (final f in files) {
           try {
-            final map = reader.read(await f.readAsString());
-            list.add(TrainingPackTemplateV2.fromJson(map));
+            final yaml = await f.readAsString();
+            list.add(TrainingPackTemplateV2.fromYamlAuto(yaml));
             processed = true;
           } catch (_) {}
         }

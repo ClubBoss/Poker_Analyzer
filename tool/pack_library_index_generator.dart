@@ -17,12 +17,11 @@ Future<void> main(List<String> args) async {
       .whereType<File>()
       .where((f) => f.path.toLowerCase().endsWith('.yaml'))
       .toList();
-  final reader = const YamlReader();
   final list = <Map<String, dynamic>>[];
   for (final file in files) {
     try {
-      final map = reader.read(await file.readAsString());
-      final tpl = TrainingPackTemplateV2.fromJson(map);
+      final yaml = await file.readAsString();
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       list.add({
         'id': tpl.id,
         'name': tpl.name,

@@ -58,8 +58,8 @@ class PackLibraryMergeService {
           final bytes = await f.readAsBytes();
           final hash = sha1.convert(bytes).toString();
           if (hashes.contains(hash)) continue;
-          final map = reader.read(utf8.decode(bytes));
-          final tpl = TrainingPackTemplateV2.fromJson(map);
+          final yaml = utf8.decode(bytes);
+          final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
           if (ids.contains(tpl.id)) continue;
           final dst = File(p.join(libDir.path, p.basename(f.path)));
           await dst.writeAsBytes(bytes, flush: true);

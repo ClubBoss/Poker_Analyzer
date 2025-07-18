@@ -98,8 +98,8 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
     TrainingPackTemplateV2? a;
     TrainingPackTemplateV2? b;
     try {
-      a = TrainingPackTemplateV2.fromYaml(await files[0].readAsString());
-      b = TrainingPackTemplateV2.fromYaml(await files[1].readAsString());
+      a = TrainingPackTemplateV2.fromYamlAuto(await files[0].readAsString());
+      b = TrainingPackTemplateV2.fromYamlAuto(await files[1].readAsString());
     } catch (_) {
       return;
     }
@@ -113,7 +113,7 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
     final yaml = await file.readAsString();
     late TrainingPackTemplateV2 bak;
     try {
-      bak = TrainingPackTemplateV2.fromYaml(yaml);
+      bak = TrainingPackTemplateV2.fromYamlAuto(yaml);
     } catch (_) {
       return;
     }
@@ -124,7 +124,7 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
       if (await f.exists()) {
         try {
           final y = await f.readAsString();
-          current = TrainingPackTemplateV2.fromYaml(y);
+          current = TrainingPackTemplateV2.fromYamlAuto(y);
         } catch (_) {}
       }
     }

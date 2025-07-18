@@ -31,8 +31,9 @@ class PackLibraryRefactorEngine {
         .where((e) => e.path.toLowerCase().endsWith('.yaml'));
     for (final f in files) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        final yaml = await f.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+        final map = reader.read(yaml);
         tpl.name = _norm(tpl.name);
         tpl.goal = _norm(tpl.goal);
         tpl.description = _norm(tpl.description);

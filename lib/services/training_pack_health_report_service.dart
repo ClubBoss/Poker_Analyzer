@@ -24,8 +24,10 @@ class TrainingPackHealthReportService {
         .where((f) => f.path.toLowerCase().endsWith('.yaml'));
     for (final f in files) {
       Map<String, dynamic> map;
+      String yaml;
       try {
-        map = reader.read(await f.readAsString());
+        yaml = await f.readAsString();
+        map = reader.read(yaml);
       } catch (_) {
         issues.add((f.path, 'invalid_yaml'));
         errors++;
@@ -33,7 +35,7 @@ class TrainingPackHealthReportService {
       }
       TrainingPackTemplateV2 tpl;
       try {
-        tpl = TrainingPackTemplateV2.fromJson(map);
+        tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       } catch (_) {
         issues.add((f.path, 'invalid_format'));
         errors++;

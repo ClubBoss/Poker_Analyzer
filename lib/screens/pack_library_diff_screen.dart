@@ -44,7 +44,7 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
       final yaml = await File(path).readAsString();
       setState(() {
         _fileA = path;
-        _packA = TrainingPackTemplateV2.fromYaml(yaml);
+        _packA = TrainingPackTemplateV2.fromYamlAuto(yaml);
       });
     } catch (_) {}
   }
@@ -60,7 +60,7 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
       final yaml = await File(path).readAsString();
       setState(() {
         _fileB = path;
-        _packB = TrainingPackTemplateV2.fromYaml(yaml);
+        _packB = TrainingPackTemplateV2.fromYamlAuto(yaml);
       });
     } catch (_) {}
   }

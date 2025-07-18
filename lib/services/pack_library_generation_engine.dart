@@ -24,8 +24,9 @@ class PackLibraryGenerationEngine {
         .where((e) => e.path.toLowerCase().endsWith('.yaml') ||
             e.path.toLowerCase().endsWith('.yml'))) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        final yaml = await f.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+        final map = reader.read(yaml);
         final report = const PackValidationEngine().validate(tpl);
         if (!report.isValid) continue;
         if (audience != null && audience.isNotEmpty) {

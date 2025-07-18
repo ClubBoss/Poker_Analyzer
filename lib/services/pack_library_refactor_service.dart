@@ -30,11 +30,12 @@ class PackLibraryRefactorService {
         .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       Map<String, dynamic> map;
       try {
-        map = reader.read(await f.readAsString());
+        final yaml = await f.readAsString();
+        map = reader.read(yaml);
       } catch (_) {
         continue;
       }
-      final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final tags = <String>{
         for (final t in tpl.tags) t.toString().trim().toLowerCase()
       }..removeWhere((t) => t.isEmpty);

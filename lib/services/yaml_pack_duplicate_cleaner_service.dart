@@ -24,10 +24,9 @@ class YamlPackDuplicateCleanerService {
             .whereType<File>()
             .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
-        final map = reader.read(await f.readAsString());
-        final tpl = TrainingPackTemplateV2.fromJson(
-          Map<String, dynamic>.from(map),
-        );
+        final yaml = await f.readAsString();
+        final map = reader.read(yaml);
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         final stat = await f.stat();
         groups.putIfAbsent(tpl.id, () => []).add((
           f,
