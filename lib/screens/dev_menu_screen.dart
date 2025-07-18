@@ -40,6 +40,7 @@ import '../services/pack_library_review_engine.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
 import '../services/training_pack_template_validator.dart';
+import '../services/training_pack_template_storage.dart';
 import '../models/validation_issue.dart';
 import '../models/yaml_pack_review_report.dart';
 import '../models/yaml_pack_validation_report.dart';
@@ -128,6 +129,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _recommendPacksLoading = false;
   bool _jsonLibraryLoading = false;
   bool _smartValidateLoading = false;
+  bool _templateStorageTestLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -1230,6 +1232,27 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _testTemplateStorage() async {
+    if (_templateStorageTestLoading || !kDebugMode) return;
+    setState(() => _templateStorageTestLoading = true);
+    final storage = TrainingPackTemplateStorage();
+    final tpl = TrainingPackTemplateV2(
+      id: 'test_tpl',
+      name: 'Test Template',
+      trainingType: TrainingType.pushFold,
+    );
+    await storage.saveLocal(tpl);
+    await storage.saveRemote(tpl);
+    final local = await storage.loadLocal(tpl.id);
+    final remote = await storage.loadRemote(tpl.id);
+    if (!mounted) return;
+    setState(() => _templateStorageTestLoading = false);
+    final ok = local != null && remote != null;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(ok ? 'Template roundtrip OK' : 'Storage failed')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1755,6 +1778,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📌 Цели по истории'),
                 onTap: _goalLoading ? null : _suggestGoals,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧪 Тест выгрузки/загрузки шаблона'),
+                onTap:
+                    _templateStorageTestLoading ? null : _testTemplateStorage,
               ),
           ],
         ),
