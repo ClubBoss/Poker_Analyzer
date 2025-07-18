@@ -54,6 +54,7 @@ class PokerTableView extends StatefulWidget {
   final bool compactMode;
   final bool showStackValues;
   final bool showRevealedCards;
+  final bool showPlayerActions;
   const PokerTableView({
     super.key,
     required this.heroIndex,
@@ -82,6 +83,7 @@ class PokerTableView extends StatefulWidget {
     this.compactMode = false,
     this.showStackValues = true,
     this.showRevealedCards = true,
+    this.showPlayerActions = true,
   });
 
   @override
@@ -425,45 +427,22 @@ class _PokerTableViewState extends State<PokerTableView> {
             ? widget.playerActions[i]
             : PlayerAction.none;
         final bet = i < widget.playerBets.length ? widget.playerBets[i] : 0.0;
-        if (action != PlayerAction.none) {
-          items.add(Positioned(
-            left: offset.dx + 30 * widget.scale,
-            top: offset.dy - 4 * widget.scale,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 10 * widget.scale,
-                  height: 10 * widget.scale,
-                  decoration: BoxDecoration(
-                    color: playerActionColors[action],
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    action.name[0].toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 6 * widget.scale,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (bet > 0)
-                  Padding(
-                    padding: EdgeInsets.only(top: 2 * widget.scale),
-                    child: Text(
-                      bet.toStringAsFixed(1),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 6 * widget.scale,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ));
-        }
+        items.add(Positioned(
+          left: offset.dx + 30 * widget.scale,
+          top: offset.dy - 4 * widget.scale,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: widget.showPlayerActions && action != PlayerAction.none
+                ? _ActionIndicator(
+                    action: action,
+                    bet: bet,
+                    scale: widget.scale,
+                  )
+                : SizedBox(width: 10 * widget.scale, height: 10 * widget.scale),
+          ),
+        ));
         items.add(Positioned(
           left: offset.dx,
           top: offset.dy - 18 * widget.scale,
@@ -584,6 +563,57 @@ class _PokerTableViewState extends State<PokerTableView> {
       return SizedBox(
           width: width, height: height, child: Stack(children: items));
     });
+  }
+}
+
+class _ActionIndicator extends StatelessWidget {
+  final PlayerAction action;
+  final double bet;
+  final double scale;
+  const _ActionIndicator(
+      {required this.action, required this.bet, required this.scale});
+
+  @override
+  Widget build(BuildContext context) {
+    const labels = {
+      PlayerAction.fold: 'F',
+      PlayerAction.call: 'C',
+      PlayerAction.raise: 'R',
+      PlayerAction.push: 'P',
+      PlayerAction.post: 'Post',
+    };
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(
+              horizontal: 4 * scale, vertical: 2 * scale),
+          decoration: BoxDecoration(
+            color: playerActionColors[action],
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            labels[action] ?? action.name,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 8 * scale,
+            ),
+          ),
+        ),
+        if (bet > 0)
+          Padding(
+            padding: EdgeInsets.only(top: 2 * scale),
+            child: Text(
+              bet.toStringAsFixed(1),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 6 * scale,
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }
 

@@ -29,6 +29,7 @@ void main() {
           onPotChanged: (_) {},
           boardCards: const [],
           currentStreet: 0,
+          showPlayerActions: true,
           sizeFactor: 0.8,
         ),
       ),
