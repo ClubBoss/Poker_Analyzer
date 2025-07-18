@@ -101,6 +101,7 @@ import 'services/training_pack_stats_service.dart';
 import 'screens/training_session_screen.dart';
 import 'screens/empty_training_screen.dart';
 import 'services/app_init_service.dart';
+import 'services/suggested_pack_push_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -149,6 +150,7 @@ Future<void> main() async {
   await MistakeHintService.instance.load();
   tagCache = TagCacheService();
   await tagCache.load();
+  unawaited(SuggestedPackPushService.instance.schedulePushReminder());
   await AppInitService.instance.init();
   runApp(
     MultiProvider(
