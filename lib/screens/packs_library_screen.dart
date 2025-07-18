@@ -26,7 +26,6 @@ import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
 import '../widgets/combined_progress_bar.dart';
 import '../widgets/street_coverage_bar.dart';
-import 'all_tags_screen.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
 
@@ -80,6 +79,18 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   Map<String, int> _trainedHands = {};
   Map<String, double> _ratings = {};
   static const _PrefsKey = 'pack_library_state';
+
+  List<String> get _availableTags {
+    final counts = <String, int>{};
+    for (final p in _packs) {
+      for (final t in p.tags) {
+        counts[t] = (counts[t] ?? 0) + 1;
+      }
+    }
+    final entries = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return [for (final e in entries) e.key];
+  }
 
   @override
   void initState() {
@@ -354,29 +365,6 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     TrainingStatsService.instance?.notifyListeners();
   }
 
-  Future<void> _showAllTags() async {
-    final counts = <String, int>{};
-    for (final p in _packs) {
-      for (final t in p.tags) {
-        counts[t] = (counts[t] ?? 0) + 1;
-      }
-    }
-    final tags = counts.keys.toList()
-      ..sort((a, b) {
-        final ca = counts[a]!;
-        final cb = counts[b]!;
-        final c = cb.compareTo(ca);
-        return c != 0 ? c : a.compareTo(b);
-      });
-    final tag = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(builder: (_) => AllTagsScreen(tags: tags)),
-    );
-    if (tag != null) {
-      setState(() => _selectedTags.add(tag));
-      _saveState();
-    }
-  }
 
   void _resetFilters() {
     setState(() {
@@ -1050,133 +1038,6 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     ],
                   ),
                 ),
-                if (_selectedTags.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Selected Tags:'),
-                        const SizedBox(height: 4),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              for (final tag in _selectedTags)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                                  child: FilterChip(
-                                    label: Text(tag),
-                                    selected: true,
-                                    onSelected: (_) {
-                                      setState(() => _selectedTags.remove(tag));
-                                      _saveState();
-                                    },
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (_packs.any((p) => p.tags.isNotEmpty))
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                () {
-                                  final tagCounts = <String, int>{};
-                                  for (final p in _packs) {
-                                    for (final t in p.tags) {
-                                      tagCounts[t] = (tagCounts[t] ?? 0) + 1;
-                                    }
-                                  }
-                                  final entries = tagCounts.entries.toList()
-                                    ..sort((a, b) => b.value.compareTo(a.value));
-                                  final tags = entries.take(10).map((e) => e.key);
-                                  return [
-                                    for (final tag in tags)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.symmetric(horizontal: 4),
-                                        child: FilterChip(
-                                          label: Text(tag),
-                                          selected: _selectedTags.contains(tag),
-                                          onSelected: (_) {
-                                            setState(() {
-                                              if (_selectedTags.contains(tag)) {
-                                                _selectedTags.remove(tag);
-                                              } else {
-                                                _selectedTags.add(tag);
-                                              }
-                                            });
-                                            _saveState();
-                                          },
-                                        ),
-                                      ),
-                                  ];
-                                }(),
-                              ],
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: _showAllTags,
-                          child: const Text('All Tags'),
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                              foregroundColor: Colors.redAccent),
-                          onPressed: _resetFilters,
-                          child: Text(AppLocalizations.of(context)!.resetFilters),
-                        ),
-                        const SizedBox(width: 8),
-                        Row(
-                          children: [
-                            const Text('Group by Tag'),
-                            Switch(
-                              value: _groupByTag,
-                              onChanged: (v) {
-                                setState(() => _groupByTag = v);
-                                _saveState();
-                              },
-                            ),
-                            const SizedBox(width: 16),
-                            Text(AppLocalizations.of(context)!.sortLabel),
-                            const SizedBox(width: 4),
-                            DropdownButton<String>(
-                              value: _sortOrder,
-                              dropdownColor: AppColors.cardBackground,
-                              style: const TextStyle(color: Colors.white),
-                              items: [
-                                DropdownMenuItem(
-                                    value: 'newest',
-                                    child: Text(l.sortNewest)),
-                                DropdownMenuItem(
-                                    value: 'popular',
-                                    child: Text(l.sortPopular)),
-                                DropdownMenuItem(
-                                    value: 'mostSpots',
-                                    child: Text(l.sortMostHands)),
-                              ],
-                              onChanged: (v) {
-                                if (v == null) return;
-                                setState(() => _sortOrder = v);
-                                _saveState();
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                  ),
-                ),
                 StreamBuilder<Set<String>>(
                   stream: context.read<FavoritePackService>().favorites$,
                   builder: (context, _) {
@@ -1198,6 +1059,63 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                   },
                 ),
                 const SizedBox(height: 8),
+                if (_packs.any((p) => p.tags.isNotEmpty))
+                  Column(
+                    children: [
+                      TrainingPackTagFilterBar(
+                        availableTags: _availableTags,
+                        initialSelection: _selectedTags,
+                        onChanged: (tags) {
+                          setState(() {
+                            _selectedTags
+                              ..clear()
+                              ..addAll(tags);
+                          });
+                          _saveState();
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                  foregroundColor: Colors.redAccent),
+                              onPressed: _resetFilters,
+                              child: Text(AppLocalizations.of(context)!.resetFilters),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text('Group by Tag'),
+                            Switch(
+                              value: _groupByTag,
+                              onChanged: (v) {
+                                setState(() => _groupByTag = v);
+                                _saveState();
+                              },
+                            ),
+                            const SizedBox(width: 16),
+                            Text(AppLocalizations.of(context)!.sortLabel),
+                            const SizedBox(width: 4),
+                            DropdownButton<String>(
+                              value: _sortOrder,
+                              dropdownColor: AppColors.cardBackground,
+                              style: const TextStyle(color: Colors.white),
+                              items: [
+                                DropdownMenuItem(value: 'newest', child: Text(l.sortNewest)),
+                                DropdownMenuItem(value: 'popular', child: Text(l.sortPopular)),
+                                DropdownMenuItem(value: 'mostSpots', child: Text(l.sortMostHands)),
+                              ],
+                              onChanged: (v) {
+                                if (v == null) return;
+                                setState(() => _sortOrder = v);
+                                _saveState();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 Expanded(
                   child: StreamBuilder<Set<String>>(
                     stream:
