@@ -5,6 +5,8 @@ import '../../models/v2/training_pack_spot.dart';
 import '../../services/training_pack_play_service.dart';
 import '../../services/dynamic_pack_adjustment_service.dart';
 import 'training_pack_play_screen.dart';
+import 'training_pack_play_screen_v2.dart';
+import '../../services/app_settings_service.dart';
 import 'package:provider/provider.dart';
 
 class TrainingPackLoader extends StatefulWidget {
@@ -63,12 +65,20 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
     Navigator.pushReplacement(
       rootCtx,
       MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(
-          template: playTpl,
-          original: widget.template,
-          variant: widget.variant,
-          spots: spots,
-        ),
+        builder: (_) =>
+            (AppSettingsService.instance.useNewTrainerUi
+                ? TrainingPackPlayScreenV2(
+                    template: playTpl,
+                    original: widget.template,
+                    variant: widget.variant,
+                    spots: spots,
+                  )
+                : TrainingPackPlayScreen(
+                    template: playTpl,
+                    original: widget.template,
+                    variant: widget.variant,
+                    spots: spots,
+                  )),
       ),
     );
   }
