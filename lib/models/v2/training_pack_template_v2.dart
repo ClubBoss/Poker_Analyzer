@@ -25,6 +25,7 @@ class TrainingPackTemplateV2 {
   List<String> positions;
   Map<String, dynamic> meta;
   bool recommended;
+  String? targetStreet;
 
   TrainingPackTemplateV2({
     required this.id,
@@ -43,6 +44,7 @@ class TrainingPackTemplateV2 {
     List<String>? positions,
     Map<String, dynamic>? meta,
     this.recommended = false,
+    this.targetStreet,
   })  : tags = tags ?? [],
         spots = spots ?? [],
         positions = positions ?? [],
@@ -80,6 +82,7 @@ class TrainingPackTemplateV2 {
       meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
       recommended: j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
+      targetStreet: j['targetStreet'] as String?,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
     if ((j['trainingType'] ?? j['type']) == null) {
@@ -105,6 +108,7 @@ class TrainingPackTemplateV2 {
         if (positions.isNotEmpty) 'positions': positions,
         if (meta.isNotEmpty) 'meta': meta,
         if (recommended) 'recommended': true,
+        if (targetStreet != null) 'targetStreet': targetStreet,
       };
 
   factory TrainingPackTemplateV2.fromYaml(String source) {
@@ -167,5 +171,6 @@ class TrainingPackTemplateV2 {
         positions: [template.heroPos.name],
         meta: Map<String, dynamic>.from(template.meta),
         recommended: template.recommended,
+        targetStreet: template.targetStreet,
       );
 }
