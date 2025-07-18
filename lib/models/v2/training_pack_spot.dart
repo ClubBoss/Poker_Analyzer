@@ -21,6 +21,7 @@ class TrainingPackSpot {
   EvaluationResult? evalResult;
   String? correctAction;
   String? explanation;
+  bool streetMode;
 
   TrainingPackSpot({
     required this.id,
@@ -38,6 +39,7 @@ class TrainingPackSpot {
     this.evalResult,
     this.correctAction,
     this.explanation,
+    this.streetMode = false,
   }) : isNew = isNew ?? false,
        hand = hand ?? HandData(),
        tags = tags ?? [],
@@ -61,6 +63,7 @@ class TrainingPackSpot {
     EvaluationResult? evalResult,
     String? correctAction,
     String? explanation,
+    bool? streetMode,
   }) => TrainingPackSpot(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -77,6 +80,7 @@ class TrainingPackSpot {
     evalResult: evalResult ?? this.evalResult,
     correctAction: correctAction ?? this.correctAction,
     explanation: explanation ?? this.explanation,
+    streetMode: streetMode ?? this.streetMode,
   );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
@@ -102,6 +106,7 @@ class TrainingPackSpot {
         : null,
     correctAction: j['correctAction'] as String?,
     explanation: j['explanation'] as String?,
+    streetMode: j['streetMode'] == true,
   );
 
   Map<String, dynamic> toJson() => {
@@ -119,6 +124,7 @@ class TrainingPackSpot {
     if (evalResult != null) 'evalResult': evalResult!.toJson(),
     if (correctAction != null) 'correctAction': correctAction,
     if (explanation != null) 'explanation': explanation,
+    if (streetMode) 'streetMode': true,
   };
 
   double? get heroEv {
@@ -154,7 +160,8 @@ class TrainingPackSpot {
           isNew == other.isNew &&
           evalResult == other.evalResult &&
           correctAction == other.correctAction &&
-          explanation == other.explanation;
+          explanation == other.explanation &&
+          streetMode == other.streetMode;
 
   @override
   int get hashCode => Object.hash(
@@ -171,6 +178,7 @@ class TrainingPackSpot {
     evalResult,
     correctAction,
     explanation,
+    streetMode,
   );
 }
 

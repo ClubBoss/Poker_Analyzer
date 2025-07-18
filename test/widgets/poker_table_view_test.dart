@@ -27,6 +27,8 @@ void main() {
           },
           potSize: 0,
           onPotChanged: (_) {},
+          boardCards: const [],
+          currentStreet: 0,
         ),
       ),
     );

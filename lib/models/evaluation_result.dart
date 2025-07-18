@@ -12,6 +12,7 @@ class EvaluationResult {
   final double? ev;
 
   final double? icmEv;
+  final List<Map<String, dynamic>>? streets;
 
   EvaluationResult({
     required this.correct,
@@ -21,6 +22,7 @@ class EvaluationResult {
     this.ev,
     this.icmEv,
     this.hint,
+    this.streets,
   });
 
   Map<String, dynamic> toJson() => {
@@ -31,6 +33,7 @@ class EvaluationResult {
         if (ev != null) 'ev': ev,
         if (icmEv != null) 'icmEv': icmEv,
         if (hint != null) 'hint': hint,
+        if (streets != null && streets!.isNotEmpty) 'streets': streets,
       };
 
   factory EvaluationResult.fromJson(Map<String, dynamic> json) => EvaluationResult(
@@ -41,5 +44,8 @@ class EvaluationResult {
         ev: (json['ev'] as num?)?.toDouble(),
         icmEv: (json['icmEv'] as num?)?.toDouble(),
         hint: json['hint'] as String?,
+        streets: (json['streets'] as List?)
+            ?.map((e) => Map<String, dynamic>.from(e as Map))
+            .toList(),
       );
 }
