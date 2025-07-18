@@ -62,6 +62,7 @@ import '../services/user_action_logger.dart';
 import '../widgets/category_section.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../widgets/pack_suggestion_banner.dart';
+import '../widgets/smart_suggestion_banner.dart';
 import '../services/weak_training_type_detector.dart';
 import '../widgets/training_gap_prompt_banner.dart';
 import '../widgets/training_type_gap_prompt_banner.dart';
@@ -2906,6 +2907,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ? ListView(
                     controller: _listCtrl,
                     children: [
+                      SmartSuggestionBanner(selectedTags: _selectedTags),
                       const PackSuggestionBanner(),
                       const SuggestedPackTile(),
                       if (_popularOnly && popularFiltered.isNotEmpty) ...[
