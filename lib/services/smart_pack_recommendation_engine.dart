@@ -44,12 +44,12 @@ class SmartPackRecommendationEngine {
       if (selected.length >= limit) break;
       final pack = e.key;
       final pos = pack.positions.isEmpty ? '' : pack.positions.first;
-      final skip = types.contains(pack.type) &&
+      final skip = types.contains(pack.trainingType) &&
           stacks.contains(pack.bb) &&
           positions.contains(pos);
       if (skip) continue;
       selected.add(pack);
-      types.add(pack.type);
+      types.add(pack.trainingType);
       stacks.add(pack.bb);
       positions.add(pos);
     }

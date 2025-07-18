@@ -16,7 +16,7 @@ class TrainingPackTemplateV2 {
   String? audience;
   List<String> tags;
   String? category;
-  final TrainingType type;
+  TrainingType trainingType;
   List<SpotTemplate> spots;
   int spotCount;
   final DateTime created;
@@ -34,7 +34,7 @@ class TrainingPackTemplateV2 {
     this.audience,
     List<String>? tags,
     this.category,
-    required this.type,
+    required this.trainingType,
     List<SpotTemplate>? spots,
     this.spotCount = 0,
     DateTime? created,
@@ -61,9 +61,9 @@ class TrainingPackTemplateV2 {
             (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
         category: (j['category'] ?? j['mainTag'])?.toString(),
-        type: TrainingType.values.firstWhere(
-          (e) => e.name == j['type'],
-          orElse: () => TrainingType.pushfold,
+        trainingType: TrainingType.values.firstWhere(
+          (e) => e.name == (j['trainingType'] ?? j['type']),
+          orElse: () => TrainingType.pushFold,
         ),
         spots: [
           for (final s in (j['spots'] as List? ?? []))
@@ -79,6 +79,9 @@ class TrainingPackTemplateV2 {
             (j['meta'] is Map ? j['meta']['recommended'] == true : false),
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
+    if ((j['trainingType'] ?? j['type']) == null) {
+      tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
+    }
     return tpl;
   }
 
@@ -90,7 +93,7 @@ class TrainingPackTemplateV2 {
         if (audience != null && audience!.isNotEmpty) 'audience': audience,
         if (tags.isNotEmpty) 'tags': tags,
         if (category != null && category!.isNotEmpty) 'category': category,
-        'type': type.name,
+        'trainingType': trainingType.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
         'spotCount': spotCount,
         'created': created.toIso8601String(),
@@ -120,7 +123,7 @@ class TrainingPackTemplateV2 {
         audience: template.meta['audience'] as String?,
         tags: List<String>.from(template.tags),
         category: template.tags.isNotEmpty ? template.tags.first : null,
-        type: type,
+        trainingType: type,
         spots: List<SpotTemplate>.from(template.spots),
         spotCount: template.spotCount,
         created: template.createdAt,

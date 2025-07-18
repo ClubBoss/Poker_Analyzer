@@ -10,7 +10,7 @@ void main() {
       name: 'Push SB',
       category: 'Push/Fold',
       positions: ['sb'],
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
     );
     final tagger = YamlPackAutoTagger();
     final tags = tagger.generateTags(tpl);

@@ -53,7 +53,7 @@ class TrainingPackLibraryV2 {
     return [
       for (final p in _packs)
         if ((gameType == null || p.gameType == gameType) &&
-            (type == null || p.type == type) &&
+            (type == null || p.trainingType == type) &&
             (tags == null || tags.every((t) => p.tags.contains(t))))
           p
     ];

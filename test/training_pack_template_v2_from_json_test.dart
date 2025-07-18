@@ -6,7 +6,7 @@ void main() {
     final tpl = TrainingPackTemplateV2.fromJson({
       'id': 't',
       'name': 'Test',
-      'type': 'pushfold',
+      'trainingType': 'pushFold',
       'tags': ['a', 'b'],
       'goal': 'Learn',
       'audience': 'Beginners',
@@ -23,7 +23,7 @@ void main() {
     final tpl = TrainingPackTemplateV2.fromJson({
       'id': 'x',
       'name': 'X',
-      'type': 'pushfold',
+      'trainingType': 'pushFold',
       'tags': ['m'],
     });
     expect(tpl.category, 'm');

@@ -29,14 +29,14 @@ void main() {
       id: 'a',
       name: 'A',
       meta: {'evScore': 80},
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [spot(10)],
     );
     final b = TrainingPackTemplateV2(
       id: 'b',
       name: 'B',
       meta: {'evScore': 60},
-      type: TrainingType.pushfold,
+      trainingType: TrainingType.pushFold,
       spots: [spot(12)],
     );
     final rank = const TrainingPackRankingEngine().rank(a, [a, b]);
@@ -44,8 +44,8 @@ void main() {
   });
 
   test('rankAll returns map by id', () {
-    final a = TrainingPackTemplateV2(id: 'a', name: 'A', type: TrainingType.pushfold);
-    final b = TrainingPackTemplateV2(id: 'b', name: 'B', type: TrainingType.pushfold);
+    final a = TrainingPackTemplateV2(id: 'a', name: 'A', trainingType: TrainingType.pushFold);
+    final b = TrainingPackTemplateV2(id: 'b', name: 'B', trainingType: TrainingType.pushFold);
     final res = const TrainingPackRankingEngine().rankAll([a, b]);
     expect(res.keys, containsAll(['a', 'b']));
   });

@@ -136,7 +136,7 @@ Future<Map<String, dynamic>> _statsTask(String filter) async {
       final map = reader.read(await f.readAsString());
       final tpl = TrainingPackTemplateV2.fromJson(map);
       final c = tpl.spots.length;
-      type[tpl.type.name] = (type[tpl.type.name] ?? 0) + c;
+      type[tpl.trainingType.name] = (type[tpl.trainingType.name] ?? 0) + c;
       for (final s in tpl.spots) {
         total++;
         final p = s.hand.position.name.toUpperCase();

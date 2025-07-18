@@ -34,7 +34,7 @@ class PackLibraryAssemblerService {
         final requestsJson = <Map<String, dynamic>>[];
         final templates = <TrainingPackTemplateV2>[];
         for (final r in config.requests) {
-          final tpl = await engine.build(TrainingType.pushfold, r);
+          final tpl = await engine.build(TrainingType.pushFold, r);
           templates.add(tpl);
           requestsJson.add({
             'gameType': r.gameType.name,

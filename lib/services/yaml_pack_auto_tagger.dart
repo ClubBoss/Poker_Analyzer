@@ -23,7 +23,7 @@ class YamlPackAutoTagger {
     }
     final aud = pack.audience?.trim();
     if (aud != null && aud.isNotEmpty) set.add(aud);
-    if (pack.type == TrainingType.pushfold) set.add('pushfold');
+    if (pack.trainingType == TrainingType.pushFold) set.add('pushfold');
     final total = pack.meta['totalWeight'] as int? ?? pack.spots.length;
     if (total > 0) {
       final ev = (pack.meta['evCovered'] as int? ?? 0) * 100 ~/ total;

@@ -226,7 +226,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
           }
         }
         final tpl = await TrainingTypeEngine().build(
-          TrainingType.pushfold,
+          TrainingType.pushFold,
           config.requests.first,
         );
         await showTrainingPackYamlPreviewer(context, tpl);
