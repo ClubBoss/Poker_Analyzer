@@ -1477,6 +1477,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  /// Banner prompting the user to train the weakest statistical category.
   Widget _weakCategoryBanner() {
     final cat = _weakCategory;
     final pack = _weakCategoryPack;
@@ -1484,6 +1485,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return TrainingGapPromptBanner(category: cat, pack: pack);
   }
 
+  /// Banner prompting the user to improve the weakest training type.
   Widget _weakTypeBanner() {
     final type = _weakestType;
     if (type == null) return const SizedBox.shrink();
