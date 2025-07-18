@@ -11,6 +11,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'cloud_retry_policy.dart';
 import '../models/saved_hand.dart';
 import '../models/session_log.dart';
+import 'pack_launch_history_sync_service.dart';
 
 class CloudSyncService {
   CloudSyncService({FirebaseFirestore? firestore, FirebaseAuth? auth})
@@ -84,6 +85,8 @@ class CloudSyncService {
         await syncDown();
       }
     });
+
+    await PackLaunchHistorySyncService(uid: uid).sync();
   }
 
   Future<void> syncUp() async {

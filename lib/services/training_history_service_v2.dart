@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import '../models/training_history_entry.dart';
+import '../models/training_history_entry_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TrainingHistoryServiceV2 {
@@ -11,7 +11,7 @@ class TrainingHistoryServiceV2 {
     return File(p.join(dir.path, 'app_data', 'training_history.json'));
   }
 
-  static Future<List<TrainingHistoryEntry>> _load(File file) async {
+  static Future<List<TrainingHistoryEntryV2>> _load(File file) async {
     if (!await file.exists()) return [];
     try {
       final data = jsonDecode(await file.readAsString());
@@ -19,7 +19,7 @@ class TrainingHistoryServiceV2 {
         return [
           for (final e in data)
             if (e is Map)
-              TrainingHistoryEntry.fromJson(Map<String, dynamic>.from(e as Map))
+              TrainingHistoryEntryV2.fromJson(Map<String, dynamic>.from(e as Map))
         ];
       }
     } catch (_) {}
@@ -31,13 +31,11 @@ class TrainingHistoryServiceV2 {
     final list = await _load(file);
     list.insert(
       0,
-      TrainingHistoryEntry(
-        packId: pack.id,
+      TrainingHistoryEntryV2(
         timestamp: DateTime.now(),
         tags: List<String>.from(pack.tags),
-        audience: pack.audience,
-        rating: (pack.meta['rating'] as num?)?.toInt(),
-        evScore: (pack.meta['evScore'] as num?)?.toDouble(),
+        packId: pack.id,
+        type: pack.trainingType,
       ),
     );
     await file.create(recursive: true);
@@ -47,9 +45,18 @@ class TrainingHistoryServiceV2 {
     );
   }
 
-  static Future<List<TrainingHistoryEntry>> getHistory({int limit = 20}) async {
+  static Future<List<TrainingHistoryEntryV2>> getHistory({int limit = 20}) async {
     final file = await _file();
     final list = await _load(file);
     return list.take(limit).toList();
+  }
+
+  static Future<void> replaceHistory(List<TrainingHistoryEntryV2> entries) async {
+    final file = await _file();
+    await file.create(recursive: true);
+    await file.writeAsString(
+      jsonEncode([for (final e in entries) e.toJson()]),
+      flush: true,
+    );
   }
 }
