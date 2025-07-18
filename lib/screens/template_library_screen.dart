@@ -60,6 +60,7 @@ import '../services/user_action_logger.dart';
 import '../widgets/category_section.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../widgets/pack_suggestion_banner.dart';
+import '../services/weak_training_type_detector.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -159,6 +160,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<String> _weakCategories = [];
   final Set<String> _mastered = {};
   Map<TrainingType, double> _typeCompletion = {};
+  TrainingType? _weakestType;
 
   @override
   void initState() {
@@ -735,8 +737,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final list = PackLibraryLoaderService.instance.library;
     final map = await const TrainingTypeStatsService()
         .calculateCompletionPercent(list);
+    final weak = const WeakTrainingTypeDetector().findWeakestType(map);
     if (!mounted) return;
-    setState(() => _typeCompletion = map);
+    setState(() {
+      _typeCompletion = map;
+      _weakestType = weak;
+    });
   }
 
   Color _colorFor(double val) {
@@ -2460,6 +2466,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                               style: const TextStyle(color: Colors.white70),
                             ),
                           ],
+                        ),
+                      ),
+                    ),
+                  if (_weakestType != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: _progressColor(
+                              _typeCompletion[_weakestType] ?? 0),
+                        ),
+                        onPressed: () => _setTrainingType(_weakestType),
+                        child: Text(
+                          '🎯 Усилить слабое место: ${_weakestType!.label}',
                         ),
                       ),
                     ),
