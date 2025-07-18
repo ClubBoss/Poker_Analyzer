@@ -1,60 +1,103 @@
-import 'training_history_service_v2.dart';
-import 'training_pack_filter_engine.dart';
-import 'training_gap_detector_service.dart';
+import 'package:collection/collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/v2/training_pack_template_v2.dart';
+import 'pack_library_loader_service.dart';
+import 'pack_similarity_engine.dart';
+import 'session_log_service.dart';
+import 'training_pack_stats_service.dart';
 
+/// Suggests personalized training packs based on recent performance.
 class SmartSuggestionEngine {
-  const SmartSuggestionEngine();
+  final SessionLogService logs;
+  SmartSuggestionEngine({required this.logs});
 
-  Future<List<TrainingPackTemplateV2>> suggestNext() async {
-    final history = await TrainingHistoryServiceV2.getHistory();
-    final tags = <String, int>{};
+  List<TrainingPackTemplateV2>? _cache;
+  DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// Returns up to five recommended packs.
+  /// Results are cached for a short period to avoid heavy computation.
+  Future<List<TrainingPackTemplateV2>> suggestNextPacks({bool force = false}) async {
+    if (!force &&
+        _cache != null &&
+        DateTime.now().difference(_cacheTime) < const Duration(hours: 6)) {
+      return _cache!;
+    }
+
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final library = PackLibraryLoaderService.instance.library;
+    final prefs = await SharedPreferences.getInstance();
+
+    final recentMistakes = logs.getRecentMistakes();
+    final mistakeTags =
+        recentMistakes.keys.map((e) => e.trim().toLowerCase()).toSet();
+
     final audienceCount = <String, int>{};
-    final seen = <String>[];
-    for (final e in history) {
-      if (seen.length < 10) seen.add(e.packId);
-      if (e.audience != null && e.audience!.isNotEmpty) {
-        audienceCount.update(e.audience!, (v) => v + 1, ifAbsent: () => 1);
-      }
-      for (final t in e.tags) {
-        final key = t.trim().toLowerCase();
-        if (key.isNotEmpty) tags.update(key, (v) => v + 1, ifAbsent: () => 1);
+    for (final log in logs.logs.take(20)) {
+      final tpl = library.firstWhereOrNull((t) => t.id == log.templateId);
+      final aud = tpl?.audience ?? tpl?.meta['audience']?.toString();
+      if (aud != null && aud.isNotEmpty) {
+        audienceCount.update(aud, (v) => v + 1, ifAbsent: () => 1);
       }
     }
-    final sortedTags = tags.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final selectedTags = [for (final e in sortedTags.take(3)) e.key];
-    final gaps = await const TrainingGapDetectorService().detectNeglectedTags();
-    for (final g in gaps) {
-      if (selectedTags.length >= 3) break;
-      if (!selectedTags.contains(g)) selectedTags.add(g);
+    String? preferredAudience;
+    if (audienceCount.isNotEmpty) {
+      final sorted = audienceCount.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      preferredAudience = sorted.first.key;
     }
-    final sortedAud = audienceCount.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final audience = sortedAud.isNotEmpty ? sortedAud.first.key : null;
-    final engine = const TrainingPackFilterEngine();
-    final list = await engine.filter(
-      minRating: 70,
-      tags: selectedTags.isEmpty ? null : selectedTags,
-      audience: audience,
-    );
-    final exclude = seen.toSet();
-    final result = [for (final t in list) if (!exclude.contains(t.id)) t];
-    if (result.length < 3 && gaps.isNotEmpty) {
-      for (final tag in gaps) {
-        final alt = await engine.filter(
-          minRating: 70,
-          tags: [tag],
-          audience: audience,
-        );
-        for (final t in alt) {
-          if (exclude.contains(t.id) || result.contains(t)) continue;
-          result.add(t);
-          if (result.length >= 3) break;
+
+    final entries = <MapEntry<TrainingPackTemplateV2, double>>[];
+    for (final pack in library) {
+      var score = 0.0;
+      final completed = prefs.getBool('completed_tpl_${pack.id}') ?? false;
+      if (!completed) score += 1.0;
+
+      if (preferredAudience != null &&
+          pack.audience != null &&
+          pack.audience == preferredAudience) {
+        score += 0.5;
+      }
+
+      for (final tag in pack.tags) {
+        final key = tag.trim().toLowerCase();
+        final cnt = recentMistakes[key];
+        if (cnt != null) {
+          score += 1 + cnt * 0.1;
         }
-        if (result.length >= 3) break;
+      }
+
+      final stat = await TrainingPackStatsService.getStats(pack.id);
+      final ev = stat == null
+          ? 100.0
+          : (stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct);
+      if (ev < 80) score += (80 - ev) / 20;
+      if (stat != null && stat.accuracy < .8) {
+        score += (0.8 - stat.accuracy) * 2;
+      }
+
+      if (score > 0) entries.add(MapEntry(pack, score));
+    }
+
+    entries.sort((a, b) => b.value.compareTo(a.value));
+
+    final similarity = const PackSimilarityEngine();
+    final added = <String>{for (final e in entries) e.key.id};
+    final similar = <MapEntry<TrainingPackTemplateV2, double>>[];
+    for (final e in entries.take(3)) {
+      final sims = similarity.findSimilar(e.key.id);
+      for (final s in sims) {
+        if (added.contains(s.id)) continue;
+        if (prefs.getBool('completed_tpl_${s.id}') ?? false) continue;
+        similar.add(MapEntry(s, e.value * 0.5));
+        added.add(s.id);
       }
     }
-    return result.take(3).toList();
+    entries.addAll(similar);
+    entries.sort((a, b) => b.value.compareTo(a.value));
+
+    _cache = [for (final e in entries.take(5)) e.key];
+    _cacheTime = DateTime.now();
+    return _cache!;
   }
 }

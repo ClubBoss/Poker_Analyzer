@@ -40,7 +40,8 @@ class _PackSuggestionBannerState extends State<PackSuggestionBanner> {
       if (mounted) setState(() => _loading = false);
       return;
     }
-    final list = await context.read<SmartSuggestionEngine>().suggestNext();
+    final list =
+        await context.read<SmartSuggestionEngine>().suggestNextPacks();
     if (mounted) {
       setState(() {
         _packs = list;

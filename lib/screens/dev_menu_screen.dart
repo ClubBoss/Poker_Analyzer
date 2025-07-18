@@ -1171,7 +1171,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (_smartHistoryLoading || !kDebugMode) return;
     setState(() => _smartHistoryLoading = true);
     final engine = context.read<SmartSuggestionEngine>();
-    final list = await engine.suggestNext();
+    final list = await engine.suggestNextPacks();
     if (!mounted) return;
     setState(() => _smartHistoryLoading = false);
     if (list.isEmpty) {
