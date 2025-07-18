@@ -413,7 +413,10 @@ List<SingleChildWidget> buildTrainingProviders() {
       ),
     ),
     Provider(create: (_) => const TrainingGapDetectorService()),
-    Provider(create: (_) => const SmartSuggestionEngine()),
+    Provider(
+      create: (context) =>
+          SmartSuggestionEngine(logs: context.read<SessionLogService>()),
+    ),
     Provider(create: (_) => const SmartPackSuggestionEngine()),
   ];
 }
