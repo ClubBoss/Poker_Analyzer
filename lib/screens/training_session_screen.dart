@@ -19,6 +19,7 @@ import '../services/training_history_service_v2.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
+import '../services/training_gap_notification_service.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -178,32 +179,40 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         Navigator.pop(context);
         widget.onSessionEnd!();
       } else {
-        final restart = await showDialog<bool>(
-          context: context,
-          builder: (_) => AlertDialog(
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Close'),
+        final suggestion = await const TrainingGapNotificationService()
+            .suggestNextPack(excludeId: tpl?.id);
+        if (suggestion != null) {
+          final start = await showDialog<bool>(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text('🎯 Рекомендовано продолжение:'),
+              content: Text('[${suggestion.name}] – слабая зона'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Закрыть')),
+                TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Начать следующую тренировку')),
+              ],
+            ),
+          );
+          if (start == true) {
+            await context
+                .read<TrainingSessionService>()
+                .startSession(suggestion);
+            if (!context.mounted) return;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const TrainingSessionScreen(),
               ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Restart Pack'),
-              ),
-            ],
-          ),
-        );
-        if (restart == true) {
-          service.session?.index = 0;
-          service.session?.completedAt = null;
-          setState(() {
-            _selected = null;
-            _correct = null;
-          });
-        } else {
-          _summaryShown = true;
-          _showSummary(service);
+            );
+            return;
+          }
         }
+        _summaryShown = true;
+        _showSummary(service);
       }
     } else {
       setState(() {
