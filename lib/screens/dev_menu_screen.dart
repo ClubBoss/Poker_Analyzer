@@ -80,6 +80,7 @@ import 'yaml_pack_archive_cleanup_screen.dart';
 import 'yaml_pack_archive_stats_screen.dart';
 import 'yaml_pack_archive_duplicates_screen.dart';
 import 'yaml_pack_archive_validator_screen.dart';
+import 'yaml_pack_validator_screen.dart';
 
 import 'pack_tag_analyzer_screen.dart';
 
@@ -1539,6 +1540,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const YamlPackArchiveValidatorScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧪 YAML Pack Validator'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const YamlPackValidatorScreen(),
                     ),
                   );
                 },
