@@ -20,6 +20,7 @@ import '../models/v2/training_session.dart';
 import '../models/v2/training_action.dart';
 import '../models/v2/focus_goal.dart';
 import '../models/category_progress.dart';
+import 'daily_reminder_scheduler.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -313,6 +314,7 @@ class TrainingSessionService extends ChangeNotifier {
     bool persist = true,
   }) async {
     if (persist) await _openBox();
+    unawaited(DailyReminderScheduler.instance.cancelAll());
     _template = template;
     final total = template.totalWeight;
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
