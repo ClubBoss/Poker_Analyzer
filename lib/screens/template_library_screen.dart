@@ -51,6 +51,7 @@ import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/pack_library_loader_service.dart';
+import '../services/training_type_stats_service.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
@@ -157,6 +158,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Map<String, int> _handsCompleted = {};
   List<String> _weakCategories = [];
   final Set<String> _mastered = {};
+  Map<TrainingType, double> _typeCompletion = {};
 
   @override
   void initState() {
@@ -194,6 +196,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadStats();
     await _loadHandsCompleted();
     await _loadWeakCategories();
+    await _loadTypeStats();
     if (!mounted) return;
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
@@ -726,6 +729,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() {
       _weakCategories = [for (final e in list.take(limit)) e.key];
     });
+  }
+
+  Future<void> _loadTypeStats() async {
+    final list = PackLibraryLoaderService.instance.library;
+    final map = await const TrainingTypeStatsService()
+        .calculateCompletionPercent(list);
+    if (!mounted) return;
+    setState(() => _typeCompletion = map);
   }
 
   Color _colorFor(double val) {
@@ -2411,6 +2422,47 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         ),
                     ],
                   ),
+                ],
+              ),
+            ),
+          if (_typeCompletion.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('📊 Прогресс по типам',
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  for (final type in TrainingType.values)
+                    GestureDetector(
+                      onTap: () => _setTrainingType(
+                          _trainingType == type ? null : type),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Icon(type.icon, size: 16, color: Colors.white70),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: LinearProgressIndicator(
+                                value: (_typeCompletion[type] ?? 0) / 100,
+                                backgroundColor: Colors.white24,
+                                color:
+                                    _progressColor(_typeCompletion[type] ?? 0),
+                                minHeight: 6,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${(_typeCompletion[type] ?? 0).round()}%',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
