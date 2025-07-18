@@ -13,6 +13,7 @@ import 'board_cards_widget.dart';
 import '../models/table_state.dart';
 import '../services/table_edit_history.dart';
 import '../models/card_model.dart';
+import 'playing_card_widget.dart';
 
 enum PlayerAction { none, fold, push, call, raise, post }
 
@@ -52,6 +53,7 @@ class PokerTableView extends StatefulWidget {
   final void Function(TableTheme)? onThemeChanged;
   final bool compactMode;
   final bool showStackValues;
+  final bool showRevealedCards;
   const PokerTableView({
     super.key,
     required this.heroIndex,
@@ -79,6 +81,7 @@ class PokerTableView extends StatefulWidget {
     this.onThemeChanged,
     this.compactMode = false,
     this.showStackValues = true,
+    this.showRevealedCards = true,
   });
 
   @override
@@ -490,79 +493,32 @@ class _PokerTableViewState extends State<PokerTableView> {
                 label: positions[seatIndex], color: color, scale: widget.scale),
           ));
         }
+        List<CardModel> cardsToShow = [];
         if (i == widget.heroIndex && widget.heroCards.isNotEmpty) {
-          final dx = cos(angle) < 0 ? -40 * widget.scale : 40 * widget.scale;
-          items.add(Positioned(
-            left: offset.dx + dx,
-            top: offset.dy - 18 * widget.scale,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: widget.heroCards.take(2).map((c) {
-                final isRed = c.suit == '♥' || c.suit == '♦';
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 2 * widget.scale),
-                  width: 18 * widget.scale,
-                  height: 26 * widget.scale,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 3,
-                        offset: const Offset(1, 2),
-                      )
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${c.rank}${c.suit}',
-                    style: TextStyle(
-                      color: isRed ? Colors.red : Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12 * widget.scale,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ));
-        } else if (i < widget.revealedCards.length &&
+          cardsToShow = widget.heroCards.take(2).toList();
+        } else if (widget.showRevealedCards &&
+            i < widget.revealedCards.length &&
             widget.revealedCards[i].isNotEmpty) {
+          cardsToShow = widget.revealedCards[i].take(2).toList();
+        }
+
+        if (cardsToShow.isNotEmpty) {
           final dx = cos(angle) < 0 ? -40 * widget.scale : 40 * widget.scale;
+          final keyString = cardsToShow.map((c) => '${c.rank}${c.suit}').join('-');
           items.add(Positioned(
             left: offset.dx + dx,
             top: offset.dy - 18 * widget.scale,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: widget.revealedCards[i].take(2).map((c) {
-                final isRed = c.suit == '♥' || c.suit == '♦';
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 2 * widget.scale),
-                  width: 18 * widget.scale,
-                  height: 26 * widget.scale,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 3,
-                        offset: const Offset(1, 2),
-                      )
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${c.rank}${c.suit}',
-                    style: TextStyle(
-                      color: isRed ? Colors.red : Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12 * widget.scale,
-                    ),
-                  ),
-                );
-              }).toList(),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: Row(
+                key: ValueKey('cards_${i}_$keyString'),
+                mainAxisSize: MainAxisSize.min,
+                children: cardsToShow
+                    .map((c) => PlayingCardWidget(card: c, scale: widget.scale))
+                    .toList(),
+              ),
             ),
           ));
         }
