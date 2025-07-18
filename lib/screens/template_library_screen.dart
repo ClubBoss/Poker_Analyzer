@@ -47,6 +47,7 @@ import 'mistake_review_screen.dart';
 import '../services/tag_cache_service.dart';
 import '../services/recommended_pack_service.dart';
 import '../services/smart_pack_suggestion_engine.dart';
+import '../services/training_topic_suggestion_engine.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -100,6 +101,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _actTagsKey = 'lib_act_tags';
   static const _actCatsKey = 'lib_act_cats';
   static const _lastCatKey = 'lib_last_selected_category';
+  static const _recTagKey = 'recommendedTagOfTheDay';
+  static const _recTagDateKey = 'recommendedTagOfTheDayDate';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
   static const kSortEdited = 'edited';
@@ -121,6 +124,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  final ScrollController _listCtrl = ScrollController();
+  final Map<String, GlobalKey> _itemKeys = {};
   String _filter = 'all';
   String _sort = kSortEdited;
   bool _effectivenessSort = false;
@@ -239,6 +244,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   void dispose() {
     _searchCtrl.dispose();
     _searchFocusNode.dispose();
+    _listCtrl.dispose();
     super.dispose();
   }
 
@@ -543,6 +549,64 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _activeTags.clear();
       _activeCategories.clear();
     });
+  }
+
+  Future<void> _setActiveTagForce(String tag) async {
+    final prefs = await SharedPreferences.getInstance();
+    _activeTags
+      ..clear()
+      ..add(tag);
+    await prefs.setStringList(_actTagsKey, [tag]);
+    _activeCategories.clear();
+    await prefs.remove(_actCatsKey);
+    setState(() {});
+  }
+
+  Future<void> _showRecommendedTopic() async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final dateStr = prefs.getString(_recTagDateKey);
+    final storedTag = prefs.getString(_recTagKey);
+    String? tag;
+    if (dateStr != null && storedTag != null) {
+      final date = DateTime.tryParse(dateStr);
+      if (date != null &&
+          date.year == now.year &&
+          date.month == now.month &&
+          date.day == now.day) {
+        tag = storedTag;
+      }
+    }
+    tag ??= await const TrainingTopicSuggestionEngine().suggestNextTag();
+    if (tag == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет подходящих тем для рекомендации')),
+        );
+      }
+      return;
+    }
+    await prefs.setString(_recTagKey, tag);
+    await prefs.setString(
+        _recTagDateKey, DateTime(now.year, now.month, now.day).toIso8601String());
+    await _setActiveTagForce(tag);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToFirstWithTag(tag));
+  }
+
+  void _scrollToFirstWithTag(String tag) {
+    final templates = context.read<TemplateStorageService>().templates;
+    final filtered = _applyFilters([...templates]);
+    final sorted = _applySorting(filtered);
+    final tpl = sorted.firstWhereOrNull((t) => t.tags.contains(tag));
+    final key = tpl == null ? null : _itemKeys[tpl.id];
+    final ctx = key?.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   Future<void> _toggleDifficulty(int level) async {
@@ -1749,9 +1813,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           child: card,
         );
       }
-      return GestureDetector(
+      Widget widget = GestureDetector(
         onLongPress: () => _showPackSheet(context, t),
         child: card,
+      );
+      return Container(
+        key: _itemKeys.putIfAbsent(t.id, () => GlobalKey()),
+        child: widget,
       );
     }
 
@@ -1958,9 +2026,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         child: card,
       );
     }
-    return GestureDetector(
+    Widget widget = GestureDetector(
       onLongPress: () => _showPackSheet(context, t),
       child: card,
+    );
+    return Container(
+      key: _itemKeys.putIfAbsent(t.id, () => GlobalKey()),
+      child: widget,
     );
   }
 
@@ -2689,14 +2761,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Wrap(
-              spacing: 8,
-              children: [
-                FilterChip(
-                  label: Text(l.needsPractice),
-                  selected: _needsPractice,
-                  onSelected: (v) => _updateNeedsPractice(v),
-                ),
+          child: Wrap(
+            spacing: 8,
+            children: [
+              ElevatedButton.icon(
+                onPressed: _showRecommendedTopic,
+                icon: const Text('📌', style: TextStyle(fontSize: 16)),
+                label: const Text('Рекомендованная тема'),
+              ),
+              FilterChip(
+                label: Text(l.needsPractice),
+                selected: _needsPractice,
+                onSelected: (v) => _updateNeedsPractice(v),
+              ),
                 ChoiceChip(
                   label: const Text('⏳ На повторение'),
                   selected: _needsRepetition,
@@ -2827,6 +2904,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           Expanded(
             child: hasResults
                 ? ListView(
+                    controller: _listCtrl,
                     children: [
                       const PackSuggestionBanner(),
                       const SuggestedPackTile(),
