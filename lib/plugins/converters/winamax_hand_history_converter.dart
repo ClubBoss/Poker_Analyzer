@@ -1,7 +1,9 @@
 import '../converter_format_capabilities.dart';
 import '../converter_plugin.dart';
+import 'dart:convert';
 import 'package:poker_analyzer/models/saved_hand.dart';
 import 'package:poker_analyzer/models/card_model.dart';
+import 'package:poker_analyzer/helpers/hand_history_parsing.dart';
 import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/models/player_model.dart';
 
@@ -18,28 +20,12 @@ class WinamaxHandHistoryConverter extends ConverterPlugin {
           ),
         );
 
-  CardModel? _parseCard(String token) {
-    if (token.length < 2) return null;
-    final rank = token.substring(0, token.length - 1).toUpperCase();
-    final suitChar = token[token.length - 1].toLowerCase();
-    switch (suitChar) {
-      case 'h':
-        return CardModel(rank: rank, suit: '♥');
-      case 'd':
-        return CardModel(rank: rank, suit: '♦');
-      case 'c':
-        return CardModel(rank: rank, suit: '♣');
-      case 's':
-        return CardModel(rank: rank, suit: '♠');
-    }
-    return null;
-  }
 
   double _amount(String s) => double.tryParse(s.replaceAll(',', '.')) ?? 0;
 
   @override
   SavedHand? convertFrom(String externalData) {
-    final lines = externalData.split(RegExp(r'\r?\n'));
+    final lines = LineSplitter.split(externalData).toList();
     if (lines.isEmpty || !lines.first.toLowerCase().contains('winamax')) {
       return null;
     }
@@ -66,8 +52,8 @@ class WinamaxHandHistoryConverter extends ConverterPlugin {
       final m = RegExp(r'^Dealt to (.+?) \[(.+?) (.+?)\]').firstMatch(line.trim());
       if (m != null) {
         heroName = m.group(1)!.trim();
-        final c1 = _parseCard(m.group(2)!);
-        final c2 = _parseCard(m.group(3)!);
+        final c1 = parseCard(m.group(2)!);
+        final c2 = parseCard(m.group(3)!);
         if (c1 != null && c2 != null) heroCards = [c1, c2];
         break;
       }

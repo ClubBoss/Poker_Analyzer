@@ -1,7 +1,9 @@
 import '../converter_format_capabilities.dart';
 import '../converter_plugin.dart';
+import 'dart:convert';
 import 'package:poker_analyzer/models/saved_hand.dart';
 import 'package:poker_analyzer/models/card_model.dart';
+import 'package:poker_analyzer/helpers/hand_history_parsing.dart';
 import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/models/player_model.dart';
 import 'package:poker_analyzer/helpers/poker_position_helper.dart';
@@ -23,29 +25,6 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
   double _parseAmount(String s) =>
       double.tryParse(s.replaceAll(',', '')) ?? 0;
 
-  CardModel? _parseCard(String token) {
-    if (token.length < 2) return null;
-    final rank = token.substring(0, token.length - 1).toUpperCase();
-    final suitChar = token[token.length - 1].toLowerCase();
-    String suit;
-    switch (suitChar) {
-      case 'h':
-        suit = '♥';
-        break;
-      case 'd':
-        suit = '♦';
-        break;
-      case 'c':
-        suit = '♣';
-        break;
-      case 's':
-        suit = '♠';
-        break;
-      default:
-        return null;
-    }
-    return CardModel(rank: rank, suit: suit);
-  }
 
   List<CardModel> _parseBoardCards(String input) {
     final cardMatches = RegExp(r'\[([^\]]+)\]').allMatches(input).toList();
@@ -59,7 +38,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     }
     final parsed = <CardModel>[];
     for (final token in tokens) {
-      final card = _parseCard(token);
+      final card = parseCard(token);
       if (card != null) parsed.add(card);
     }
     return parsed;
@@ -130,7 +109,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
 
   @override
   SavedHand? convertFrom(String externalData) {
-    final lines = externalData.split(RegExp(r'\r?\n'));
+    final lines = LineSplitter.split(externalData).toList();
     if (lines.length < 3) return null;
 
     final headerMatch = RegExp(r'^PokerStars Hand #(\d+)').firstMatch(lines[0]);
@@ -254,8 +233,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
             .firstMatch(lines[i]);
         if (dealtMatch != null) {
           heroName = dealtMatch.group(1)!.trim();
-          final c1 = _parseCard(dealtMatch.group(2)!);
-          final c2 = _parseCard(dealtMatch.group(3)!);
+          final c1 = parseCard(dealtMatch.group(2)!);
+          final c2 = parseCard(dealtMatch.group(3)!);
           if (c1 != null && c2 != null) {
             heroCards = [c1, c2];
           }
@@ -411,7 +390,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
             final tokens = m.group(2)!.split(RegExp(r'\s+'));
             final cards = <CardModel>[];
             for (final t in tokens) {
-              final c = _parseCard(t);
+              final c = parseCard(t);
               if (c != null) cards.add(c);
             }
             if (cards.length >= 2) {
