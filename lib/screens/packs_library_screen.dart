@@ -21,6 +21,7 @@ import '../models/v2/hero_position.dart';
 import '../services/favorite_pack_service.dart';
 import '../services/training_stats_service.dart';
 import '../utils/template_coverage_utils.dart';
+import '../services/training_pack_filter_memory_service.dart';
 import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
@@ -237,44 +238,60 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   Future<void> _restoreState() async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString(_PrefsKey);
-    if (data == null) return;
-    try {
-      final json = jsonDecode(data) as Map<String, dynamic>;
-      setState(() {
-        _query = json['query'] as String? ?? '';
-        _difficultyFilter = json['difficulty'] as String?;
-        _statusFilters
-          ..clear()
-          ..addAll([for (final s in json['status'] as List? ?? []) s as String]);
-        _posFilters
-          ..clear()
-          ..addAll([for (final s in json['pos'] as List? ?? []) HeroPosition.values.byName(s as String)]);
-        _stackFilters
-          ..clear()
-          ..addAll([for (final i in json['stack'] as List? ?? []) _StackRange.values[i as int]]);
-        _selectedTags
-          ..clear()
-          ..addAll([for (final t in json['tags'] as List? ?? []) t as String]);
-        _groupByTag = json['groupTag'] as bool? ?? false;
-        final sort = json['sort'] as int?;
-        if (sort != null && sort >= 0 && sort < _SortMode.values.length) {
-          _sortMode = _SortMode.values[sort];
-        }
-        _sortOrder = json['order'] as String? ?? 'newest';
-      });
-    } catch (_) {}
+    if (data != null) {
+      try {
+        final json = jsonDecode(data) as Map<String, dynamic>;
+        setState(() {
+          _query = json['query'] as String? ?? '';
+          _statusFilters
+            ..clear()
+            ..addAll([for (final s in json['status'] as List? ?? []) s as String]);
+          final sort = json['sort'] as int?;
+          if (sort != null && sort >= 0 && sort < _SortMode.values.length) {
+            _sortMode = _SortMode.values[sort];
+          }
+          _sortOrder = json['order'] as String? ?? 'newest';
+        });
+      } catch (_) {}
+    }
+
+    final memory = TrainingPackFilterMemoryService.instance;
+    await memory.load();
+    setState(() {
+      _difficultyFilter = memory.difficulty;
+      _selectedTags
+        ..clear()
+        ..addAll(memory.selectedTags);
+      _stackFilters
+        ..clear()
+        ..addAll([
+          for (final i in memory.stackFilters)
+            if (i >= 0 && i < _StackRange.values.length) _StackRange.values[i]
+        ]);
+      _posFilters
+        ..clear()
+        ..addAll(memory.positionFilters);
+      _groupByTag = memory.groupByTag;
+    });
   }
 
   Future<void> _saveState() async {
+    await TrainingPackFilterMemoryService.instance.update(
+      tags: _selectedTags,
+      stack: {for (final r in _stackFilters) r.index},
+      pos: _posFilters,
+      difficulty: _difficultyFilter,
+      groupByTag: _groupByTag,
+    );
     final prefs = await SharedPreferences.getInstance();
     final json = jsonEncode({
       'query': _query,
-      'difficulty': _difficultyFilter,
       'status': _statusFilters.toList(),
       'pos': [for (final p in _posFilters) p.name],
       'stack': [for (final r in _stackFilters) r.index],
       'tags': _selectedTags.toList(),
       'groupTag': _groupByTag,
+      'difficulty': _difficultyFilter,
       'sort': _sortMode.index,
       'order': _sortOrder,
     });
@@ -373,6 +390,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       _difficultyFilter = null;
       _query = '';
     });
+    TrainingPackFilterMemoryService.instance.reset();
     _saveState();
   }
 
