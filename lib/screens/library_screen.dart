@@ -10,6 +10,7 @@ import '../services/pack_filter_service.dart';
 import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
 import '../services/training_pack_tags_service.dart';
+import '../services/training_pack_audience_service.dart';
 import 'pack_library_search_screen.dart';
 
 enum _SortOption { newest, rating, difficulty }
@@ -87,20 +88,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
       if (r != null) ratingMap[p.id] = r;
     }
     if (!mounted) return;
-    final acounts = <String, int>{};
     await TrainingPackTagsService.instance.load(list);
-    for (final p in list) {
-      final a = p.audience ?? p.meta['audience']?.toString();
-      if (a != null && a.isNotEmpty) {
-        acounts[a] = (acounts[a] ?? 0) + 1;
-      }
-    }
-    final auds = acounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    await TrainingPackAudienceService.instance.load(list);
     setState(() {
       _packs = list;
       _tags = TrainingPackTagsService.instance.topTags;
-      _audiences = [for (final e in auds.take(7)) e.key];
+      _audiences = TrainingPackAudienceService.instance.topAudiences;
       _ratings = ratingMap;
       _loading = false;
     });
