@@ -85,6 +85,7 @@ import 'services/evaluation_executor_service.dart';
 import 'services/session_analysis_service.dart';
 import 'services/user_action_logger.dart';
 import 'services/hand_analyzer_service.dart';
+import 'services/tag_mastery_service.dart';
 
 late final AuthService auth;
 late final RemoteConfigService rc;
@@ -416,6 +417,10 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(
       create: (context) =>
           SmartSuggestionEngine(logs: context.read<SessionLogService>()),
+    ),
+    Provider(
+      create: (context) =>
+          TagMasteryService(logs: context.read<SessionLogService>()),
     ),
     Provider(create: (_) => const SmartPackSuggestionEngine()),
   ];

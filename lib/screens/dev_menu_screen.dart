@@ -88,6 +88,7 @@ import 'pack_tag_analyzer_screen.dart';
 import 'pack_library_diff_screen.dart';
 import 'pack_merge_explorer_screen.dart';
 import 'tag_matrix_coverage_screen.dart';
+import 'skill_map_screen.dart';
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
 
@@ -1657,6 +1658,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const TagMatrixCoverageScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧪 Открыть Skill Map'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SkillMapScreen(),
                     ),
                   );
                 },
