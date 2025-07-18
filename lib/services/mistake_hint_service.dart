@@ -22,4 +22,17 @@ class MistakeHintService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_prefsKey, _shown.toList());
   }
+
+  static const _hints = [
+    'Swipe down to exit training',
+    'Toggle EV/ICM mode for alternative view',
+    'Focus on decision logic, not results',
+  ];
+
+  String getHint() {
+    _hintIndex = (_hintIndex + 1) % _hints.length;
+    return _hints[_hintIndex];
+  }
+
+  int _hintIndex = 0;
 }
