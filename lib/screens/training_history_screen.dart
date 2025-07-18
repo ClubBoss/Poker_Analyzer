@@ -34,6 +34,9 @@ import '../helpers/date_utils.dart';
 import '../helpers/accuracy_utils.dart';
 import '../tutorial/tutorial_flow.dart';
 import '../widgets/sync_status_widget.dart';
+import 'training_history/average_accuracy_summary.dart';
+import 'training_history/filter_summary.dart';
+import 'training_history/streak_summary.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   final TutorialFlow? tutorial;
@@ -1293,67 +1296,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return parts.join(' + ');
   }
 
-  Widget _buildFilterSummary() {
-    final summary = _getActiveFilterSummary();
-    if (summary.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Text(
-        summary,
-        style: const TextStyle(color: Colors.white60),
-      ),
-    );
-  }
-
-  Widget _buildAverageAccuracySummary() {
-    final avg = _calculateAverageAccuracy(_getFilteredHistory());
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          'Средняя точность: ${avg.toStringAsFixed(1)}%',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStreakSummary() {
-    if (_history.isEmpty) return const SizedBox.shrink();
-    final current = _calculateCurrentStreak();
-    final best = _calculateBestStreak();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: [
-            Text(
-              'Текущий стрик: $current дней',
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Лучший стрик: $best дней',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildQuickTagRow() {
     final tags = <String>{};
@@ -2890,7 +2832,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     },
                   ),
                 ),
-                _buildStreakSummary(),
+                StreakSummary(
+                  show: _history.isNotEmpty,
+                  current: _calculateCurrentStreak(),
+                  best: _calculateBestStreak(),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -3026,8 +2972,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ),
                 ],
               ],
-              _buildAverageAccuracySummary(),
-              _buildFilterSummary(),
+              AverageAccuracySummary(
+                accuracy: _calculateAverageAccuracy(_getFilteredHistory()),
+              ),
+              FilterSummary(
+                summary: _getActiveFilterSummary(),
+              ),
               Expanded(
                 child: Builder(builder: (context) {
                     final filtered = _getFilteredHistory();
