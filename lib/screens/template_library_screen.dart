@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
@@ -61,6 +62,7 @@ import '../widgets/category_section.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../widgets/pack_suggestion_banner.dart';
 import '../services/weak_training_type_detector.dart';
+import '../widgets/training_gap_prompt_banner.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -159,6 +161,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Map<String, int> _handsCompleted = {};
   List<String> _weakCategories = [];
   String? _weakCategory;
+  v2.TrainingPackTemplate? _weakCategoryPack;
   final Set<String> _mastered = {};
   Map<TrainingType, double> _typeCompletion = {};
   TrainingType? _weakestType;
@@ -740,6 +743,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         await context.read<TrainingGapDetectorService>().detectWeakCategory();
     if (!mounted) return;
     setState(() => _weakCategory = id);
+    await _loadWeakCategoryPack();
+  }
+
+  Future<void> _loadWeakCategoryPack() async {
+    final cat = _weakCategory;
+    if (cat == null) return;
+    final list = PackLibraryLoaderService.instance.library;
+    final tpl = list.firstWhereOrNull((t) => t.category == cat);
+    if (!mounted) return;
+    setState(() => _weakCategoryPack = tpl);
   }
 
   Future<void> _loadTypeStats() async {
@@ -1465,33 +1478,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Widget _weakCategoryBanner() {
     final cat = _weakCategory;
-    if (cat == null) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: InkWell(
-        onTap: () => _setActiveCategory(cat),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey[850],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.redAccent),
-          ),
-          child: Row(
-            children: [
-              const Text('📉', style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Найдено слабое место: ${translateCategory(cat)}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    final pack = _weakCategoryPack;
+    if (cat == null || pack == null) return const SizedBox.shrink();
+    return TrainingGapPromptBanner(category: cat, pack: pack);
   }
 
   Widget _item(TrainingPackTemplate t, [String? note]) {
