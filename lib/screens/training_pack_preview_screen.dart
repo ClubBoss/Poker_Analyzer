@@ -3,6 +3,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
+import '../services/training_pack_comments_service.dart';
 import 'training_session_screen.dart';
 
 class TrainingPackPreviewScreen extends StatefulWidget {
@@ -18,12 +19,14 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
   late bool _favorite;
   int? _userRating;
   double? _average;
+  String? _comment;
 
   @override
   void initState() {
     super.initState();
     _favorite = PackFavoriteService.instance.isFavorite(widget.template.id);
     _loadRating();
+    _loadComment();
   }
 
   Future<void> _loadRating() async {
@@ -33,6 +36,12 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
       _userRating = r;
       _average = avg;
     });
+  }
+
+  Future<void> _loadComment() async {
+    final c = await TrainingPackCommentsService.instance
+        .getComment(widget.template.id);
+    if (mounted) setState(() => _comment = c);
   }
 
   Future<void> _toggleFavorite() async {
@@ -47,6 +56,36 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
       _userRating = r;
       _average = avg;
     });
+  }
+
+  Future<void> _editComment() async {
+    final controller = TextEditingController(text: _comment);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Комментарий к паку'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Введите заметку'),
+          maxLines: null,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Сохранить'),
+          ),
+        ],
+      ),
+    );
+    if (result != null) {
+      await TrainingPackCommentsService.instance
+          .saveComment(widget.template.id, result);
+      if (mounted) setState(() => _comment = result);
+    }
   }
 
   @override
@@ -74,6 +113,8 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
                   const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           _buildRatingRow(),
+          const SizedBox(height: 8),
+          _buildCommentSection(),
           const SizedBox(height: 8),
           Text('Type: ${widget.template.trainingType.name}',
               style: const TextStyle(color: Colors.white70)),
@@ -166,6 +207,17 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildCommentSection() {
+    final hasComment = _comment != null && _comment!.isNotEmpty;
+    return ListTile(
+      leading: const Text('📝'),
+      title: Text(hasComment ? 'Комментарий игрока' : 'Добавить комментарий'),
+      subtitle: hasComment ? Text(_comment!) : null,
+      trailing: hasComment ? const Icon(Icons.edit) : null,
+      onTap: _editComment,
     );
   }
 }
