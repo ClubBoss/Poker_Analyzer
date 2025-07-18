@@ -62,20 +62,9 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                     if (streetIndex != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(4, (i) {
-                            final names = ['Preflop', 'Flop', 'Turn', 'River'];
-                            final style = textStyle.copyWith(
-                                color: i == streetIndex
-                                    ? Theme.of(context).colorScheme.primary
-                                    : textStyle.color,
-                                fontSize: (mini ? 10 : 12));
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 2),
-                              child: Text(names[i], style: style),
-                            );
-                          }),
+                        child: Text(
+                          ['Preflop', 'Flop', 'Turn', 'River'][streetIndex!],
+                          style: textStyle.copyWith(fontSize: mini ? 10 : 12),
                         ),
                       ),
                   ],
