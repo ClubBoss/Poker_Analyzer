@@ -11,6 +11,7 @@ import '../helpers/hand_utils.dart';
 import '../services/pack_generator_service.dart';
 import '../services/training_session_service.dart';
 import '../services/smart_suggestion_service.dart';
+import '../services/pack_favorite_service.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'training_session_screen.dart';
 
@@ -24,11 +25,18 @@ class PackPreviewScreen extends StatefulWidget {
 
 class _PackPreviewScreenState extends State<PackPreviewScreen> {
   final List<TrainingPackTemplate> _related = [];
+  late bool _favorite;
 
   @override
   void initState() {
     super.initState();
+    _favorite = PackFavoriteService.instance.isFavorite(widget.pack.id);
     _loadRelated();
+  }
+
+  Future<void> _toggleFavorite() async {
+    await PackFavoriteService.instance.toggleFavorite(widget.pack.id);
+    if (mounted) setState(() => _favorite = !_favorite);
   }
 
   Future<void> _loadRelated() async {
@@ -61,6 +69,11 @@ class _PackPreviewScreenState extends State<PackPreviewScreen> {
       appBar: AppBar(
         title: Text(widget.pack.name),
         actions: [
+          IconButton(
+            icon: Icon(_favorite ? Icons.star : Icons.star_border),
+            color: _favorite ? Colors.amber : Colors.white,
+            onPressed: _toggleFavorite,
+          ),
           TextButton(
             onPressed: () async {
               final session = await context

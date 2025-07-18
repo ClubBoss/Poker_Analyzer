@@ -30,6 +30,7 @@ import 'services/hand_analysis_history_service.dart';
 import 'services/adaptive_training_service.dart';
 import 'services/training_pack_template_storage_service.dart';
 import 'services/favorite_pack_service.dart';
+import 'services/pack_favorite_service.dart';
 import 'services/pinned_pack_service.dart';
 import 'services/category_usage_service.dart';
 import 'services/daily_hand_service.dart';
@@ -200,6 +201,7 @@ List<SingleChildWidget> buildTrainingProviders() {
       value: templateStorage,
     ),
     Provider<FavoritePackService>.value(value: FavoritePackService.instance),
+    Provider<PackFavoriteService>.value(value: PackFavoriteService.instance),
     Provider<PinnedPackService>.value(value: PinnedPackService.instance),
     ChangeNotifierProvider(
       create: (context) => CategoryUsageService(
