@@ -1362,42 +1362,46 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
     if (tags.isEmpty) return const SizedBox.shrink();
     final tagService = context.read<TagService>();
-      return SizedBox(
-        height: 36,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            for (final tag in tags)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ChoiceChip(
-                  label: Text(tag),
-                  selected: _selectedTags.contains(tag),
-                  selectedColor: colorFromHex(tagService.colorOf(tag)),
-                  onSelected: (selected) async {
-                    final prefs = await SharedPreferences.getInstance();
-                    setState(() {
-                      if (selected) {
-                        _selectedTags.add(tag);
-                      } else {
-                        _selectedTags.remove(tag);
-                      }
-                    });
-                    await prefs.setStringList(_tagKey, _selectedTags.toList());
-                  },
-                ),
+    final tagsList = tags.toList();
+    final showClear = _selectedTags.isNotEmpty;
+    return SizedBox(
+      height: 36,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: tagsList.length + (showClear ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index < tagsList.length) {
+            final tag = tagsList[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(tag),
+                selected: _selectedTags.contains(tag),
+                selectedColor: colorFromHex(tagService.colorOf(tag)),
+                onSelected: (selected) async {
+                  final prefs = await SharedPreferences.getInstance();
+                  setState(() {
+                    if (selected) {
+                      _selectedTags.add(tag);
+                    } else {
+                      _selectedTags.remove(tag);
+                    }
+                  });
+                  await prefs.setStringList(_tagKey, _selectedTags.toList());
+                },
               ),
-            if (_selectedTags.isNotEmpty)
-              IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                color: Colors.white70,
-                tooltip: 'Очистить',
-                onPressed: _clearTagFilters,
-              ),
-          ],
-        ),
-      );
+            );
+          }
+          return IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            color: Colors.white70,
+            tooltip: 'Очистить',
+            onPressed: _clearTagFilters,
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildQuickLengthRow() {
@@ -1407,36 +1411,40 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _SessionLengthFilter.sixToTen: '6–10',
       _SessionLengthFilter.elevenPlus: '11+',
     };
-      return SizedBox(
-        height: 36,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            for (final entry in items.entries)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ChoiceChip(
-                  label: Text(entry.value),
-                  selected: _lengthFilter == entry.key,
-                  onSelected: (selected) async {
-                    if (!selected) return;
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setInt(_lengthKey, entry.key.index);
-                    setState(() => _lengthFilter = entry.key);
-                  },
-                ),
+    final entries = items.entries.toList();
+    final showClear = _lengthFilter != _SessionLengthFilter.any;
+    return SizedBox(
+      height: 36,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: entries.length + (showClear ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index < entries.length) {
+            final entry = entries[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(entry.value),
+                selected: _lengthFilter == entry.key,
+                onSelected: (selected) async {
+                  if (!selected) return;
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt(_lengthKey, entry.key.index);
+                  setState(() => _lengthFilter = entry.key);
+                },
               ),
-            if (_lengthFilter != _SessionLengthFilter.any)
-              IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                color: Colors.white70,
-                tooltip: 'Очистить',
-                onPressed: _clearLengthFilter,
-              ),
-          ],
-        ),
-      );
+            );
+          }
+          return IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            color: Colors.white70,
+            tooltip: 'Очистить',
+            onPressed: _clearLengthFilter,
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildQuickAccuracyRow() {
@@ -1446,36 +1454,40 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _AccuracyRange.pct75plus: '>75%',
       _AccuracyRange.all: 'Все',
     };
-      return SizedBox(
-        height: 36,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            for (final entry in items.entries)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ChoiceChip(
-                  label: Text(entry.value),
-                  selected: _accuracyRange == entry.key,
-                  onSelected: (selected) async {
-                    if (!selected) return;
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setInt(_accuracyRangeKey, entry.key.index);
-                    setState(() => _accuracyRange = entry.key);
-                  },
-                ),
+    final entries = items.entries.toList();
+    final showClear = _accuracyRange != _AccuracyRange.all;
+    return SizedBox(
+      height: 36,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: entries.length + (showClear ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index < entries.length) {
+            final entry = entries[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(entry.value),
+                selected: _accuracyRange == entry.key,
+                onSelected: (selected) async {
+                  if (!selected) return;
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt(_accuracyRangeKey, entry.key.index);
+                  setState(() => _accuracyRange = entry.key);
+                },
               ),
-            if (_accuracyRange != _AccuracyRange.all)
-              IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                color: Colors.white70,
-                tooltip: 'Очистить',
-                onPressed: _clearAccuracyFilter,
-              ),
-          ],
-        ),
-      );
+            );
+          }
+          return IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            color: Colors.white70,
+            tooltip: 'Очистить',
+            onPressed: _clearAccuracyFilter,
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildQuickColorRow() {
@@ -1491,43 +1503,47 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     for (final tag in tagService.tags) {
       colorMap.putIfAbsent(tagService.colorOf(tag), () => []).add(tag);
     }
-      return SizedBox(
-        height: 36,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            for (final color in colors)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ChoiceChip(
-                  label: Text(colorMap[color]?.join(', ') ?? color),
-                  selected: _selectedTagColors.contains(color),
-                  selectedColor: colorFromHex(color),
-                  onSelected: (selected) async {
-                    final prefs = await SharedPreferences.getInstance();
-                    setState(() {
-                      if (selected) {
-                        _selectedTagColors.add(color);
-                      } else {
-                        _selectedTagColors.remove(color);
-                      }
-                    });
-                    await prefs.setStringList(
-                        _tagColorKey, _selectedTagColors.toList());
-                  },
-                ),
+    final colorList = colors.toList();
+    final showClear = _selectedTagColors.isNotEmpty;
+    return SizedBox(
+      height: 36,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: colorList.length + (showClear ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index < colorList.length) {
+            final color = colorList[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(colorMap[color]?.join(', ') ?? color),
+                selected: _selectedTagColors.contains(color),
+                selectedColor: colorFromHex(color),
+                onSelected: (selected) async {
+                  final prefs = await SharedPreferences.getInstance();
+                  setState(() {
+                    if (selected) {
+                      _selectedTagColors.add(color);
+                    } else {
+                      _selectedTagColors.remove(color);
+                    }
+                  });
+                  await prefs.setStringList(
+                      _tagColorKey, _selectedTagColors.toList());
+                },
               ),
-            if (_selectedTagColors.isNotEmpty)
-              IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                color: Colors.white70,
-                tooltip: 'Очистить',
-                onPressed: _clearColorFilters,
-              ),
-          ],
-        ),
-      );
+            );
+          }
+          return IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            color: Colors.white70,
+            tooltip: 'Очистить',
+            onPressed: _clearColorFilters,
+          );
+        },
+      ),
+    );
   }
 
   bool _hasResultsForTag(String tag) {
@@ -1593,38 +1609,39 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             builder: (context, setStateDialog) {
               return SizedBox(
                 width: 300,
-                child: ListView(
+                child: ListView.builder(
                   shrinkWrap: true,
-                  children: [
-                    for (final tag in tags)
-                      CheckboxListTile(
-                        value: local.contains(tag),
-                        title: Row(
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                  color: colorFromHex(
-                                      context.read<TagService>().colorOf(tag)),
-                                  shape: BoxShape.circle),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(tag,
-                                style: const TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                        onChanged: (checked) {
-                          setStateDialog(() {
-                            if (checked ?? false) {
-                              local.add(tag);
-                            } else {
-                              local.remove(tag);
-                            }
-                          });
-                        },
+                  itemCount: tags.length,
+                  itemBuilder: (context, index) {
+                    final tag = tags.elementAt(index);
+                    return CheckboxListTile(
+                      value: local.contains(tag),
+                      title: Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                                color: colorFromHex(
+                                    context.read<TagService>().colorOf(tag)),
+                                shape: BoxShape.circle),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(tag,
+                              style: const TextStyle(color: Colors.white)),
+                        ],
                       ),
-                  ],
+                      onChanged: (checked) {
+                        setStateDialog(() {
+                          if (checked ?? false) {
+                            local.add(tag);
+                          } else {
+                            local.remove(tag);
+                          }
+                        });
+                      },
+                    );
+                  },
                 ),
               );
             },
@@ -1668,36 +1685,37 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             builder: (context, setStateDialog) {
               return SizedBox(
                 width: 300,
-                child: ListView(
+                child: ListView.builder(
                   shrinkWrap: true,
-                  children: [
-                    for (final color in colors)
-                      CheckboxListTile(
-                        activeColor: colorFromHex(color),
-                        value: local.contains(color),
-                        title: Text(
-                          colorMap[color]!.join(', '),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        secondary: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: colorFromHex(color),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        onChanged: (checked) {
-                          setStateDialog(() {
-                            if (checked ?? false) {
-                              local.add(color);
-                            } else {
-                              local.remove(color);
-                            }
-                          });
-                        },
+                  itemCount: colors.length,
+                  itemBuilder: (context, index) {
+                    final color = colors[index];
+                    return CheckboxListTile(
+                      activeColor: colorFromHex(color),
+                      value: local.contains(color),
+                      title: Text(
+                        colorMap[color]!.join(', '),
+                        style: const TextStyle(color: Colors.white),
                       ),
-                  ],
+                      secondary: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: colorFromHex(color),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      onChanged: (checked) {
+                        setStateDialog(() {
+                          if (checked ?? false) {
+                            local.add(color);
+                          } else {
+                            local.remove(color);
+                          }
+                        });
+                      },
+                    );
+                  },
                 ),
               );
             },
@@ -1779,41 +1797,42 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         ),
                       ),
                     Expanded(
-                      child: ListView(
+                      child: ListView.builder(
                         shrinkWrap: true,
-                        children: [
-                          for (final tag in tags)
-                            CheckboxListTile(
-                              value: local.contains(tag),
-                              title: Row(
-                                children: [
-                                  Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: colorFromHex(context
-                                          .read<TagService>()
-                                          .colorOf(tag)),
-                                      shape: BoxShape.circle,
-                                    ),
+                        itemCount: tags.length,
+                        itemBuilder: (context, index) {
+                          final tag = tags[index];
+                          return CheckboxListTile(
+                            value: local.contains(tag),
+                            title: Row(
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: colorFromHex(context
+                                        .read<TagService>()
+                                        .colorOf(tag)),
+                                    shape: BoxShape.circle,
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(tag,
-                                      style:
-                                          const TextStyle(color: Colors.white)),
-                                ],
-                              ),
-                              onChanged: (checked) {
-                                setStateDialog(() {
-                                  if (checked ?? false) {
-                                    if (!local.contains(tag)) local.add(tag);
-                                  } else {
-                                    local.remove(tag);
-                                  }
-                                });
-                              },
+                                ),
+                                const SizedBox(width: 8),
+                                Text(tag,
+                                    style:
+                                        const TextStyle(color: Colors.white)),
+                              ],
                             ),
-                        ],
+                            onChanged: (checked) {
+                              setStateDialog(() {
+                                if (checked ?? false) {
+                                  if (!local.contains(tag)) local.add(tag);
+                                } else {
+                                  local.remove(tag);
+                                }
+                              });
+                            },
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -2368,31 +2387,32 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       ? const SizedBox.shrink()
                       : SizedBox(
                           height: 40,
-                          child: ListView(
+                          child: ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             scrollDirection: Axis.horizontal,
-                            children: [
-                              for (final tag in visibleTags)
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  child: FilterChip(
-                                    label: Text(tag),
-                                    selected: true,
-                                    backgroundColor: colorFromHex(
-                                        context.read<TagService>().colorOf(tag)),
-                                    onSelected: (selected) async {
-                                      final prefs = await SharedPreferences
-                                          .getInstance();
-                                      setState(() {
-                                        _selectedTags.remove(tag);
-                                      });
-                                      await prefs.setStringList(
-                                          _tagKey, _selectedTags.toList());
-                                    },
-                                  ),
+                            itemCount: visibleTags.length,
+                            itemBuilder: (context, index) {
+                              final tag = visibleTags[index];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: FilterChip(
+                                  label: Text(tag),
+                                  selected: true,
+                                  backgroundColor: colorFromHex(
+                                      context.read<TagService>().colorOf(tag)),
+                                  onSelected: (selected) async {
+                                    final prefs = await SharedPreferences
+                                        .getInstance();
+                                    setState(() {
+                                      _selectedTags.remove(tag);
+                                    });
+                                    await prefs.setStringList(
+                                        _tagKey, _selectedTags.toList());
+                                  },
                                 ),
-                            ],
+                              );
+                            },
                           ),
                         );
                 }),
@@ -2450,30 +2470,31 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       ? const SizedBox.shrink()
                       : SizedBox(
                           height: 40,
-                          child: ListView(
+                          child: ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             scrollDirection: Axis.horizontal,
-                            children: [
-                              for (final color in visibleColors)
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  child: FilterChip(
-                                    label: Text(map[color]!.join(', ')),
-                                    selected: true,
-                                    backgroundColor: colorFromHex(color),
-                                    onSelected: (selected) async {
-                                      final prefs = await SharedPreferences
-                                          .getInstance();
-                                      setState(() {
-                                        _selectedTagColors.remove(color);
-                                      });
-                                      await prefs.setStringList(_tagColorKey,
-                                          _selectedTagColors.toList());
-                                    },
-                                  ),
+                            itemCount: visibleColors.length,
+                            itemBuilder: (context, index) {
+                              final color = visibleColors[index];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: FilterChip(
+                                  label: Text(map[color]!.join(', ')),
+                                  selected: true,
+                                  backgroundColor: colorFromHex(color),
+                                  onSelected: (selected) async {
+                                    final prefs = await SharedPreferences
+                                        .getInstance();
+                                    setState(() {
+                                      _selectedTagColors.remove(color);
+                                    });
+                                    await prefs.setStringList(_tagColorKey,
+                                        _selectedTagColors.toList());
+                                  },
                                 ),
-                            ],
+                              );
+                            },
                           ),
                         );
                 }),
