@@ -51,6 +51,7 @@ import 'services/action_sync_service.dart';
 import 'services/user_preferences_service.dart';
 import 'services/tag_service.dart';
 import 'services/tag_cache_service.dart';
+import 'services/training_pack_tag_analytics_service.dart';
 import 'services/ignored_mistake_service.dart';
 import 'services/goals_service.dart';
 import 'services/streak_service.dart';
@@ -272,6 +273,9 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     ChangeNotifierProvider(create: (_) => TagService()..load()),
     ChangeNotifierProvider<TagCacheService>.value(value: tagCache),
+    ChangeNotifierProvider(
+      create: (_) => TrainingPackTagAnalyticsService()..loadStats(),
+    ),
     ChangeNotifierProvider(create: (_) => IgnoredMistakeService()..load()),
     ChangeNotifierProvider(create: (_) => GoalsService()..load()),
     ChangeNotifierProvider(
