@@ -80,6 +80,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   Map<String, int> _playCounts = {};
   Map<String, int> _trainedHands = {};
   Map<String, double> _ratings = {};
+  bool _compactMode = false;
   static const _PrefsKey = 'pack_library_state';
 
   List<String> get _availableTags {
@@ -252,6 +253,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
             _sortMode = _SortMode.values[sort];
           }
           _sortOrder = json['order'] as String? ?? 'newest';
+          _compactMode = json['compact'] as bool? ?? false;
           final g = json['group'] as String? ?? json['groupTag'] as String?;
           if (g is String && g.isNotEmpty) {
             _currentGroupKey = g;
@@ -309,6 +311,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       'difficulty': _difficultyFilter,
       'sort': _sortMode.index,
       'order': _sortOrder,
+      'compact': _compactMode,
     });
     await prefs.setString(_PrefsKey, json);
   }
@@ -410,7 +413,49 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     _saveState();
   }
 
+  Widget _buildCompactTile(TrainingPackTemplate t) {
+    final total = t.totalWeight;
+    final trained = _trainedHands[t.id] ?? 0;
+    final done = trained.clamp(0, total);
+    final ratio = total == 0 ? 0 : done * 100 / total;
+    return Card(
+      child: ListTile(
+        dense: true,
+        title: Text(t.name),
+        subtitle: t.tags.isNotEmpty
+            ? Wrap(
+                spacing: 4,
+                runSpacing: 2,
+                children: [
+                  for (final tag in t.tags.take(3))
+                    Chip(
+                      label: Text(tag, style: const TextStyle(fontSize: 11)),
+                      backgroundColor: Colors.grey[800],
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity:
+                          const VisualDensity(horizontal: -4, vertical: -4),
+                    ),
+                  if (t.tags.length > 3)
+                    Chip(
+                      label: Text('+${t.tags.length - 3}',
+                          style: const TextStyle(fontSize: 11)),
+                      backgroundColor: Colors.grey[800],
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity:
+                          const VisualDensity(horizontal: -4, vertical: -4),
+                    ),
+                ],
+              )
+            : null,
+        trailing: Text('$done / $total (${ratio.round()}%)',
+            style: const TextStyle(fontSize: 12)),
+        onTap: () => _import(t),
+      ),
+    );
+  }
+
   Widget _buildPackTile(TrainingPackTemplate t) {
+    if (_compactMode) return _buildCompactTile(t);
     final isNew =
         DateTime.now().difference(t.createdAt).inDays < 3;
     final isUpdated = t.updatedDate != null &&
@@ -1159,6 +1204,15 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                                 _saveState();
                               },
                             ),
+                            IconButton(
+                              icon: Icon(
+                                  _compactMode ? Icons.view_list : Icons.view_module),
+                              tooltip: _compactMode ? 'Expanded view' : 'Compact view',
+                              onPressed: () {
+                                setState(() => _compactMode = !_compactMode);
+                                _saveState();
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -1226,6 +1280,23 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                                 ],
                               )
                           ],
+                        );
+                      }
+                      if (_compactMode) {
+                        return LayoutBuilder(
+                          builder: (context, constraints) {
+                            final count = constraints.maxWidth < 360 ? 1 : 2;
+                            return GridView.builder(
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: count,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 8,
+                                childAspectRatio: 3.5,
+                              ),
+                              itemCount: filtered.length,
+                              itemBuilder: (_, i) => _buildPackTile(filtered[i]),
+                            );
+                          },
                         );
                       }
                       return ListView.builder(
