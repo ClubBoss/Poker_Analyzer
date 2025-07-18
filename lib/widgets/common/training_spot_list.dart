@@ -11,6 +11,8 @@ import 'package:file_saver/file_saver.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
+import '../../services/training_pack_tag_analytics_service.dart';
 
 import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
@@ -3929,6 +3931,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _showTagSelector() async {
     final local = Set<String>.from(_selectedTags);
     String? selectedPreset;
+    final analytics = context.read<TrainingPackTagAnalyticsService>();
+    final popular = [for (final a in analytics.getPopularTags()) a.tag];
+    final tags = [
+      for (final t in popular)
+        if (_availableTags.contains(t)) t,
+      ...[
+        for (final t in _availableTags)
+          if (!popular.contains(t)) t
+      ]
+    ];
     final result = await showDialog<Set<String>>(
       context: context,
       builder: (context) {
@@ -3949,7 +3961,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                       child: ListView(
                         shrinkWrap: true,
                         children: [
-                          for (final tag in _availableTags)
+                          for (final tag in tags)
                             CheckboxListTile(
                               value: local.contains(tag),
                               title:

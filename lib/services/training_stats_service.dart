@@ -3,14 +3,24 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'progress_export_service.dart';
 import 'cloud_sync_service.dart';
 import '../models/training_stats.dart';
 import '../models/saved_hand.dart';
 import '../models/skill_stat.dart';
+import '../models/session_log.dart';
 import '../services/template_storage_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/streak_service.dart';
+
+class PackPlayStats {
+  final int launches;
+  final int totalTrained;
+  final int mistakes;
+  const PackPlayStats({this.launches = 0, this.totalTrained = 0, this.mistakes = 0});
+}
 
 class TrainingStatsService extends ChangeNotifier {
   static TrainingStatsService? _instance;
@@ -622,6 +632,30 @@ class TrainingStatsService extends ChangeNotifier {
     _evalHistory.clear();
     await _save();
     notifyListeners();
+  }
+
+  Future<PackPlayStats> getStatsForPack(String packId) async {
+    if (!Hive.isBoxOpen('session_logs')) {
+      await Hive.initFlutter();
+      await Hive.openBox('session_logs');
+    }
+    final box = Hive.box('session_logs');
+    int launches = 0;
+    int hands = 0;
+    int mistakes = 0;
+    for (final v in box.values.whereType<Map>()) {
+      final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
+      if (log.templateId == packId) {
+        launches += 1;
+        hands += log.correctCount + log.mistakeCount;
+        mistakes += log.mistakeCount;
+      }
+    }
+    return PackPlayStats(
+      launches: launches,
+      totalTrained: hands,
+      mistakes: mistakes,
+    );
   }
 
   Future<TrainingStats> aggregate({
