@@ -1,9 +1,15 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'training_history_service_v2.dart';
+import 'training_pack_stats_service.dart';
 
 class TrainingGapDetectorService {
   const TrainingGapDetectorService();
 
-  Future<List<String>> detectNeglectedTags({Duration maxAge = const Duration(days: 7)}) async {
+  static const _skillKey = 'stats_skill_stats';
+
+  Future<List<String>> detectNeglectedTags(
+      {Duration maxAge = const Duration(days: 7)}) async {
     final history = await TrainingHistoryServiceV2.getHistory(limit: 200);
     final map = <String, DateTime>{};
     for (final e in history) {
@@ -24,8 +30,43 @@ class TrainingGapDetectorService {
     return list;
   }
 
-  Future<Set<String>> detectNeglectedCategories({Duration maxAge = const Duration(days: 7)}) async {
+  Future<Set<String>> detectNeglectedCategories(
+      {Duration maxAge = const Duration(days: 7)}) async {
     final tags = await detectNeglectedTags(maxAge: maxAge);
-    return {for (final t in tags) if (t.startsWith('cat:')) t};
+    return {
+      for (final t in tags)
+        if (t.startsWith('cat:')) t
+    };
+  }
+
+  Future<String?> detectWeakCategory(
+      {int minHands = 10, double evThreshold = 50}) async {
+    await TrainingPackStatsService.getCategoryStats();
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_skillKey);
+    if (raw == null) return null;
+    try {
+      final data = jsonDecode(raw);
+      if (data is Map) {
+        String? result;
+        double worst = double.infinity;
+        for (final e in data.entries) {
+          final v = e.value;
+          if (v is Map) {
+            final hands = (v['hands'] as num?)?.toInt() ?? 0;
+            if (hands < minHands) continue;
+            final mistakes = (v['mistakes'] as num?)?.toInt() ?? 0;
+            if (hands == 0) continue;
+            final acc = (hands - mistakes) * 100 / hands;
+            if (acc < evThreshold && acc < worst) {
+              worst = acc;
+              result = e.key as String;
+            }
+          }
+        }
+        return result;
+      }
+    } catch (_) {}
+    return null;
   }
 }

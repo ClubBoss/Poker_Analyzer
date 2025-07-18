@@ -158,6 +158,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Map<String, int> _playCounts = {};
   final Map<String, int> _handsCompleted = {};
   List<String> _weakCategories = [];
+  String? _weakCategory;
   final Set<String> _mastered = {};
   Map<TrainingType, double> _typeCompletion = {};
   TrainingType? _weakestType;
@@ -198,6 +199,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadStats();
     await _loadHandsCompleted();
     await _loadWeakCategories();
+    await _detectWeakCategory();
     await _loadTypeStats();
     if (!mounted) return;
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -733,10 +735,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     });
   }
 
+  Future<void> _detectWeakCategory() async {
+    final id =
+        await context.read<TrainingGapDetectorService>().detectWeakCategory();
+    if (!mounted) return;
+    setState(() => _weakCategory = id);
+  }
+
   Future<void> _loadTypeStats() async {
     final list = PackLibraryLoaderService.instance.library;
-    final map = await const TrainingTypeStatsService()
-        .calculateCompletionPercent(list);
+    final map =
+        await const TrainingTypeStatsService().calculateCompletionPercent(list);
     final weak = const WeakTrainingTypeDetector().findWeakestType(map);
     if (!mounted) return;
     setState(() {
@@ -862,7 +871,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<v2.TrainingPackTemplate> _applyTrainingTypeFilter(
       List<v2.TrainingPackTemplate> list) {
     if (_trainingType == null) return list;
-    return TrainingTypeFilterService.filterByType(list.toList(), {_trainingType!});
+    return TrainingTypeFilterService.filterByType(
+        list.toList(), {_trainingType!});
   }
 
   Widget _buildSortButtons(AppLocalizations l) {
@@ -1453,6 +1463,37 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Widget _weakCategoryBanner() {
+    final cat = _weakCategory;
+    if (cat == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: InkWell(
+        onTap: () => _setActiveCategory(cat),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[850],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.redAccent),
+          ),
+          child: Row(
+            children: [
+              const Text('📉', style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Найдено слабое место: ${translateCategory(cat)}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
@@ -1974,13 +2015,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (!cache.popularCategories.contains(c)) c
       ]
     ];
-      final templateCategoryList = [
-        for (final c in templateCatSet.toList()..sort()) c
-      ];
-      final libraryPopularTags = [
-        for (final t in cache.getPopularTags(limit: 8))
-          if (_libraryTags.contains(t)) t
-      ];
+    final templateCategoryList = [
+      for (final c in templateCatSet.toList()..sort()) c
+    ];
+    final libraryPopularTags = [
+      for (final t in cache.getPopularTags(limit: 8))
+        if (_libraryTags.contains(t)) t
+    ];
     final pinnedTemplates = _applySorting([
       for (final t in templates)
         if (_pinned.contains(t.id) &&
@@ -2246,6 +2287,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ),
           ),
           _recommendedCategoryCard(),
+          _weakCategoryBanner(),
           SwitchListTile(
             title: Text(l.favorites),
             value: _favoritesOnly,
@@ -2443,8 +2485,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   const SizedBox(height: 4),
                   for (final type in TrainingType.values)
                     GestureDetector(
-                      onTap: () => _setTrainingType(
-                          _trainingType == type ? null : type),
+                      onTap: () =>
+                          _setTrainingType(_trainingType == type ? null : type),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         child: Row(
@@ -2797,8 +2839,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                             children: [
                               Text(
                                 'Library',
-                                style:
-                                    Theme.of(context).textTheme.titleMedium,
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 8),
                               Wrap(
