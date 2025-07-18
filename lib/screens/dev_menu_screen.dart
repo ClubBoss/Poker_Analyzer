@@ -81,6 +81,8 @@ import 'yaml_pack_archive_stats_screen.dart';
 import 'yaml_pack_archive_duplicates_screen.dart';
 import 'yaml_pack_archive_validator_screen.dart';
 
+import 'pack_tag_analyzer_screen.dart';
+
 import 'pack_library_diff_screen.dart';
 import 'pack_merge_explorer_screen.dart';
 class DevMenuScreen extends StatefulWidget {
@@ -1585,6 +1587,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📇 Построить индекс тегов'),
                 onTap: _tagIndexLoading ? null : _buildTagIndex,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📦 Pack Tag Analyzer'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PackTagAnalyzerScreen(),
+                    ),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
