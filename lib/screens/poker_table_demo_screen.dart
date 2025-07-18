@@ -212,6 +212,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
               onThemeChanged: (t) => setState(() => _theme = t),
               boardCards: const [],
               currentStreet: 0,
+              sizeFactor: 0.9,
             ),
             const SizedBox(height: 8),
             Row(

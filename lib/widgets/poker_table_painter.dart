@@ -27,28 +27,28 @@ class PokerTablePainter extends CustomPainter {
   Gradient _gradientForTheme() {
     switch (theme) {
       case TableTheme.green:
-        return const LinearGradient(
+        return const RadialGradient(
+          center: Alignment(0.0, -0.3),
+          radius: 0.8,
           colors: [Color(0xFF497A5E), Color(0xFF24432E)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         );
       case TableTheme.carbon:
-        return const LinearGradient(
+        return const RadialGradient(
+          center: Alignment(0.0, -0.3),
+          radius: 0.8,
           colors: [Color(0xFF444444), Color(0xFF222222)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         );
       case TableTheme.blue:
-        return const LinearGradient(
+        return const RadialGradient(
+          center: Alignment(0.0, -0.3),
+          radius: 0.8,
           colors: [Color(0xFF00577C), Color(0xFF001F3F)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         );
       case TableTheme.dark:
-        return const LinearGradient(
+        return const RadialGradient(
+          center: Alignment(0.0, -0.3),
+          radius: 0.8,
           colors: [Color(0xFF1A1A1A), Color(0xFF000000)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         );
     }
   }
