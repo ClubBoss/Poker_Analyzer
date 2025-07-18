@@ -14,6 +14,7 @@ import '../services/training_pack_audience_service.dart';
 import '../services/training_pack_difficulty_service.dart';
 import 'pack_library_search_screen.dart';
 import 'skill_map_screen.dart';
+import 'goal_screen.dart';
 
 enum _SortOption { newest, rating, difficulty }
 
@@ -169,6 +170,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const PackLibrarySearchScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Text('🎯', style: TextStyle(fontSize: 20)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const GoalScreen()),
               );
             },
           ),

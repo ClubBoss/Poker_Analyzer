@@ -89,6 +89,7 @@ import 'pack_library_diff_screen.dart';
 import 'pack_merge_explorer_screen.dart';
 import 'tag_matrix_coverage_screen.dart';
 import 'skill_map_screen.dart';
+import 'goal_screen.dart';
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
 
@@ -1791,6 +1792,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📌 Цели по истории'),
                 onTap: _goalLoading ? null : _suggestGoals,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🎯 Цели'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GoalScreen()),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
