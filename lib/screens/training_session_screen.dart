@@ -20,6 +20,9 @@ import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
 import '../services/training_gap_notification_service.dart';
+import '../services/tag_mastery_service.dart';
+import '../services/user_goal_engine.dart';
+import '../services/goal_toast_service.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -153,6 +156,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
 
   Future<void> _next(service) async {
     final next = service.nextSpot();
+    await _checkGoalProgress();
     final tpl = service.template;
     if (tpl != null) {
       final prefs = await SharedPreferences.getInstance();
@@ -295,6 +299,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           categoryCounts: counts,
         ),
       );
+      await _checkGoalProgress();
     }
   }
 
@@ -313,6 +318,28 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ),
     );
     _endlessStats.reset();
+  }
+
+  Future<void> _checkGoalProgress() async {
+    final engine = context.read<UserGoalEngine>();
+    final toast = context.read<GoalToastService>();
+    final mastery = await context.read<TagMasteryService>().computeMastery();
+    for (final g in engine.goals) {
+      if (g.completed) continue;
+      double pct;
+      if (g.tag != null && g.targetAccuracy != null) {
+        final current = (mastery[g.tag] ?? 0.0) * 100;
+        final base = g.base.toDouble();
+        final target = g.targetAccuracy!;
+        pct = target <= base
+            ? 100.0
+            : ((current - base) / (target - base)) * 100;
+      } else {
+        final prog = engine.progress(g);
+        pct = g.target > 0 ? prog * 100 / g.target : 0.0;
+      }
+      toast.maybeShowToast(g, pct);
+    }
   }
 
   Widget _progressBar(TrainingSessionService service) {
