@@ -4,6 +4,7 @@ import '../models/v2/training_pack_v2.dart';
 import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
 import '../services/training_pack_comments_service.dart';
+import '../widgets/pack_insights_banner.dart';
 import 'training_session_screen.dart';
 
 class TrainingPackPreviewScreen extends StatefulWidget {
@@ -167,6 +168,7 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
                 subtitle: Text('Tags: ${s.tags.join(', ')}'),
               ),
           ],
+          PackInsightsBanner(templateId: widget.template.id),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
