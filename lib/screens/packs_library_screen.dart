@@ -72,7 +72,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
   final Set<String> _selectedTags = {};
-  bool _groupByTag = false;
+  /// Current grouping mode: 'tag', 'position', 'stack' or 'none'.
+  String _currentGroupKey = 'none';
   final Set<String> _mistakePacks = {};
   _SortMode _sortMode = _SortMode.name;
   String _sortOrder = 'newest';
@@ -251,6 +252,10 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
             _sortMode = _SortMode.values[sort];
           }
           _sortOrder = json['order'] as String? ?? 'newest';
+          final g = json['group'] as String? ?? json['groupTag'] as String?;
+          if (g is String && g.isNotEmpty) {
+            _currentGroupKey = g;
+          }
         });
       } catch (_) {}
     }
@@ -271,7 +276,15 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       _posFilters
         ..clear()
         ..addAll(memory.positionFilters);
-      _groupByTag = memory.groupByTag;
+      if (memory.groupByTag) {
+        _currentGroupKey = 'tag';
+      } else if (memory.groupByPosition) {
+        _currentGroupKey = 'position';
+      } else if (memory.groupByStack) {
+        _currentGroupKey = 'stack';
+      } else {
+        _currentGroupKey = 'none';
+      }
     });
   }
 
@@ -281,7 +294,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       stack: {for (final r in _stackFilters) r.index},
       pos: _posFilters,
       difficulty: _difficultyFilter,
-      groupByTag: _groupByTag,
+      groupByTag: _currentGroupKey == 'tag',
+      groupByPosition: _currentGroupKey == 'position',
+      groupByStack: _currentGroupKey == 'stack',
     );
     final prefs = await SharedPreferences.getInstance();
     final json = jsonEncode({
@@ -290,7 +305,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       'pos': [for (final p in _posFilters) p.name],
       'stack': [for (final r in _stackFilters) r.index],
       'tags': _selectedTags.toList(),
-      'groupTag': _groupByTag,
+      'group': _currentGroupKey,
       'difficulty': _difficultyFilter,
       'sort': _sortMode.index,
       'order': _sortOrder,
@@ -389,6 +404,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       _stackFilters.clear();
       _difficultyFilter = null;
       _query = '';
+      _currentGroupKey = 'none';
     });
     TrainingPackFilterMemoryService.instance.reset();
     _saveState();
@@ -1103,11 +1119,25 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                               child: Text(AppLocalizations.of(context)!.resetFilters),
                             ),
                             const SizedBox(width: 8),
-                            const Text('Group by Tag'),
-                            Switch(
-                              value: _groupByTag,
+                            const Text('Group'),
+                            const SizedBox(width: 4),
+                            DropdownButton<String>(
+                              value: _currentGroupKey,
+                              dropdownColor: AppColors.cardBackground,
+                              style: const TextStyle(color: Colors.white),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 'none', child: Text('None')),
+                                DropdownMenuItem(
+                                    value: 'tag', child: Text('By Tag')),
+                                DropdownMenuItem(
+                                    value: 'position', child: Text('By Position')),
+                                DropdownMenuItem(
+                                    value: 'stack', child: Text('By Stack')),
+                              ],
                               onChanged: (v) {
-                                setState(() => _groupByTag = v);
+                                if (v == null) return;
+                                setState(() => _currentGroupKey = v);
                                 _saveState();
                               },
                             ),
@@ -1144,14 +1174,48 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           (_query.isNotEmpty || _difficultyFilter != null)) {
                         return Center(child: Text(AppLocalizations.of(context)!.noResults));
                       }
-                      if (_groupByTag) {
+                      if (_currentGroupKey != 'none') {
                         final groups = <String, List<TrainingPackTemplate>>{};
                         for (final t in filtered) {
-                          final key =
-                              t.tags.isNotEmpty ? t.tags.first : 'Other';
+                          var key = 'Other';
+                          switch (_currentGroupKey) {
+                            case 'tag':
+                              key = t.tags.isNotEmpty ? t.tags.first : 'Other';
+                              break;
+                            case 'position':
+                              key = t.heroPos.label;
+                              break;
+                            case 'stack':
+                              final r = _StackRange.values.firstWhere(
+                                  (e) => e.contains(t.heroBbStack),
+                                  orElse: () => _StackRange.b13_20);
+                              key = r.label;
+                              break;
+                          }
                           groups.putIfAbsent(key, () => []).add(t);
                         }
-                        final keys = groups.keys.toList()..sort();
+                        final keys = groups.keys.toList();
+                        if (_currentGroupKey == 'position') {
+                          keys.sort((a, b) {
+                            int ia = kPositionOrder
+                                .indexWhere((p) => p.label == a);
+                            int ib = kPositionOrder
+                                .indexWhere((p) => p.label == b);
+                            ia = ia < 0 ? kPositionOrder.length : ia;
+                            ib = ib < 0 ? kPositionOrder.length : ib;
+                            return ia.compareTo(ib);
+                          });
+                        } else if (_currentGroupKey == 'stack') {
+                          keys.sort((a, b) {
+                            int ia = _StackRange.values
+                                .indexWhere((r) => r.label == a);
+                            int ib = _StackRange.values
+                                .indexWhere((r) => r.label == b);
+                            return ia.compareTo(ib);
+                          });
+                        } else {
+                          keys.sort();
+                        }
                         return ListView(
                           children: [
                             for (final k in keys)
