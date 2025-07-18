@@ -96,6 +96,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _diffKey = 'lib_difficulty_filter';
   static const _audienceKey = 'lib_audience_filter';
   static const _trainingTypeKey = 'lib_training_type';
+  static const _streetKey = 'lib_target_street';
   static const _actTagsKey = 'lib_act_tags';
   static const _actCatsKey = 'lib_act_cats';
   static const _lastCatKey = 'lib_last_selected_category';
@@ -150,6 +151,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<int> _difficultyFilters = {};
   String _audienceFilter = 'all';
   TrainingType? _trainingType;
+  String? _streetFilter;
   bool _importing = false;
   String _dailyQuote = '';
   List<String> _libraryTags = [];
@@ -281,6 +283,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       } else {
         _trainingType = null;
       }
+      _streetFilter = prefs.getString(_streetKey);
       _difficultyFilters
         ..clear()
         ..addAll(
@@ -568,6 +571,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       await prefs.setString(_trainingTypeKey, type.name);
     }
     setState(() => _trainingType = type);
+  }
+
+  Future<void> _setStreetFilter(String? street) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (street == null) {
+      await prefs.remove(_streetKey);
+    } else {
+      await prefs.setString(_streetKey, street);
+    }
+    setState(() => _streetFilter = street);
   }
 
   Future<void> _clearTagFilters() async {
@@ -1097,6 +1110,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       visible = [
         for (final t in visible)
           if (_difficultyFilters.contains((t as dynamic).difficultyLevel)) t
+      ];
+    }
+    if (_streetFilter != null) {
+      visible = [
+        for (final t in visible)
+          if ((t as dynamic).targetStreet == _streetFilter) t
       ];
     }
     return visible;
@@ -2041,7 +2060,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _activeTags.length +
         _activeCategories.length +
         _difficultyFilters.length +
-        (_trainingType == null ? 0 : 1);
+        (_trainingType == null ? 0 : 1) +
+        (_streetFilter == null ? 0 : 1);
     final hasResults = sortedVisible.isNotEmpty;
     final filteringActive = query.isNotEmpty ||
         _filter != 'all' ||
@@ -2057,7 +2077,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         _activeTags.isNotEmpty ||
         _activeCategories.isNotEmpty ||
         _difficultyFilters.isNotEmpty ||
-        _trainingType != null;
+        _trainingType != null ||
+        _streetFilter != null;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
     for (final t in sortedVisible) {
@@ -2186,6 +2207,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   for (final t in TrainingType.values)
                     DropdownMenuItem(value: t, child: Text(t.label))
                 ]
+              ],
+            ),
+            const SizedBox(width: 8),
+            DropdownButton<String>(
+              value: _streetFilter ?? 'any',
+              underline: const SizedBox.shrink(),
+              onChanged: (v) => _setStreetFilter(v == 'any' ? null : v),
+              items: const [
+                DropdownMenuItem(value: 'any', child: Text('Все')),
+                DropdownMenuItem(value: 'preflop', child: Text('Preflop')),
+                DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                DropdownMenuItem(value: 'river', child: Text('River')),
               ],
             ),
             PopupMenuButton<String>(
@@ -2610,6 +2644,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   label: const Text('🔥'),
                   selected: _difficultyFilters.contains(3),
                   onSelected: (_) => _toggleDifficulty(3),
+                ),
+                DropdownButton<String>(
+                  value: _streetFilter ?? 'any',
+                  underline: const SizedBox.shrink(),
+                  onChanged: (v) => _setStreetFilter(v == 'any' ? null : v),
+                  items: const [
+                    DropdownMenuItem(value: 'any', child: Text('Все')),
+                    DropdownMenuItem(value: 'preflop', child: Text('Preflop')),
+                    DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                    DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                    DropdownMenuItem(value: 'river', child: Text('River')),
+                  ],
                 ),
               ],
             ),
