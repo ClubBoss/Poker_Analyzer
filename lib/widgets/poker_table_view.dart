@@ -44,6 +44,7 @@ class PokerTableView extends StatefulWidget {
   final List<CardModel> heroCards;
   final List<List<CardModel>> revealedCards;
   final List<CardModel> boardCards;
+  final List<List<CardModel>> multiBoardCards;
   final int currentStreet;
   final String? actionSeatId;
   final bool highlightHeroAction;
@@ -55,6 +56,7 @@ class PokerTableView extends StatefulWidget {
   final bool showStackValues;
   final bool showRevealedCards;
   final bool showPlayerActions;
+  final bool showBoardLabels;
   const PokerTableView({
     super.key,
     required this.heroIndex,
@@ -73,6 +75,7 @@ class PokerTableView extends StatefulWidget {
     this.heroCards = const [],
     this.revealedCards = const [],
     this.boardCards = const [],
+    this.multiBoardCards = const [],
     this.currentStreet = 0,
     this.actionSeatId,
     this.highlightHeroAction = false,
@@ -84,6 +87,7 @@ class PokerTableView extends StatefulWidget {
     this.showStackValues = true,
     this.showRevealedCards = true,
     this.showPlayerActions = true,
+    this.showBoardLabels = true,
   });
 
   @override
@@ -144,16 +148,7 @@ class _PokerTableViewState extends State<PokerTableView> {
                         PotChipStackPainter(chipCount: 4, color: Colors.orange),
                   ),
                 ),
-                if (widget.boardCards.isNotEmpty)
-                  BoardCardsWidget(
-                    currentStreet: widget.currentStreet,
-                    boardCards: widget.boardCards,
-                    onCardSelected: (_, __) {},
-                    onCardLongPress: null,
-                    usedCards: const {},
-                    editingDisabled: true,
-                    scale: widget.scale,
-                  ),
+                _buildBoards(),
                 GestureDetector(
                   onTap: () async {
                     final controller =
@@ -563,6 +558,70 @@ class _PokerTableViewState extends State<PokerTableView> {
       return SizedBox(
           width: width, height: height, child: Stack(children: items));
     });
+  }
+
+  Widget _buildBoards() {
+    List<List<CardModel>> boards =
+        widget.multiBoardCards.isNotEmpty
+            ? List<List<CardModel>>.from(widget.multiBoardCards)
+            : (widget.boardCards.isNotEmpty
+                ? [widget.boardCards]
+                : []);
+
+    if (widget.compactMode && boards.isNotEmpty) {
+      boards = [boards.first];
+    }
+
+    boards = boards.take(3).toList();
+
+    if (boards.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned.fill(
+      child: Align(
+        alignment: const Alignment(0, -0.05),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: Column(
+            key: ValueKey(boards.length),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < boards.length; i++)
+                Padding(
+                  padding: EdgeInsets.only(top: i == 0 ? 0 : 12 * widget.scale),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.showBoardLabels && boards.length > 1)
+                        Padding(
+                          padding: EdgeInsets.only(right: 8 * widget.scale),
+                          child: Text(
+                            'Board ${i + 1}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10 * widget.scale,
+                            ),
+                          ),
+                        ),
+                      BoardCardsWidget(
+                        currentStreet: widget.currentStreet,
+                        boardCards: boards[i],
+                        onCardSelected: (_, __) {},
+                        onCardLongPress: null,
+                        usedCards: const {},
+                        editingDisabled: true,
+                        scale: widget.scale,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
