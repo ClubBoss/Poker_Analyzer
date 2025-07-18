@@ -60,6 +60,7 @@ import 'services/streak_service.dart';
 import 'services/achievement_service.dart';
 import 'services/achievement_engine.dart';
 import 'services/user_goal_engine.dart';
+import 'services/goal_toast_service.dart';
 import 'services/personal_recommendation_service.dart';
 import 'services/reminder_service.dart';
 import 'services/daily_reminder_service.dart';
@@ -308,6 +309,7 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) =>
           UserGoalEngine(stats: context.read<TrainingStatsService>()),
     ),
+    Provider(create: (_) => GoalToastService()),
     ChangeNotifierProvider(
       create: (context) => PersonalRecommendationService(
         achievements: context.read<AchievementEngine>(),
