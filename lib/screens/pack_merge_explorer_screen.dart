@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,7 +16,7 @@ class PackMergeExplorerScreen extends StatefulWidget {
 
 class _PackMergeExplorerScreenState extends State<PackMergeExplorerScreen> {
   bool _loading = true;
-  final List<_Candidate> _items = [];
+  final List<_Group> _items = [];
 
   @override
   void initState() {
@@ -56,33 +57,20 @@ class _PackMergeExplorerScreenState extends State<PackMergeExplorerScreen> {
               children: [
                 ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
-                for (final c in _items)
+                for (final g in _items)
                   ExpansionTile(
-                    tileColor: c.overlap > 0.5
-                        ? Colors.green.withOpacity(.2)
-                        : null,
-                    title: Text('${c.a.name} ↔ ${c.b.name}'),
-                    subtitle: Text(
-                        'score ${c.score.toStringAsFixed(2)}, overlap ${(c.overlap * 100).toStringAsFixed(0)}%'),
+                    title: Text(g.title),
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16, bottom: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Type: ${c.a.type.name}'),
-                            if (c.sameTitle) const Text('Same title'),
-                            if (c.commonTags.isNotEmpty)
-                              Text('Tags: ${c.commonTags.join(', ')}'),
-                            if (c.sameBlind && c.blind != null)
-                              Text('Blind: ${c.blind}'),
-                            TextButton(
-                              onPressed: () => _openDiff(c),
-                              child: const Text('Diff'),
-                            ),
-                          ],
+                      for (final c in g.pairs)
+                        ListTile(
+                          tileColor: c.overlap > 0.5
+                              ? Colors.green.withOpacity(.2)
+                              : null,
+                          title: Text('${c.a.name} ↔ ${c.b.name}'),
+                          subtitle: Text(
+                              'score ${c.score.toStringAsFixed(2)}, overlap ${(c.overlap * 100).toStringAsFixed(0)}%'),
+                          onTap: () => _openDiff(c),
                         ),
-                      ),
                     ],
                   ),
               ],
@@ -112,7 +100,14 @@ class _Candidate {
   });
 }
 
-Future<List<_Candidate>> _exploreTask(String _) async {
+class _Group {
+  final String title;
+  final List<_Candidate> pairs;
+  _Group({required this.title, required this.pairs});
+  double get maxScore => pairs.fold<double>(0, (p, e) => math.max(p, e.score));
+}
+
+Future<List<_Group>> _exploreTask(String _) async {
   final docs = await getApplicationDocumentsDirectory();
   final dir = Directory('${docs.path}/training_packs/library');
   if (!dir.existsSync()) return [];
@@ -127,14 +122,14 @@ Future<List<_Candidate>> _exploreTask(String _) async {
       packs.add(TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map)));
     } catch (_) {}
   }
-  final out = <_Candidate>[];
+  final pairs = <_Candidate>[];
   for (var i = 0; i < packs.length; i++) {
     final a = packs[i];
     for (var j = i + 1; j < packs.length; j++) {
       final b = packs[j];
       final res = _compare(a, b);
       if (res['score'] >= 2 || res['overlap'] > 0.5) {
-        out.add(_Candidate(
+        pairs.add(_Candidate(
           a: a,
           b: b,
           score: res['score'],
@@ -147,8 +142,16 @@ Future<List<_Candidate>> _exploreTask(String _) async {
       }
     }
   }
-  out.sort((a, b) => b.score.compareTo(a.score));
-  return out;
+  pairs.sort((a, b) => b.score.compareTo(a.score));
+  final groups = <String, _Group>{};
+  for (final c in pairs) {
+    final key = _groupKey(c);
+    final g = groups.putIfAbsent(key, () => _Group(title: key, pairs: []));
+    g.pairs.add(c);
+  }
+  final list = groups.values.toList();
+  list.sort((a, b) => b.maxScore.compareTo(a.maxScore));
+  return list;
 }
 
 Map<String, dynamic> _compare(TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
@@ -192,6 +195,14 @@ double _spotOverlap(List<dynamic> a, List<dynamic> b) {
   }
   if (minLen == 0) return 0;
   return common / minLen;
+}
+
+String _groupKey(_Candidate c) {
+  final parts = <String>[c.a.type.name];
+  if (c.sameTitle) parts.add(c.a.name);
+  if (c.commonTags.isNotEmpty) parts.add(c.commonTags.join(', '));
+  if (c.sameBlind && c.blind != null) parts.add('BB ${c.blind}');
+  return parts.join(' | ');
 }
 
 String _spotKey(dynamic s) {
