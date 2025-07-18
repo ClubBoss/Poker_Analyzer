@@ -85,6 +85,7 @@ import 'pack_tag_analyzer_screen.dart';
 
 import 'pack_library_diff_screen.dart';
 import 'pack_merge_explorer_screen.dart';
+import 'tag_matrix_coverage_screen.dart';
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
 
@@ -1608,6 +1609,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const PackMatrixConfigEditorScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🕵️ Tag Matrix Coverage'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TagMatrixCoverageScreen(),
                     ),
                   );
                 },
