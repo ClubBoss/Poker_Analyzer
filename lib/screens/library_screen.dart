@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/pack_library_index_loader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
+import '../core/training/engine/training_type_engine.dart';
+import '../services/pack_filter_service.dart';
 import 'pack_library_search_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -22,6 +24,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
   final Set<String> _selectedAudiences = {};
+  final List<TrainingType> _types = TrainingType.values;
+  final Set<TrainingType> _selectedTypes = {};
   static const _prefKey = 'hasLoadedLibraryOnce';
 
   String _difficultyIcon(TrainingPackTemplateV2 pack) {
@@ -92,21 +96,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    final visible = [
-      for (final p in _packs)
-        if ((_selectedTypes.isEmpty || _selectedTypes.contains(p.trainingType)) &&
-            (_selectedTags.isEmpty ||
-                p.tags.toSet().intersection(_selectedTags).isNotEmpty) &&
-            (_selectedDifficulties.isEmpty
-                ? true
-                : (_selectedDifficulties.contains(_difficultyLevel(p)) &&
-                    _difficultyLevel(p) != 0)) &&
-            (_selectedAudiences.isEmpty
-                ? true
-                : _selectedAudiences
-                    .contains((p.audience ?? p.meta['audience']?.toString()) ?? '')))
-          p
-    ];
+    final visible = const PackFilterService().filter(
+      templates: _packs,
+      tags: _selectedTags.isEmpty ? null : _selectedTags,
+      types: _selectedTypes.isEmpty ? null : _selectedTypes,
+      difficulties:
+          _selectedDifficulties.isEmpty ? null : _selectedDifficulties,
+      audiences: _selectedAudiences.isEmpty ? null : _selectedAudiences,
+    );
 
     return Scaffold(
       appBar: AppBar(
