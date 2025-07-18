@@ -35,6 +35,7 @@ import '../../widgets/training_pack_play_screen_v2_toolbar.dart';
 import '../../services/app_settings_service.dart';
 import 'package:uuid/uuid.dart';
 import '../../helpers/mistake_advice.dart';
+import '../../user_preferences.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -81,6 +82,8 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   bool _autoAdvance = false;
   _SpotFeedback? _feedback;
   Timer? _feedbackTimer;
+  bool _showActionHints = UserPreferences.instance.showActionHints;
+  String? _pressedAction;
 
   @override
   void initState() {
@@ -418,6 +421,18 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     }
   }
 
+  Future<void> _handleAction(String action) async {
+    if (_showActionHints) {
+      await UserPreferences.instance.setShowActionHints(false);
+      if (mounted) setState(() => _showActionHints = false);
+    }
+    setState(() => _pressedAction = action);
+    HapticFeedback.selectionClick();
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (mounted) setState(() => _pressedAction = null);
+    await _choose(action);
+  }
+
   String _fmt(double? v, [String suffix = '']) {
     if (v == null) return '--';
     return '${v >= 0 ? '+' : ''}${v.toStringAsFixed(1)}$suffix';
@@ -671,6 +686,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
     final spot = _spots[_index];
     final progress = (_index + 1) / _spots.length;
     final actions = _heroActions(spot);
+    final pushAction = actions.isEmpty ? 'push' : actions.first;
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),
       body: Builder(builder: (context) {
@@ -747,21 +763,71 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                 scale: scale,
               ),
             ),
-            Positioned(
-              bottom: 16,
-              left: 16,
-              child: ElevatedButton(
-                onPressed: () => _choose('fold'),
-                child: Text('FOLD', style: TextStyle(fontSize: 16 * scale)),
-              ),
-            ),
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: ElevatedButton(
-                onPressed: () => _choose(actions.isEmpty ? 'push' : actions.first),
-                child: Text(actions.isEmpty ? 'PUSH' : actions.first.toUpperCase(),
-                    style: TextStyle(fontSize: 16 * scale)),
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragEnd: (details) {
+                  if (details.primaryVelocity == null) return;
+                  if (details.primaryVelocity! > 0) {
+                    _handleAction(pushAction);
+                  } else if (details.primaryVelocity! < 0) {
+                    _handleAction('fold');
+                  }
+                },
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTapDown: (_) => _handleAction('fold'),
+                        child: AnimatedScale(
+                          duration: const Duration(milliseconds: 100),
+                          scale: _pressedAction == 'fold' ? 0.95 : 1.0,
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 300),
+                            opacity: _showActionHints ? 0.3 : 0.0,
+                            child: Container(
+                              alignment: Alignment.center,
+                              color: Colors.black26,
+                              child: Text(
+                                'FOLD',
+                                style: TextStyle(
+                                  fontSize: 24 * scale,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTapDown: (_) => _handleAction(pushAction),
+                        child: AnimatedScale(
+                          duration: const Duration(milliseconds: 100),
+                          scale: _pressedAction == pushAction ? 0.95 : 1.0,
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 300),
+                            opacity: _showActionHints ? 0.3 : 0.0,
+                            child: Container(
+                              alignment: Alignment.center,
+                              color: Colors.black26,
+                              child: Text(
+                                pushAction.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 24 * scale,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             if (_feedback != null)
@@ -816,6 +882,22 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
                     child: Text(hint,
                         style:
                             const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
+                  ),
+                ),
+            if (_showActionHints)
+              Positioned(
+                bottom: 32,
+                left: 16,
+                right: 16,
+                child: Card(
+                  color: Colors.black54,
+                  child: Padding(
+                    padding: EdgeInsets.all(8 * scale),
+                    child: const Text(
+                      'Тапните влево или вправо, чтобы выбрать действие',
+                      style: TextStyle(color: Colors.white70),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
           ],
