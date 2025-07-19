@@ -12,7 +12,9 @@ import '../services/training_pack_cloud_sync_service.dart';
 import '../widgets/sync_status_widget.dart';
 import 'evaluation_settings_screen.dart';
 import '../services/notification_service.dart';
+import '../services/daily_challenge_notification_service.dart';
 import '../services/remote_config_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -31,6 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _simpleNavigation;
   late Color _accentColor;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
+  TimeOfDay _challengeTime = const TimeOfDay(hour: 12, minute: 0);
 
   @override
   void initState() {
@@ -45,6 +48,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _accentColor = prefs.accentColor;
     NotificationService.getReminderTime(context)
         .then((t) => setState(() => _reminderTime = t));
+    DailyChallengeNotificationService.getScheduledTime()
+        .then((t) => setState(() => _challengeTime = t));
   }
 
   Future<void> _togglePotAnimation(bool value) async {
@@ -85,6 +90,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (picked != null) {
       await NotificationService.updateReminderTime(context, picked);
       setState(() => _reminderTime = picked);
+    }
+  }
+
+  Future<void> _pickChallengeTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _challengeTime,
+    );
+    if (picked != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('daily_challenge_reminder_hour', picked.hour);
+      await prefs.setInt('daily_challenge_reminder_minute', picked.minute);
+      await DailyChallengeNotificationService.scheduleDailyReminder(time: picked);
+      setState(() => _challengeTime = picked);
     }
   }
 
@@ -227,6 +246,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Простой режим'),
               onChanged: _toggleSimpleNavigation,
               activeColor: Colors.orange,
+            ),
+            ListTile(
+              title: const Text('⏰ Напоминание о челлендже'),
+              subtitle: Text(_challengeTime.format(context)),
+              trailing: TextButton(
+                onPressed: _pickChallengeTime,
+                child: const Text('Изменить'),
+              ),
             ),
             ListTile(
               title: const Text('Reminder Time'),

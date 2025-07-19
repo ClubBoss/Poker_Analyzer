@@ -251,7 +251,10 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     _sync = AppBootstrap.sync!;
     context.read<UserActionLogger>().log('opened_app');
     unawaited(NotificationService.scheduleDailyReminder(context));
-    unawaited(DailyChallengeNotificationService.scheduleDailyReminder());
+    unawaited(() async {
+      final t = await DailyChallengeNotificationService.getScheduledTime();
+      await DailyChallengeNotificationService.scheduleDailyReminder(time: t);
+    }());
     unawaited(NotificationService.scheduleDailyProgress(context));
     NotificationService.startRecommendedPackTask(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
