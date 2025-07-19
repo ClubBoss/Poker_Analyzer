@@ -10,6 +10,7 @@ import '../services/lesson_loader_service.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/lesson_progress_tracker_service.dart';
 import '../services/lesson_track_meta_service.dart';
+import '../services/learning_path_completion_service.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_recap_screen.dart';
 
@@ -24,6 +25,7 @@ class TrackProgressDashboardScreen extends StatefulWidget {
 class _TrackProgressDashboardScreenState
     extends State<TrackProgressDashboardScreen> {
   late Future<Map<String, dynamic>> _future;
+  bool _bannerShown = false;
 
   @override
   void initState() {
@@ -52,12 +54,18 @@ class _TrackProgressDashboardScreenState
       }
       meta[t.id] = m;
     }
+    final allCompleted = progress.values.every((p) => p >= 100);
+    if (allCompleted) {
+      await LearningPathCompletionService.instance.markPathCompleted();
+    }
+    final pathCompleted = await LearningPathCompletionService.instance.isPathCompleted();
     return {
       'tracks': tracks,
       'progress': progress,
       'completed': completed,
       'steps': steps,
       'meta': meta,
+      'pathCompleted': pathCompleted,
     };
   }
 
@@ -103,6 +111,29 @@ class _TrackProgressDashboardScreenState
         final completed = data?['completed'] as Map<String, bool>? ?? {};
         final steps = data?['steps'] as List<LessonStep>? ?? [];
         final meta = data?['meta'] as Map<String, TrackMeta?>? ?? {};
+        final pathCompleted = data?['pathCompleted'] == true;
+
+        if (pathCompleted && !_bannerShown) {
+          _bannerShown = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final messenger = ScaffoldMessenger.of(context);
+            messenger.clearMaterialBanners();
+            messenger.showMaterialBanner(
+              MaterialBanner(
+                content: const Text('🎉 Вы завершили адаптивный путь'),
+                actions: [
+                  TextButton(
+                    onPressed: messenger.hideCurrentMaterialBanner,
+                    child: const Text('Закрыть'),
+                  ),
+                ],
+              ),
+            );
+            Future.delayed(const Duration(seconds: 4), () {
+              messenger.hideCurrentMaterialBanner();
+            });
+          });
+        }
 
         return Scaffold(
           appBar: AppBar(title: const Text('Прогресс треков')),
