@@ -16,8 +16,20 @@ class SmartReviewService {
   static final SmartReviewService instance = SmartReviewService._();
 
   static const _prefsKey = 'smart_review_spots';
+  static const _resultsKey = 'smart_review_results';
 
   final Set<String> _ids = <String>{};
+  final List<List<double>> _results = [];
+
+  List<double>? _parseResult(String s) {
+    final parts = s.split(',');
+    if (parts.length != 3) return null;
+    final a = double.tryParse(parts[0]);
+    final e = double.tryParse(parts[1]);
+    final i = double.tryParse(parts[2]);
+    if (a == null || e == null || i == null) return null;
+    return [a, e, i];
+  }
 
   /// Loads stored mistake spot IDs from [SharedPreferences].
   Future<void> load() async {
@@ -25,6 +37,10 @@ class SmartReviewService {
     _ids
       ..clear()
       ..addAll(prefs.getStringList(_prefsKey) ?? <String>[]);
+    _results
+      ..clear()
+      ..addAll([for (final r in prefs.getStringList(_resultsKey) ?? <String>[]) _parseResult(r)]
+          .whereType<List<double>>());
   }
 
   /// Records a mistake for the given [spot].
@@ -111,4 +127,53 @@ class SmartReviewService {
 
   /// Returns true if a mistake for [spotId] is recorded.
   bool hasMistake(String spotId) => _ids.contains(spotId);
+
+  Future<void> registerCompletion(
+    double accuracy,
+    double evPct,
+    double icmPct, {
+    BuildContext? context,
+  }) async {
+    _results.add([accuracy, evPct, icmPct]);
+    while (_results.length > 3) {
+      _results.removeAt(0);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        _resultsKey,
+        [for (final r in _results) '${r[0]},${r[1]},${r[2]}']);
+
+    final ready = _results.length >= 3 &&
+        _results.every((r) => r[0] >= 0.9 && r[1] >= 0.85 && r[2] >= 0.85);
+    if (ready && context != null) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Хотите попробовать более сложный уровень?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Нет')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Да')),
+          ],
+        ),
+      );
+      if (confirm == true) {
+        final builder = const TrainingPackTemplateBuilder();
+        final mastery = context.read<TagMasteryService>();
+        final tpl = await builder.buildAdvancedPack(mastery);
+        await context
+            .read<TrainingSessionService>()
+            .startSession(tpl, persist: false);
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+        );
+      }
+      _results.clear();
+      await prefs.remove(_resultsKey);
+    }
+  }
 }
