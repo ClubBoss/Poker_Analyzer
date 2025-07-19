@@ -29,6 +29,7 @@ import '../services/learning_path_progress_service.dart';
 import '../services/daily_learning_goal_service.dart';
 import '../services/pack_dependency_map.dart';
 import '../services/pack_library_loader_service.dart';
+import '../services/smart_stage_unlock_engine.dart';
 import 'package:collection/collection.dart';
 
 class _EndlessStats {
@@ -280,6 +281,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final acc = total == 0 ? 0.0 : correct * 100 / total;
       await prefs.setBool('completed_tpl_${tpl.id}', true);
       await LearningPathProgressService.instance.markCompleted(tpl.id);
+      await SmartStageUnlockEngine.instance.checkAndUnlockNextStage();
       final newly = await PackDependencyMap.instance.getUnlockedAfter(tpl.id);
       if (newly.isNotEmpty && mounted) {
         final lib = PackLibraryLoaderService.instance.library;

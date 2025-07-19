@@ -70,6 +70,7 @@ import 'yaml_pack_previewer_screen.dart';
 import 'yaml_pack_editor_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
+import '../services/smart_stage_unlock_engine.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -2021,6 +2022,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   setState(() => _unlockStages = v ?? false);
                   LearningPathProgressService.instance.unlockAllStages =
                       _unlockStages;
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔓 Принудительно открыть следующую стадию'),
+                onTap: () async {
+                  await SmartStageUnlockEngine.instance.forceUnlockNextStage();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Next stage unlocked')),
+                    );
+                  }
                 },
               ),
             if (kDebugMode)
