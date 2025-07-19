@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v3/lesson_track.dart';
 import 'learning_track_engine.dart';
 import 'lesson_progress_service.dart';
+import 'lesson_progress_tracker_service.dart';
 
 class LessonPathProgress {
   final int completed;
@@ -55,5 +56,26 @@ class LessonPathProgressService {
       completedIds: completedIds,
       remainingIds: remainingIds,
     );
+  }
+
+  /// Computes completion percentage for all available lesson tracks.
+  ///
+  /// Returns a map of `trackId` to progress percentage (0-100).
+  Future<Map<String, double>> computeTrackProgress() async {
+    final tracks = const LearningTrackEngine().getTracks();
+    final completed =
+        await LessonProgressTrackerService.instance.getCompletedSteps();
+
+    final Map<String, double> progress = {};
+    for (final track in tracks) {
+      final ids = track.stepIds;
+      if (ids.isEmpty) {
+        progress[track.id] = 0;
+        continue;
+      }
+      final doneCount = ids.where((id) => completed[id] == true).length;
+      progress[track.id] = doneCount / ids.length * 100;
+    }
+    return progress;
   }
 }
