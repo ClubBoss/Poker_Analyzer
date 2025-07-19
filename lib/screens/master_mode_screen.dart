@@ -11,6 +11,7 @@ import 'daily_challenge_history_screen.dart';
 import 'master_achievements_screen.dart';
 import 'player_stats_screen.dart';
 import 'mistake_review_screen.dart';
+import 'mistake_insight_screen.dart';
 
 class MasterModeScreen extends StatefulWidget {
   static const route = '/master_mode';
@@ -128,6 +129,18 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
                   );
                 },
                 child: const Text('🔁 Повтор ошибок'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MistakeInsightScreen(),
+                    ),
+                  );
+                },
+                child: const Text('📊 Аналитика ошибок'),
               ),
               const SizedBox(height: 16),
               ElevatedButton(

@@ -100,6 +100,7 @@ import 'learning_path_intro_screen.dart';
 import '../services/learning_path_progress_service.dart';
 import 'achievement_dashboard_screen.dart';
 import 'mistake_review_screen.dart';
+import 'mistake_insight_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -481,8 +482,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   Future<void> _removeYamlDuplicates() async {
     if (_yamlDupeLoading || !kDebugMode) return;
     setState(() => _yamlDupeLoading = true);
-    final list = await const YamlPackDuplicateCleanerService()
-        .removeDuplicates();
+    final list =
+        await const YamlPackDuplicateCleanerService().removeDuplicates();
     if (!mounted) return;
     setState(() => _yamlDupeLoading = false);
     ScaffoldMessenger.of(
@@ -1890,9 +1891,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             if (kDebugMode)
               ListTile(
                 title: const Text('🧪 Тест выгрузки/загрузки шаблона'),
-                onTap: _templateStorageTestLoading
-                    ? null
-                    : _testTemplateStorage,
+                onTap:
+                    _templateStorageTestLoading ? null : _testTemplateStorage,
               ),
             if (kDebugMode)
               ListTile(
@@ -1908,8 +1908,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📚 Путь обучения'),
                 onTap: () async {
-                  final seen = await LearningPathProgressService.instance
-                      .hasSeenIntro();
+                  final seen =
+                      await LearningPathProgressService.instance.hasSeenIntro();
                   final screen = seen
                       ? const LearningPathScreen()
                       : const LearningPathIntroScreen();
@@ -1927,11 +1927,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   service.mock = true;
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const LearningPathScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const LearningPathScreen()),
                   );
-                service.mock = false;
-              },
-            ),
+                  service.mock = false;
+                },
+              ),
             if (kDebugMode)
               ListTile(
                 title: const Text('🏆 Achievement Dashboard'),
@@ -1974,6 +1975,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (_) => const MistakeReviewScreen()),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Аналитика ошибок'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const MistakeInsightScreen()),
                   );
                 },
               ),
