@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StageHeaderWithProgress extends StatelessWidget {
   final String title;
   final int levelIndex;
   final String goal;
+  final String? goalHint;
   final String? tip;
   final double progress;
   final bool showProgress;
@@ -12,6 +14,7 @@ class StageHeaderWithProgress extends StatelessWidget {
     required this.title,
     required this.levelIndex,
     required this.goal,
+    this.goalHint,
     this.tip,
     required this.progress,
     this.showProgress = true,
@@ -33,13 +36,48 @@ class StageHeaderWithProgress extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Уровень $levelIndex: $title',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Уровень $levelIndex: $title',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (goalHint != null)
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, child) =>
+                      Opacity(opacity: value, child: child),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: const Text('🎯', style: TextStyle(fontSize: 20)),
+                    onPressed: () {
+                      final l = AppLocalizations.of(context);
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          backgroundColor: Colors.grey[900],
+                          title: Text(l?.levelGoalTitle ?? 'Цель уровня'),
+                          content: Text(goalHint!),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(l?.ok ?? 'OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 2),
           Row(
