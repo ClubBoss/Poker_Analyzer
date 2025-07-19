@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -147,6 +148,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _smartValidateLoading = false;
   bool _templateStorageTestLoading = false;
   bool _reminderLoading = false;
+  bool _progressExportLoading = false;
+  bool _progressImportLoading = false;
   bool _unlockStages = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
@@ -1340,6 +1343,42 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
+  Future<void> _exportLearningProgress() async {
+    if (_progressExportLoading || !kDebugMode) return;
+    setState(() => _progressExportLoading = true);
+    final data = await LearningPathProgressService.instance.exportProgress();
+    await Clipboard.setData(ClipboardData(text: jsonEncode(data)));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Прогресс скопирован в буфер')),
+      );
+    }
+    setState(() => _progressExportLoading = false);
+  }
+
+  Future<void> _importLearningProgress() async {
+    if (_progressImportLoading || !kDebugMode) return;
+    setState(() => _progressImportLoading = true);
+    try {
+      final raw = await Clipboard.getData('text/plain');
+      final text = raw?.text;
+      if (text != null && text.isNotEmpty) {
+        final decoded = jsonDecode(text);
+        if (decoded is Map<String, dynamic>) {
+          await LearningPathProgressService.instance.importProgress(decoded);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Прогресс импортирован')),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('Import failed: $e');
+    }
+    if (mounted) setState(() => _progressImportLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1969,6 +2008,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 onTap: () async {
                   await LearningPathProgressService.instance.resetCustomPath();
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📤 Экспорт прогресса'),
+                onTap:
+                    _progressExportLoading ? null : _exportLearningProgress,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📥 Импорт прогресса из буфера'),
+                onTap:
+                    _progressImportLoading ? null : _importLearningProgress,
               ),
             if (kDebugMode)
               ListTile(
