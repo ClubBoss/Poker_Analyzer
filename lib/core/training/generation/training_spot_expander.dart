@@ -3,10 +3,15 @@ import '../../../models/v2/training_pack_spot.dart';
 import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../models/v2/hand_data.dart';
 import '../../../models/v2/hero_position.dart';
+import 'board_similarity_engine.dart';
 
 class TrainingSpotExpander {
   final Uuid _uuid;
-  const TrainingSpotExpander({Uuid? uuid}) : _uuid = uuid ?? const Uuid();
+  final BoardSimilarityEngine _boardEngine;
+
+  const TrainingSpotExpander({Uuid? uuid, BoardSimilarityEngine? boardEngine})
+      : _uuid = uuid ?? const Uuid(),
+        _boardEngine = boardEngine ?? const BoardSimilarityEngine();
 
   List<TrainingPackSpot> expand(TrainingPackSpot spot) {
     final results = <TrainingPackSpot>[spot];
@@ -46,19 +51,13 @@ class TrainingSpotExpander {
     final clone = _clone(spot);
     final board = List<String>.from(clone.hand.board);
     if (board.length >= 3) {
-      const ranks = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
-      final next = {
-        for (int i = 0; i < ranks.length; i++)
-          ranks[i]: ranks[(i + 1) % ranks.length]
-      };
-      for (int i = 0; i < 3 && i < board.length; i++) {
-        final c = board[i];
-        final r = c[0].toUpperCase();
-        final s = c.substring(1);
-        final nr = next[r] ?? r;
-        board[i] = '$nr$s';
+      final newFlop = _boardEngine.getSimilarFlop(board.take(3).toList());
+      if (newFlop.isNotEmpty) {
+        for (int i = 0; i < 3; i++) {
+          board[i] = newFlop[i];
+        }
+        clone.hand.board = board;
       }
-      clone.hand.board = board;
     }
     return clone;
   }

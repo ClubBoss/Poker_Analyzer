@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:collection/collection.dart';
 import 'package:poker_analyzer/core/training/generation/training_spot_expander.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
@@ -19,6 +20,9 @@ void main() {
     expect(list.first.id, 's1');
     final generated = list.where((s) => s.id != 's1');
     expect(generated.every((s) => s.isGenerated), true);
+    final boards = generated.map((s) => s.hand.board.take(3).toList());
+    expect(boards.any((b) => !const ListEquality().equals(b, ['Kh', 'Qd', '2c'])),
+        true);
   });
 
   test('expandPack updates spotCount', () {
