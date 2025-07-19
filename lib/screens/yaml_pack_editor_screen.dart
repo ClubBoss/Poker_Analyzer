@@ -14,6 +14,7 @@ import '../theme/app_colors.dart';
 import 'package:open_filex/open_filex.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import 'v2/training_pack_spot_editor_screen.dart';
+import '../core/training/engine/training_type_engine.dart';
 
 class YamlPackEditorScreen extends StatefulWidget {
   const YamlPackEditorScreen({super.key});
@@ -113,6 +114,7 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
         builder: (_) => TrainingPackSpotEditorScreen(
           spot: spot,
           templateTags: _tags,
+          trainingType: _pack?.trainingType ?? TrainingType.postflop,
         ),
       ),
     );

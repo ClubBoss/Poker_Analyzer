@@ -11,14 +11,17 @@ import '../../models/evaluation_result.dart';
 import 'package:provider/provider.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../services/template_storage_service.dart';
+import '../../core/training/engine/training_type_engine.dart';
 
 class TrainingPackSpotEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
   final List<String> templateTags;
+  final TrainingType trainingType;
   const TrainingPackSpotEditorScreen({
     super.key,
     required this.spot,
     this.templateTags = const [],
+    this.trainingType = TrainingType.postflop,
   });
 
   @override
@@ -35,6 +38,10 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
   late List<ActionEntry> _actions;
   int _priority = 3;
   bool _loading = false;
+  int _street = 1;
+  String _villainAction = 'none';
+  final List<String> _availableHeroActs = ['check', 'bet', 'raise', 'call', 'fold'];
+  Set<String> _heroOptions = <String>{};
 
   Set<String> _usedCards() {
     final hero = _heroCards.map((c) => '${c.rank}${c.suit}');
@@ -57,6 +64,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
       } else if (index == b.length) {
         b.add(v);
       }
+      widget.spot.board = List<String>.from(widget.spot.hand.board);
     });
   }
 
@@ -199,6 +207,16 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     if (_position == HeroPosition.unknown) _position = HeroPosition.sb;
     _actions = List<ActionEntry>.from(widget.spot.hand.actions[0] ?? []);
     _priority = widget.spot.priority;
+    _street = widget.spot.street;
+    if (_street == 0) _street = widget.spot.hand.board.length >= 5
+        ? 3
+        : widget.spot.hand.board.length == 4
+            ? 2
+            : widget.spot.hand.board.length >= 3
+                ? 1
+                : 1;
+    _villainAction = widget.spot.villainAction ?? 'none';
+    _heroOptions = widget.spot.heroOptions.toSet();
     widget.spot.hand.playerCount = 2;
     widget.spot.hand.heroIndex = 0;
   }
@@ -224,6 +242,10 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     widget.spot.hand.heroIndex = 0;
     widget.spot.hand.actions[0] = List<ActionEntry>.from(_actions);
     widget.spot.priority = _priority;
+    widget.spot.board = List<String>.from(widget.spot.hand.board);
+    widget.spot.street = _street;
+    widget.spot.villainAction = _villainAction;
+    widget.spot.heroOptions = _heroOptions.toList();
   }
 
   Future<void> _save() async {
@@ -370,12 +392,56 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
               }),
             ),
             const SizedBox(height: 24),
-            _streetPicker('Flop', 0, 3),
-            const SizedBox(height: 16),
-            _streetPicker('Turn', 3, 1),
-            const SizedBox(height: 16),
-            _streetPicker('River', 4, 1),
-            const SizedBox(height: 16),
+            if (widget.trainingType != TrainingType.pushFold) ...[
+              DropdownButton<int>(
+                value: _street,
+                items: const [
+                  DropdownMenuItem(value: 1, child: Text('Flop')),
+                  DropdownMenuItem(value: 2, child: Text('Turn')),
+                  DropdownMenuItem(value: 3, child: Text('River')),
+                ],
+                onChanged: (v) => setState(() => _street = v ?? 1),
+              ),
+              const SizedBox(height: 16),
+              _streetPicker('Flop', 0, 3),
+              if (_street >= 2) ...[
+                const SizedBox(height: 16),
+                _streetPicker('Turn', 3, 1),
+              ],
+              if (_street >= 3) ...[
+                const SizedBox(height: 16),
+                _streetPicker('River', 4, 1),
+              ],
+              const SizedBox(height: 16),
+              DropdownButton<String>(
+                value: _villainAction,
+                items: const [
+                  DropdownMenuItem(value: 'none', child: Text('Villain: none')),
+                  DropdownMenuItem(value: 'check', child: Text('Villain: check')),
+                  DropdownMenuItem(value: 'bet', child: Text('Villain: bet')),
+                ],
+                onChanged: (v) => setState(() => _villainAction = v ?? 'none'),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final act in _availableHeroActs)
+                    FilterChip(
+                      label: Text(act),
+                      selected: _heroOptions.contains(act),
+                      onSelected: (sel) => setState(() {
+                        if (sel) {
+                          _heroOptions.add(act);
+                        } else {
+                          _heroOptions.remove(act);
+                        }
+                      }),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
             _evPreviewBox(),
             const SizedBox(height: 8),
             ElevatedButton(

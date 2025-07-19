@@ -187,6 +187,7 @@ part of 'training_pack_template_editor_screen.dart';
         builder: (_) => TrainingPackSpotEditorScreen(
           spot: spot,
           templateTags: widget.template.tags,
+          trainingType: widget.template.trainingType,
         ),
       ),
     );
@@ -800,6 +801,7 @@ part of 'training_pack_template_editor_screen.dart';
         context,
         spots.first,
         templateTags: widget.template.tags,
+        trainingType: widget.template.trainingType,
       );
     }
   }
