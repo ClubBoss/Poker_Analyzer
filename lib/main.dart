@@ -69,6 +69,7 @@ import 'services/xp_tracker_service.dart';
 import 'services/reward_service.dart';
 import 'services/weekly_challenge_service.dart';
 import 'services/daily_challenge_service.dart';
+import 'services/daily_challenge_notification_service.dart';
 import 'services/daily_goals_service.dart';
 import 'services/session_log_service.dart';
 import 'services/category_usage_service.dart';
@@ -113,6 +114,7 @@ Future<void> main() async {
   if (!CloudSyncService.isLocal) {
     await Firebase.initializeApp();
     await NotificationService.init();
+    await DailyChallengeNotificationService.init();
     await rc.load();
     if (!auth.isSignedIn) {
       final uid = await auth.signInAnonymously();
@@ -249,6 +251,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     _sync = AppBootstrap.sync!;
     context.read<UserActionLogger>().log('opened_app');
     unawaited(NotificationService.scheduleDailyReminder(context));
+    unawaited(DailyChallengeNotificationService.scheduleDailyReminder());
     unawaited(NotificationService.scheduleDailyProgress(context));
     NotificationService.startRecommendedPackTask(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
