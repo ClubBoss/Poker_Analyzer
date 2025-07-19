@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 
 import 'training_progress_service.dart';
 import 'pack_dependency_map.dart';
+import 'smart_stage_unlock_engine.dart';
 
 enum LearningItemStatus { locked, available, inProgress, completed }
 
@@ -278,7 +279,9 @@ class LearningPathProgressService {
     var prevCompleted = true;
     for (final stage in stages) {
       final items = <LearningStageItem>[];
-      var stageUnlocked = unlockAllStages || prevCompleted;
+      var stageUnlocked = unlockAllStages ||
+          prevCompleted ||
+          await SmartStageUnlockEngine.instance.isStageUnlocked(stage.title);
       var itemUnlock = stageUnlocked;
       for (final item in stage.items) {
         final tplId = item.templateId;
@@ -343,11 +346,14 @@ class LearningPathProgressService {
         for (final e in _mockCompleted.entries)
           if (e.value) e.key
       ];
+      final unlockedStages =
+          await SmartStageUnlockEngine.instance.getUnlockedStages();
       return {
         'completedPackIds': completed,
         'introSeen': _mockIntroSeen,
         'customPathStarted': _mockCustomPathStarted,
         'customPathCompleted': _mockCustomPathCompleted,
+        if (unlockedStages.isNotEmpty) 'unlockedStages': unlockedStages,
       };
     }
     final prefs = await SharedPreferences.getInstance();
@@ -372,6 +378,8 @@ class LearningPathProgressService {
     if (last != null) data['lastCompletedAt'] = last;
     final unlocked = prefs.getStringList(_unlockedKey);
     if (unlocked != null) data['unlockedPackIds'] = unlocked;
+    final unlockedStages = await SmartStageUnlockEngine.instance.getUnlockedStages();
+    if (unlockedStages.isNotEmpty) data['unlockedStages'] = unlockedStages;
     if (current != null) data['currentStageId'] = current.title;
     return data;
   }
@@ -387,6 +395,8 @@ class LearningPathProgressService {
       _mockIntroSeen = data['introSeen'] == true;
       _mockCustomPathStarted = data['customPathStarted'] == true;
       _mockCustomPathCompleted = data['customPathCompleted'] == true;
+      final stages = (data['unlockedStages'] as List?)?.whereType<String>().toList() ?? const [];
+      await SmartStageUnlockEngine.instance.setUnlockedStages(stages);
       return;
     }
     final prefs = await SharedPreferences.getInstance();
@@ -438,6 +448,12 @@ class LearningPathProgressService {
           .toList();
       if (list != null) {
         await prefs.setStringList(_unlockedKey, list);
+      }
+    }
+    if (data.containsKey('unlockedStages')) {
+      final stages = (data['unlockedStages'] as List?)?.whereType<String>().toList();
+      if (stages != null) {
+        await SmartStageUnlockEngine.instance.setUnlockedStages(stages);
       }
     }
     await PackDependencyMap.instance.recalc();

@@ -42,6 +42,7 @@ import '../../services/training_session_service.dart';
 import '../training_recommendation_screen.dart';
 import '../../services/pack_dependency_map.dart';
 import '../../services/pack_library_loader_service.dart';
+import '../../services/smart_stage_unlock_engine.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -461,6 +462,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     _summaryShown = true;
     await LearningPathProgressService.instance
         .markCompleted(widget.original.id);
+    await SmartStageUnlockEngine.instance.checkAndUnlockNextStage();
     final newly =
         await PackDependencyMap.instance.getUnlockedAfter(widget.original.id);
     if (newly.isNotEmpty && mounted) {
