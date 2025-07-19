@@ -450,6 +450,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                           style: const TextStyle(color: Colors.white70),
                           textAlign: TextAlign.center,
                         ),
+                        if (service.template!.description.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            service.template!.description,
+                            style: const TextStyle(color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                         const SizedBox(height: 4),
                         _progressBar(service),
                         const SizedBox(height: 4),

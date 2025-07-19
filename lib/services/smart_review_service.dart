@@ -5,6 +5,7 @@ import '../models/v2/training_pack_spot.dart';
 import 'template_storage_service.dart';
 import 'training_pack_template_builder.dart';
 import 'training_session_service.dart';
+import 'tag_mastery_service.dart';
 import '../screens/training_session_screen.dart';
 
 /// Stores IDs of spots where the user made a mistake for future review.
@@ -58,7 +59,8 @@ class SmartReviewService {
 
     if (context != null && result.length > 5) {
       final builder = const TrainingPackTemplateBuilder();
-      final tpl = await builder.buildSimplifiedPack(result);
+      final mastery = context.read<TagMasteryService>();
+      final tpl = await builder.buildSimplifiedPack(result, mastery);
       await showDialog<void>(
         context: context,
         builder: (_) => AlertDialog(
