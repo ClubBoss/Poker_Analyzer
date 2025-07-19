@@ -7,6 +7,7 @@ import '../widgets/confetti_overlay.dart';
 import '../main.dart';
 import 'training_stats_service.dart';
 import 'xp_tracker_service.dart';
+import 'goal_analytics_service.dart';
 
 class UserGoalEngine extends ChangeNotifier {
   static const _prefsKey = 'user_goals';
@@ -61,6 +62,7 @@ class UserGoalEngine extends ChangeNotifier {
       if (!g.completed && progress(g) >= g.target) {
         _goals[i] = g.copyWith(completedAt: DateTime.now());
         _save();
+        unawaited(GoalAnalyticsService.instance.logGoalCompleted(_goals[i]));
         final ctx = navigatorKey.currentContext;
         if (ctx != null) {
           showConfettiOverlay(ctx);
@@ -81,6 +83,7 @@ class UserGoalEngine extends ChangeNotifier {
 
   Future<void> addGoal(UserGoal g) async {
     _goals.add(g);
+    unawaited(GoalAnalyticsService.instance.logGoalCreated(g));
     await _save();
     notifyListeners();
   }

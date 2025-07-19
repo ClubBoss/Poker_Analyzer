@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '../models/user_goal.dart';
@@ -5,6 +6,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'pack_library_loader_service.dart';
 import 'session_log_service.dart';
 import 'tag_mastery_service.dart';
+import 'goal_analytics_service.dart';
 
 class GoalSuggestionEngine {
   final TagMasteryService mastery;
@@ -75,6 +77,9 @@ class GoalSuggestionEngine {
 
     _cache = goals.take(5).toList();
     _cacheTime = DateTime.now();
+    for (final g in _cache!) {
+      unawaited(GoalAnalyticsService.instance.logGoalCreated(g));
+    }
     return _cache!;
   }
 }
