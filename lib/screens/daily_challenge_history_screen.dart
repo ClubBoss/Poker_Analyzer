@@ -2,102 +2,113 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../services/daily_challenge_history_service.dart';
-import '../services/daily_challenge_streak_service.dart';
 
-/// Displays a simple history of Daily Challenge completions.
 class DailyChallengeHistoryScreen extends StatefulWidget {
   const DailyChallengeHistoryScreen({super.key});
 
   @override
-  State<DailyChallengeHistoryScreen> createState() =>
-      _DailyChallengeHistoryScreenState();
+  State<DailyChallengeHistoryScreen> createState() => _DailyChallengeHistoryScreenState();
 }
 
-class _DailyChallengeHistoryScreenState
-    extends State<DailyChallengeHistoryScreen> {
-  late Future<Set<DateTime>> _historyFuture;
-  late Future<int> _streakFuture;
+class _DailyChallengeHistoryScreenState extends State<DailyChallengeHistoryScreen> {
+  DateTime _focusedMonth = DateTime(DateTime.now().year, DateTime.now().month);
+  Set<DateTime> _history = {};
 
   @override
   void initState() {
     super.initState();
-    _historyFuture = DailyChallengeHistoryService.instance.loadHistorySet();
-    _streakFuture = DailyChallengeStreakService.instance.getCurrentStreak();
+    DailyChallengeHistoryService.instance.loadHistorySet().then((set) {
+      setState(() {
+        _history = set;
+      });
+    });
+  }
+
+  List<DateTime> _daysForGrid() {
+    final firstOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+    final startOffset = firstOfMonth.weekday % 7; // Monday=1 ... Sunday=7 -> 0..6
+    final start = firstOfMonth.subtract(Duration(days: startOffset));
+    return [for (int i = 0; i < 42; i++) start.add(Duration(days: i))];
   }
 
   @override
   Widget build(BuildContext context) {
+    final days = _daysForGrid();
+    final today = DateTime.now();
+    final todayKey = DateTime(today.year, today.month, today.day);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('История челленджей'),
+        title: Text('🎯 История челленджей'),
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFF121212),
-      body: FutureBuilder<List<dynamic>>(
-        future: Future.wait([_historyFuture, _streakFuture]),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final history = snapshot.data![0] as Set<DateTime>;
-          final streak = snapshot.data![1] as int? ?? 0;
-          final now = DateTime.now();
-          final start = DateTime(now.year, now.month, now.day)
-              .subtract(const Duration(days: 13));
-          final days = [
-            for (int i = 0; i < 14; i++) start.add(Duration(days: i))
-          ];
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            scrollDirection: Axis.horizontal,
-            children: [
-              const SizedBox(width: 16),
-              for (final d in days) _buildDay(d, history, streak, now),
-              const SizedBox(width: 16),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildDay(
-      DateTime day, Set<DateTime> history, int streak, DateTime now) {
-    final key = DateTime(day.year, day.month, day.day);
-    final completed = history.contains(key);
-    final diff = now.difference(key).inDays;
-    final inStreak = completed && diff < streak;
-    final dateText = DateFormat('dd.MM').format(day);
-    final color = completed ? Colors.greenAccent : Colors.grey;
-
-    return Container(
-      width: 60,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: inStreak ? Colors.deepOrange : Colors.transparent,
-          width: 2,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      body: Column(
         children: [
-          Text(dateText,
-              style: const TextStyle(color: Colors.white, fontSize: 12)),
-          const SizedBox(height: 8),
-          Icon(
-            completed ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: color,
-            size: 20,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: () {
+                    setState(() {
+                      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+                    });
+                  },
+                ),
+                Text(
+                  DateFormat.yMMMM('ru_RU').format(_focusedMonth),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: () {
+                    setState(() {
+                      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
-          if (inStreak) ...[
-            const SizedBox(height: 4),
-            const Icon(Icons.local_fire_department,
-                color: Colors.deepOrange, size: 16),
-          ]
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: days.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+              ),
+              itemBuilder: (context, index) {
+                final d = days[index];
+                final key = DateTime(d.year, d.month, d.day);
+
+                Color bgColor;
+                if (key.isAfter(todayKey)) {
+                  bgColor = Colors.white10;
+                } else if (_history.contains(key)) {
+                  bgColor = Colors.green;
+                } else {
+                  bgColor = Colors.red;
+                }
+
+                final inMonth = d.month == _focusedMonth.month;
+                final textColor = inMonth ? Colors.white : Colors.white38;
+
+                return Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text('${d.day}', style: TextStyle(color: textColor, fontSize: 12)),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
