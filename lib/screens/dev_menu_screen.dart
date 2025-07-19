@@ -1964,6 +1964,13 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('🧹 Сбросить кастомный путь'),
+                onTap: () async {
+                  await LearningPathProgressService.instance.resetCustomPath();
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🔔 Проверить напоминание'),
                 onTap: _reminderLoading ? null : _checkTrainingReminder,
               ),

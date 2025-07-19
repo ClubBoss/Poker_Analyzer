@@ -47,11 +47,13 @@ class LearningPathProgressService {
 
   static const _introKey = 'learning_intro_seen';
   static const _customPathKey = 'custom_path_started';
+  static const _customPathCompletedKey = 'custom_path_completed';
 
   bool mock = false;
   final Map<String, bool> _mockCompleted = {};
   bool _mockIntroSeen = false;
   bool _mockCustomPathStarted = false;
+  bool _mockCustomPathCompleted = false;
   bool unlockAllStages = false;
 
   /// Clears all learning path progress. Used for development/testing only.
@@ -110,10 +112,37 @@ class LearningPathProgressService {
     return prefs.getBool(_customPathKey) ?? false;
   }
 
+  Future<void> markCustomPathCompleted() async {
+    if (mock) {
+      _mockCustomPathCompleted = true;
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_customPathCompletedKey, true);
+  }
+
+  Future<bool> isCustomPathCompleted() async {
+    if (mock) return _mockCustomPathCompleted;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_customPathCompletedKey) ?? false;
+  }
+
+  Future<void> resetCustomPath() async {
+    if (mock) {
+      _mockCustomPathStarted = false;
+      _mockCustomPathCompleted = false;
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_customPathKey);
+    await prefs.remove(_customPathCompletedKey);
+  }
+
   /// Resets both intro flag and stage progress.
   Future<void> resetAll() async {
     await resetProgress();
     await resetIntroSeen();
+    await resetCustomPath();
   }
 
   Future<void> markCompleted(String templateId) async {

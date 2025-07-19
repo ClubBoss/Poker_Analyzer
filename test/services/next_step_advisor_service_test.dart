@@ -12,6 +12,7 @@ void main() {
       icm: 0,
       starterPathCompleted: false,
       customPathStarted: false,
+      customPathCompleted: false,
       hasWeakTags: false,
       hasMistakes: true,
     );
@@ -27,6 +28,7 @@ void main() {
       icm: 0,
       starterPathCompleted: false,
       customPathStarted: false,
+      customPathCompleted: false,
       hasWeakTags: true,
       hasMistakes: false,
     );
@@ -42,6 +44,7 @@ void main() {
       icm: 0,
       starterPathCompleted: false,
       customPathStarted: false,
+      customPathCompleted: false,
       hasWeakTags: false,
       hasMistakes: false,
     );
@@ -57,11 +60,28 @@ void main() {
       icm: 0,
       starterPathCompleted: true,
       customPathStarted: false,
+      customPathCompleted: false,
       hasWeakTags: false,
       hasMistakes: false,
     );
     final advice = service.recommend(stats: stats);
     expect(advice.title, 'Начать новый путь');
+  });
+
+  test('recommends finishing custom path when started', () {
+    const stats = LearningStats(
+      completedPacks: 5,
+      accuracy: 0.9,
+      ev: 0,
+      icm: 0,
+      starterPathCompleted: true,
+      customPathStarted: true,
+      customPathCompleted: false,
+      hasWeakTags: false,
+      hasMistakes: false,
+    );
+    final advice = service.recommend(stats: stats);
+    expect(advice.title, 'Завершить кастомный путь');
   });
 
   test('fallback to playing recommended pack', () {
@@ -72,6 +92,7 @@ void main() {
       icm: 1,
       starterPathCompleted: true,
       customPathStarted: true,
+      customPathCompleted: true,
       hasWeakTags: false,
       hasMistakes: false,
     );

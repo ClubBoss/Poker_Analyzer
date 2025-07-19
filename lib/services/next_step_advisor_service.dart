@@ -8,6 +8,7 @@ class LearningStats {
   final double icm;
   final bool starterPathCompleted;
   final bool customPathStarted;
+  final bool customPathCompleted;
   final bool hasWeakTags;
   final bool hasMistakes;
 
@@ -18,6 +19,7 @@ class LearningStats {
     required this.icm,
     required this.starterPathCompleted,
     required this.customPathStarted,
+    required this.customPathCompleted,
     required this.hasWeakTags,
     required this.hasMistakes,
   });
@@ -68,6 +70,13 @@ class NextStepAdvisorService {
         title: 'Начать новый путь',
         description: 'Вы готовы приступить к следующему обучающему пути.',
         action: 'start_new_path',
+      );
+    }
+    if (stats.customPathStarted && !stats.customPathCompleted) {
+      return const NextStepAdvice(
+        title: 'Завершить кастомный путь',
+        description: 'Вы почти у цели. Доведите кастомный путь до конца.',
+        action: 'finish_custom_path',
       );
     }
     return const NextStepAdvice(

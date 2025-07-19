@@ -44,6 +44,8 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     final pathDone = await LearningPathProgressService.instance.isAllStagesCompleted();
     final customStarted =
         await LearningPathProgressService.instance.isCustomPathStarted();
+    final customCompleted =
+        await LearningPathProgressService.instance.isCustomPathCompleted();
     final weakTags = await context.read<TagMasteryService>().topWeakTags(1);
     final hasWeak = weakTags.isNotEmpty;
     final hasMistakes = SmartReviewService.instance.hasMistakes();
@@ -56,6 +58,7 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
         icm: global.averageEV,
         starterPathCompleted: pathDone,
         customPathStarted: customStarted,
+        customPathCompleted: customCompleted,
         hasWeakTags: hasWeak,
         hasMistakes: hasMistakes,
       ),
