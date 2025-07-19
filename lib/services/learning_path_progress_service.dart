@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
+
 import 'training_progress_service.dart';
+import 'pack_dependency_map.dart';
 
 enum LearningItemStatus { locked, available, inProgress, completed }
 
@@ -48,6 +50,9 @@ class LearningPathProgressService {
   static const _introKey = 'learning_intro_seen';
   static const _customPathKey = 'custom_path_started';
   static const _customPathCompletedKey = 'custom_path_completed';
+  static const _streakKey = 'daily_learning_goal_streak';
+  static const _lastCompletedKey = 'daily_learning_goal_completed_at';
+  static const _unlockedKey = 'unlocked_pack_ids';
 
   bool mock = false;
   final Map<String, bool> _mockCompleted = {};
@@ -330,5 +335,111 @@ class LearningPathProgressService {
       }
     }
     return true;
+  }
+
+  Future<Map<String, dynamic>> exportProgress() async {
+    if (mock) {
+      final completed = [
+        for (final e in _mockCompleted.entries)
+          if (e.value) e.key
+      ];
+      return {
+        'completedPackIds': completed,
+        'introSeen': _mockIntroSeen,
+        'customPathStarted': _mockCustomPathStarted,
+        'customPathCompleted': _mockCustomPathCompleted,
+      };
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final completed = prefs
+        .getKeys()
+        .where((k) => k.startsWith('learning_completed_') &&
+            (prefs.getBool(k) ?? false))
+        .map((k) => k.substring('learning_completed_'.length))
+        .toList();
+    final stages = await getCurrentStageState();
+    final current = stages.firstWhereOrNull(
+        (s) => !isStageCompleted(s.items));
+    final data = <String, dynamic>{
+      'completedPackIds': completed,
+      'introSeen': prefs.getBool(_introKey) ?? false,
+      'customPathStarted': prefs.getBool(_customPathKey) ?? false,
+      'customPathCompleted': prefs.getBool(_customPathCompletedKey) ?? false,
+    };
+    final streak = prefs.getInt(_streakKey);
+    if (streak != null) data['streakCount'] = streak;
+    final last = prefs.getString(_lastCompletedKey);
+    if (last != null) data['lastCompletedAt'] = last;
+    final unlocked = prefs.getStringList(_unlockedKey);
+    if (unlocked != null) data['unlockedPackIds'] = unlocked;
+    if (current != null) data['currentStageId'] = current.title;
+    return data;
+  }
+
+  Future<void> importProgress(Map<String, dynamic> data) async {
+    if (mock) {
+      _mockCompleted
+        ..clear()
+        ..addEntries([
+          for (final id in (data['completedPackIds'] as List? ?? const []))
+            MapEntry(id as String, true)
+        ]);
+      _mockIntroSeen = data['introSeen'] == true;
+      _mockCustomPathStarted = data['customPathStarted'] == true;
+      _mockCustomPathCompleted = data['customPathCompleted'] == true;
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs
+        .getKeys()
+        .where((k) => k.startsWith('learning_completed_'))
+        .toList();
+    for (final k in keys) {
+      await prefs.remove(k);
+    }
+    final completed = data['completedPackIds'] as List? ?? const [];
+    for (final id in completed) {
+      if (id is String) {
+        await prefs.setBool(_key(id), true);
+      }
+    }
+    if (data.containsKey('introSeen')) {
+      await prefs.setBool(_introKey, data['introSeen'] == true);
+    }
+    if (data.containsKey('customPathStarted')) {
+      if (data['customPathStarted'] == true) {
+        await prefs.setBool(_customPathKey, true);
+      } else {
+        await prefs.remove(_customPathKey);
+      }
+    }
+    if (data.containsKey('customPathCompleted')) {
+      if (data['customPathCompleted'] == true) {
+        await prefs.setBool(_customPathCompletedKey, true);
+      } else {
+        await prefs.remove(_customPathCompletedKey);
+      }
+    }
+    if (data.containsKey('streakCount')) {
+      final val = data['streakCount'];
+      if (val is num) {
+        await prefs.setInt(_streakKey, val.toInt());
+      }
+    }
+    if (data.containsKey('lastCompletedAt')) {
+      final str = data['lastCompletedAt'];
+      if (str is String) {
+        await prefs.setString(_lastCompletedKey, str);
+      }
+    }
+    if (data.containsKey('unlockedPackIds')) {
+      final list = (data['unlockedPackIds'] as List?)
+          ?.whereType<String>()
+          .toList();
+      if (list != null) {
+        await prefs.setStringList(_unlockedKey, list);
+      }
+    }
+    await PackDependencyMap.instance.recalc();
   }
 }
