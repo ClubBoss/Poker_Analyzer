@@ -58,6 +58,9 @@ class SmartReviewService {
     await prefs.remove(_prefsKey);
   }
 
+  /// Returns true if there are recorded mistakes.
+  bool hasMistakes() => _ids.isNotEmpty;
+
   /// Returns true if a mistake for [spotId] is recorded.
   bool hasMistake(String spotId) => _ids.contains(spotId);
 }

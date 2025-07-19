@@ -4,7 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/pack_library_service.dart';
 import '../services/training_session_service.dart';
+import '../services/smart_review_service.dart';
+import '../services/template_storage_service.dart';
 import '../screens/training_session_screen.dart';
+import '../screens/mistake_review_screen.dart';
 import '../theme/app_colors.dart';
 
 abstract class OnboardingStep {
@@ -13,21 +16,30 @@ abstract class OnboardingStep {
 
 class OnboardingFlowManager {
   static const _completedKey = 'onboardingCompleted';
+  static const _mistakeRepeatKey = 'mistakeRepeatCompleted';
   OnboardingFlowManager._();
   static final instance = OnboardingFlowManager._();
 
   bool _completed = false;
+  bool _mistakeRepeatCompleted = false;
   bool get completed => _completed;
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     _completed = prefs.getBool(_completedKey) ?? false;
+    _mistakeRepeatCompleted = prefs.getBool(_mistakeRepeatKey) ?? false;
   }
 
   Future<void> _markCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_completedKey, true);
     _completed = true;
+  }
+
+  Future<void> _markMistakeRepeatCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_mistakeRepeatKey, true);
+    _mistakeRepeatCompleted = true;
   }
 
   Future<bool> _hasCompletedTraining() async {
@@ -42,13 +54,26 @@ class OnboardingFlowManager {
 
   Future<void> maybeStart(BuildContext context) async {
     await _load();
-    if (_completed) return;
-    if (await _hasCompletedTraining()) return;
-    final steps = [_WelcomeStep(), _PackStep(), _CongratsStep()];
-    for (final s in steps) {
-      await s.run(context, this);
+    if (!_completed) {
+      if (await _hasCompletedTraining()) return;
+      final steps = [_WelcomeStep(), _PackStep()];
+      for (final s in steps) {
+        await s.run(context, this);
+      }
+      final hasMistakes = SmartReviewService.instance.hasMistakes();
+      await _CongratsStep(showRepeat: hasMistakes).run(context, this);
+      if (hasMistakes && !_mistakeRepeatCompleted) {
+        await _MistakeRepeatStep().run(context, this);
+        await _MistakeRepeatCongratsStep().run(context, this);
+        await _markMistakeRepeatCompleted();
+      }
+      await _markCompleted();
+    } else if (!_mistakeRepeatCompleted &&
+        SmartReviewService.instance.hasMistakes()) {
+      await _MistakeRepeatStep().run(context, this);
+      await _MistakeRepeatCongratsStep().run(context, this);
+      await _markMistakeRepeatCompleted();
     }
-    await _markCompleted();
   }
 }
 
@@ -76,13 +101,49 @@ class _PackStep implements OnboardingStep {
 }
 
 class _CongratsStep implements OnboardingStep {
+  final bool showRepeat;
+  const _CongratsStep({required this.showRepeat});
+
   @override
   Future<void> run(BuildContext context, OnboardingFlowManager manager) async {
     await showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Поздравляем!'),
-        content: const Text('Вы завершили первую тренировку'),
+        content: Text(showRepeat
+            ? 'Вы завершили первую тренировку. Хотите закрепить материал?'
+            : 'Вы завершили первую тренировку'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MistakeRepeatStep implements OnboardingStep {
+  @override
+  Future<void> run(BuildContext context, OnboardingFlowManager manager) async {
+    final templates = context.read<TemplateStorageService>();
+    final spots = await SmartReviewService.instance.getMistakeSpots(templates);
+    if (spots.isEmpty) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MistakeReviewScreen()),
+    );
+  }
+}
+
+class _MistakeRepeatCongratsStep implements OnboardingStep {
+  @override
+  Future<void> run(BuildContext context, OnboardingFlowManager manager) async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('🎯 Отлично! Ошибки проработаны'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
