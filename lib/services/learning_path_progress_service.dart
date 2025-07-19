@@ -78,6 +78,12 @@ class LearningPathProgressService {
     await prefs.remove(_introKey);
   }
 
+  /// Resets both intro flag and stage progress.
+  Future<void> resetAll() async {
+    await resetProgress();
+    await resetIntroSeen();
+  }
+
   Future<void> markCompleted(String templateId) async {
     if (mock) {
       _mockCompleted[templateId] = true;
