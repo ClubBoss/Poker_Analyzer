@@ -10,6 +10,7 @@ import '../models/training_spot.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'daily_challenge_streak_service.dart';
+import 'daily_challenge_history_service.dart';
 
 /// Singleton service managing the Daily Challenge spot logic.
 class DailyChallengeService extends ChangeNotifier {
@@ -87,6 +88,7 @@ class DailyChallengeService extends ChangeNotifier {
     await prefs.setString(_dateKey, _date!.toIso8601String());
     await prefs.setBool(_completedKey, true);
     await DailyChallengeStreakService.instance.updateStreak();
+    await DailyChallengeHistoryService.instance.addToday();
     notifyListeners();
   }
 
@@ -147,8 +149,7 @@ class DailyChallengeService extends ChangeNotifier {
       }
     }
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++)
-        hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
