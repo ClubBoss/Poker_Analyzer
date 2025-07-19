@@ -7,6 +7,7 @@ import '../services/lesson_track_meta_service.dart';
 import '../widgets/streak_badge_widget.dart';
 import '../widgets/streak_banner_widget.dart';
 import 'daily_challenge_history_screen.dart';
+import 'master_achievements_screen.dart';
 
 class MasterModeScreen extends StatefulWidget {
   static const route = '/master_mode';
@@ -94,6 +95,18 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
                   );
                 },
                 child: const Text('📅 История'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AchievementsScreen(),
+                    ),
+                  );
+                },
+                child: const Text('🎖 Достижения'),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
