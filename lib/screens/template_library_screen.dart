@@ -1875,6 +1875,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   trainingTypeBadge(t.trainingType.name, compact: true),
                 ],
               ),
+              if (locked && reason != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(reason!,
+                      style:
+                          const TextStyle(color: Colors.redAccent, fontSize: 12)),
+                ),
               if (t.category != null && t.category!.isNotEmpty)
                 Text(
                   translateCategory(t.category),
@@ -1918,19 +1925,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           children: [
             Opacity(opacity: 0.5, child: widget),
             Positioned.fill(
-              child: Container(
-                color: Colors.black45,
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('🔒 Заблокировано',
-                        style: TextStyle(color: Colors.white)),
-                    if (reason != null)
-                      Text(reason!,
-                          style:
-                              const TextStyle(color: Colors.white, fontSize: 12)),
-                  ],
+              child: Tooltip(
+                message: reason == null
+                    ? 'Пак заблокирован'
+                    : 'Чтобы разблокировать: $reason',
+                child: InkWell(
+                  onTap: reason != null
+                      ? () => _showUnlockHint(reason!)
+                      : null,
+                  child: Container(
+                    color: Colors.black54,
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.lock, color: Colors.white, size: 40),
+                  ),
                 ),
               ),
             ),
@@ -2157,19 +2164,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         children: [
           Opacity(opacity: 0.5, child: widget),
           Positioned.fill(
-            child: Container(
-              color: Colors.black45,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('🔒 Заблокировано',
-                      style: TextStyle(color: Colors.white)),
-                  if (reason != null)
-                    Text(reason!,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 12)),
-                ],
+            child: Tooltip(
+              message: reason == null
+                  ? 'Пак заблокирован'
+                  : 'Чтобы разблокировать: $reason',
+              child: InkWell(
+                onTap:
+                    reason != null ? () => _showUnlockHint(reason!) : null,
+                child: Container(
+                  color: Colors.black54,
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.lock, color: Colors.white, size: 40),
+                ),
               ),
             ),
           ),
@@ -2282,6 +2288,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  void _showUnlockHint(String reason) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Заблокировано'),
+        content: Text('Чтобы разблокировать: $reason'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _libraryTile(v2.TrainingPackTemplate t) {
     Widget row(IconData icon, String text) => Padding(
           padding: const EdgeInsets.only(bottom: 4),
@@ -2319,7 +2341,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ),
           ],
         ),
-        subtitle: Text(t.goal, maxLines: 2, overflow: TextOverflow.ellipsis),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.goal, maxLines: 2, overflow: TextOverflow.ellipsis),
+            if (locked && reason != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(reason!,
+                    style:
+                        const TextStyle(color: Colors.redAccent, fontSize: 12)),
+              ),
+          ],
+        ),
         children: [
           if (t.goal.isNotEmpty) row(Icons.flag, t.goal),
           if (t.tags.isNotEmpty) row(Icons.sell, t.tags.join(', ')),
