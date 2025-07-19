@@ -36,4 +36,12 @@ class GoalAnalyticsService {
     };
     await UserActionLogger.instance.logEvent(event);
   }
+
+  Future<List<Map<String, dynamic>>> getGoalHistory() async {
+    await UserActionLogger.instance.load();
+    return [
+      for (final e in UserActionLogger.instance.events)
+        if (e['goalId'] != null) Map<String, dynamic>.from(e)
+    ];
+  }
 }

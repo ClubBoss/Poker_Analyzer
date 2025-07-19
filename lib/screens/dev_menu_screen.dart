@@ -36,6 +36,9 @@ import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/training_goal_suggestion_engine.dart';
+import '../services/smart_goal_recommender_service.dart';
+import '../services/session_log_service.dart';
+import '../services/tag_mastery_service.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
@@ -119,6 +122,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _historyLoading = false;
   bool _smartHistoryLoading = false;
   bool _goalLoading = false;
+  bool _smartGoalLoading = false;
   bool _balanceLoading = false;
   bool _reviewLoading = false;
   bool _yamlCheckLoading = false;
@@ -1234,6 +1238,51 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _generateSmartGoals() async {
+    if (_smartGoalLoading || !kDebugMode) return;
+    setState(() => _smartGoalLoading = true);
+    await PackLibraryIndexLoader.instance.load();
+    final prefs = await SharedPreferences.getInstance();
+    final completed = prefs
+        .getKeys()
+        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .map((k) => k.substring('completed_tpl_'.length))
+        .toSet();
+    final profile = UserProfile(
+      completedPackIds: completed,
+      tags: _tags.toList(),
+    );
+    final service = SmartGoalRecommenderService(
+      mastery: context.read<TagMasteryService>(),
+      logs: context.read<SessionLogService>(),
+    );
+    final goals = await service.recommendGoals(profile);
+    if (!mounted) return;
+    setState(() => _smartGoalLoading = false);
+    if (goals.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет целей')));
+      return;
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Умные цели'),
+        content: SingleChildScrollView(
+          child: Text(goals.map((e) => e.title).join('\n')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _testTemplateStorage() async {
     if (_templateStorageTestLoading || !kDebugMode) return;
     setState(() => _templateStorageTestLoading = true);
@@ -1792,6 +1841,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📌 Цели по истории'),
                 onTap: _goalLoading ? null : _suggestGoals,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🎯 Сгенерировать умные цели'),
+                onTap: _smartGoalLoading ? null : _generateSmartGoals,
               ),
             if (kDebugMode)
               ListTile(
