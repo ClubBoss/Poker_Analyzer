@@ -14,4 +14,10 @@ class PackLibraryService {
     }
     return list.isNotEmpty ? list.first : null;
   }
+
+  /// Loads a template by [id] from the library.
+  Future<TrainingPackTemplateV2?> getById(String id) async {
+    await TrainingPackLibraryV2.instance.loadFromFolder();
+    return TrainingPackLibraryV2.instance.getById(id);
+  }
 }

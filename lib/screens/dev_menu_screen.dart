@@ -88,6 +88,9 @@ import 'yaml_pack_archive_stats_screen.dart';
 import 'yaml_pack_archive_duplicates_screen.dart';
 import 'yaml_pack_archive_validator_screen.dart';
 import 'yaml_pack_validator_screen.dart';
+import '../services/auto_advance_pack_engine.dart';
+import '../services/training_session_service.dart';
+import 'training_session_screen.dart';
 
 import 'pack_tag_analyzer_screen.dart';
 
@@ -150,6 +153,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _reminderLoading = false;
   bool _progressExportLoading = false;
   bool _progressImportLoading = false;
+  bool _autoAdvanceLoading = false;
   bool _unlockStages = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
@@ -1379,6 +1383,25 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _progressImportLoading = false);
   }
 
+  Future<void> _autoAdvancePack() async {
+    if (_autoAdvanceLoading || !kDebugMode) return;
+    setState(() => _autoAdvanceLoading = true);
+    final tpl = await AutoAdvancePackEngine.instance.getNextRecommendedPack();
+    if (!mounted) return;
+    setState(() => _autoAdvanceLoading = false);
+    if (tpl == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Путь завершен')),
+      );
+      return;
+    }
+    await context.read<TrainingSessionService>().startSession(tpl);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1958,6 +1981,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     MaterialPageRoute(builder: (_) => screen),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🎯 Следующий обучающий пак'),
+                onTap: _autoAdvanceLoading ? null : _autoAdvancePack,
               ),
             if (kDebugMode)
               ListTile(
