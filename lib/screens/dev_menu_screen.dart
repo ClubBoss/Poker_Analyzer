@@ -94,6 +94,8 @@ import 'pack_merge_explorer_screen.dart';
 import 'tag_matrix_coverage_screen.dart';
 import 'skill_map_screen.dart';
 import 'goal_screen.dart';
+import 'lesson_path_screen.dart';
+
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
 
@@ -473,8 +475,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   Future<void> _removeYamlDuplicates() async {
     if (_yamlDupeLoading || !kDebugMode) return;
     setState(() => _yamlDupeLoading = true);
-    final list =
-        await const YamlPackDuplicateCleanerService().removeDuplicates();
+    final list = await const YamlPackDuplicateCleanerService()
+        .removeDuplicates();
     if (!mounted) return;
     setState(() => _yamlDupeLoading = false);
     ScaffoldMessenger.of(
@@ -485,7 +487,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   Future<void> _cleanYamlPackAssets() async {
     if (_yamlAssetsDupeLoading || !kDebugMode) return;
     setState(() => _yamlAssetsDupeLoading = true);
-    final count = await const PackLibraryDuplicateCleaner().clean('assets/packs');
+    final count = await const PackLibraryDuplicateCleaner().clean(
+      'assets/packs',
+    );
     if (!mounted) return;
     setState(() => _yamlAssetsDupeLoading = false);
     ScaffoldMessenger.of(
@@ -545,8 +549,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
     if (savePath == null) return;
     await const YamlWriter().write(merged.toJson(), savePath);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
   }
 
   Future<void> _refactorLibrary() async {
@@ -925,7 +930,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       if (path != null) {
         final raw = await File(path).readAsString();
         final map = const YamlReader().read(raw);
-        final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        final tpl = TrainingPackTemplateV2.fromJson(
+          Map<String, dynamic>.from(map),
+        );
         await const YamlPackHistoryService().saveSnapshot(tpl, 'fix');
         json = await compute(_autoFixTask, path);
       }
@@ -933,8 +940,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _autoFixLoading = false);
     if (json == null || json!.isEmpty || path == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибка')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибка')));
       return;
     }
     final pack = TrainingPackTemplateV2.fromJson(json!);
@@ -959,8 +967,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (ok == true) {
       await const YamlWriter().write(json!, path);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Готово')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Готово')));
     }
   }
 
@@ -980,8 +989,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _refactorYamlPackLoading = false);
     if (json == null || json!.isEmpty || path == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибка')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибка')));
       return;
     }
     final pack = TrainingPackTemplateV2.fromJson(json!);
@@ -1004,11 +1014,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       ),
     );
     if (ok == true) {
-      await const YamlWriter()
-          .write(json!, path);
+      await const YamlWriter().write(json!, path);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
     }
   }
 
@@ -1072,7 +1082,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _smartValidateLoading = false);
     if (report == null) return;
-    final text = 'Errors: \${report.before.errors.length}->\${report.after.errors.length}\n'
+    final text =
+        'Errors: \${report.before.errors.length}->\${report.after.errors.length}\n'
         'Warnings: \${report.before.warnings.length}->\${report.after.warnings.length}\n'
         'Fixed: \${report.fixed.length}';
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
@@ -1247,7 +1258,9 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     final prefs = await SharedPreferences.getInstance();
     final completed = prefs
         .getKeys()
-        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .where(
+          (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true,
+        )
         .map((k) => k.substring('completed_tpl_'.length))
         .toSet();
     final profile = UserProfile(
@@ -1427,22 +1440,21 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🔍 Проверка YAML пака'),
                 onTap: _yamlCheckLoading ? null : _checkYamlPack,
               ),
-  if (kDebugMode)
-    ListTile(
-      title: const Text('✅ Валидация YAML пака'),
-      onTap:
-          _templateValidateLoading ? null : _validateYamlTemplate,
-    ),
-  if (kDebugMode)
-    ListTile(
-      title: const Text('✅ Smart Validation YAML пака'),
-      onTap: _smartValidateLoading ? null : _smartValidateYamlPack,
-    ),
-  if (kDebugMode)
-    ListTile(
-      title: const Text('📋 Проверить YAML пак'),
-      onTap: _reviewLoading ? null : _reviewYamlPack,
-    ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('✅ Валидация YAML пака'),
+                onTap: _templateValidateLoading ? null : _validateYamlTemplate,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('✅ Smart Validation YAML пака'),
+                onTap: _smartValidateLoading ? null : _smartValidateYamlPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📋 Проверить YAML пак'),
+                onTap: _reviewLoading ? null : _reviewYamlPack,
+              ),
             if (kDebugMode)
               ListTile(
                 title: const Text('🛠 Автоисправление YAML пака'),
@@ -1733,9 +1745,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const SkillMapScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const SkillMapScreen()),
                   );
                 },
               ),
@@ -1747,8 +1757,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             if (kDebugMode)
               ListTile(
                 title: const Text('💡 Предложить теги для YAML пака'),
-                onTap:
-                    _yamlTagSuggestLoading ? null : _suggestYamlPackTags,
+                onTap: _yamlTagSuggestLoading ? null : _suggestYamlPackTags,
               ),
             if (kDebugMode)
               ListTile(
@@ -1875,8 +1884,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             if (kDebugMode)
               ListTile(
                 title: const Text('🧪 Тест выгрузки/загрузки шаблона'),
-                onTap:
-                    _templateStorageTestLoading ? null : _testTemplateStorage,
+                onTap: _templateStorageTestLoading
+                    ? null
+                    : _testTemplateStorage,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📚 Lesson Path'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LessonPathScreen()),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
