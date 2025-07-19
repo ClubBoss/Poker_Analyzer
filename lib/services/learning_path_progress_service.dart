@@ -46,10 +46,12 @@ class LearningPathProgressService {
   static final instance = LearningPathProgressService._();
 
   static const _introKey = 'learning_intro_seen';
+  static const _customPathKey = 'custom_path_started';
 
   bool mock = false;
   final Map<String, bool> _mockCompleted = {};
   bool _mockIntroSeen = false;
+  bool _mockCustomPathStarted = false;
   bool unlockAllStages = false;
 
   /// Clears all learning path progress. Used for development/testing only.
@@ -91,6 +93,21 @@ class LearningPathProgressService {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_introKey);
+  }
+
+  Future<void> markCustomPathStarted() async {
+    if (mock) {
+      _mockCustomPathStarted = true;
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_customPathKey, true);
+  }
+
+  Future<bool> isCustomPathStarted() async {
+    if (mock) return _mockCustomPathStarted;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_customPathKey) ?? false;
   }
 
   /// Resets both intro flag and stage progress.

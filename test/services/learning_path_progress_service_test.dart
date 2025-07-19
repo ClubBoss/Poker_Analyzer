@@ -69,4 +69,12 @@ void main() {
     expect(stages.first.items.first.status, LearningItemStatus.available);
     expect(stages.first.items[1].status, LearningItemStatus.locked);
   });
+
+  test('custom path flag persists', () async {
+    var started = await LearningPathProgressService.instance.isCustomPathStarted();
+    expect(started, isFalse);
+    await LearningPathProgressService.instance.markCustomPathStarted();
+    started = await LearningPathProgressService.instance.isCustomPathStarted();
+    expect(started, isTrue);
+  });
 }
