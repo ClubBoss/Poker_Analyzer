@@ -5,6 +5,7 @@ import '../services/learning_path_completion_service.dart';
 import '../services/learning_track_engine.dart';
 import '../services/lesson_track_meta_service.dart';
 import '../widgets/streak_badge_widget.dart';
+import 'daily_challenge_history_screen.dart';
 
 class MasterModeScreen extends StatefulWidget {
   static const route = '/master_mode';
@@ -24,7 +25,8 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
   }
 
   Future<Map<String, dynamic>> _load() async {
-    final date = await LearningPathCompletionService.instance.getCompletionDate();
+    final date =
+        await LearningPathCompletionService.instance.getCompletionDate();
     final tracks = const LearningTrackEngine().getTracks();
     var completedTracks = 0;
     for (final t in tracks) {
@@ -78,6 +80,18 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
               ElevatedButton(
                 onPressed: () {},
                 child: const Text('🎯 Начать челлендж'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DailyChallengeHistoryScreen(),
+                    ),
+                  );
+                },
+                child: const Text('📅 История'),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
