@@ -5,10 +5,11 @@ import 'package:poker_analyzer/services/learning_path_progress_service.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
     LearningPathProgressService.instance
       ..mock = true;
+    await LearningPathProgressService.instance.resetProgress();
   });
 
   test('first item available when nothing completed', () async {
@@ -23,5 +24,18 @@ void main() {
     expect(stages.first.items.first.status, LearningItemStatus.completed);
     expect(stages.first.items[1].status, LearningItemStatus.completed);
     expect(stages.first.items[2].status, LearningItemStatus.available);
+  });
+
+  test('isAllStagesCompleted works correctly', () async {
+    var done = await LearningPathProgressService.instance.isAllStagesCompleted();
+    expect(done, isFalse);
+
+    await LearningPathProgressService.instance.markCompleted('starter_pushfold_10bb');
+    await LearningPathProgressService.instance.markCompleted('starter_pushfold_15bb');
+    await LearningPathProgressService.instance.markCompleted('starter_pushfold_12bb');
+    await LearningPathProgressService.instance.markCompleted('starter_pushfold_20bb');
+
+    done = await LearningPathProgressService.instance.isAllStagesCompleted();
+    expect(done, isTrue);
   });
 }

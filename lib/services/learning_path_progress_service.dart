@@ -33,6 +33,21 @@ class LearningPathProgressService {
   bool mock = false;
   final Map<String, bool> _mockCompleted = {};
 
+  /// Clears all learning path progress. Used for development/testing only.
+  Future<void> resetProgress() async {
+    if (mock) {
+      _mockCompleted.clear();
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys()
+        .where((k) => k.startsWith('learning_completed_'))
+        .toList();
+    for (final k in keys) {
+      await prefs.remove(k);
+    }
+  }
+
   static String _key(String id) => 'learning_completed_$id';
 
   Future<void> markCompleted(String templateId) async {
@@ -132,5 +147,19 @@ class LearningPathProgressService {
       result.add(LearningStageState(title: stage.title, items: items));
     }
     return result;
+  }
+
+  /// Returns true if every learning stage item has been completed.
+  Future<bool> isAllStagesCompleted() async {
+    final stages = await getCurrentStageState();
+    for (final stage in stages) {
+      for (final item in stage.items) {
+        if (item.templateId != null &&
+            item.status != LearningItemStatus.completed) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
