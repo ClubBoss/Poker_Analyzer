@@ -68,9 +68,11 @@ class _LearningPathCompletionScreenState extends State<LearningPathCompletionScr
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      body: FutureBuilder<_Stats>(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: FutureBuilder<_Stats>(
         future: _statsFuture,
         builder: (context, snapshot) {
           final stats = snapshot.data;
@@ -113,6 +115,7 @@ class _LearningPathCompletionScreenState extends State<LearningPathCompletionScr
             ),
           );
         },
+      ),
       ),
     );
   }
