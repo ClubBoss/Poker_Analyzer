@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 
 import '../models/training_spot.dart';
+import '../services/daily_challenge_meta_service.dart';
 import 'master_mode_screen.dart';
 import '../widgets/streak_badge_widget.dart';
 
-class DailyChallengeResultScreen extends StatelessWidget {
+class DailyChallengeResultScreen extends StatefulWidget {
   final TrainingSpot spot;
   const DailyChallengeResultScreen({super.key, required this.spot});
 
+  @override
+  State<DailyChallengeResultScreen> createState() =>
+      _DailyChallengeResultScreenState();
+}
+
+class _DailyChallengeResultScreenState
+    extends State<DailyChallengeResultScreen> {
+  @override
+  void initState() {
+    super.initState();
+    DailyChallengeMetaService.instance.markResultShown();
+  }
+
   double? get _ev =>
-      spot.actions.isNotEmpty ? spot.actions.first.ev : null;
+      widget.spot.actions.isNotEmpty ? widget.spot.actions.first.ev : null;
 
-  String get _bestAction => spot.recommendedAction ?? '-';
+  String get _bestAction => widget.spot.recommendedAction ?? '-';
 
-  String? get _explanation => spot.explanation;
+  String? get _explanation => widget.spot.explanation;
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +44,25 @@ class DailyChallengeResultScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const StreakBadgeWidget(),
-            Text('EV: $evText',
-                style: const TextStyle(color: Colors.white)),
+            Text('EV: $evText', style: const TextStyle(color: Colors.white)),
             const SizedBox(height: 8),
-            Text('Лучшее действие: $_bestAction',
-                style: const TextStyle(color: Colors.white)),
+            Text(
+              'Лучшее действие: $_bestAction',
+              style: const TextStyle(color: Colors.white),
+            ),
             if (_explanation != null) ...[
               const SizedBox(height: 8),
-              Text(_explanation!,
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                _explanation!,
+                style: const TextStyle(color: Colors.white70),
+              ),
             ],
             const Spacer(),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const MasterModeScreen()),
+                  MaterialPageRoute(builder: (_) => const MasterModeScreen()),
                   (route) => false,
                 );
               },
