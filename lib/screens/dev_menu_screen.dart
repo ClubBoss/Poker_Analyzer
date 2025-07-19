@@ -98,6 +98,7 @@ import 'lesson_path_screen.dart';
 import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
 import '../services/learning_path_progress_service.dart';
+import 'achievement_dashboard_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -1927,7 +1928,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(builder: (_) => const LearningPathScreen()),
                   );
-                  service.mock = false;
+                service.mock = false;
+              },
+            ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🏆 Achievement Dashboard'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const AchievementDashboardScreen()),
+                  );
                 },
               ),
             if (kDebugMode)
