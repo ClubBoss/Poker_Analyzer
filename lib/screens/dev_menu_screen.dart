@@ -53,6 +53,7 @@ import '../services/yaml_pack_refactor_engine.dart';
 import '../services/pack_validation_engine.dart';
 import '../services/yaml_pack_validator_service.dart';
 import '../services/pack_template_refactor_engine.dart';
+import '../services/training_reminder_engine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pack_balance_issue.dart';
 import '../models/v2/training_pack_template.dart';
@@ -136,6 +137,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _jsonLibraryLoading = false;
   bool _smartValidateLoading = false;
   bool _templateStorageTestLoading = false;
+  bool _reminderLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -1304,6 +1306,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _checkTrainingReminder() async {
+    if (_reminderLoading || !kDebugMode) return;
+    setState(() => _reminderLoading = true);
+    final engine = TrainingReminderEngine(
+      logs: context.read<SessionLogService>(),
+    );
+    final remind = await engine.shouldRemind(const UserProfile());
+    if (!mounted) return;
+    setState(() => _reminderLoading = false);
+    final text = remind ? 'Пора потренироваться!' : 'Напоминание не требуется';
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1862,6 +1877,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧪 Тест выгрузки/загрузки шаблона'),
                 onTap:
                     _templateStorageTestLoading ? null : _testTemplateStorage,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔔 Проверить напоминание'),
+                onTap: _reminderLoading ? null : _checkTrainingReminder,
               ),
           ],
         ),
