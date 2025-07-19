@@ -123,4 +123,62 @@ class TrainingPackTemplateBuilder {
     tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
     return tpl;
   }
+
+  /// Builds a temporary pack targeting weakest categories.
+  Future<TrainingPackTemplateV2> buildWeaknessPack(
+    TagMasteryService mastery,
+  ) async {
+    await TrainingPackLibraryV2.instance.reload();
+    final library = TrainingPackLibraryV2.instance.packs;
+
+    final weak = await mastery.bottomWeakTags(3);
+    final spots = <TrainingPackSpot>[];
+    final used = <String>{};
+
+    for (final tpl in library) {
+      for (final s in tpl.spots) {
+        final tags = [for (final t in s.tags) t.toLowerCase()];
+        final count = weak.where((t) => tags.contains(t)).length;
+        if (count >= 2 && !used.contains(s.id)) {
+          spots.add(TrainingPackSpot.fromJson(s.toJson())..isNew = true);
+          used.add(s.id);
+        }
+        if (spots.length >= 6) break;
+      }
+      if (spots.length >= 6) break;
+    }
+
+    if (spots.length < 6) {
+      for (final tpl in library) {
+        for (final s in tpl.spots) {
+          final tags = [for (final t in s.tags) t.toLowerCase()];
+          if (tags.any((t) => weak.contains(t)) && !used.contains(s.id)) {
+            spots.add(TrainingPackSpot.fromJson(s.toJson())..isNew = true);
+            used.add(s.id);
+          }
+          if (spots.length >= 6) break;
+        }
+        if (spots.length >= 6) break;
+      }
+    }
+
+    final positions = <HeroPosition>{for (final s in spots) s.hand.position};
+    final tagLabel = weak.isNotEmpty ? weak.first : 'разное';
+    final tpl = TrainingPackTemplateV2(
+      id: const Uuid().v4(),
+      name: 'Уязвимость: $tagLabel',
+      description:
+          'Ситуации, где вы чаще ошибались. Работайте точечно.',
+      trainingType: TrainingType.pushFold,
+      tags: List<String>.from(weak),
+      spots: spots,
+      spotCount: spots.length,
+      created: DateTime.now(),
+      gameType: GameType.tournament,
+      bb: 0,
+      positions: [for (final p in positions) p.name],
+    );
+    tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
+    return tpl;
+  }
 }

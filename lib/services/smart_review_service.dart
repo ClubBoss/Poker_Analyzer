@@ -174,6 +174,40 @@ class SmartReviewService {
       }
       _results.clear();
       await prefs.remove(_resultsKey);
+      return;
+    }
+
+    final weakReady = _results.length >= 3 &&
+        _results.every((r) => r[0] <= 0.7 || r[1] < 0.6 || r[2] < 0.6);
+    if (weakReady && context != null) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Хотите поработать над уязвимыми зонами?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Нет')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Да')),
+          ],
+        ),
+      );
+      if (confirm == true) {
+        final builder = const TrainingPackTemplateBuilder();
+        final mastery = context.read<TagMasteryService>();
+        final tpl = await builder.buildWeaknessPack(mastery);
+        await context
+            .read<TrainingSessionService>()
+            .startSession(tpl, persist: false);
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+        );
+      }
+      _results.clear();
+      await prefs.remove(_resultsKey);
     }
   }
 }
