@@ -23,6 +23,7 @@ import 'services/ignored_mistake_service.dart';
 import 'services/training_import_export_service.dart';
 import 'services/demo_playback_controller.dart';
 import 'screens/weakness_overview_screen.dart';
+import 'screens/master_mode_screen.dart';
 
 final GlobalKey analyzerKey = GlobalKey();
 
@@ -166,6 +167,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
               ),
               routes: {
                 WeaknessOverviewScreen.route: (_) => const WeaknessOverviewScreen(),
+                MasterModeScreen.route: (_) => const MasterModeScreen(),
               },
               builder: (context, child) {
                 return Stack(
