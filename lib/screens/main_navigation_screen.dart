@@ -37,6 +37,7 @@ import 'onboarding_screen.dart';
 import 'ev_icm_analytics_screen.dart';
 import 'ev_stats_screen.dart';
 import 'progress_dashboard_screen.dart';
+import 'track_progress_dashboard_screen.dart';
 import 'position_tag_analytics_screen.dart';
 import 'weakness_overview_screen.dart';
 import 'notification_settings_screen.dart';
@@ -276,6 +277,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     ),
                   );
                   break;
+                case 'tracks':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TrackProgressDashboardScreen(),
+                    ),
+                  );
+                  break;
                 case 'pos_tag':
                   Navigator.push(
                     context,
@@ -314,6 +323,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               PopupMenuItem(value: 'evicm', child: Text('EV/ICM')),
               PopupMenuItem(value: 'evstats', child: Text('EV Stats')),
               PopupMenuItem(value: 'pos_tag', child: Text('Позиции/Теги')),
+              PopupMenuItem(value: 'tracks', child: Text('🎓 Треки')),
               PopupMenuItem(value: 'dashboard', child: Text('📈 Dashboard')),
               PopupMenuItem(value: 'dev', child: Text('Dev Menu')),
               PopupMenuItem(value: 'about', child: Text('About')),
