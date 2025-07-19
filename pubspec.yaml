@@ -100,6 +100,7 @@ flutter:
     - assets/packs/v2/
     - assets/packs/v2/library_index.json
     - assets/built_in_packs.yaml
+    - assets/lessons/
     - assets/pack_matrix.json
 
 # Release build configuration for the demo entry point. Run
