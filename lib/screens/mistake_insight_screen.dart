@@ -30,7 +30,8 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
 
   Future<void> _load() async {
     final templates = context.read<TemplateStorageService>();
-    final spots = await SmartReviewService.instance.getMistakeSpots(templates);
+    final spots = await SmartReviewService.instance
+        .getMistakeSpots(templates, context: context);
     if (!mounted) return;
     setState(() {
       _spots = spots;

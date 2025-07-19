@@ -128,7 +128,8 @@ class _MistakeRepeatStep implements OnboardingStep {
   @override
   Future<void> run(BuildContext context, OnboardingFlowManager manager) async {
     final templates = context.read<TemplateStorageService>();
-    final spots = await SmartReviewService.instance.getMistakeSpots(templates);
+    final spots = await SmartReviewService.instance
+        .getMistakeSpots(templates, context: context);
     if (spots.isEmpty) return;
     await Navigator.push(
       context,
