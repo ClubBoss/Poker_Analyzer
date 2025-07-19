@@ -44,6 +44,12 @@ class LearningPathProgressService {
     await prefs.setBool(_key(templateId), true);
   }
 
+  Future<bool> isCompleted(String templateId) async {
+    if (mock) return _mockCompleted[templateId] == true;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_key(templateId)) ?? false;
+  }
+
   Future<List<LearningStageState>> getCurrentStageState() async {
     final prefs = mock ? null : await SharedPreferences.getInstance();
 
@@ -52,31 +58,27 @@ class LearningPathProgressService {
       return prefs?.getBool(_key(id)) ?? false;
     }
 
-    return [
+    final stages = [
       LearningStageState(title: 'Beginner', items: [
-        const LearningStageItem(
+        LearningStageItem(
           title: 'Push/Fold Basics',
           icon: Icons.play_circle_fill,
           progress: 1.0,
-          status: LearningItemStatus.completed,
+          status: LearningItemStatus.locked,
           templateId: 'starter_pushfold_10bb',
         ),
         LearningStageItem(
           title: '10bb Ranges',
           icon: Icons.school,
           progress: 0.6,
-          status: completed('starter_pushfold_10bb')
-              ? LearningItemStatus.completed
-              : LearningItemStatus.available,
+          status: LearningItemStatus.locked,
           templateId: 'starter_pushfold_10bb',
         ),
         LearningStageItem(
           title: '15bb Ranges',
           icon: Icons.school,
           progress: 0.0,
-          status: completed('starter_pushfold_15bb')
-              ? LearningItemStatus.completed
-              : LearningItemStatus.locked,
+          status: LearningItemStatus.locked,
           templateId: 'starter_pushfold_15bb',
         ),
       ]),
@@ -85,22 +87,18 @@ class LearningPathProgressService {
           title: 'ICM Concepts',
           icon: Icons.insights,
           progress: 0.0,
-          status: completed('starter_pushfold_12bb')
-              ? LearningItemStatus.completed
-              : LearningItemStatus.locked,
+          status: LearningItemStatus.locked,
           templateId: 'starter_pushfold_12bb',
         ),
         LearningStageItem(
           title: 'Shoving Charts 20bb',
           icon: Icons.table_chart,
           progress: 0.0,
-          status: completed('starter_pushfold_20bb')
-              ? LearningItemStatus.completed
-              : LearningItemStatus.locked,
+          status: LearningItemStatus.locked,
           templateId: 'starter_pushfold_20bb',
         ),
       ]),
-      const LearningStageState(title: 'Advanced', items: [
+      LearningStageState(title: 'Advanced', items: [
         LearningStageItem(
           title: 'Exploit Spots',
           icon: Icons.lightbulb_outline,
@@ -109,5 +107,30 @@ class LearningPathProgressService {
         ),
       ]),
     ];
+
+    final result = <LearningStageState>[];
+    for (final stage in stages) {
+      final items = <LearningStageItem>[];
+      var unlock = true;
+      for (final item in stage.items) {
+        final done =
+            item.templateId != null && completed(item.templateId!);
+        final status = done
+            ? LearningItemStatus.completed
+            : unlock
+                ? LearningItemStatus.available
+                : LearningItemStatus.locked;
+        items.add(LearningStageItem(
+          title: item.title,
+          icon: item.icon,
+          progress: item.progress,
+          status: status,
+          templateId: item.templateId,
+        ));
+        unlock = done;
+      }
+      result.add(LearningStageState(title: stage.title, items: items));
+    }
+    return result;
   }
 }
