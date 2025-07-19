@@ -69,9 +69,8 @@ class HandData {
           },
         if (stacks.isNotEmpty) 'stacks': stacks,
         if (board.isNotEmpty) 'board': board,
-        'anteBb': anteBb,
-      }; 
-}
+      'anteBb': anteBb,
+      };
 
   factory HandData.fromSimpleInput(
     String cards,
