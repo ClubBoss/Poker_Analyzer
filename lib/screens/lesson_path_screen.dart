@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v3/lesson_step.dart';
+import '../models/v3/lesson_track.dart';
 import '../services/lesson_loader_service.dart';
 import '../services/lesson_progress_service.dart';
+import '../services/learning_track_engine.dart';
 import 'lesson_step_screen.dart';
+import 'track_selector_screen.dart';
 
 class LessonPathScreen extends StatefulWidget {
   const LessonPathScreen({super.key});
@@ -14,11 +19,32 @@ class LessonPathScreen extends StatefulWidget {
 
 class _LessonPathScreenState extends State<LessonPathScreen> {
   late Future<List<dynamic>> _future;
+  LessonTrack? _track;
 
   @override
   void initState() {
     super.initState();
-    _future = Future.wait([
+    _future = _load();
+  }
+
+  Future<List<dynamic>> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('lesson_selected_track');
+    if (id == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const TrackSelectorScreen()),
+          );
+        }
+      });
+      return <dynamic>[];
+    }
+    _track = const LearningTrackEngine()
+        .getTracks()
+        .firstWhereOrNull((t) => t.id == id);
+    return Future.wait([
       LessonLoaderService.instance.loadAllLessons(),
       LessonProgressService.instance.getCompletedSteps(),
     ]);
@@ -30,8 +56,11 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
       future: _future,
       builder: (context, snapshot) {
         final data = snapshot.data;
-        final steps = data != null ? data[0] as List<LessonStep> : null;
+        final allSteps = data != null ? data[0] as List<LessonStep> : null;
         final completed = data != null ? data[1] as Set<String> : <String>{};
+        final steps = allSteps
+            ?.where((s) => _track?.stepIds.contains(s.id) ?? false)
+            .toList();
         return Scaffold(
           appBar: AppBar(title: const Text('Учебный путь')),
           backgroundColor: const Color(0xFF121212),
@@ -45,15 +74,15 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                   ),
                 )
               : ListView.builder(
-                  itemCount: steps.length,
+                  itemCount: steps!.length,
                   itemBuilder: (context, index) {
-                    final step = steps[index];
+                    final step = steps![index];
                     final intro = step.introText;
                     final preview = intro.length > 100
                         ? '${intro.substring(0, 100)}...'
                         : intro;
                     final firstIncomplete =
-                        steps.indexWhere((s) => !completed.contains(s.id));
+                        steps!.indexWhere((s) => !completed.contains(s.id));
                     final isDone = completed.contains(step.id);
                     final statusIcon = isDone
                         ? '✅'
