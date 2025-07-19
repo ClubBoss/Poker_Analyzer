@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/training_spot.dart';
 import 'master_mode_screen.dart';
+import '../widgets/streak_badge_widget.dart';
 
 class DailyChallengeResultScreen extends StatelessWidget {
   final TrainingSpot spot;
@@ -28,6 +29,7 @@ class DailyChallengeResultScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const StreakBadgeWidget(),
             Text('EV: $evText',
                 style: const TextStyle(color: Colors.white)),
             const SizedBox(height: 8),
