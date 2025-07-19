@@ -35,6 +35,11 @@ import 'package:uuid/uuid.dart';
 import '../../helpers/mistake_advice.dart';
 import '../../services/learning_path_progress_service.dart';
 import '../../services/learning_path_service.dart';
+import '../../services/smart_review_service.dart';
+import '../../services/tag_mastery_service.dart';
+import '../../services/training_pack_template_builder.dart';
+import '../../services/training_session_service.dart';
+import '../training_recommendation_screen.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -454,6 +459,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     _summaryShown = true;
     await LearningPathProgressService.instance
         .markCompleted(widget.original.id);
+    final isFinalStep =
+        widget.original.tags.contains('starterPath') &&
+            widget.original.tags.contains('step5');
     if (widget.original.tags.contains('starterPath')) {
       await LearningPathService.instance.advance(widget.original.id);
     }
@@ -469,6 +477,60 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ),
       ),
     );
+    final ctx = navigatorKey.currentContext;
+    if (ctx != null && isFinalStep) {
+      final prefs = await SharedPreferences.getInstance();
+      if (!prefs.containsKey('post_starter_path_choice')) {
+        final choice = await showDialog<String>(
+          context: ctx,
+          builder: (dCtx) => AlertDialog(
+            title: const Text('Какой следующий шаг вам подойдёт?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dCtx, 'mistakes'),
+                child: const Text('Повторить ошибки'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dCtx, 'weak'),
+                child: const Text('Прокачать слабости'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dCtx, 'custom'),
+                child: const Text('Кастомный путь'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dCtx),
+                child: const Text('Не сейчас'),
+              ),
+            ],
+          ),
+        );
+        if (choice != null) {
+          await prefs.setString('post_starter_path_choice', choice);
+          if (choice == 'mistakes') {
+            await SmartReviewService.instance.buildMistakePack(ctx);
+          } else if (choice == 'weak') {
+            final builder = const TrainingPackTemplateBuilder();
+            final mastery = ctx.read<TagMasteryService>();
+            final weakTpl = await builder.buildWeaknessPack(mastery);
+            await ctx
+                .read<TrainingSessionService>()
+                .startSession(weakTpl, persist: false);
+            await Navigator.push(
+              ctx,
+              MaterialPageRoute(
+                  builder: (_) => const TrainingSessionScreen()),
+            );
+          } else if (choice == 'custom') {
+            await Navigator.push(
+              ctx,
+              MaterialPageRoute(
+                  builder: (_) => const TrainingRecommendationScreen()),
+            );
+          }
+        }
+      }
+    }
   }
 
   Future<void> _next() async {
