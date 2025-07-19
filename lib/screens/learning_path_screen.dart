@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/learning_path_progress_service.dart';
+import '../services/training_pack_template_service.dart';
+import '../main.dart';
+import 'v2/training_pack_play_screen.dart';
 
 class LearningPathScreen extends StatelessWidget {
   const LearningPathScreen({super.key});
@@ -107,7 +110,33 @@ class _LearningStageTileState extends State<LearningStageTile> {
             leading: Icon(item.icon, color: Colors.white),
             title: Text(item.title),
             trailing: trailing,
-            onTap: item.status == LearningItemStatus.locked ? null : () {},
+            onTap: item.status == LearningItemStatus.locked
+                ? null
+                : () async {
+                    final ctx = navigatorKey.currentContext ?? context;
+                    final id = item.templateId;
+                    if (id == null) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('Template not found')),
+                      );
+                      return;
+                    }
+                    final tpl =
+                        TrainingPackTemplateService.getById(id, ctx);
+                    if (tpl == null) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('Template not found')),
+                      );
+                      return;
+                    }
+                    Navigator.push(
+                      ctx,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            TrainingPackPlayScreen(template: tpl, original: tpl),
+                      ),
+                    );
+                  },
           ),
         ),
       ),
