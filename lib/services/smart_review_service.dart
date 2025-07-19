@@ -7,6 +7,8 @@ import 'training_pack_template_builder.dart';
 import 'training_session_service.dart';
 import 'tag_mastery_service.dart';
 import '../screens/training_session_screen.dart';
+import '../models/training_pack_template.dart';
+import 'package:uuid/uuid.dart';
 
 /// Stores IDs of spots where the user made a mistake for future review.
 class SmartReviewService {
@@ -113,6 +115,26 @@ class SmartReviewService {
     }
 
     return result;
+  }
+
+  /// Builds and starts a training pack from recorded mistakes.
+  Future<void> buildMistakePack(BuildContext context) async {
+    final templates = context.read<TemplateStorageService>();
+    final spots = await getMistakeSpots(templates);
+    if (spots.isEmpty) return;
+    final tpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Повтор ошибок',
+      createdAt: DateTime.now(),
+      spots: spots,
+    );
+    await context
+        .read<TrainingSessionService>()
+        .startSession(tpl, persist: false);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
   }
 
   /// Clears all stored mistakes.
