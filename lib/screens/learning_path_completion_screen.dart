@@ -23,6 +23,7 @@ class _LearningPathCompletionScreenState extends State<LearningPathCompletionScr
 
   Future<void> _reset() async {
     await LearningPathProgressService.instance.resetProgress();
+    await LearningPathProgressService.instance.resetIntroSeen();
     if (!mounted) return;
     Navigator.pushReplacement(
       context,

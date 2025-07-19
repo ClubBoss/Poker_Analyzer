@@ -96,6 +96,8 @@ import 'skill_map_screen.dart';
 import 'goal_screen.dart';
 import 'lesson_path_screen.dart';
 import 'learning_path_screen.dart';
+import 'learning_path_intro_screen.dart';
+import '../services/learning_path_progress_service.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -1902,12 +1904,23 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             if (kDebugMode)
               ListTile(
                 title: const Text('📚 Путь обучения'),
-                onTap: () {
+                onTap: () async {
+                  final seen = await LearningPathProgressService.instance
+                      .hasSeenIntro();
+                  final screen = seen
+                      ? const LearningPathScreen()
+                      : const LearningPathIntroScreen();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (_) => const LearningPathScreen()),
+                    MaterialPageRoute(builder: (_) => screen),
                   );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧹 Сбросить интро обучения'),
+                onTap: () async {
+                  await LearningPathProgressService.instance.resetIntroSeen();
                 },
               ),
             if (kDebugMode)
