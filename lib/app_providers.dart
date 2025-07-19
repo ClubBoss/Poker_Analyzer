@@ -229,13 +229,7 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     ChangeNotifierProvider(create: (_) => RewardService()..load()),
     ChangeNotifierProvider(create: (_) => GoalEngine()),
-    ChangeNotifierProvider(
-      create: (context) => DailyChallengeService(
-        adaptive: context.read<AdaptiveTrainingService>(),
-        templates: context.read<TemplateStorageService>(),
-        xp: context.read<XPTrackerService>(),
-      )..load(),
-    ),
+    ChangeNotifierProvider(create: (_) => DailyChallengeService()),
     ChangeNotifierProvider(
       create: (context) => DailySpotlightService(
         templates: context.read<TemplateStorageService>(),
