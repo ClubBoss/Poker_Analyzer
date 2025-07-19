@@ -2,26 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement_info.dart';
 import '../models/simple_achievement.dart';
+import '../models/achievement_v2.dart';
 import '../widgets/achievement_unlocked_overlay.dart';
 import '../services/training_stats_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/streak_service.dart';
 import '../services/xp_tracker_service.dart';
+import '../services/daily_learning_goal_service.dart';
+import '../services/learning_path_progress_service.dart';
+import '../services/training_pack_stats_service.dart';
+import '../services/tag_mastery_service.dart';
+import '../services/pack_library_loader_service.dart';
 import '../main.dart';
 
 class AchievementService extends ChangeNotifier {
+  static AchievementService? _instance;
+  static AchievementService get instance => _instance!;
+
   AchievementService({
     required this.stats,
     required this.hands,
     required this.streak,
+    required this.dailyGoal,
+    required this.mastery,
     required this.xp,
   }) {
+    _instance = this;
     _init();
   }
 
   final TrainingStatsService stats;
   final SavedHandManagerService hands;
   final StreakService streak;
+  final DailyLearningGoalService dailyGoal;
+  final TagMasteryService mastery;
   final XPTrackerService xp;
 
   static const _key = 'simple_ach_';
@@ -70,11 +84,40 @@ class AchievementService extends ChangeNotifier {
         unlocked: prefs.getBool('${_key}error_free_3') ?? false,
         date: _parse(prefs.getString('${_key}error_free_3_date')),
       ),
+      SimpleAchievement(
+        id: 'first_streak',
+        title: 'Первый стрик',
+        icon: Icons.local_fire_department,
+        unlocked: prefs.getBool('${_key}first_streak') ?? false,
+        date: _parse(prefs.getString('${_key}first_streak_date')),
+      ),
+      SimpleAchievement(
+        id: 'first_level',
+        title: 'Первый уровень',
+        icon: Icons.school,
+        unlocked: prefs.getBool('${_key}first_level') ?? false,
+        date: _parse(prefs.getString('${_key}first_level_date')),
+      ),
+      SimpleAchievement(
+        id: 'ev_expert',
+        title: 'EV-эксперт',
+        icon: Icons.percent,
+        unlocked: prefs.getBool('${_key}ev_expert') ?? false,
+        date: _parse(prefs.getString('${_key}ev_expert_date')),
+      ),
+      SimpleAchievement(
+        id: 'tag_analyst',
+        title: 'Покерный аналитик',
+        icon: Icons.search,
+        unlocked: prefs.getBool('${_key}tag_analyst') ?? false,
+        date: _parse(prefs.getString('${_key}tag_analyst_date')),
+      ),
     ]);
-    stats.sessionsStream.listen((_) => _check());
-    stats.handsStream.listen((_) => _check());
-    streak.addListener(_check);
-    _check();
+    stats.sessionsStream.listen((_) => checkAll());
+    stats.handsStream.listen((_) => checkAll());
+    streak.addListener(() => checkAll());
+    dailyGoal.addListener(() => checkAll());
+    checkAll();
   }
 
   Future<void> _save(SimpleAchievement a) async {
@@ -101,11 +144,15 @@ class AchievementService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _check() {
-    if (stats.sessionsCompleted > 0) _unlock('first_pack');
-    if (streak.streak.value >= 7) _unlock('streak_7');
-    if (stats.handsReviewed >= 100) _unlock('hands_100');
-    if (streak.errorFreeStreak >= 3) _unlock('error_free_3');
+  Future<void> checkAll() async {
+    if (stats.sessionsCompleted > 0) await _unlock('first_pack');
+    if (streak.streak.value >= 7) await _unlock('streak_7');
+    if (stats.handsReviewed >= 100) await _unlock('hands_100');
+    if (streak.errorFreeStreak >= 3) await _unlock('error_free_3');
+    if (dailyGoal.streakCount >= 3) await _unlock('first_streak');
+    await _checkFirstLevel();
+    await _checkEvExpert();
+    await _checkWeakTags();
     _checkEv();
   }
 
@@ -122,6 +169,51 @@ class AchievementService extends ChangeNotifier {
     if (evs.isEmpty) return;
     final avg = evs.reduce((a, b) => a + b) / evs.length;
     if (avg > 0.15) _unlock('ev_015');
+  }
+
+  Future<void> _checkFirstLevel() async {
+    final ach = _achievements.firstWhere((a) => a.id == 'first_level');
+    if (ach.unlocked) return;
+    final stages = await LearningPathProgressService.instance.getCurrentStageState();
+    if (stages.isEmpty) return;
+    final first = stages.first;
+    final completed = LearningPathProgressService.instance.isStageCompleted(first.items);
+    if (completed) await _unlock('first_level');
+  }
+
+  Future<void> _checkEvExpert() async {
+    final ach = _achievements.firstWhere((a) => a.id == 'ev_expert');
+    if (ach.unlocked) return;
+    await PackLibraryLoaderService.instance.loadLibrary();
+    for (final tpl in PackLibraryLoaderService.instance.library) {
+      final stat = await TrainingPackStatsService.getStats(tpl.id);
+      if (stat == null) continue;
+      final pct = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
+      if (pct >= 90) {
+        await _unlock('ev_expert');
+        break;
+      }
+    }
+  }
+
+  Future<void> _checkWeakTags() async {
+    final ach = _achievements.firstWhere((a) => a.id == 'tag_analyst');
+    if (ach.unlocked) return;
+    final weak = await mastery.topWeakTags(5);
+    if (weak.isEmpty) return;
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final byId = {for (final t in PackLibraryLoaderService.instance.library) t.id: t};
+    int count = 0;
+    for (final log in mastery.logs.logs) {
+      final tpl = byId[log.templateId];
+      if (tpl == null) continue;
+      final tags = [for (final t in tpl.tags) t.toLowerCase()];
+      if (tags.any((t) => weak.contains(t))) {
+        count += 1;
+      }
+      if (count >= 5) break;
+    }
+    if (count >= 5) await _unlock('tag_analyst');
   }
   List<AchievementInfo> allAchievements() {
     final unlocked = {for (final a in _achievements) a.id: a.unlocked};
@@ -185,6 +277,42 @@ class AchievementService extends ChangeNotifier {
         thresholds: const [1],
         iconsPerLevel: const [Icons.trending_up],
         category: 'Accuracy',
+      ),
+      AchievementInfo(
+        id: 'first_streak',
+        title: 'Первый стрик',
+        description: 'Выполните цель 3 дня подряд',
+        progress: dailyGoal.streakCount,
+        thresholds: const [3],
+        iconsPerLevel: const [Icons.local_fire_department],
+        category: 'Streaks',
+      ),
+      AchievementInfo(
+        id: 'first_level',
+        title: 'Первый уровень',
+        description: 'Завершите первый этап обучения',
+        progress: unlocked['first_level'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.school],
+        category: 'Learning',
+      ),
+      AchievementInfo(
+        id: 'ev_expert',
+        title: 'EV-эксперт',
+        description: 'Достигните EV > 90% в паке',
+        progress: unlocked['ev_expert'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.percent],
+        category: 'Accuracy',
+      ),
+      AchievementInfo(
+        id: 'tag_analyst',
+        title: 'Покерный аналитик',
+        description: 'Завершите 5 паков по слабым тегам',
+        progress: unlocked['tag_analyst'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.search],
+        category: 'Learning',
       ),
     ];
   }

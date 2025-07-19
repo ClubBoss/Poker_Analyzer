@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/block_completion_reward_service.dart';
 import 'confetti_overlay.dart';
+import '../services/achievement_service.dart';
 
 class StageCompletionBanner extends StatefulWidget {
   final String title;
@@ -40,6 +41,7 @@ class _StageCompletionBannerState extends State<StageCompletionBanner>
       setState(() => _visible = true);
       _controller.forward();
       showConfettiOverlay(context);
+      AchievementService.instance.checkAll();
       await BlockCompletionRewardService.instance.markBannerShown(widget.title);
     }
   }

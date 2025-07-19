@@ -9,6 +9,7 @@ import '../widgets/dynamic_progress_row.dart';
 import 'session_result_screen.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
+import '../services/achievement_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
@@ -304,6 +305,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           categoryCounts: counts,
         ),
       );
+      AchievementService.instance.checkAll();
       await _checkGoalProgress();
     }
   }

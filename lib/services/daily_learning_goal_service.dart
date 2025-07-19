@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'achievement_service.dart';
 
 class DailyLearningGoalService extends ChangeNotifier {
   static const _prefKey = 'daily_learning_goal_completed_at';
@@ -65,6 +66,7 @@ class DailyLearningGoalService extends ChangeNotifier {
       await prefs.setInt(_maxStreakKey, maxStreak);
     }
     _lastCompleted = now;
+    AchievementService.instance.checkAll();
     notifyListeners();
   }
 
