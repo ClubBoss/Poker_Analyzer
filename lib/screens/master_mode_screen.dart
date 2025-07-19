@@ -6,6 +6,7 @@ import '../services/learning_track_engine.dart';
 import '../services/lesson_track_meta_service.dart';
 import '../widgets/streak_badge_widget.dart';
 import '../widgets/streak_banner_widget.dart';
+import '../widgets/reward_banner_widget.dart';
 import 'daily_challenge_history_screen.dart';
 import 'master_achievements_screen.dart';
 
@@ -70,6 +71,7 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
             children: [
               const StreakBannerWidget(),
               const StreakBadgeWidget(),
+              const RewardBannerWidget(),
               Text(
                 dateText,
                 style: const TextStyle(color: Colors.white70),
