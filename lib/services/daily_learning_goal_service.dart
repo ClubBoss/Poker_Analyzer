@@ -5,10 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DailyLearningGoalService extends ChangeNotifier {
   static const _prefKey = 'daily_learning_goal_completed_at';
   static const _streakKey = 'daily_learning_goal_streak';
+  static const _daysKey = 'daily_learning_goal_days';
+  static const _maxStreakKey = 'daily_learning_goal_max_streak';
 
   Timer? _timer;
   DateTime? _lastCompleted;
   int streakCount = 0;
+  int maxStreak = 0;
+  Set<String> _completedDays = {};
 
   DailyLearningGoalService();
 
@@ -20,6 +24,8 @@ class DailyLearningGoalService extends ChangeNotifier {
     final str = prefs.getString(_prefKey);
     _lastCompleted = str != null ? DateTime.tryParse(str) : null;
     streakCount = prefs.getInt(_streakKey) ?? 0;
+    _completedDays = (prefs.getStringList(_daysKey) ?? []).toSet();
+    maxStreak = prefs.getInt(_maxStreakKey) ?? streakCount;
     _schedule();
     notifyListeners();
   }
@@ -37,6 +43,7 @@ class DailyLearningGoalService extends ChangeNotifier {
   Future<void> markCompleted() async {
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
+    final dayKey = now.toIso8601String().split('T').first;
     if (_lastCompleted != null) {
       if (_sameDay(_lastCompleted!, now)) {
         // Already completed today, nothing to update.
@@ -49,8 +56,14 @@ class DailyLearningGoalService extends ChangeNotifier {
     } else {
       streakCount = 1;
     }
+    _completedDays.add(dayKey);
+    await prefs.setStringList(_daysKey, _completedDays.toList());
     await prefs.setString(_prefKey, now.toIso8601String());
     await prefs.setInt(_streakKey, streakCount);
+    if (streakCount > maxStreak) {
+      maxStreak = streakCount;
+      await prefs.setInt(_maxStreakKey, maxStreak);
+    }
     _lastCompleted = now;
     notifyListeners();
   }
@@ -70,6 +83,12 @@ class DailyLearningGoalService extends ChangeNotifier {
   }
 
   int getCurrentStreak() => streakCount;
+
+  List<DateTime> getCompletedDays() {
+    return [for (final s in _completedDays) DateTime.parse(s)];
+  }
+
+  int getMaxStreak() => maxStreak;
 
   @override
   void dispose() {
