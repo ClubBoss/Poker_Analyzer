@@ -11,6 +11,8 @@ import '../services/lesson_path_progress_service.dart';
 import '../services/lesson_progress_tracker_service.dart';
 import '../services/lesson_track_meta_service.dart';
 import '../services/learning_path_completion_service.dart';
+import '../models/mastery_level.dart';
+import '../services/mastery_level_engine.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_recap_screen.dart';
 
@@ -25,12 +27,14 @@ class TrackProgressDashboardScreen extends StatefulWidget {
 class _TrackProgressDashboardScreenState
     extends State<TrackProgressDashboardScreen> {
   late Future<Map<String, dynamic>> _future;
+  late Future<MasteryLevel> _levelFuture;
   bool _bannerShown = false;
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _levelFuture = MasteryLevelEngine().computeUserLevel();
   }
 
   Future<Map<String, dynamic>> _load() async {
@@ -100,6 +104,17 @@ class _TrackProgressDashboardScreenState
     return '$days дней назад';
   }
 
+  Color _levelColor(MasteryLevel level) {
+    switch (level) {
+      case MasteryLevel.beginner:
+        return Colors.redAccent;
+      case MasteryLevel.intermediate:
+        return Colors.orangeAccent;
+      case MasteryLevel.expert:
+        return Colors.greenAccent;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -147,9 +162,35 @@ class _TrackProgressDashboardScreenState
                         style: TextStyle(color: Colors.white70),
                       ),
                     )
-                  : ListView.builder(
-                      itemCount: tracks.length,
-                      itemBuilder: (context, index) {
+                  : Column(
+                      children: [
+                        FutureBuilder<MasteryLevel>(
+                          future: _levelFuture,
+                          builder: (context, levelSnap) {
+                            if (levelSnap.connectionState !=
+                                ConnectionState.done) {
+                              return const SizedBox.shrink();
+                            }
+                            final level = levelSnap.data;
+                            if (level == null) {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Text(
+                                '🔰 Уровень: ${level.label}',
+                                style: TextStyle(
+                                  color: _levelColor(level),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: tracks.length,
+                            itemBuilder: (context, index) {
                         final track = tracks[index];
                         final percent = progress[track.id] ?? 0.0;
                         final total = track.stepIds.length;
@@ -207,6 +248,9 @@ class _TrackProgressDashboardScreenState
                         );
                       },
                     ),
+                  ),
+                ],
+              ),
         );
       },
     );
