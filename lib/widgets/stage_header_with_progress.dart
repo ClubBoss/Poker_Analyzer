@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 class StageHeaderWithProgress extends StatelessWidget {
   final String title;
   final double progress;
+  final bool showProgress;
   const StageHeaderWithProgress({
     super.key,
     required this.title,
     required this.progress,
+    this.showProgress = true,
   });
 
   Color _color(BuildContext context) {
@@ -33,28 +35,30 @@ class StageHeaderWithProgress extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Прогресс: $pct%',
-            style: const TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 4),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: progress),
-            duration: const Duration(milliseconds: 300),
-            builder: (context, value, _) => SizedBox(
-              width: width,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: LinearProgressIndicator(
-                  value: value,
-                  minHeight: 6.0,
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(barColor),
+          if (showProgress) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Прогресс: $pct%',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 4),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: progress),
+              duration: const Duration(milliseconds: 300),
+              builder: (context, value, _) => SizedBox(
+                width: width,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: value,
+                    minHeight: 6.0,
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation<Color>(barColor),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

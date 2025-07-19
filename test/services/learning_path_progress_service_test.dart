@@ -18,12 +18,24 @@ void main() {
     expect(stages.first.items[1].status, LearningItemStatus.locked);
   });
 
+  test('next stage locked until previous completed', () async {
+    final stages = await LearningPathProgressService.instance.getCurrentStageState();
+    expect(stages[1].items.first.status, LearningItemStatus.locked);
+  });
+
   test('completing first item unlocks next', () async {
     await LearningPathProgressService.instance.markCompleted('starter_pushfold_10bb');
     final stages = await LearningPathProgressService.instance.getCurrentStageState();
     expect(stages.first.items.first.status, LearningItemStatus.completed);
     expect(stages.first.items[1].status, LearningItemStatus.completed);
     expect(stages.first.items[2].status, LearningItemStatus.available);
+  });
+
+  test('completing first stage unlocks second stage', () async {
+    await LearningPathProgressService.instance.markCompleted('starter_pushfold_10bb');
+    await LearningPathProgressService.instance.markCompleted('starter_pushfold_15bb');
+    final stages = await LearningPathProgressService.instance.getCurrentStageState();
+    expect(stages[1].items.first.status, isNot(LearningItemStatus.locked));
   });
 
   test('isAllStagesCompleted works correctly', () async {

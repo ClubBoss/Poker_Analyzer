@@ -143,6 +143,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _smartValidateLoading = false;
   bool _templateStorageTestLoading = false;
   bool _reminderLoading = false;
+  bool _unlockStages = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -1927,6 +1928,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     MaterialPageRoute(builder: (_) => const LearningPathScreen()),
                   );
                   service.mock = false;
+                },
+              ),
+            if (kDebugMode)
+              CheckboxListTile(
+                title: const Text('🔓 Unlock all stages (for dev)'),
+                value: _unlockStages,
+                activeColor: Colors.greenAccent,
+                onChanged: (v) {
+                  setState(() => _unlockStages = v ?? false);
+                  LearningPathProgressService.instance.unlockAllStages =
+                      _unlockStages;
                 },
               ),
             if (kDebugMode)

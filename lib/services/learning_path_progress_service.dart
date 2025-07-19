@@ -23,8 +23,13 @@ class LearningStageItem {
 class LearningStageState {
   final String title;
   final List<LearningStageItem> items;
+  final bool isLocked;
 
-  const LearningStageState({required this.title, required this.items});
+  const LearningStageState({
+    required this.title,
+    required this.items,
+    this.isLocked = false,
+  });
 }
 
 class LearningPathProgressService {
@@ -36,6 +41,7 @@ class LearningPathProgressService {
   bool mock = false;
   final Map<String, bool> _mockCompleted = {};
   bool _mockIntroSeen = false;
+  bool unlockAllStages = false;
 
   /// Clears all learning path progress. Used for development/testing only.
   Future<void> resetProgress() async {
@@ -99,6 +105,10 @@ class LearningPathProgressService {
     return prefs.getBool(_key(templateId)) ?? false;
   }
 
+  bool isStageCompleted(List<LearningStageItem> items) {
+    return items.every((e) => e.status == LearningItemStatus.completed);
+  }
+
   Future<List<LearningStageState>> getCurrentStageState() async {
     final prefs = mock ? null : await SharedPreferences.getInstance();
 
@@ -158,9 +168,11 @@ class LearningPathProgressService {
     ];
 
     final result = <LearningStageState>[];
+    var prevCompleted = true;
     for (final stage in stages) {
       final items = <LearningStageItem>[];
-      var unlock = true;
+      var stageUnlocked = unlockAllStages || prevCompleted;
+      var itemUnlock = stageUnlocked;
       for (final item in stage.items) {
         final tplId = item.templateId;
         final done = tplId != null && completed(tplId);
@@ -168,23 +180,32 @@ class LearningPathProgressService {
         if (tplId != null) {
           prog = await TrainingProgressService.instance.getProgress(tplId);
         }
-        final status = done
-            ? LearningItemStatus.completed
-            : prog > 0 && prog < 1 && tplId != null
-                ? LearningItemStatus.inProgress
-                : unlock
-                    ? LearningItemStatus.available
-                    : LearningItemStatus.locked;
+        LearningItemStatus status;
+        if (!stageUnlocked) {
+          status = LearningItemStatus.locked;
+          prog = 0.0;
+        } else if (done) {
+          status = LearningItemStatus.completed;
+        } else if (prog > 0 && prog < 1 && tplId != null) {
+          status = LearningItemStatus.inProgress;
+        } else if (itemUnlock) {
+          status = LearningItemStatus.available;
+        } else {
+          status = LearningItemStatus.locked;
+        }
         items.add(LearningStageItem(
           title: item.title,
           icon: item.icon,
-          progress: prog,
+          progress: stageUnlocked ? prog : 0.0,
           status: status,
           templateId: item.templateId,
         ));
-        unlock = done;
+        itemUnlock = itemUnlock && done;
       }
-      result.add(LearningStageState(title: stage.title, items: items));
+      final completedStage = isStageCompleted(items);
+      result.add(LearningStageState(
+          title: stage.title, items: items, isLocked: !stageUnlocked));
+      prevCompleted = unlockAllStages ? true : completedStage;
     }
     return result;
   }
