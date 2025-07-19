@@ -13,6 +13,7 @@ import '../services/lesson_track_meta_service.dart';
 import '../services/learning_path_completion_service.dart';
 import '../models/mastery_level.dart';
 import '../services/mastery_level_engine.dart';
+import 'master_mode_screen.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_recap_screen.dart';
 
@@ -249,6 +250,27 @@ class _TrackProgressDashboardScreenState
                       },
                     ),
                   ),
+                      FutureBuilder<MasteryLevel>(
+                        future: _levelFuture,
+                        builder: (context, levelSnap) {
+                          if (levelSnap.connectionState != ConnectionState.done) {
+                            return const SizedBox.shrink();
+                          }
+                          final level = levelSnap.data;
+                          final show = pathCompleted && level == MasteryLevel.expert;
+                          if (!show) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.pushNamed(
+                                context,
+                                MasterModeScreen.route,
+                              ),
+                              child: const Text('🔥 Мастер-режим'),
+                            ),
+                          );
+                        },
+                      ),
                 ],
               ),
         );

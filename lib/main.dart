@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/plugin_runtime.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/weakness_overview_screen.dart';
+import 'screens/master_mode_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
 import 'services/session_note_service.dart';
@@ -346,6 +347,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
             routes: {
               WeaknessOverviewScreen.route: (_) =>
                   const WeaknessOverviewScreen(),
+              MasterModeScreen.route: (_) => const MasterModeScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');
