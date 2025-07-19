@@ -99,6 +99,7 @@ import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
 import '../services/learning_path_progress_service.dart';
 import 'achievement_dashboard_screen.dart';
+import 'mistake_review_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -1964,6 +1965,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🔔 Проверить напоминание'),
                 onTap: _reminderLoading ? null : _checkTrainingReminder,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔁 Повтор ошибок'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const MistakeReviewScreen()),
+                  );
+                },
               ),
           ],
         ),
