@@ -88,6 +88,7 @@ import 'services/user_action_logger.dart';
 import 'services/hand_analyzer_service.dart';
 import 'services/tag_mastery_service.dart';
 import 'services/goal_suggestion_engine.dart';
+import 'services/goal_sync_service.dart';
 
 late final AuthService auth;
 late final RemoteConfigService rc;
@@ -96,6 +97,7 @@ late final TrainingPackStorageService packStorage;
 late final TrainingPackCloudSyncService packCloud;
 late final MistakePackCloudService mistakeCloud;
 late final GoalProgressCloudService goalCloud;
+late final GoalSyncService goalSync;
 late final TrainingPackTemplateStorageService templateStorage;
 late final TagCacheService tagCache;
 
@@ -113,9 +115,8 @@ List<SingleChildWidget> buildTrainingProviders() {
   return [
     Provider(create: (_) => CloudTrainingHistoryService()..init()),
     ChangeNotifierProvider(
-      create: (context) => TrainingSpotStorageService(
-        cloud: context.read<CloudSyncService>(),
-      ),
+      create: (context) =>
+          TrainingSpotStorageService(cloud: context.read<CloudSyncService>()),
     ),
     ChangeNotifierProvider(
       create: (context) =>
@@ -143,7 +144,8 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     ChangeNotifierProvider(
       create: (context) => PlayerStyleForecastService(
-          hands: context.read<SavedHandManagerService>()),
+        hands: context.read<SavedHandManagerService>(),
+      ),
     ),
     ChangeNotifierProvider(
       create: (context) => RealTimeStackRangeService(
@@ -172,21 +174,21 @@ List<SingleChildWidget> buildTrainingProviders() {
         style: context.read<PlayerStyleService>(),
       ),
     ),
+    ChangeNotifierProvider(create: (_) => MistakeStreakService()..load()),
     ChangeNotifierProvider(
-      create: (_) => MistakeStreakService()..load(),
+      create: (context) =>
+          SessionNoteService(cloud: context.read<CloudSyncService>())..load(),
     ),
     ChangeNotifierProvider(
-        create: (context) =>
-            SessionNoteService(cloud: context.read<CloudSyncService>())
-              ..load()),
-    ChangeNotifierProvider(
-        create: (context) =>
-            SessionPinService(cloud: context.read<CloudSyncService>())..load()),
+      create: (context) =>
+          SessionPinService(cloud: context.read<CloudSyncService>())..load(),
+    ),
     ChangeNotifierProvider<TrainingPackStorageService>.value(
       value: packStorage,
     ),
     Provider<TrainingPackCloudSyncService>.value(value: packCloud),
     Provider<MistakePackCloudService>.value(value: mistakeCloud),
+    Provider<GoalSyncService>.value(value: goalSync),
     ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
     ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
     ChangeNotifierProvider(
@@ -218,8 +220,9 @@ List<SingleChildWidget> buildTrainingProviders() {
     ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
     ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
     ChangeNotifierProvider(
-        create: (context) =>
-            XPTrackerService(cloud: context.read<CloudSyncService>())..load()),
+      create: (context) =>
+          XPTrackerService(cloud: context.read<CloudSyncService>())..load(),
+    ),
     ChangeNotifierProvider(create: (_) => RewardService()..load()),
     ChangeNotifierProvider(create: (_) => GoalEngine()),
     ChangeNotifierProvider(
@@ -235,9 +238,9 @@ List<SingleChildWidget> buildTrainingProviders() {
       )..load(),
     ),
     ChangeNotifierProvider(
-      create: (context) => DailyPackService(
-        templates: context.read<TemplateStorageService>(),
-      )..load(),
+      create: (context) =>
+          DailyPackService(templates: context.read<TemplateStorageService>())
+            ..load(),
     ),
     ChangeNotifierProvider(
       create: (context) => WeeklyChallengeService(
@@ -306,8 +309,10 @@ List<SingleChildWidget> buildTrainingProviders() {
       ),
     ),
     ChangeNotifierProvider(
-      create: (context) =>
-          UserGoalEngine(stats: context.read<TrainingStatsService>()),
+      create: (context) => UserGoalEngine(
+        stats: context.read<TrainingStatsService>(),
+        sync: goalSync,
+      ),
     ),
     Provider(create: (_) => GoalToastService()),
     ChangeNotifierProvider(
@@ -368,18 +373,14 @@ List<SingleChildWidget> buildTrainingProviders() {
       ),
     ),
     ChangeNotifierProvider(create: (_) => DrillHistoryService()..load()),
-    ChangeNotifierProvider(
-      create: (_) => MixedDrillHistoryService()..load(),
-    ),
+    ChangeNotifierProvider(create: (_) => MixedDrillHistoryService()..load()),
     ChangeNotifierProvider(
       create: (context) => WeeklyDrillStatsService(
         history: context.read<MixedDrillHistoryService>(),
       )..load(),
     ),
     Provider(create: (_) => const HandAnalyzerService()),
-    ChangeNotifierProvider(
-      create: (_) => TrainingPackPlayController()..load(),
-    ),
+    ChangeNotifierProvider(create: (_) => TrainingPackPlayController()..load()),
     ChangeNotifierProvider(create: (_) => TrainingSessionService()..load()),
     Provider(
       create: (context) => SessionManager(
