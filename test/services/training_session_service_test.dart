@@ -2,11 +2,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';
+import 'package:poker_analyzer/services/smart_review_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('basic session flow', () async {
+    SharedPreferences.setMockInitialValues({});
+    await SmartReviewService.instance.load();
     final s1 = TrainingPackSpot(id: 'a');
     final s2 = TrainingPackSpot(id: 'b');
     final tpl = TrainingPackTemplate(id: 't', name: 't', spots: [s1, s2]);

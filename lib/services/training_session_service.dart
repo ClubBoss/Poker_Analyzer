@@ -10,6 +10,7 @@ import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../screens/training_session_summary_screen.dart';
 import 'mistake_review_pack_service.dart';
+import 'smart_review_service.dart';
 import 'cloud_training_history_service.dart';
 import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
@@ -468,6 +469,9 @@ class TrainingSessionService extends ChangeNotifier {
     final spot =
         _spots.firstWhere((e) => e.id == spotId, orElse: () => TrainingPackSpot(id: ''));
     if (spot.id.isNotEmpty) {
+      if (first && !isCorrect) {
+        unawaited(SmartReviewService.instance.recordMistake(spot));
+      }
       for (final t in spot.tags.where((t) => t.startsWith('cat:'))) {
         final cat = t.substring(4);
         final stat = _categoryStats.putIfAbsent(cat, () => CategoryProgress());
