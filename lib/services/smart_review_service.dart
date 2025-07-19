@@ -1,6 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_spot.dart';
 import 'template_storage_service.dart';
+import 'training_pack_template_builder.dart';
+import 'training_session_service.dart';
+import '../screens/training_session_screen.dart';
 
 /// Stores IDs of spots where the user made a mistake for future review.
 class SmartReviewService {
@@ -33,7 +38,9 @@ class SmartReviewService {
 
   /// Returns the list of spots corresponding to recorded mistakes.
   Future<List<TrainingPackSpot>> getMistakeSpots(
-      TemplateStorageService templates) async {
+    TemplateStorageService templates, {
+    BuildContext? context,
+  }) async {
     if (_ids.isEmpty) return <TrainingPackSpot>[];
     final Map<String, TrainingPackSpot> map = {};
     for (final tpl in templates.templates) {
@@ -48,6 +55,45 @@ class SmartReviewService {
       final spot = map[id];
       if (spot != null) result.add(spot);
     }
+
+    if (context != null && result.length > 5) {
+      final builder = const TrainingPackTemplateBuilder();
+      final tpl = await builder.buildSimplifiedPack(result);
+      await showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Мы подобрали для вас упрощённую тренировку'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      await context
+          .read<TrainingSessionService>()
+          .startSession(tpl, persist: false);
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+      );
+      await clearMistakes();
+      await showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('🎯 Отлично! Ошибки проработаны'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return [];
+    }
+
     return result;
   }
 
@@ -64,4 +110,3 @@ class SmartReviewService {
   /// Returns true if a mistake for [spotId] is recorded.
   bool hasMistake(String spotId) => _ids.contains(spotId);
 }
-
