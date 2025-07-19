@@ -12,3 +12,6 @@ quiz:
   correctIndex: 1
 rangeImageUrl: 'ranges/sample.png'
 linkedPackId: 'pack1'
+tags:
+  - BTN
+  - push

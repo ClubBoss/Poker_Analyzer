@@ -14,6 +14,7 @@ class LessonLoaderService {
     if (cached != null) return cached;
     const files = [
       'assets/lessons/test_lesson.yaml',
+      'assets/lessons/lesson_without_tags.yaml',
     ];
     final steps = <LessonStep>[];
     for (final path in files) {

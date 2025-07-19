@@ -1,0 +1,6 @@
+meta:
+  schemaVersion: '3.0.0'
+id: 'lesson2'
+title: 'No Tag Lesson'
+introText: 'Another step.'
+linkedPackId: 'pack2'
