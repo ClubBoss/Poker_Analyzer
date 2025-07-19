@@ -3,7 +3,8 @@ import '../services/learning_path_progress_service.dart';
 import '../services/training_pack_template_service.dart';
 import '../main.dart';
 import '../widgets/stage_completion_banner.dart';
-import '../widgets/stage_header_with_progress.dart';
+
+import '../widgets/suggested_tip_banner.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'learning_path_completion_screen.dart';
 
@@ -36,9 +37,10 @@ class LearningPathScreen extends StatelessWidget {
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : ListView.builder(
-                  itemCount: stages.length,
+                  itemCount: stages.length + 1,
                   itemBuilder: (context, index) {
-                    final stage = stages[index];
+                    if (index == 0) return const SuggestedTipBanner();
+                    final stage = stages[index - 1];
                     return _StageSection(stage: stage);
                   },
                 ),
