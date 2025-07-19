@@ -58,7 +58,11 @@ class _StageSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        StageHeaderWithProgress(title: stage.title, progress: progress),
+        StageHeaderWithProgress(
+          title: stage.title,
+          progress: progress,
+          showProgress: !stage.isLocked,
+        ),
         const SizedBox(height: 8),
         StageCompletionBanner(title: stage.title),
         const SizedBox(height: 8),
