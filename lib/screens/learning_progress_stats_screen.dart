@@ -64,6 +64,9 @@ class _StageStatsTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: Icon(_icon(stage.levelIndex), color: color),
+        trailing: progress >= 1.0
+            ? const Icon(Icons.check_circle, color: Colors.green)
+            : null,
         title: Text(stage.title),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

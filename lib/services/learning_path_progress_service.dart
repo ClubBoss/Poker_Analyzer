@@ -24,6 +24,7 @@ class LearningStageState {
   final String title;
   final int levelIndex;
   final String goal;
+  final String? goalHint;
   final String? tip;
   final List<LearningStageItem> items;
   final bool isLocked;
@@ -32,6 +33,7 @@ class LearningStageState {
     required this.title,
     required this.levelIndex,
     required this.goal,
+    this.goalHint,
     this.tip,
     required this.items,
     this.isLocked = false,
@@ -128,6 +130,7 @@ class LearningPathProgressService {
           levelIndex: 1,
           title: 'Beginner',
           goal: 'Освой базовый пуш-фолд',
+          goalHint: 'Заверши все паки на 100%',
           tip:
               "Попробуй сначала сыграть пак 'Push/Fold Basics', чтобы освоиться с концепцией",
           items: [
@@ -157,6 +160,7 @@ class LearningPathProgressService {
           levelIndex: 2,
           title: 'Intermediate',
           goal: 'Изучи ICM и диапазоны 20bb',
+          goalHint: 'Пройди этап без ошибок',
           tip: 'Закрепи навыки прошлого уровня и изучи влияние ICM.',
           items: [
         LearningStageItem(
@@ -178,6 +182,7 @@ class LearningPathProgressService {
           levelIndex: 3,
           title: 'Advanced',
           goal: 'Углуби стратегию и эксплойт',
+          goalHint: 'Отточить эксплойтные решения',
           tip: 'Ищи возможности для эксплойта соперников.',
           items: [
         LearningStageItem(
@@ -229,6 +234,8 @@ class LearningPathProgressService {
           title: stage.title,
           levelIndex: stage.levelIndex,
           goal: stage.goal,
+          goalHint: stage.goalHint,
+          tip: stage.tip,
           items: items,
           isLocked: !stageUnlocked));
       prevCompleted = unlockAllStages ? true : completedStage;

@@ -78,6 +78,7 @@ class _StageSection extends StatelessWidget {
           title: stage.title,
           levelIndex: stage.levelIndex,
           goal: stage.goal,
+          goalHint: stage.goalHint,
           tip: stage.tip,
           progress: progress,
           showProgress: !stage.isLocked,
