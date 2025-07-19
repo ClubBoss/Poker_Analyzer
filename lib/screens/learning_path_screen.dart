@@ -4,6 +4,7 @@ import '../services/training_pack_template_service.dart';
 import '../main.dart';
 import '../widgets/stage_completion_banner.dart';
 import 'v2/training_pack_play_screen.dart';
+import 'learning_path_completion_screen.dart';
 
 class LearningPathScreen extends StatelessWidget {
   const LearningPathScreen({super.key});
@@ -14,6 +15,20 @@ class LearningPathScreen extends StatelessWidget {
       future: LearningPathProgressService.instance.getCurrentStageState(),
       builder: (context, snapshot) {
         final stages = snapshot.data ?? [];
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          LearningPathProgressService.instance.isAllStagesCompleted().then((done) {
+            if (done && context.mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const LearningPathCompletionScreen(),
+                ),
+              );
+            }
+          });
+        }
+
         return Scaffold(
           appBar: AppBar(title: const Text('📚 Путь обучения')),
           backgroundColor: const Color(0xFF121212),
