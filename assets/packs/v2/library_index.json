@@ -1,1 +1,57 @@
-[]
+[
+  {
+    "id": "cbet_ip",
+    "name": "CBet IP",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 40,
+    "spotCount": 2,
+    "positions": ["btn", "bb"],
+    "tags": ["postflop", "cbet"]
+  },
+  {
+    "id": "check_raise_oop",
+    "name": "Check-Raise OOP",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 50,
+    "spotCount": 1,
+    "positions": ["bb", "btn"],
+    "tags": ["postflop", "check-raise"]
+  },
+  {
+    "id": "float_turn",
+    "name": "Turn Float IP",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 50,
+    "spotCount": 1,
+    "positions": ["btn", "sb"],
+    "tags": ["postflop", "float"]
+  },
+  {
+    "id": "donk_bet_flop",
+    "name": "Donk Bet Flop",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 30,
+    "spotCount": 1,
+    "positions": ["bb", "btn"],
+    "tags": ["postflop", "donk"]
+  },
+  {
+    "id": "river_bluffcatch",
+    "name": "River Bluffcatch",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 40,
+    "spotCount": 1,
+    "positions": ["bb", "btn"],
+    "tags": ["postflop", "bluffcatch"]
+  }
+]

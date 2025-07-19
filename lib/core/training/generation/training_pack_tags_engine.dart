@@ -16,10 +16,30 @@ class TrainingPackTagsEngine {
       final st = s.hand.stacks['${s.hand.heroIndex}']?.round();
       if (st != null && st == 10) pushfold = true;
       if (s.hand.board.length >= 5) river = true;
+      if (s.villainAction == 'check' &&
+          s.heroOptions.contains('bet') &&
+          s.street == 1) {
+        set.add('cbet');
+      }
+      if (s.villainAction == 'bet' && s.heroOptions.contains('raise')) {
+        set.add('check-raise');
+      }
+      if (s.villainAction == 'bet' && s.heroOptions.contains('call')) {
+        if (s.street == 3) {
+          set.add('bluffcatch');
+        } else {
+          set.add('float');
+        }
+      }
+      if ((s.villainAction == null || s.villainAction == 'none') &&
+          s.heroOptions.contains('bet')) {
+        set.add('donk');
+      }
     }
     if (streets.length >= 2) set.add('postflop');
     if (pushfold || template.bb == 10) set.add('pushfold');
-    if (positions.length >= 3 || template.positions.length >= 3) set.add('multiway');
+    if (positions.length >= 3 || template.positions.length >= 3)
+      set.add('multiway');
     if (river) set.add('river');
     final list = set.toList();
     list.sort();
