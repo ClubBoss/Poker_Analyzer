@@ -6,6 +6,7 @@ import '../models/v3/lesson_step.dart';
 import '../models/v3/lesson_track.dart';
 import '../services/lesson_loader_service.dart';
 import '../services/lesson_progress_service.dart';
+import '../services/lesson_path_progress_service.dart';
 import '../services/learning_track_engine.dart';
 import 'lesson_step_screen.dart';
 import 'track_selector_screen.dart';
@@ -67,15 +68,49 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : (steps == null || steps.isEmpty)
-              ? const Center(
-                  child: Text(
-                    'Нет шагов',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: steps!.length,
-                  itemBuilder: (context, index) {
+                  ? const Center(
+                      child: Text(
+                        'Нет шагов',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        FutureBuilder<LessonPathProgress>(
+                          future: LessonPathProgressService.instance
+                              .computeProgress(),
+                          builder: (context, progressSnapshot) {
+                            final progress = progressSnapshot.data;
+                            if (progress == null || progress.total == 0) {
+                              return const SizedBox.shrink();
+                            }
+                            final percentInt = progress.percent.round();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Прогресс: $percentInt%',
+                                    style:
+                                        const TextStyle(color: Colors.white),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  LinearProgressIndicator(
+                                    value: progress.percent / 100,
+                                    color: Colors.orange,
+                                    backgroundColor: Colors.white24,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                              itemCount: steps!.length,
+                              itemBuilder: (context, index) {
                     final step = steps![index];
                     final intro = step.introText;
                     final preview = intro.length > 100
@@ -117,6 +152,9 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                     );
                   },
                 ),
+              ),
+            ],
+          ),
         );
       },
     );
