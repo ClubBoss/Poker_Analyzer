@@ -102,5 +102,13 @@ class TagMasteryService {
       ..sort((a, b) => b.value.compareTo(a.value));
     return [for (final e in list.take(count)) e.key];
   }
+
+  /// Returns the weakest [count] tags sorted by mastery ascending.
+  Future<List<String>> bottomWeakTags(int count) async {
+    final map = await computeMastery();
+    final list = map.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    return [for (final e in list.take(count)) e.key];
+  }
 }
 
