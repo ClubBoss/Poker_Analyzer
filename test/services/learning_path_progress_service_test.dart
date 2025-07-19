@@ -10,6 +10,7 @@ void main() {
     LearningPathProgressService.instance
       ..mock = true;
     await LearningPathProgressService.instance.resetProgress();
+    await LearningPathProgressService.instance.resetCustomPath();
   });
 
   test('first item available when nothing completed', () async {
@@ -76,5 +77,13 @@ void main() {
     await LearningPathProgressService.instance.markCustomPathStarted();
     started = await LearningPathProgressService.instance.isCustomPathStarted();
     expect(started, isTrue);
+  });
+
+  test('custom path completion flag persists', () async {
+    var done = await LearningPathProgressService.instance.isCustomPathCompleted();
+    expect(done, isFalse);
+    await LearningPathProgressService.instance.markCustomPathCompleted();
+    done = await LearningPathProgressService.instance.isCustomPathCompleted();
+    expect(done, isTrue);
   });
 }

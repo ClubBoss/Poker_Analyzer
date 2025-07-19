@@ -512,6 +512,10 @@ class TrainingSessionService extends ChangeNotifier {
     _session!.index += 1;
     if (_session!.index >= _spots.length) {
       _session!.completedAt = DateTime.now();
+      if (_template?.tags.contains('customPath') ?? false) {
+        unawaited(
+            LearningPathProgressService.instance.markCustomPathCompleted());
+      }
       if (!_paused && _resumedAt != null) {
         _accumulated += DateTime.now().difference(_resumedAt!);
         _resumedAt = null;
