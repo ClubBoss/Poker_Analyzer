@@ -11,6 +11,7 @@ import '../helpers/training_pack_storage.dart';
 import '../screens/training_session_summary_screen.dart';
 import 'mistake_review_pack_service.dart';
 import 'smart_review_service.dart';
+import 'learning_path_progress_service.dart';
 import 'cloud_training_history_service.dart';
 import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
@@ -316,6 +317,10 @@ class TrainingSessionService extends ChangeNotifier {
   }) async {
     if (persist) await _openBox();
     unawaited(DailyReminderScheduler.instance.cancelAll());
+    if (template.tags.contains('customPath')) {
+      unawaited(
+          LearningPathProgressService.instance.markCustomPathStarted());
+    }
     _template = template;
     final total = template.totalWeight;
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;

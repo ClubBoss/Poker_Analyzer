@@ -3,6 +3,7 @@ import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';
 import 'package:poker_analyzer/services/smart_review_service.dart';
+import 'package:poker_analyzer/services/learning_path_progress_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -24,5 +25,19 @@ void main() {
     service.submitResult('a', 'fold', true);
     expect(service.results['a'], true);
     expect(service.correctCount, 1);
+  });
+
+  test('custom path session marks started flag', () async {
+    SharedPreferences.setMockInitialValues({});
+    await SmartReviewService.instance.load();
+    LearningPathProgressService.instance
+      ..mock = true;
+    await LearningPathProgressService.instance.resetProgress();
+    final spot = TrainingPackSpot(id: 'c');
+    final tpl = TrainingPackTemplate(id: 'c', name: 'c', spots: [spot], tags: ['customPath']);
+    final service = TrainingSessionService();
+    await service.startSession(tpl, persist: false);
+    final started = await LearningPathProgressService.instance.isCustomPathStarted();
+    expect(started, isTrue);
   });
 }

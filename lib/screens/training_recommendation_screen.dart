@@ -42,6 +42,8 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
 
     final global = await TrainingPackStatsService.getGlobalStats();
     final pathDone = await LearningPathProgressService.instance.isAllStagesCompleted();
+    final customStarted =
+        await LearningPathProgressService.instance.isCustomPathStarted();
     final weakTags = await context.read<TagMasteryService>().topWeakTags(1);
     final hasWeak = weakTags.isNotEmpty;
     final hasMistakes = SmartReviewService.instance.hasMistakes();
@@ -53,7 +55,7 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
         ev: global.averageEV,
         icm: global.averageEV,
         starterPathCompleted: pathDone,
-        customPathStarted: false,
+        customPathStarted: customStarted,
         hasWeakTags: hasWeak,
         hasMistakes: hasMistakes,
       ),
@@ -138,6 +140,9 @@ class _PackCard extends StatelessWidget {
     final pct = pack.pctComplete;
     return GestureDetector(
       onTap: () async {
+        if (pack.tags.contains('customPath')) {
+          await LearningPathProgressService.instance.markCustomPathStarted();
+        }
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: pack)),
