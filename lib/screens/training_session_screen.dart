@@ -24,6 +24,7 @@ import '../services/tag_mastery_service.dart';
 import '../services/user_goal_engine.dart';
 import '../services/goal_toast_service.dart';
 import '../services/learning_path_progress_service.dart';
+import '../services/daily_learning_goal_service.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -171,6 +172,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           tpl,
           type: TrainingType.pushFold,
         )));
+        unawaited(context.read<DailyLearningGoalService>().markCompleted());
       } else {
         await prefs.setInt(
             'progress_tpl_${tpl.id}', service.session?.index ?? 0);
@@ -269,6 +271,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       await LearningPathProgressService.instance.markCompleted(tpl.id);
       await prefs.setString(
           'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
+      unawaited(context.read<DailyLearningGoalService>().markCompleted());
       await prefs.setString(
           'last_trained_tpl_${tpl.id}', DateTime.now().toIso8601String());
       await prefs.setDouble('last_accuracy_tpl_${tpl.id}', acc);

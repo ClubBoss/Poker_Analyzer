@@ -47,6 +47,7 @@ import 'services/weekly_challenge_service.dart';
 import 'services/streak_counter_service.dart';
 import 'services/spot_of_the_day_service.dart';
 import 'services/daily_goals_service.dart';
+import 'services/daily_learning_goal_service.dart';
 import 'services/all_in_players_service.dart';
 import 'services/folded_players_service.dart';
 import 'services/action_sync_service.dart';
@@ -261,6 +262,7 @@ List<SingleChildWidget> buildTrainingProviders() {
         hands: context.read<SavedHandManagerService>(),
       )..load(),
     ),
+    ChangeNotifierProvider(create: (_) => DailyLearningGoalService()..load()),
     ChangeNotifierProvider(create: (_) => AllInPlayersService()),
     ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
     ChangeNotifierProvider(
