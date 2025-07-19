@@ -117,6 +117,9 @@ class _LearningStageTileState extends State<LearningStageTile> {
       case LearningItemStatus.completed:
         color = Colors.green.shade700;
         break;
+      case LearningItemStatus.inProgress:
+        color = Colors.yellow.shade700;
+        break;
       case LearningItemStatus.available:
         color = Colors.blueGrey.shade700;
         break;
@@ -125,9 +128,22 @@ class _LearningStageTileState extends State<LearningStageTile> {
         color = Colors.grey.shade800;
         break;
     }
-    final trailing = item.status == LearningItemStatus.completed
-        ? const Icon(Icons.emoji_events, color: Colors.amber)
-        : Text('${(item.progress * 100).round()}%');
+    late final Widget trailing;
+    switch (item.status) {
+      case LearningItemStatus.completed:
+        trailing = const Icon(Icons.emoji_events, color: Colors.amber);
+        break;
+      case LearningItemStatus.inProgress:
+        trailing = const Text('Продолжить');
+        break;
+      case LearningItemStatus.available:
+        trailing = const Text('Начать');
+        break;
+      case LearningItemStatus.locked:
+      default:
+        trailing = Text('${(item.progress * 100).round()}%');
+        break;
+    }
     return AnimatedSlide(
       offset: _visible ? Offset.zero : const Offset(0, 0.1),
       duration: const Duration(milliseconds: 300),
@@ -184,6 +200,9 @@ double computeStageProgress(List<LearningStageItem> items) {
         break;
       case LearningItemStatus.available:
         sum += 0.5;
+        break;
+      case LearningItemStatus.inProgress:
+        sum += 0.75;
         break;
       case LearningItemStatus.locked:
       default:
