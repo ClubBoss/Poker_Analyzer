@@ -6,6 +6,7 @@ import '../services/adaptive_next_step_engine.dart';
 import '../services/lesson_loader_service.dart';
 import '../models/v3/lesson_step.dart';
 import '../screens/lesson_step_screen.dart';
+import '../screens/lesson_recap_screen.dart';
 
 class LessonSuggestionBanner extends StatefulWidget {
   const LessonSuggestionBanner({super.key});
@@ -34,7 +35,17 @@ class _LessonSuggestionBannerState extends State<LessonSuggestionBanner> {
   void _openStep(LessonStep step) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => LessonStepScreen(step: step)),
+      MaterialPageRoute(
+        builder: (_) => LessonStepScreen(
+          step: step,
+          onStepComplete: (s) async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => LessonRecapScreen(step: s)),
+            );
+          },
+        ),
+      ),
     );
   }
 

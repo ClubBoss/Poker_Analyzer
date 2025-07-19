@@ -9,7 +9,8 @@ import 'training_session_screen.dart';
 
 class LessonStepScreen extends StatefulWidget {
   final LessonStep step;
-  const LessonStepScreen({super.key, required this.step});
+  final Future<void> Function(LessonStep step)? onStepComplete;
+  const LessonStepScreen({super.key, required this.step, this.onStepComplete});
 
   @override
   State<LessonStepScreen> createState() => _LessonStepScreenState();
@@ -93,7 +94,11 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
                 onPressed: () async {
                   await LessonProgressService.instance
                       .markCompleted(step.id);
-                  if (mounted) Navigator.pop(context);
+                  if (widget.onStepComplete != null) {
+                    await widget.onStepComplete!(step);
+                  } else if (mounted) {
+                    Navigator.pop(context);
+                  }
                 },
                 child: const Text('Завершить шаг'),
               ),
