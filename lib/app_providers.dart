@@ -299,6 +299,8 @@ List<SingleChildWidget> buildTrainingProviders() {
         stats: context.read<TrainingStatsService>(),
         hands: context.read<SavedHandManagerService>(),
         streak: context.read<StreakService>(),
+        dailyGoal: context.read<DailyLearningGoalService>(),
+        mastery: context.read<TagMasteryService>(),
         xp: context.read<XPTrackerService>(),
       ),
     ),
