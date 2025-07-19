@@ -112,6 +112,34 @@ class AchievementService extends ChangeNotifier {
         unlocked: prefs.getBool('${_key}tag_analyst') ?? false,
         date: _parse(prefs.getString('${_key}tag_analyst_date')),
       ),
+      SimpleAchievement(
+        id: 'first_training_done',
+        title: 'Первая тренировка',
+        icon: Icons.play_circle,
+        unlocked: prefs.getBool('${_key}first_training_done') ?? false,
+        date: _parse(prefs.getString('${_key}first_training_done_date')),
+      ),
+      SimpleAchievement(
+        id: 'learning_path_3',
+        title: '3 стадии пройдены',
+        icon: Icons.grade,
+        unlocked: prefs.getBool('${_key}learning_path_3') ?? false,
+        date: _parse(prefs.getString('${_key}learning_path_3_date')),
+      ),
+      SimpleAchievement(
+        id: 'beginner_master',
+        title: 'Мастер Beginner',
+        icon: Icons.workspace_premium,
+        unlocked: prefs.getBool('${_key}beginner_master') ?? false,
+        date: _parse(prefs.getString('${_key}beginner_master_date')),
+      ),
+      SimpleAchievement(
+        id: 'path_completed',
+        title: 'Путь завершён',
+        icon: Icons.emoji_events,
+        unlocked: prefs.getBool('${_key}path_completed') ?? false,
+        date: _parse(prefs.getString('${_key}path_completed_date')),
+      ),
     ]);
     stats.sessionsStream.listen((_) => checkAll());
     stats.handsStream.listen((_) => checkAll());
@@ -142,6 +170,15 @@ class AchievementService extends ChangeNotifier {
       showAchievementUnlockedOverlay(ctx, a.icon, a.title);
     }
     notifyListeners();
+  }
+
+  /// Public wrapper to unlock an achievement by [id].
+  Future<void> unlock(String id) => _unlock(id);
+
+  /// Returns `true` if achievement with [id] has been unlocked.
+  bool isUnlocked(String id) {
+    final i = _achievements.indexWhere((a) => a.id == id);
+    return i != -1 && _achievements[i].unlocked;
   }
 
   Future<void> checkAll() async {
@@ -312,6 +349,42 @@ class AchievementService extends ChangeNotifier {
         progress: unlocked['tag_analyst'] == true ? 1 : 0,
         thresholds: const [1],
         iconsPerLevel: const [Icons.search],
+        category: 'Learning',
+      ),
+      AchievementInfo(
+        id: 'first_training_done',
+        title: 'Первая тренировка',
+        description: 'Завершите любой тренировочный пак',
+        progress: unlocked['first_training_done'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.play_circle],
+        category: 'Learning',
+      ),
+      AchievementInfo(
+        id: 'learning_path_3',
+        title: '3 стадии пройдены',
+        description: 'Завершите три стадии обучения',
+        progress: unlocked['learning_path_3'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.grade],
+        category: 'Learning',
+      ),
+      AchievementInfo(
+        id: 'beginner_master',
+        title: 'Мастер Beginner',
+        description: 'Все паки уровня Beginner пройдены',
+        progress: unlocked['beginner_master'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.workspace_premium],
+        category: 'Learning',
+      ),
+      AchievementInfo(
+        id: 'path_completed',
+        title: 'Путь завершён',
+        description: 'Завершите все стадии обучения',
+        progress: unlocked['path_completed'] == true ? 1 : 0,
+        thresholds: const [1],
+        iconsPerLevel: const [Icons.emoji_events],
         category: 'Learning',
       ),
     ];

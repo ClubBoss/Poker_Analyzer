@@ -10,6 +10,7 @@ import 'session_result_screen.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/achievement_service.dart';
+import '../services/achievement_trigger_engine.dart';
 import '../services/smart_review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_session.dart';
@@ -330,6 +331,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         ),
       );
       AchievementService.instance.checkAll();
+      await AchievementTriggerEngine.instance.checkAndTriggerAchievements();
       await _checkGoalProgress();
     }
   }
