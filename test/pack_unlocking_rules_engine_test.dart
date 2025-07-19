@@ -22,8 +22,8 @@ void main() {
       trainingType: TrainingType.pushFold,
       unlockRules: const UnlockRules(requiredPacks: ['a']),
     );
-    final res = await PackUnlockingRulesEngine.instance.check(tpl);
-    expect(res.unlocked, isFalse);
+    final unlocked = await PackUnlockingRulesEngine.instance.isUnlocked(tpl);
+    expect(unlocked, isFalse);
   });
 
   test('unlocked when requirements met', () async {
@@ -36,8 +36,8 @@ void main() {
     PackUnlockingRulesEngine.instance
       ..markMockCompleted('a')
       ..mockAverageEV = 1.5;
-    final res = await PackUnlockingRulesEngine.instance.check(tpl);
-    expect(res.unlocked, isTrue);
+    final unlocked = await PackUnlockingRulesEngine.instance.isUnlocked(tpl);
+    expect(unlocked, isTrue);
   });
 
   test('uses unlock hint when provided', () async {
@@ -50,8 +50,9 @@ void main() {
         unlockHint: 'Complete pack A first',
       ),
     );
-    final res = await PackUnlockingRulesEngine.instance.check(tpl);
-    expect(res.unlocked, isFalse);
-    expect(res.reason, 'Complete pack A first');
+    final unlocked = await PackUnlockingRulesEngine.instance.isUnlocked(tpl);
+    expect(unlocked, isFalse);
+    expect(PackUnlockingRulesEngine.instance.getUnlockRule(tpl)?.unlockHint,
+        'Complete pack A first');
   });
 }
