@@ -89,6 +89,7 @@ import 'services/hand_analyzer_service.dart';
 import 'services/tag_mastery_service.dart';
 import 'services/goal_suggestion_engine.dart';
 import 'services/goal_sync_service.dart';
+import 'services/tag_coverage_service.dart';
 
 late final AuthService auth;
 late final RemoteConfigService rc;
@@ -426,6 +427,7 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) =>
           TagMasteryService(logs: context.read<SessionLogService>()),
     ),
+    Provider(create: (_) => TagCoverageService()),
     Provider(
       create: (context) => GoalSuggestionEngine(
         mastery: context.read<TagMasteryService>(),
