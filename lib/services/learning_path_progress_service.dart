@@ -24,6 +24,25 @@ class LearningStageState {
   final List<LearningStageItem> items;
 
   const LearningStageState({required this.title, required this.items});
+
+  static double computeStageProgress(List<LearningStageItem> items) {
+    if (items.isEmpty) return 0.0;
+    var sum = 0.0;
+    for (final item in items) {
+      switch (item.status) {
+        case LearningItemStatus.completed:
+          sum += 1.0;
+          break;
+        case LearningItemStatus.available:
+          sum += 0.5;
+          break;
+        case LearningItemStatus.locked:
+        default:
+          sum += 0.0;
+      }
+    }
+    return sum / items.length;
+  }
 }
 
 class LearningPathProgressService {

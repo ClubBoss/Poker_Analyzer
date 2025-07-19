@@ -4,13 +4,32 @@ import '../services/training_pack_template_service.dart';
 import '../main.dart';
 import 'v2/training_pack_play_screen.dart';
 
-class LearningPathScreen extends StatelessWidget {
+class LearningPathScreen extends StatefulWidget {
   const LearningPathScreen({super.key});
+
+  @override
+  State<LearningPathScreen> createState() => _LearningPathScreenState();
+}
+
+class _LearningPathScreenState extends State<LearningPathScreen> {
+  late Future<List<LearningStageState>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = LearningPathProgressService.instance.getCurrentStageState();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _future = LearningPathProgressService.instance.getCurrentStageState();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<LearningStageState>>(
-      future: LearningPathProgressService.instance.getCurrentStageState(),
+      future: _future,
       builder: (context, snapshot) {
         final stages = snapshot.data ?? [];
         return Scaffold(
@@ -22,7 +41,7 @@ class LearningPathScreen extends StatelessWidget {
                   itemCount: stages.length,
                   itemBuilder: (context, index) {
                     final stage = stages[index];
-                    return _StageSection(stage: stage);
+                    return _StageSection(stage: stage, onRefresh: _load);
                   },
                 ),
         );
@@ -33,7 +52,8 @@ class LearningPathScreen extends StatelessWidget {
 
 class _StageSection extends StatelessWidget {
   final LearningStageState stage;
-  const _StageSection({required this.stage});
+  final VoidCallback onRefresh;
+  const _StageSection({required this.stage, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +62,39 @@ class _StageSection extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(16),
-          child: Text(
-            stage.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                stage.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (stage.items.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: LearningStageState.computeStageProgress(stage.items),
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation(
+                        Theme.of(context).colorScheme.primary),
+                    minHeight: 6,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
         for (int i = 0; i < stage.items.length; i++)
-          LearningStageTile(item: stage.items[i], index: i),
+          LearningStageTile(
+            item: stage.items[i],
+            index: i,
+            onRefresh: onRefresh,
+          ),
       ],
     );
   }
@@ -61,7 +103,13 @@ class _StageSection extends StatelessWidget {
 class LearningStageTile extends StatefulWidget {
   final LearningStageItem item;
   final int index;
-  const LearningStageTile({super.key, required this.item, required this.index});
+  final VoidCallback onRefresh;
+  const LearningStageTile({
+    super.key,
+    required this.item,
+    required this.index,
+    required this.onRefresh,
+  });
 
   @override
   State<LearningStageTile> createState() => _LearningStageTileState();
@@ -129,13 +177,14 @@ class _LearningStageTileState extends State<LearningStageTile> {
                       );
                       return;
                     }
-                    Navigator.push(
+                    await Navigator.push(
                       ctx,
                       MaterialPageRoute(
                         builder: (_) =>
                             TrainingPackPlayScreen(template: tpl, original: tpl),
                       ),
                     );
+                    if (mounted) widget.onRefresh();
                   },
           ),
         ),
