@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'training_progress_service.dart';
 
-enum LearningItemStatus { locked, available, completed }
+enum LearningItemStatus { locked, available, inProgress, completed }
 
 class LearningStageItem {
   final String title;
@@ -105,14 +106,14 @@ class LearningPathProgressService {
         LearningStageItem(
           title: 'Push/Fold Basics',
           icon: Icons.play_circle_fill,
-          progress: 1.0,
+          progress: 0.0,
           status: LearningItemStatus.locked,
           templateId: 'starter_pushfold_10bb',
         ),
         LearningStageItem(
           title: '10bb Ranges',
           icon: Icons.school,
-          progress: 0.6,
+          progress: 0.0,
           status: LearningItemStatus.locked,
           templateId: 'starter_pushfold_10bb',
         ),
@@ -155,17 +156,23 @@ class LearningPathProgressService {
       final items = <LearningStageItem>[];
       var unlock = true;
       for (final item in stage.items) {
-        final done =
-            item.templateId != null && completed(item.templateId!);
+        final tplId = item.templateId;
+        final done = tplId != null && completed(tplId);
+        double prog = item.progress;
+        if (tplId != null) {
+          prog = await TrainingProgressService.instance.getProgress(tplId);
+        }
         final status = done
             ? LearningItemStatus.completed
-            : unlock
-                ? LearningItemStatus.available
-                : LearningItemStatus.locked;
+            : prog > 0 && prog < 1 && tplId != null
+                ? LearningItemStatus.inProgress
+                : unlock
+                    ? LearningItemStatus.available
+                    : LearningItemStatus.locked;
         items.add(LearningStageItem(
           title: item.title,
           icon: item.icon,
-          progress: item.progress,
+          progress: prog,
           status: status,
           templateId: item.templateId,
         ));

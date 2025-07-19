@@ -1918,6 +1918,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('📚 Learning Path Demo (mock)'),
+                onTap: () async {
+                  final service = LearningPathProgressService.instance;
+                  service.mock = true;
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LearningPathScreen()),
+                  );
+                  service.mock = false;
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🧹 Сбросить интро обучения'),
                 onTap: () async {
                   await LearningPathProgressService.instance.resetIntroSeen();
