@@ -4,10 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v3/lesson_track.dart';
 import '../models/v3/lesson_step.dart';
+import '../models/v3/track_meta.dart';
 import '../services/learning_track_engine.dart';
 import '../services/lesson_loader_service.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/lesson_progress_tracker_service.dart';
+import '../services/lesson_track_meta_service.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_recap_screen.dart';
 
@@ -36,20 +38,35 @@ class _TrackProgressDashboardScreenState
     final completed =
         await LessonProgressTrackerService.instance.getCompletedSteps();
     final steps = await LessonLoaderService.instance.loadAllLessons();
+    final Map<String, TrackMeta?> meta = {};
+    for (final t in tracks) {
+      var m = await LessonTrackMetaService.instance.load(t.id);
+      final percent = progress[t.id] ?? 0.0;
+      if (percent > 0 && (m?.startedAt == null)) {
+        await LessonTrackMetaService.instance.markStarted(t.id);
+        m = await LessonTrackMetaService.instance.load(t.id);
+      }
+      if (percent >= 100 && (m?.completedAt == null)) {
+        await LessonTrackMetaService.instance.markCompleted(t.id);
+        m = await LessonTrackMetaService.instance.load(t.id);
+      }
+      meta[t.id] = m;
+    }
     return {
       'tracks': tracks,
       'progress': progress,
       'completed': completed,
       'steps': steps,
+      'meta': meta,
     };
   }
 
-  Future<void> _continueTrack(
-      LessonTrack track, Map<String, bool> completed, List<LessonStep> steps) async {
+  Future<void> _continueTrack(LessonTrack track, Map<String, bool> completed,
+      List<LessonStep> steps) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('lesson_selected_track', track.id);
-    final id = track.stepIds
-        .firstWhere((e) => completed[e] != true, orElse: () => track.stepIds.last);
+    final id = track.stepIds.firstWhere((e) => completed[e] != true,
+        orElse: () => track.stepIds.last);
     final step = steps.firstWhereOrNull((s) => s.id == id);
     if (!mounted || step == null) return;
     await Navigator.push(
@@ -68,6 +85,13 @@ class _TrackProgressDashboardScreenState
     );
   }
 
+  String _daysAgo(DateTime dt) {
+    final days = DateTime.now().difference(dt).inDays;
+    if (days <= 0) return 'сегодня';
+    if (days == 1) return '1 день назад';
+    return '$days дней назад';
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -78,6 +102,7 @@ class _TrackProgressDashboardScreenState
         final progress = data?['progress'] as Map<String, double>? ?? {};
         final completed = data?['completed'] as Map<String, bool>? ?? {};
         final steps = data?['steps'] as List<LessonStep>? ?? [];
+        final meta = data?['meta'] as Map<String, TrackMeta?>? ?? {};
 
         return Scaffold(
           appBar: AppBar(title: const Text('Прогресс треков')),
@@ -97,12 +122,14 @@ class _TrackProgressDashboardScreenState
                         final track = tracks[index];
                         final percent = progress[track.id] ?? 0.0;
                         final total = track.stepIds.length;
-                        final done =
-                            track.stepIds.where((id) => completed[id] == true).length;
+                        final done = track.stepIds
+                            .where((id) => completed[id] == true)
+                            .length;
+                        final trackMeta = meta[track.id];
                         return Card(
                           color: const Color(0xFF1E1E1E),
-                          margin:
-                              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           child: ListTile(
                             title: Text(track.title),
                             subtitle: Column(
@@ -118,6 +145,26 @@ class _TrackProgressDashboardScreenState
                                   color: Colors.orange,
                                   backgroundColor: Colors.white24,
                                 ),
+                                if (trackMeta != null &&
+                                    trackMeta.startedAt != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '🟢 Начато: ${_daysAgo(trackMeta.startedAt!)}',
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                  if (trackMeta.completedAt != null)
+                                    Text(
+                                      '🏁 Завершено: ${_daysAgo(trackMeta.completedAt!)}',
+                                      style: const TextStyle(
+                                          color: Colors.white70),
+                                    ),
+                                  Text(
+                                    '🔁 Пройдено: ${trackMeta.timesCompleted} раз',
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                ],
                               ],
                             ),
                             trailing: ElevatedButton(
