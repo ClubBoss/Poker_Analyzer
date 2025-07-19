@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/v3/lesson_step.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/training_session_service.dart';
+import '../services/lesson_progress_service.dart';
 import 'training_session_screen.dart';
 
 class LessonStepScreen extends StatefulWidget {
@@ -89,7 +90,11 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
                 child: const Text('Начать тренировку'),
               )
             : ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () async {
+                  await LessonProgressService.instance
+                      .markCompleted(step.id);
+                  if (mounted) Navigator.pop(context);
+                },
                 child: const Text('Завершить шаг'),
               ),
       ),

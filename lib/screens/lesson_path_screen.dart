@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/v3/lesson_step.dart';
 import '../services/lesson_loader_service.dart';
+import '../services/lesson_progress_service.dart';
 import 'lesson_step_screen.dart';
 
 class LessonPathScreen extends StatefulWidget {
@@ -12,20 +13,25 @@ class LessonPathScreen extends StatefulWidget {
 }
 
 class _LessonPathScreenState extends State<LessonPathScreen> {
-  late Future<List<LessonStep>> _future;
+  late Future<List<dynamic>> _future;
 
   @override
   void initState() {
     super.initState();
-    _future = LessonLoaderService.instance.loadAllLessons();
+    _future = Future.wait([
+      LessonLoaderService.instance.loadAllLessons(),
+      LessonProgressService.instance.getCompletedSteps(),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<LessonStep>>(
+    return FutureBuilder<List<dynamic>>(
       future: _future,
       builder: (context, snapshot) {
-        final steps = snapshot.data;
+        final data = snapshot.data;
+        final steps = data != null ? data[0] as List<LessonStep> : null;
+        final completed = data != null ? data[1] as Set<String> : <String>{};
         return Scaffold(
           appBar: AppBar(title: const Text('Учебный путь')),
           backgroundColor: const Color(0xFF121212),
@@ -46,10 +52,15 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                     final preview = intro.length > 100
                         ? '${intro.substring(0, 100)}...'
                         : intro;
-                    final statusIcon = index == 0
-                        ? '🟢'
-                        : (index % 3 == 1 ? '🟡' : '✅');
-                    final buttonLabel = index == 0 ? 'Начать' : 'Продолжить';
+                    final firstIncomplete =
+                        steps.indexWhere((s) => !completed.contains(s.id));
+                    final isDone = completed.contains(step.id);
+                    final statusIcon = isDone
+                        ? '✅'
+                        : (index == firstIncomplete ? '🟡' : '🟢');
+                    final buttonLabel = isDone
+                        ? 'Открыть'
+                        : (index == firstIncomplete ? 'Начать' : 'Продолжить');
                     return Card(
                       color: const Color(0xFF1E1E1E),
                       margin: const EdgeInsets.symmetric(
