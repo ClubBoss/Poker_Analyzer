@@ -1,0 +1,14 @@
+meta:
+  schemaVersion: '3.0.0'
+id: 'lesson1'
+title: 'Sample Lesson'
+introText: 'Welcome to the trainer.'
+quiz:
+  question: 'What is 2 + 2?'
+  options:
+    - '3'
+    - '4'
+    - '5'
+  correctIndex: 1
+rangeImageUrl: 'ranges/sample.png'
+linkedPackId: 'pack1'
