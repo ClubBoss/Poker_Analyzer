@@ -9,6 +9,7 @@ import '../models/player_model.dart';
 import '../models/training_spot.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import 'daily_challenge_streak_service.dart';
 
 /// Singleton service managing the Daily Challenge spot logic.
 class DailyChallengeService extends ChangeNotifier {
@@ -85,6 +86,7 @@ class DailyChallengeService extends ChangeNotifier {
     _completed = true;
     await prefs.setString(_dateKey, _date!.toIso8601String());
     await prefs.setBool(_completedKey, true);
+    await DailyChallengeStreakService.instance.updateStreak();
     notifyListeners();
   }
 
