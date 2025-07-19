@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 
 class StageHeaderWithProgress extends StatelessWidget {
   final String title;
+  final int levelIndex;
+  final String goal;
   final double progress;
   final bool showProgress;
-  final int levelIndex;
   const StageHeaderWithProgress({
     super.key,
     required this.title,
-    required this.progress,
     required this.levelIndex,
+    required this.goal,
+    required this.progress,
     this.showProgress = true,
   });
 
@@ -35,6 +37,17 @@ class StageHeaderWithProgress extends StatelessWidget {
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 2),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 300),
+            builder: (context, value, child) =>
+                Opacity(opacity: value, child: child),
+            child: Text(
+              goal,
+              style: const TextStyle(color: Colors.white70),
             ),
           ),
           if (showProgress) ...[

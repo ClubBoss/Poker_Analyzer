@@ -22,15 +22,17 @@ class LearningStageItem {
 
 class LearningStageState {
   final String title;
+  final int levelIndex;
+  final String goal;
   final List<LearningStageItem> items;
   final bool isLocked;
-  final int levelIndex;
 
   const LearningStageState({
     required this.title,
+    required this.levelIndex,
+    required this.goal,
     required this.items,
     this.isLocked = false,
-    required this.levelIndex,
   });
 }
 
@@ -120,7 +122,11 @@ class LearningPathProgressService {
     }
 
     final stages = [
-      LearningStageState(levelIndex: 1, title: 'Beginner', items: [
+      LearningStageState(
+          levelIndex: 1,
+          title: 'Beginner',
+          goal: 'Освой базовый пуш-фолд',
+          items: [
         LearningStageItem(
           title: 'Push/Fold Basics',
           icon: Icons.play_circle_fill,
@@ -143,7 +149,11 @@ class LearningPathProgressService {
           templateId: 'starter_pushfold_15bb',
         ),
       ]),
-      LearningStageState(levelIndex: 2, title: 'Intermediate', items: [
+      LearningStageState(
+          levelIndex: 2,
+          title: 'Intermediate',
+          goal: 'Изучи ICM и диапазоны 20bb',
+          items: [
         LearningStageItem(
           title: 'ICM Concepts',
           icon: Icons.insights,
@@ -159,7 +169,11 @@ class LearningPathProgressService {
           templateId: 'starter_pushfold_20bb',
         ),
       ]),
-      LearningStageState(levelIndex: 3, title: 'Advanced', items: [
+      LearningStageState(
+          levelIndex: 3,
+          title: 'Advanced',
+          goal: 'Углуби стратегию и эксплойт',
+          items: [
         LearningStageItem(
           title: 'Exploit Spots',
           icon: Icons.lightbulb_outline,
@@ -207,9 +221,10 @@ class LearningPathProgressService {
       final completedStage = isStageCompleted(items);
       result.add(LearningStageState(
           title: stage.title,
+          levelIndex: stage.levelIndex,
+          goal: stage.goal,
           items: items,
-          isLocked: !stageUnlocked,
-          levelIndex: stage.levelIndex));
+          isLocked: !stageUnlocked));
       prevCompleted = unlockAllStages ? true : completedStage;
     }
     return result;

@@ -6,10 +6,12 @@ import 'confetti_overlay.dart';
 class StageCompletionBanner extends StatefulWidget {
   final String title;
   final int levelIndex;
+  final String goal;
   const StageCompletionBanner({
     super.key,
     required this.title,
     required this.levelIndex,
+    required this.goal,
   });
 
   @override
@@ -60,17 +62,10 @@ class _StageCompletionBannerState extends State<StageCompletionBanner>
           color: Colors.green.shade700,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '🎯 Завершён уровень ${widget.levelIndex} — ${widget.title}!',
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
+        alignment: Alignment.centerLeft,
+        child: Text(
+          '🎯 Цель достигнута: ${widget.goal}',
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );
