@@ -53,6 +53,7 @@ import '../widgets/sync_status_widget.dart';
 import 'weakness_overview_screen.dart';
 import 'training_home_screen.dart';
 import 'ready_to_train_screen.dart';
+import '../widgets/lesson_suggestion_banner.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -564,16 +565,20 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 const Expanded(
                   child: Text(
                     'Новая подборка тренировок!',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await context.read<TrainingSessionService>().startSession(tpl!);
+                    await context
+                        .read<TrainingSessionService>()
+                        .startSession(tpl!);
                     if (!context.mounted) return;
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const TrainingSessionScreen()),
                     );
                   },
                   child: const Text('Начать тренировку'),
@@ -811,6 +816,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const LessonSuggestionBanner(),
                     _buildSuggestedBanner(context),
                     _buildStreakCard(context),
                     _buildDailyGoalCard(context),
