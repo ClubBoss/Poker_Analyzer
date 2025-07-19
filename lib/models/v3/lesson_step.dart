@@ -36,6 +36,7 @@ class LessonStep {
   final Quiz? quiz;
   final String? rangeImageUrl;
   final String linkedPackId;
+  final List<String>? tags;
   final Map<String, dynamic> meta;
 
   LessonStep({
@@ -45,6 +46,7 @@ class LessonStep {
     this.quiz,
     this.rangeImageUrl,
     required this.linkedPackId,
+    this.tags,
     Map<String, dynamic>? meta,
   }) : meta = meta ?? const {'schemaVersion': '3.0.0'};
 
@@ -60,6 +62,7 @@ class LessonStep {
       quiz: quiz,
       rangeImageUrl: yaml['rangeImageUrl']?.toString(),
       linkedPackId: yaml['linkedPackId']?.toString() ?? '',
+      tags: [for (final t in (yaml['tags'] as List? ?? [])) t.toString()],
       meta: meta,
     );
   }
@@ -73,6 +76,7 @@ class LessonStep {
       if (quiz != null) 'quiz': quiz!.toYaml(),
       if (rangeImageUrl != null) 'rangeImageUrl': rangeImageUrl,
       'linkedPackId': linkedPackId,
+      if (tags != null && tags!.isNotEmpty) 'tags': tags,
     };
   }
 }
