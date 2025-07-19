@@ -20,6 +20,7 @@
     "spotCount": 1,
     "positions": ["bb", "btn"],
     "tags": ["postflop", "check-raise"]
+    ,"unlockRules": {"requiredPacks": ["cbet_ip"]}
   },
   {
     "id": "float_turn",

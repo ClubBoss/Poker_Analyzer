@@ -55,6 +55,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/training_type_stats_service.dart';
+import '../services/pack_unlocking_rules_engine.dart';
 import '../services/user_profile_preference_service.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
@@ -176,6 +177,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   String? _weakCategory;
   v2.TrainingPackTemplate? _weakCategoryPack;
   final Set<String> _mastered = {};
+  final Map<String, bool> _packUnlocked = {};
+  final Map<String, String?> _lockReasons = {};
   Map<TrainingType, double> _typeCompletion = {};
   TrainingType? _weakestType;
 
@@ -215,6 +218,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _updateNewPacks();
     await _updateRecent();
     await _loadStats();
+    await _updateUnlockStatus();
     await _loadHandsCompleted();
     await _loadWeakCategories();
     await _detectWeakCategory();
@@ -813,6 +817,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _mastered
         ..clear()
         ..addAll(mastered);
+    });
+  }
+
+  Future<void> _updateUnlockStatus() async {
+    final list = PackLibraryLoaderService.instance.library;
+    final unlocked = <String, bool>{};
+    final reasons = <String, String?>{};
+    for (final p in list) {
+      final res = await PackUnlockingRulesEngine.instance.check(p);
+      unlocked[p.id] = res.unlocked;
+      reasons[p.id] = res.reason;
+    }
+    if (!mounted) return;
+    setState(() {
+      _packUnlocked
+        ..clear()
+        ..addAll(unlocked);
+      _lockReasons
+        ..clear()
+        ..addAll(reasons);
     });
   }
 
@@ -1799,6 +1823,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           )
         : const SizedBox.shrink();
 
+    final locked = _packUnlocked[t.id] == false;
+    final reason = _lockReasons[t.id];
+
     if (_compactMode) {
       Widget card = Card(
         child: ListTile(
@@ -1868,6 +1895,30 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         onLongPress: () => _showPackSheet(context, t),
         child: card,
       );
+      if (locked) {
+        widget = Stack(
+          children: [
+            Opacity(opacity: 0.5, child: widget),
+            Positioned.fill(
+              child: Container(
+                color: Colors.black45,
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🔒 Заблокировано',
+                        style: TextStyle(color: Colors.white)),
+                    if (reason != null)
+                      Text(reason!,
+                          style:
+                              const TextStyle(color: Colors.white, fontSize: 12)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      }
       return Container(
         key: _itemKeys.putIfAbsent(t.id, () => GlobalKey()),
         child: widget,
@@ -2041,14 +2092,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               onPressed: () => _toggleFavorite(t.id),
             ),
             TextButton(
-              onPressed: () {
-                context.read<TrainingSessionService>().startSession(t);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
-                );
-              },
+              onPressed: locked
+                  ? null
+                  : () {
+                      context.read<TrainingSessionService>().startSession(t);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    },
               child: const Text('▶️ Train'),
             ),
           ],
@@ -2081,6 +2134,30 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       onLongPress: () => _showPackSheet(context, t),
       child: card,
     );
+    if (locked) {
+      widget = Stack(
+        children: [
+          Opacity(opacity: 0.5, child: widget),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black45,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('🔒 Заблокировано',
+                      style: TextStyle(color: Colors.white)),
+                  if (reason != null)
+                    Text(reason!,
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 12)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return Container(
       key: _itemKeys.putIfAbsent(t.id, () => GlobalKey()),
       child: widget,

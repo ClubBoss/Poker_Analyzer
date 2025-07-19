@@ -5,6 +5,8 @@ bb: 50
 gameType: tournament
 positions: [bb, btn]
 tags: [postflop, check-raise]
+unlockRules:
+  requiredPacks: [cbet_ip]
 spots:
   - id: cr_oop_1
     title: Versus cbet
