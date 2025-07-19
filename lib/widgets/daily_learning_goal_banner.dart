@@ -13,6 +13,8 @@ class DailyLearningGoalBanner extends StatelessWidget {
     final text = completed
         ? '✅ Цель выполнена!'
         : '🎯 Цель дня: завершить 1 пак. Ты сможешь!';
+    final streak = service.getCurrentStreak();
+    final streakText = '🔥 Стрик: $streak дня подряд!';
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: const EdgeInsets.all(12),
@@ -20,7 +22,10 @@ class DailyLearningGoalBanner extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(text, style: const TextStyle(color: Colors.white)),
+      child: Text(
+        '$text\n$streakText',
+        style: const TextStyle(color: Colors.white),
+      ),
     );
   }
 }
