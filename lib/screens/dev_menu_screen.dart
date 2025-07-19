@@ -95,6 +95,7 @@ import 'tag_matrix_coverage_screen.dart';
 import 'skill_map_screen.dart';
 import 'goal_screen.dart';
 import 'lesson_path_screen.dart';
+import 'learning_path_screen.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -1895,6 +1896,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const LessonPathScreen()),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📚 Путь обучения'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const LearningPathScreen()),
                   );
                 },
               ),
