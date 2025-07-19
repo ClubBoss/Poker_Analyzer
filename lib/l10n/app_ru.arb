@@ -75,6 +75,8 @@
   ,"evIcm": "EV {ev}  ICM {icm}"
   ,"packCreated": "Pack \"{name}\" created"
   ,"resetPackPrompt": "Reset progress for '{name}'?"
+  ,"resetStagePrompt": "Reset stage '{name}'?"
+  ,"resetStage": "Сбросить стадию"
   ,"cancel": "Cancel"
   ,"reset": "Reset"
   ,"playerType": "Player Type"
