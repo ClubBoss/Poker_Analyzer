@@ -19,7 +19,8 @@ import 'goal_screen.dart';
 enum _SortOption { newest, rating, difficulty }
 
 class LibraryScreen extends StatefulWidget {
-  const LibraryScreen({super.key});
+  final Set<String>? initialTags;
+  const LibraryScreen({super.key, this.initialTags});
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -70,6 +71,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialTags != null) {
+      _selectedTags.addAll(widget.initialTags!);
+    }
     _load();
   }
 
@@ -182,14 +186,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.analytics),
+          TextButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const SkillMapScreen()),
               );
             },
+            child: const Text("🧠 Карта навыков"),
           ),
         ],
       ),

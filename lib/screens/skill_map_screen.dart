@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/tag_mastery_service.dart';
+import '../widgets/tag_skill_tile.dart';
+import '../utils/responsive.dart';
+import 'library_screen.dart';
 
 class SkillMapScreen extends StatefulWidget {
   const SkillMapScreen({super.key});
@@ -13,6 +16,7 @@ class SkillMapScreen extends StatefulWidget {
 class _SkillMapScreenState extends State<SkillMapScreen> {
   bool _loading = true;
   Map<String, double> _data = {};
+  bool _weakFirst = true;
 
   @override
   void initState() {
@@ -24,38 +28,68 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
     setState(() => _loading = true);
     final service = context.read<TagMasteryService>();
     final map = await service.computeMastery(force: true);
-    final entries = map.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final entries = map.entries.toList();
+    _sort(entries);
     setState(() {
       _data = {for (final e in entries) e.key: e.value};
       _loading = false;
     });
   }
 
+  void _sort(List<MapEntry<String, double>> list) {
+    list.sort((a, b) =>
+        _weakFirst ? a.value.compareTo(b.value) : b.value.compareTo(a.value));
+  }
+
+  void _toggleSort() {
+    setState(() {
+      _weakFirst = !_weakFirst;
+      final entries = _data.entries.toList();
+      _sort(entries);
+      _data = {for (final e in entries) e.key: e.value};
+    });
+  }
+
+  void _openTag(String tag) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LibraryScreen(initialTags: {tag}),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final crossAxisCount = isLandscape(context)
+        ? (isCompactWidth(context) ? 6 : 8)
+        : (isCompactWidth(context) ? 3 : 4);
     return Scaffold(
       appBar: AppBar(
         title: const Text('🧠 Карта навыков'),
         actions: [
           IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
+          IconButton(
+            onPressed: _toggleSort,
+            icon: Icon(_weakFirst ? Icons.arrow_downward : Icons.arrow_upward),
+          ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.separated(
+          : GridView.count(
+              crossAxisCount: crossAxisCount,
               padding: const EdgeInsets.all(16),
-              itemCount: _data.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final tag = _data.keys.elementAt(index);
-                final mastery = _data[tag] ?? 0.0;
-                return ListTile(
-                  title: Text('#$tag'),
-                  subtitle: LinearProgressIndicator(value: mastery),
-                  trailing: Text('${(mastery * 100).toStringAsFixed(0)}%'),
-                );
-              },
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              children: [
+                for (final e in _data.entries)
+                  TagSkillTile(
+                    tag: e.key,
+                    value: e.value,
+                    onTap: () => _openTag(e.key),
+                  ),
+              ],
             ),
     );
   }
