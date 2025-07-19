@@ -61,4 +61,66 @@ class TrainingPackTemplateBuilder {
     tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
     return tpl;
   }
+
+  Future<TrainingPackTemplateV2> buildAdvancedPack(
+    TagMasteryService mastery,
+  ) async {
+    await TrainingPackLibraryV2.instance.reload();
+    final library = TrainingPackLibraryV2.instance.packs;
+
+    final strong = await mastery.topStrongTags(3);
+    const advTags = {'advanced', 'deepstack', 'multiway', 'vs reg'};
+    final spots = <TrainingPackSpot>[];
+
+    for (final tpl in library) {
+      final tplTags = [for (final t in tpl.tags) t.toLowerCase()];
+      if (!tplTags.any((t) => advTags.contains(t))) continue;
+      if (!tplTags.any((t) => strong.contains(t))) continue;
+      for (final s in tpl.spots) {
+        final tags = [for (final t in s.tags) t.toLowerCase()];
+        if (tags.any((t) => advTags.contains(t)) &&
+            tags.any((t) => strong.contains(t))) {
+          final spot = TrainingPackSpot.fromJson(s.toJson())..isNew = true;
+          if (!spots.any((e) => e.id == spot.id)) spots.add(spot);
+        }
+        if (spots.length >= 6) break;
+      }
+      if (spots.length >= 6) break;
+    }
+
+    if (spots.isEmpty) {
+      // Fallback: any advanced spots
+      for (final tpl in library) {
+        final tplTags = [for (final t in tpl.tags) t.toLowerCase()];
+        if (!tplTags.any((t) => advTags.contains(t))) continue;
+        for (final s in tpl.spots) {
+          final tags = [for (final t in s.tags) t.toLowerCase()];
+          if (tags.any((t) => advTags.contains(t))) {
+            final spot = TrainingPackSpot.fromJson(s.toJson())..isNew = true;
+            if (!spots.any((e) => e.id == spot.id)) spots.add(spot);
+          }
+          if (spots.length >= 6) break;
+        }
+        if (spots.length >= 6) break;
+      }
+    }
+
+    final positions = <HeroPosition>{for (final s in spots) s.hand.position};
+    final tpl = TrainingPackTemplateV2(
+      id: const Uuid().v4(),
+      name: 'Новый уровень: 3bet defense',
+      description:
+          'Подборка сложных ситуаций в вашей сильной категории: 3bet defense',
+      trainingType: TrainingType.pushFold,
+      tags: List<String>.from(strong),
+      spots: spots,
+      spotCount: spots.length,
+      created: DateTime.now(),
+      gameType: GameType.tournament,
+      bb: 0,
+      positions: [for (final p in positions) p.name],
+    );
+    tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
+    return tpl;
+  }
 }

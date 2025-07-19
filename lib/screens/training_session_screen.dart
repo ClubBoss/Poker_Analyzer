@@ -10,6 +10,7 @@ import 'session_result_screen.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/achievement_service.dart';
+import '../services/smart_review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
@@ -265,6 +266,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         postIcmPct: icmAfter,
         evSum: 0,
         icmSum: 0,
+      ));
+      unawaited(SmartReviewService.instance.registerCompletion(
+        total == 0 ? 0.0 : correct / total,
+        evAfter / 100,
+        icmAfter / 100,
+        context: context,
       ));
       final prefs = await SharedPreferences.getInstance();
       final acc = total == 0 ? 0.0 : correct * 100 / total;

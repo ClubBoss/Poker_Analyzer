@@ -18,6 +18,7 @@ import 'training_pack_template_editor_screen.dart';
 import '../../services/mistake_review_pack_service.dart';
 import '../../services/training_pack_stats_service.dart';
 import '../../services/training_pack_template_storage_service.dart';
+import '../../services/smart_review_service.dart';
 import '../../widgets/common/animated_line_chart.dart';
 
 class TrainingPackResultScreen extends StatefulWidget {
@@ -283,6 +284,12 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       postIcmPct: postIcm,
       evSum: _evDeltaSum,
       icmSum: _icmDeltaSum,
+    ));
+    unawaited(SmartReviewService.instance.registerCompletion(
+      _total == 0 ? 0.0 : _correct / _total,
+      postEv / 100,
+      postIcm / 100,
+      context: context,
     ));
     SharedPreferences.getInstance().then((p) =>
         p.setString('last_trained_tpl_${widget.original.id}', DateTime.now().toIso8601String()));
