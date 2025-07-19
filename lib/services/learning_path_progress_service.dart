@@ -24,6 +24,7 @@ class LearningStageState {
   final String title;
   final int levelIndex;
   final String goal;
+  final String? tip;
   final List<LearningStageItem> items;
   final bool isLocked;
 
@@ -31,6 +32,7 @@ class LearningStageState {
     required this.title,
     required this.levelIndex,
     required this.goal,
+    this.tip,
     required this.items,
     this.isLocked = false,
   });
@@ -126,6 +128,8 @@ class LearningPathProgressService {
           levelIndex: 1,
           title: 'Beginner',
           goal: 'Освой базовый пуш-фолд',
+          tip:
+              "Попробуй сначала сыграть пак 'Push/Fold Basics', чтобы освоиться с концепцией",
           items: [
         LearningStageItem(
           title: 'Push/Fold Basics',
@@ -153,6 +157,7 @@ class LearningPathProgressService {
           levelIndex: 2,
           title: 'Intermediate',
           goal: 'Изучи ICM и диапазоны 20bb',
+          tip: 'Закрепи навыки прошлого уровня и изучи влияние ICM.',
           items: [
         LearningStageItem(
           title: 'ICM Concepts',
@@ -173,6 +178,7 @@ class LearningPathProgressService {
           levelIndex: 3,
           title: 'Advanced',
           goal: 'Углуби стратегию и эксплойт',
+          tip: 'Ищи возможности для эксплойта соперников.',
           items: [
         LearningStageItem(
           title: 'Exploit Spots',
