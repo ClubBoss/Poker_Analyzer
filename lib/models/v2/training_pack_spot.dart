@@ -18,6 +18,9 @@ class TrainingPackSpot {
   /// Ephemeral flag — used only in RAM to highlight freshly imported spots.
   /// Never written to / read from JSON.
   bool isNew = false;
+  /// Ephemeral flag – marks automatically generated variations.
+  /// Never written to / read from JSON.
+  bool isGenerated = false;
   EvaluationResult? evalResult;
   String? correctAction;
   String? explanation;
@@ -40,6 +43,7 @@ class TrainingPackSpot {
     this.dirty = false,
     this.priority = 3,
     bool? isNew,
+    bool? isGenerated,
     this.evalResult,
     this.correctAction,
     this.explanation,
@@ -49,6 +53,7 @@ class TrainingPackSpot {
     this.villainAction,
     List<String>? heroOptions,
   })  : isNew = isNew ?? false,
+        isGenerated = isGenerated ?? false,
         hand = hand ?? HandData(),
         board = board ?? const [],
         heroOptions = heroOptions ?? const [],
@@ -70,6 +75,7 @@ class TrainingPackSpot {
     bool? dirty,
     int? priority,
     bool? isNew,
+    bool? isGenerated,
     EvaluationResult? evalResult,
     String? correctAction,
     String? explanation,
@@ -92,6 +98,7 @@ class TrainingPackSpot {
         dirty: dirty ?? this.dirty,
         priority: priority ?? this.priority,
         isNew: isNew ?? this.isNew,
+        isGenerated: isGenerated ?? this.isGenerated,
         evalResult: evalResult ?? this.evalResult,
         correctAction: correctAction ?? this.correctAction,
         explanation: explanation ?? this.explanation,
