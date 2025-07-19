@@ -40,6 +40,8 @@ import '../../services/tag_mastery_service.dart';
 import '../../services/training_pack_template_builder.dart';
 import '../../services/training_session_service.dart';
 import '../training_recommendation_screen.dart';
+import '../../services/pack_dependency_map.dart';
+import '../../services/pack_library_loader_service.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -459,6 +461,19 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     _summaryShown = true;
     await LearningPathProgressService.instance
         .markCompleted(widget.original.id);
+    final newly =
+        await PackDependencyMap.instance.getUnlockedAfter(widget.original.id);
+    if (newly.isNotEmpty && mounted) {
+      final lib = PackLibraryLoaderService.instance.library;
+      for (final id in newly) {
+        final pack = lib.firstWhereOrNull((p) => p.id == id);
+        if (pack != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('\uD83D\uDD13 Новый пак разблокирован: ${pack.name}')),
+          );
+        }
+      }
+    }
     final isFinalStep =
         widget.original.tags.contains('starterPath') &&
             widget.original.tags.contains('step5');

@@ -35,6 +35,7 @@ import '../services/training_pack_suggestion_service.dart';
 import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/pack_library_loader_service.dart';
+import '../services/pack_dependency_map.dart';
 import '../services/training_goal_suggestion_engine.dart';
 import '../services/smart_goal_recommender_service.dart';
 import '../services/session_log_service.dart';
@@ -1967,6 +1968,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧹 Сбросить кастомный путь'),
                 onTap: () async {
                   await LearningPathProgressService.instance.resetCustomPath();
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔄 Пересчитать доступные паки'),
+                onTap: () async {
+                  await PackDependencyMap.instance.recalc();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Паки пересчитаны')));
+                  }
                 },
               ),
             if (kDebugMode)
