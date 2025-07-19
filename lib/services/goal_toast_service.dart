@@ -4,11 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../models/user_goal.dart';
+import '../widgets/goal_celebration_banner.dart';
 
 class GoalToastService {
   static const _progressPrefix = 'goal_toast_progress_';
   static const _lastKey = 'goal_toast_last';
   static const _minInterval = Duration(minutes: 5);
+  static const _bannerPrefix = 'goal_completed_banner_';
 
   void maybeShowToast(UserGoal goal, double newProgress) {
     unawaited(_maybeShowToast(goal, newProgress));
@@ -16,10 +18,19 @@ class GoalToastService {
 
   Future<void> _maybeShowToast(UserGoal goal, double newProgress) async {
     final prefs = await SharedPreferences.getInstance();
+    final bannerKey = '$_bannerPrefix${goal.id}';
+    final bannerShown = prefs.getBool(bannerKey) ?? false;
     final old = prefs.getDouble('$_progressPrefix${goal.id}') ?? 0.0;
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
+    final ctx = navigatorKey.currentContext;
+    if (!bannerShown && (goal.completed || newProgress >= 100)) {
+      if (ctx != null && ctx.mounted) {
+        _showCelebrationBanner(ctx, goal);
+        await prefs.setBool(bannerKey, true);
+      }
+    }
     if (newProgress - old < 10) {
       await prefs.setDouble('$_progressPrefix${goal.id}', newProgress);
       return;
@@ -28,7 +39,6 @@ class GoalToastService {
       await prefs.setDouble('$_progressPrefix${goal.id}', newProgress);
       return;
     }
-    final ctx = navigatorKey.currentContext;
     if (ctx != null && ctx.mounted) {
       final oldPct = old.toStringAsFixed(0);
       final newPct = newProgress.toStringAsFixed(0);
@@ -41,5 +51,19 @@ class GoalToastService {
     }
     await prefs.setDouble('$_progressPrefix${goal.id}', newProgress);
     await prefs.setString(_lastKey, now.toIso8601String());
+  }
+
+  void _showCelebrationBanner(BuildContext context, UserGoal goal) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearMaterialBanners();
+    messenger.showMaterialBanner(
+      GoalCelebrationBanner(
+        goal: goal,
+        onClose: messenger.hideCurrentMaterialBanner,
+      ),
+    );
+    Future.delayed(const Duration(seconds: 5), () {
+      messenger.hideCurrentMaterialBanner();
+    });
   }
 }
