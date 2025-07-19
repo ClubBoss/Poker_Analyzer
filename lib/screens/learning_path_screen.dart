@@ -62,14 +62,16 @@ class _StageSection extends StatelessWidget {
       children: [
         StageHeaderWithProgress(
           title: stage.title,
-          progress: progress,
           levelIndex: stage.levelIndex,
+          goal: stage.goal,
+          progress: progress,
           showProgress: !stage.isLocked,
         ),
         const SizedBox(height: 8),
         StageCompletionBanner(
           title: stage.title,
           levelIndex: stage.levelIndex,
+          goal: stage.goal,
         ),
         const SizedBox(height: 8),
         for (int i = 0; i < stage.items.length; i++)
