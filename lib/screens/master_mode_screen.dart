@@ -9,6 +9,7 @@ import '../widgets/streak_banner_widget.dart';
 import '../widgets/reward_banner_widget.dart';
 import 'daily_challenge_history_screen.dart';
 import 'master_achievements_screen.dart';
+import 'player_stats_screen.dart';
 
 class MasterModeScreen extends StatefulWidget {
   static const route = '/master_mode';
@@ -119,6 +120,18 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
               ElevatedButton(
                 onPressed: () {},
                 child: const Text('📈 Анализ прогресса'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PlayerStatsScreen(),
+                    ),
+                  );
+                },
+                child: const Text('📈 Моя статистика'),
               ),
             ],
           );
