@@ -7,6 +7,7 @@ import '../widgets/stage_completion_banner.dart';
 import '../widgets/suggested_tip_banner.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'learning_path_completion_screen.dart';
+import 'learning_progress_stats_screen.dart';
 
 class LearningPathScreen extends StatelessWidget {
   const LearningPathScreen({super.key});
@@ -32,7 +33,20 @@ class LearningPathScreen extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(title: const Text('📚 Путь обучения')),
+          appBar: AppBar(
+            title: const Text('📚 Путь обучения'),
+            actions: [
+              IconButton(
+                icon: const Text('📊', style: TextStyle(fontSize: 20)),
+                tooltip: 'Статистика',
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const LearningProgressStatsScreen()),
+                ),
+              ),
+            ],
+          ),
           backgroundColor: const Color(0xFF121212),
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
