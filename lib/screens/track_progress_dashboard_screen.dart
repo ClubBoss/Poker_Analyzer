@@ -9,6 +9,7 @@ import '../services/lesson_loader_service.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/lesson_progress_tracker_service.dart';
 import 'lesson_step_screen.dart';
+import 'lesson_recap_screen.dart';
 
 class TrackProgressDashboardScreen extends StatefulWidget {
   const TrackProgressDashboardScreen({super.key});
@@ -53,7 +54,17 @@ class _TrackProgressDashboardScreenState
     if (!mounted || step == null) return;
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => LessonStepScreen(step: step)),
+      MaterialPageRoute(
+        builder: (_) => LessonStepScreen(
+          step: step,
+          onStepComplete: (s) async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => LessonRecapScreen(step: s)),
+            );
+          },
+        ),
+      ),
     );
   }
 

@@ -33,6 +33,7 @@ class LessonStep {
   final String id;
   final String title;
   final String introText;
+  final String summaryText;
   final Quiz? quiz;
   final String? rangeImageUrl;
   final String linkedPackId;
@@ -42,6 +43,7 @@ class LessonStep {
     required this.id,
     required this.title,
     required this.introText,
+    this.summaryText = '',
     this.quiz,
     this.rangeImageUrl,
     required this.linkedPackId,
@@ -57,6 +59,7 @@ class LessonStep {
       id: yaml['id']?.toString() ?? '',
       title: yaml['title']?.toString() ?? '',
       introText: yaml['introText']?.toString() ?? '',
+      summaryText: yaml['summaryText']?.toString() ?? '',
       quiz: quiz,
       rangeImageUrl: yaml['rangeImageUrl']?.toString(),
       linkedPackId: yaml['linkedPackId']?.toString() ?? '',
@@ -70,6 +73,7 @@ class LessonStep {
       'id': id,
       'title': title,
       'introText': introText,
+      'summaryText': summaryText,
       if (quiz != null) 'quiz': quiz!.toYaml(),
       if (rangeImageUrl != null) 'rangeImageUrl': rangeImageUrl,
       'linkedPackId': linkedPackId,
