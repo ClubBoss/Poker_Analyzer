@@ -834,9 +834,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final unlocked = <String, bool>{};
     final reasons = <String, String?>{};
     for (final p in list) {
-      final res = await PackUnlockingRulesEngine.instance.check(p);
-      unlocked[p.id] = res.unlocked;
-      reasons[p.id] = res.reason;
+      final unlockedRes =
+          await PackUnlockingRulesEngine.instance.isUnlocked(p);
+      unlocked[p.id] = unlockedRes;
+      reasons[p.id] = unlockedRes
+          ? null
+          : PackUnlockingRulesEngine.instance.getUnlockRule(p)?.unlockHint;
     }
     if (!mounted) return;
     setState(() {
