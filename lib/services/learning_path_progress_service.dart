@@ -7,12 +7,14 @@ class LearningStageItem {
   final IconData icon;
   final double progress;
   final LearningItemStatus status;
+  final String? templateId;
 
   const LearningStageItem({
     required this.title,
     required this.icon,
     required this.progress,
     required this.status,
+    this.templateId,
   });
 }
 
@@ -35,18 +37,21 @@ class LearningPathProgressService {
           icon: Icons.play_circle_fill,
           progress: 1.0,
           status: LearningItemStatus.completed,
+          templateId: 'starter_pushfold_10bb',
         ),
         LearningStageItem(
           title: '10bb Ranges',
           icon: Icons.school,
           progress: 0.6,
           status: LearningItemStatus.available,
+          templateId: 'starter_pushfold_10bb',
         ),
         LearningStageItem(
           title: '15bb Ranges',
           icon: Icons.school,
           progress: 0.0,
           status: LearningItemStatus.locked,
+          templateId: 'starter_pushfold_15bb',
         ),
       ]),
       LearningStageState(title: 'Intermediate', items: const [
@@ -55,12 +60,14 @@ class LearningPathProgressService {
           icon: Icons.insights,
           progress: 0.0,
           status: LearningItemStatus.locked,
+          templateId: 'starter_pushfold_12bb',
         ),
         LearningStageItem(
           title: 'Shoving Charts 20bb',
           icon: Icons.table_chart,
           progress: 0.0,
           status: LearningItemStatus.locked,
+          templateId: 'starter_pushfold_20bb',
         ),
       ]),
       LearningStageState(title: 'Advanced', items: const [
