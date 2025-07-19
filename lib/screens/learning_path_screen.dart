@@ -3,6 +3,7 @@ import '../services/learning_path_progress_service.dart';
 import '../services/training_pack_template_service.dart';
 import '../main.dart';
 import '../widgets/stage_completion_banner.dart';
+import '../widgets/stage_header_with_progress.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'learning_path_completion_screen.dart';
 
@@ -57,28 +58,7 @@ class _StageSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            stage.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6.0,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ),
+        StageHeaderWithProgress(title: stage.title, progress: progress),
         const SizedBox(height: 8),
         StageCompletionBanner(title: stage.title),
         const SizedBox(height: 8),
