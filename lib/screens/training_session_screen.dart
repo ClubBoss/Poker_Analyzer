@@ -23,6 +23,7 @@ import '../services/training_gap_notification_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/user_goal_engine.dart';
 import '../services/goal_toast_service.dart';
+import '../services/learning_path_progress_service.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -265,6 +266,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final prefs = await SharedPreferences.getInstance();
       final acc = total == 0 ? 0.0 : correct * 100 / total;
       await prefs.setBool('completed_tpl_${tpl.id}', true);
+      await LearningPathProgressService.instance.markCompleted(tpl.id);
       await prefs.setString(
           'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
       await prefs.setString(
