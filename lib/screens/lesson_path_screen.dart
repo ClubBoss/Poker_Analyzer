@@ -6,6 +6,7 @@ import '../models/v3/lesson_step.dart';
 import '../models/v3/lesson_track.dart';
 import '../services/lesson_loader_service.dart';
 import '../services/lesson_progress_service.dart';
+import '../services/lesson_progress_tracker_service.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/learning_track_engine.dart';
 import 'lesson_step_screen.dart';
@@ -21,6 +22,7 @@ class LessonPathScreen extends StatefulWidget {
 class _LessonPathScreenState extends State<LessonPathScreen> {
   late Future<List<dynamic>> _future;
   LessonTrack? _track;
+  Map<String, bool> _stepProgress = {};
 
   @override
   void initState() {
@@ -45,6 +47,8 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
     _track = const LearningTrackEngine()
         .getTracks()
         .firstWhereOrNull((t) => t.id == id);
+    _stepProgress =
+        await LessonProgressTrackerService.instance.getCompletedSteps();
     return Future.wait([
       LessonLoaderService.instance.loadAllLessons(),
       LessonProgressService.instance.getCompletedSteps(),
@@ -119,12 +123,34 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                     final firstIncomplete =
                         steps!.indexWhere((s) => !completed.contains(s.id));
                     final isDone = completed.contains(step.id);
+                    final trackerDone = _stepProgress[step.id] == true;
+                    final completedCount = trackerDone ? 1 : 0;
+                    const totalCount = 1;
                     final statusIcon = isDone
                         ? '✅'
                         : (index == firstIncomplete ? '🟡' : '🟢');
                     final buttonLabel = isDone
                         ? 'Открыть'
                         : (index == firstIncomplete ? 'Начать' : 'Продолжить');
+                    final Widget progressWidget;
+                    if (completedCount == totalCount) {
+                      progressWidget = const Icon(Icons.check_circle,
+                          color: Colors.green, size: 18);
+                    } else {
+                      final color = completedCount == 0
+                          ? Colors.grey
+                          : Colors.orange;
+                      progressWidget = Text(
+                        '$completedCount / $totalCount',
+                        style: TextStyle(color: color),
+                      );
+                      if (completedCount == 0) {
+                        progressWidget = Opacity(
+                          opacity: 0.4,
+                          child: progressWidget,
+                        );
+                      }
+                    }
                     return Card(
                       color: const Color(0xFF1E1E1E),
                       margin: const EdgeInsets.symmetric(
@@ -132,7 +158,13 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                         vertical: 8,
                       ),
                       child: ListTile(
-                        title: Text('$statusIcon ${step.title}'),
+                        title: Row(
+                          children: [
+                            Expanded(child: Text('$statusIcon ${step.title}')),
+                            const SizedBox(width: 8),
+                            progressWidget,
+                          ],
+                        ),
                         subtitle: Text(
                           preview,
                           style: const TextStyle(color: Colors.white70),
