@@ -5,6 +5,7 @@ import '../services/learning_path_completion_service.dart';
 import '../services/learning_track_engine.dart';
 import '../services/lesson_track_meta_service.dart';
 import '../widgets/streak_badge_widget.dart';
+import '../widgets/streak_banner_widget.dart';
 import 'daily_challenge_history_screen.dart';
 
 class MasterModeScreen extends StatefulWidget {
@@ -66,6 +67,7 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              const StreakBannerWidget(),
               const StreakBadgeWidget(),
               Text(
                 dateText,
