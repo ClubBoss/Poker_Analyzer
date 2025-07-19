@@ -30,6 +30,10 @@ class TrainingPackTemplateV2 {
   String? targetStreet;
   UnlockRules? unlockRules;
 
+  /// Ephemeral flag – marks automatically generated packs. Never
+  /// serialized to or from disk.
+  bool isGeneratedPack;
+
   TrainingPackTemplateV2({
     required this.id,
     required this.name,
@@ -50,11 +54,13 @@ class TrainingPackTemplateV2 {
     this.recommended = false,
     this.targetStreet,
     this.unlockRules,
-  })  : tags = tags ?? [],
-        spots = spots ?? [],
-        positions = positions ?? [],
-        created = created ?? DateTime.now(),
-        meta = meta ?? {} {
+    bool? isGeneratedPack,
+  }) : tags = tags ?? [],
+       spots = spots ?? [],
+       positions = positions ?? [],
+       created = created ?? DateTime.now(),
+       meta = meta ?? {},
+       isGeneratedPack = isGeneratedPack ?? false {
     if (theme != null) meta['theme'] = theme;
     category ??= this.tags.isNotEmpty ? this.tags.first : null;
   }
@@ -65,7 +71,8 @@ class TrainingPackTemplateV2 {
       name: j['name'] as String? ?? '',
       description: j['description'] as String? ?? '',
       goal: j['goal'] as String? ?? '',
-      audience: j['audience'] as String? ??
+      audience:
+          j['audience'] as String? ??
           (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
       theme: j['meta'] is Map ? (j['meta']['theme'] as String?) : null,
       tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
@@ -76,7 +83,7 @@ class TrainingPackTemplateV2 {
       ),
       spots: [
         for (final s in (j['spots'] as List? ?? []))
-          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
+          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
       ],
       spotCount: j['spotCount'] as int? ?? (j['spots'] as List? ?? []).length,
       created:
@@ -84,10 +91,11 @@ class TrainingPackTemplateV2 {
       gameType: parseGameType(j['gameType']),
       bb: (j['bb'] as num?)?.toInt() ?? 0,
       positions: [
-        for (final p in (j['positions'] as List? ?? [])) p.toString()
+        for (final p in (j['positions'] as List? ?? [])) p.toString(),
       ],
       meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
-      recommended: j['recommended'] as bool? ??
+      recommended:
+          j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
       targetStreet: j['targetStreet'] as String?,
       unlockRules: j['unlockRules'] is Map
@@ -170,25 +178,24 @@ class TrainingPackTemplateV2 {
   factory TrainingPackTemplateV2.fromTemplate(
     TrainingPackTemplate template, {
     required TrainingType type,
-  }) =>
-      TrainingPackTemplateV2(
-        id: template.id,
-        name: template.name,
-        description: template.description,
-        goal: template.goal,
-        audience: template.meta['audience'] as String?,
-        theme: template.meta['theme'] as String?,
-        tags: List<String>.from(template.tags),
-        category: template.tags.isNotEmpty ? template.tags.first : null,
-        trainingType: type,
-        spots: List<SpotTemplate>.from(template.spots),
-        spotCount: template.spotCount,
-        created: template.createdAt,
-        gameType: template.gameType,
-        bb: template.heroBbStack,
-        positions: [template.heroPos.name],
-        meta: Map<String, dynamic>.from(template.meta),
-        recommended: template.recommended,
-        targetStreet: template.targetStreet,
-      );
+  }) => TrainingPackTemplateV2(
+    id: template.id,
+    name: template.name,
+    description: template.description,
+    goal: template.goal,
+    audience: template.meta['audience'] as String?,
+    theme: template.meta['theme'] as String?,
+    tags: List<String>.from(template.tags),
+    category: template.tags.isNotEmpty ? template.tags.first : null,
+    trainingType: type,
+    spots: List<SpotTemplate>.from(template.spots),
+    spotCount: template.spotCount,
+    created: template.createdAt,
+    gameType: template.gameType,
+    bb: template.heroBbStack,
+    positions: [template.heroPos.name],
+    meta: Map<String, dynamic>.from(template.meta),
+    recommended: template.recommended,
+    targetStreet: template.targetStreet,
+  );
 }
