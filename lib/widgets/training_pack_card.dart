@@ -16,6 +16,8 @@ class TrainingPackCard extends StatefulWidget {
   final int? progress;
   final Future<void> Function()? onRefresh;
   final bool dimmed;
+  final bool locked;
+  final String? lockReason;
   const TrainingPackCard({
     super.key,
     required this.template,
@@ -23,6 +25,8 @@ class TrainingPackCard extends StatefulWidget {
     this.progress,
     this.onRefresh,
     this.dimmed = false,
+    this.locked = false,
+    this.lockReason,
   });
 
   @override
@@ -71,7 +75,29 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
     await widget.onRefresh?.call();
   }
 
+  void _showUnlockHint() {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Заблокировано'),
+        content: Text('Чтобы разблокировать: ${widget.lockReason}'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          )
+        ],
+      ),
+    );
+  }
+
   Future<void> _handleTap() async {
+    if (widget.locked) {
+      if (widget.lockReason != null) {
+        _showUnlockHint();
+      }
+      return;
+    }
     if (!_passed) {
       widget.onTap();
       return;
@@ -245,6 +271,15 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                           ),
                         ],
                       ),
+                      if (widget.locked && widget.lockReason != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            widget.lockReason!,
+                            style: const TextStyle(
+                                color: Colors.redAccent, fontSize: 12),
+                          ),
+                        ),
                       if (widget.template.description.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
@@ -297,7 +332,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: _handleTap,
+                  onPressed: widget.locked ? null : _handleTap,
                   child: const Text('Train'),
                 ),
                 PopupMenuButton<String>(
@@ -423,6 +458,22 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                         ),
                       ),
                   ],
+                ),
+              ),
+            if (widget.locked)
+              Positioned.fill(
+                child: Tooltip(
+                  message: widget.lockReason == null
+                      ? 'Пак заблокирован'
+                      : 'Чтобы разблокировать: ${widget.lockReason}',
+                  child: InkWell(
+                    onTap: widget.lockReason != null ? _showUnlockHint : null,
+                    child: Container(
+                      color: Colors.black54,
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.lock, color: Colors.white, size: 40),
+                    ),
+                  ),
                 ),
               ),
           ],
