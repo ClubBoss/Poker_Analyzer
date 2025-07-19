@@ -38,6 +38,8 @@ import '../../services/learning_path_service.dart';
 import '../../services/smart_review_service.dart';
 import '../../services/tag_mastery_service.dart';
 import '../../services/training_pack_template_builder.dart';
+import '../../services/achievement_service.dart';
+import '../../services/achievement_trigger_engine.dart';
 import '../../services/training_session_service.dart';
 import '../training_recommendation_screen.dart';
 import '../../services/pack_dependency_map.dart';
@@ -548,6 +550,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         }
       }
     }
+    AchievementService.instance.checkAll();
+    await AchievementTriggerEngine.instance.checkAndTriggerAchievements();
   }
 
   Future<void> _next() async {

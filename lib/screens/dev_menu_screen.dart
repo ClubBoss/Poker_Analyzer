@@ -104,6 +104,7 @@ import 'lesson_path_screen.dart';
 import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
 import '../services/learning_path_progress_service.dart';
+import '../services/achievement_trigger_engine.dart';
 import 'achievement_dashboard_screen.dart';
 import 'mistake_review_screen.dart';
 import 'mistake_insight_screen.dart';
@@ -156,6 +157,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _progressImportLoading = false;
   bool _autoAdvanceLoading = false;
   bool _unlockStages = false;
+  bool _achievementsCheckLoading = false;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
@@ -1403,6 +1405,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _forceCheckAchievements() async {
+    if (_achievementsCheckLoading || !kDebugMode) return;
+    setState(() => _achievementsCheckLoading = true);
+    await AchievementTriggerEngine.instance.checkAndTriggerAchievements();
+    if (!mounted) return;
+    setState(() => _achievementsCheckLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Achievements checked')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2012,6 +2025,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                         builder: (_) => const AchievementDashboardScreen()),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🎖 Принудительно проверить достижения'),
+                onTap:
+                    _achievementsCheckLoading ? null : _forceCheckAchievements,
               ),
             if (kDebugMode)
               CheckboxListTile(
