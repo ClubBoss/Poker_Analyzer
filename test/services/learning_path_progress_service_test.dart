@@ -38,4 +38,15 @@ void main() {
     done = await LearningPathProgressService.instance.isAllStagesCompleted();
     expect(done, isTrue);
   });
+
+  test('intro flag persists', () async {
+    var seen = await LearningPathProgressService.instance.hasSeenIntro();
+    expect(seen, isFalse);
+    await LearningPathProgressService.instance.markIntroSeen();
+    seen = await LearningPathProgressService.instance.hasSeenIntro();
+    expect(seen, isTrue);
+    await LearningPathProgressService.instance.resetIntroSeen();
+    seen = await LearningPathProgressService.instance.hasSeenIntro();
+    expect(seen, isFalse);
+  });
 }

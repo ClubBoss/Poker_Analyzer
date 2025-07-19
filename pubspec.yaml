@@ -61,6 +61,7 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   connectivity_plus: ^6.0.4
   url_launcher: ^6.1.11
+  flutter_svg: ^2.0.7
 
 dependency_overrides:
   intl: ^0.20.2
@@ -102,6 +103,7 @@ flutter:
     - assets/built_in_packs.yaml
     - assets/lessons/
     - assets/pack_matrix.json
+    - assets/learning_intro.svg
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo

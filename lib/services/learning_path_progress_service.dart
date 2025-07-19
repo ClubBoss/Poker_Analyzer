@@ -30,8 +30,11 @@ class LearningPathProgressService {
   LearningPathProgressService._();
   static final instance = LearningPathProgressService._();
 
+  static const _introKey = 'learning_intro_seen';
+
   bool mock = false;
   final Map<String, bool> _mockCompleted = {};
+  bool _mockIntroSeen = false;
 
   /// Clears all learning path progress. Used for development/testing only.
   Future<void> resetProgress() async {
@@ -49,6 +52,30 @@ class LearningPathProgressService {
   }
 
   static String _key(String id) => 'learning_completed_$id';
+
+  Future<bool> hasSeenIntro() async {
+    if (mock) return _mockIntroSeen;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_introKey) ?? false;
+  }
+
+  Future<void> markIntroSeen() async {
+    if (mock) {
+      _mockIntroSeen = true;
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_introKey, true);
+  }
+
+  Future<void> resetIntroSeen() async {
+    if (mock) {
+      _mockIntroSeen = false;
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_introKey);
+  }
 
   Future<void> markCompleted(String templateId) async {
     if (mock) {
