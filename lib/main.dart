@@ -89,6 +89,7 @@ import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
 import 'widgets/first_launch_tutorial.dart';
 import 'screens/onboarding_screen.dart';
+import 'onboarding/onboarding_flow_manager.dart';
 import 'app_bootstrap.dart';
 import 'app_providers.dart';
 import 'l10n/app_localizations.dart';
@@ -245,6 +246,12 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     );
   }
 
+  Future<void> _maybeStartOnboarding() async {
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+    await OnboardingFlowManager.instance.maybeStart(ctx);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -261,6 +268,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
       _maybeStartPinnedTraining();
       _maybeResumeTraining();
       _maybeShowIntroTutorial();
+      _maybeStartOnboarding();
     });
   }
 
