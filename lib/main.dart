@@ -71,6 +71,7 @@ import 'services/daily_challenge_service.dart';
 import 'services/daily_goals_service.dart';
 import 'services/session_log_service.dart';
 import 'services/category_usage_service.dart';
+import 'services/goal_sync_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
@@ -132,6 +133,7 @@ Future<void> main() async {
   await packCloud.init();
   mistakeCloud = MistakePackCloudService();
   goalCloud = GoalProgressCloudService();
+  goalSync = GoalSyncService();
   templateStorage = TrainingPackTemplateStorageService(
     cloud: packCloud,
     goals: goalCloud,
@@ -143,8 +145,8 @@ Future<void> main() async {
   await packCloud.syncUpTemplates(templateStorage);
   unawaited(
     AssetSyncService.instance.syncIfNeeded().catchError(
-          (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
-        ),
+      (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
+    ),
   );
   await EvaluationSettingsService.instance.load();
   await MistakeHintService.instance.load();
@@ -203,7 +205,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     if (DateTime.now()
             .difference(DateTime.fromMillisecondsSinceEpoch(ts))
             .inHours >
-        12) return;
+        12)
+      return;
     final templates = await TrainingPackStorage.load();
     final tpl = templates.firstWhereOrNull((t) => t.id == id);
     if (tpl == null) return;
@@ -276,8 +279,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     final stat = await TrainingPackStatsService.getStats(pinned.id);
     final idx = stat?.lastIndex ?? 0;
     if (completed && idx >= pinned.spots.length - 1) {
-      final rec =
-          await ctx.read<PersonalRecommendationService>().getTopRecommended();
+      final rec = await ctx
+          .read<PersonalRecommendationService>()
+          .getTopRecommended();
       if (rec == null) return;
       await ctx.read<TrainingSessionService>().startSession(rec);
     } else {
