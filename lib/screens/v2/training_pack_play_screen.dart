@@ -33,6 +33,7 @@ import '../../models/mistake.dart';
 import '../../widgets/poker_table_view.dart' show PlayerAction;
 import 'package:uuid/uuid.dart';
 import '../../helpers/mistake_advice.dart';
+import '../../services/learning_path_progress_service.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -450,6 +451,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   Future<void> _showCompletion() async {
     if (_summaryShown) return;
     _summaryShown = true;
+    await LearningPathProgressService.instance
+        .markCompleted(widget.original.id);
     final spots = widget.spots ?? widget.template.spots;
     final tpl = widget.template.copyWith(spots: spots);
     await Navigator.pushReplacement(
