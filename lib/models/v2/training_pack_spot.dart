@@ -159,6 +159,36 @@ class TrainingPackSpot {
         if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
       };
 
+  /// Converts this spot to a YAML-compatible map.
+  ///
+  /// The returned map omits empty or null values, mirroring [toJson].
+  Map<String, dynamic> toYaml() => toJson();
+
+  /// Creates a [TrainingPackSpot] from a YAML map.
+  ///
+  /// The method is tolerant to missing fields and invalid values to maintain
+  /// backwards compatibility with older pack versions.
+  factory TrainingPackSpot.fromYaml(Map yaml) {
+    final map = <String, dynamic>{};
+    yaml.forEach((k, v) => map[k.toString()] = v);
+
+    final board = <String>[for (final c in (yaml['board'] as List? ?? [])) c.toString()];
+    if (board.length >= 3 && board.length <= 5) map['board'] = board;
+
+    final street = (yaml['street'] as num?)?.toInt() ?? 0;
+    if (street >= 1 && street <= 3) map['street'] = street;
+
+    final villain = yaml['villainAction']?.toString();
+    if (villain != null && ['none', 'check', 'bet'].contains(villain)) {
+      map['villainAction'] = villain;
+    }
+
+    final heroOptions = <String>[for (final o in (yaml['heroOptions'] as List? ?? [])) o.toString()];
+    if (heroOptions.isNotEmpty) map['heroOptions'] = heroOptions;
+
+    return TrainingPackSpot.fromJson(Map<String, dynamic>.from(map));
+  }
+
   double? get heroEv {
     final acts = hand.actions[0] ?? [];
     for (final a in acts) {
