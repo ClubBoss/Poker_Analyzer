@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../core/training/engine/training_type_engine.dart';
 import '../widgets/spot_quiz_widget.dart';
 import '../widgets/action_history_widget.dart';
 import '../models/action_entry.dart';
@@ -14,11 +15,13 @@ class SpotViewerDialog extends StatefulWidget {
   final TrainingPackSpot spot;
   final BuildContext parentContext;
   final List<String> templateTags;
+  final TrainingType trainingType;
   const SpotViewerDialog({
     super.key,
     required this.spot,
     required this.parentContext,
     this.templateTags = const [],
+    this.trainingType = TrainingType.postflop,
   });
 
   @override
@@ -263,6 +266,7 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
                 builder: (_) => TrainingPackSpotEditorScreen(
                   spot: spot,
                   templateTags: widget.templateTags,
+                  trainingType: widget.trainingType,
                 ),
               ),
             );
@@ -286,6 +290,7 @@ Future<void> showSpotViewerDialog(
   BuildContext context,
   TrainingPackSpot spot, {
   List<String> templateTags = const [],
+  TrainingType trainingType = TrainingType.postflop,
 }) {
   return showDialog(
     context: context,
@@ -293,6 +298,7 @@ Future<void> showSpotViewerDialog(
       spot: spot,
       parentContext: context,
       templateTags: templateTags,
+      trainingType: trainingType,
     ),
   );
 }

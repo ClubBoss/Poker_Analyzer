@@ -36,6 +36,7 @@ import '../../services/training_session_service.dart';
 import '../training_session_screen.dart';
 import '../../helpers/training_pack_validator.dart';
 import '../../utils/template_coverage_utils.dart';
+import '../../core/training/engine/training_type_engine.dart';
 import '../../widgets/common/ev_distribution_chart.dart';
 import '../../widgets/ev_summary_card.dart';
 import '../../theme/app_colors.dart';
