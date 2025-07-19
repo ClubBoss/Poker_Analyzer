@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import '../models/user_goal.dart';
 import '../widgets/goal_celebration_banner.dart';
+import 'goal_analytics_service.dart';
 
 class GoalToastService {
   static const _progressPrefix = 'goal_toast_progress_';
@@ -18,6 +19,7 @@ class GoalToastService {
 
   Future<void> _maybeShowToast(UserGoal goal, double newProgress) async {
     final prefs = await SharedPreferences.getInstance();
+    await GoalAnalyticsService.instance.logGoalProgress(goal, newProgress);
     final bannerKey = '$_bannerPrefix${goal.id}';
     final bannerShown = prefs.getBool(bannerKey) ?? false;
     final old = prefs.getDouble('$_progressPrefix${goal.id}') ?? 0.0;
@@ -28,6 +30,7 @@ class GoalToastService {
     if (!bannerShown && (goal.completed || newProgress >= 100)) {
       if (ctx != null && ctx.mounted) {
         _showCelebrationBanner(ctx, goal);
+        unawaited(GoalAnalyticsService.instance.logGoalCompleted(goal));
         await prefs.setBool(bannerKey, true);
       }
     }

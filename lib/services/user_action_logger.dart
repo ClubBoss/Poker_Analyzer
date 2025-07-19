@@ -47,5 +47,16 @@ class UserActionLogger extends ChangeNotifier {
     await log(action);
   }
 
+  Future<void> logEvent(Map<String, dynamic> event) async {
+    event['time'] ??= DateTime.now().toIso8601String();
+    _events.add(event);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _prefsKey,
+      _events.map((e) => jsonEncode(e)).toList(),
+    );
+    notifyListeners();
+  }
+
   List<Map<String, dynamic>> export() => events;
 }
