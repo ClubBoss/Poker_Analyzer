@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/learning_path_progress_service.dart';
 import '../services/training_pack_template_service.dart';
 import '../main.dart';
+import '../widgets/stage_completion_banner.dart';
 import 'v2/training_pack_play_screen.dart';
 
 class LearningPathScreen extends StatelessWidget {
@@ -63,6 +64,8 @@ class _StageSection extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 8),
+        StageCompletionBanner(title: stage.title),
         const SizedBox(height: 8),
         for (int i = 0; i < stage.items.length; i++)
           LearningStageTile(item: stage.items[i], index: i),
