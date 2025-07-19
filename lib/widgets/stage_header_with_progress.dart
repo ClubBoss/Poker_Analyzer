@@ -4,6 +4,7 @@ class StageHeaderWithProgress extends StatelessWidget {
   final String title;
   final int levelIndex;
   final String goal;
+  final String? tip;
   final double progress;
   final bool showProgress;
   const StageHeaderWithProgress({
@@ -11,6 +12,7 @@ class StageHeaderWithProgress extends StatelessWidget {
     required this.title,
     required this.levelIndex,
     required this.goal,
+    this.tip,
     required this.progress,
     this.showProgress = true,
   });
@@ -40,15 +42,51 @@ class StageHeaderWithProgress extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
-            duration: const Duration(milliseconds: 300),
-            builder: (context, value, child) =>
-                Opacity(opacity: value, child: child),
-            child: Text(
-              goal,
-              style: const TextStyle(color: Colors.white70),
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, child) =>
+                      Opacity(opacity: value, child: child),
+                  child: Text(
+                    goal,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ),
+              if (tip != null)
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, child) =>
+                      Opacity(opacity: value, child: child),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(Icons.info_outline,
+                        color: Colors.white70, size: 20),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          backgroundColor: Colors.grey[900],
+                          title: const Text('Совет по уровню'),
+                          content: Text(tip!),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Понятно'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
           ),
           if (showProgress) ...[
             const SizedBox(height: 4),
