@@ -84,6 +84,7 @@ import 'services/smart_suggestion_service.dart';
 import 'services/training_gap_detector_service.dart';
 import 'services/smart_suggestion_engine.dart';
 import 'services/smart_pack_suggestion_engine.dart';
+import 'services/smart_review_service.dart';
 import 'services/evaluation_executor_service.dart';
 import 'services/session_analysis_service.dart';
 import 'services/user_action_logger.dart';
@@ -197,6 +198,7 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider<GoalSyncService>.value(value: goalSync),
     ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
     ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
+    Provider(create: (_) => SmartReviewService.instance..load()),
     ChangeNotifierProvider(
       create: (context) => AdaptiveTrainingService(
         templates: context.read<TemplateStorageService>(),
