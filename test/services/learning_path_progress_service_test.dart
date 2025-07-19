@@ -61,4 +61,12 @@ void main() {
     seen = await LearningPathProgressService.instance.hasSeenIntro();
     expect(seen, isFalse);
   });
+
+  test('resetStage clears progress', () async {
+    await LearningPathProgressService.instance.markCompleted('starter_pushfold_10bb');
+    await LearningPathProgressService.instance.resetStage('Beginner');
+    final stages = await LearningPathProgressService.instance.getCurrentStageState();
+    expect(stages.first.items.first.status, LearningItemStatus.available);
+    expect(stages.first.items[1].status, LearningItemStatus.locked);
+  });
 }

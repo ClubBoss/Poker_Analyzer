@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 import 'training_progress_service.dart';
 
 enum LearningItemStatus { locked, available, inProgress, completed }
@@ -111,6 +112,34 @@ class LearningPathProgressService {
     if (mock) return _mockCompleted[templateId] == true;
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_key(templateId)) ?? false;
+  }
+
+  Future<void> resetStage(String stageId) async {
+    final stages = await getCurrentStageState();
+    final stage = stages.firstWhereOrNull(
+        (s) => s.title.toLowerCase() == stageId.toLowerCase());
+    if (stage == null) return;
+    if (mock) {
+      for (final item in stage.items) {
+        if (item.templateId != null) {
+          _mockCompleted.remove(item.templateId);
+        }
+      }
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    for (final item in stage.items) {
+      final id = item.templateId;
+      if (id == null) continue;
+      await prefs.remove(_key(id));
+      await prefs.remove('progress_tpl_$id');
+      await prefs.remove('completed_tpl_$id');
+      await prefs.remove('completed_at_tpl_$id');
+      await prefs.remove('last_accuracy_tpl_$id');
+      await prefs.remove('last_accuracy_tpl_${id}_0');
+      await prefs.remove('last_accuracy_tpl_${id}_1');
+      await prefs.remove('last_accuracy_tpl_${id}_2');
+    }
   }
 
   bool isStageCompleted(List<LearningStageItem> items) {
