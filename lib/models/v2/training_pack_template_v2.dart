@@ -7,6 +7,7 @@ import '../training_pack.dart' show parseGameType;
 import '../../core/training/engine/training_type_engine.dart';
 import 'training_pack_spot.dart';
 import 'spot_template.dart';
+import 'unlock_rules.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -27,6 +28,7 @@ class TrainingPackTemplateV2 {
   Map<String, dynamic> meta;
   bool recommended;
   String? targetStreet;
+  UnlockRules? unlockRules;
 
   TrainingPackTemplateV2({
     required this.id,
@@ -47,6 +49,7 @@ class TrainingPackTemplateV2 {
     Map<String, dynamic>? meta,
     this.recommended = false,
     this.targetStreet,
+    this.unlockRules,
   })  : tags = tags ?? [],
         spots = spots ?? [],
         positions = positions ?? [],
@@ -87,6 +90,9 @@ class TrainingPackTemplateV2 {
       recommended: j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
       targetStreet: j['targetStreet'] as String?,
+      unlockRules: j['unlockRules'] is Map
+          ? UnlockRules.fromJson(Map<String, dynamic>.from(j['unlockRules']))
+          : null,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
     if (tpl.theme != null) tpl.meta['theme'] = tpl.theme;
@@ -114,6 +120,7 @@ class TrainingPackTemplateV2 {
       if (positions.isNotEmpty) 'positions': positions,
       if (recommended) 'recommended': true,
       if (targetStreet != null) 'targetStreet': targetStreet,
+      if (unlockRules != null) 'unlockRules': unlockRules!.toJson(),
     };
     final metaMap = Map<String, dynamic>.from(meta);
     if (theme != null) metaMap['theme'] = theme;
