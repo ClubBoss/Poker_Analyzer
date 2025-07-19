@@ -4,10 +4,12 @@ class StageHeaderWithProgress extends StatelessWidget {
   final String title;
   final double progress;
   final bool showProgress;
+  final int levelIndex;
   const StageHeaderWithProgress({
     super.key,
     required this.title,
     required this.progress,
+    required this.levelIndex,
     this.showProgress = true,
   });
 
@@ -28,7 +30,7 @@ class StageHeaderWithProgress extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            'Уровень $levelIndex: $title',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,

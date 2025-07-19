@@ -24,11 +24,13 @@ class LearningStageState {
   final String title;
   final List<LearningStageItem> items;
   final bool isLocked;
+  final int levelIndex;
 
   const LearningStageState({
     required this.title,
     required this.items,
     this.isLocked = false,
+    required this.levelIndex,
   });
 }
 
@@ -118,7 +120,7 @@ class LearningPathProgressService {
     }
 
     final stages = [
-      LearningStageState(title: 'Beginner', items: [
+      LearningStageState(levelIndex: 1, title: 'Beginner', items: [
         LearningStageItem(
           title: 'Push/Fold Basics',
           icon: Icons.play_circle_fill,
@@ -141,7 +143,7 @@ class LearningPathProgressService {
           templateId: 'starter_pushfold_15bb',
         ),
       ]),
-      LearningStageState(title: 'Intermediate', items: [
+      LearningStageState(levelIndex: 2, title: 'Intermediate', items: [
         LearningStageItem(
           title: 'ICM Concepts',
           icon: Icons.insights,
@@ -157,7 +159,7 @@ class LearningPathProgressService {
           templateId: 'starter_pushfold_20bb',
         ),
       ]),
-      LearningStageState(title: 'Advanced', items: [
+      LearningStageState(levelIndex: 3, title: 'Advanced', items: [
         LearningStageItem(
           title: 'Exploit Spots',
           icon: Icons.lightbulb_outline,
@@ -204,7 +206,10 @@ class LearningPathProgressService {
       }
       final completedStage = isStageCompleted(items);
       result.add(LearningStageState(
-          title: stage.title, items: items, isLocked: !stageUnlocked));
+          title: stage.title,
+          items: items,
+          isLocked: !stageUnlocked,
+          levelIndex: stage.levelIndex));
       prevCompleted = unlockAllStages ? true : completedStage;
     }
     return result;
