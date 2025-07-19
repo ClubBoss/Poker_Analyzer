@@ -94,6 +94,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _popularOnlyKey = 'lib_popular_only';
   static const _recommendedOnlyKey = 'lib_recommended_only';
   static const _masteredOnlyKey = 'lib_mastered_only';
+  static const _availableOnlyKey = 'lib_available_only';
   static const _effectivenessSortKey = 'lib_effectiveness_sort';
   static const _compactKey = 'lib_compact_mode';
   static const _pinKey = 'lib_pinned';
@@ -153,6 +154,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _popularOnly = false;
   bool _recommendedOnly = false;
   bool _masteredOnly = false;
+  bool _availableOnly = false;
   bool _compactMode = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
@@ -318,6 +320,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _popularOnly = prefs.getBool(_popularOnlyKey) ?? false;
       _recommendedOnly = prefs.getBool(_recommendedOnlyKey) ?? false;
       _masteredOnly = prefs.getBool(_masteredOnlyKey) ?? false;
+      _availableOnly = prefs.getBool(_availableOnlyKey) ?? false;
       _compactMode = prefs.getBool(_compactKey) ?? false;
       _pinned
         ..clear()
@@ -750,6 +753,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_masteredOnlyKey, value);
     setState(() => _masteredOnly = value);
+  }
+
+  Future<void> _setAvailableOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_availableOnlyKey, value);
+    setState(() => _availableOnly = value);
   }
 
   Future<void> _setCompactMode(bool value) async {
@@ -1342,6 +1351,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if ((t as dynamic).targetStreet != null &&
               _streetFilters.contains((t as dynamic).targetStreet))
             t
+      ];
+    }
+    if (_availableOnly) {
+      visible = [
+        for (final t in visible)
+          if (_packUnlocked[t.id] != false) t
       ];
     }
     return visible;
@@ -2282,7 +2297,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ),
         );
     final meta = t.meta.isNotEmpty ? jsonEncode(t.meta) : '';
-    return Card(
+    final locked = _packUnlocked[t.id] == false;
+    final reason = _lockReasons[t.id];
+    Widget card = Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -2309,6 +2326,31 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ],
       ),
     );
+    if (locked) {
+      card = Stack(
+        children: [
+          Opacity(opacity: 0.5, child: card),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black45,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('🔒 Заблокировано',
+                      style: TextStyle(color: Colors.white)),
+                  if (reason != null)
+                    Text(reason!,
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 12)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return card;
   }
 
   Widget get _emptyTile => const ListTile(
@@ -2435,12 +2477,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     ]);
     final libAll = _applyTrainingTypeFilter(
         _applyAudienceFilter(PackLibraryLoaderService.instance.library));
-    final libraryFiltered = _activeTags.isEmpty
+    List<v2.TrainingPackTemplate> libraryFiltered = _activeTags.isEmpty
         ? libAll
         : [
             for (final t in libAll)
               if (t.tags.any(_activeTags.contains)) t
           ];
+    if (_availableOnly) {
+      libraryFiltered = [
+        for (final t in libraryFiltered)
+          if (_packUnlocked[t.id] != false) t
+      ];
+    }
     final libraryMap = <String, List<v2.TrainingPackTemplate>>{};
     for (final t in libraryFiltered) {
       final tag = t.tags.isNotEmpty ? t.tags.first : 'Other';
@@ -2961,6 +3009,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   label: Text(l.masteredBadge),
                   selected: _masteredOnly,
                   onSelected: (v) => _setMasteredOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('🔓 Доступные'),
+                  selected: _availableOnly,
+                  onSelected: (v) => _setAvailableOnly(v),
                 ),
                 ChoiceChip(
                   label: const Text('📋 Компактно'),

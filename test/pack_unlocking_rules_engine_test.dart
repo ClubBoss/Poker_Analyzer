@@ -39,4 +39,19 @@ void main() {
     final res = await PackUnlockingRulesEngine.instance.check(tpl);
     expect(res.unlocked, isTrue);
   });
+
+  test('uses unlock hint when provided', () async {
+    final tpl = TrainingPackTemplateV2(
+      id: 'b',
+      name: 'B',
+      trainingType: TrainingType.pushFold,
+      unlockRules: const UnlockRules(
+        requiredPacks: ['a'],
+        unlockHint: 'Complete pack A first',
+      ),
+    );
+    final res = await PackUnlockingRulesEngine.instance.check(tpl);
+    expect(res.unlocked, isFalse);
+    expect(res.reason, 'Complete pack A first');
+  });
 }

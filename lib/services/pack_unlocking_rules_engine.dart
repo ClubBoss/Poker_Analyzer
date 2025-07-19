@@ -25,13 +25,14 @@ class PackUnlockingRulesEngine {
   Future<UnlockCheckResult> check(TrainingPackTemplateV2 pack) async {
     final rules = pack.unlockRules;
     if (rules == null) return const UnlockCheckResult(true);
+    String? hint = rules.unlockHint;
 
     if (rules.requiredPacks.isNotEmpty) {
       for (final id in rules.requiredPacks) {
         final done = mock
             ? _mockCompleted.contains(id)
             : await LearningPathProgressService.instance.isCompleted(id);
-        if (!done) return UnlockCheckResult(false, 'Завершите пак $id');
+        if (!done) return UnlockCheckResult(false, hint ?? 'Завершите пак $id');
       }
     }
 
@@ -40,7 +41,7 @@ class PackUnlockingRulesEngine {
           ? _mockStarterCompleted
           : await _isStarterPathCompleted();
       if (!completed) {
-        return const UnlockCheckResult(false, 'Завершите starter path');
+        return UnlockCheckResult(false, hint ?? 'Завершите starter path');
       }
     }
 
@@ -50,7 +51,8 @@ class PackUnlockingRulesEngine {
           : (await TrainingPackStatsService.getGlobalStats()).averageEV;
       if (ev < rules.minEV!) {
         return UnlockCheckResult(
-            false, 'Средний EV < ${rules.minEV!.toStringAsFixed(2)}');
+            false,
+            hint ?? 'Средний EV < ${rules.minEV!.toStringAsFixed(2)}');
       }
     }
 
