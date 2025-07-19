@@ -37,6 +37,7 @@ class _StageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final progress = computeStageProgress(stage.items);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,6 +52,18 @@ class _StageSection extends StatelessWidget {
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6.0,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
         for (int i = 0; i < stage.items.length; i++)
           LearningStageTile(item: stage.items[i], index: i),
       ],
@@ -121,8 +134,7 @@ class _LearningStageTileState extends State<LearningStageTile> {
                       );
                       return;
                     }
-                    final tpl =
-                        TrainingPackTemplateService.getById(id, ctx);
+                    final tpl = TrainingPackTemplateService.getById(id, ctx);
                     if (tpl == null) {
                       ScaffoldMessenger.of(ctx).showSnackBar(
                         const SnackBar(content: Text('Template not found')),
@@ -132,8 +144,8 @@ class _LearningStageTileState extends State<LearningStageTile> {
                     Navigator.push(
                       ctx,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            TrainingPackPlayScreen(template: tpl, original: tpl),
+                        builder: (_) => TrainingPackPlayScreen(
+                            template: tpl, original: tpl),
                       ),
                     );
                   },
@@ -142,4 +154,23 @@ class _LearningStageTileState extends State<LearningStageTile> {
       ),
     );
   }
+}
+
+double computeStageProgress(List<LearningStageItem> items) {
+  if (items.isEmpty) return 0.0;
+  var sum = 0.0;
+  for (final item in items) {
+    switch (item.status) {
+      case LearningItemStatus.completed:
+        sum += 1.0;
+        break;
+      case LearningItemStatus.available:
+        sum += 0.5;
+        break;
+      case LearningItemStatus.locked:
+      default:
+        break;
+    }
+  }
+  return sum / items.length;
 }
