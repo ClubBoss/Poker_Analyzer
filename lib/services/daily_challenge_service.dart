@@ -1,102 +1,171 @@
-import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/v2/training_pack_template.dart';
-import 'adaptive_training_service.dart';
-import 'template_storage_service.dart';
-import 'xp_tracker_service.dart';
+import '../models/action_entry.dart';
+import '../models/card_model.dart';
+import '../models/player_model.dart';
+import '../models/training_spot.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/training_pack_template_v2.dart';
 
+/// Singleton service managing the Daily Challenge spot logic.
 class DailyChallengeService extends ChangeNotifier {
-  static const _idKey = 'daily_challenge_id';
-  static const _dateKey = 'daily_challenge_date';
-  static const _rewardKey = 'daily_challenge_rewarded';
-  static const _rewardXp = 20;
+  DailyChallengeService._();
 
-  final AdaptiveTrainingService adaptive;
-  final TemplateStorageService templates;
-  final XPTrackerService xp;
+  /// The single instance of [DailyChallengeService].
+  static final DailyChallengeService instance = DailyChallengeService._();
 
-  TrainingPackTemplate? _template;
+  factory DailyChallengeService() => instance;
+
+  static const String _dateKey = 'lastDailyChallengeDate';
+  static const String _spotKey = 'lastDailyChallengeSpot';
+  static const String _completedKey = 'lastDailyChallengeCompleted';
+
+  TrainingSpot? _spot;
   DateTime? _date;
-  bool _rewarded = false;
-  Timer? _timer;
+  bool _completed = false;
 
-  DailyChallengeService({
-    required this.adaptive,
-    required this.templates,
-    required this.xp,
-  });
+  /// Returns cached spot if available.
+  TrainingSpot? get spot => _spot;
 
-  TrainingPackTemplate? get template => _template;
-  bool get rewarded => _rewarded;
-  DateTime? get date => _date;
+  /// Whether today's challenge was already completed.
+  bool get completed => isCompletedToday();
 
-  Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final id = prefs.getString(_idKey);
-    final dateStr = prefs.getString(_dateKey);
-    _rewarded = prefs.getBool(_rewardKey) ?? false;
-    _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
-    _template = id != null
-        ? templates.templates.firstWhere(
-            (t) => t.id == id,
-            orElse: () => TrainingPackTemplate(id: id, name: id),
-          )
-        : null;
-    await ensureToday();
-    xp.addListener(_check);
-  }
-
-  bool _isSameDay(DateTime a, DateTime b) =>
+  bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  Future<void> ensureToday() async {
+  /// Loads or generates today's challenge spot.
+  Future<TrainingSpot?> getTodayChallenge() async {
+    final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    if (_date != null && _template != null && _isSameDay(_date!, now)) {
-      _schedule();
-      await _check();
-      return;
+
+    if (_spot != null && _date != null && _sameDay(_date!, now)) {
+      return _spot;
     }
-    await adaptive.refresh();
-    final list = adaptive.recommended;
-    if (list.isEmpty) return;
-    final tpl = list.first;
-    _template = tpl;
+
+    final dateStr = prefs.getString(_dateKey);
+    final spotStr = prefs.getString(_spotKey);
+    final storedCompleted = prefs.getBool(_completedKey) ?? false;
+    if (dateStr != null && spotStr != null) {
+      final storedDate = DateTime.tryParse(dateStr);
+      if (storedDate != null && _sameDay(storedDate, now)) {
+        try {
+          final map = jsonDecode(spotStr);
+          if (map is Map<String, dynamic>) {
+            _spot = TrainingSpot.fromJson(Map<String, dynamic>.from(map));
+            _date = storedDate;
+            _completed = storedCompleted;
+            return _spot;
+          }
+        } catch (_) {}
+      }
+    }
+
+    _spot = await _loadSpot();
     _date = DateTime(now.year, now.month, now.day);
-    _rewarded = false;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_idKey, tpl.id);
+    _completed = false;
     await prefs.setString(_dateKey, _date!.toIso8601String());
-    await prefs.setBool(_rewardKey, false);
-    _schedule();
+    if (_spot != null) {
+      await prefs.setString(_spotKey, jsonEncode(_spot!.toJson()));
+    } else {
+      await prefs.remove(_spotKey);
+    }
+    await prefs.setBool(_completedKey, false);
     notifyListeners();
-    await _check();
+    return _spot;
   }
 
-  Future<void> _check() async {
-    final tpl = _template;
-    if (tpl == null || _rewarded) return;
+  /// Marks today's challenge as completed.
+  Future<void> markCompleted() async {
     final prefs = await SharedPreferences.getInstance();
-    final done = prefs.getBool('completed_tpl_${tpl.id}') ?? false;
-    if (!done) return;
-    _rewarded = true;
-    await prefs.setBool(_rewardKey, true);
-    await xp.add(xp: _rewardXp, source: 'daily_challenge');
+    final now = DateTime.now();
+    _date = DateTime(now.year, now.month, now.day);
+    _completed = true;
+    await prefs.setString(_dateKey, _date!.toIso8601String());
+    await prefs.setBool(_completedKey, true);
     notifyListeners();
   }
 
-  void _schedule() {
-    _timer?.cancel();
+  /// Returns `true` if today's challenge is completed.
+  bool isCompletedToday() {
     final now = DateTime.now();
-    final next = DateTime(now.year, now.month, now.day + 1);
-    _timer = Timer(next.difference(now), ensureToday);
+    if (_date == null || !_sameDay(_date!, now)) return false;
+    return _completed;
   }
 
-  @override
-  void dispose() {
-    xp.removeListener(_check);
-    _timer?.cancel();
-    super.dispose();
+  Future<TrainingSpot?> _loadSpot() async {
+    // Try loading from bundled YAML pack first.
+    try {
+      final yaml = await rootBundle.loadString('assets/master_daily.yaml');
+      final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+      if (tpl.spots.isNotEmpty) {
+        return _fromPackSpot(tpl.spots.first);
+      }
+    } catch (_) {}
+
+    // Fallback to the first bundled spot as a placeholder.
+    try {
+      final data = await rootBundle.loadString('assets/spots/spots.json');
+      final list = jsonDecode(data);
+      if (list is List && list.isNotEmpty) {
+        final map = Map<String, dynamic>.from(list.first as Map);
+        return TrainingSpot.fromJson(map);
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  TrainingSpot _fromPackSpot(TrainingPackSpot spot) {
+    final hand = spot.hand;
+    final heroCards = hand.heroCards
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty)
+        .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
+        .toList();
+    final playerCards = [
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+    ];
+    if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
+      playerCards[hand.heroIndex] = heroCards;
+    }
+    final boardCards = [
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+    ];
+    final actions = <ActionEntry>[];
+    for (final list in hand.actions.values) {
+      for (final a in list) {
+        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
+            amount: a.amount,
+            generated: a.generated,
+            manualEvaluation: a.manualEvaluation,
+            customLabel: a.customLabel));
+      }
+    }
+    final stacks = [
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0
+    ];
+    final positions = List.generate(hand.playerCount, (_) => '');
+    if (hand.heroIndex < positions.length) {
+      positions[hand.heroIndex] = hand.position.label;
+    }
+    return TrainingSpot(
+      playerCards: playerCards,
+      boardCards: boardCards,
+      actions: actions,
+      heroIndex: hand.heroIndex,
+      numberOfPlayers: hand.playerCount,
+      playerTypes: List.generate(hand.playerCount, (_) => PlayerType.unknown),
+      positions: positions,
+      stacks: stacks,
+      tags: List<String>.from(spot.tags),
+      recommendedAction: spot.correctAction,
+      difficulty: 3,
+      rating: 0,
+      createdAt: DateTime.now(),
+    );
   }
 }
