@@ -74,6 +74,7 @@ import 'pack_suggestion_preview_screen.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/sample_pack_preview_button.dart';
 import '../widgets/sample_pack_preview_tooltip.dart';
+import '../widgets/pack_resume_banner.dart';
 import '../services/training_pack_sampler.dart';
 import 'v2/training_pack_play_screen.dart';
 
@@ -1917,12 +1918,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ],
           ),
           onTap: () async {
-            if (await _maybeAutoSample(
-                TrainingPackTemplateV2.fromTemplate(
-                    t,
-                    type: const TrainingTypeEngine()
-                        .detectTrainingType(t),
-                ))) return;
+            if (await _maybeAutoSample(TrainingPackTemplateV2.fromTemplate(
+              t,
+              type: const TrainingTypeEngine().detectTrainingType(t),
+            ))) return;
             final create = await showDialog<bool>(
               context: context,
               builder: (_) => TemplatePreviewDialog(template: t),
@@ -2146,21 +2145,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               color: _favorites.contains(t.id) ? Colors.amber : Colors.white54,
               onPressed: () => _toggleFavorite(t.id),
             ),
-              TextButton(
-                onPressed: locked || previewRequired
-                    ? null
-                    : () {
-                        context.read<TrainingSessionService>().startSession(t);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const TrainingSessionScreen()),
-                        );
-                      },
-                child: const Text('▶️ Train'),
-              ),
-              if (previewRequired) const SamplePackPreviewTooltip(),
-              SamplePackPreviewButton(template: t, locked: locked),
+            TextButton(
+              onPressed: locked || previewRequired
+                  ? null
+                  : () {
+                      context.read<TrainingSessionService>().startSession(t);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    },
+              child: const Text('▶️ Train'),
+            ),
+            if (previewRequired) const SamplePackPreviewTooltip(),
+            SamplePackPreviewButton(template: t, locked: locked),
           ],
         ),
         onTap: () async {
@@ -2367,8 +2366,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return true;
   }
 
-  Future<void> _onLockedPackTap(
-      TrainingPackTemplate t, String? reason) async {
+  Future<void> _onLockedPackTap(TrainingPackTemplate t, String? reason) async {
     final l = AppLocalizations.of(context)!;
     final previewRequired =
         t.spots.length > 30 && !_previewCompleted.contains(t.id);
@@ -2543,16 +2541,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 color: Colors.black45,
                 alignment: Alignment.center,
                 child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('🔒 Заблокировано',
-                      style: TextStyle(color: Colors.white)),
-                  if (reason != null)
-                    Text(reason!,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 12)),
-                ],
-              ),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🔒 Заблокировано',
+                        style: TextStyle(color: Colors.white)),
+                    if (reason != null)
+                      Text(reason!,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12)),
+                  ],
+                ),
               ),
             ),
           ),
@@ -3308,6 +3306,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     controller: _listCtrl,
                     children: [
                       SmartSuggestionBanner(selectedTags: _selectedTags),
+                      const PackResumeBanner(),
                       const PackSuggestionBanner(),
                       const SuggestedPackTile(),
                       if (_popularOnly && popularFiltered.isNotEmpty) ...[
