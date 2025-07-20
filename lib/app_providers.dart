@@ -95,6 +95,7 @@ import 'services/tag_mastery_service.dart';
 import 'services/goal_suggestion_engine.dart';
 import 'services/goal_sync_service.dart';
 import 'services/tag_coverage_service.dart';
+import 'services/tag_mastery_history_service.dart';
 import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
 import 'services/training_path_progress_service.dart';
@@ -445,6 +446,7 @@ List<SingleChildWidget> buildTrainingProviders() {
           TagMasteryService(logs: context.read<SessionLogService>()),
     ),
     Provider(create: (_) => TagCoverageService()),
+    Provider(create: (_) => TagMasteryHistoryService()),
     Provider(
       create: (context) => GoalSuggestionEngine(
         mastery: context.read<TagMasteryService>(),
