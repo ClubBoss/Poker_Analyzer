@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
+import 'learning_path_personalization_service.dart';
 
 import '../models/session_log.dart';
 import 'training_session_service.dart';
@@ -33,22 +34,27 @@ class SessionLogService extends ChangeNotifier {
     }
     _logs
       ..clear()
-      ..addAll(_box!.values.whereType<Map>().map(
-          (e) => SessionLog.fromJson(Map<String, dynamic>.from(e))))
+      ..addAll(_box!.values
+          .whereType<Map>()
+          .map((e) => SessionLog.fromJson(Map<String, dynamic>.from(e))))
       ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
     _logged.addAll(_logs.map((e) => e.sessionId));
     if (cloud != null) {
       final remote = cloud!.getCached('session_logs');
       if (remote != null) {
         final prefs = await SharedPreferences.getInstance();
-        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final remoteAt =
+            DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['logs'];
           if (list is List) {
             _logs
               ..clear()
-              ..addAll(list.map((e) => SessionLog.fromJson(Map<String, dynamic>.from(e as Map))))
+              ..addAll(list.map((e) =>
+                  SessionLog.fromJson(Map<String, dynamic>.from(e as Map))))
               ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
             _logged
               ..clear()
@@ -106,9 +112,12 @@ class SessionLogService extends ChangeNotifier {
     );
     _logged.add(s.id);
     unawaited(_save(log));
+    unawaited(
+        LearningPathPersonalizationService.instance.updateFromSession(log));
     unawaited(() async {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('mistakes_tpl_${log.templateId}', log.mistakeCount > 0);
+      await prefs.setBool(
+          'mistakes_tpl_${log.templateId}', log.mistakeCount > 0);
     }());
   }
 
