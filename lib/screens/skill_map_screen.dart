@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/tag_mastery_service.dart';
-import '../widgets/tag_skill_tile.dart';
+import '../services/xp_tracker_service.dart';
+import '../widgets/skill_card.dart';
 import '../utils/responsive.dart';
 import 'library_screen.dart';
 
@@ -16,6 +17,7 @@ class SkillMapScreen extends StatefulWidget {
 class _SkillMapScreenState extends State<SkillMapScreen> {
   bool _loading = true;
   Map<String, double> _data = {};
+  Map<String, int> _xp = {};
   bool _weakFirst = true;
 
   @override
@@ -26,12 +28,15 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final service = context.read<TagMasteryService>();
-    final map = await service.computeMastery(force: true);
+    final masteryService = context.read<TagMasteryService>();
+    final xpService = context.read<XPTrackerService>();
+    final map = await masteryService.computeMastery(force: true);
+    final xpMap = await xpService.getTotalXpPerTag();
     final entries = map.entries.toList();
     _sort(entries);
     setState(() {
       _data = {for (final e in entries) e.key: e.value};
+      _xp = xpMap;
       _loading = false;
     });
   }
@@ -84,9 +89,10 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
               mainAxisSpacing: 8,
               children: [
                 for (final e in _data.entries)
-                  TagSkillTile(
+                  SkillCard(
                     tag: e.key,
-                    value: e.value,
+                    mastery: e.value,
+                    totalXp: _xp[e.key] ?? 0,
                     onTap: () => _openTag(e.key),
                   ),
               ],
