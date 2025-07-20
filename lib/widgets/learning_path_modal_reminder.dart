@@ -15,7 +15,13 @@ class LearningPathModalReminder extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
     return AlertDialog(
-      title: const Text('Продолжим обучение?'),
+      title: Row(
+        children: [
+          Icon(Icons.school, color: accent, size: 28),
+          const SizedBox(width: 8),
+          const Text('Продолжим обучение?'),
+        ],
+      ),
       content: const Text(
         'Ты можешь прокачать свои навыки уже сейчас. Дорога к мастерству ждёт тебя 💡',
       ),
