@@ -77,6 +77,7 @@ import '../widgets/sample_pack_preview_tooltip.dart';
 import '../widgets/pack_resume_banner.dart';
 import '../services/training_pack_sampler.dart';
 import 'v2/training_pack_play_screen.dart';
+import '../widgets/pack_progress_overlay.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -1936,6 +1937,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           },
         ),
       );
+      card = Stack(
+        children: [
+          card,
+          Positioned(
+            top: 4,
+            right: 4,
+            child: PackProgressOverlay(templateId: t.id, size: 20),
+          ),
+        ],
+      );
       if (_isStarter(t)) {
         card = Container(
           decoration: BoxDecoration(
@@ -2177,6 +2188,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           }
         },
       ),
+    );
+    card = Stack(
+      children: [
+        card,
+        Positioned(
+          top: 4,
+          right: 4,
+          child: PackProgressOverlay(templateId: t.id, size: 20),
+        ),
+      ],
     );
     if (_isStarter(t)) {
       card = Container(
@@ -2529,6 +2550,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (meta.isNotEmpty) row(Icons.info_outline, meta),
         ],
       ),
+    );
+    card = Stack(
+      children: [
+        card,
+        Positioned(
+          top: 4,
+          right: 4,
+          child: PackProgressOverlay(templateId: t.id, size: 20),
+        ),
+      ],
     );
     if (locked) {
       card = Stack(
