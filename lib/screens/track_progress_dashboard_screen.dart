@@ -13,11 +13,8 @@ import '../services/lesson_track_meta_service.dart';
 import '../services/learning_path_completion_service.dart';
 import '../models/mastery_level.dart';
 import '../services/mastery_level_engine.dart';
-import '../services/lesson_goal_engine.dart';
-import '../services/lesson_goal_streak_engine.dart';
-import '../widgets/goal_progress_bar.dart';
+import '../widgets/goal_dashboard_widget.dart';
 import '../widgets/xp_level_bar.dart';
-import '../widgets/streak_flame_widget.dart';
 import '../services/xp_reward_engine.dart';
 import 'master_mode_screen.dart';
 import 'lesson_step_screen.dart';
@@ -46,8 +43,6 @@ class _TrackProgressDashboardScreenState
 
   Future<Map<String, dynamic>> _load() async {
     final tracks = const LearningTrackEngine().getTracks();
-    final dailyGoal = await LessonGoalEngine.instance.getDailyGoal();
-    final weeklyGoal = await LessonGoalEngine.instance.getWeeklyGoal();
     final progress =
         await LessonPathProgressService.instance.computeTrackProgress();
     final completed =
@@ -76,9 +71,6 @@ class _TrackProgressDashboardScreenState
     final totalXp = await XPRewardEngine.instance.getTotalXp();
     final level = getLevel(totalXp);
     final levelXp = getXpForNextLevel(totalXp);
-    final currentStreak =
-        await LessonGoalStreakEngine.instance.getCurrentStreak();
-    final bestStreak = await LessonGoalStreakEngine.instance.getBestStreak();
     return {
       'tracks': tracks,
       'progress': progress,
@@ -86,13 +78,9 @@ class _TrackProgressDashboardScreenState
       'steps': steps,
       'meta': meta,
       'pathCompleted': pathCompleted,
-      'dailyGoal': dailyGoal,
-      'weeklyGoal': weeklyGoal,
       'totalXp': totalXp,
       'level': level,
       'levelXp': levelXp,
-      'currentStreak': currentStreak,
-      'bestStreak': bestStreak,
     };
   }
 
@@ -150,8 +138,6 @@ class _TrackProgressDashboardScreenState
         final steps = data?['steps'] as List<LessonStep>? ?? [];
         final meta = data?['meta'] as Map<String, TrackMeta?>? ?? {};
         final pathCompleted = data?['pathCompleted'] == true;
-        final dailyGoal = data?['dailyGoal'] as GoalProgress?;
-        final weeklyGoal = data?['weeklyGoal'] as GoalProgress?;
 
         if (pathCompleted && !_bannerShown) {
           _bannerShown = true;
@@ -189,16 +175,11 @@ class _TrackProgressDashboardScreenState
                     )
                   : Column(
                       children: [
-                        if (dailyGoal != null && weeklyGoal != null)
-                          GoalCard(daily: dailyGoal, weekly: weeklyGoal),
+                        const GoalDashboardWidget(),
                         XPLevelBar(
                           currentXp: data?['totalXp'] as int? ?? 0,
                           levelXp: data?['levelXp'] as int? ?? 0,
                           level: data?['level'] as int? ?? 1,
-                        ),
-                        StreakFlameWidget(
-                          currentStreak: data?['currentStreak'] as int? ?? 0,
-                          bestStreak: data?['bestStreak'] as int? ?? 0,
                         ),
                         FutureBuilder<MasteryLevel>(
                           future: _levelFuture,

@@ -23,6 +23,7 @@ import '../widgets/streak_chart.dart';
 import '../widgets/daily_goals_card.dart';
 import '../widgets/daily_progress_ring.dart';
 import '../widgets/goals_card.dart';
+import '../widgets/goal_dashboard_widget.dart';
 import '../widgets/repeat_mistakes_card.dart';
 import '../widgets/weekly_challenge_card.dart';
 import '../widgets/daily_challenge_card.dart';
@@ -122,6 +123,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const ResumeTrainingCard(),
             const DailyProgressRing(),
             const GoalsCard(),
+            const GoalDashboardWidget(),
             const DailyGoalsCard(),
             const DailyChallengeCard(),
             const SpotOfTheDayCard(),
@@ -141,6 +143,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const StreakChart(),
             const DailyProgressRing(),
             const GoalsCard(),
+            const GoalDashboardWidget(),
             const DailyGoalsCard(),
             const DailyChallengeCard(),
             const WeeklyChallengeCard(),
