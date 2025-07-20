@@ -20,6 +20,22 @@ class SmartResumeEngine {
   static const _sessionPrefix = 'ts_idx_';
   static const _sessionTsPrefix = 'ts_ts_';
 
+  Future<int> getProgressPercent(String templateId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final templates = await TrainingPackStorage.load();
+    final t = templates.firstWhere(
+      (e) => e.id == templateId,
+      orElse: () => TrainingPackTemplate(id: '', name: ''),
+    );
+    if (t.id.isEmpty) return 0;
+    final idx = prefs.getInt('$_playPrefix$templateId') ??
+        prefs.getInt('$_sessionPrefix$templateId');
+    if (idx == null) return 0;
+    final count = t.spots.length;
+    if (count == 0) return 0;
+    return (((idx + 1) / count) * 100).round().clamp(0, 100);
+  }
+
   Future<List<UnfinishedPack>> getRecentUnfinished({int limit = 3}) async {
     final prefs = await SharedPreferences.getInstance();
     final templates = await TrainingPackStorage.load();
