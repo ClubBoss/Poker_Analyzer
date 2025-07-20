@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +16,7 @@ class XPTrackerService extends ChangeNotifier {
   static const targetXp = 10;
   static const achievementXp = 50;
   static const _timeKey = 'xp_updated';
+  static const _tagXpPrefix = 'tag_xp_';
 
   final CloudSyncService? cloud;
 
@@ -126,5 +128,50 @@ class XPTrackerService extends ChangeNotifier {
     await _box!.put(entry.id, entry.toJson());
     await _save();
     notifyListeners();
+  }
+
+  Future<void> addPerTagXP(Map<String, int> tagXp, {required String source}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    for (final entry in tagXp.entries) {
+      final tag = entry.key.toLowerCase();
+      final key = '$_tagXpPrefix$tag';
+      Map<String, dynamic> data = {};
+      final raw = prefs.getString(key);
+      if (raw != null) {
+        try {
+          data = Map<String, dynamic>.from(jsonDecode(raw) as Map);
+        } catch (_) {
+          data = {};
+        }
+      }
+      final history = List<Map<String, dynamic>>.from(data['history'] as List? ?? []);
+      history.insert(0, {
+        'date': now.toIso8601String(),
+        'xp': entry.value,
+        'source': source,
+      });
+      while (history.length > 100) {
+        history.removeLast();
+      }
+      final total = (data['total'] as num?)?.toInt() ?? 0;
+      await prefs.setString(key, jsonEncode({'total': total + entry.value, 'history': history}));
+    }
+  }
+
+  Future<Map<String, int>> getTotalXpPerTag() async {
+    final prefs = await SharedPreferences.getInstance();
+    final result = <String, int>{};
+    for (final key in prefs.getKeys()) {
+      if (!key.startsWith(_tagXpPrefix)) continue;
+      final tag = key.substring(_tagXpPrefix.length);
+      final raw = prefs.getString(key);
+      if (raw == null) continue;
+      try {
+        final data = jsonDecode(raw) as Map<String, dynamic>;
+        result[tag] = (data['total'] as num?)?.toInt() ?? 0;
+      } catch (_) {}
+    }
+    return result;
   }
 }
