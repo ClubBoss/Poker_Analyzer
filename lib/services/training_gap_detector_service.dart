@@ -2,11 +2,17 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'training_history_service_v2.dart';
 import 'training_pack_stats_service.dart';
+import 'training_tag_performance_engine.dart';
 
 class TrainingGapDetectorService {
   const TrainingGapDetectorService();
 
   static const _skillKey = 'stats_skill_stats';
+
+  static List<TagPerformance>? _dormantCache;
+  static DateTime _dormantCacheTime = DateTime.fromMillisecondsSinceEpoch(0);
+  static Duration _dormantCacheGap = const Duration(days: 14);
+  static int _dormantCacheLimit = 0;
 
   Future<List<String>> detectNeglectedTags(
       {Duration maxAge = const Duration(days: 7)}) async {
@@ -68,5 +74,41 @@ class TrainingGapDetectorService {
       }
     } catch (_) {}
     return null;
+  }
+
+  /// Detects tags that haven't been trained for [gap] duration.
+  /// Results are cached for one hour using the same parameters.
+  static Future<List<TagPerformance>> detectDormantTags({
+    Duration gap = const Duration(days: 14),
+    int limit = 5,
+  }) async {
+    final now = DateTime.now();
+    if (_dormantCache != null &&
+        _dormantCacheGap == gap &&
+        _dormantCacheLimit == limit &&
+        now.difference(_dormantCacheTime) < const Duration(hours: 1)) {
+      return _dormantCache!;
+    }
+
+    final stats = await TrainingTagPerformanceEngine.computeTagStats();
+    final list = stats.values
+        .where((e) =>
+            e.totalAttempts >= 5 &&
+            e.lastTrained != null &&
+            now.difference(e.lastTrained!) >= gap)
+        .toList();
+
+    list.sort((a, b) {
+      final diff = a.lastTrained!.compareTo(b.lastTrained!);
+      if (diff != 0) return diff;
+      return a.accuracy.compareTo(b.accuracy);
+    });
+
+    final result = list.take(limit).toList();
+    _dormantCache = result;
+    _dormantCacheTime = now;
+    _dormantCacheGap = gap;
+    _dormantCacheLimit = limit;
+    return result;
   }
 }
