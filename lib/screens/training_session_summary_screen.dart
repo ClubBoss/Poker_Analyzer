@@ -31,6 +31,7 @@ import 'mistake_repeat_screen.dart';
 import 'goals_overview_screen.dart';
 import 'spot_of_the_day_screen.dart';
 import 'weakness_overview_screen.dart';
+import 'next_step_suggestion_dialog.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
@@ -61,9 +62,10 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final s = context.read<NextStepEngine>().suggestion;
       if (s != null) _showNextStep(s);
+      await NextStepSuggestionDialog.show(context);
     });
     _loadWeakPack();
   }
