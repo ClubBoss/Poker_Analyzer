@@ -22,6 +22,7 @@ class UserPreferences {
   bool get demoMode => service.demoMode;
   bool get tutorialCompleted => service.tutorialCompleted;
   bool get simpleNavigation => service.simpleNavigation;
+  bool get showTagGoalBanner => service.showTagGoalBanner;
   Color get accentColor => theme.accentColor;
 
   Future<void> setShowPotAnimation(bool value) => service.setShowPotAnimation(value);
@@ -32,5 +33,6 @@ class UserPreferences {
   Future<void> setDemoMode(bool value) => service.setDemoMode(value);
   Future<void> setSimpleNavigation(bool value) => service.setSimpleNavigation(value);
   Future<void> setTutorialCompleted(bool value) => service.setTutorialCompleted(value);
+  Future<void> setShowTagGoalBanner(bool value) => service.setShowTagGoalBanner(value);
   Future<void> setAccentColor(Color value) => theme.setAccentColor(value);
 }

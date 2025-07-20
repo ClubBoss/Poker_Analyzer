@@ -18,6 +18,7 @@ class UserPreferencesService extends ChangeNotifier {
   static const _weakCatCountKey = 'weak_cat_count';
   static const _evRangeStartKey = 'ev_range_start';
   static const _evRangeEndKey = 'ev_range_end';
+  static const _tagGoalBannerKey = 'show_tag_goal_banner';
 
   bool _showPotAnimation = true;
   bool _showCardReveal = true;
@@ -30,6 +31,7 @@ class UserPreferencesService extends ChangeNotifier {
   DateTimeRange? _weakRange;
   int _weakCatCount = 5;
   RangeValues _evRange = const RangeValues(0, 5);
+  bool _showTagGoalBanner = true;
   final CloudSyncService? cloud;
 
   UserPreferencesService({this.cloud});
@@ -45,6 +47,7 @@ class UserPreferencesService extends ChangeNotifier {
   DateTimeRange? get weaknessRange => _weakRange;
   int get weaknessCategoryCount => _weakCatCount;
   RangeValues get evRange => _evRange;
+  bool get showTagGoalBanner => _showTagGoalBanner;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -56,6 +59,7 @@ class UserPreferencesService extends ChangeNotifier {
     _demoMode = prefs.getBool(_demoModeKey) ?? false;
     _tutorialCompleted = prefs.getBool(_tutorialCompletedKey) ?? false;
     _simpleNavigation = prefs.getBool(_simpleNavKey) ?? false;
+    _showTagGoalBanner = prefs.getBool(_tagGoalBannerKey) ?? true;
     final startStr = prefs.getString(_weakRangeStartKey);
     final endStr = prefs.getString(_weakRangeEndKey);
     if (startStr != null && endStr != null) {
@@ -81,6 +85,7 @@ class UserPreferencesService extends ChangeNotifier {
         'demoMode': _demoMode,
         'tutorialCompleted': _tutorialCompleted,
         'simpleNavigation': _simpleNavigation,
+        'showTagGoalBanner': _showTagGoalBanner,
         if (_weakRange != null) 'weakRangeStart': _weakRange!.start.toIso8601String(),
         if (_weakRange != null) 'weakRangeEnd': _weakRange!.end.toIso8601String(),
         'evRangeStart': _evRange.start,
@@ -195,6 +200,13 @@ class UserPreferencesService extends ChangeNotifier {
       await cloud!.queueMutation('preferences', 'main', data);
       unawaited(cloud!.syncUp());
     }
+    notifyListeners();
+  }
+
+  Future<void> setShowTagGoalBanner(bool value) async {
+    if (_showTagGoalBanner == value) return;
+    _showTagGoalBanner = value;
+    await _save(_tagGoalBannerKey, value);
     notifyListeners();
   }
 }

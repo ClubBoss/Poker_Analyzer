@@ -6,6 +6,7 @@ import '../widgets/spot_quiz_widget.dart';
 import '../widgets/style_hint_bar.dart';
 import '../widgets/stack_range_bar.dart';
 import '../widgets/dynamic_progress_row.dart';
+import '../widgets/active_tag_goal_banner.dart';
 import 'session_result_screen.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/cloud_sync_service.dart';
@@ -550,6 +551,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                           style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 4),
+                        if (spot.tags.isNotEmpty)
+                          ActiveTagGoalBanner(
+                              tagId: spot.tags.firstWhere(
+                            (t) => !t.startsWith('cat:'),
+                            orElse: () => spot.tags.first,
+                          )),
                       ],
                       Text(
                         'Elapsed: ${_format(service.elapsedTime)}',
