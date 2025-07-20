@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
 import 'training_recap_screen.dart';
+import '../services/pack_library_completion_service.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -318,6 +319,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
       }
       final elapsed = service.elapsedTime;
+      unawaited(PackLibraryCompletionService.instance.registerCompletion(
+        tpl.id,
+        correct: correct,
+        total: total,
+        elapsed: elapsed,
+      ));
       if (service.totalCount < 3) {
         Map<String, int>? counts;
         if (tpl.id == 'suggested_weekly') {
