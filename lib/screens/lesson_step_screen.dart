@@ -6,6 +6,7 @@ import '../services/training_pack_template_storage_service.dart';
 import '../services/training_session_service.dart';
 import '../services/lesson_progress_tracker_service.dart';
 import 'training_session_screen.dart';
+import 'lesson_step_recap_screen.dart';
 
 class LessonStepScreen extends StatefulWidget {
   final LessonStep step;
@@ -129,7 +130,12 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
                   if (widget.onStepComplete != null) {
                     await widget.onStepComplete!(step);
                   } else if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LessonStepRecapScreen(step: step),
+                      ),
+                    );
                   }
                 },
                 child: const Text('Завершить шаг'),

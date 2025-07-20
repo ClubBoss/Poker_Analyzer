@@ -15,7 +15,7 @@ import '../models/mastery_level.dart';
 import '../services/mastery_level_engine.dart';
 import 'master_mode_screen.dart';
 import 'lesson_step_screen.dart';
-import 'lesson_recap_screen.dart';
+import 'lesson_step_recap_screen.dart';
 
 class TrackProgressDashboardScreen extends StatefulWidget {
   const TrackProgressDashboardScreen({super.key});
@@ -91,7 +91,7 @@ class _TrackProgressDashboardScreenState
           onStepComplete: (s) async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => LessonRecapScreen(step: s)),
+              MaterialPageRoute(builder: (_) => LessonStepRecapScreen(step: s)),
             );
           },
         ),
