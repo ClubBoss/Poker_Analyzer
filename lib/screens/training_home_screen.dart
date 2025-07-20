@@ -32,6 +32,7 @@ import '../widgets/quick_continue_card.dart';
 import '../widgets/resume_training_card.dart';
 import '../widgets/resume_lesson_card.dart';
 import '../widgets/next_learning_step_card.dart';
+import '../widgets/next_up_banner.dart';
 import '../widgets/daily_focus_recap_card.dart';
 import '../widgets/progress_summary_box.dart';
 import '../widgets/progress_summary_card.dart';
@@ -108,6 +109,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
       body: ListView(
         children: [
           const StarterPathCard(),
+          const NextUpBanner(),
           const NextLearningStepCard(),
           const ResumeLessonCard(),
           const StreakBannerWidget(),
