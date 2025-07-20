@@ -153,6 +153,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _favorites = {};
   final Set<String> _pinned = {};
   final Set<String> _previewCompleted = {};
+  final Set<String> _autoSampled = {};
   bool _favoritesOnly = false;
   bool _inProgressOnly = false;
   bool _showRecent = true;
@@ -1916,6 +1917,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ],
           ),
           onTap: () async {
+            if (await _maybeAutoSample(
+                TrainingPackTemplateV2.fromTemplate(
+                    t,
+                    type: const TrainingTypeEngine()
+                        .detectTrainingType(t),
+                ))) return;
             final create = await showDialog<bool>(
               context: context,
               builder: (_) => TemplatePreviewDialog(template: t),
@@ -2157,6 +2164,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ],
         ),
         onTap: () async {
+          if (await _maybeAutoSample(t)) return;
           final create = await showDialog<bool>(
             context: context,
             builder: (_) => TemplatePreviewDialog(template: t),
@@ -2328,11 +2336,49 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<bool> _maybeAutoSample(v2.TrainingPackTemplate t) async {
+    if (_autoSampled.contains(t.id)) return false;
+    if (t.spots.length <= 30) return false;
+    if (_previewCompleted.contains(t.id)) return false;
+    final stat = await TrainingPackStatsService.getStats(t.id);
+    if (stat != null) return false;
+
+    _autoSampled.add(t.id);
+    final sampler = const TrainingPackSampler();
+    final sample = sampler.sample(t);
+    final preview = TrainingPackTemplate.fromJson(sample.toJson());
+    preview.meta['samplePreview'] = true;
+    await context
+        .read<TrainingSessionService>()
+        .startSession(preview, persist: false);
+    if (!context.mounted) return true;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackPlayScreen(
+          template: preview,
+          original: preview,
+        ),
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.autoSampleToast)),
+    );
+    return true;
+  }
+
   Future<void> _onLockedPackTap(
       TrainingPackTemplate t, String? reason) async {
     final l = AppLocalizations.of(context)!;
     final previewRequired =
         t.spots.length > 30 && !_previewCompleted.contains(t.id);
+    if (previewRequired) {
+      final tplV2 = TrainingPackTemplateV2.fromTemplate(
+        t,
+        type: const TrainingTypeEngine().detectTrainingType(t),
+      );
+      if (await _maybeAutoSample(tplV2)) return;
+    }
     if (previewRequired) {
       final confirm = await showDialog<bool>(
         context: context,
@@ -2383,6 +2429,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final l = AppLocalizations.of(context)!;
     final previewRequired =
         t.spots.length > 30 && !_previewCompleted.contains(t.id);
+    if (previewRequired && await _maybeAutoSample(t)) return;
     if (previewRequired) {
       final confirm = await showDialog<bool>(
         context: context,
