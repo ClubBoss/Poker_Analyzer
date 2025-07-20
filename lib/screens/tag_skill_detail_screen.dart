@@ -9,6 +9,7 @@ import '../services/pack_library_loader_service.dart';
 import '../services/pack_unlocking_rules_engine.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/tag_progress_sparkline.dart';
+import '../widgets/tag_training_heatmap.dart';
 import '../widgets/training_pack_template_card.dart';
 import '../screens/training_session_screen.dart';
 import '../services/training_session_service.dart';
@@ -109,18 +110,25 @@ class _TagSkillDetailScreenState extends State<TagSkillDetailScreen> {
     final pct = (_trend.abs() * 100).toStringAsFixed(1);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TagProgressSparkline(tag: widget.tag),
-          const SizedBox(width: 8),
-          if (_trend != 0)
-            Row(
-              children: [
-                Icon(arrow, size: 16, color: color),
-                const SizedBox(width: 2),
-                Text('$pct%', style: TextStyle(color: color)),
-              ],
-            ),
+          Row(
+            children: [
+              TagProgressSparkline(tag: widget.tag),
+              const SizedBox(width: 8),
+              if (_trend != 0)
+                Row(
+                  children: [
+                    Icon(arrow, size: 16, color: color),
+                    const SizedBox(width: 2),
+                    Text('$pct%', style: TextStyle(color: color)),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TagTrainingHeatmap(tag: widget.tag),
         ],
       ),
     );
