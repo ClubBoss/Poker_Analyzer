@@ -67,8 +67,7 @@ import '../services/user_action_logger.dart';
 import '../widgets/category_section.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../widgets/pack_suggestion_banner.dart';
-import '../widgets/smart_suggestion_banner.dart';
-import '../widgets/suggested_weak_tag_pack_banner.dart';
+import '../widgets/suggestion_banner.dart';
 import '../services/weak_training_type_detector.dart';
 import '../widgets/training_gap_prompt_banner.dart';
 import '../widgets/training_type_gap_prompt_banner.dart';
@@ -80,7 +79,6 @@ import '../widgets/sample_pack_preview_button.dart';
 import '../widgets/sample_pack_preview_tooltip.dart';
 import '../widgets/pack_resume_banner.dart';
 import '../services/training_pack_sampler.dart';
-import '../widgets/dormant_tag_reminder_banner.dart';
 import 'v2/training_pack_play_screen.dart';
 import '../widgets/pack_progress_overlay.dart';
 import '../widgets/pack_unlock_requirement_badge.dart';
@@ -3590,9 +3588,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ? ListView(
                     controller: _listCtrl,
                     children: [
-                      SmartSuggestionBanner(selectedTags: _selectedTags),
-                      const DormantTagReminderBanner(),
-                      const SuggestedWeakTagPackBanner(),
+                      const SuggestionBanner(),
                       const PackResumeBanner(),
                       const PackSuggestionBanner(),
                       const SuggestedPackTile(),

@@ -84,6 +84,7 @@ import 'services/smart_suggestion_service.dart';
 import 'services/training_gap_detector_service.dart';
 import 'services/smart_suggestion_engine.dart';
 import 'services/smart_pack_suggestion_engine.dart';
+import 'services/suggestion_banner_engine.dart';
 import 'services/suggested_next_pack_engine.dart';
 import 'services/smart_review_service.dart';
 import 'services/evaluation_executor_service.dart';
@@ -433,6 +434,11 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(
       create: (context) =>
           SmartSuggestionEngine(logs: context.read<SessionLogService>()),
+    ),
+    Provider(
+      create: (context) => SuggestionBannerEngine(
+        logs: context.read<SessionLogService>(),
+      ),
     ),
     Provider(
       create: (context) =>
