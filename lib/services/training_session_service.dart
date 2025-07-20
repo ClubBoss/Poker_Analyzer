@@ -472,6 +472,14 @@ class TrainingSessionService extends ChangeNotifier {
     int bonus = ((xp * multiplier) - xp).round();
     if (bonus > bonusCap) bonus = bonusCap;
     xp += bonus;
+
+    final Map<String, int> tagXp = {};
+    for (final tag in _template!.tags) {
+      final skill = skills[tag.toLowerCase()] ?? 0.5;
+      final txp = XPTrackerService.targetXp * _xpMultiplier(skill);
+      tagXp[tag.toLowerCase()] = txp.round();
+    }
+    await xpService.addPerTagXP(tagXp, source: 'training');
     await xpService.add(xp: xp, source: 'training');
     unawaited(_clearIndex());
     Navigator.pushReplacement(
