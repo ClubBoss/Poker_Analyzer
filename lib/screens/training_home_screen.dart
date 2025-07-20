@@ -29,6 +29,7 @@ import '../widgets/daily_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
 import '../widgets/resume_training_card.dart';
+import '../widgets/resume_lesson_card.dart';
 import '../widgets/next_learning_step_card.dart';
 import '../widgets/daily_focus_recap_card.dart';
 import '../widgets/progress_summary_box.dart';
@@ -106,6 +107,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
         children: [
           const StarterPathCard(),
           const NextLearningStepCard(),
+          const ResumeLessonCard(),
           if (tablet) const DailySpotlightCard(),
           _RecommendedCarousel(
             key: TrainingHomeScreen.recommendationsKey,
