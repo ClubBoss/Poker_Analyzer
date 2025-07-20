@@ -12,6 +12,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     PackUnlockingRulesEngine.instance
       ..mock = true
+      ..devOverride = false
       ..resetMock();
   });
 
@@ -54,5 +55,17 @@ void main() {
     expect(unlocked, isFalse);
     expect(PackUnlockingRulesEngine.instance.getUnlockRule(tpl)?.unlockHint,
         'Complete pack A first');
+  });
+
+  test('dev override unlocks in debug mode', () async {
+    final tpl = TrainingPackTemplateV2(
+      id: 'b',
+      name: 'B',
+      trainingType: TrainingType.pushFold,
+      unlockRules: const UnlockRules(requiredPacks: ['a']),
+    );
+    PackUnlockingRulesEngine.instance.devOverride = true;
+    final unlocked = await PackUnlockingRulesEngine.instance.isUnlocked(tpl);
+    expect(unlocked, isTrue);
   });
 }

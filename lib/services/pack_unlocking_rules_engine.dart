@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/unlock_rules.dart';
 import '../models/unlock_rule.dart';
@@ -16,6 +18,7 @@ class PackUnlockingRulesEngine {
   static final instance = PackUnlockingRulesEngine._();
 
   bool mock = false;
+  bool devOverride = false;
   final Set<String> _mockCompleted = {};
   double _mockAverageEV = 0;
   bool _mockStarterCompleted = false;
@@ -41,6 +44,7 @@ class PackUnlockingRulesEngine {
   }
 
   Future<UnlockCheckResult> check(TrainingPackTemplateV2 pack) async {
+    if (kDebugMode && devOverride) return const UnlockCheckResult(true);
     final rules = getUnlockRule(pack) ?? pack.unlockRules == null
         ? null
         : UnlockRule(
@@ -120,5 +124,6 @@ class PackUnlockingRulesEngine {
     _mockAverageEV = 0;
     _mockStarterCompleted = false;
     _mockCustomPathCompleted = false;
+    devOverride = false;
   }
 }
