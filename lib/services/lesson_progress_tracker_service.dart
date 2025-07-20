@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'lesson_streak_engine.dart';
+import 'lesson_goal_engine.dart';
 import 'xp_reward_engine.dart';
 
 /// Tracks progress of lesson steps and completed lessons using local storage.
@@ -82,6 +83,7 @@ class LessonProgressTrackerService {
     if (set.add(stepId)) {
       await _saveLesson(lessonId);
       unawaited(XPRewardEngine.instance.addXp(10));
+      unawaited(LessonGoalEngine.instance.updateProgress());
     }
     // Automatically mark the lesson as completed.
     await markLessonCompleted(lessonId);
