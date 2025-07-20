@@ -7,6 +7,7 @@ import '../services/learning_track_engine.dart';
 import '../services/yaml_lesson_track_loader.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/track_visibility_filter_engine.dart';
+import '../services/lesson_track_unlock_engine.dart';
 
 class LessonTrackLibraryScreen extends StatefulWidget {
   const LessonTrackLibraryScreen({super.key});
@@ -18,6 +19,7 @@ class LessonTrackLibraryScreen extends StatefulWidget {
 
 class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
   late Future<Map<String, dynamic>> _future;
+  final Map<String, bool> _unlocked = {};
 
   @override
   void initState() {
@@ -39,10 +41,43 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
     final selected = prefs.getString('lesson_selected_track');
     final progress =
         await LessonPathProgressService.instance.computeTrackProgress();
-    return {'tracks': tracks, 'selected': selected, 'progress': progress};
+    final unlocked = <String, bool>{};
+    for (final t in tracks) {
+      unlocked[t.id] = await LessonTrackUnlockEngine.instance.isUnlocked(t.id);
+    }
+    _unlocked
+      ..clear()
+      ..addAll(unlocked);
+    return {
+      'tracks': tracks,
+      'selected': selected,
+      'progress': progress,
+      'unlocked': unlocked,
+    };
+  }
+
+  void _showUnlockHint() {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Заблокировано'),
+        content:
+            const Text('Чтобы разблокировать этот трек, выполните требования'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _select(LessonTrack track, String? currentId) async {
+    if (_unlocked[track.id] != true) {
+      _showUnlockHint();
+      return;
+    }
     bool ok = true;
     if (currentId != null && currentId != track.id) {
       ok = await showDialog<bool>(
@@ -83,6 +118,9 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
         final selected = snapshot.data?['selected'] as String?;
         final progress =
             snapshot.data?['progress'] as Map<String, double>? ?? {};
+        _unlocked
+          ..clear()
+          ..addAll(snapshot.data?['unlocked'] as Map<String, bool>? ?? {});
         return Scaffold(
           appBar: AppBar(title: const Text('Учебные треки')),
           backgroundColor: const Color(0xFF121212),
@@ -95,7 +133,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                     final percent = progress[track.id] ?? 0.0;
                     final steps = track.stepIds.length;
                     final isSelected = track.id == selected;
-                    return Card(
+                    final card = Card(
                       color: isSelected
                           ? Colors.blueGrey[700]
                           : const Color(0xFF1E1E1E),
@@ -123,10 +161,29 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                         trailing: isSelected
                             ? const Icon(Icons.check, color: Colors.orange)
                             : ElevatedButton(
-                                onPressed: () => _select(track, selected),
+                                onPressed: _unlocked[track.id] == true
+                                    ? () => _select(track, selected)
+                                    : _showUnlockHint,
                                 child: const Text('Выбрать'),
                               ),
                       ),
+                    );
+                    return Stack(
+                      children: [
+                        card,
+                        if (_unlocked[track.id] != true)
+                          Positioned.fill(
+                            child: InkWell(
+                              onTap: _showUnlockHint,
+                              child: Container(
+                                color: Colors.black54,
+                                alignment: Alignment.center,
+                                child: const Icon(Icons.lock,
+                                    color: Colors.white, size: 40),
+                              ),
+                            ),
+                          ),
+                      ],
                     );
                   },
                 ),
