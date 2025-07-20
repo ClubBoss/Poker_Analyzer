@@ -34,6 +34,10 @@ class TrainingPackTemplateV2 {
   /// serialized to or from disk.
   bool isGeneratedPack;
 
+  /// Ephemeral flag – marks packs created by sampling a larger template.
+  /// Never serialized to or from disk.
+  bool isSampledPack;
+
   TrainingPackTemplateV2({
     required this.id,
     required this.name,
@@ -55,12 +59,14 @@ class TrainingPackTemplateV2 {
     this.targetStreet,
     this.unlockRules,
     bool? isGeneratedPack,
+    bool? isSampledPack,
   }) : tags = tags ?? [],
        spots = spots ?? [],
        positions = positions ?? [],
        created = created ?? DateTime.now(),
        meta = meta ?? {},
-       isGeneratedPack = isGeneratedPack ?? false {
+       isGeneratedPack = isGeneratedPack ?? false,
+       isSampledPack = isSampledPack ?? false {
     if (theme != null) meta['theme'] = theme;
     category ??= this.tags.isNotEmpty ? this.tags.first : null;
   }
