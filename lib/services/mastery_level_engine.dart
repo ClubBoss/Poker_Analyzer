@@ -14,7 +14,7 @@ class MasteryLevelEngine {
         _trackMeta = trackMeta ?? LessonTrackMetaService.instance;
 
   Future<MasteryLevel> computeUserLevel() async {
-    final completedSteps = await _progress.getCompletedSteps();
+    final completedSteps = await _progress.getCompletedStepsFlat();
     final tracks = const LearningTrackEngine().getTracks();
     var completedTracks = 0;
     for (final t in tracks) {

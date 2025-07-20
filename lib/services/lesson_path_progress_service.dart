@@ -38,14 +38,21 @@ class LessonPathProgressService {
       );
     }
 
-    final track = const LearningTrackEngine()
-        .getTracks()
-        .firstWhere((t) => t.id == trackId, orElse: () => const LessonTrack(id: '', title: '', description: '', stepIds: []));
+    final track = const LearningTrackEngine().getTracks().firstWhere(
+        (t) => t.id == trackId,
+        orElse: () =>
+            const LessonTrack(id: '', title: '', description: '', stepIds: []));
 
     final stepIds = track.stepIds;
     final completed = await LessonProgressService.instance.getCompletedSteps();
-    final completedIds = [for (final id in stepIds) if (completed.contains(id)) id];
-    final remainingIds = [for (final id in stepIds) if (!completed.contains(id)) id];
+    final completedIds = [
+      for (final id in stepIds)
+        if (completed.contains(id)) id
+    ];
+    final remainingIds = [
+      for (final id in stepIds)
+        if (!completed.contains(id)) id
+    ];
     final total = stepIds.length;
     final percent = total == 0 ? 0.0 : completedIds.length / total * 100;
 
@@ -64,7 +71,7 @@ class LessonPathProgressService {
   Future<Map<String, double>> computeTrackProgress() async {
     final tracks = const LearningTrackEngine().getTracks();
     final completed =
-        await LessonProgressTrackerService.instance.getCompletedSteps();
+        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
 
     final Map<String, double> progress = {};
     for (final track in tracks) {

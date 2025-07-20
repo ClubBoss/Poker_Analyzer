@@ -49,7 +49,7 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
         .getTracks()
         .firstWhereOrNull((t) => t.id == id);
     _stepProgress =
-        await LessonProgressTrackerService.instance.getCompletedSteps();
+        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
     return Future.wait([
       LessonLoaderService.instance.loadAllLessons(),
       LessonProgressService.instance.getCompletedSteps(),
@@ -98,8 +98,7 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                                 children: [
                                   Text(
                                     'Прогресс: $percentInt%',
-                                    style:
-                                        const TextStyle(color: Colors.white),
+                                    style: const TextStyle(color: Colors.white),
                                   ),
                                   const SizedBox(height: 4),
                                   LinearProgressIndicator(
@@ -114,91 +113,98 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                         ),
                         Expanded(
                           child: ListView.builder(
-                              itemCount: steps!.length,
-                              itemBuilder: (context, index) {
-                    final step = steps![index];
-                    final intro = step.introText;
-                    final preview = intro.length > 100
-                        ? '${intro.substring(0, 100)}...'
-                        : intro;
-                    final firstIncomplete =
-                        steps!.indexWhere((s) => !completed.contains(s.id));
-                    final isDone = completed.contains(step.id);
-                    final trackerDone = _stepProgress[step.id] == true;
-                    final completedCount = trackerDone ? 1 : 0;
-                    const totalCount = 1;
-                    final statusIcon = isDone
-                        ? '✅'
-                        : (index == firstIncomplete ? '🟡' : '🟢');
-                    final buttonLabel = isDone
-                        ? 'Открыть'
-                        : (index == firstIncomplete ? 'Начать' : 'Продолжить');
-                    final Widget progressWidget;
-                    if (completedCount == totalCount) {
-                      progressWidget = const Icon(Icons.check_circle,
-                          color: Colors.green, size: 18);
-                    } else {
-                      final color = completedCount == 0
-                          ? Colors.grey
-                          : Colors.orange;
-                      progressWidget = Text(
-                        '$completedCount / $totalCount',
-                        style: TextStyle(color: color),
-                      );
-                      if (completedCount == 0) {
-                        progressWidget = Opacity(
-                          opacity: 0.4,
-                          child: progressWidget,
-                        );
-                      }
-                    }
-                    return Card(
-                      color: const Color(0xFF1E1E1E),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: ListTile(
-                        title: Row(
-                          children: [
-                            Expanded(child: Text('$statusIcon ${step.title}')),
-                            const SizedBox(width: 8),
-                            progressWidget,
-                          ],
-                        ),
-                        subtitle: Text(
-                          preview,
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                        trailing: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => LessonStepScreen(
-                                  step: step,
-                                  onStepComplete: (s) async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            LessonRecapScreen(step: s),
-                                      ),
-                                    );
-                                  },
+                            itemCount: steps!.length,
+                            itemBuilder: (context, index) {
+                              final step = steps![index];
+                              final intro = step.introText;
+                              final preview = intro.length > 100
+                                  ? '${intro.substring(0, 100)}...'
+                                  : intro;
+                              final firstIncomplete = steps!
+                                  .indexWhere((s) => !completed.contains(s.id));
+                              final isDone = completed.contains(step.id);
+                              final trackerDone =
+                                  _stepProgress[step.id] == true;
+                              final completedCount = trackerDone ? 1 : 0;
+                              const totalCount = 1;
+                              final statusIcon = isDone
+                                  ? '✅'
+                                  : (index == firstIncomplete ? '🟡' : '🟢');
+                              final buttonLabel = isDone
+                                  ? 'Открыть'
+                                  : (index == firstIncomplete
+                                      ? 'Начать'
+                                      : 'Продолжить');
+                              final Widget progressWidget;
+                              if (completedCount == totalCount) {
+                                progressWidget = const Icon(Icons.check_circle,
+                                    color: Colors.green, size: 18);
+                              } else {
+                                final color = completedCount == 0
+                                    ? Colors.grey
+                                    : Colors.orange;
+                                progressWidget = Text(
+                                  '$completedCount / $totalCount',
+                                  style: TextStyle(color: color),
+                                );
+                                if (completedCount == 0) {
+                                  progressWidget = Opacity(
+                                    opacity: 0.4,
+                                    child: progressWidget,
+                                  );
+                                }
+                              }
+                              return Card(
+                                color: const Color(0xFF1E1E1E),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
                                 ),
-                              ),
-                            );
-                          },
-                          child: Text(buttonLabel),
+                                child: ListTile(
+                                  title: Row(
+                                    children: [
+                                      Expanded(
+                                          child: Text(
+                                              '$statusIcon ${step.title}')),
+                                      const SizedBox(width: 8),
+                                      progressWidget,
+                                    ],
+                                  ),
+                                  subtitle: Text(
+                                    preview,
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                  trailing: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => LessonStepScreen(
+                                            step: step,
+                                            onStepComplete: (s) async {
+                                              await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      LessonRecapScreen(
+                                                          step: s),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(buttonLabel),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+                      ],
+                    ),
         );
       },
     );
