@@ -13,6 +13,8 @@ import 'mistake_review_pack_service.dart';
 import 'smart_review_service.dart';
 import 'learning_path_progress_service.dart';
 import 'cloud_training_history_service.dart';
+import 'learning_path_personalization_service.dart';
+import 'xp_tracker_service.dart';
 import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
 
@@ -454,6 +456,23 @@ class TrainingSessionService extends ChangeNotifier {
     unawaited(context
         .read<CloudTrainingHistoryService>()
         .saveSession(_buildResults()));
+
+    // Calculate XP reward with personalization boost
+    final xpService = context.read<XPTrackerService>();
+    final skills =
+        LearningPathPersonalizationService.instance.getTagSkillMap();
+    double multiplier = 1.0;
+    for (final tag in _template!.tags) {
+      final skill = skills[tag.toLowerCase()] ?? 0.5;
+      final m = _xpMultiplier(skill);
+      if (m > multiplier) multiplier = m;
+    }
+    int xp = XPTrackerService.targetXp;
+    final bonusCap = (xp * 0.5).round();
+    int bonus = ((xp * multiplier) - xp).round();
+    if (bonus > bonusCap) bonus = bonusCap;
+    xp += bonus;
+    await xpService.add(xp: xp, source: 'training');
     unawaited(_clearIndex());
     Navigator.pushReplacement(
       context,
@@ -464,6 +483,8 @@ class TrainingSessionService extends ChangeNotifier {
                   template: _template!,
                   preEvPct: _preEvPct,
                   preIcmPct: _preIcmPct,
+                  xpEarned: xp,
+                  xpMultiplier: multiplier,
                 ),
       ),
     );
@@ -587,6 +608,12 @@ class TrainingSessionService extends ChangeNotifier {
       if (a.playerIndex == spot.hand.heroIndex) return a.action;
     }
     return null;
+  }
+
+  double _xpMultiplier(double skill) {
+    if (skill < 0.4) return 2.0;
+    if (skill < 0.6) return 1.5;
+    return 1.0;
   }
 
   List<ResultEntry> _buildResults() {

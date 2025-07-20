@@ -89,6 +89,8 @@ void main() {
             template: template,
             preEvPct: 25,
             preIcmPct: 25,
+            xpEarned: 10,
+            xpMultiplier: 1.0,
           ),
         ),
       ),
