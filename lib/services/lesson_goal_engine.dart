@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'lesson_goal_streak_engine.dart';
 
 class GoalProgress {
   final int current;
@@ -28,11 +30,16 @@ class LessonGoalEngine {
     final prefs = await SharedPreferences.getInstance();
     await _resetDailyIfNeeded(prefs);
     final count = prefs.getInt(_dailyCountKey) ?? 0;
-    return GoalProgress(
+    final progress = GoalProgress(
       current: count,
       target: _dailyTarget,
       completed: count >= _dailyTarget,
     );
+    if (progress.completed) {
+      unawaited(
+          LessonGoalStreakEngine.instance.updateStreakOnGoalCompletion());
+    }
+    return progress;
   }
 
   Future<GoalProgress> getWeeklyGoal() async {
@@ -50,9 +57,15 @@ class LessonGoalEngine {
     final prefs = await SharedPreferences.getInstance();
     await _resetDailyIfNeeded(prefs);
     await _resetWeeklyIfNeeded(prefs);
-    await prefs.setInt(_dailyCountKey, (prefs.getInt(_dailyCountKey) ?? 0) + 1);
-    await prefs.setInt(
-        _weeklyCountKey, (prefs.getInt(_weeklyCountKey) ?? 0) + 1);
+    final prevDaily = prefs.getInt(_dailyCountKey) ?? 0;
+    final newDaily = prevDaily + 1;
+    await prefs.setInt(_dailyCountKey, newDaily);
+    await prefs
+        .setInt(_weeklyCountKey, (prefs.getInt(_weeklyCountKey) ?? 0) + 1);
+    if (prevDaily < _dailyTarget && newDaily >= _dailyTarget) {
+      unawaited(
+          LessonGoalStreakEngine.instance.updateStreakOnGoalCompletion());
+    }
   }
 
   Future<void> _resetDailyIfNeeded(SharedPreferences prefs) async {
