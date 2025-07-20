@@ -73,6 +73,7 @@ import '../widgets/suggested_pack_tile.dart';
 import 'pack_suggestion_preview_screen.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/sample_pack_preview_button.dart';
+import '../widgets/sample_pack_preview_tooltip.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -100,6 +101,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _effectivenessSortKey = 'lib_effectiveness_sort';
   static const _compactKey = 'lib_compact_mode';
   static const _pinKey = 'lib_pinned';
+  static const _previewCompletedKey = 'lib_preview_completed';
   static const _selTagsKey = 'lib_sel_tags';
   static const _selCatsKey = 'lib_sel_cats';
   static const _diffKey = 'lib_difficulty_filter';
@@ -148,6 +150,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _needsPracticeOnlyIds = {};
   final Set<String> _favorites = {};
   final Set<String> _pinned = {};
+  final Set<String> _previewCompleted = {};
   bool _favoritesOnly = false;
   bool _inProgressOnly = false;
   bool _showRecent = true;
@@ -197,6 +200,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadPreviewCompleted();
+  }
+
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
     await UserProfilePreferenceService.instance.load();
@@ -224,6 +233,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadStats();
     await _updateUnlockStatus();
     await _loadHandsCompleted();
+    await _loadPreviewCompleted();
     await _loadWeakCategories();
     await _detectWeakCategory();
     await _loadTypeStats();
@@ -327,6 +337,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _pinned
         ..clear()
         ..addAll(prefs.getStringList(_pinKey) ?? []);
+      _previewCompleted
+        ..clear()
+        ..addAll(prefs.getStringList(_previewCompletedKey) ?? []);
     });
     final cloud = context.read<CloudSyncService>();
     final remoteRaw = await cloud.load(_favKey);
@@ -881,6 +894,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _handsCompleted
         ..clear()
         ..addAll(map);
+    });
+  }
+
+  Future<void> _loadPreviewCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _previewCompleted
+        ..clear()
+        ..addAll(prefs.getStringList(_previewCompletedKey) ?? []);
     });
   }
 
@@ -1840,6 +1862,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
     final locked = _packUnlocked[t.id] == false;
     final reason = _lockReasons[t.id];
+    final previewRequired =
+        t.spots.length > 30 && !_previewCompleted.contains(t.id);
 
     if (_compactMode) {
       Widget card = Card(
@@ -2113,20 +2137,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               color: _favorites.contains(t.id) ? Colors.amber : Colors.white54,
               onPressed: () => _toggleFavorite(t.id),
             ),
-            TextButton(
-              onPressed: locked
-                  ? null
-                  : () {
-                      context.read<TrainingSessionService>().startSession(t);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
-                      );
-                    },
-              child: const Text('▶️ Train'),
-            ),
-            SamplePackPreviewButton(template: t, locked: locked),
+              TextButton(
+                onPressed: locked || previewRequired
+                    ? null
+                    : () {
+                        context.read<TrainingSessionService>().startSession(t);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const TrainingSessionScreen()),
+                        );
+                      },
+                child: const Text('▶️ Train'),
+              ),
+              if (previewRequired) const SamplePackPreviewTooltip(),
+              SamplePackPreviewButton(template: t, locked: locked),
           ],
         ),
         onTap: () async {
@@ -2321,6 +2346,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final meta = t.meta.isNotEmpty ? jsonEncode(t.meta) : '';
     final locked = _packUnlocked[t.id] == false;
     final reason = _lockReasons[t.id];
+    final previewRequired =
+        t.spots.length > 30 && !_previewCompleted.contains(t.id);
     Widget card = Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ExpansionTile(

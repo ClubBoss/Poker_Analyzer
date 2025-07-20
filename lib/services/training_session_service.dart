@@ -28,6 +28,7 @@ class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
   Box<dynamic>? _activeBox;
   static const _indexPrefix = 'ts_idx_';
+  static const _previewKey = 'lib_preview_completed';
   TrainingSession? _session;
   TrainingPackTemplate? _template;
   List<TrainingPackSpot> _spots = [];
@@ -423,6 +424,14 @@ class TrainingSessionService extends ChangeNotifier {
     WidgetBuilder? resultBuilder,
   }) async {
     if (_session == null || _template == null) return;
+    if (_template!.meta['samplePreview'] == true) {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_previewKey) ?? [];
+      if (!list.contains(_template!.id)) {
+        list.add(_template!.id);
+        await prefs.setStringList(_previewKey, list);
+      }
+    }
     final ids = [
       for (final e in _session!.results.entries)
         if (!e.value) e.key
