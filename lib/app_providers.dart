@@ -98,6 +98,7 @@ import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
 import 'services/training_path_progress_service.dart';
 import 'services/adaptive_next_step_engine.dart';
+import 'services/suggested_next_step_engine.dart';
 
 late final AuthService auth;
 late final RemoteConfigService rc;
@@ -449,6 +450,13 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(
       create: (context) => SuggestedNextPackEngine(
         mastery: context.read<TagMasteryService>(),
+      ),
+    ),
+    Provider(
+      create: (context) => SuggestedNextStepEngine(
+        path: context.read<TrainingPathProgressService>(),
+        mastery: context.read<TagMasteryService>(),
+        storage: context.read<TemplateStorageService>(),
       ),
     ),
   ];
