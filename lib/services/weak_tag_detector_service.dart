@@ -1,3 +1,8 @@
+/// Detects the tags where the user performs the worst.
+///
+/// Utilizes [TrainingTagPerformanceEngine] to compute tag statistics and
+/// caches results for an hour to minimize recomputation when the same
+/// parameters are used.
 import 'training_tag_performance_engine.dart';
 
 class WeakTagDetectorService {
@@ -5,6 +10,9 @@ class WeakTagDetectorService {
   static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
   static int _cacheAttempts = 0;
   static int _cacheLimit = 0;
+  /// Compute and return the weakest tags sorted by accuracy.
+  /// [minAttempts] sets the minimum attempt count per tag and [limit]
+  /// limits the number of returned results.
 
   static Future<List<TagPerformance>> detectWeakTags({int minAttempts = 10, int limit = 5}) async {
     final now = DateTime.now();
