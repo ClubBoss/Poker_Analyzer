@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
-import 'pack_cooldown_tracker.dart';
+import 'pack_suggestion_cooldown_service.dart';
 import 'pack_library_loader_service.dart';
 import 'weak_tag_detector_service.dart';
 import 'training_tag_performance_engine.dart';
@@ -32,7 +32,7 @@ class SuggestedWeakTagPackService {
     for (final t in weak) {
       final pack = library.firstWhereOrNull((p) => p.tags.contains(t.tag));
       if (pack != null &&
-          !await PackCooldownTracker.isRecentlySuggested(pack.id)) {
+          !await PackSuggestionCooldownService.isRecentlySuggested(pack.id)) {
         await SuggestedTrainingPacksHistoryService.logSuggestion(
           packId: pack.id,
           source: 'weak_tag',
@@ -49,7 +49,7 @@ class SuggestedWeakTagPackService {
       List<TrainingPackTemplateV2> library) async {
     for (final p in library) {
       if (p.tags.contains('fundamentals') &&
-          !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+          !await PackSuggestionCooldownService.isRecentlySuggested(p.id)) {
         await SuggestedTrainingPacksHistoryService.logSuggestion(
           packId: p.id,
           source: 'weak_tag',
@@ -59,7 +59,7 @@ class SuggestedWeakTagPackService {
     }
     for (final p in library) {
       if (p.tags.contains('starter') &&
-          !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+          !await PackSuggestionCooldownService.isRecentlySuggested(p.id)) {
         await SuggestedTrainingPacksHistoryService.logSuggestion(
           packId: p.id,
           source: 'weak_tag',
@@ -74,7 +74,7 @@ class SuggestedWeakTagPackService {
         return pb.compareTo(pa);
       });
     for (final p in sorted) {
-      if (!await PackCooldownTracker.isRecentlySuggested(p.id)) {
+      if (!await PackSuggestionCooldownService.isRecentlySuggested(p.id)) {
         await SuggestedTrainingPacksHistoryService.logSuggestion(
           packId: p.id,
           source: 'weak_tag',

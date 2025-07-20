@@ -5,7 +5,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../services/suggested_weak_tag_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../services/user_action_logger.dart';
-import '../services/pack_cooldown_tracker.dart';
+import '../services/pack_suggestion_cooldown_service.dart';
 import '../screens/training_session_screen.dart';
 
 class SuggestedWeakTagPackBanner extends StatefulWidget {
@@ -31,7 +31,7 @@ class _SuggestedWeakTagPackBannerState extends State<SuggestedWeakTagPackBanner>
       await UserActionLogger.instance.log('suggested_pack_banner.fallback_shown');
     }
     if (result.pack != null) {
-      await PackCooldownTracker.markAsSuggested(result.pack!.id);
+      await PackSuggestionCooldownService.markAsSuggested(result.pack!.id);
     }
     if (mounted) {
       setState(() {
