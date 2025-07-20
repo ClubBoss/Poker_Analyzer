@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'lesson_track_meta_service.dart';
 import 'lesson_streak_engine.dart';
 import 'lesson_progress_service.dart';
+import '../models/track_unlock_requirement_progress.dart';
 
 class LessonTrackUnlockEngine {
   LessonTrackUnlockEngine._();
@@ -28,6 +29,72 @@ class LessonTrackUnlockEngine {
   final Map<String, int> _stepReq = {
     'live_exploit': 5,
   };
+
+  /// Returns progress information for each unlock requirement of [trackId].
+  Future<List<TrackUnlockRequirementProgress>> getRequirementProgress(
+      String trackId) async {
+    final List<TrackUnlockRequirementProgress> reqs = [];
+
+    final prereq = _prereq[trackId];
+    if (prereq != null) {
+      final meta = await LessonTrackMetaService.instance.load(prereq);
+      final completed = meta?.completedAt != null;
+      reqs.add(
+        TrackUnlockRequirementProgress(
+          label: 'Complete $prereq track',
+          icon: '✅',
+          current: completed ? 1 : 0,
+          required: 1,
+          met: completed,
+        ),
+      );
+    }
+
+    final streakReq = _streakReq[trackId];
+    if (streakReq != null) {
+      final streak = await LessonStreakEngine.instance.getCurrentStreak();
+      reqs.add(
+        TrackUnlockRequirementProgress(
+          label: 'Streak',
+          icon: '🔥',
+          current: streak,
+          required: streakReq,
+          met: streak >= streakReq,
+        ),
+      );
+    }
+
+    final xpReq = _xpReq[trackId];
+    if (xpReq != null) {
+      final prefs = await SharedPreferences.getInstance();
+      final xp = prefs.getInt(_xpKey) ?? 0;
+      reqs.add(
+        TrackUnlockRequirementProgress(
+          label: 'XP',
+          icon: '🎓',
+          current: xp,
+          required: xpReq,
+          met: xp >= xpReq,
+        ),
+      );
+    }
+
+    final stepReq = _stepReq[trackId];
+    if (stepReq != null) {
+      final steps = await LessonProgressService.instance.getCompletedSteps();
+      reqs.add(
+        TrackUnlockRequirementProgress(
+          label: 'Steps',
+          icon: '📚',
+          current: steps.length,
+          required: stepReq,
+          met: steps.length >= stepReq,
+        ),
+      );
+    }
+
+    return reqs;
+  }
 
   Future<List<String>> _loadUnlocked() async {
     final prefs = await SharedPreferences.getInstance();

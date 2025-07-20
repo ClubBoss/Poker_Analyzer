@@ -8,6 +8,7 @@ import '../services/yaml_lesson_track_loader.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/track_visibility_filter_engine.dart';
 import '../services/lesson_track_unlock_engine.dart';
+import '../widgets/dialogs/track_unlock_hint_dialog.dart';
 
 class LessonTrackLibraryScreen extends StatefulWidget {
   const LessonTrackLibraryScreen({super.key});
@@ -56,26 +57,13 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
     };
   }
 
-  void _showUnlockHint() {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Заблокировано'),
-        content:
-            const Text('Чтобы разблокировать этот трек, выполните требования'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+  void _showUnlockHint(String trackId) {
+    showTrackUnlockHintDialog(context, trackId);
   }
 
   Future<void> _select(LessonTrack track, String? currentId) async {
     if (_unlocked[track.id] != true) {
-      _showUnlockHint();
+      _showUnlockHint(track.id);
       return;
     }
     bool ok = true;
@@ -163,7 +151,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                             : ElevatedButton(
                                 onPressed: _unlocked[track.id] == true
                                     ? () => _select(track, selected)
-                                    : _showUnlockHint,
+                                    : () => _showUnlockHint(track.id),
                                 child: const Text('Выбрать'),
                               ),
                       ),
@@ -174,7 +162,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                         if (_unlocked[track.id] != true)
                           Positioned.fill(
                             child: InkWell(
-                              onTap: _showUnlockHint,
+                              onTap: () => _showUnlockHint(track.id),
                               child: Container(
                                 color: Colors.black54,
                                 alignment: Alignment.center,
