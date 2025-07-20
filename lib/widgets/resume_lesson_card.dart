@@ -3,7 +3,7 @@ import '../models/player_profile.dart';
 import '../models/v3/lesson_step.dart';
 import '../services/lesson_resume_engine.dart';
 import '../screens/lesson_step_screen.dart';
-import '../screens/lesson_recap_screen.dart';
+import '../screens/lesson_step_recap_screen.dart';
 
 class ResumeLessonCard extends StatefulWidget {
   const ResumeLessonCard({super.key});
@@ -38,7 +38,7 @@ class _ResumeLessonCardState extends State<ResumeLessonCard> {
           onStepComplete: (s) async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => LessonRecapScreen(step: s)),
+              MaterialPageRoute(builder: (_) => LessonStepRecapScreen(step: s)),
             );
           },
         ),

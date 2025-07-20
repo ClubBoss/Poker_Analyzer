@@ -10,7 +10,7 @@ import '../services/lesson_progress_tracker_service.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/learning_track_engine.dart';
 import 'lesson_step_screen.dart';
-import 'lesson_recap_screen.dart';
+import 'lesson_step_recap_screen.dart';
 import 'track_selector_screen.dart';
 
 class LessonPathScreen extends StatefulWidget {
@@ -187,7 +187,7 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (_) =>
-                                                      LessonRecapScreen(
+                                                      LessonStepRecapScreen(
                                                           step: s),
                                                 ),
                                               );
