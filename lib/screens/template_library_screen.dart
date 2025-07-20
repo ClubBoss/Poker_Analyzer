@@ -71,6 +71,8 @@ import '../widgets/training_gap_prompt_banner.dart';
 import '../widgets/training_type_gap_prompt_banner.dart';
 import '../widgets/suggested_pack_tile.dart';
 import 'pack_suggestion_preview_screen.dart';
+import '../services/training_pack_sampler.dart';
+import '../models/v2/training_pack_template_v2.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -2129,6 +2131,35 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     },
               child: const Text('▶️ Train'),
             ),
+            if (t.spots.length > 30)
+              Tooltip(
+                message: 'Быстрый просмотр',
+                child: TextButton(
+                  onPressed: locked
+                      ? null
+                      : () {
+                          final sampler = const TrainingPackSampler();
+                          final tplV2 = TrainingPackTemplateV2.fromTemplate(
+                            t,
+                            type:
+                                const TrainingTypeEngine().detectTrainingType(t),
+                          );
+                          final sample = sampler.sample(tplV2, maxSpots: 20);
+                          final preview =
+                              TrainingPackTemplate.fromJson(sample.toJson());
+                          preview.meta['samplePreview'] = true;
+                          context
+                              .read<TrainingSessionService>()
+                              .startSession(preview, persist: false);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const TrainingSessionScreen()),
+                          );
+                        },
+                  child: const Text('👁 Preview'),
+                ),
+              ),
           ],
         ),
         onTap: () async {
