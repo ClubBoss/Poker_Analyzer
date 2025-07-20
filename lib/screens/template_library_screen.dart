@@ -19,6 +19,7 @@ import '../services/template_storage_service.dart';
 import '../models/training_pack_template.dart';
 import '../models/training_pack_template_model.dart';
 import '../models/v2/training_pack_template.dart' as v2;
+import '../services/training_pack_sort_engine.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../services/training_type_filter_service.dart';
 import '../utils/template_difficulty.dart';
@@ -89,6 +90,7 @@ class TemplateLibraryScreen extends StatefulWidget {
 class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _key = 'lib_game_type';
   static const _sortKey = 'lib_sort';
+  static const _sortModeKey = 'lib_sort_mode';
   static const _favKey = 'fav_tpl_ids';
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _needsRepetitionKey = 'lib_needs_repetition';
@@ -142,6 +144,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Map<String, GlobalKey> _itemKeys = {};
   String _filter = 'all';
   String _sort = kSortEdited;
+  SortMode _sortMode = SortMode.recent;
   bool _effectivenessSort = false;
   bool _needsPractice = false;
   bool _loadingNeedsPractice = false;
@@ -242,6 +245,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadWeakCategories();
     await _detectWeakCategory();
     await _loadTypeStats();
+    await TrainingPackSortEngine.instance
+        .preloadProgress(PackLibraryLoaderService.instance.library);
     if (!mounted) return;
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
@@ -282,6 +287,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() {
       _filter = prefs.getString(_key) ?? 'all';
       _sort = prefs.getString(_sortKey) ?? kSortEdited;
+      final modeIndex = prefs.getInt(_sortModeKey) ?? SortMode.recent.index;
+      _sortMode = SortMode.values[modeIndex];
       _effectivenessSort = prefs.getBool(_effectivenessSortKey) ?? false;
       _favorites
         ..clear()
@@ -396,6 +403,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() => _sort = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_sortKey, value);
+  }
+
+  Future<void> _setSortMode(SortMode mode) async {
+    setState(() => _sortMode = mode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_sortModeKey, mode.index);
   }
 
   Future<void> _updateNeedsPractice(bool value) async {
@@ -1100,7 +1113,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       });
       return copy;
     }
-    switch (_sort) {
+    if (_sortMode == SortMode.recent) {
+      switch (_sort) {
       case kSortCoverage:
         copy.sort((a, b) {
           final ca = a.coveragePercent;
@@ -1146,7 +1160,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           return cmp == 0 ? a.name.compareTo(b.name) : cmp;
         });
     }
-    return copy;
+    }
+    return TrainingPackSortEngine.instance.sort(copy, _sortMode);
   }
 
   List<v2.TrainingPackTemplate> _applyAudienceFilter(
@@ -1210,6 +1225,32 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             label: const Text('In Progress'),
             selected: _sort == kSortInProgress,
             onSelected: (_) => _setSort(kSortInProgress),
+          ),
+          DropdownButton<SortMode>(
+            value: _sortMode,
+            dropdownColor: const Color(0xFF2A2B2E),
+            style: const TextStyle(color: Colors.white),
+            onChanged: (m) {
+              if (m != null) _setSortMode(m);
+            },
+            items: const [
+              DropdownMenuItem(
+                value: SortMode.progress,
+                child: Text('Progress'),
+              ),
+              DropdownMenuItem(
+                value: SortMode.difficulty,
+                child: Text('Difficulty'),
+              ),
+              DropdownMenuItem(
+                value: SortMode.recent,
+                child: Text('Recent'),
+              ),
+              DropdownMenuItem(
+                value: SortMode.focus,
+                child: Text('Focus'),
+              ),
+            ],
           ),
         ],
       ),
