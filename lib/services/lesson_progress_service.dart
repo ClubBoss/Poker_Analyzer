@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'streak_progress_service.dart';
 
 class LessonProgressService {
   LessonProgressService._();
@@ -9,6 +10,7 @@ class LessonProgressService {
   Future<void> markCompleted(String stepId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_key(stepId), true);
+    await StreakProgressService.instance.registerDailyActivity();
   }
 
   Future<bool> isCompleted(String stepId) async {
@@ -18,9 +20,9 @@ class LessonProgressService {
 
   Future<Set<String>> getCompletedSteps() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where((k) => k.startsWith('lesson_completed_'));
-    return keys
-        .map((k) => k.substring('lesson_completed_'.length))
-        .toSet();
+    final keys = prefs.getKeys().where(
+      (k) => k.startsWith('lesson_completed_'),
+    );
+    return keys.map((k) => k.substring('lesson_completed_'.length)).toSet();
   }
 }

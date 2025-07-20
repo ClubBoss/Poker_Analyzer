@@ -5,6 +5,7 @@ import '../services/training_session_service.dart';
 import '../widgets/unlock_gate_widget.dart';
 import '../widgets/learning_path_overview_header.dart';
 import '../services/learning_path_summary_cache.dart';
+import '../services/streak_progress_service.dart';
 import 'package:provider/provider.dart';
 import 'v2/training_pack_play_screen.dart';
 
@@ -23,24 +24,25 @@ class StageInfo {
   StageInfo({required this.id, required this.packs, required this.unlocked});
 }
 
-
-
 class _LearningPathOverviewScreenState
     extends State<LearningPathOverviewScreen> {
   late Future<List<StageInfo>> _stagesFuture;
   late Future<LearningPathSummary> _statsFuture;
+  late Future<StreakData> _streakFuture;
 
   @override
   void initState() {
     super.initState();
     _stagesFuture = _loadStages();
     _statsFuture = _loadStats();
+    _streakFuture = StreakProgressService.instance.getStreak();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _statsFuture = _loadStats();
+    _streakFuture = StreakProgressService.instance.getStreak();
   }
 
   Future<List<StageInfo>> _loadStages() async {
@@ -75,9 +77,7 @@ class _LearningPathOverviewScreenState
       builder: (context, snapshot) {
         final stages = snapshot.data ?? const <StageInfo>[];
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Learning Path'),
-          ),
+          appBar: AppBar(title: const Text('Learning Path')),
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : FutureBuilder<LearningPathSummary>(
@@ -87,12 +87,22 @@ class _LearningPathOverviewScreenState
                     return ListView(
                       children: [
                         if (stats != null)
-                          LearningPathOverviewHeader(
-                            totalStages: stats.totalStages,
-                            completedStages: stats.completedStages,
-                            remainingPacks: stats.remainingPacks,
-                            avgMastery: stats.avgMastery,
-                            message: 'Продолжай \uD83D\uDCAA',
+                          FutureBuilder<StreakData>(
+                            future: _streakFuture,
+                            builder: (context, streakSnap) {
+                              final streak = streakSnap.data;
+                              final msg =
+                                  streak != null && streak.currentStreak > 0
+                                  ? '🔥 ${streak.currentStreak}-day streak! Keep it up!'
+                                  : 'Продолжай \uD83D\uDCAA';
+                              return LearningPathOverviewHeader(
+                                totalStages: stats.totalStages,
+                                completedStages: stats.completedStages,
+                                remainingPacks: stats.remainingPacks,
+                                avgMastery: stats.avgMastery,
+                                message: msg,
+                              );
+                            },
                           ),
                         for (final info in stages)
                           _StageTile(
@@ -154,10 +164,7 @@ class _StageTileState extends State<_StageTile> {
       title: Row(
         children: [
           Expanded(child: Text(_title())),
-          SizedBox(
-            width: 80,
-            child: LinearProgressIndicator(value: progress),
-          ),
+          SizedBox(width: 80, child: LinearProgressIndicator(value: progress)),
         ],
       ),
       onExpansionChanged: (expanded) {
@@ -173,10 +180,7 @@ class _StageTileState extends State<_StageTile> {
           )
         else
           for (final id in widget.packIds)
-            _PackTile(
-              packId: id,
-              completed: _completed?.contains(id) ?? false,
-            ),
+            _PackTile(packId: id, completed: _completed?.contains(id) ?? false),
       ],
     );
     return UnlockGateWidget(
@@ -213,10 +217,8 @@ class _PackTile extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => TrainingPackPlayScreen(
-                      template: tpl,
-                      original: tpl,
-                    ),
+                    builder: (_) =>
+                        TrainingPackPlayScreen(template: tpl, original: tpl),
                   ),
                 );
               }
