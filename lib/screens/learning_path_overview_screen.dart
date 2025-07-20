@@ -4,7 +4,7 @@ import '../services/training_pack_template_service.dart';
 import '../services/training_session_service.dart';
 import '../widgets/unlock_gate_widget.dart';
 import '../widgets/learning_path_overview_header.dart';
-import '../services/tag_mastery_service.dart';
+import '../services/learning_path_summary_cache.dart';
 import 'package:provider/provider.dart';
 import 'v2/training_pack_play_screen.dart';
 
@@ -23,24 +23,12 @@ class StageInfo {
   StageInfo({required this.id, required this.packs, required this.unlocked});
 }
 
-class _OverviewStats {
-  final int totalStages;
-  final int completedStages;
-  final int remainingPacks;
-  final double avgMastery;
 
-  const _OverviewStats({
-    required this.totalStages,
-    required this.completedStages,
-    required this.remainingPacks,
-    required this.avgMastery,
-  });
-}
 
 class _LearningPathOverviewScreenState
     extends State<LearningPathOverviewScreen> {
   late Future<List<StageInfo>> _stagesFuture;
-  late Future<_OverviewStats> _statsFuture;
+  late Future<LearningPathSummary> _statsFuture;
 
   @override
   void initState() {
@@ -73,28 +61,11 @@ class _LearningPathOverviewScreenState
     return list;
   }
 
-  Future<_OverviewStats> _loadStats() async {
-    final svc = TrainingPathProgressService.instance;
-    final stages = await svc.getStages();
-    var completedStages = 0;
-    var remainingPacks = 0;
-    for (final entry in stages.entries) {
-      final progress = await svc.getProgressInStage(entry.key);
-      if (progress >= 1.0) completedStages++;
-      final done = await svc.getCompletedPacksInStage(entry.key);
-      remainingPacks += entry.value.length - done.length;
-    }
-    final masteryService = context.read<TagMasteryService>();
-    final masteryMap = await masteryService.computeMastery();
-    final avg = masteryMap.isEmpty
-        ? 0.0
-        : masteryMap.values.reduce((a, b) => a + b) / masteryMap.length;
-    return _OverviewStats(
-      totalStages: stages.length,
-      completedStages: completedStages,
-      remainingPacks: remainingPacks,
-      avgMastery: avg,
-    );
+  Future<LearningPathSummary> _loadStats() async {
+    final cache = context.read<LearningPathSummaryCache>();
+    if (cache.summary != null) return cache.summary!;
+    await cache.refresh();
+    return cache.summary!;
   }
 
   @override
@@ -109,7 +80,7 @@ class _LearningPathOverviewScreenState
           ),
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
-              : FutureBuilder<_OverviewStats>(
+              : FutureBuilder<LearningPathSummary>(
                   future: _statsFuture,
                   builder: (context, statsSnapshot) {
                     final stats = statsSnapshot.data;
