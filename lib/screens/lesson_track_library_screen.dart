@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v3/lesson_track.dart';
+import '../models/player_profile.dart';
 import '../services/learning_track_engine.dart';
 import '../services/yaml_lesson_track_loader.dart';
 import '../services/lesson_path_progress_service.dart';
+import '../services/track_visibility_filter_engine.dart';
 
 class LessonTrackLibraryScreen extends StatefulWidget {
   const LessonTrackLibraryScreen({super.key});
@@ -26,16 +28,18 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
   Future<Map<String, dynamic>> _load() async {
     final builtIn = const LearningTrackEngine().getTracks();
     final yaml = await YamlLessonTrackLoader.instance.loadTracksFromAssets();
-    final tracks = [...builtIn, ...yaml];
+    final allTracks = [...builtIn, ...yaml];
+
+    // TODO: load real profile data when available
+    final profile = PlayerProfile();
+    final tracks = await const TrackVisibilityFilterEngine()
+        .filterUnlockedTracks(allTracks, profile);
+
     final prefs = await SharedPreferences.getInstance();
     final selected = prefs.getString('lesson_selected_track');
     final progress =
         await LessonPathProgressService.instance.computeTrackProgress();
-    return {
-      'tracks': tracks,
-      'selected': selected,
-      'progress': progress,
-    };
+    return {'tracks': tracks, 'selected': selected, 'progress': progress};
   }
 
   Future<void> _select(LessonTrack track, String? currentId) async {
@@ -47,7 +51,8 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
               backgroundColor: Colors.grey[900],
               title: const Text('Сменить трек?'),
               content: const Text(
-                  'Вы уверены, что хотите переключить учебный путь?'),
+                'Вы уверены, что хотите переключить учебный путь?',
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
@@ -95,7 +100,9 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                           ? Colors.blueGrey[700]
                           : const Color(0xFF1E1E1E),
                       margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: ListTile(
                         title: Text(track.title),
                         subtitle: Column(
