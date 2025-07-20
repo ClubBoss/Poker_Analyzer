@@ -82,6 +82,7 @@ import '../services/training_pack_sampler.dart';
 import 'v2/training_pack_play_screen.dart';
 import '../widgets/pack_progress_overlay.dart';
 import '../widgets/pack_unlock_requirement_badge.dart';
+import '../widgets/library_pack_badge_renderer.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -2067,6 +2068,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           right: 4,
           child: PackProgressOverlay(templateId: t.id, size: 20),
         ),
+        Positioned(
+          bottom: 4,
+          right: 4,
+          child: LibraryPackBadgeRenderer(packId: t.id),
+        ),
         if (locked && reason != null)
           Positioned(
             bottom: 4,
@@ -2340,6 +2346,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           top: 4,
           right: 4,
           child: PackProgressOverlay(templateId: t.id, size: 20),
+        ),
+        Positioned(
+          bottom: 4,
+          right: 4,
+          child: LibraryPackBadgeRenderer(packId: t.id),
         ),
         if (locked && reason != null)
           Positioned(
@@ -2720,6 +2731,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           top: 4,
           right: 4,
           child: PackProgressOverlay(templateId: t.id, size: 20),
+        ),
+        Positioned(
+          bottom: 4,
+          right: 4,
+          child: LibraryPackBadgeRenderer(packId: t.id),
         ),
         if (locked && reason != null)
           Positioned(
