@@ -476,6 +476,20 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                           style: const TextStyle(color: Colors.white70),
                           textAlign: TextAlign.center,
                         ),
+                        if (service.template!.meta['samplePreview'] == true)
+                          Container(
+                            margin: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'Sample preview',
+                              style: TextStyle(color: Colors.orangeAccent),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         if (service.template!.description.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
