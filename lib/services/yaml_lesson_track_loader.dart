@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../asset_manifest.dart';
 import '../core/training/generation/yaml_reader.dart';
 import '../models/v3/lesson_track.dart';
+import '../models/v3/track_unlock_condition.dart';
 import 'lesson_loader_service.dart';
 
 class YamlLessonTrackLoader {
@@ -33,12 +34,19 @@ class YamlLessonTrackLoader {
         final id = map['id']?.toString() ?? '';
         final title = map['title']?.toString() ?? '';
         final desc = map['description']?.toString() ?? '';
+        TrackUnlockCondition? condition;
+        final condYaml = map['unlockCondition'];
+        if (condYaml is Map) {
+          condition = TrackUnlockCondition.fromYaml(
+              Map<String, dynamic>.from(condYaml));
+        }
         if (id.isEmpty || title.isEmpty) continue;
         tracks.add(LessonTrack(
           id: id,
           title: title,
           description: desc,
           stepIds: steps,
+          unlockCondition: condition,
         ));
       } catch (_) {}
     }
