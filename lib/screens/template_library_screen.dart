@@ -28,6 +28,7 @@ import 'create_pack_from_template_screen.dart';
 import 'create_template_screen.dart';
 import 'template_hands_editor_screen.dart';
 import 'template_preview_dialog.dart';
+import '../widgets/sample_pack_preview_button.dart';
 import '../widgets/sync_status_widget.dart';
 import 'session_history_screen.dart';
 import 'v2/training_pack_template_editor_screen.dart';
@@ -2129,6 +2130,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     },
               child: const Text('▶️ Train'),
             ),
+            if (t.spots.length > 30)
+              SamplePackPreviewButton(template: t),
           ],
         ),
         onTap: () async {
@@ -3583,9 +3586,17 @@ class _PackSheetContent extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: onStart,
-          child: Text(l.startTraining),
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: onStart,
+              child: Text(l.startTraining),
+            ),
+            if (template.spots.length > 30) ...[
+              const SizedBox(width: 8),
+              SamplePackPreviewButton(template: template),
+            ],
+          ],
         ),
         if (showReview) ...[
           const SizedBox(height: 8),

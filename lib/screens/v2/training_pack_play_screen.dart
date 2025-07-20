@@ -873,6 +873,22 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             padding: EdgeInsets.all(16 * scale),
             child: Column(
               children: [
+            if (widget.template.meta['sampledPack'] == true)
+              Padding(
+                padding: EdgeInsets.only(bottom: 8 * scale),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Preview mode: You\'re training with a sample',
+                    style: TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             if (widget.template.focusTags.isNotEmpty)
               Padding(
                 padding: EdgeInsets.only(bottom: 8 * scale),
