@@ -21,6 +21,47 @@ class SmartReSuggestionEngine {
   })  : _libraryOverride = library,
         _weakTagService = weakTagService ?? const SuggestedWeakTagPackService();
 
+  /// Returns the next suggested pack without logging or updating cooldowns.
+  Future<TrainingPackTemplateV2?> previewNext() async {
+    final analytics = PackSuggestionAnalyticsEngine(logs: logs);
+    final stats = await analytics.getStats();
+
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final library = _libraryOverride ?? PackLibraryLoaderService.instance.library;
+
+    final entries = <MapEntry<TrainingPackTemplateV2, PackEngagementStats>>[];
+    for (final s in stats) {
+      if (s.shownCount < 2 || s.completedCount > 0) continue;
+      final tpl = library.firstWhereOrNull((p) => p.id == s.packId);
+      if (tpl == null) continue;
+      if (await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
+            tpl.id,
+            within: const Duration(days: 14),
+          )) {
+        continue;
+      }
+      if (await SuggestionCooldownManager.isUnderCooldown(
+            tpl.id,
+            cooldown: const Duration(days: 14),
+          )) {
+        continue;
+      }
+      entries.add(MapEntry(tpl, s));
+    }
+
+    if (entries.isNotEmpty) {
+      entries.sort((a, b) {
+        final cmp = b.value.startedCount.compareTo(a.value.startedCount);
+        if (cmp != 0) return cmp;
+        return b.value.shownCount.compareTo(a.value.shownCount);
+      });
+      return entries.first.key;
+    }
+
+    final fallback = await _weakTagService.suggestPack();
+    return fallback.pack;
+  }
+
   /// Suggests a pack to retry based on past suggestions and engagement stats.
   Future<TrainingPackTemplateV2?> suggestNext() async {
     final analytics = PackSuggestionAnalyticsEngine(logs: logs);

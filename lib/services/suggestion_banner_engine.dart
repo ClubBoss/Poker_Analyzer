@@ -11,6 +11,8 @@ import 'dormant_tag_suggestion_service.dart';
 import 'suggestion_cooldown_manager.dart';
 import 'training_session_service.dart';
 import 'suggestion_banner_ab_test_service.dart';
+import 'learning_path_personalization_service.dart';
+import 'suggested_training_packs_history_service.dart';
 import 'user_action_logger.dart';
 
 class SuggestionBannerData {
@@ -50,11 +52,31 @@ class SuggestionBannerEngine {
 
     final variant = SuggestionBannerABTestService.instance.getVariant();
     final isAggressive = variant == SuggestionBannerVariant.aggressiveText;
+    final weakest = LearningPathPersonalizationService.instance
+        .getWeakestTags(limit: 3)
+        .map((e) => e.trim().toLowerCase())
+        .toList();
 
-    Future<SuggestionBannerData?> weakBanner() async {
-      final weak = await _weakTagService.suggestPack();
-      if (weak.pack == null) return null;
-      final tpl = weak.pack!;
+    bool _matches(TrainingPackTemplateV2? tpl) {
+      if (tpl == null) return false;
+      final tags = <String>{
+        ...tpl.tags.map((e) => e.trim().toLowerCase()),
+        if (tpl.category != null) tpl.category!.trim().toLowerCase(),
+      }..removeWhere((e) => e.isEmpty);
+      return tags.any(weakest.contains);
+    }
+
+    final weakPreview = await _weakTagService.suggestPack();
+    final dormantPreview = await _dormantService.suggestPack();
+    final resPreview = await _resuggestionEngine.previewNext();
+
+    final matchWeak = _matches(weakPreview.pack);
+    final matchDormant = _matches(dormantPreview);
+    final matchResuggest = _matches(resPreview);
+
+    Future<SuggestionBannerData?> weakBanner(bool match) async {
+      final tpl = weakPreview.pack;
+      if (tpl == null) return null;
       await SuggestionCooldownManager.markSuggested(tpl.id);
       final data = _dataFor(
         tpl: tpl,
@@ -67,12 +89,13 @@ class SuggestionBannerEngine {
         'event': 'suggestion_banner.shown',
         'variant': variant.name,
         'type': 'weak',
+        'match': match,
       });
       return data;
     }
 
-    Future<SuggestionBannerData?> dormantBanner() async {
-      final dormant = await _dormantService.suggestPack();
+    Future<SuggestionBannerData?> dormantBanner(bool match) async {
+      final dormant = dormantPreview;
       if (dormant == null) return null;
       final data = _dataFor(
         tpl: dormant,
@@ -85,13 +108,19 @@ class SuggestionBannerEngine {
         'event': 'suggestion_banner.shown',
         'variant': variant.name,
         'type': 'dormant',
+        'match': match,
       });
       return data;
     }
 
-    Future<SuggestionBannerData?> resuggestBanner() async {
-      final re = await _resuggestionEngine.suggestNext();
+    Future<SuggestionBannerData?> resuggestBanner(bool match) async {
+      final re = resPreview;
       if (re == null) return null;
+      await SuggestionCooldownManager.markSuggested(re.id);
+      await SuggestedTrainingPacksHistoryService.logSuggestion(
+        packId: re.id,
+        source: 'resuggestion_engine',
+      );
       final data = _dataFor(
         tpl: re,
         title: isAggressive
@@ -103,24 +132,48 @@ class SuggestionBannerEngine {
         'event': 'suggestion_banner.shown',
         'variant': variant.name,
         'type': 'resuggest',
+        'match': match,
       });
       return data;
     }
 
-    late final List<Future<SuggestionBannerData?> Function()> order;
-    switch (variant) {
-      case SuggestionBannerVariant.layoutA:
-        order = [resuggestBanner, dormantBanner, weakBanner];
-        break;
-      case SuggestionBannerVariant.layoutB:
-        order = [dormantBanner, weakBanner, resuggestBanner];
-        break;
-      default:
-        order = [weakBanner, dormantBanner, resuggestBanner];
+    class _Candidate {
+      final bool match;
+      final Future<SuggestionBannerData?> Function() build;
+      _Candidate(this.match, this.build);
     }
 
-    for (final step in order) {
-      final result = await step();
+    late final List<_Candidate> order;
+    switch (variant) {
+      case SuggestionBannerVariant.layoutA:
+        order = [
+          _Candidate(matchResuggest, () => resuggestBanner(matchResuggest)),
+          _Candidate(matchDormant, () => dormantBanner(matchDormant)),
+          _Candidate(matchWeak, () => weakBanner(matchWeak)),
+        ];
+        break;
+      case SuggestionBannerVariant.layoutB:
+        order = [
+          _Candidate(matchDormant, () => dormantBanner(matchDormant)),
+          _Candidate(matchWeak, () => weakBanner(matchWeak)),
+          _Candidate(matchResuggest, () => resuggestBanner(matchResuggest)),
+        ];
+        break;
+      default:
+        order = [
+          _Candidate(matchWeak, () => weakBanner(matchWeak)),
+          _Candidate(matchDormant, () => dormantBanner(matchDormant)),
+          _Candidate(matchResuggest, () => resuggestBanner(matchResuggest)),
+        ];
+    }
+
+    order.sort((a, b) {
+      if (a.match == b.match) return 0;
+      return a.match ? -1 : 1;
+    });
+
+    for (final c in order) {
+      final result = await c.build();
       if (result != null) return result;
     }
 
