@@ -98,6 +98,8 @@ import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
 import 'services/training_path_progress_service.dart';
 import 'services/learning_path_summary_cache.dart';
+import 'services/learning_path_reminder_engine.dart';
+import 'services/daily_app_check_service.dart';
 import 'services/adaptive_next_step_engine.dart';
 import 'services/suggested_next_step_engine.dart';
 
@@ -464,6 +466,16 @@ List<SingleChildWidget> buildTrainingProviders() {
         path: context.read<TrainingPathProgressService>(),
         mastery: context.read<TagMasteryService>(),
         storage: context.read<TemplateStorageService>(),
+      ),
+    ),
+    Provider(
+      create: (context) => LearningPathReminderEngine(
+        cache: context.read<LearningPathSummaryCache>(),
+      ),
+    ),
+    Provider(
+      create: (context) => DailyAppCheckService(
+        reminder: context.read<LearningPathReminderEngine>(),
       ),
     ),
   ];

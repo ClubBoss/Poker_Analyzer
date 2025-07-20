@@ -103,6 +103,8 @@ import 'services/pinned_pack_service.dart';
 import 'services/training_pack_template_service.dart';
 import 'services/training_pack_stats_service.dart';
 import 'services/learning_path_summary_cache.dart';
+import 'services/learning_path_reminder_engine.dart';
+import 'services/daily_app_check_service.dart';
 import 'screens/training_session_screen.dart';
 import 'screens/empty_training_screen.dart';
 import 'services/app_init_service.dart';
@@ -266,6 +268,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     unawaited(NotificationService.scheduleDailyProgress(context));
     NotificationService.startRecommendedPackTask(context);
     unawaited(context.read<LearningPathSummaryCache>().refresh());
+    unawaited(context.read<DailyAppCheckService>().run(context));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeStartPinnedTraining();
       _maybeResumeTraining();
