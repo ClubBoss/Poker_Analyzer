@@ -32,6 +32,8 @@ import '../services/daily_learning_goal_service.dart';
 import '../services/pack_dependency_map.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/smart_stage_unlock_engine.dart';
+import '../services/training_milestone_engine.dart';
+import '../widgets/confetti_overlay.dart';
 import 'package:collection/collection.dart';
 
 class _EndlessStats {
@@ -349,6 +351,15 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       AchievementService.instance.checkAll();
       await AchievementTriggerEngine.instance.checkAndTriggerAchievements();
       await _checkGoalProgress();
+      final stats =
+          await TrainingPackStatsService.getGlobalStats(force: true);
+      final milestone = await TrainingMilestoneEngine.instance
+          .checkAndTrigger(completedPacks: stats.packsCompleted);
+      if (milestone.triggered && mounted) {
+        showConfettiOverlay(context);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(milestone.message)));
+      }
     }
   }
 
