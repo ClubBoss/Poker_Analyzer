@@ -15,6 +15,7 @@ import '../services/smart_review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
+import 'training_recap_screen.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -314,24 +315,37 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       if (cloud != null) {
         unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
       }
-      Map<String, int>? counts;
-      if (tpl.id == 'suggested_weekly') {
-        counts = {};
-        for (final e in service.getCategoryStats().entries) {
-          final n = e.value.played - e.value.correct;
-          if (n > 0) counts[e.key] = n;
+      final elapsed = service.elapsedTime;
+      if (service.totalCount < 3) {
+        Map<String, int>? counts;
+        if (tpl.id == 'suggested_weekly') {
+          counts = {};
+          for (final e in service.getCategoryStats().entries) {
+            final n = e.value.played - e.value.correct;
+            if (n > 0) counts[e.key] = n;
+          }
         }
+        await service.complete(
+          context,
+          resultBuilder: (_) => PackStatsScreen(
+            templateId: tpl.id,
+            correct: correct,
+            total: total,
+            completedAt: DateTime.now(),
+            categoryCounts: counts,
+          ),
+        );
+      } else {
+        await service.complete(
+          context,
+          resultBuilder: (_) => TrainingRecapScreen(
+            templateId: tpl.id,
+            correct: correct,
+            total: total,
+            elapsed: elapsed,
+          ),
+        );
       }
-      await service.complete(
-        context,
-        resultBuilder: (_) => PackStatsScreen(
-          templateId: tpl.id,
-          correct: correct,
-          total: total,
-          completedAt: DateTime.now(),
-          categoryCounts: counts,
-        ),
-      );
       AchievementService.instance.checkAll();
       await AchievementTriggerEngine.instance.checkAndTriggerAchievements();
       await _checkGoalProgress();
