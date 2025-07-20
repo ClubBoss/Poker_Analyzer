@@ -16,6 +16,7 @@ import '../services/mastery_level_engine.dart';
 import '../widgets/goal_dashboard_widget.dart';
 import '../widgets/xp_level_bar.dart';
 import '../services/xp_reward_engine.dart';
+import '../services/lesson_reminder_scheduler.dart';
 import 'master_mode_screen.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_step_recap_screen.dart';
@@ -33,12 +34,23 @@ class _TrackProgressDashboardScreenState
   late Future<Map<String, dynamic>> _future;
   late Future<MasteryLevel> _levelFuture;
   bool _bannerShown = false;
+  bool _reminderEnabled = false;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 19, minute: 0);
 
   @override
   void initState() {
     super.initState();
     _future = _load();
     _levelFuture = MasteryLevelEngine().computeUserLevel();
+    LessonReminderScheduler.instance.getScheduledTime().then((t) {
+      if (!mounted) return;
+      if (t != null) {
+        setState(() {
+          _reminderEnabled = true;
+          _reminderTime = t;
+        });
+      }
+    });
   }
 
   Future<Map<String, dynamic>> _load() async {
@@ -126,6 +138,33 @@ class _TrackProgressDashboardScreenState
     }
   }
 
+  Future<void> _toggleReminder(bool value) async {
+    if (value) {
+      await LessonReminderScheduler.instance.scheduleReminder(time: _reminderTime);
+    } else {
+      await LessonReminderScheduler.instance.cancelReminder();
+    }
+    if (mounted) {
+      setState(() => _reminderEnabled = value);
+    }
+  }
+
+  Future<void> _pickReminderTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+    );
+    if (picked != null) {
+      await LessonReminderScheduler.instance.scheduleReminder(time: picked);
+      if (mounted) {
+        setState(() {
+          _reminderEnabled = true;
+          _reminderTime = picked;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -181,6 +220,27 @@ class _TrackProgressDashboardScreenState
                           levelXp: data?['levelXp'] as int? ?? 0,
                           level: data?['level'] as int? ?? 1,
                         ),
+                        SwitchListTile(
+                          value: _reminderEnabled,
+                          activeColor: Colors.orange,
+                          title: const Text('⏰ Ежедневное напоминание',
+                              style: TextStyle(color: Colors.white)),
+                          subtitle: Text(
+                            'Время: ${_reminderTime.format(context)}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          onChanged: _toggleReminder,
+                        ),
+                        if (_reminderEnabled)
+                          ListTile(
+                            title: const Text('Изменить время',
+                                style: TextStyle(color: Colors.white)),
+                            subtitle: Text(
+                              _reminderTime.format(context),
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            onTap: _pickReminderTime,
+                          ),
                         FutureBuilder<MasteryLevel>(
                           future: _levelFuture,
                           builder: (context, levelSnap) {
