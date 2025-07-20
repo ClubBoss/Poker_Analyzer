@@ -118,4 +118,6 @@
   ,"packOfDay": "\ud83c\udfb2 Pack of the Day"
   ,"levelGoalTitle": "Level Goal"
   ,"samplePreviewHint": "Try a sample first to explore this pack!"
+  ,"samplePreviewPrompt": "This pack is large. Preview a quick sample first?"
+  ,"previewSample": "Preview Sample"
 }
