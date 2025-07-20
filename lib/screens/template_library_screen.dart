@@ -83,6 +83,7 @@ import 'v2/training_pack_play_screen.dart';
 import '../widgets/pack_progress_overlay.dart';
 import '../widgets/pack_unlock_requirement_badge.dart';
 import '../widgets/library_pack_badge_renderer.dart';
+import '../services/pack_sorting_engine.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -133,6 +134,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortInProgress = 'resume';
   static const kSortCoverage = 'coverage';
   static const kSortCombinedTrending = 'combinedTrending';
+  static const _libSortKey = 'lib_pack_sort';
+  static const kLibSortProgress = 'lib_progress';
+  static const kLibSortAccuracy = 'lib_accuracy';
+  static const kLibSortLastTrained = 'lib_last_trained';
   static const _sortIcons = {
     kSortEdited: Icons.update,
     kSortSpots: Icons.format_list_numbered,
@@ -186,6 +191,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _importing = false;
   String _dailyQuote = '';
   List<String> _libraryTags = [];
+  List<v2.TrainingPackTemplate> _librarySorted = [];
+  String _librarySort = kLibSortProgress;
 
   List<TrainingPackTemplate> _recent = [];
   List<TrainingPackTemplate> _popular = [];
@@ -259,6 +266,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadWeakTags();
     await TrainingPackSortEngine.instance
         .preloadProgress(PackLibraryLoaderService.instance.library);
+    await _updateLibrarySorted();
     if (!mounted) return;
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
@@ -301,6 +309,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _sort = prefs.getString(_sortKey) ?? kSortEdited;
       final modeIndex = prefs.getInt(_sortModeKey) ?? SortMode.recent.index;
       _sortMode = SortMode.values[modeIndex];
+      _librarySort = prefs.getString(_libSortKey) ?? kLibSortProgress;
       _effectivenessSort = prefs.getBool(_effectivenessSortKey) ?? false;
       _favorites
         ..clear()
@@ -422,6 +431,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() => _sortMode = mode);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sortModeKey, mode.index);
+  }
+
+  Future<void> _setLibrarySort(String value) async {
+    setState(() => _librarySort = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_libSortKey, value);
+    unawaited(_updateLibrarySorted());
   }
 
   Future<void> _updateNeedsPractice(bool value) async {
@@ -1010,6 +1026,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..clear()
         ..addAll(libMap);
     });
+  }
+
+  Future<void> _updateLibrarySorted() async {
+    var list = PackLibraryLoaderService.instance.library.toList();
+    switch (_librarySort) {
+      case kLibSortAccuracy:
+        list = await PackSortingEngine.sortByAccuracy(list, descending: true);
+        break;
+      case kLibSortLastTrained:
+        list = await PackSortingEngine.sortByLastTrained(list);
+        break;
+      default:
+        list = await PackSortingEngine.sortByProgress(list);
+    }
+    if (!mounted) return;
+    setState(() => _librarySorted = list);
   }
 
   Color _colorFor(double val) {
@@ -2900,8 +2932,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       for (final t in remaining)
         if (t.isBuiltIn && !_isStarter(t)) t
     ]);
+    final baseLib = _librarySorted.isNotEmpty
+        ? _librarySorted
+        : PackLibraryLoaderService.instance.library;
     final libAll = _applyTrainingTypeFilter(
-        _applyAudienceFilter(PackLibraryLoaderService.instance.library));
+        _applyAudienceFilter(baseLib));
     List<v2.TrainingPackTemplate> libraryFiltered = _activeTags.isEmpty
         ? libAll
         : [
@@ -3056,6 +3091,25 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 const PopupMenuItem(
                   value: kSortInProgress,
                   child: Text('In Progress'),
+                ),
+              ],
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.sort, color: Colors.white70),
+              onSelected: _setLibrarySort,
+              initialValue: _librarySort,
+              itemBuilder: (ctx) => const [
+                PopupMenuItem(
+                  value: kLibSortProgress,
+                  child: Text('By Progress'),
+                ),
+                PopupMenuItem(
+                  value: kLibSortAccuracy,
+                  child: Text('By Accuracy'),
+                ),
+                PopupMenuItem(
+                  value: kLibSortLastTrained,
+                  child: Text('Last Trained'),
                 ),
               ],
             ),
