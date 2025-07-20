@@ -4,6 +4,8 @@ class XPRewardEngine {
   XPRewardEngine._();
   static final XPRewardEngine instance = XPRewardEngine._();
 
+  static const int levelStep = 500;
+
   static const String _xpKey = 'xp_total';
 
   Future<void> addXp(int amount) async {
@@ -16,4 +18,11 @@ class XPRewardEngine {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_xpKey) ?? 0;
   }
+}
+
+int getLevel(int totalXp) => (totalXp ~/ XPRewardEngine.levelStep) + 1;
+
+int getXpForNextLevel(int currentXp) {
+  final level = getLevel(currentXp);
+  return level * XPRewardEngine.levelStep;
 }

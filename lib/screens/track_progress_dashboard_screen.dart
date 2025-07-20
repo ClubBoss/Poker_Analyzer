@@ -15,6 +15,8 @@ import '../models/mastery_level.dart';
 import '../services/mastery_level_engine.dart';
 import '../services/lesson_goal_engine.dart';
 import '../widgets/goal_progress_bar.dart';
+import '../widgets/xp_level_bar.dart';
+import '../services/xp_reward_engine.dart';
 import 'master_mode_screen.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_step_recap_screen.dart';
@@ -69,6 +71,9 @@ class _TrackProgressDashboardScreenState
     }
     final pathCompleted =
         await LearningPathCompletionService.instance.isPathCompleted();
+    final totalXp = await XPRewardEngine.instance.getTotalXp();
+    final level = getLevel(totalXp);
+    final levelXp = getXpForNextLevel(totalXp);
     return {
       'tracks': tracks,
       'progress': progress,
@@ -78,6 +83,9 @@ class _TrackProgressDashboardScreenState
       'pathCompleted': pathCompleted,
       'dailyGoal': dailyGoal,
       'weeklyGoal': weeklyGoal,
+      'totalXp': totalXp,
+      'level': level,
+      'levelXp': levelXp,
     };
   }
 
@@ -176,6 +184,11 @@ class _TrackProgressDashboardScreenState
                       children: [
                         if (dailyGoal != null && weeklyGoal != null)
                           GoalCard(daily: dailyGoal, weekly: weeklyGoal),
+                        XPLevelBar(
+                          currentXp: data?['totalXp'] as int? ?? 0,
+                          levelXp: data?['levelXp'] as int? ?? 0,
+                          level: data?['level'] as int? ?? 1,
+                        ),
                         FutureBuilder<MasteryLevel>(
                           future: _levelFuture,
                           builder: (context, levelSnap) {

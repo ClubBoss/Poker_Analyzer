@@ -13,4 +13,11 @@ void main() {
     final total = await engine.getTotalXp();
     expect(total, 15);
   });
+
+  test('level calculations', () async {
+    expect(getLevel(0), 1);
+    expect(getLevel(499), 1);
+    expect(getLevel(500), 2);
+    expect(getXpForNextLevel(780), 1000);
+  });
 }
