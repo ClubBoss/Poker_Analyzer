@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/v3/lesson_step.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/training_session_service.dart';
-import '../services/lesson_progress_service.dart';
+import '../services/lesson_progress_tracker_service.dart';
 import 'training_session_screen.dart';
 
 class LessonStepScreen extends StatefulWidget {
@@ -19,6 +19,19 @@ class LessonStepScreen extends StatefulWidget {
 class _LessonStepScreenState extends State<LessonStepScreen> {
   int? _selectedOption;
   bool _trainingCompleted = false;
+  bool _completed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkCompleted();
+  }
+
+  Future<void> _checkCompleted() async {
+    final done = await LessonProgressTrackerService.instance
+        .isStepCompletedFlat(widget.step.id);
+    if (mounted) setState(() => _completed = done);
+  }
 
   Future<void> _startTraining() async {
     final tpl = await context
@@ -48,9 +61,7 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
       children.add(
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          child: img.startsWith('http')
-              ? Image.network(img)
-              : Image.asset(img),
+          child: img.startsWith('http') ? Image.network(img) : Image.asset(img),
         ),
       );
     }
@@ -82,6 +93,24 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
       }
     }
 
+    if (_completed) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.green, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Шаг уже завершен',
+                style: TextStyle(color: Colors.green),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     children.add(
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -92,8 +121,11 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
               )
             : ElevatedButton(
                 onPressed: () async {
-                  await LessonProgressService.instance
-                      .markCompleted(step.id);
+                  if (!_completed) {
+                    await LessonProgressTrackerService.instance
+                        .markStepCompleted(widget.step.id, widget.step.id);
+                    setState(() => _completed = true);
+                  }
                   if (widget.onStepComplete != null) {
                     await widget.onStepComplete!(step);
                   } else if (mounted) {
