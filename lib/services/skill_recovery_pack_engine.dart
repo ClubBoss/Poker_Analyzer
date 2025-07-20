@@ -5,6 +5,7 @@ import 'pack_cooldown_tracker.dart';
 import 'pack_library_loader_service.dart';
 import 'training_gap_detector_service.dart';
 import 'training_tag_performance_engine.dart';
+import 'suggested_training_packs_history_service.dart';
 
 class SkillRecoveryPackEngine {
   const SkillRecoveryPackEngine._();
@@ -60,7 +61,12 @@ class SkillRecoveryPackEngine {
       }
 
       candidates.sort((a, b) => score(b).compareTo(score(a)));
-      return candidates.first;
+      final selected = candidates.first;
+      await SuggestedTrainingPacksHistoryService.logSuggestion(
+        packId: selected.id,
+        source: 'skill_recovery',
+      );
+      return selected;
     }
 
     return await _findFallback(lib, exclude);
@@ -74,6 +80,10 @@ class SkillRecoveryPackEngine {
       if (exclude.contains(p.id)) continue;
       if (p.tags.map((e) => e.toLowerCase()).contains('fundamentals') &&
           !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+        await SuggestedTrainingPacksHistoryService.logSuggestion(
+          packId: p.id,
+          source: 'skill_recovery',
+        );
         return p;
       }
     }
@@ -81,6 +91,10 @@ class SkillRecoveryPackEngine {
       if (exclude.contains(p.id)) continue;
       if (p.tags.map((e) => e.toLowerCase()).contains('starter') &&
           !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+        await SuggestedTrainingPacksHistoryService.logSuggestion(
+          packId: p.id,
+          source: 'skill_recovery',
+        );
         return p;
       }
     }
@@ -93,7 +107,13 @@ class SkillRecoveryPackEngine {
         return pb.compareTo(pa);
       });
     for (final p in sorted) {
-      if (!await PackCooldownTracker.isRecentlySuggested(p.id)) return p;
+      if (!await PackCooldownTracker.isRecentlySuggested(p.id)) {
+        await SuggestedTrainingPacksHistoryService.logSuggestion(
+          packId: p.id,
+          source: 'skill_recovery',
+        );
+        return p;
+      }
     }
     return null;
   }
