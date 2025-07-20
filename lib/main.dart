@@ -83,6 +83,7 @@ import 'services/dynamic_pack_adjustment_service.dart';
 import 'services/remote_config_service.dart';
 import 'services/theme_service.dart';
 import 'services/ab_test_engine.dart';
+import 'services/suggestion_banner_ab_test_service.dart';
 import 'services/asset_sync_service.dart';
 import 'services/favorite_pack_service.dart';
 import 'services/evaluation_settings_service.dart';
@@ -157,6 +158,7 @@ Future<void> main() async {
   );
   await EvaluationSettingsService.instance.load();
   await MistakeHintService.instance.load();
+  await SuggestionBannerABTestService.instance.init();
   tagCache = TagCacheService();
   await tagCache.load();
   unawaited(SuggestedPackPushService.instance.schedulePushReminder());
