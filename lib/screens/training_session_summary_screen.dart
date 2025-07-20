@@ -19,6 +19,7 @@ import '../services/adaptive_training_service.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/daily_tip_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/mistake_advice.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/spot_viewer_dialog.dart';
@@ -64,10 +65,52 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
   }
 
   Future<void> _loadWeakPack() async {
-    final tpl =
-        await context.read<WeakSpotRecommendationService>().buildPack();
+    final service = context.read<WeakSpotRecommendationService>();
+    final tpl = await service.buildPack();
     if (!mounted) return;
     setState(() => _weakPack = tpl);
+    await _maybeShowPackTip(service);
+  }
+
+  Future<void> _maybeShowPackTip(WeakSpotRecommendationService service) async {
+    if (_weakPack == null) return;
+    final total = widget.session.results.length;
+    if (total < 10) return;
+    final correct = widget.session.results.values.where((e) => e).length;
+    final accuracy = total == 0 ? 0.0 : correct * 100 / total;
+    if (accuracy >= 90) return;
+    final rec = service.recommendation;
+    if (rec == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'weak_tip_${rec.position.name}';
+    final lastStr = prefs.getString(key);
+    if (lastStr != null) {
+      final last = DateTime.tryParse(lastStr);
+      if (last != null && DateTime.now().difference(last) < const Duration(days: 1)) {
+        return;
+      }
+    }
+    await prefs.setString(key, DateTime.now().toIso8601String());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Want to improve your ${rec.position.label}? Try ${_weakPack!.name}.'),
+          action: SnackBarAction(
+            label: 'Train',
+            onPressed: () async {
+              await context.read<TrainingSessionService>().startSession(_weakPack!, persist: false);
+              if (!context.mounted) return;
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+              );
+            },
+          ),
+          duration: const Duration(seconds: 6),
+        ),
+      );
+    });
   }
 
   void _open(String route) {
