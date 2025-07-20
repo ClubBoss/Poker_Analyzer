@@ -23,6 +23,7 @@ import '../../widgets/common/animated_line_chart.dart';
 import '../../services/weak_spot_recommendation_service.dart';
 import '../training_session_screen.dart';
 import '../../services/training_session_service.dart';
+import '../../services/pack_library_completion_service.dart';
 
 class TrainingPackResultScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -293,6 +294,11 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       postEv / 100,
       postIcm / 100,
       context: context,
+    ));
+    unawaited(PackLibraryCompletionService.instance.registerCompletion(
+      widget.original.id,
+      correct: _correct,
+      total: _total,
     ));
     SharedPreferences.getInstance().then((p) =>
         p.setString('last_trained_tpl_${widget.original.id}', DateTime.now().toIso8601String()));
