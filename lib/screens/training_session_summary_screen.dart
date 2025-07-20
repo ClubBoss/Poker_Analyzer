@@ -37,12 +37,16 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingPackTemplate template;
   final double preEvPct;
   final double preIcmPct;
+  final int xpEarned;
+  final double xpMultiplier;
   const TrainingSessionSummaryScreen({
     super.key,
     required this.session,
     required this.template,
     required this.preEvPct,
     required this.preIcmPct,
+    required this.xpEarned,
+    required this.xpMultiplier,
   });
 
   @override
@@ -219,6 +223,22 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
             const SizedBox(height: 12),
             const EvIcmHistoryChart(),
             const EvIcmImprovementRow(),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.xpMultiplier > 1.0)
+                    const Text('🔥', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 4),
+                  Text('XP +${widget.xpEarned}',
+                      style: const TextStyle(color: Colors.orange)),
+                  if (widget.xpMultiplier > 1.0)
+                    Text(' x${widget.xpMultiplier.toStringAsFixed(1)}',
+                        style: const TextStyle(color: Colors.orange)),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             Builder(
               builder: (context) {
