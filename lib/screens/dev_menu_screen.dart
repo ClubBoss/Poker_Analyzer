@@ -108,6 +108,7 @@ import '../services/achievement_trigger_engine.dart';
 import 'achievement_dashboard_screen.dart';
 import 'mistake_review_screen.dart';
 import 'mistake_insight_screen.dart';
+import '../services/lesson_path_reminder_scheduler.dart';
 import '../services/lesson_streak_engine.dart';
 
 class DevMenuScreen extends StatefulWidget {
@@ -1373,6 +1374,15 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
+  Future<void> _sendTestLessonPathReminder() async {
+    await LessonPathReminderScheduler.instance.sendTestReminder();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reminder sent')),
+      );
+    }
+  }
+
   Future<void> _exportLearningProgress() async {
     if (_progressExportLoading || !kDebugMode) return;
     setState(() => _progressExportLoading = true);
@@ -2117,6 +2127,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🔔 Проверить напоминание'),
                 onTap: _reminderLoading ? null : _checkTrainingReminder,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('Send test reminder now'),
+                onTap: _sendTestLessonPathReminder,
               ),
             if (kDebugMode)
               ListTile(

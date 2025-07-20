@@ -17,7 +17,7 @@ import '../widgets/goal_dashboard_widget.dart';
 import '../widgets/xp_level_bar.dart';
 import '../widgets/next_up_widget.dart';
 import '../services/xp_reward_engine.dart';
-import '../services/lesson_reminder_scheduler.dart';
+import '../services/lesson_path_reminder_scheduler.dart';
 import 'master_mode_screen.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_step_recap_screen.dart';
@@ -43,7 +43,7 @@ class _TrackProgressDashboardScreenState
     super.initState();
     _future = _load();
     _levelFuture = MasteryLevelEngine().computeUserLevel();
-    LessonReminderScheduler.instance.getScheduledTime().then((t) {
+    LessonPathReminderScheduler.instance.getScheduledTime().then((t) {
       if (!mounted) return;
       if (t != null) {
         setState(() {
@@ -141,9 +141,9 @@ class _TrackProgressDashboardScreenState
 
   Future<void> _toggleReminder(bool value) async {
     if (value) {
-      await LessonReminderScheduler.instance.scheduleReminder(time: _reminderTime);
+      await LessonPathReminderScheduler.instance.scheduleReminder(time: _reminderTime);
     } else {
-      await LessonReminderScheduler.instance.cancelReminder();
+      await LessonPathReminderScheduler.instance.cancelReminder();
     }
     if (mounted) {
       setState(() => _reminderEnabled = value);
@@ -156,7 +156,7 @@ class _TrackProgressDashboardScreenState
       initialTime: _reminderTime,
     );
     if (picked != null) {
-      await LessonReminderScheduler.instance.scheduleReminder(time: picked);
+      await LessonPathReminderScheduler.instance.scheduleReminder(time: picked);
       if (mounted) {
         setState(() {
           _reminderEnabled = true;

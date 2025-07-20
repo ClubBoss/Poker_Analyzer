@@ -110,7 +110,7 @@ import 'screens/training_session_screen.dart';
 import 'screens/empty_training_screen.dart';
 import 'services/app_init_service.dart';
 import 'services/suggested_pack_push_service.dart';
-import 'services/lesson_reminder_scheduler.dart';
+import 'services/lesson_path_reminder_scheduler.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -270,9 +270,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     }());
     unawaited(NotificationService.scheduleDailyProgress(context));
     unawaited(() async {
-      final t = await LessonReminderScheduler.instance.getScheduledTime();
+      final t = await LessonPathReminderScheduler.instance.getScheduledTime();
       if (t != null) {
-        await LessonReminderScheduler.instance.scheduleReminder(time: t);
+        await LessonPathReminderScheduler.instance.scheduleReminder(time: t);
       }
     }());
     NotificationService.startRecommendedPackTask(context);
