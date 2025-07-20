@@ -43,7 +43,7 @@ class _TrackProgressDashboardScreenState
     final progress =
         await LessonPathProgressService.instance.computeTrackProgress();
     final completed =
-        await LessonProgressTrackerService.instance.getCompletedSteps();
+        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
     final steps = await LessonLoaderService.instance.loadAllLessons();
     final Map<String, TrackMeta?> meta = {};
     for (final t in tracks) {
@@ -63,7 +63,8 @@ class _TrackProgressDashboardScreenState
     if (allCompleted) {
       await LearningPathCompletionService.instance.markPathCompleted();
     }
-    final pathCompleted = await LearningPathCompletionService.instance.isPathCompleted();
+    final pathCompleted =
+        await LearningPathCompletionService.instance.isPathCompleted();
     return {
       'tracks': tracks,
       'progress': progress,
@@ -192,87 +193,91 @@ class _TrackProgressDashboardScreenState
                           child: ListView.builder(
                             itemCount: tracks.length,
                             itemBuilder: (context, index) {
-                        final track = tracks[index];
-                        final percent = progress[track.id] ?? 0.0;
-                        final total = track.stepIds.length;
-                        final done = track.stepIds
-                            .where((id) => completed[id] == true)
-                            .length;
-                        final trackMeta = meta[track.id];
-                        return Card(
-                          color: const Color(0xFF1E1E1E),
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: ListTile(
-                            title: Text(track.title),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '$done / $total шагов, ${percent.round()}%',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                                const SizedBox(height: 4),
-                                LinearProgressIndicator(
-                                  value: percent / 100,
-                                  color: Colors.orange,
-                                  backgroundColor: Colors.white24,
-                                ),
-                                if (trackMeta != null &&
-                                    trackMeta.startedAt != null) ...[
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '🟢 Начато: ${_daysAgo(trackMeta.startedAt!)}',
-                                    style:
-                                        const TextStyle(color: Colors.white70),
+                              final track = tracks[index];
+                              final percent = progress[track.id] ?? 0.0;
+                              final total = track.stepIds.length;
+                              final done = track.stepIds
+                                  .where((id) => completed[id] == true)
+                                  .length;
+                              final trackMeta = meta[track.id];
+                              return Card(
+                                color: const Color(0xFF1E1E1E),
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: ListTile(
+                                  title: Text(track.title),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '$done / $total шагов, ${percent.round()}%',
+                                        style: const TextStyle(
+                                            color: Colors.white70),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      LinearProgressIndicator(
+                                        value: percent / 100,
+                                        color: Colors.orange,
+                                        backgroundColor: Colors.white24,
+                                      ),
+                                      if (trackMeta != null &&
+                                          trackMeta.startedAt != null) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '🟢 Начато: ${_daysAgo(trackMeta.startedAt!)}',
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        if (trackMeta.completedAt != null)
+                                          Text(
+                                            '🏁 Завершено: ${_daysAgo(trackMeta.completedAt!)}',
+                                            style: const TextStyle(
+                                                color: Colors.white70),
+                                          ),
+                                        Text(
+                                          '🔁 Пройдено: ${trackMeta.timesCompleted} раз',
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                      ],
+                                    ],
                                   ),
-                                  if (trackMeta.completedAt != null)
-                                    Text(
-                                      '🏁 Завершено: ${_daysAgo(trackMeta.completedAt!)}',
-                                      style: const TextStyle(
-                                          color: Colors.white70),
-                                    ),
-                                  Text(
-                                    '🔁 Пройдено: ${trackMeta.timesCompleted} раз',
-                                    style:
-                                        const TextStyle(color: Colors.white70),
+                                  trailing: ElevatedButton(
+                                    onPressed: () =>
+                                        _continueTrack(track, completed, steps),
+                                    child: const Text('Продолжить путь'),
                                   ),
-                                ],
-                              ],
-                            ),
-                            trailing: ElevatedButton(
-                              onPressed: () =>
-                                  _continueTrack(track, completed, steps),
-                              child: const Text('Продолжить путь'),
-                            ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                      FutureBuilder<MasteryLevel>(
-                        future: _levelFuture,
-                        builder: (context, levelSnap) {
-                          if (levelSnap.connectionState != ConnectionState.done) {
-                            return const SizedBox.shrink();
-                          }
-                          final level = levelSnap.data;
-                          final show = pathCompleted && level == MasteryLevel.expert;
-                          if (!show) return const SizedBox.shrink();
-                          return Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: ElevatedButton(
-                              onPressed: () => Navigator.pushNamed(
-                                context,
-                                MasterModeScreen.route,
+                        ),
+                        FutureBuilder<MasteryLevel>(
+                          future: _levelFuture,
+                          builder: (context, levelSnap) {
+                            if (levelSnap.connectionState !=
+                                ConnectionState.done) {
+                              return const SizedBox.shrink();
+                            }
+                            final level = levelSnap.data;
+                            final show =
+                                pathCompleted && level == MasteryLevel.expert;
+                            if (!show) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pushNamed(
+                                  context,
+                                  MasterModeScreen.route,
+                                ),
+                                child: const Text('🔥 Мастер-режим'),
                               ),
-                              child: const Text('🔥 Мастер-режим'),
-                            ),
-                          );
-                        },
-                      ),
-                ],
-              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
         );
       },
     );
