@@ -19,46 +19,74 @@ void main() {
       );
     }
     final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList('suggested_pack_history')!;
+    final raw = prefs.getString('suggested_pack_history')!;
+    final list = jsonDecode(raw) as List;
     expect(list.length, 100);
-    final first = jsonDecode(list.first) as Map<String, dynamic>;
-    final last = jsonDecode(list.last) as Map<String, dynamic>;
+    final first = list.first as Map<String, dynamic>;
+    final last = list.last as Map<String, dynamic>;
     expect(first['id'], 'id119');
     expect(last['id'], 'id20');
   });
 
-  test('getRecentSuggestions filters by age', () async {
+  test('getRecentSuggestions returns entries by recency', () async {
+    await SuggestedTrainingPacksHistoryService.logSuggestion(
+      packId: 'a',
+      source: 't',
+    );
+    await SuggestedTrainingPacksHistoryService.logSuggestion(
+      packId: 'b',
+      source: 't',
+    );
+    await SuggestedTrainingPacksHistoryService.logSuggestion(
+      packId: 'c',
+      source: 't',
+    );
+
+    final list =
+        await SuggestedTrainingPacksHistoryService.getRecentSuggestions(limit: 2);
+    expect(list.length, 2);
+    expect(list[0].packId, 'c');
+    expect(list[1].packId, 'b');
+  });
+
+  test('wasRecentlySuggested respects duration', () async {
     final old = DateTime.now().subtract(const Duration(days: 40));
     final recent = DateTime.now().subtract(const Duration(days: 5));
     SharedPreferences.setMockInitialValues({
-      'suggested_pack_history': [
-        jsonEncode({'id': 'old', 'source': 's', 'ts': old.toIso8601String()}),
-        jsonEncode({'id': 'new', 'source': 's', 'ts': recent.toIso8601String()}),
-      ]
+      'suggested_pack_history': jsonEncode([
+        {'id': 'old', 'source': 's', 'ts': old.toIso8601String()},
+        {'id': 'new', 'source': 's', 'ts': recent.toIso8601String()},
+      ])
     });
-    final list = await SuggestedTrainingPacksHistoryService.getRecentSuggestions(
-      since: const Duration(days: 30),
+    final oldRes = await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
+      'old',
+      within: const Duration(days: 30),
     );
-    expect(list.length, 1);
-    expect(list.first.id, 'new');
+    final newRes = await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
+      'new',
+      within: const Duration(days: 30),
+    );
+    expect(oldRes, isFalse);
+    expect(newRes, isTrue);
   });
 
   test('clearStaleEntries removes old logs', () async {
     final old = DateTime.now().subtract(const Duration(days: 70));
     final recent = DateTime.now().subtract(const Duration(days: 5));
     SharedPreferences.setMockInitialValues({
-      'suggested_pack_history': [
-        jsonEncode({'id': 'old', 'source': 's', 'ts': old.toIso8601String()}),
-        jsonEncode({'id': 'new', 'source': 's', 'ts': recent.toIso8601String()}),
-      ]
+      'suggested_pack_history': jsonEncode([
+        {'id': 'old', 'source': 's', 'ts': old.toIso8601String()},
+        {'id': 'new', 'source': 's', 'ts': recent.toIso8601String()},
+      ])
     });
     await SuggestedTrainingPacksHistoryService.clearStaleEntries(
       maxAge: const Duration(days: 60),
     );
     final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList('suggested_pack_history')!;
+    final raw = prefs.getString('suggested_pack_history')!;
+    final list = jsonDecode(raw) as List;
     expect(list.length, 1);
-    final data = jsonDecode(list.first) as Map<String, dynamic>;
+    final data = list.first as Map<String, dynamic>;
     expect(data['id'], 'new');
   });
 }
