@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'learning_path_reminder_engine.dart';
 import 'notification_service.dart';
+import '../widgets/learning_path_modal_reminder.dart';
+import 'training_session_service.dart';
 
 /// Performs daily app checks and triggers gentle reminders.
 class DailyAppCheckService {
@@ -32,7 +34,16 @@ class DailyAppCheckService {
 
     final remind = await reminder.shouldRemindUser();
     if (remind) {
-      await NotificationService.scheduleDailyReminder(context);
+      final active =
+          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+      final sessions = context.read<TrainingSessionService>();
+      final trainingActive =
+          sessions.currentSession != null && !sessions.isCompleted;
+      if (context.mounted && active && !trainingActive) {
+        await LearningPathModalReminder.show(context);
+      } else {
+        await NotificationService.scheduleDailyReminder(context);
+      }
     }
   }
 }
