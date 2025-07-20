@@ -80,6 +80,7 @@ import '../widgets/sample_pack_preview_button.dart';
 import '../widgets/sample_pack_preview_tooltip.dart';
 import '../widgets/pack_resume_banner.dart';
 import '../services/training_pack_sampler.dart';
+import '../widgets/dormant_tag_reminder_banner.dart';
 import 'v2/training_pack_play_screen.dart';
 import '../widgets/pack_progress_overlay.dart';
 import '../widgets/pack_unlock_requirement_badge.dart';
@@ -3590,6 +3591,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     controller: _listCtrl,
                     children: [
                       SmartSuggestionBanner(selectedTags: _selectedTags),
+                      const DormantTagReminderBanner(),
                       const SuggestedWeakTagPackBanner(),
                       const PackResumeBanner(),
                       const PackSuggestionBanner(),
