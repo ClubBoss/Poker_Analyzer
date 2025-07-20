@@ -28,6 +28,7 @@ import '../widgets/weekly_challenge_card.dart';
 import '../widgets/daily_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
+import '../widgets/resume_training_card.dart';
 import '../widgets/next_learning_step_card.dart';
 import '../widgets/daily_focus_recap_card.dart';
 import '../widgets/progress_summary_box.dart';
@@ -114,6 +115,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           if (!tablet) const DailySpotlightCard(),
           if (narrow) ...[
             const QuickContinueCard(),
+            const ResumeTrainingCard(),
             const DailyProgressRing(),
             const GoalsCard(),
             const DailyGoalsCard(),
@@ -124,6 +126,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const SuggestionCardWeakSpots(),
           ] else ...[
             const QuickContinueCard(),
+            const ResumeTrainingCard(),
             const DailyFocusRecapCard(),
             const SpotOfTheDayCard(),
             const ProgressSummaryBox(),

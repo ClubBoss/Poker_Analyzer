@@ -28,6 +28,7 @@ class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
   Box<dynamic>? _activeBox;
   static const _indexPrefix = 'ts_idx_';
+  static const _tsPrefix = 'ts_ts_';
   static const _previewKey = 'lib_preview_completed';
   TrainingSession? _session;
   TrainingPackTemplate? _template;
@@ -284,12 +285,15 @@ class TrainingSessionService extends ChangeNotifier {
     if (_template == null) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('$_indexPrefix${_template!.id}', _session?.index ?? 0);
+    await prefs.setInt('$_tsPrefix${_template!.id}',
+        DateTime.now().millisecondsSinceEpoch);
   }
 
   Future<void> _clearIndex() async {
     if (_template == null) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('$_indexPrefix${_template!.id}');
+    await prefs.remove('$_tsPrefix${_template!.id}');
   }
 
   void pause() {
