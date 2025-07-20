@@ -71,8 +71,8 @@ import '../widgets/training_gap_prompt_banner.dart';
 import '../widgets/training_type_gap_prompt_banner.dart';
 import '../widgets/suggested_pack_tile.dart';
 import 'pack_suggestion_preview_screen.dart';
-import '../services/training_pack_sampler.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../widgets/sample_pack_preview_button.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -533,8 +533,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _activeCategories..clear();
       await prefs.remove(_actCatsKey);
     }
-    await UserProfilePreferenceService.instance
-        .setPreferredTags(_activeTags);
+    await UserProfilePreferenceService.instance.setPreferredTags(_activeTags);
     setState(() {});
   }
 
@@ -546,8 +545,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     } else {
       await prefs.setStringList(_actTagsKey, _activeTags.toList());
     }
-    await UserProfilePreferenceService.instance
-        .setPreferredTags(_activeTags);
+    await UserProfilePreferenceService.instance.setPreferredTags(_activeTags);
     setState(() {});
   }
 
@@ -584,8 +582,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await prefs.remove(_lastCatKey);
     _activeTags.clear();
     _activeCategories.clear();
-    await UserProfilePreferenceService.instance
-        .setPreferredTags(_activeTags);
+    await UserProfilePreferenceService.instance.setPreferredTags(_activeTags);
     setState(() {});
   }
 
@@ -597,8 +594,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await prefs.setStringList(_actTagsKey, [tag]);
     _activeCategories.clear();
     await prefs.remove(_actCatsKey);
-    await UserProfilePreferenceService.instance
-        .setPreferredTags(_activeTags);
+    await UserProfilePreferenceService.instance.setPreferredTags(_activeTags);
     setState(() {});
   }
 
@@ -627,10 +623,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       return;
     }
     await prefs.setString(_recTagKey, tag);
-    await prefs.setString(
-        _recTagDateKey, DateTime(now.year, now.month, now.day).toIso8601String());
+    await prefs.setString(_recTagDateKey,
+        DateTime(now.year, now.month, now.day).toIso8601String());
     await _setActiveTagForce(tag);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToFirstWithTag(tag));
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _scrollToFirstWithTag(tag));
   }
 
   void _scrollToFirstWithTag(String tag) {
@@ -672,8 +669,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     } else {
       await prefs.setString(_audienceKey, value);
     }
-    await UserProfilePreferenceService.instance.setPreferredAudiences(
-        value == 'all' ? {} : {value});
+    await UserProfilePreferenceService.instance
+        .setPreferredAudiences(value == 'all' ? {} : {value});
     setState(() => _audienceFilter = value);
   }
 
@@ -836,8 +833,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final unlocked = <String, bool>{};
     final reasons = <String, String?>{};
     for (final p in list) {
-      final unlockedRes =
-          await PackUnlockingRulesEngine.instance.isUnlocked(p);
+      final unlockedRes = await PackUnlockingRulesEngine.instance.isUnlocked(p);
       unlocked[p.id] = unlockedRes;
       reasons[p.id] = unlockedRes
           ? null
@@ -1026,7 +1022,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         style: const TextStyle(color: Colors.white, fontSize: 12),
       ),
     );
-    if (!kIsWeb && (Platform.isMacOS || Platform.isLinux || Platform.isWindows)) {
+    if (!kIsWeb &&
+        (Platform.isMacOS || Platform.isLinux || Platform.isWindows)) {
       return Tooltip(message: label, child: badge);
     }
     return badge;
@@ -1689,8 +1686,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final list = const PackRecommendationEngine().recommend(
       all: all,
       preferredTags: _activeTags.isEmpty ? null : _activeTags,
-      preferredAudiences:
-          _audienceFilter == 'all' ? null : {_audienceFilter},
+      preferredAudiences: _audienceFilter == 'all' ? null : {_audienceFilter},
       preferredDifficulties:
           _difficultyFilters.isEmpty ? null : _difficultyFilters,
     );
@@ -1775,7 +1771,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (cat == null || pack == null) return const SizedBox.shrink();
     return TrainingGapPromptBanner(category: cat, pack: pack);
   }
-
 
   Widget _item(TrainingPackTemplate t, [String? note]) {
     final l = AppLocalizations.of(context)!;
@@ -1881,8 +1876,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(reason!,
-                      style:
-                          const TextStyle(color: Colors.redAccent, fontSize: 12)),
+                      style: const TextStyle(
+                          color: Colors.redAccent, fontSize: 12)),
                 ),
               if (t.category != null && t.category!.isNotEmpty)
                 Text(
@@ -1932,13 +1927,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     ? 'Пак заблокирован'
                     : 'Чтобы разблокировать: $reason',
                 child: InkWell(
-                  onTap: reason != null
-                      ? () => _showUnlockHint(reason!)
-                      : null,
+                  onTap: reason != null ? () => _showUnlockHint(reason!) : null,
                   child: Container(
                     color: Colors.black54,
                     alignment: Alignment.center,
-                    child: const Icon(Icons.lock, color: Colors.white, size: 40),
+                    child:
+                        const Icon(Icons.lock, color: Colors.white, size: 40),
                   ),
                 ),
               ),
@@ -2008,7 +2002,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         : null,
                   ),
                 ),
-                if (t.targetStreet != null) _streetBadge(t.targetStreet!, compact: false),
+                if (t.targetStreet != null)
+                  _streetBadge(t.targetStreet!, compact: false),
                 trainingTypeBadge(t.trainingType.name, compact: false),
                 if (t.category != null && t.category!.isNotEmpty) ...[
                   const SizedBox(width: 4),
@@ -2131,35 +2126,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     },
               child: const Text('▶️ Train'),
             ),
-            if (t.spots.length > 30)
-              Tooltip(
-                message: 'Быстрый просмотр',
-                child: TextButton(
-                  onPressed: locked
-                      ? null
-                      : () {
-                          final sampler = const TrainingPackSampler();
-                          final tplV2 = TrainingPackTemplateV2.fromTemplate(
-                            t,
-                            type:
-                                const TrainingTypeEngine().detectTrainingType(t),
-                          );
-                          final sample = sampler.sample(tplV2, maxSpots: 20);
-                          final preview =
-                              TrainingPackTemplate.fromJson(sample.toJson());
-                          preview.meta['samplePreview'] = true;
-                          context
-                              .read<TrainingSessionService>()
-                              .startSession(preview, persist: false);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const TrainingSessionScreen()),
-                          );
-                        },
-                  child: const Text('👁 Preview'),
-                ),
-              ),
+            SamplePackPreviewButton(template: t, locked: locked),
           ],
         ),
         onTap: () async {
@@ -2200,8 +2167,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   ? 'Пак заблокирован'
                   : 'Чтобы разблокировать: $reason',
               child: InkWell(
-                onTap:
-                    reason != null ? () => _showUnlockHint(reason!) : null,
+                onTap: reason != null ? () => _showUnlockHint(reason!) : null,
                 child: Container(
                   color: Colors.black54,
                   alignment: Alignment.center,
@@ -2656,7 +2622,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               child: Row(
                 children: [
                   const Icon(Icons.filter_alt, color: Colors.white70),
-                  for (final s in _streetFilters) _streetBadge(s, compact: true),
+                  for (final s in _streetFilters)
+                    _streetBadge(s, compact: true),
                 ],
               ),
             ),
@@ -2745,26 +2712,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ),
               ),
             ),
-        if (context.watch<DailyPackService>().template != null)
+          if (context.watch<DailyPackService>().template != null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: _startDailyPack,
+                child: Text(l.packOfDay),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
-              onPressed: _startDailyPack,
-              child: Text(l.packOfDay),
+              onPressed: _showRecommendedForYou,
+              child: Text('🔍 ${l.recommendedForYou}'),
             ),
           ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
-            onPressed: _showRecommendedForYou,
-            child: Text('🔍 ${l.recommendedForYou}'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
-            onPressed: _startRecommendedPack,
-            child: Text('🎯 ${l.recommendedPacks}'),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: _startRecommendedPack,
+              child: Text('🎯 ${l.recommendedPacks}'),
             ),
           ),
           _recommendedCategoryCard(),
@@ -3015,19 +2982,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Wrap(
-            spacing: 8,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _showRecommendedTopic,
-                icon: const Text('📌', style: TextStyle(fontSize: 16)),
-                label: const Text('Рекомендованная тема'),
-              ),
-              FilterChip(
-                label: Text(l.needsPractice),
-                selected: _needsPractice,
-                onSelected: (v) => _updateNeedsPractice(v),
-              ),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _showRecommendedTopic,
+                  icon: const Text('📌', style: TextStyle(fontSize: 16)),
+                  label: const Text('Рекомендованная тема'),
+                ),
+                FilterChip(
+                  label: Text(l.needsPractice),
+                  selected: _needsPractice,
+                  onSelected: (v) => _updateNeedsPractice(v),
+                ),
                 ChoiceChip(
                   label: const Text('⏳ На повторение'),
                   selected: _needsRepetition,

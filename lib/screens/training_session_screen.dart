@@ -290,7 +290,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           final pack = lib.firstWhereOrNull((p) => p.id == id);
           if (pack != null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('\uD83D\uDD13 Новый пак разблокирован: ${pack.name}')),
+              SnackBar(
+                  content: Text(
+                      '\uD83D\uDD13 Новый пак разблокирован: ${pack.name}')),
             );
           }
         }
@@ -364,9 +366,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         final current = (mastery[g.tag] ?? 0.0) * 100;
         final base = g.base.toDouble();
         final target = g.targetAccuracy!;
-        pct = target <= base
-            ? 100.0
-            : ((current - base) / (target - base)) * 100;
+        pct =
+            target <= base ? 100.0 : ((current - base) / (target - base)) * 100;
       } else {
         final prog = engine.progress(g);
         pct = g.target > 0 ? prog * 100 / g.target : 0.0;
@@ -479,13 +480,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         if (service.template!.meta['samplePreview'] == true)
                           Container(
                             margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
                             decoration: BoxDecoration(
                               color: Colors.orange.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
-                              'Sample preview',
+                              "Preview mode: You're training with a sample",
                               style: TextStyle(color: Colors.orangeAccent),
                               textAlign: TextAlign.center,
                             ),
