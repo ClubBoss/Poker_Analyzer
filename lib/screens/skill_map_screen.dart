@@ -6,6 +6,7 @@ import '../services/xp_tracker_service.dart';
 import '../widgets/skill_card.dart';
 import '../utils/responsive.dart';
 import 'library_screen.dart';
+import 'tag_skill_detail_screen.dart';
 
 class SkillMapScreen extends StatefulWidget {
   const SkillMapScreen({super.key});
@@ -59,7 +60,7 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => LibraryScreen(initialTags: {tag}),
+        builder: (_) => TagSkillDetailScreen(tag: tag),
       ),
     );
   }
