@@ -58,6 +58,7 @@ import '../services/pack_library_loader_service.dart';
 import '../services/training_type_stats_service.dart';
 import '../services/pack_unlocking_rules_engine.dart';
 import '../services/user_profile_preference_service.dart';
+import '../app_config.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
@@ -80,6 +81,7 @@ import '../widgets/pack_resume_banner.dart';
 import '../services/training_pack_sampler.dart';
 import 'v2/training_pack_play_screen.dart';
 import '../widgets/pack_progress_overlay.dart';
+import '../widgets/pack_unlock_requirement_badge.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -224,6 +226,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await UserProfilePreferenceService.instance.load();
     await PackLibraryLoaderService.instance.loadLibrary();
+    PackUnlockingRulesEngine.instance.devOverride =
+        kDebugMode && appConfig.devUnlockOverride;
     final counts = <String, int>{};
     for (final t in PackLibraryLoaderService.instance.library) {
       for (final tag in t.tags) {
@@ -2058,13 +2062,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ),
             ),
           ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: PackProgressOverlay(templateId: t.id, size: 20),
+        ),
+        if (locked && reason != null)
           Positioned(
-            top: 4,
-            right: 4,
-            child: PackProgressOverlay(templateId: t.id, size: 20),
+            bottom: 4,
+            left: 4,
+            child: PackUnlockRequirementBadge(
+              text: reason!,
+              tooltip: reason,
+            ),
           ),
-        ],
-      );
+      ],
+    );
       if (_isStarter(t)) {
         card = Container(
           decoration: BoxDecoration(
@@ -2328,6 +2341,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           right: 4,
           child: PackProgressOverlay(templateId: t.id, size: 20),
         ),
+        if (locked && reason != null)
+          Positioned(
+            bottom: 4,
+            left: 4,
+            child: PackUnlockRequirementBadge(
+              text: reason!,
+              tooltip: reason,
+            ),
+          ),
       ],
     );
     if (_isStarter(t)) {
@@ -2699,6 +2721,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           right: 4,
           child: PackProgressOverlay(templateId: t.id, size: 20),
         ),
+        if (locked && reason != null)
+          Positioned(
+            bottom: 4,
+            left: 4,
+            child: PackUnlockRequirementBadge(
+              text: reason!,
+              tooltip: reason,
+            ),
+          ),
       ],
     );
     if (locked) {
