@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_retry_policy.dart';
 import 'cloud_sync_service.dart';
 import 'xp_tracker_service.dart';
+import 'streak_progress_service.dart';
 
 /// Tracks the number of consecutive days the app was opened.
 ///
@@ -43,10 +44,11 @@ class StreakService extends ChangeNotifier {
   bool get increased => _increased;
   int get errorFreeStreak => _errorFreeStreak;
   List<MapEntry<DateTime, int>> get history {
-    final list = _history.entries
-        .map((e) => MapEntry(DateTime.parse(e.key), e.value))
-        .toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+    final list =
+        _history.entries
+            .map((e) => MapEntry(DateTime.parse(e.key), e.value))
+            .toList()
+          ..sort((a, b) => a.key.compareTo(b.key));
     return list;
   }
 
@@ -75,12 +77,14 @@ class StreakService extends ChangeNotifier {
     _verifyTrainingStreak();
     if (cloud != null && cloud!.uid != null) {
       try {
-        final doc = await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
-            .collection('stats')
-            .doc(cloud!.uid)
-            .collection('streak')
-            .doc('main')
-            .get());
+        final doc = await CloudRetryPolicy.execute(
+          () => FirebaseFirestore.instance
+              .collection('stats')
+              .doc(cloud!.uid)
+              .collection('streak')
+              .doc('main')
+              .get(),
+        );
         if (doc.exists) {
           final data = doc.data()!;
           streak.value = (data['current'] as num?)?.toInt() ?? streak.value;
@@ -110,7 +114,9 @@ class StreakService extends ChangeNotifier {
     await prefs.setInt(_trainingCountKey, streak.value);
     if (_lastTrainingDate != null) {
       await prefs.setString(
-          _trainingDateKey, _lastTrainingDate!.toIso8601String());
+        _trainingDateKey,
+        _lastTrainingDate!.toIso8601String(),
+      );
     } else {
       await prefs.remove(_trainingDateKey);
     }
@@ -120,12 +126,14 @@ class StreakService extends ChangeNotifier {
         'last': _lastTrainingDate?.toIso8601String(),
         'updatedAt': DateTime.now().toIso8601String(),
       };
-      await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
-          .collection('stats')
-          .doc(cloud!.uid)
-          .collection('streak')
-          .doc('main')
-          .set(data));
+      await CloudRetryPolicy.execute(
+        () => FirebaseFirestore.instance
+            .collection('stats')
+            .doc(cloud!.uid)
+            .collection('streak')
+            .doc('main')
+            .set(data),
+      );
     }
   }
 
@@ -133,7 +141,10 @@ class StreakService extends ChangeNotifier {
     if (_lastTrainingDate != null) {
       final today = DateTime.now();
       final last = DateTime(
-          _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
+        _lastTrainingDate!.year,
+        _lastTrainingDate!.month,
+        _lastTrainingDate!.day,
+      );
       if (today.difference(last).inDays > 1 && streak.value != 0) {
         streak.value = 0;
         unawaited(xp.add(xp: 0, source: 'streak_update', streak: 0));
@@ -199,7 +210,10 @@ class StreakService extends ChangeNotifier {
     final today = DateTime(now.year, now.month, now.day);
     if (_lastTrainingDate != null) {
       final last = DateTime(
-          _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
+        _lastTrainingDate!.year,
+        _lastTrainingDate!.month,
+        _lastTrainingDate!.day,
+      );
       final diff = today.difference(last).inDays;
       if (diff == 1) {
         streak.value += 1;
@@ -212,6 +226,7 @@ class StreakService extends ChangeNotifier {
     unawaited(xp.add(xp: 0, source: 'streak_update', streak: streak.value));
     _lastTrainingDate = today;
     await _saveTraining();
+    await StreakProgressService.instance.registerDailyActivity();
     notifyListeners();
   }
 }
