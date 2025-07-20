@@ -2,6 +2,9 @@ import '../models/v3/lesson_track.dart';
 import 'learning_track_engine.dart';
 import 'yaml_lesson_track_loader.dart';
 import 'track_mastery_service.dart';
+import 'tag_mastery_service.dart';
+import 'session_log_service.dart';
+import 'training_session_service.dart';
 import 'lesson_goal_streak_engine.dart';
 import 'lesson_goal_engine.dart';
 import 'lesson_streak_engine.dart';
@@ -43,6 +46,31 @@ class LearningPathUnlockEngine {
           'live_exploit': {'mtt_pro': 0.5},
           'leak_fixer': {'live_exploit': 0.6},
         };
+
+  LearningPathUnlockEngine._default()
+      : masteryService = TrackMasteryService(
+            mastery: TagMasteryService(
+                logs: SessionLogService(sessions: TrainingSessionService()))),
+        goalEngine = LessonGoalEngine.instance,
+        streakEngine = LessonStreakEngine.instance,
+        metaService = LessonTrackMetaService.instance,
+        trackEngine = const LearningTrackEngine(),
+        yamlLoader = YamlLessonTrackLoader.instance,
+        _prereq = const {
+          'live_exploit': ['mtt_pro'],
+          'leak_fixer': ['live_exploit'],
+        },
+        _streakReq = const {
+          'leak_fixer': 3,
+        },
+        _goalReq = const {},
+        _masteryReq = const {
+          'live_exploit': {'mtt_pro': 0.5},
+          'leak_fixer': {'live_exploit': 0.6},
+        };
+
+  static final LearningPathUnlockEngine instance =
+      LearningPathUnlockEngine._default();
 
   final Map<String, List<String>> _prereq;
   final Map<String, int> _streakReq;
@@ -123,6 +151,60 @@ class LearningPathUnlockEngine {
     _cachedList = unlockable;
     _cacheTime = now;
     return unlockable;
+  }
+
+  /// Returns a short explanation for why [trackId] is locked.
+  Future<String?> getUnlockReason(String trackId) async {
+    if (await canUnlockTrack(trackId)) return null;
+
+    final builtIn = trackEngine.getTracks();
+    final yaml = await yamlLoader.loadTracksFromAssets();
+    final all = <LessonTrack>[...builtIn, ...yaml];
+    String titleFor(String id) {
+      return all.firstWhere((e) => e.id == id, orElse: () => LessonTrack(
+              id: id, title: id, description: '', stepIds: const []))
+          .title;
+    }
+
+    final prereq = _prereq[trackId];
+    if (prereq != null) {
+      for (final id in prereq) {
+        final m = await metaService.load(id);
+        if (m?.completedAt == null) {
+          return "Complete '${titleFor(id)}'";
+        }
+      }
+    }
+
+    final masteryReq = _masteryReq[trackId];
+    if (masteryReq != null) {
+      final mastery = await masteryService.computeTrackMastery();
+      for (final entry in masteryReq.entries) {
+        final value = mastery[entry.key] ?? 0.0;
+        if (value < entry.value) {
+          final pct = (entry.value * 100).round();
+          return "Mastery \u2265 $pct% in '${titleFor(entry.key)}'";
+        }
+      }
+    }
+
+    final streakReq = _streakReq[trackId];
+    if (streakReq != null) {
+      final streak = await streakEngine.getCurrentStreak();
+      if (streak < streakReq) {
+        return 'Reach ${streakReq}-day streak';
+      }
+    }
+
+    final goalReq = _goalReq[trackId];
+    if (goalReq != null) {
+      final count = await LessonGoalStreakEngine.instance.getCurrentStreak();
+      if (count < goalReq) {
+        return 'Complete daily goal $goalReq days in a row';
+      }
+    }
+
+    return null;
   }
 }
 

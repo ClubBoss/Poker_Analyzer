@@ -7,8 +7,10 @@ import '../services/learning_track_engine.dart';
 import '../services/yaml_lesson_track_loader.dart';
 import '../services/lesson_path_progress_service.dart';
 import '../services/track_visibility_filter_engine.dart';
-import '../services/lesson_track_unlock_engine.dart';
+import '../services/track_unlock_reason_service.dart';
+import '../services/learning_path_unlock_engine.dart';
 import '../widgets/dialogs/track_unlock_hint_dialog.dart';
+import '../widgets/track_lock_overlay.dart';
 
 class LessonTrackLibraryScreen extends StatefulWidget {
   const LessonTrackLibraryScreen({super.key});
@@ -21,6 +23,7 @@ class LessonTrackLibraryScreen extends StatefulWidget {
 class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
   late Future<Map<String, dynamic>> _future;
   final Map<String, bool> _unlocked = {};
+  final Map<String, String?> _reasons = {};
 
   @override
   void initState() {
@@ -43,17 +46,26 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
     final progress =
         await LessonPathProgressService.instance.computeTrackProgress();
     final unlocked = <String, bool>{};
+    final reasons = <String, String?>{};
     for (final t in tracks) {
-      unlocked[t.id] = await LessonTrackUnlockEngine.instance.isUnlocked(t.id);
+      final ok = await LearningPathUnlockEngine.instance.canUnlockTrack(t.id);
+      unlocked[t.id] = ok;
+      if (!ok) {
+        reasons[t.id] = await TrackUnlockReasonService.instance.getReason(t.id);
+      }
     }
     _unlocked
       ..clear()
       ..addAll(unlocked);
+    _reasons
+      ..clear()
+      ..addAll(reasons);
     return {
       'tracks': tracks,
       'selected': selected,
       'progress': progress,
       'unlocked': unlocked,
+      'reasons': reasons,
     };
   }
 
@@ -109,6 +121,9 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
         _unlocked
           ..clear()
           ..addAll(snapshot.data?['unlocked'] as Map<String, bool>? ?? {});
+        _reasons
+          ..clear()
+          ..addAll(snapshot.data?['reasons'] as Map<String, String?>? ?? {});
         return Scaffold(
           appBar: AppBar(title: const Text('Учебные треки')),
           backgroundColor: const Color(0xFF121212),
@@ -138,6 +153,16 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                               '${track.description}\n$steps шагов | ${percent.round()}%',
                               style: const TextStyle(color: Colors.white70),
                             ),
+                            if (_unlocked[track.id] != true &&
+                                _reasons[track.id] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '🔒 ${_reasons[track.id]}',
+                                  style: const TextStyle(
+                                      color: Colors.redAccent, fontSize: 12),
+                                ),
+                              ),
                             const SizedBox(height: 4),
                             LinearProgressIndicator(
                               value: percent / 100,
@@ -156,22 +181,13 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                               ),
                       ),
                     );
-                    return Stack(
-                      children: [
-                        card,
-                        if (_unlocked[track.id] != true)
-                          Positioned.fill(
-                            child: InkWell(
-                              onTap: () => _showUnlockHint(track.id),
-                              child: Container(
-                                color: Colors.black54,
-                                alignment: Alignment.center,
-                                child: const Icon(Icons.lock,
-                                    color: Colors.white, size: 40),
-                              ),
-                            ),
-                          ),
-                      ],
+                    return TrackLockOverlay(
+                      locked: _unlocked[track.id] != true,
+                      reason: _reasons[track.id] == null
+                          ? null
+                          : 'Unlock by ${_reasons[track.id]}',
+                      onTap: () => _showUnlockHint(track.id),
+                      child: card,
                     );
                   },
                 ),
