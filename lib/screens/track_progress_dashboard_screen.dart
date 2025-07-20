@@ -15,6 +15,7 @@ import '../models/mastery_level.dart';
 import '../services/mastery_level_engine.dart';
 import '../widgets/goal_dashboard_widget.dart';
 import '../widgets/xp_level_bar.dart';
+import '../widgets/next_up_widget.dart';
 import '../services/xp_reward_engine.dart';
 import '../services/lesson_reminder_scheduler.dart';
 import 'master_mode_screen.dart';
@@ -220,6 +221,7 @@ class _TrackProgressDashboardScreenState
                           levelXp: data?['levelXp'] as int? ?? 0,
                           level: data?['level'] as int? ?? 1,
                         ),
+                        const NextUpWidget(),
                         SwitchListTile(
                           value: _reminderEnabled,
                           activeColor: Colors.orange,
