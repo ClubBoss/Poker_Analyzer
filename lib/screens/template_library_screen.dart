@@ -73,6 +73,7 @@ import '../widgets/training_type_gap_prompt_banner.dart';
 import '../widgets/suggested_pack_tile.dart';
 import 'pack_suggestion_preview_screen.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../services/tag_mastery_service.dart';
 import '../widgets/sample_pack_preview_button.dart';
 import '../widgets/sample_pack_preview_tooltip.dart';
 import '../widgets/pack_resume_banner.dart';
@@ -104,6 +105,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _recommendedOnlyKey = 'lib_recommended_only';
   static const _masteredOnlyKey = 'lib_mastered_only';
   static const _availableOnlyKey = 'lib_available_only';
+  static const _weakOnlyKey = 'lib_weak_only';
   static const _effectivenessSortKey = 'lib_effectiveness_sort';
   static const _compactKey = 'lib_compact_mode';
   static const _pinKey = 'lib_pinned';
@@ -168,6 +170,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _recommendedOnly = false;
   bool _masteredOnly = false;
   bool _availableOnly = false;
+  bool _weakOnly = false;
   bool _compactMode = false;
   final Set<String> _selectedTags = {};
   final Set<String> _selectedCategories = {};
@@ -196,6 +199,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Map<String, String?> _lockReasons = {};
   Map<TrainingType, double> _typeCompletion = {};
   TrainingType? _weakestType;
+  Set<String> _weakTags = {};
+  final Map<String, String> _weakTagMap = {};
+  final Map<String, String> _weakLibTagMap = {};
 
   @override
   void initState() {
@@ -245,6 +251,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _loadWeakCategories();
     await _detectWeakCategory();
     await _loadTypeStats();
+    await _loadWeakTags();
     await TrainingPackSortEngine.instance
         .preloadProgress(PackLibraryLoaderService.instance.library);
     if (!mounted) return;
@@ -345,6 +352,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _recommendedOnly = prefs.getBool(_recommendedOnlyKey) ?? false;
       _masteredOnly = prefs.getBool(_masteredOnlyKey) ?? false;
       _availableOnly = prefs.getBool(_availableOnlyKey) ?? false;
+      _weakOnly = prefs.getBool(_weakOnlyKey) ?? false;
       _compactMode = prefs.getBool(_compactKey) ?? false;
       _pinned
         ..clear()
@@ -791,6 +799,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() => _availableOnly = value);
   }
 
+  Future<void> _setWeakOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_weakOnlyKey, value);
+    setState(() => _weakOnly = value);
+  }
+
   Future<void> _setCompactMode(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_compactKey, value);
@@ -961,6 +975,35 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() {
       _typeCompletion = map;
       _weakestType = weak;
+    });
+  }
+
+  Future<void> _loadWeakTags() async {
+    final tags =
+        await context.read<TagMasteryService>().getWeakTags();
+    final userTemplates = context.read<TemplateStorageService>().templates;
+    final library = PackLibraryLoaderService.instance.library;
+    final map = <String, String>{};
+    final libMap = <String, String>{};
+    for (final t in userTemplates) {
+      final match = t.focusTags.firstWhereOrNull(tags.contains) ??
+          t.tags.firstWhereOrNull(tags.contains);
+      if (match != null) map[t.id] = match;
+    }
+    for (final t in library) {
+      final match = t.focusTags.firstWhereOrNull(tags.contains) ??
+          t.tags.firstWhereOrNull(tags.contains);
+      if (match != null) libMap[t.id] = match;
+    }
+    if (!mounted) return;
+    setState(() {
+      _weakTags = tags.toSet();
+      _weakTagMap
+        ..clear()
+        ..addAll(map);
+      _weakLibTagMap
+        ..clear()
+        ..addAll(libMap);
     });
   }
 
@@ -1429,6 +1472,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (_packUnlocked[t.id] != false) t
       ];
     }
+    if (_weakOnly) {
+      visible = [
+        for (final t in visible)
+          if (_weakTagMap.containsKey(t.id)) t
+      ];
+    }
     return visible;
   }
 
@@ -1845,6 +1894,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final parts = t.version.split('.');
     final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
     final tags = t.tags.take(3).toList();
+    final weakTag = _weakTagMap[t.id];
+    final combinedNote = weakTag != null
+        ? (note != null
+            ? '$note • Weak skill: $weakTag'
+            : 'Weak skill: $weakTag')
+        : note;
     final isNew =
         t.isBuiltIn && DateTime.now().difference(t.createdAt).inDays < 7;
     Widget progress() {
@@ -1924,6 +1979,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (combinedNote != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text(
+                    combinedNote,
+                    style:
+                        const TextStyle(fontSize: 12, color: Colors.orange),
+                  ),
+                ),
               Row(
                 children: [
                   Expanded(
@@ -1981,6 +2045,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       card = Stack(
         children: [
           card,
+          if (weakTag != null)
+          Positioned(
+            top: 4,
+            left: 4,
+            child: Tooltip(
+              message: "Weak skill: $weakTag",
+              child: const Icon(
+                Icons.brightness_1,
+                size: 10,
+                color: Colors.redAccent,
+              ),
+            ),
+          ),
           Positioned(
             top: 4,
             right: 4,
@@ -2036,11 +2113,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (note != null)
+            if (combinedNote != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
-                  note,
+                  combinedNote,
                   style: const TextStyle(fontSize: 12, color: Colors.orange),
                 ),
               ),
@@ -2233,6 +2310,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     card = Stack(
       children: [
         card,
+        if (weakTag != null)
+          Positioned(
+            top: 4,
+            left: 4,
+            child: Tooltip(
+              message: "Weak skill: $weakTag",
+              child: const Icon(
+                Icons.brightness_1,
+                size: 10,
+                color: Colors.redAccent,
+              ),
+            ),
+          ),
         Positioned(
           top: 4,
           right: 4,
@@ -2595,6 +2685,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     card = Stack(
       children: [
         card,
+        if (_weakLibTagMap[t.id] != null)
+          Positioned(
+            top: 4,
+            left: 4,
+            child: Tooltip(
+              message: "Weak skill: ${_weakLibTagMap[t.id]}",
+              child: const Icon(Icons.brightness_1, size: 10, color: Colors.redAccent),
+            ),
+          ),
         Positioned(
           top: 4,
           right: 4,
@@ -2766,6 +2865,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       libraryFiltered = [
         for (final t in libraryFiltered)
           if (_packUnlocked[t.id] != false) t
+      ];
+    }
+    if (_weakOnly) {
+      libraryFiltered = [
+        for (final t in libraryFiltered)
+          if (_weakLibTagMap.containsKey(t.id)) t
       ];
     }
     final libraryMap = <String, List<v2.TrainingPackTemplate>>{};
@@ -3294,6 +3399,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   label: const Text('🔓 Доступные'),
                   selected: _availableOnly,
                   onSelected: (v) => _setAvailableOnly(v),
+                ),
+                ChoiceChip(
+                  label: const Text('⚠️ Weak skills'),
+                  selected: _weakOnly,
+                  onSelected: (v) => _setWeakOnly(v),
                 ),
                 ChoiceChip(
                   label: const Text('📋 Компактно'),
