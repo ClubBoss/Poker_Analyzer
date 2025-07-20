@@ -15,6 +15,7 @@ import 'learning_path_progress_service.dart';
 import 'cloud_training_history_service.dart';
 import 'learning_path_personalization_service.dart';
 import 'xp_tracker_service.dart';
+import 'tag_goal_tracker_service.dart';
 import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
 
@@ -481,6 +482,9 @@ class TrainingSessionService extends ChangeNotifier {
     }
     await xpService.addPerTagXP(tagXp, source: 'training');
     await xpService.add(xp: xp, source: 'training');
+    for (final tag in _template!.tags) {
+      unawaited(TagGoalTrackerService.instance.logTraining(tag));
+    }
     unawaited(_clearIndex());
     Navigator.pushReplacement(
       context,
