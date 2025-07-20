@@ -74,6 +74,8 @@ import 'pack_suggestion_preview_screen.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/sample_pack_preview_button.dart';
 import '../widgets/sample_pack_preview_tooltip.dart';
+import '../services/training_pack_sampler.dart';
+import 'v2/training_pack_play_screen.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -1951,7 +1953,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     ? 'Пак заблокирован'
                     : 'Чтобы разблокировать: $reason',
                 child: InkWell(
-                  onTap: reason != null ? () => _showUnlockHint(reason!) : null,
+                  onTap: () => _onLockedPackTap(t, reason),
                   child: Container(
                     color: Colors.black54,
                     alignment: Alignment.center,
@@ -2326,6 +2328,102 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _onLockedPackTap(
+      TrainingPackTemplate t, String? reason) async {
+    final l = AppLocalizations.of(context)!;
+    final previewRequired =
+        t.spots.length > 30 && !_previewCompleted.contains(t.id);
+    if (previewRequired) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text(l.samplePreviewPrompt),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(_, false),
+              child: Text(l.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(_, true),
+              child: Text(l.previewSample),
+            ),
+          ],
+        ),
+      );
+      if (confirm == true && context.mounted) {
+        final sampler = const TrainingPackSampler();
+        final tplV2 = TrainingPackTemplateV2.fromTemplate(
+          t,
+          type: const TrainingTypeEngine().detectTrainingType(t),
+        );
+        final sample = sampler.sample(tplV2);
+        final preview = TrainingPackTemplate.fromJson(sample.toJson());
+        preview.meta['samplePreview'] = true;
+        await context
+            .read<TrainingSessionService>()
+            .startSession(preview, persist: false);
+        if (!context.mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingPackPlayScreen(
+              template: preview,
+              original: preview,
+            ),
+          ),
+        );
+        return;
+      }
+    }
+    if (reason != null) _showUnlockHint(reason);
+  }
+
+  Future<void> _onLockedLibraryPackTap(
+      v2.TrainingPackTemplate t, String? reason) async {
+    final l = AppLocalizations.of(context)!;
+    final previewRequired =
+        t.spots.length > 30 && !_previewCompleted.contains(t.id);
+    if (previewRequired) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text(l.samplePreviewPrompt),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(_, false),
+              child: Text(l.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(_, true),
+              child: Text(l.previewSample),
+            ),
+          ],
+        ),
+      );
+      if (confirm == true && context.mounted) {
+        final sampler = const TrainingPackSampler();
+        final sample = sampler.sample(t);
+        final preview = TrainingPackTemplate.fromJson(sample.toJson());
+        preview.meta['samplePreview'] = true;
+        await context
+            .read<TrainingSessionService>()
+            .startSession(preview, persist: false);
+        if (!context.mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingPackPlayScreen(
+              template: preview,
+              original: preview,
+            ),
+          ),
+        );
+        return;
+      }
+    }
+    if (reason != null) _showUnlockHint(reason);
+  }
+
   Widget _libraryTile(v2.TrainingPackTemplate t) {
     Widget row(IconData icon, String text) => Padding(
           padding: const EdgeInsets.only(bottom: 4),
@@ -2392,10 +2490,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         children: [
           Opacity(opacity: 0.5, child: card),
           Positioned.fill(
-            child: Container(
-              color: Colors.black45,
-              alignment: Alignment.center,
-              child: Column(
+            child: InkWell(
+              onTap: () => _onLockedLibraryPackTap(t, reason),
+              child: Container(
+                color: Colors.black45,
+                alignment: Alignment.center,
+                child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text('🔒 Заблокировано',
@@ -2405,6 +2505,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         style:
                             const TextStyle(color: Colors.white, fontSize: 12)),
                 ],
+              ),
               ),
             ),
           ),
