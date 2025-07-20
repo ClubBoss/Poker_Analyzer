@@ -1,0 +1,7 @@
+stages:
+  beginner:
+    - starter_pushfold_10bb
+    - starter_pushfold_15bb
+  intermediate:
+    - starter_pushfold_12bb
+    - starter_pushfold_20bb

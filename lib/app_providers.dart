@@ -96,6 +96,7 @@ import 'services/goal_sync_service.dart';
 import 'services/tag_coverage_service.dart';
 import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
+import 'services/training_path_progress_service.dart';
 import 'services/adaptive_next_step_engine.dart';
 
 late final AuthService auth;
@@ -442,6 +443,7 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     Provider(create: (_) => LessonProgressTrackerService()..load()),
     Provider(create: (_) => LessonPathProgressService()),
+    Provider(create: (_) => TrainingPathProgressService()),
     Provider(create: (_) => AdaptiveNextStepEngine()),
     Provider(create: (_) => const SmartPackSuggestionEngine()),
     Provider(
