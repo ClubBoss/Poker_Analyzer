@@ -13,6 +13,7 @@ import '../widgets/motivation_card.dart';
 import '../widgets/active_goals_card.dart';
 import '../widgets/next_step_card.dart';
 import '../widgets/suggested_drill_card.dart';
+import '../widgets/next_best_step_banner.dart';
 import '../widgets/feedback_banner.dart';
 import '../widgets/recent_unlocks_banner.dart';
 import '../widgets/today_progress_banner.dart';
@@ -170,6 +171,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),
         const ContinueTrainingButton(),
+        const NextBestStepBanner(),
         const SpotOfTheDayCard(),
         const PackSuggestionBanner(),
         const StreakChart(),

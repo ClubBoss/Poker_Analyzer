@@ -25,6 +25,19 @@ class LessonPathProgressService {
   LessonPathProgressService._();
   static final instance = LessonPathProgressService._();
 
+  /// Returns all built-in lesson tracks.
+  List<LessonTrack> getTracks() {
+    return const LearningTrackEngine().getTracks();
+  }
+
+  /// Returns map of lessonId -> completed step ids.
+  Future<Map<String, Set<String>>> getCompletedStepMap() async {
+    await LessonProgressTrackerService.instance.load();
+    final flat =
+        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
+    return {'default': flat.keys.toSet()};
+  }
+
   Future<LessonPathProgress> computeProgress() async {
     final prefs = await SharedPreferences.getInstance();
     final trackId = prefs.getString('lesson_selected_track');
