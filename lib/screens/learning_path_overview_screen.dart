@@ -3,6 +3,9 @@ import '../services/training_path_progress_service.dart';
 import '../services/training_pack_template_service.dart';
 import '../services/training_session_service.dart';
 import '../widgets/unlock_gate_widget.dart';
+import '../widgets/learning_path_overview_header.dart';
+import '../services/tag_mastery_service.dart';
+import 'package:provider/provider.dart';
 import 'v2/training_pack_play_screen.dart';
 
 class LearningPathOverviewScreen extends StatefulWidget {
@@ -20,14 +23,36 @@ class StageInfo {
   StageInfo({required this.id, required this.packs, required this.unlocked});
 }
 
+class _OverviewStats {
+  final int totalStages;
+  final int completedStages;
+  final int remainingPacks;
+  final double avgMastery;
+
+  const _OverviewStats({
+    required this.totalStages,
+    required this.completedStages,
+    required this.remainingPacks,
+    required this.avgMastery,
+  });
+}
+
 class _LearningPathOverviewScreenState
     extends State<LearningPathOverviewScreen> {
   late Future<List<StageInfo>> _stagesFuture;
+  late Future<_OverviewStats> _statsFuture;
 
   @override
   void initState() {
     super.initState();
     _stagesFuture = _loadStages();
+    _statsFuture = _loadStats();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _statsFuture = _loadStats();
   }
 
   Future<List<StageInfo>> _loadStages() async {
@@ -48,9 +73,33 @@ class _LearningPathOverviewScreenState
     return list;
   }
 
+  Future<_OverviewStats> _loadStats() async {
+    final svc = TrainingPathProgressService.instance;
+    final stages = await svc.getStages();
+    var completedStages = 0;
+    var remainingPacks = 0;
+    for (final entry in stages.entries) {
+      final progress = await svc.getProgressInStage(entry.key);
+      if (progress >= 1.0) completedStages++;
+      final done = await svc.getCompletedPacksInStage(entry.key);
+      remainingPacks += entry.value.length - done.length;
+    }
+    final masteryService = context.read<TagMasteryService>();
+    final masteryMap = await masteryService.computeMastery();
+    final avg = masteryMap.isEmpty
+        ? 0.0
+        : masteryMap.values.reduce((a, b) => a + b) / masteryMap.length;
+    return _OverviewStats(
+      totalStages: stages.length,
+      completedStages: completedStages,
+      remainingPacks: remainingPacks,
+      avgMastery: avg,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<StageInfo>>( 
+    return FutureBuilder<List<StageInfo>>(
       future: _stagesFuture,
       builder: (context, snapshot) {
         final stages = snapshot.data ?? const <StageInfo>[];
@@ -60,15 +109,29 @@ class _LearningPathOverviewScreenState
           ),
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
-              : ListView(
-                  children: [
-                    for (final info in stages)
-                      _StageTile(
-                        stageId: info.id,
-                        packIds: info.packs,
-                        unlocked: info.unlocked,
-                      ),
-                  ],
+              : FutureBuilder<_OverviewStats>(
+                  future: _statsFuture,
+                  builder: (context, statsSnapshot) {
+                    final stats = statsSnapshot.data;
+                    return ListView(
+                      children: [
+                        if (stats != null)
+                          LearningPathOverviewHeader(
+                            totalStages: stats.totalStages,
+                            completedStages: stats.completedStages,
+                            remainingPacks: stats.remainingPacks,
+                            avgMastery: stats.avgMastery,
+                            message: 'Продолжай \uD83D\uDCAA',
+                          ),
+                        for (final info in stages)
+                          _StageTile(
+                            stageId: info.id,
+                            packIds: info.packs,
+                            unlocked: info.unlocked,
+                          ),
+                      ],
+                    );
+                  },
                 ),
         );
       },
