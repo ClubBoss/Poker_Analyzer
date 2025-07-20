@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/services/lesson_progress_tracker_service.dart';
+import 'package:poker_analyzer/services/xp_reward_engine.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,8 @@ void main() {
     final lessons =
         await LessonProgressTrackerService.instance.getCompletedLessons();
     expect(lessons.contains('lessonA'), true);
+    final xp = await XPRewardEngine.instance.getTotalXp();
+    expect(xp, 10);
   });
 
   test('legacy flat methods still work', () async {
