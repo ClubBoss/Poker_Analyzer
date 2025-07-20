@@ -110,5 +110,11 @@ class TagMasteryService {
       ..sort((a, b) => a.value.compareTo(b.value));
     return [for (final e in list.take(count)) e.key];
   }
+
+  /// Returns all tags with mastery below [threshold].
+  Future<List<String>> getWeakTags([double threshold = 0.7]) async {
+    final map = await computeMastery();
+    return [for (final e in map.entries) if (e.value < threshold) e.key];
+  }
 }
 
