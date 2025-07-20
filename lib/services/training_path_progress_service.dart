@@ -33,6 +33,9 @@ class TrainingPathProgressService {
     }
   }
 
+  /// Returns map of stage id to pack ids as defined in the YAML asset.
+  Future<Map<String, List<String>>> getStages() => _loadStages();
+
   Future<void> markCompleted(String packId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_prefsPrefix$packId', true);
@@ -43,7 +46,8 @@ class TrainingPathProgressService {
     final packs = stages[stageId] ?? const <String>[];
     if (packs.isEmpty) return 0.0;
     final prefs = await SharedPreferences.getInstance();
-    final completed = packs.where((id) => prefs.getBool('$_prefsPrefix$id') ?? false).length;
+    final completed =
+        packs.where((id) => prefs.getBool('$_prefsPrefix$id') ?? false).length;
     return completed / packs.length;
   }
 
