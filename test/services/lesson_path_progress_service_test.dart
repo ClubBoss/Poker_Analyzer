@@ -7,7 +7,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('computeProgress returns 0 when nothing completed', () async {
-    SharedPreferences.setMockInitialValues({'lesson_selected_track': 'mtt_pro'});
+    SharedPreferences.setMockInitialValues(
+        {'lesson_selected_track': 'mtt_pro'});
     final progress = await LessonPathProgressService.instance.computeProgress();
     expect(progress.completed, 0);
     expect(progress.total, 1);
@@ -36,13 +37,19 @@ void main() {
   });
 
   test('computeTrackProgress counts completed steps', () async {
-    SharedPreferences.setMockInitialValues({
-      'lesson_progress': '{"lesson1": true}'
-    });
+    SharedPreferences.setMockInitialValues(
+        {'lesson_progress': '{"lesson1": true}'});
     await LessonProgressTrackerService.instance.load();
     final map = await LessonPathProgressService.instance.computeTrackProgress();
     expect(map['mtt_pro'], 100);
     expect(map['live_exploit'], 100);
     expect(map['leak_fixer'], 100);
+  });
+
+  test('computeTrackProgress includes yaml tracks', () async {
+    SharedPreferences.setMockInitialValues({});
+    await LessonProgressTrackerService.instance.load();
+    final map = await LessonPathProgressService.instance.computeTrackProgress();
+    expect(map.containsKey('yaml_sample'), true);
   });
 }

@@ -16,6 +16,7 @@ import '../services/daily_challenge_notification_service.dart';
 import '../services/remote_config_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'lesson_track_library_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -102,7 +103,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('daily_challenge_reminder_hour', picked.hour);
       await prefs.setInt('daily_challenge_reminder_minute', picked.minute);
-      await DailyChallengeNotificationService.scheduleDailyReminder(time: picked);
+      await DailyChallengeNotificationService.scheduleDailyReminder(
+          time: picked);
       setState(() => _challengeTime = picked);
     }
   }
@@ -144,7 +146,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.cloud),
             tooltip: 'Cloud Sync',
@@ -161,8 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const TagManagementScreen()),
+                MaterialPageRoute(builder: (_) => const TagManagementScreen()),
               );
             },
           ),
@@ -183,7 +185,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
-                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        constraints:
+                            const BoxConstraints(minWidth: 16, minHeight: 16),
                         child: Text(
                           '$count',
                           style: const TextStyle(fontSize: 10),
@@ -200,7 +203,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const AchievementsScreen()),
                   );
                 },
               );
@@ -300,39 +304,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               .syncDownStats();
                         }
                       },
-                    child: const Text('Sign In with Apple'),
-                  ),
-                ],
-              );
-            },
-          ),
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Advanced Settings',
-              style: TextStyle(color: Colors.white70, fontSize: 18),
+                      child: const Text('Sign In with Apple'),
+                    ),
+                  ],
+                );
+              },
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const EvaluationSettingsScreen(),
-                ),
-              );
-            },
-            child: const Text('Evaluation Settings'),
-          ),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () =>
-                context.read<RemoteConfigService>().reload(),
-            child: const Text('Reload Remote Config'),
-          ),
-          const SizedBox(height: 12),
-          ValueListenableBuilder<DateTime?>(
-            valueListenable: context.read<CloudSyncService>().lastSync,
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Advanced Settings',
+                style: TextStyle(color: Colors.white70, fontSize: 18),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const EvaluationSettingsScreen(),
+                  ),
+                );
+              },
+              child: const Text('Evaluation Settings'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const LessonTrackLibraryScreen()),
+                );
+              },
+              child: const Text('Learning Tracks'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () => context.read<RemoteConfigService>().reload(),
+              child: const Text('Reload Remote Config'),
+            ),
+            const SizedBox(height: 12),
+            ValueListenableBuilder<DateTime?>(
+              valueListenable: context.read<CloudSyncService>().lastSync,
               builder: (context, value, child) {
                 final text = value == null
                     ? 'Sync Now'

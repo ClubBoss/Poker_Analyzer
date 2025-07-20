@@ -4,6 +4,7 @@ import '../models/v3/lesson_track.dart';
 import 'learning_track_engine.dart';
 import 'lesson_progress_service.dart';
 import 'lesson_progress_tracker_service.dart';
+import 'yaml_lesson_track_loader.dart';
 
 class LessonPathProgress {
   final int completed;
@@ -82,7 +83,9 @@ class LessonPathProgressService {
   ///
   /// Returns a map of `trackId` to progress percentage (0-100).
   Future<Map<String, double>> computeTrackProgress() async {
-    final tracks = const LearningTrackEngine().getTracks();
+    final builtIn = const LearningTrackEngine().getTracks();
+    final yaml = await YamlLessonTrackLoader.instance.loadTracksFromAssets();
+    final tracks = [...builtIn, ...yaml];
     final completed =
         await LessonProgressTrackerService.instance.getCompletedStepsFlat();
 
