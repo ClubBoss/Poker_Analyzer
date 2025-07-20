@@ -6,7 +6,7 @@ import '../services/skill_recovery_pack_engine.dart';
 import '../services/training_history_service_v2.dart';
 import '../services/user_action_logger.dart';
 import '../services/training_session_service.dart';
-import '../services/pack_cooldown_tracker.dart';
+import '../services/pack_suggestion_cooldown_service.dart';
 import '../services/suggested_training_packs_history_service.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -53,7 +53,7 @@ class _RecoveryPromptBannerState extends State<RecoveryPromptBanner> {
     final pack = await SkillRecoveryPackEngine.suggestRecoveryPack();
     if (pack != null) {
       await UserActionLogger.instance.log('recovery_prompt.shown');
-      await PackCooldownTracker.markAsSuggested(pack.id);
+      await PackSuggestionCooldownService.markAsSuggested(pack.id);
       await SuggestedTrainingPacksHistoryService.logSuggestion(
         packId: pack.id,
         source: 'recovery_prompt_banner',
