@@ -1,0 +1,7 @@
+meta:
+  track_schema: '1.0.0'
+id: 'yaml_sample'
+title: 'YAML Sample Track'
+description: 'Demo track loaded from YAML.'
+stepIds:
+  - 'lesson1'
