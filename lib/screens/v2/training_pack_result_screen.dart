@@ -20,6 +20,9 @@ import '../../services/training_pack_stats_service.dart';
 import '../../services/training_pack_template_storage_service.dart';
 import '../../services/smart_review_service.dart';
 import '../../widgets/common/animated_line_chart.dart';
+import '../../services/weak_spot_recommendation_service.dart';
+import '../training_session_screen.dart';
+import '../../services/training_session_service.dart';
 
 class TrainingPackResultScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -299,6 +302,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
         Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
       }
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowPackTip());
   }
 
   @override
@@ -516,6 +520,53 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       ),
     );
   }
+
+  Future<void> _maybeShowPackTip() async {
+    final total = widget.template.spots.length;
+    if (total < 10) return;
+    int correct = 0;
+    for (final s in widget.template.spots) {
+      final exp = _expected(s);
+      final ans = widget.results[s.id];
+      if (exp != null && ans != null && ans.toLowerCase() == exp.toLowerCase()) {
+        correct++;
+      }
+    }
+    final acc = total == 0 ? 0.0 : correct * 100 / total;
+    if (acc >= 90) return;
+    final weak = context.read<WeakSpotRecommendationService>();
+    final tpl = await weak.buildPack();
+    final rec = weak.recommendation;
+    if (tpl == null || rec == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'weak_tip_${rec.position.name}';
+    final lastStr = prefs.getString(key);
+    if (lastStr != null) {
+      final last = DateTime.tryParse(lastStr);
+      if (last != null && DateTime.now().difference(last) < const Duration(days: 1)) {
+        return;
+      }
+    }
+    await prefs.setString(key, DateTime.now().toIso8601String());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Want to improve your ${rec.position.label}? Try ${tpl.name}.'),
+        action: SnackBarAction(
+          label: 'Train',
+          onPressed: () async {
+            await context.read<TrainingSessionService>().startSession(tpl, persist: false);
+            if (!context.mounted) return;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+            );
+          },
+        ),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
 }
 
 class _DeltaChart extends StatelessWidget {
