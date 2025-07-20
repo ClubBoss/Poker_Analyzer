@@ -77,6 +77,18 @@ class LearningPathUnlockEngine {
   final Map<String, int> _goalReq;
   final Map<String, Map<String, double>> _masteryReq;
 
+  /// Exposes prerequisite track map for external logic.
+  Map<String, List<String>> get prereqMap => _prereq;
+
+  /// Exposes streak requirement map.
+  Map<String, int> get streakRequirementsMap => _streakReq;
+
+  /// Exposes goal requirement map.
+  Map<String, int> get goalRequirementsMap => _goalReq;
+
+  /// Exposes mastery requirement map.
+  Map<String, Map<String, double>> get masteryRequirementsMap => _masteryReq;
+
   static final Map<String, bool> _cache = {};
   static List<LessonTrack>? _cachedList;
   static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
