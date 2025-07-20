@@ -9,6 +9,7 @@ import 'tag_mastery_service.dart';
 import '../screens/training_session_screen.dart';
 import '../models/training_pack_template.dart';
 import 'package:uuid/uuid.dart';
+import '../models/mistake_profile.dart';
 
 /// Stores IDs of spots where the user made a mistake for future review.
 class SmartReviewService {
@@ -115,6 +116,24 @@ class SmartReviewService {
     }
 
     return result;
+  }
+
+  /// Builds a [MistakeProfile] based on recorded mistakes.
+  Future<MistakeProfile> getMistakeProfile(
+      TemplateStorageService templates) async {
+    final spots = await getMistakeSpots(templates);
+    final counts = <String, int>{};
+    for (final s in spots) {
+      for (final t in s.tags) {
+        final key = t.trim().toLowerCase();
+        if (key.isEmpty) continue;
+        counts.update(key, (v) => v + 1, ifAbsent: () => 1);
+      }
+    }
+    final entries = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final weak = entries.take(3).map((e) => e.key).toSet();
+    return MistakeProfile(weakTags: weak);
   }
 
   /// Builds and starts a training pack from recorded mistakes.
