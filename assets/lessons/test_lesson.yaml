@@ -4,6 +4,11 @@ id: 'lesson1'
 title: 'Sample Lesson'
 introText: 'Welcome to the trainer.'
 summaryText: 'Вы познакомились с тренажёром и решили простую задачу.'
+filter:
+  minXp: 500
+  tag: push_fold
+  gameType: tournament
+  skillLevel: beginner
 quiz:
   question: 'What is 2 + 2?'
   options:

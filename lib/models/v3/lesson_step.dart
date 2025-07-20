@@ -1,3 +1,5 @@
+import 'lesson_step_filter.dart';
+
 class Quiz {
   final String question;
   final List<String> options;
@@ -37,6 +39,7 @@ class LessonStep {
   final Quiz? quiz;
   final String? rangeImageUrl;
   final String linkedPackId;
+  final LessonStepFilter? filter;
   final Map<String, dynamic> meta;
 
   LessonStep({
@@ -47,6 +50,7 @@ class LessonStep {
     this.quiz,
     this.rangeImageUrl,
     required this.linkedPackId,
+    this.filter,
     Map<String, dynamic>? meta,
   }) : meta = meta ?? const {'schemaVersion': '3.0.0'};
 
@@ -55,6 +59,12 @@ class LessonStep {
     meta['schemaVersion'] = meta['schemaVersion']?.toString() ?? '3.0.0';
     final quizYaml = yaml['quiz'] as Map?;
     final quiz = quizYaml != null ? Quiz.fromYaml(Map.from(quizYaml)) : null;
+    final filterYaml = yaml['filter'];
+    LessonStepFilter? filter;
+    if (filterYaml is Map) {
+      filter = LessonStepFilter.fromYaml(
+          Map<String, dynamic>.from(filterYaml));
+    }
     return LessonStep(
       id: yaml['id']?.toString() ?? '',
       title: yaml['title']?.toString() ?? '',
@@ -63,6 +73,7 @@ class LessonStep {
       quiz: quiz,
       rangeImageUrl: yaml['rangeImageUrl']?.toString(),
       linkedPackId: yaml['linkedPackId']?.toString() ?? '',
+      filter: filter,
       meta: meta,
     );
   }
@@ -77,6 +88,7 @@ class LessonStep {
       if (quiz != null) 'quiz': quiz!.toYaml(),
       if (rangeImageUrl != null) 'rangeImageUrl': rangeImageUrl,
       'linkedPackId': linkedPackId,
+      if (filter != null) 'filter': filter!.toYaml(),
     };
   }
 }
