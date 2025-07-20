@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v3/lesson_step.dart';
+import '../models/v3/lesson_track.dart';
 import '../services/lesson_loader_service.dart';
 import '../services/lesson_path_progress_service.dart';
+import '../services/learning_track_engine.dart';
 import '../services/learning_path_advisor.dart';
 import '../services/smart_review_service.dart';
 import '../services/training_pack_template_storage_service.dart';
 import 'lesson_step_screen.dart';
+import 'track_recap_screen.dart';
 
 class LessonStepRecapScreen extends StatefulWidget {
   final LessonStep step;
@@ -21,7 +25,14 @@ class LessonStepRecapScreen extends StatefulWidget {
 class _ScreenData {
   final LessonStep? next;
   final int mistakes;
-  const _ScreenData({required this.next, required this.mistakes});
+  final bool completedTrack;
+  final LessonTrack? track;
+  const _ScreenData({
+    required this.next,
+    required this.mistakes,
+    required this.completedTrack,
+    this.track,
+  });
 }
 
 class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
@@ -47,7 +58,23 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
       completedSteps: completed,
       profile: profile,
     );
-    return _ScreenData(next: next, mistakes: spots.length);
+    final prefs = await SharedPreferences.getInstance();
+    final selectedId = prefs.getString('lesson_selected_track');
+    final track = tracks.firstWhereOrNull((t) => t.id == selectedId);
+    bool doneTrack = false;
+    if (track != null) {
+      final done = completed.values.expand((e) => e).toSet();
+      if (track.stepIds.every(done.contains) &&
+          widget.step.id == track.stepIds.last) {
+        doneTrack = true;
+      }
+    }
+    return _ScreenData(
+      next: next,
+      mistakes: spots.length,
+      completedTrack: doneTrack,
+      track: track,
+    );
   }
 
   void _openNext(LessonStep next) {
@@ -64,6 +91,13 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
           },
         ),
       ),
+    );
+  }
+
+  void _openTrackRecap(LessonTrack track) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => TrackRecapScreen(track: track)),
     );
   }
 
@@ -85,6 +119,8 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
           final done = snapshot.connectionState == ConnectionState.done;
           final next = data?.next;
           final mistakes = data?.mistakes ?? 0;
+          final completedTrack = data?.completedTrack == true;
+          final track = data?.track;
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -122,6 +158,16 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
                 const Spacer(),
                 if (!done)
                   const Center(child: CircularProgressIndicator())
+                else if (completedTrack && track != null) ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: () => _openTrackRecap(track),
+                      style: ElevatedButton.styleFrom(backgroundColor: accent),
+                      child: const Text('Итоги трека'),
+                    ),
+                  ),
+                ]
                 else if (next != null) ...[
                   Text(
                     'Следующий шаг: ${next.title}',
@@ -136,7 +182,8 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
                       child: const Text('Начать следующий шаг'),
                     ),
                   ),
-                ] else ...[
+                ]
+                else ...[
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
