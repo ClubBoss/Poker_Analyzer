@@ -43,6 +43,7 @@ import '../widgets/review_past_mistakes_card.dart';
 import '../widgets/weak_spot_card.dart';
 import '../widgets/achievements_card.dart';
 import '../widgets/daily_spotlight_card.dart';
+import '../widgets/streak_banner_widget.dart';
 import 'training_progress_analytics_screen.dart';
 import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
@@ -108,6 +109,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const StarterPathCard(),
           const NextLearningStepCard(),
           const ResumeLessonCard(),
+          const StreakBannerWidget(),
           if (tablet) const DailySpotlightCard(),
           _RecommendedCarousel(
             key: TrainingHomeScreen.recommendationsKey,

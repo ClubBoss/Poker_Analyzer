@@ -11,6 +11,8 @@ import '../services/learning_track_engine.dart';
 import '../services/learning_path_advisor.dart';
 import '../services/smart_review_service.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../widgets/streak_banner_widget.dart';
+import '../services/lesson_streak_engine.dart';
 import 'lesson_step_screen.dart';
 import 'track_recap_screen.dart';
 
@@ -155,6 +157,14 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
                     style: const TextStyle(color: Colors.redAccent),
                   ),
                 ],
+                FutureBuilder<int>(
+                  future: LessonStreakEngine.instance.getCurrentStreak(),
+                  builder: (context, snapshot) {
+                    final streak = snapshot.data ?? 0;
+                    if (streak < 2) return const SizedBox.shrink();
+                    return const StreakBannerWidget();
+                  },
+                ),
                 const Spacer(),
                 if (!done)
                   const Center(child: CircularProgressIndicator())
