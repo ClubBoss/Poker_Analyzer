@@ -30,6 +30,7 @@ import '../services/daily_target_service.dart';
 import '../widgets/streak_widget.dart';
 import '../widgets/resume_training_card.dart';
 import '../services/ab_test_engine.dart';
+import '../services/daily_training_reminder_service.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
 import 'online_plugin_catalog_screen.dart';
@@ -53,7 +54,8 @@ class MainNavigationScreen extends StatefulWidget {
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
+class _MainNavigationScreenState extends State<MainNavigationScreen>
+    with WidgetsBindingObserver {
   static const _indexKey = 'main_nav_index';
   int _currentIndex = 0;
   bool _simpleNavigation = false;
@@ -62,11 +64,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final prefs = UserPreferences.instance;
     _simpleNavigation = prefs.simpleNavigation;
     _tutorialCompleted = prefs.tutorialCompleted;
     _loadIndex();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowOnboarding());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowOnboarding();
+      _maybeShowTrainingReminder();
+    });
   }
 
   Future<void> _loadIndex() async {
@@ -90,6 +96,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     if (mounted) {
       setState(() => _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
     }
+  }
+
+  Future<void> _maybeShowTrainingReminder() async {
+    await context.read<DailyTrainingReminderService>().maybeShowReminder(context);
   }
 
   Future<void> _setDailyGoal() async {
@@ -137,6 +147,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     if (value != null) {
       await service.setTarget(value);
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _maybeShowTrainingReminder();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Widget _home() {
