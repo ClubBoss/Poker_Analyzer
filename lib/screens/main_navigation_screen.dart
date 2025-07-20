@@ -22,6 +22,7 @@ import '../widgets/repeat_last_corrected_card.dart';
 import '../widgets/repeat_corrected_drill_card.dart';
 import '../widgets/streak_mini_card.dart';
 import '../widgets/streak_chart.dart';
+import '../widgets/continue_training_button.dart';
 import '../widgets/spot_of_the_day_card.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
@@ -145,6 +146,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         ab.isVariant('resume_card', 'B')
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),
+        const ContinueTrainingButton(),
         const SpotOfTheDayCard(),
         const PackSuggestionBanner(),
         const StreakChart(),
