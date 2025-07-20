@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'suggestion_cooldown_manager.dart';
 
 class SuggestedPackRecord {
   final String packId;
@@ -96,6 +97,7 @@ class SuggestedTrainingPacksHistoryService {
     );
     if (list.length > 100) list.removeRange(100, list.length);
     await _save(list);
+    await SuggestionCooldownManager.markSuggested(packId);
   }
 
   static Future<List<SuggestedPackRecord>> getRecentSuggestions({

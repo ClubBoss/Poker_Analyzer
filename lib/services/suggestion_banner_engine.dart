@@ -8,7 +8,7 @@ import 'smart_resuggestion_engine.dart';
 import 'session_log_service.dart';
 import 'suggested_weak_tag_pack_service.dart';
 import 'dormant_tag_suggestion_service.dart';
-import 'pack_suggestion_cooldown_service.dart';
+import 'suggestion_cooldown_manager.dart';
 import 'training_session_service.dart';
 
 class SuggestionBannerData {
@@ -49,7 +49,7 @@ class SuggestionBannerEngine {
     final weak = await _weakTagService.suggestPack();
     if (weak.pack != null) {
       final tpl = weak.pack!;
-      await PackSuggestionCooldownService.markAsSuggested(tpl.id);
+      await SuggestionCooldownManager.markSuggested(tpl.id);
       return _dataFor(
         tpl: tpl,
         title: '💡 \u0423\u043a\u0440\u0435\u043f\u0438 \u0431\u0430\u0437\u0443',

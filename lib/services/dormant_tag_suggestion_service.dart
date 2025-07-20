@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'pack_library_loader_service.dart';
 import 'training_gap_detector_service.dart';
-import 'pack_suggestion_cooldown_service.dart';
+import 'suggestion_cooldown_manager.dart';
 import 'suggested_training_packs_history_service.dart';
 
 class DormantTagSuggestionService {
@@ -19,10 +19,10 @@ class DormantTagSuggestionService {
       (p) => p.tags.contains(tag) || p.meta['focusTag'] == tag,
     );
     if (tpl == null) return null;
-    if (await PackSuggestionCooldownService.isRecentlySuggested(tpl.id)) {
+    if (await SuggestionCooldownManager.isUnderCooldown(tpl.id)) {
       return null;
     }
-    await PackSuggestionCooldownService.markAsSuggested(tpl.id);
+    await SuggestionCooldownManager.markSuggested(tpl.id);
     await SuggestedTrainingPacksHistoryService.logSuggestion(
       packId: tpl.id,
       source: 'dormant_tag',
