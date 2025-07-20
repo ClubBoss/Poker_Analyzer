@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'lesson_streak_engine.dart';
 
 /// Tracks progress of lesson steps and completed lessons using local storage.
 ///
@@ -61,8 +62,8 @@ class LessonProgressTrackerService {
 
   Future<void> _saveLesson(String lessonId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_stepsPrefix + lessonId,
-        _progress[lessonId]?.toList() ?? <String>[]);
+    await prefs.setStringList(
+        _stepsPrefix + lessonId, _progress[lessonId]?.toList() ?? <String>[]);
   }
 
   Future<void> _saveLessons() async {
@@ -81,6 +82,7 @@ class LessonProgressTrackerService {
     }
     // Automatically mark the lesson as completed.
     await markLessonCompleted(lessonId);
+    await LessonStreakEngine.instance.markTodayCompleted();
   }
 
   /// Marks the entire [lessonId] as completed.
@@ -106,7 +108,8 @@ class LessonProgressTrackerService {
   /// Clears all lesson progress from storage. Used for development/testing only.
   Future<void> reset() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys()
+    final keys = prefs
+        .getKeys()
         .where((k) => k == _lessonsKey || k.startsWith(_stepsPrefix))
         .toList();
     for (final k in keys) {
