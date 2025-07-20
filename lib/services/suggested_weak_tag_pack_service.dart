@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
+import 'pack_cooldown_tracker.dart';
 import 'pack_library_loader_service.dart';
 import 'weak_tag_detector_service.dart';
 import 'training_tag_performance_engine.dart';
@@ -29,26 +30,39 @@ class SuggestedWeakTagPackService {
 
     for (final t in weak) {
       final pack = library.firstWhereOrNull((p) => p.tags.contains(t.tag));
-      if (pack != null) {
+      if (pack != null &&
+          !await PackCooldownTracker.isRecentlySuggested(pack.id)) {
         return SuggestedWeakTagPackResult(pack: pack, isFallback: false);
       }
     }
 
-    final fallback = _findFallback(library);
+    final fallback = await _findFallback(library);
     return SuggestedWeakTagPackResult(pack: fallback, isFallback: true);
   }
 
-  TrainingPackTemplateV2? _findFallback(List<TrainingPackTemplateV2> library) {
-    final fund = library.firstWhereOrNull((p) => p.tags.contains('fundamentals'));
-    if (fund != null) return fund;
-    final starter = library.firstWhereOrNull((p) => p.tags.contains('starter'));
-    if (starter != null) return starter;
+  Future<TrainingPackTemplateV2?> _findFallback(
+      List<TrainingPackTemplateV2> library) async {
+    for (final p in library) {
+      if (p.tags.contains('fundamentals') &&
+          !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+        return p;
+      }
+    }
+    for (final p in library) {
+      if (p.tags.contains('starter') &&
+          !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+        return p;
+      }
+    }
     final sorted = [...library]
       ..sort((a, b) {
         final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
         final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
         return pb.compareTo(pa);
       });
-    return sorted.firstOrNull;
+    for (final p in sorted) {
+      if (!await PackCooldownTracker.isRecentlySuggested(p.id)) return p;
+    }
+    return null;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
+import 'pack_cooldown_tracker.dart';
 import 'pack_library_loader_service.dart';
 import 'training_gap_detector_service.dart';
 import 'training_tag_performance_engine.dart';
@@ -27,8 +28,9 @@ class SkillRecoveryPackEngine {
 
     for (final item in dormant) {
       final tag = item.tag.toLowerCase();
-      final candidates = lib.where((p) {
-        if (exclude.contains(p.id)) return false;
+      final candidates = <TrainingPackTemplateV2>[];
+      for (final p in lib) {
+        if (exclude.contains(p.id)) continue;
         final tags = {
           for (final t in p.tags) t.toLowerCase(),
         };
@@ -42,8 +44,11 @@ class SkillRecoveryPackEngine {
         }
         final focusTag = p.meta['focusTag'];
         if (focusTag is String) tags.add(focusTag.toLowerCase());
-        return tags.contains(tag);
-      }).toList();
+        if (tags.contains(tag) &&
+            !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+          candidates.add(p);
+        }
+      }
 
       if (candidates.isEmpty) continue;
 
@@ -58,25 +63,27 @@ class SkillRecoveryPackEngine {
       return candidates.first;
     }
 
-    return _findFallback(lib, exclude);
+    return await _findFallback(lib, exclude);
   }
 
-  static TrainingPackTemplateV2? _findFallback(
+  static Future<TrainingPackTemplateV2?> _findFallback(
     List<TrainingPackTemplateV2> library,
     Set<String> exclude,
-  ) {
-    final fund = library.firstWhereOrNull(
-      (p) =>
-          !exclude.contains(p.id) &&
-          p.tags.map((e) => e.toLowerCase()).contains('fundamentals'),
-    );
-    if (fund != null) return fund;
-    final starter = library.firstWhereOrNull(
-      (p) =>
-          !exclude.contains(p.id) &&
-          p.tags.map((e) => e.toLowerCase()).contains('starter'),
-    );
-    if (starter != null) return starter;
+  ) async {
+    for (final p in library) {
+      if (exclude.contains(p.id)) continue;
+      if (p.tags.map((e) => e.toLowerCase()).contains('fundamentals') &&
+          !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+        return p;
+      }
+    }
+    for (final p in library) {
+      if (exclude.contains(p.id)) continue;
+      if (p.tags.map((e) => e.toLowerCase()).contains('starter') &&
+          !await PackCooldownTracker.isRecentlySuggested(p.id)) {
+        return p;
+      }
+    }
     final sorted = [
       for (final p in library)
         if (!exclude.contains(p.id)) p
@@ -85,6 +92,9 @@ class SkillRecoveryPackEngine {
         final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
         return pb.compareTo(pa);
       });
-    return sorted.firstOrNull;
+    for (final p in sorted) {
+      if (!await PackCooldownTracker.isRecentlySuggested(p.id)) return p;
+    }
+    return null;
   }
 }
