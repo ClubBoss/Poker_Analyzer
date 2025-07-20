@@ -10,6 +10,8 @@ import 'suggested_weak_tag_pack_service.dart';
 import 'dormant_tag_suggestion_service.dart';
 import 'suggestion_cooldown_manager.dart';
 import 'training_session_service.dart';
+import 'suggestion_banner_ab_test_service.dart';
+import 'user_action_logger.dart';
 
 class SuggestionBannerData {
   final String title;
@@ -46,30 +48,80 @@ class SuggestionBannerEngine {
   Future<SuggestionBannerData?> getBanner() async {
     if (!await shouldShowBanner()) return null;
 
-    final weak = await _weakTagService.suggestPack();
-    if (weak.pack != null) {
+    final variant = SuggestionBannerABTestService.instance.getVariant();
+    final isAggressive = variant == SuggestionBannerVariant.aggressiveText;
+
+    Future<SuggestionBannerData?> weakBanner() async {
+      final weak = await _weakTagService.suggestPack();
+      if (weak.pack == null) return null;
       final tpl = weak.pack!;
       await SuggestionCooldownManager.markSuggested(tpl.id);
-      return _dataFor(
+      final data = _dataFor(
         tpl: tpl,
-        title: '💡 \u0423\u043a\u0440\u0435\u043f\u0438 \u0431\u0430\u0437\u0443',
+        title: isAggressive
+            ? '🔥 Срочно укрепи базу'
+            : '💡 Укрепи базу',
+        buttonLabel: isAggressive ? 'Заняться' : 'Начать тренировку',
       );
+      await UserActionLogger.instance.logEvent({
+        'event': 'suggestion_banner.shown',
+        'variant': variant.name,
+        'type': 'weak',
+      });
+      return data;
     }
 
-    final dormant = await _dormantService.suggestPack();
-    if (dormant != null) {
-      return _dataFor(
+    Future<SuggestionBannerData?> dormantBanner() async {
+      final dormant = await _dormantService.suggestPack();
+      if (dormant == null) return null;
+      final data = _dataFor(
         tpl: dormant,
-        title: '🔁 \u041e\u0441\u0432\u0435\u0436\u0438 \u043d\u0430\u0432\u044b\u043a',
+        title: isAggressive
+            ? '⚡ Верни навык прямо сейчас'
+            : '🔁 Освежи навык',
+        buttonLabel: isAggressive ? 'Go!' : 'Начать тренировку',
       );
+      await UserActionLogger.instance.logEvent({
+        'event': 'suggestion_banner.shown',
+        'variant': variant.name,
+        'type': 'dormant',
+      });
+      return data;
     }
 
-    final re = await _resuggestionEngine.suggestNext();
-    if (re != null) {
-      return _dataFor(
+    Future<SuggestionBannerData?> resuggestBanner() async {
+      final re = await _resuggestionEngine.suggestNext();
+      if (re == null) return null;
+      final data = _dataFor(
         tpl: re,
-        title: '♻️ \u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438 \u043e\u0431\u0443\u0447\u0435\u043d\u0438\u0435',
+        title: isAggressive
+            ? '🚀 Продолжи обучение!'
+            : '♻️ Продолжи обучение',
+        buttonLabel: isAggressive ? 'Поехали' : 'Начать тренировку',
       );
+      await UserActionLogger.instance.logEvent({
+        'event': 'suggestion_banner.shown',
+        'variant': variant.name,
+        'type': 'resuggest',
+      });
+      return data;
+    }
+
+    late final List<Future<SuggestionBannerData?> Function()> order;
+    switch (variant) {
+      case SuggestionBannerVariant.layoutA:
+        order = [resuggestBanner, dormantBanner, weakBanner];
+        break;
+      case SuggestionBannerVariant.layoutB:
+        order = [dormantBanner, weakBanner, resuggestBanner];
+        break;
+      default:
+        order = [weakBanner, dormantBanner, resuggestBanner];
+    }
+
+    for (final step in order) {
+      final result = await step();
+      if (result != null) return result;
     }
 
     return null;
@@ -78,11 +130,12 @@ class SuggestionBannerEngine {
   SuggestionBannerData _dataFor({
     required TrainingPackTemplateV2 tpl,
     required String title,
+    String buttonLabel = 'Начать тренировку',
   }) {
     return SuggestionBannerData(
       title: title,
       subtitle: 'Пак: ${tpl.name}',
-      buttonLabel: 'Начать тренировку',
+      buttonLabel: buttonLabel,
       onTap: () async {
         final ctx = navigatorKey.currentContext;
         if (ctx == null) return;
