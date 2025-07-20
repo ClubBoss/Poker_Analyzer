@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/training_path_progress_service.dart';
 import '../services/training_pack_template_service.dart';
 import '../services/training_session_service.dart';
+import '../widgets/unlock_gate_widget.dart';
 import 'v2/training_pack_play_screen.dart';
 
 class LearningPathOverviewScreen extends StatefulWidget {
@@ -12,22 +13,47 @@ class LearningPathOverviewScreen extends StatefulWidget {
       _LearningPathOverviewScreenState();
 }
 
+class StageInfo {
+  final String id;
+  final List<String> packs;
+  final bool unlocked;
+  StageInfo({required this.id, required this.packs, required this.unlocked});
+}
+
 class _LearningPathOverviewScreenState
     extends State<LearningPathOverviewScreen> {
-  late Future<Map<String, List<String>>> _stagesFuture;
+  late Future<List<StageInfo>> _stagesFuture;
 
   @override
   void initState() {
     super.initState();
-    _stagesFuture = TrainingPathProgressService.instance.getStages();
+    _stagesFuture = _loadStages();
+  }
+
+  Future<List<StageInfo>> _loadStages() async {
+    final svc = TrainingPathProgressService.instance;
+    final stages = await svc.getStages();
+    final ids = stages.keys.toList();
+    final list = <StageInfo>[];
+    for (var i = 0; i < ids.length; i++) {
+      final id = ids[i];
+      bool unlocked = true;
+      if (i > 0) {
+        final prev = ids[i - 1];
+        final p = await svc.getProgressInStage(prev);
+        unlocked = p >= 1.0;
+      }
+      list.add(StageInfo(id: id, packs: stages[id]!, unlocked: unlocked));
+    }
+    return list;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, List<String>>>(
+    return FutureBuilder<List<StageInfo>>( 
       future: _stagesFuture,
       builder: (context, snapshot) {
-        final stages = snapshot.data ?? const <String, List<String>>{};
+        final stages = snapshot.data ?? const <StageInfo>[];
         return Scaffold(
           appBar: AppBar(
             title: const Text('Learning Path'),
@@ -36,8 +62,12 @@ class _LearningPathOverviewScreenState
               ? const Center(child: CircularProgressIndicator())
               : ListView(
                   children: [
-                    for (final entry in stages.entries)
-                      _StageTile(stageId: entry.key, packIds: entry.value),
+                    for (final info in stages)
+                      _StageTile(
+                        stageId: info.id,
+                        packIds: info.packs,
+                        unlocked: info.unlocked,
+                      ),
                   ],
                 ),
         );
@@ -49,7 +79,12 @@ class _LearningPathOverviewScreenState
 class _StageTile extends StatefulWidget {
   final String stageId;
   final List<String> packIds;
-  const _StageTile({required this.stageId, required this.packIds});
+  final bool unlocked;
+  const _StageTile({
+    required this.stageId,
+    required this.packIds,
+    required this.unlocked,
+  });
 
   @override
   State<_StageTile> createState() => _StageTileState();
@@ -81,7 +116,7 @@ class _StageTileState extends State<_StageTile> {
   @override
   Widget build(BuildContext context) {
     final progress = _progress ?? 0.0;
-    return ExpansionTile(
+    final tile = ExpansionTile(
       title: Row(
         children: [
           Expanded(child: Text(_title())),
@@ -109,6 +144,11 @@ class _StageTileState extends State<_StageTile> {
               completed: _completed?.contains(id) ?? false,
             ),
       ],
+    );
+    return UnlockGateWidget(
+      unlocked: widget.unlocked,
+      lockedChild: tile,
+      unlockedChild: tile,
     );
   }
 }
