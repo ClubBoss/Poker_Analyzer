@@ -108,6 +108,7 @@ import '../services/achievement_trigger_engine.dart';
 import 'achievement_dashboard_screen.dart';
 import 'mistake_review_screen.dart';
 import 'mistake_insight_screen.dart';
+import '../services/lesson_streak_engine.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -158,10 +159,32 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _autoAdvanceLoading = false;
   bool _unlockStages = false;
   bool _achievementsCheckLoading = false;
+  int _lessonStreak = 0;
+  StreamSubscription<int>? _lessonSub;
   static const _basePrompt = 'Создай тренировочный YAML пак';
   static const _apiKey = '';
   String _audience = 'Beginner';
   final Set<String> _tags = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStreak();
+    _lessonSub = LessonStreakEngine.instance.streakStream.listen(
+      (v) => setState(() => _lessonStreak = v),
+    );
+  }
+
+  Future<void> _loadStreak() async {
+    final s = await LessonStreakEngine.instance.getCurrentStreak();
+    if (mounted) setState(() => _lessonStreak = s);
+  }
+
+  @override
+  void dispose() {
+    _lessonSub?.cancel();
+    super.dispose();
+  }
 
   String get _prompt {
     final tagStr = _tags.join(', ');
@@ -2072,14 +2095,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             if (kDebugMode)
               ListTile(
                 title: const Text('📤 Экспорт прогресса'),
-                onTap:
-                    _progressExportLoading ? null : _exportLearningProgress,
+                onTap: _progressExportLoading ? null : _exportLearningProgress,
               ),
             if (kDebugMode)
               ListTile(
                 title: const Text('📥 Импорт прогресса из буфера'),
-                onTap:
-                    _progressImportLoading ? null : _importLearningProgress,
+                onTap: _progressImportLoading ? null : _importLearningProgress,
               ),
             if (kDebugMode)
               ListTile(
@@ -2096,6 +2117,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🔔 Проверить напоминание'),
                 onTap: _reminderLoading ? null : _checkTrainingReminder,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: Text('🔥 Стрик уроков: \$_lessonStreak'),
+                onTap: _loadStreak,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧹 Сбросить streak уроков'),
+                onTap: () async {
+                  await LessonStreakEngine.instance.resetStreak();
+                  await _loadStreak();
+                },
               ),
             if (kDebugMode)
               ListTile(
