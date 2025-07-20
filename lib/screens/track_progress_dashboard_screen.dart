@@ -14,8 +14,10 @@ import '../services/learning_path_completion_service.dart';
 import '../models/mastery_level.dart';
 import '../services/mastery_level_engine.dart';
 import '../services/lesson_goal_engine.dart';
+import '../services/lesson_goal_streak_engine.dart';
 import '../widgets/goal_progress_bar.dart';
 import '../widgets/xp_level_bar.dart';
+import '../widgets/streak_flame_widget.dart';
 import '../services/xp_reward_engine.dart';
 import 'master_mode_screen.dart';
 import 'lesson_step_screen.dart';
@@ -74,6 +76,9 @@ class _TrackProgressDashboardScreenState
     final totalXp = await XPRewardEngine.instance.getTotalXp();
     final level = getLevel(totalXp);
     final levelXp = getXpForNextLevel(totalXp);
+    final currentStreak =
+        await LessonGoalStreakEngine.instance.getCurrentStreak();
+    final bestStreak = await LessonGoalStreakEngine.instance.getBestStreak();
     return {
       'tracks': tracks,
       'progress': progress,
@@ -86,6 +91,8 @@ class _TrackProgressDashboardScreenState
       'totalXp': totalXp,
       'level': level,
       'levelXp': levelXp,
+      'currentStreak': currentStreak,
+      'bestStreak': bestStreak,
     };
   }
 
@@ -188,6 +195,10 @@ class _TrackProgressDashboardScreenState
                           currentXp: data?['totalXp'] as int? ?? 0,
                           levelXp: data?['levelXp'] as int? ?? 0,
                           level: data?['level'] as int? ?? 1,
+                        ),
+                        StreakFlameWidget(
+                          currentStreak: data?['currentStreak'] as int? ?? 0,
+                          bestStreak: data?['bestStreak'] as int? ?? 0,
                         ),
                         FutureBuilder<MasteryLevel>(
                           future: _levelFuture,
