@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/xp_tracker_service.dart';
 import '../widgets/skill_card.dart';
+import '../widgets/booster_packs_block.dart';
 import '../utils/responsive.dart';
 import 'library_screen.dart';
 import 'tag_skill_detail_screen.dart';
@@ -83,19 +84,27 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : GridView.count(
-              crossAxisCount: crossAxisCount,
+          : ListView(
               padding: const EdgeInsets.all(16),
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
               children: [
-                for (final e in _data.entries)
-                  SkillCard(
-                    tag: e.key,
-                    mastery: e.value,
-                    totalXp: _xp[e.key] ?? 0,
-                    onTap: () => _openTag(e.key),
-                  ),
+                GridView.count(
+                  crossAxisCount: crossAxisCount,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  children: [
+                    for (final e in _data.entries)
+                      SkillCard(
+                        tag: e.key,
+                        mastery: e.value,
+                        totalXp: _xp[e.key] ?? 0,
+                        onTap: () => _openTag(e.key),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const BoosterPacksBlock(),
               ],
             ),
     );
