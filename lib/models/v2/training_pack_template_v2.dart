@@ -8,6 +8,7 @@ import '../../core/training/engine/training_type_engine.dart';
 import 'training_pack_spot.dart';
 import 'spot_template.dart';
 import 'unlock_rules.dart';
+import 'hero_position.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -180,6 +181,27 @@ class TrainingPackTemplateV2 {
 
   // Backwards compatible alias used across the code base.
   String toYaml() => toYamlString();
+
+  /// Removes all spots from this template.
+  void clear() => spots.clear();
+
+  /// Appends [newSpots] to the existing list of spots.
+  void addAll(List<SpotTemplate> newSpots) => spots.addAll(newSpots);
+
+  /// Primary hero position inferred from [positions].
+  HeroPosition get heroPos =>
+      positions.isNotEmpty ? parseHeroPosition(positions.first) : HeroPosition.unknown;
+
+  /// Hero stack size in big blinds. Backwards compatible alias for [bb].
+  int get heroBbStack => bb;
+
+  /// Difficulty level read from [meta] map.
+  int get difficultyLevel {
+    final diff = meta['difficulty'];
+    if (diff is int) return diff;
+    if (diff is String) return int.tryParse(diff) ?? 0;
+    return 0;
+  }
 
   factory TrainingPackTemplateV2.fromTemplate(
     TrainingPackTemplate template, {

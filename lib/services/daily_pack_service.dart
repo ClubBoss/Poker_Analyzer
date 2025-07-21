@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_template_v2.dart';
 import 'template_storage_service.dart';
 import 'training_pack_stats_service.dart';
 
@@ -11,13 +11,13 @@ class DailyPackService extends ChangeNotifier {
   static const _dateKey = 'daily_pack_date';
 
   final TemplateStorageService templates;
-  TrainingPackTemplate? _template;
+  TrainingPackTemplateV2? _template;
   DateTime? _date;
   Timer? _timer;
 
   DailyPackService({required this.templates});
 
-  TrainingPackTemplate? get template => _template;
+  TrainingPackTemplateV2? get template => _template;
 
   bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
@@ -42,8 +42,8 @@ class DailyPackService extends ChangeNotifier {
       _schedule();
       return;
     }
-    final preferred = <TrainingPackTemplate>[];
-    final others = <TrainingPackTemplate>[];
+    final preferred = <TrainingPackTemplateV2>[];
+    final others = <TrainingPackTemplateV2>[];
     for (final t in templates.templates) {
       final stat = await TrainingPackStatsService.getStats(t.id);
       final ev = stat == null ? 0.0 : (stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct);
@@ -51,7 +51,7 @@ class DailyPackService extends ChangeNotifier {
       final completed = stat != null && stat.accuracy >= .9 && ev >= 80 && icm >= 80;
       if (completed || (ev >= 90 && icm >= 90)) continue;
       final target = (t.recommended || t.tags.contains('starter') ||
-          now.difference(t.createdAt).inDays < 7)
+          now.difference(t.created).inDays < 7)
           ? preferred
           : others;
       target.add(t);

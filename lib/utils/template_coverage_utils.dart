@@ -1,8 +1,8 @@
-import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 
 class TemplateCoverageUtils {
-  static void recountAll(TrainingPackTemplate template) {
+  static void recountAll(TrainingPackTemplateV2 template) {
     final List<TrainingPackSpot> list = template.spots;
     int ev = 0;
     int icm = 0;
