@@ -27,6 +27,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   bool _loading = true;
   Map<String, LearningStageUIState> _stageStates = {};
+  Map<String, String> _stageProgress = {};
   bool _celebrationShown = false;
 
   @override
@@ -63,9 +64,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     setState(() => _loading = true);
     final aggregated = <String, SessionLog>{};
     final completed = <String>{};
+    final progress = <String, String>{};
     for (final stage in widget.template.stages) {
       final hands = _handsPlayed(stage.packId);
       final acc = _accuracy(stage.packId);
+      progress[stage.id] =
+          '${hands} / ${stage.minHands} рук · ${acc.toStringAsFixed(0)}%';
       if (hands >= stage.minHands && acc >= stage.requiredAccuracy) {
         completed.add(stage.id);
       }
@@ -90,6 +94,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final states = _uiEngine.computeStageUIStates(widget.template, completed);
     setState(() {
       _stageStates = states;
+      _stageProgress = progress;
       _loading = false;
     });
 
@@ -155,6 +160,20 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             borderRadius: BorderRadius.circular(4),
           )
         : null;
+    final progress = _stageProgress[stage.id];
+    Widget? subtitle;
+    if (stage.description.isNotEmpty) {
+      subtitle = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(stage.description, style: TextStyle(color: grey)),
+          if (progress != null)
+            Text(progress, style: TextStyle(color: grey ?? Colors.white70)),
+        ],
+      );
+    } else if (progress != null) {
+      subtitle = Text(progress, style: TextStyle(color: grey));
+    }
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       shape: border,
@@ -163,9 +182,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       child: ListTile(
         leading: Text('${index + 1}.', style: TextStyle(color: grey)),
         title: Text(stage.title, style: TextStyle(color: grey)),
-        subtitle: stage.description.isNotEmpty
-            ? Text(stage.description, style: TextStyle(color: grey))
-            : null,
+        subtitle: subtitle,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
