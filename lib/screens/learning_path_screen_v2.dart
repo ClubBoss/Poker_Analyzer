@@ -6,6 +6,7 @@ import '../models/learning_path_stage_model.dart';
 import '../services/pack_library_service.dart';
 import '../services/session_log_service.dart';
 import '../services/training_session_launcher.dart';
+import '../widgets/learning_path_stage_widget.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -53,28 +54,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   Widget _buildStageTile(LearningPathStageModel stage) {
     final hands = _handsPlayed(stage.packId);
-    final progress = '$hands/${stage.minHands} hands';
-    final label = hands == 0 ? 'Начать' : 'Продолжить';
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-      child: ListTile(
-        title: Text(stage.title),
-        subtitle: stage.description.isNotEmpty
-            ? Text(stage.description)
-            : null,
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(progress),
-            const SizedBox(height: 4),
-            ElevatedButton(
-              onPressed: () => _startStage(stage),
-              child: Text(label),
-            ),
-          ],
-        ),
-      ),
+    final ratio = stage.minHands == 0 ? 1.0 : hands / stage.minHands;
+    return LearningPathStageWidget(
+      stage: stage,
+      progress: ratio.clamp(0.0, 1.0),
+      onPressed: () => _startStage(stage),
     );
   }
 
