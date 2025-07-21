@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../models/learning_path_template_v2.dart';
@@ -19,14 +19,10 @@ class LearningPathCelebrationScreen extends StatefulWidget {
   /// Optional callback when user wants to proceed to the next path.
   final VoidCallback? onNext;
 
-  /// Whether to show share button.
-  final bool allowShare;
-
   const LearningPathCelebrationScreen({
     super.key,
     required this.path,
     this.onNext,
-    this.allowShare = true,
   });
 
   @override
@@ -113,24 +109,14 @@ class _LearningPathCelebrationScreenState
     return path;
   }
 
-  void _share() {
-    final text =
-        'Я завершил путь "${widget.path.title}" c точностью ${_accuracy.toStringAsFixed(1)}% в Poker Analyzer!';
-    Share.share(text);
-  }
-
   void _next() {
     if (widget.onNext != null) {
       widget.onNext!();
     } else {
-      Navigator.pop(context);
+      Navigator.popUntil(context, (route) => route.isFirst);
     }
   }
 
-  Future<void> _repeat() async {
-    await LearningPathProgressService.instance.resetProgress();
-    if (mounted) Navigator.pop(context);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,12 +133,15 @@ class _LearningPathCelebrationScreenState
                 ScaleTransition(
                   scale:
                       CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
-                  child: const Icon(Icons.emoji_events,
-                      color: Colors.amber, size: 96),
+                  child: Lottie.asset(
+                    'assets/animations/congrats.json',
+                    width: 160,
+                    repeat: false,
+                  ),
                 ),
               const SizedBox(height: 24),
               const Text(
-                'Поздравляем!',
+                'Путь завершён!',
                 style: TextStyle(fontSize: 28),
                 textAlign: TextAlign.center,
               ),
@@ -170,24 +159,8 @@ class _LearningPathCelebrationScreenState
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _next,
-                child: const Text('Перейти к следующему пути'),
+                child: const Text('Продолжить'),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: OutlinedButton(
-                  onPressed: _repeat,
-                  child: const Text('Повторить путь'),
-                ),
-              ),
-              if (widget.allowShare)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: OutlinedButton.icon(
-                    onPressed: _share,
-                    icon: const Icon(Icons.share),
-                    label: const Text('Поделиться достижением'),
-                  ),
-                ),
             ],
           ),
         ),
