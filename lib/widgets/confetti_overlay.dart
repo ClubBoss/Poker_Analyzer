@@ -5,11 +5,13 @@ import 'package:confetti/confetti.dart';
 class ConfettiOverlay extends StatefulWidget {
   final Duration duration;
   final VoidCallback onCompleted;
+  final Path Function(Size size)? particlePath;
 
   const ConfettiOverlay({
     Key? key,
     this.duration = const Duration(seconds: 3),
     required this.onCompleted,
+    this.particlePath,
   }) : super(key: key);
 
   @override
@@ -42,6 +44,7 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
           confettiController: _controller,
           blastDirectionality: BlastDirectionality.explosive,
           shouldLoop: false,
+          createParticlePath: widget.particlePath,
         ),
       ),
     );
@@ -49,13 +52,15 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
 }
 
 /// Helper to display [ConfettiOverlay] above the current screen.
-void showConfettiOverlay(BuildContext context) {
+void showConfettiOverlay(BuildContext context,
+    {Path Function(Size size)? particlePath}) {
   final overlay = Overlay.of(context);
   if (overlay == null) return;
 
   late OverlayEntry entry;
   entry = OverlayEntry(
-    builder: (_) => ConfettiOverlay(onCompleted: () => entry.remove()),
+    builder: (_) =>
+        ConfettiOverlay(onCompleted: () => entry.remove(), particlePath: particlePath),
   );
   overlay.insert(entry);
 }
