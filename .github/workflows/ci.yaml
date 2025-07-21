@@ -1,5 +1,7 @@
 name: CI
 
+if: github.event_name != 'pull_request'
+
 on:
   push:
     branches: [ main ]
