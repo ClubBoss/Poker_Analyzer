@@ -2,6 +2,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../services/training_stats_export_service.dart';
+import '../services/file_saver_service.dart';
 
 import '../models/training_stats_v2.dart';
 import '../models/v2/hero_position.dart';
@@ -171,12 +175,100 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
     );
   }
 
+  Future<void> _showExportOptions() async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share CSV'),
+              onTap: () => Navigator.pop(ctx, 'share_csv'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share PDF'),
+              onTap: () => Navigator.pop(ctx, 'share_pdf'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.download),
+              title: const Text('Save CSV'),
+              onTap: () => Navigator.pop(ctx, 'save_csv'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.download),
+              title: const Text('Save PDF'),
+              onTap: () => Navigator.pop(ctx, 'save_pdf'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return;
+    final logs = context.read<SessionLogService>().logs;
+    final library = PackLibraryLoaderService.instance.library;
+    final range = _rangeToDates();
+    final exporter = const TrainingStatsExportService();
+    if (result == 'share_csv') {
+      final file = await exporter.exportCsv(
+        logs: logs,
+        library: library,
+        range: range,
+        position: _position,
+        stack: _stack,
+        tag: _tag,
+      );
+      await Share.shareXFiles([XFile(file.path)]);
+    } else if (result == 'share_pdf') {
+      final file = await exporter.exportPdf(
+        logs: logs,
+        library: library,
+        range: range,
+        position: _position,
+        stack: _stack,
+        tag: _tag,
+      );
+      await Share.shareXFiles([XFile(file.path)]);
+    } else if (result == 'save_csv') {
+      final file = await exporter.exportCsv(
+        logs: logs,
+        library: library,
+        range: range,
+        position: _position,
+        stack: _stack,
+        tag: _tag,
+      );
+      final data = await file.readAsString();
+      await FileSaverService.instance
+          .saveCsv('training_stats', data);
+    } else if (result == 'save_pdf') {
+      final file = await exporter.exportPdf(
+        logs: logs,
+        library: library,
+        range: range,
+        position: _position,
+        stack: _stack,
+        tag: _tag,
+      );
+      final bytes = await file.readAsBytes();
+      await FileSaverService.instance.savePdf('training_stats', bytes);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final stats = _stats;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Stats'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _showExportOptions,
+          ),
+        ],
       ),
       body: _loading || stats == null
           ? const Center(child: CircularProgressIndicator())
