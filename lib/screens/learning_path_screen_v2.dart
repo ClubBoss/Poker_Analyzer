@@ -11,6 +11,7 @@ import '../services/learning_path_completion_engine.dart';
 import '../models/session_log.dart';
 import '../services/learning_path_progress_tracker_service.dart';
 import 'learning_path_celebration_screen.dart';
+import '../widgets/stage_progress_chip.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -29,7 +30,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   bool _loading = true;
   Map<String, LearningStageUIState> _stageStates = {};
-  Map<String, String> _stageProgress = {};
+  Map<String, SessionLog> _logsByPack = {};
   bool _celebrationShown = false;
 
   @override
@@ -42,8 +43,6 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final aggregated = _progressTracker.aggregateLogsByPack(_logs.logs);
-    final progress =
-        _progressTracker.computeProgressStrings(widget.template, _logs.logs);
     final completed = <String>{};
     for (final stage in widget.template.stages) {
       final log = aggregated[stage.packId];
@@ -57,7 +56,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final states = _uiEngine.computeStageUIStates(widget.template, completed);
     setState(() {
       _stageStates = states;
-      _stageProgress = progress;
+      _logsByPack = aggregated;
       _loading = false;
     });
 
@@ -122,19 +121,27 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             borderRadius: BorderRadius.circular(4),
           )
         : null;
-    final progress = _stageProgress[stage.id];
+    final log = _logsByPack[stage.packId];
     Widget? subtitle;
     if (stage.description.isNotEmpty) {
       subtitle = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(stage.description, style: TextStyle(color: grey)),
-          if (progress != null)
-            Text(progress, style: TextStyle(color: grey ?? Colors.white70)),
+          const SizedBox(height: 2),
+          StageProgressChip(
+            log: log,
+            requiredAccuracy: stage.requiredAccuracy,
+            minHands: stage.minHands,
+          ),
         ],
       );
-    } else if (progress != null) {
-      subtitle = Text(progress, style: TextStyle(color: grey));
+    } else {
+      subtitle = StageProgressChip(
+        log: log,
+        requiredAccuracy: stage.requiredAccuracy,
+        minHands: stage.minHands,
+      );
     }
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
