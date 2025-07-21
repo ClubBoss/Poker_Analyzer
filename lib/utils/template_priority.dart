@@ -1,9 +1,9 @@
-import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_template_v2.dart';
 
 const kTplPriority = ['Push/Fold', 'ICM', 'Postflop', '3-бет'];
 
-extension SortedByPriority on Iterable<TrainingPackTemplate> {
-  List<TrainingPackTemplate> sortedByPriority() {
+extension SortedByPriority on Iterable<TrainingPackTemplateV2> {
+  List<TrainingPackTemplateV2> sortedByPriority() {
     final map = {
       for (var i = 0; i < kTplPriority.length; i++) kTplPriority[i]: i
     };
