@@ -17,11 +17,13 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.1'
+          flutter-version: '3.16.0'
+          channel: stable
 
       - name: Install dependencies
         run: flutter pub get
-
-        # - name: Run unit tests
-        #   run: flutter test
+      - name: Analyze
+        run: flutter analyze
+      - name: Run unit tests
+        run: flutter test
 
