@@ -66,6 +66,7 @@ import 'services/goal_toast_service.dart';
 import 'services/personal_recommendation_service.dart';
 import 'services/reminder_service.dart';
 import 'services/daily_reminder_service.dart';
+import 'services/streak_reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/weak_spot_recommendation_service.dart';
@@ -354,6 +355,11 @@ List<SingleChildWidget> buildTrainingProviders() {
         target: context.read<DailyTargetService>(),
         stats: context.read<TrainingStatsService>(),
         goals: context.read<DailyGoalsService>(),
+      )..load(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => StreakReminderService(
+        logs: context.read<SessionLogService>(),
       )..load(),
     ),
     ChangeNotifierProvider(
