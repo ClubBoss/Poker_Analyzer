@@ -1,0 +1,6 @@
+id: fundamentals
+title: Poker Fundamentals
+description: Basic learning path track for beginners.
+pathIds:
+  - sample
+order: 1
