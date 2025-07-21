@@ -1,4 +1,5 @@
 import '../models/v3/lesson_track.dart';
+import '../models/learning_path_template_v2.dart';
 import 'learning_track_engine.dart';
 import 'yaml_lesson_track_loader.dart';
 import 'track_mastery_service.dart';
@@ -217,6 +218,19 @@ class LearningPathUnlockEngine {
     }
 
     return null;
+  }
+
+  /// Returns `true` if [path] has no prerequisites or all of them
+  /// are contained in [completedPathIds].
+  bool isPathUnlocked(
+    LearningPathTemplateV2 path,
+    Set<String> completedPathIds,
+  ) {
+    if (path.prerequisitePathIds.isEmpty) return true;
+    for (final id in path.prerequisitePathIds) {
+      if (!completedPathIds.contains(id)) return false;
+    }
+    return true;
   }
 }
 
