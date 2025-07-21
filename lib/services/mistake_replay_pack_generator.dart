@@ -4,11 +4,73 @@ import '../models/training_result.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
+import '../models/track_play_history.dart';
+import '../models/play_result.dart';
 import '../core/training/engine/training_type_engine.dart';
 
 /// Generates a training pack replaying the user's own mistakes.
 class MistakeReplayPackGenerator {
   const MistakeReplayPackGenerator();
+
+  /// Builds a pack from [history] focusing on recent mistakes. Spots are
+  /// selected when their EV gain is below [evThreshold] or the answer was
+  /// incorrect. The most recent plays are considered first.
+  TrainingPackTemplateV2 generate({
+    required List<TrackPlayHistory> history,
+    required double evThreshold,
+    int maxSpots = 20,
+  }) {
+    final ordered = List<TrackPlayHistory>.from(history)
+      ..sort((a, b) {
+        final da = a.completedAt ?? a.startedAt;
+        final db = b.completedAt ?? b.startedAt;
+        return db.compareTo(da);
+      });
+
+    final added = <String>{};
+    final spots = <TrainingPackSpot>[];
+
+    bool _shouldAdd(PlayResult r) {
+      if (!r.isCorrect) return true;
+      final ev = r.evGain;
+      return ev != null && ev < evThreshold;
+    }
+
+    for (final h in ordered) {
+      for (final r in h.results) {
+        if (spots.length >= maxSpots) break;
+        if (added.contains(r.spotId)) continue;
+        if (_shouldAdd(r)) {
+          spots.add(TrainingPackSpot.fromJson(r.spot.toJson()));
+          added.add(r.spotId);
+        }
+      }
+      if (spots.length >= maxSpots) break;
+    }
+
+    final positions = <HeroPosition>{for (final s in spots) s.hand.position};
+    final trainingType = const TrainingTypeEngine().detectTrainingType(
+      TrainingPackTemplateV2(
+        id: '',
+        name: '',
+        trainingType: TrainingType.pushFold,
+        spots: spots,
+      ),
+    );
+
+    return TrainingPackTemplateV2(
+      id: const Uuid().v4(),
+      name: 'Ошибки последних тренировок',
+      trainingType: trainingType,
+      tags: const [],
+      spots: spots,
+      spotCount: spots.length,
+      created: DateTime.now(),
+      gameType: GameType.tournament,
+      positions: [for (final p in positions) p.name],
+      meta: {'origin': 'mistake_replay'},
+    );
+  }
 
   /// Builds a pack containing up to [maxSpots] mistaken spots.
   ///
