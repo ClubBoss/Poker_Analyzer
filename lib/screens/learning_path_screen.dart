@@ -10,6 +10,8 @@ import '../widgets/learning_path_recommendation_banner.dart';
 import '../widgets/daily_learning_goal_banner.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'learning_path_completion_screen.dart';
+import 'learning_path_celebration_screen.dart';
+import '../services/learning_path_registry_service.dart';
 import 'learning_progress_stats_screen.dart';
 
 class LearningPathScreen extends StatefulWidget {
@@ -42,14 +44,30 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         final stages = snapshot.data ?? [];
 
         if (snapshot.connectionState == ConnectionState.done) {
-          LearningPathProgressService.instance.isAllStagesCompleted().then((done) {
+          LearningPathProgressService.instance
+              .isAllStagesCompleted()
+              .then((done) async {
             if (done && context.mounted) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const LearningPathCompletionScreen(),
-                ),
-              );
+              final templates =
+                  await LearningPathRegistryService.instance.loadAll();
+              final path = templates.isNotEmpty ? templates.first : null;
+              if (!context.mounted) return;
+              if (path != null) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        LearningPathCelebrationScreen(path: path),
+                  ),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LearningPathCompletionScreen(),
+                  ),
+                );
+              }
             }
           });
         }
