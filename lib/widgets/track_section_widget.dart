@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/learning_path_track_model.dart';
 import '../models/learning_path_template_v2.dart';
 import 'learning_path_card.dart';
+import '../screens/learning_path_screen_v2.dart';
 
 class TrackSectionWidget extends StatelessWidget {
   final LearningPathTrackModel track;
@@ -66,7 +67,17 @@ class TrackSectionWidget extends StatelessWidget {
                 for (final p in list)
                   SizedBox(
                     width: 180,
-                    child: LearningPathCard(template: p),
+                    child: LearningPathCard(
+                      template: p,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => LearningPathScreen(template: p),
+                          ),
+                        );
+                      },
+                    ),
                   ),
               ],
             ),
