@@ -116,5 +116,85 @@ class TagMasteryService {
     final map = await computeMastery();
     return [for (final e in map.entries) if (e.value < threshold) e.key];
   }
+
+  Future<Map<String, double>> computeDelta({bool fromLastWeek = false}) async {
+    await logs.load();
+    final now = DateTime.now();
+    final thisWeekStart =
+        DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
+    final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
+    final thisWeekLogs = logs.filter(range: DateTimeRange(thisWeekStart, now));
+    final lastWeekLogs = logs.filter(
+      range: DateTimeRange(lastWeekStart, thisWeekStart.subtract(const Duration(seconds: 1))),
+    );
+
+    final current = await _computeForLogs(thisWeekLogs);
+    final previous = await _computeForLogs(lastWeekLogs);
+
+    final delta = <String, double>{};
+    for (final e in current.entries) {
+      final prev = previous[e.key];
+      if (prev != null) delta[e.key] = e.value - prev;
+    }
+    return delta;
+  }
+
+  Future<Map<String, double>> _computeForLogs(List<SessionLog> list) async {
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final library = PackLibraryLoaderService.instance.library;
+    final byId = {for (final t in library) t.id: t};
+
+    final sums = <String, double>{};
+    final counts = <String, int>{};
+    final spotCounts = <String, int>{};
+
+    for (final t in library) {
+      for (final s in t.spots) {
+        for (final tag in s.tags) {
+          final key = tag.trim().toLowerCase();
+          if (key.isEmpty) continue;
+          spotCounts.update(key, (v) => v + 1, ifAbsent: () => 1);
+        }
+      }
+    }
+
+    for (final log in list) {
+      final tpl = byId[log.templateId];
+      if (tpl == null) continue;
+      final total = log.correctCount + log.mistakeCount;
+      if (total == 0) continue;
+      final acc = log.correctCount / total;
+      for (final tag in tpl.tags) {
+        final key = tag.trim().toLowerCase();
+        if (key.isEmpty) continue;
+        sums[key] = (sums[key] ?? 0) + acc;
+        counts[key] = (counts[key] ?? 0) + 1;
+      }
+    }
+
+    final result = <String, double>{};
+    for (final e in sums.entries) {
+      final c = counts[e.key]!;
+      if ((spotCounts[e.key] ?? 0) < 3) continue;
+      result[e.key] = (e.value / c).clamp(0.0, 1.0);
+    }
+
+    if (result.isEmpty) return {};
+    final values = result.values.toList();
+    final minVal = values.reduce(min);
+    final maxVal = values.reduce(max);
+
+    final normalized = <String, double>{};
+    if (maxVal > minVal) {
+      result.forEach((k, v) {
+        normalized[k] = (v - minVal) / (maxVal - minVal);
+      });
+    } else {
+      for (final k in result.keys) {
+        normalized[k] = 1.0;
+      }
+    }
+    return normalized;
+  }
 }
 
