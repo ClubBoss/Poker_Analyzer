@@ -8,6 +8,7 @@ import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../models/v2/training_pack_v2.dart';
 import '../../../models/v2/training_pack_spot.dart';
 import '../../../models/v2/hero_position.dart';
+import '../../../models/game_type.dart';
 import '../engine/training_type_engine.dart';
 
 class PackLibraryGenerator {

@@ -93,7 +93,7 @@ import 'screens/onboarding_screen.dart';
 import 'onboarding/onboarding_flow_manager.dart';
 import 'app_bootstrap.dart';
 import 'app_providers.dart';
-import 'l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';

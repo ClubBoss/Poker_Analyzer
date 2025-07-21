@@ -53,6 +53,8 @@ import 'services/all_in_players_service.dart';
 import 'services/folded_players_service.dart';
 import 'services/action_sync_service.dart';
 import 'services/user_preferences_service.dart';
+import 'services/goal_progress_cloud_service.dart';
+import 'user_preferences.dart';
 import 'services/tag_service.dart';
 import 'services/tag_cache_service.dart';
 import 'services/training_pack_tag_analytics_service.dart';
@@ -340,6 +342,7 @@ List<SingleChildWidget> buildTrainingProviders() {
         weak: context.read<WeakSpotRecommendationService>(),
         style: context.read<PlayerStyleService>(),
         forecast: context.read<PlayerStyleForecastService>(),
+        progress: context.read<ProgressForecastService>(),
       ),
     ),
     ChangeNotifierProvider(
@@ -469,9 +472,9 @@ List<SingleChildWidget> buildTrainingProviders() {
         logs: context.read<SessionLogService>(),
       ),
     ),
-    Provider(create: (_) => LessonProgressTrackerService()..load()),
-    Provider(create: (_) => LessonPathProgressService()),
-    Provider(create: (_) => TrainingPathProgressService()),
+    Provider(create: (_) => LessonProgressTrackerService.instance..load()),
+    Provider(create: (_) => LessonPathProgressService.instance),
+    Provider(create: (_) => TrainingPathProgressService.instance),
     Provider<LearningPathRegistryService>.value(
       value: LearningPathRegistryService.instance,
     ),

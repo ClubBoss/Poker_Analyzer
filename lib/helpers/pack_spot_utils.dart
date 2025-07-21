@@ -2,6 +2,7 @@ import '../models/saved_hand.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
+import '../models/v2/hero_position.dart';
 
 SavedHand handFromPackSpot(TrainingPackSpot spot, {int anteBb = 0}) {
   final parts = spot.hand.heroCards

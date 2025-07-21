@@ -20,6 +20,7 @@ dependencies:
   path_provider: ^2.0.15
   path: ^1.8.3
   open_filex: ^4.7.0
+  collection: ^1.18.0
   file_picker: ^6.2.1
   desktop_drop: ^0.6.0
   fl_chart: ^0.66.0
@@ -36,6 +37,7 @@ dependencies:
   sticky_headers: ^0.3.0+2
   archive: ^4.0.0
   share_plus: ^7.0.0
+  http: ^1.1.0
   uuid: ^4.0.0
   synchronized: ^3.0.0
   yaml: ^3.1.1

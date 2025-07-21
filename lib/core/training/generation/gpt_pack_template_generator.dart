@@ -13,7 +13,7 @@ class GptPackTemplateGenerator {
     required this.apiKey,
     http.Client? client,
     YamlReader? yamlReader,
-  })  : client = client ?? const http.Client(),
+  })  : client = client ?? http.Client(),
         reader = yamlReader ?? const YamlReader();
 
   Future<String> generateYamlTemplate(String prompt) async {

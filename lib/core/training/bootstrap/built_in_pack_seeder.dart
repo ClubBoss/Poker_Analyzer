@@ -24,6 +24,6 @@ class BuiltInPackSeeder {
       templates.add(t);
     }
     if (templates.isEmpty) return [];
-    return const PackLibraryGenerator().generateFromTemplates(templates);
+    return PackLibraryGenerator().generateFromTemplates(templates);
   }
 }
