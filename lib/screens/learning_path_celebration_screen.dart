@@ -2,18 +2,19 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart';
 
 import '../models/learning_path_template_v2.dart';
 import '../models/session_log.dart';
+import '../services/learning_path_progress_tracker_service.dart';
+import '../services/learning_path_progress_service.dart';
+import '../services/session_log_service.dart';
 import '../widgets/confetti_overlay.dart';
 
 /// Displays a celebratory summary once a learning path is fully completed.
 class LearningPathCelebrationScreen extends StatefulWidget {
   /// Completed learning path template.
   final LearningPathTemplateV2 path;
-
-  /// Aggregated session logs for packs in the path.
-  final Map<String, SessionLog> logs;
 
   /// Optional callback when user wants to proceed to the next path.
   final VoidCallback? onNext;
@@ -24,7 +25,6 @@ class LearningPathCelebrationScreen extends StatefulWidget {
   const LearningPathCelebrationScreen({
     super.key,
     required this.path,
-    required this.logs,
     this.onNext,
     this.allowShare = true,
   });
@@ -38,6 +38,7 @@ class _LearningPathCelebrationScreenState
     extends State<LearningPathCelebrationScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _anim;
+  Map<String, SessionLog> _logs = const {};
 
   @override
   void initState() {
@@ -52,6 +53,13 @@ class _LearningPathCelebrationScreenState
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final logs = context.read<SessionLogService>().logs;
+    _logs = const LearningPathProgressTrackerService().aggregateLogsByPack(logs);
+  }
+
+  @override
   void dispose() {
     _anim.dispose();
     super.dispose();
@@ -60,7 +68,7 @@ class _LearningPathCelebrationScreenState
   int get _totalHands {
     var total = 0;
     for (final s in widget.path.stages) {
-      final log = widget.logs[s.packId];
+      final log = _logs[s.packId];
       if (log != null) {
         total += log.correctCount + log.mistakeCount;
       }
@@ -72,7 +80,7 @@ class _LearningPathCelebrationScreenState
     var correct = 0;
     var total = 0;
     for (final s in widget.path.stages) {
-      final log = widget.logs[s.packId];
+      final log = _logs[s.packId];
       if (log != null) {
         correct += log.correctCount;
         total += log.correctCount + log.mistakeCount;
@@ -119,6 +127,11 @@ class _LearningPathCelebrationScreenState
     }
   }
 
+  Future<void> _repeat() async {
+    await LearningPathProgressService.instance.resetProgress();
+    if (mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -126,17 +139,20 @@ class _LearningPathCelebrationScreenState
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ScaleTransition(
-                scale: CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
-                child:
-                    const Icon(Icons.emoji_events, color: Colors.amber, size: 96),
-              ),
+          child: FadeTransition(
+            opacity: CurvedAnimation(parent: _anim, curve: Curves.easeIn),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ScaleTransition(
+                  scale:
+                      CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
+                  child: const Icon(Icons.emoji_events,
+                      color: Colors.amber, size: 96),
+                ),
               const SizedBox(height: 24),
               const Text(
-                'Путь завершён!',
+                'Поздравляем!',
                 style: TextStyle(fontSize: 28),
                 textAlign: TextAlign.center,
               ),
@@ -155,6 +171,13 @@ class _LearningPathCelebrationScreenState
               ElevatedButton(
                 onPressed: _next,
                 child: const Text('Перейти к следующему пути'),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: OutlinedButton(
+                  onPressed: _repeat,
+                  child: const Text('Повторить путь'),
+                ),
               ),
               if (widget.allowShare)
                 Padding(
