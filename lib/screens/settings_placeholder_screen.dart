@@ -12,6 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import '../helpers/date_utils.dart';
 import '../services/reminder_service.dart';
 import '../services/daily_reminder_service.dart';
+import '../services/streak_reminder_service.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -96,6 +97,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final reminder = context.watch<ReminderService>();
     final dailyReminder = context.watch<DailyReminderService>();
+    final streakReminder = context.watch<StreakReminderService>();
     final dailyTarget = context.watch<DailyTargetService>();
     final dismissed = reminder.lastDismissed;
     final status = reminder.enabled ? 'Включены' : 'Выключены';
@@ -136,6 +138,12 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             value: dailyReminder.enabled,
             onChanged: (v) => dailyReminder.setEnabled(v),
             title: const Text('Daily Reminder'),
+            activeColor: Colors.orange,
+          ),
+          SwitchListTile(
+            value: streakReminder.enabled,
+            onChanged: (v) => streakReminder.setEnabled(v),
+            title: const Text('Streak Reminder'),
             activeColor: Colors.orange,
           ),
           ListTile(
