@@ -103,9 +103,10 @@ flutter:
     - assets/built_in_packs.yaml
     - assets/lessons/
     - assets/lesson_tracks/
-    - assets/pack_matrix.json
-    - assets/learning_intro.svg
-    - assets/training_paths.yaml
+      - assets/pack_matrix.json
+      - assets/learning_intro.svg
+      - assets/training_paths.yaml
+      - assets/learning_paths/
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo
