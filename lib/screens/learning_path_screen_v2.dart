@@ -71,7 +71,6 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           MaterialPageRoute(
             builder: (_) => LearningPathCelebrationScreen(
               path: widget.template,
-              logs: aggregated,
             ),
           ),
         );
