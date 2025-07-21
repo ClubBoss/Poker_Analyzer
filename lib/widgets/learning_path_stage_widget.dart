@@ -7,16 +7,23 @@ import 'tag_badge.dart';
 class LearningPathStageWidget extends StatelessWidget {
   final LearningPathStageModel stage;
   final double progress;
+  final int handsPlayed;
+  final bool unlocked;
+  final bool recommended;
   final VoidCallback onPressed;
 
   const LearningPathStageWidget({
     super.key,
     required this.stage,
     required this.progress,
+    required this.handsPlayed,
+    required this.unlocked,
+    this.recommended = false,
     required this.onPressed,
   });
 
   String _ctaLabel() {
+    if (!unlocked) return 'Заблокировано';
     if (progress >= 1.0) return 'Завершено';
     if (progress > 0.0) return 'Продолжить';
     return 'Начать';
@@ -32,8 +39,15 @@ class LearningPathStageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pctText = '${(progress.clamp(0.0, 1.0) * 100).round()}%';
+    final accent = Theme.of(context).colorScheme.secondary;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      shape: recommended
+          ? RoundedRectangleBorder(
+              side: BorderSide(color: accent, width: 2),
+              borderRadius: BorderRadius.circular(4),
+            )
+          : null,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -64,7 +78,15 @@ class LearningPathStageWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(pctText, style: const TextStyle(color: Colors.white70)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('$handsPlayed/${stage.minHands}',
+                        style: const TextStyle(color: Colors.white70)),
+                    Text(pctText,
+                        style: const TextStyle(color: Colors.white70)),
+                  ],
+                ),
               ],
             ),
             if (stage.tags.isNotEmpty)
@@ -93,7 +115,8 @@ class LearningPathStageWidget extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
-                onPressed: progress >= 1.0 ? null : onPressed,
+                onPressed:
+                    !unlocked || progress >= 1.0 ? null : onPressed,
                 child: Text(_ctaLabel()),
               ),
             ),
