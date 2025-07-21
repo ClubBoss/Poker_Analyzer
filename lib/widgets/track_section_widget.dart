@@ -5,14 +5,18 @@ import '../models/learning_path_template_v2.dart';
 import 'learning_path_card.dart';
 import '../screens/learning_path_screen_v2.dart';
 
+import '../models/learning_path_progress.dart';
+
 class TrackSectionWidget extends StatelessWidget {
   final LearningPathTrackModel track;
   final List<LearningPathTemplateV2> paths;
+  final Map<String, LearningPathProgress> progress;
 
   const TrackSectionWidget({
     super.key,
     required this.track,
     required this.paths,
+    required this.progress,
   });
 
   int _orderOf(LearningPathTemplateV2 p) {
@@ -69,6 +73,7 @@ class TrackSectionWidget extends StatelessWidget {
                     width: 180,
                     child: LearningPathCard(
                       template: p,
+                      progress: progress[p.id],
                       onTap: () {
                         Navigator.push(
                           context,
