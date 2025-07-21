@@ -6,6 +6,7 @@ class LearningPathTemplateV2 {
   final List<LearningPathStageModel> stages;
   final List<String> tags;
   final String? recommendedFor;
+  final List<String> prerequisitePathIds;
 
   const LearningPathTemplateV2({
     required this.id,
@@ -14,8 +15,10 @@ class LearningPathTemplateV2 {
     List<LearningPathStageModel>? stages,
     List<String>? tags,
     this.recommendedFor,
+    List<String>? prerequisitePathIds,
   })  : stages = stages ?? const [],
-        tags = tags ?? const [];
+        tags = tags ?? const [],
+        prerequisitePathIds = prerequisitePathIds ?? const [];
 
   List<LearningPathStageModel> get entryStages {
     final unlockedIds = <String>{};
@@ -36,6 +39,10 @@ class LearningPathTemplateV2 {
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       recommendedFor: json['recommendedFor'] as String?,
+      prerequisitePathIds: [
+        for (final id in (json['prerequisitePathIds'] as List? ?? []))
+          id.toString()
+      ],
     );
   }
 
@@ -46,6 +53,8 @@ class LearningPathTemplateV2 {
         if (stages.isNotEmpty) 'stages': [for (final s in stages) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
         if (recommendedFor != null) 'recommendedFor': recommendedFor,
+        if (prerequisitePathIds.isNotEmpty)
+          'prerequisitePathIds': prerequisitePathIds,
       };
 
   factory LearningPathTemplateV2.fromYaml(Map yaml) {

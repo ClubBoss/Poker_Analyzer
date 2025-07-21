@@ -4,6 +4,7 @@ description: Sample learning path for tests.
 tags:
   - sample
   - test
+prerequisitePathIds: []
 stages:
   - id: s1
     title: Stage One
