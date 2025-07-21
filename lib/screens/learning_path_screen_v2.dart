@@ -6,9 +6,7 @@ import '../models/learning_path_stage_model.dart';
 import '../services/pack_library_service.dart';
 import '../services/session_log_service.dart';
 import '../services/training_session_launcher.dart';
-import '../services/learning_path_stage_progress_engine.dart';
-import '../services/learning_path_stage_unlock_engine.dart';
-import '../widgets/learning_path_stage_widget.dart';
+import '../services/learning_path_stage_ui_status_engine.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -22,19 +20,15 @@ class LearningPathScreen extends StatefulWidget {
 
 class _LearningPathScreenState extends State<LearningPathScreen> {
   late SessionLogService _logs;
-  late LearningPathStageProgressEngine _progressEngine;
-  final _unlockEngine = const LearningPathStageUnlockEngine();
+  final _uiEngine = const LearningPathStageUIStatusEngine();
 
   bool _loading = true;
-  Map<String, double> _progress = {};
-  Set<String> _unlocked = {};
-  Set<String> _completed = {};
+  Map<String, LearningStageUIState> _stageStates = {};
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _logs = context.read<SessionLogService>();
-    _progressEngine = LearningPathStageProgressEngine(logs: _logs);
     _load();
   }
 
@@ -63,7 +57,6 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final map = await _progressEngine.getStageProgress(widget.template);
     final completed = <String>{};
     for (final stage in widget.template.stages) {
       final hands = _handsPlayed(stage.packId);
@@ -72,19 +65,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         completed.add(stage.id);
       }
     }
-    final unlocked = <String>{};
-    for (final stage in widget.template.stages) {
-      if (_unlockEngine.isStageUnlocked(widget.template, stage.id, completed)) {
-        unlocked.add(stage.id);
-      }
-    }
+    final states = _uiEngine.computeStageUIStates(widget.template, completed);
     setState(() {
-      _progress = {
-        for (final stage in widget.template.stages)
-          stage.id: map[stage.packId] ?? 0.0
-      };
-      _completed = completed;
-      _unlocked = unlocked;
+      _stageStates = states;
       _loading = false;
     });
   }
@@ -102,18 +85,60 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     if (mounted) _load();
   }
 
-  Widget _buildStageTile(LearningPathStageModel stage, bool recommended) {
-    final hands = _handsPlayed(stage.packId);
-    final ratio = _progress[stage.id] ??
-        (stage.minHands == 0 ? 1.0 : hands / stage.minHands);
-    final unlocked = _unlocked.contains(stage.id);
-    return LearningPathStageWidget(
-      stage: stage,
-      progress: ratio.clamp(0.0, 1.0),
-      handsPlayed: hands,
-      unlocked: unlocked,
-      recommended: recommended,
-      onPressed: () => _startStage(stage),
+  Widget _buildStageTile(LearningPathStageModel stage, int index) {
+    final state = _stageStates[stage.id] ?? LearningStageUIState.locked;
+    final accent = Theme.of(context).colorScheme.secondary;
+    late final IconData icon;
+    late final Color color;
+    late final String label;
+    switch (state) {
+      case LearningStageUIState.done:
+        icon = Icons.check_circle;
+        color = Colors.green;
+        label = 'Завершено';
+        break;
+      case LearningStageUIState.active:
+        icon = Icons.lock_open;
+        color = accent;
+        label = 'Доступно';
+        break;
+      case LearningStageUIState.locked:
+      default:
+        icon = Icons.lock;
+        color = Colors.grey;
+        label = 'Заблокировано';
+        break;
+    }
+    final grey = state == LearningStageUIState.locked ? Colors.white60 : null;
+    final border = state == LearningStageUIState.active
+        ? RoundedRectangleBorder(
+            side: BorderSide(color: accent, width: 2),
+            borderRadius: BorderRadius.circular(4),
+          )
+        : null;
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      shape: border,
+      color:
+          state == LearningStageUIState.locked ? Colors.grey.shade800 : null,
+      child: ListTile(
+        leading: Text('${index + 1}.', style: TextStyle(color: grey)),
+        title: Text(stage.title, style: TextStyle(color: grey)),
+        subtitle: stage.description.isNotEmpty
+            ? Text(stage.description, style: TextStyle(color: grey))
+            : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(width: 4),
+            Text(label, style: TextStyle(color: color)),
+          ],
+        ),
+        onTap: state == LearningStageUIState.locked
+            ? null
+            : () => _startStage(stage),
+      ),
     );
   }
 
@@ -121,13 +146,6 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Widget build(BuildContext context) {
     final template = widget.template;
     final tags = template.tags;
-    String? recommended;
-    for (final s in template.stages) {
-      if (_unlocked.contains(s.id) && !_completed.contains(s.id)) {
-        recommended = s.id;
-        break;
-      }
-    }
     return Scaffold(
       appBar: AppBar(
         title: Text(template.title),
@@ -147,8 +165,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),
-                for (final stage in template.stages)
-                  _buildStageTile(stage, stage.id == recommended),
+                for (int i = 0; i < template.stages.length; i++)
+                  _buildStageTile(template.stages[i], i),
                 if (tags.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16),
