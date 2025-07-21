@@ -102,6 +102,7 @@ import 'services/daily_training_reminder_service.dart';
 import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
 import 'services/training_path_progress_service.dart';
+import 'services/learning_path_registry_service.dart';
 import 'services/learning_path_summary_cache.dart';
 import 'services/learning_path_reminder_engine.dart';
 import 'services/daily_app_check_service.dart';
@@ -471,6 +472,9 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(create: (_) => LessonProgressTrackerService()..load()),
     Provider(create: (_) => LessonPathProgressService()),
     Provider(create: (_) => TrainingPathProgressService()),
+    Provider<LearningPathRegistryService>.value(
+      value: LearningPathRegistryService.instance,
+    ),
     Provider(
       create: (context) => LearningPathSummaryCache(
         path: context.read<TrainingPathProgressService>(),

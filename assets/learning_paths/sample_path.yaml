@@ -1,0 +1,13 @@
+id: sample
+title: Sample Learning Path
+description: Sample learning path for tests.
+tags:
+  - sample
+  - test
+stages:
+  - id: s1
+    title: Stage One
+    description: First stage
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 10
