@@ -67,6 +67,15 @@ class FileSaverService {
     );
   }
 
+  Future<void> savePdf(String name, Uint8List data) async {
+    await FileSaver.instance.saveAs(
+      name: name,
+      bytes: data,
+      ext: 'pdf',
+      mimeType: MimeType.other,
+    );
+  }
+
   Future<void> sharePdf(String path) async {
     await Share.shareXFiles([XFile(path)]);
   }
