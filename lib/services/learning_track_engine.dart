@@ -1,4 +1,8 @@
 import '../models/v3/lesson_track.dart';
+import '../models/learning_track.dart';
+import '../models/v2/training_pack_template_v2.dart';
+import 'training_pack_stats_service.dart';
+import 'training_path_unlock_service.dart';
 
 class LearningTrackEngine {
   const LearningTrackEngine();
@@ -25,4 +29,27 @@ class LearningTrackEngine {
   ];
 
   List<LessonTrack> getTracks() => List.unmodifiable(_tracks);
+
+  /// Builds the current learning track based on [allPacks] and [stats].
+  ///
+  /// Returns a [LearningTrack] containing unlocked packs in their original
+  /// order and the next recommended pack to play.
+  LearningTrack computeTrack({
+    required List<TrainingPackTemplateV2> allPacks,
+    required Map<String, TrainingPackStat> stats,
+  }) {
+    final unlockService = const TrainingPathUnlockService();
+    final unlocked = unlockService.getUnlocked(allPacks, stats);
+
+    TrainingPackTemplateV2? next;
+    for (final pack in unlocked) {
+      final acc = stats[pack.id]?.accuracy ?? 0.0;
+      if (acc < 0.9) {
+        next = pack;
+        break;
+      }
+    }
+
+    return LearningTrack(unlockedPacks: unlocked, nextUpPack: next);
+  }
 }
