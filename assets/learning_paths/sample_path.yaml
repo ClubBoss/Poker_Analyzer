@@ -11,3 +11,11 @@ stages:
     packId: pack1
     requiredAccuracy: 80
     minHands: 10
+    unlocks:
+      - s2
+  - id: s2
+    title: Stage Two
+    description: Second stage
+    packId: pack2
+    requiredAccuracy: 70
+    minHands: 5
