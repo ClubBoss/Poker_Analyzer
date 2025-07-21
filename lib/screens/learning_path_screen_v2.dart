@@ -9,6 +9,7 @@ import '../services/training_session_launcher.dart';
 import '../services/learning_path_stage_ui_status_engine.dart';
 import '../services/learning_path_completion_engine.dart';
 import '../models/session_log.dart';
+import '../services/learning_path_progress_tracker_service.dart';
 import 'learning_path_celebration_screen.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
@@ -24,6 +25,7 @@ class LearningPathScreen extends StatefulWidget {
 class _LearningPathScreenState extends State<LearningPathScreen> {
   late SessionLogService _logs;
   final _uiEngine = const LearningPathStageUIStatusEngine();
+  final _progressTracker = const LearningPathProgressTrackerService();
 
   bool _loading = true;
   Map<String, LearningStageUIState> _stageStates = {};
@@ -37,58 +39,19 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     _load();
   }
 
-  int _handsPlayed(String packId) {
-    var hands = 0;
-    for (final log in _logs.logs) {
-      if (log.templateId == packId) {
-        hands += log.correctCount + log.mistakeCount;
-      }
-    }
-    return hands;
-  }
-
-  double _accuracy(String packId) {
-    var hands = 0;
-    var correct = 0;
-    for (final log in _logs.logs) {
-      if (log.templateId == packId) {
-        hands += log.correctCount + log.mistakeCount;
-        correct += log.correctCount;
-      }
-    }
-    if (hands == 0) return 0.0;
-    return correct / hands * 100;
-  }
-
   Future<void> _load() async {
     setState(() => _loading = true);
-    final aggregated = <String, SessionLog>{};
+    final aggregated = _progressTracker.aggregateLogsByPack(_logs.logs);
+    final progress =
+        _progressTracker.computeProgressStrings(widget.template, _logs.logs);
     final completed = <String>{};
-    final progress = <String, String>{};
     for (final stage in widget.template.stages) {
-      final hands = _handsPlayed(stage.packId);
-      final acc = _accuracy(stage.packId);
-      progress[stage.id] =
-          '${hands} / ${stage.minHands} рук · ${acc.toStringAsFixed(0)}%';
+      final log = aggregated[stage.packId];
+      final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
+      final correct = log?.correctCount ?? 0;
+      final acc = hands == 0 ? 0.0 : correct / hands * 100;
       if (hands >= stage.minHands && acc >= stage.requiredAccuracy) {
         completed.add(stage.id);
-      }
-      if (hands > 0) {
-        final existing = aggregated[stage.packId];
-        final corr = _logs.logs
-            .where((l) => l.templateId == stage.packId)
-            .fold<int>(0, (p, e) => p + e.correctCount);
-        final miss = _logs.logs
-            .where((l) => l.templateId == stage.packId)
-            .fold<int>(0, (p, e) => p + e.mistakeCount);
-        aggregated[stage.packId] = SessionLog(
-          sessionId: existing?.sessionId ?? stage.packId,
-          templateId: stage.packId,
-          startedAt: existing?.startedAt ?? DateTime.now(),
-          completedAt: DateTime.now(),
-          correctCount: corr,
-          mistakeCount: miss,
-        );
       }
     }
     final states = _uiEngine.computeStageUIStates(widget.template, completed);
