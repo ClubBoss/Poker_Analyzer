@@ -70,6 +70,7 @@ import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/weak_spot_recommendation_service.dart';
 import 'services/daily_focus_recap_service.dart';
+import 'services/daily_focus_service.dart';
 import 'services/feedback_service.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
@@ -378,6 +379,12 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) => DailyFocusRecapService(
         hands: context.read<SavedHandManagerService>(),
         weak: context.read<WeakSpotRecommendationService>(),
+      )..load(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => DailyFocusService(
+        mastery: context.read<TagMasteryService>(),
+        streak: context.read<StreakService>(),
       )..load(),
     ),
     ChangeNotifierProvider(

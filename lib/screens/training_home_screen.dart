@@ -35,6 +35,7 @@ import '../widgets/next_learning_step_card.dart';
 import '../widgets/next_up_banner.dart';
 import '../widgets/training_recommender_banner.dart';
 import '../widgets/daily_focus_recap_card.dart';
+import '../widgets/daily_focus_card.dart';
 import '../widgets/progress_summary_box.dart';
 import '../widgets/progress_summary_card.dart';
 import '../widgets/starter_path_card.dart';
@@ -135,6 +136,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const GoalDashboardWidget(),
             const DailyGoalsCard(),
             const DailyChallengeCard(),
+            const DailyFocusCard(),
             const SpotOfTheDayCard(),
             const ProgressSummaryBox(),
             const XPProgressBar(),
@@ -144,6 +146,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const QuickContinueCard(),
             const ResumeTrainingCard(),
             const DailyFocusRecapCard(),
+            const DailyFocusCard(),
             const SpotOfTheDayCard(),
             const ProgressSummaryBox(),
             const PositionProgressCard(),
