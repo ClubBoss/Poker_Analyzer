@@ -6,6 +6,7 @@ import '../models/learning_path_stage_model.dart';
 import '../services/pack_library_service.dart';
 import '../services/session_log_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/learning_path_stage_gatekeeper_service.dart';
 import '../services/learning_path_stage_ui_status_engine.dart';
 import '../services/learning_path_completion_engine.dart';
 import '../models/session_log.dart';
@@ -25,7 +26,7 @@ class LearningPathScreen extends StatefulWidget {
 
 class _LearningPathScreenState extends State<LearningPathScreen> {
   late SessionLogService _logs;
-  final _uiEngine = const LearningPathStageUIStatusEngine();
+  final _gatekeeper = const LearningPathStageGatekeeperService();
   final _progressTracker = const LearningPathProgressTrackerService();
 
   bool _loading = true;
@@ -43,17 +44,23 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final aggregated = _progressTracker.aggregateLogsByPack(_logs.logs);
-    final completed = <String>{};
-    for (final stage in widget.template.stages) {
+    final states = <String, LearningStageUIState>{};
+    for (int i = 0; i < widget.template.stages.length; i++) {
+      final stage = widget.template.stages[i];
       final log = aggregated[stage.packId];
-      final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
       final correct = log?.correctCount ?? 0;
-      final acc = hands == 0 ? 0.0 : correct / hands * 100;
-      if (hands >= stage.minHands && acc >= stage.requiredAccuracy) {
-        completed.add(stage.id);
+      final mistakes = log?.mistakeCount ?? 0;
+      final total = correct + mistakes;
+      final accuracy = total == 0 ? 0.0 : correct / total * 100;
+      final done = total >= stage.minHands && accuracy >= stage.requiredAccuracy;
+      if (done) {
+        states[stage.id] = LearningStageUIState.done;
+      } else if (_gatekeeper.isStageUnlocked(index: i, path: widget.template, logs: aggregated)) {
+        states[stage.id] = LearningStageUIState.active;
+      } else {
+        states[stage.id] = LearningStageUIState.locked;
       }
     }
-    final states = _uiEngine.computeStageUIStates(widget.template, completed);
     setState(() {
       _stageStates = states;
       _logsByPack = aggregated;
