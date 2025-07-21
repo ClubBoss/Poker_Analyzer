@@ -8,6 +8,9 @@ import '../../core/training/engine/training_type_engine.dart';
 import 'training_pack_spot.dart';
 import 'spot_template.dart';
 import 'unlock_rules.dart';
+import 'hero_position.dart';
+import '../../helpers/pack_spot_utils.dart';
+import '../saved_hand.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -205,3 +208,25 @@ class TrainingPackTemplateV2 {
     targetStreet: template.targetStreet,
   );
 }
+
+  /// Removes all spots from this template.
+  void clear() => spots.clear();
+
+  /// Adds a list of spots to this template.
+  void addAll(List<SpotTemplate> newSpots) => spots.addAll(newSpots);
+
+  /// Backwards compatible accessors used by legacy code.
+  HeroPosition get heroPos =>
+      positions.isNotEmpty ? parseHeroPosition(positions.first) : HeroPosition.sb;
+
+  int get difficultyLevel {
+    final diff = meta['difficulty'] ?? meta['difficultyLevel'];
+    if (diff is num) return diff.toInt();
+    if (diff is String) return int.tryParse(diff) ?? 0;
+    return 0;
+  }
+
+  /// Legacy getter converting spots to [SavedHand] objects.
+  List<SavedHand> get hands => [
+        for (final s in spots) handFromPackSpot(s, anteBb: bb),
+      ];
