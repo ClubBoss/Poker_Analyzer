@@ -7,6 +7,9 @@ import '../services/pack_library_service.dart';
 import '../services/session_log_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/learning_path_stage_ui_status_engine.dart';
+import '../services/learning_path_completion_engine.dart';
+import '../models/session_log.dart';
+import 'learning_path_celebration_screen.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -24,6 +27,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   bool _loading = true;
   Map<String, LearningStageUIState> _stageStates = {};
+  bool _celebrationShown = false;
 
   @override
   void didChangeDependencies() {
@@ -57,6 +61,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
+    final aggregated = <String, SessionLog>{};
     final completed = <String>{};
     for (final stage in widget.template.stages) {
       final hands = _handsPlayed(stage.packId);
@@ -64,12 +69,46 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       if (hands >= stage.minHands && acc >= stage.requiredAccuracy) {
         completed.add(stage.id);
       }
+      if (hands > 0) {
+        final existing = aggregated[stage.packId];
+        final corr = _logs.logs
+            .where((l) => l.templateId == stage.packId)
+            .fold<int>(0, (p, e) => p + e.correctCount);
+        final miss = _logs.logs
+            .where((l) => l.templateId == stage.packId)
+            .fold<int>(0, (p, e) => p + e.mistakeCount);
+        aggregated[stage.packId] = SessionLog(
+          sessionId: existing?.sessionId ?? stage.packId,
+          templateId: stage.packId,
+          startedAt: existing?.startedAt ?? DateTime.now(),
+          completedAt: DateTime.now(),
+          correctCount: corr,
+          mistakeCount: miss,
+        );
+      }
     }
     final states = _uiEngine.computeStageUIStates(widget.template, completed);
     setState(() {
       _stageStates = states;
       _loading = false;
     });
+
+    final completedAll = const LearningPathCompletionEngine()
+        .isCompleted(widget.template, aggregated);
+    if (completedAll && !_celebrationShown && mounted) {
+      _celebrationShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LearningPathCelebrationScreen(
+              path: widget.template,
+              logs: aggregated,
+            ),
+          ),
+        );
+      });
+    }
   }
 
   Future<void> _startStage(LearningPathStageModel stage) async {
