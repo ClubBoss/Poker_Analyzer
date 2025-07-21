@@ -38,6 +38,7 @@ dependencies:
   share_plus: ^7.0.0
   uuid: ^4.0.0
   synchronized: ^3.0.0
+  yaml: ^3.1.1
   csv: ^6.0.0
   timeago: ^3.6.0
   file_saver: ^0.2.14
@@ -75,7 +76,6 @@ dev_dependencies:
   build_runner: ^2.4.6
   freezed: ^2.3.2
   json_serializable: ^6.6.1
-  yaml: ^3.1.1
   crypto: ^3.0.2
   pedantic: ^1.11.1
   fake_cloud_firestore: ^3.1.0
@@ -107,6 +107,7 @@ flutter:
       - assets/learning_intro.svg
       - assets/training_paths.yaml
       - assets/learning_paths/
+    - assets/learning_tracks/
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo
