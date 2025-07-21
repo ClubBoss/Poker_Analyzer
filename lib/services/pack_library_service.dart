@@ -1,6 +1,7 @@
 import '../core/training/library/training_pack_library_v2.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import 'package:collection/collection.dart';
 
 class PackLibraryService {
   PackLibraryService._();
@@ -19,5 +20,12 @@ class PackLibraryService {
   Future<TrainingPackTemplateV2?> getById(String id) async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
     return TrainingPackLibraryV2.instance.getById(id);
+  }
+
+  /// Returns the first pack containing [tag] or `null` if none found.
+  Future<TrainingPackTemplateV2?> findByTag(String tag) async {
+    await TrainingPackLibraryV2.instance.loadFromFolder();
+    final list = TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
+    return list.firstWhereOrNull((p) => p.tags.contains(tag));
   }
 }
