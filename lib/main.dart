@@ -106,6 +106,7 @@ import 'services/training_pack_stats_service.dart';
 import 'services/learning_path_summary_cache.dart';
 import 'services/learning_path_reminder_engine.dart';
 import 'services/daily_app_check_service.dart';
+import 'services/skill_loss_overlay_prompt_service.dart';
 import 'screens/training_session_screen.dart';
 import 'screens/empty_training_screen.dart';
 import 'services/app_init_service.dart';
@@ -278,6 +279,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     NotificationService.startRecommendedPackTask(context);
     unawaited(context.read<LearningPathSummaryCache>().refresh());
     unawaited(context.read<DailyAppCheckService>().run(context));
+    unawaited(context.read<SkillLossOverlayPromptService>().run(context));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeStartPinnedTraining();
       _maybeResumeTraining();
