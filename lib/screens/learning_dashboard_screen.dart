@@ -8,6 +8,9 @@ import '../services/training_pack_stats_service.dart';
 import '../services/learning_track_engine.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/recommendation_feed_engine.dart';
+import 'package:collection/collection.dart';
+import '../widgets/feed_recommendation_widget.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -32,6 +35,8 @@ class _DashboardData {
 
 class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
   late Future<_DashboardData> _future;
+  List<FeedRecommendationCard> _recommendationCards = [];
+  List<TrainingPackTemplateV2> _packs = [];
 
   @override
   void initState() {
@@ -44,6 +49,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
     await logs.load();
     await PackLibraryLoaderService.instance.loadLibrary();
     final packs = PackLibraryLoaderService.instance.library;
+    _packs = packs;
 
     final attempts = [
       for (final log in logs.logs)
@@ -68,6 +74,14 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
       final s = await TrainingPackStatsService.getStats(p.id);
       if (s != null) stats[p.id] = s;
     }
+    final recs = const RecommendationFeedEngine().build(
+      allPacks: packs,
+      attempts: attempts,
+      stats: stats,
+    );
+    if (mounted) {
+      setState(() => _recommendationCards = recs);
+    }
     final track = const LearningTrackEngine().computeTrack(
       allPacks: packs,
       stats: stats,
@@ -91,6 +105,13 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
 
   Future<void> _startPack(TrainingPackTemplateV2 pack) async {
     await const TrainingSessionLauncher().launch(pack);
+  }
+
+  Future<void> _handlePackLaunch(String id) async {
+    final tpl = _packs.firstWhereOrNull((p) => p.id == id);
+    if (tpl != null) {
+      await _startPack(tpl);
+    }
   }
 
   Widget _section(String title, String value) {
@@ -161,6 +182,13 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              if (_recommendationCards.isNotEmpty) ...[
+                FeedRecommendationWidget(
+                  cards: _recommendationCards,
+                  onTap: _handlePackLaunch,
+                ),
+                const SizedBox(height: 12),
+              ],
               _section('🎯 Completion', '$completion% complete'),
               const SizedBox(height: 12),
               _improvements(data.improvements),
