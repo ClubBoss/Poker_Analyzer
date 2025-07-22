@@ -7,7 +7,7 @@ import '../widgets/skill_card.dart';
 import '../widgets/booster_packs_block.dart';
 import '../utils/responsive.dart';
 import 'library_screen.dart';
-import 'tag_skill_detail_screen.dart';
+import 'tag_insight_screen.dart';
 
 class SkillMapScreen extends StatefulWidget {
   const SkillMapScreen({super.key});
@@ -61,7 +61,7 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TagSkillDetailScreen(tag: tag),
+        builder: (_) => TagInsightScreen(tag: tag),
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/tag_insight_screen.dart';
+
 class TagSkillTile extends StatelessWidget {
   final String tag;
   final double value;
@@ -16,7 +18,12 @@ class TagSkillTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = Color.lerp(Colors.red, Colors.green, value) ?? Colors.red;
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap ??
+          () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => TagInsightScreen(tag: tag)),
+              ),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
