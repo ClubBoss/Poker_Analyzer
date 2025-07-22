@@ -14,9 +14,11 @@ class LearningPathStageGatekeeperService {
     required int index,
     required LearningPathTemplateV2 path,
     required Map<String, SessionLog> logs,
+    Set<String> additionalUnlockedStageIds = const {},
   }) {
     if (index == 0) return true;
     if (index < 0 || index >= path.stages.length) return false;
+    if (additionalUnlockedStageIds.contains(path.stages[index].id)) return true;
     final prev = path.stages[index - 1];
     final log = logs[prev.packId];
     final correct = log?.correctCount ?? 0;

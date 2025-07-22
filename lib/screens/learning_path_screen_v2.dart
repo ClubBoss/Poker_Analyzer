@@ -11,6 +11,8 @@ import '../services/learning_path_stage_ui_status_engine.dart';
 import '../services/learning_path_completion_engine.dart';
 import '../models/session_log.dart';
 import '../services/learning_path_progress_tracker_service.dart';
+import '../services/smart_stage_unlock_service.dart';
+import '../services/learning_path_personalization_service.dart';
 import 'learning_path_celebration_screen.dart';
 import '../widgets/stage_progress_chip.dart';
 
@@ -32,11 +34,13 @@ class LearningPathScreen extends StatefulWidget {
 class _LearningPathScreenState extends State<LearningPathScreen> {
   late SessionLogService _logs;
   final _gatekeeper = const LearningPathStageGatekeeperService();
+  final _smartUnlock = const SmartStageUnlockService();
   final _progressTracker = const LearningPathProgressTrackerService();
 
   bool _loading = true;
   Map<String, LearningStageUIState> _stageStates = {};
   Map<String, SessionLog> _logsByPack = {};
+  Set<String> _reinforced = {};
   bool _celebrationShown = false;
   final ScrollController _scrollController = ScrollController();
   final Map<String, GlobalKey> _stageKeys = {};
@@ -52,6 +56,13 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final aggregated = _progressTracker.aggregateLogsByPack(_logs.logs);
+    final skillMap =
+        LearningPathPersonalizationService.instance.getTagSkillMap();
+    final extra = _smartUnlock.getAdditionalUnlockedStageIds(
+      progress: aggregated,
+      skillMap: skillMap,
+      path: widget.template,
+    ).toSet();
     final states = <String, LearningStageUIState>{};
     for (int i = 0; i < widget.template.stages.length; i++) {
       final stage = widget.template.stages[i];
@@ -63,7 +74,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final done = total >= stage.minHands && accuracy >= stage.requiredAccuracy;
       if (done) {
         states[stage.id] = LearningStageUIState.done;
-      } else if (_gatekeeper.isStageUnlocked(index: i, path: widget.template, logs: aggregated)) {
+      } else if (_gatekeeper.isStageUnlocked(
+          index: i,
+          path: widget.template,
+          logs: aggregated,
+          additionalUnlockedStageIds: extra)) {
         states[stage.id] = LearningStageUIState.active;
       } else {
         states[stage.id] = LearningStageUIState.locked;
@@ -72,6 +87,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     setState(() {
       _stageStates = states;
       _logsByPack = aggregated;
+      _reinforced = extra;
       _loading = false;
     });
 
@@ -194,6 +210,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (_reinforced.contains(stage.id))
+              const Tooltip(
+                message: 'Рекомендовано для повторения',
+                child: Icon(Icons.star, color: Colors.orange),
+              ),
+            if (_reinforced.contains(stage.id)) const SizedBox(width: 4),
             Icon(icon, color: color),
             const SizedBox(width: 4),
             Text(label, style: TextStyle(color: color)),
