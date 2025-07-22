@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
@@ -10,6 +12,7 @@ import '../services/tag_mastery_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/weakness_review_engine.dart';
+import '../services/engagement_analytics_service.dart';
 
 class MistakeReviewButton extends StatefulWidget {
   final TrainingSession session;
@@ -97,7 +100,20 @@ class _MistakeReviewButtonState extends State<MistakeReviewButton> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: ElevatedButton(
-        onPressed: _startPack,
+        onPressed: () {
+          final item = _item;
+          if (item != null) {
+            unawaited(
+              EngagementAnalyticsService.instance.logEvent(
+                'review_cta.tap',
+                source: 'MistakeReviewButton',
+                tag: item.tag,
+                packId: item.packId,
+              ),
+            );
+          }
+          _startPack();
+        },
         child: const Text('🔁 Review Related Spots'),
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
@@ -8,6 +10,7 @@ import '../services/tag_insight_reminder_engine.dart';
 import '../services/training_session_launcher.dart';
 import '../services/skill_loss_detector.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../services/engagement_analytics_service.dart';
 
 /// Card showing the top scheduled recovery pack.
 class ReviewPathCard extends StatefulWidget {
@@ -112,6 +115,14 @@ class _ReviewPathCardState extends State<ReviewPathCard> {
               ElevatedButton(
                 onPressed: () {
                   final d = data;
+                  unawaited(
+                    EngagementAnalyticsService.instance.logEvent(
+                      'review_cta.tap',
+                      source: 'ReviewPathCard',
+                      tag: d.tag,
+                      packId: d.pack.id,
+                    ),
+                  );
                   _startRecovery(d);
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: accent),
