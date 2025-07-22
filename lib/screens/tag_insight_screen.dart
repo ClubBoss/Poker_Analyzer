@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
-import 'package:fl_chart/fl_chart.dart';
+
+import '../widgets/tag_insight_timeline.dart';
 
 import '../services/progress_forecast_service.dart';
 import '../services/skill_loss_detector.dart';
@@ -97,97 +98,6 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     await const TrainingSessionLauncher().launch(tpl);
   }
 
-  Widget _chart() {
-    final dates = _series.map((e) => e.date).toList();
-    if (dates.length < 2) {
-      return Container(
-        height: 200,
-        alignment: Alignment.center,
-        child: const Text('Недостаточно данных', style: TextStyle(color: Colors.white70)),
-      );
-    }
-    final spots = <FlSpot>[];
-    double minY = 1, maxY = 0;
-    for (var i = 0; i < _series.length; i++) {
-      final a = _series[i].accuracy;
-      spots.add(FlSpot(i.toDouble(), a));
-      if (a < minY) minY = a;
-      if (a > maxY) maxY = a;
-    }
-    if (minY == maxY) {
-      minY -= 0.1;
-      maxY += 0.1;
-    }
-    final interval = ((maxY - minY) / 4).clamp(0.05, 1.0);
-    final step = (_series.length / 6).ceil();
-    return Container(
-      height: 200,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: LineChart(
-        LineChartData(
-          minY: minY,
-          maxY: maxY,
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: interval,
-            getDrawingHorizontalLine: (v) => FlLine(color: Colors.white24, strokeWidth: 1),
-          ),
-          titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: interval,
-                reservedSize: 30,
-                getTitlesWidget: (v, meta) => Text(
-                  (v * 100).toStringAsFixed(0),
-                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                ),
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 1,
-                getTitlesWidget: (v, meta) {
-                  final i = v.toInt();
-                  if (i < 0 || i >= dates.length) return const SizedBox.shrink();
-                  if (i % step != 0 && i != dates.length - 1) return const SizedBox.shrink();
-                  final d = dates[i];
-                  return Text(
-                    '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}',
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                  );
-                },
-              ),
-            ),
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: const Border(
-              left: BorderSide(color: Colors.white24),
-              bottom: BorderSide(color: Colors.white24),
-            ),
-          ),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              color: Colors.orangeAccent,
-              barWidth: 2,
-              isCurved: false,
-              dotData: FlDotData(show: false),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _mistakeList() {
     if (_mistakes.isEmpty) {
@@ -226,7 +136,7 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
                   handsAnalyzed: _handsAnalyzed,
                 ),
                 const SizedBox(height: 16),
-                _chart(),
+                TagInsightTimeline(series: _series),
                 const SizedBox(height: 16),
                 _mistakeList(),
                 if (_reviewItem != null) ...[
