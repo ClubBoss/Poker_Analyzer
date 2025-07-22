@@ -14,6 +14,7 @@ import '../services/achievement_service.dart';
 import '../services/achievement_trigger_engine.dart';
 import '../services/smart_review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/tag_review_history_service.dart';
 import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
 import 'training_recap_screen.dart';
@@ -283,6 +284,10 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         icmAfter / 100,
         context: context,
       ));
+      for (final tag in tpl.tags) {
+        unawaited(TagReviewHistoryService.instance
+            .logReview(tag, total == 0 ? 0.0 : correct / total));
+      }
       final prefs = await SharedPreferences.getInstance();
       final acc = total == 0 ? 0.0 : correct * 100 / total;
       await prefs.setBool('completed_tpl_${tpl.id}', true);
