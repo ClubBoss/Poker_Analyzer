@@ -2,6 +2,8 @@ import 'dart:math';
 import 'pack_library_loader_service.dart';
 import 'session_log_service.dart';
 import 'training_pack_stats_service.dart';
+import 'mastery_persistence_service.dart';
+import '../models/v2/training_pack_template.dart';
 
 class TagMasteryService {
   final SessionLogService logs;
@@ -11,7 +13,8 @@ class TagMasteryService {
   static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   Future<Map<String, double>> computeMastery({bool force = false}) async {
-    if (!force && _cache != null &&
+    if (!force &&
+        _cache != null &&
         DateTime.now().difference(_cacheTime) < const Duration(hours: 6)) {
       return _cache!;
     }
@@ -114,18 +117,73 @@ class TagMasteryService {
   /// Returns all tags with mastery below [threshold].
   Future<List<String>> getWeakTags([double threshold = 0.7]) async {
     final map = await computeMastery();
-    return [for (final e in map.entries) if (e.value < threshold) e.key];
+    return [
+      for (final e in map.entries)
+        if (e.value < threshold) e.key
+    ];
+  }
+
+  /// Computes mastery deltas for a completed training [session]. When
+  /// [dryRun] is true (default) the underlying data is not persisted.
+  Future<Map<String, double>> updateWithSession({
+    required TrainingPackTemplate template,
+    required Map<String, bool> results,
+    double learningRate = 0.15,
+    bool dryRun = true,
+  }) async {
+    final current = await computeMastery();
+    final totals = <String, int>{};
+    final correct = <String, int>{};
+
+    final spotsById = {for (final s in template.spots) s.id: s};
+    for (final entry in results.entries) {
+      final spot = spotsById[entry.key];
+      if (spot == null) continue;
+      final tags = <String>{
+        ...spot.tags,
+        ...spot.categories,
+      }..removeWhere((t) => t.trim().isEmpty);
+      for (final t in tags) {
+        final key = t.trim().toLowerCase();
+        totals.update(key, (v) => v + 1, ifAbsent: () => 1);
+        if (entry.value) correct.update(key, (v) => v + 1, ifAbsent: () => 1);
+      }
+    }
+
+    final deltas = <String, double>{};
+    final updated = Map<String, double>.from(current);
+    for (final tag in totals.keys) {
+      final tot = totals[tag] ?? 0;
+      final corr = correct[tag] ?? 0;
+      final acc = tot == 0 ? 0.0 : corr / tot;
+      final old = updated[tag] ?? 0.5;
+      final neu = (old + (acc - old) * learningRate).clamp(0.0, 1.0);
+      final delta = neu - old;
+      if (delta.abs() > 1e-6) {
+        deltas[tag] = delta;
+        updated[tag] = neu;
+      }
+    }
+
+    if (!dryRun) {
+      _cache = updated;
+      _cacheTime = DateTime.now();
+      await MasteryPersistenceService().save(updated);
+    }
+
+    return deltas;
   }
 
   Future<Map<String, double>> computeDelta({bool fromLastWeek = false}) async {
     await logs.load();
     final now = DateTime.now();
-    final thisWeekStart =
-        DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
+    final thisWeekStart = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
     final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
     final thisWeekLogs = logs.filter(range: DateTimeRange(thisWeekStart, now));
     final lastWeekLogs = logs.filter(
-      range: DateTimeRange(lastWeekStart, thisWeekStart.subtract(const Duration(seconds: 1))),
+      range: DateTimeRange(
+          lastWeekStart, thisWeekStart.subtract(const Duration(seconds: 1))),
     );
 
     final current = await _computeForLogs(thisWeekLogs);
@@ -197,4 +255,3 @@ class TagMasteryService {
     return normalized;
   }
 }
-
