@@ -83,6 +83,18 @@ class TrainingStatsService extends ChangeNotifier {
   Map<String, SkillStat> get skillStats => _skillStats;
   Map<String, int> get mistakeCounts => Map.unmodifiable(_mistakeCounts);
 
+  /// Date of the most recent training activity.
+  DateTime? get lastTrainingDate {
+    if (_handsPerDay.isEmpty) return null;
+    final list = _handsPerDay.entries
+        .where((e) => e.value > 0)
+        .map((e) => e.key)
+        .toList();
+    if (list.isEmpty) return null;
+    list.sort();
+    return DateTime.parse(list.last);
+  }
+
   Stream<int> get sessionsStream => _sessionController.stream;
   Stream<int> get handsStream => _handsController.stream;
   Stream<int> get mistakesStream => _mistakeController.stream;
