@@ -20,6 +20,7 @@ import 'services/progress_forecast_service.dart';
 import 'services/mistake_review_pack_service.dart';
 import 'services/dynamic_pack_adjustment_service.dart';
 import 'services/mistake_streak_service.dart';
+import 'services/mistake_tag_history_service.dart';
 import 'services/session_note_service.dart';
 import 'services/session_pin_service.dart';
 import 'services/training_pack_storage_service.dart';
@@ -199,6 +200,7 @@ List<SingleChildWidget> buildTrainingProviders() {
       ),
     ),
     ChangeNotifierProvider(create: (_) => MistakeStreakService()..load()),
+    ChangeNotifierProvider(create: (_) => MistakeTagHistoryService()..load()),
     ChangeNotifierProvider(
       create: (context) =>
           SessionNoteService(cloud: context.read<CloudSyncService>())..load(),

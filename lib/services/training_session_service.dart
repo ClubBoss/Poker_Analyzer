@@ -11,6 +11,8 @@ import '../helpers/training_pack_storage.dart';
 import '../screens/training_session_summary_screen.dart';
 import 'mistake_review_pack_service.dart';
 import 'smart_review_service.dart';
+import 'auto_mistake_tagger_engine.dart';
+import 'mistake_tag_history_service.dart';
 import 'learning_path_progress_service.dart';
 import 'cloud_training_history_service.dart';
 import 'learning_path_personalization_service.dart';
@@ -19,6 +21,7 @@ import 'tag_goal_tracker_service.dart';
 import 'xp_reward_engine.dart';
 import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
+import '../models/training_spot_attempt.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -445,6 +448,28 @@ class TrainingSessionService extends ChangeNotifier {
         if (!e.value) e.key
     ];
     if (ids.isNotEmpty) {
+      final tagger = const AutoMistakeTaggerEngine();
+      final history = context.read<MistakeTagHistoryService>();
+      for (final a in _actions.where((e) => !e.isCorrect)) {
+        final spot = _spots.firstWhere(
+          (s) => s.id == a.spotId,
+          orElse: () => TrainingPackSpot(id: ''),
+        );
+        if (spot.id.isEmpty) continue;
+        final correct = _expectedAction(spot) ?? spot.correctAction ?? '';
+        final heroEv = spot.heroEv ?? 0;
+        final bestEv = correct.toLowerCase() == 'push' ? heroEv : 0;
+        final userEv = a.chosenAction.toLowerCase() == 'push' ? heroEv : 0;
+        final attempt = TrainingSpotAttempt(
+          spot: spot,
+          userAction: a.chosenAction,
+          correctAction: correct,
+          evDiff: bestEv - userEv,
+        );
+        final tags = tagger.tag(attempt);
+        await history.addTags(tags);
+      }
+
       final tpl = _template!.copyWith(
         id: const Uuid().v4(),
         name: 'Review mistakes',
