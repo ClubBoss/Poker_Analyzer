@@ -61,6 +61,12 @@ void main() {
     expect(tags, contains(MistakeTag.missedEvCall));
   });
 
+  test('missed raise classified', () {
+    final a = attempt(user: 'call', correct: 'raise', pos: HeroPosition.co, ev: 2);
+    final tags = engine.tag(a);
+    expect(tags, contains(MistakeTag.missedEvRaise));
+  });
+
   test('short stack overfold classified', () {
     final a = attempt(user: 'fold', correct: 'push', pos: HeroPosition.sb, stack: 8, ev: 1);
     final tags = engine.tag(a);
