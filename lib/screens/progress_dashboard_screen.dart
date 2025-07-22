@@ -19,6 +19,7 @@ import '../widgets/sync_status_widget.dart';
 import '../services/png_exporter.dart';
 import '../helpers/date_utils.dart';
 import '../utils/responsive.dart';
+import 'mistake_review_screen.dart';
 
 class ProgressDashboardScreen extends StatefulWidget {
   const ProgressDashboardScreen({super.key});
@@ -190,6 +191,17 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
           ),
           const SizedBox(height: 16),
           const DailyEvIcmChart(),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const MistakeReviewScreen()),
+              );
+            },
+            child: const Text('Повтор ошибок'),
+          ),
         ],
         ),
       ),
