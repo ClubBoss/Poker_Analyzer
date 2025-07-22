@@ -20,3 +20,10 @@ stages:
     packId: pack2
     requiredAccuracy: 70
     minHands: 5
+sections:
+  - id: basics
+    title: Basics
+    description: Basic section
+    stageIds:
+      - s1
+      - s2

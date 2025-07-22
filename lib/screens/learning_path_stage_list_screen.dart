@@ -106,49 +106,95 @@ class _LearningPathStageListScreenState
 
   @override
   Widget build(BuildContext context) {
-    final stages = widget.path.stages;
+    final template = widget.path;
+    final indexById = {
+      for (int i = 0; i < template.stages.length; i++)
+        template.stages[i].id: i
+    };
+
+    List<Widget> _buildContent() {
+      final widgets = <Widget>[];
+      if (template.sections.isEmpty) {
+        for (int i = 0; i < template.stages.length; i++) {
+          final stage = template.stages[i];
+          widgets.add(_buildStageItem(stage, i));
+        }
+      } else {
+        for (final section in template.sections) {
+          widgets.add(
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    section.title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  if (section.description.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        section.description,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+          for (final id in section.stageIds) {
+            final idx = indexById[id];
+            if (idx != null) {
+              widgets.add(_buildStageItem(template.stages[idx], idx));
+            }
+          }
+        }
+      }
+      return widgets;
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.path.title)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView.builder(
+              child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                itemCount: stages.length,
-                itemBuilder: (context, index) {
-                  final stage = stages[index];
-                  final status =
-                      _model.statusFor(stage.id)?.status ?? StageStatus.locked;
-                  final progress = _progressStrings[stage.id] ?? '';
-                  final boosters = _boosters[stage.id] ?? const [];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LearningStageTile(
-                        stage: stage,
-                        status: status,
-                        subtitle: progress,
-                        onTap: () => _openStage(stage),
-                      ),
-                      if (boosters.isNotEmpty)
-                        SizedBox(
-                          height: 160,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            padding:
-                                const EdgeInsets.only(left: 16, top: 4, bottom: 8),
-                            itemBuilder: (context, i) =>
-                                _buildBoosterCard(boosters[i]),
-                            separatorBuilder: (_, __) => const SizedBox(width: 8),
-                            itemCount: boosters.length,
-                          ),
-                        ),
-                    ],
-                  );
-                },
+                children: _buildContent(),
               ),
             ),
+    );
+  }
+
+  Widget _buildStageItem(LearningPathStageModel stage, int index) {
+    final status = _model.statusFor(stage.id)?.status ?? StageStatus.locked;
+    final progress = _progressStrings[stage.id] ?? '';
+    final boosters = _boosters[stage.id] ?? const [];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LearningStageTile(
+          stage: stage,
+          status: status,
+          subtitle: progress,
+          onTap: () => _openStage(stage),
+        ),
+        if (boosters.isNotEmpty)
+          SizedBox(
+            height: 160,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: 16, top: 4, bottom: 8),
+              itemBuilder: (context, i) => _buildBoosterCard(boosters[i]),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemCount: boosters.length,
+            ),
+          ),
+      ],
     );
   }
 

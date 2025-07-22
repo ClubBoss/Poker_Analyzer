@@ -178,6 +178,78 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Widget build(BuildContext context) {
     final template = widget.template;
     final tags = template.tags;
+    final indexById = {
+      for (int i = 0; i < template.stages.length; i++)
+        template.stages[i].id: i
+    };
+
+    List<Widget> _buildContent() {
+      final widgets = <Widget>[];
+      if (template.description.isNotEmpty) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              template.description,
+              style: const TextStyle(color: Colors.white70),
+            ),
+          ),
+        );
+      }
+
+      if (template.sections.isEmpty) {
+        for (int i = 0; i < template.stages.length; i++) {
+          widgets.add(_buildStageTile(template.stages[i], i));
+        }
+      } else {
+        for (final section in template.sections) {
+          widgets.add(
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    section.title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  if (section.description.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        section.description,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+          for (final id in section.stageIds) {
+            final idx = indexById[id];
+            if (idx != null) {
+              widgets.add(_buildStageTile(template.stages[idx], idx));
+            }
+          }
+        }
+      }
+
+      if (tags.isNotEmpty) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Wrap(
+              spacing: 8,
+              children: [for (final t in tags) Chip(label: Text(t))],
+            ),
+          ),
+        );
+      }
+      return widgets;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(template.title),
@@ -187,29 +259,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              children: [
-                if (template.description.isNotEmpty)
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(
-                      template.description,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ),
-                for (int i = 0; i < template.stages.length; i++)
-                  _buildStageTile(template.stages[i], i),
-                if (tags.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Wrap(
-                      spacing: 8,
-                      children: [
-                        for (final t in tags) Chip(label: Text(t)),
-                      ],
-                    ),
-                  ),
-              ],
+              children: _buildContent(),
             ),
     );
   }
