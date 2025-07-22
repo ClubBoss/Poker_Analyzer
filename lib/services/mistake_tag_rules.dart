@@ -26,6 +26,13 @@ final List<MistakeTagRule> mistakeTagRules = [
         a.correctAction.toLowerCase() == 'fold',
   ),
   MistakeTagRule(
+    MistakeTag.looseCallSb,
+    (a) =>
+        a.spot.hand.position == HeroPosition.sb &&
+        a.userAction.toLowerCase() == 'call' &&
+        a.correctAction.toLowerCase() == 'fold',
+  ),
+  MistakeTagRule(
     MistakeTag.missedEvPush,
     (a) =>
         a.correctAction.toLowerCase() == 'push' &&
