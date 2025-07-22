@@ -17,6 +17,8 @@ void main() {
     );
     expect(tpl.id, 'sample');
     expect(tpl.stages.length, 2);
+    expect(tpl.sections.length, 2);
+    expect(tpl.sections.first.title, 'Push/Fold Basics');
   });
 
   test('checkForCycles detects simple loop', () {

@@ -11,5 +11,6 @@ void main() {
     final tpl = service.findById('sample');
     expect(tpl, isNotNull);
     expect(tpl!.title, 'Sample Learning Path');
+    expect(tpl.sections.isNotEmpty, true);
   });
 }
