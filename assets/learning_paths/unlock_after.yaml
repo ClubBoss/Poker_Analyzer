@@ -1,0 +1,36 @@
+id: unlock_after
+title: Unlock After Path
+description: Path with stage-level gating
+stages:
+  - id: ua1
+    title: UA1
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+  - id: ua2
+    title: UA2
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+    unlockAfter:
+      - ua1
+  - id: ua3
+    title: UA3
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+sections:
+  - id: first
+    title: First Section
+    description: ''
+    stageIds:
+      - ua1
+      - ua2
+  - id: second
+    title: Second Section
+    description: ''
+    stageIds:
+      - ua3
