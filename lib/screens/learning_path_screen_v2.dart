@@ -15,6 +15,7 @@ import '../services/smart_stage_unlock_service.dart';
 import '../services/learning_path_personalization_service.dart';
 import 'learning_path_celebration_screen.dart';
 import '../widgets/stage_progress_chip.dart';
+import '../widgets/stage_preview_dialog.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -216,6 +217,20 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 child: Icon(Icons.star, color: Colors.orange),
               ),
             if (_reinforced.contains(stage.id)) const SizedBox(width: 4),
+            if (state == LearningStageUIState.active)
+              IconButton(
+                icon: const Icon(Icons.visibility),
+                tooltip: 'Preview',
+                color: Colors.white70,
+                onPressed: () async {
+                  final start = await showDialog<bool>(
+                    context: context,
+                    builder: (_) => StagePreviewDialog(stage: stage),
+                  );
+                  if (start == true) _startStage(stage);
+                },
+              ),
+            if (state == LearningStageUIState.active) const SizedBox(width: 4),
             Icon(icon, color: color),
             const SizedBox(width: 4),
             Text(label, style: TextStyle(color: color)),
