@@ -1,0 +1,18 @@
+id: no_sections
+title: No Sections Path
+description: Path without sections
+stages:
+  - id: ns1
+    title: NS1
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+    unlocks:
+      - ns2
+  - id: ns2
+    title: NS2
+    description: ''
+    packId: pack2
+    requiredAccuracy: 70
+    minHands: 1
