@@ -11,7 +11,18 @@ import '../models/v2/training_pack_template_v2.dart';
 
 /// Card showing the top scheduled recovery pack.
 class ReviewPathCard extends StatefulWidget {
-  const ReviewPathCard({super.key});
+  const ReviewPathCard({
+    super.key,
+    this.queue,
+    this.library,
+    this.reminder,
+    this.launcher = const TrainingSessionLauncher(),
+  });
+
+  final ScheduledTrainingQueueService? queue;
+  final PackLibraryService? library;
+  final TagInsightReminderEngine? reminder;
+  final TrainingSessionLauncher launcher;
 
   @override
   State<ReviewPathCard> createState() => _ReviewPathCardState();
@@ -27,22 +38,23 @@ class _ReviewPathCardState extends State<ReviewPathCard> {
   }
 
   Future<_CardData?> _load() async {
-    final queue = ScheduledTrainingQueueService.instance;
+    final queue = widget.queue ?? ScheduledTrainingQueueService.instance;
     await queue.load();
     if (queue.queue.isEmpty) return null;
     final id = queue.queue.first;
-    final pack = await PackLibraryService.instance.getById(id);
+    final pack = await (widget.library ?? PackLibraryService.instance).getById(id);
     if (pack == null) return null;
     final tag = pack.tags.isNotEmpty ? pack.tags.first : '';
-    final losses =
-        await context.read<TagInsightReminderEngine>().loadLosses();
+    final reminder =
+        widget.reminder ?? context.read<TagInsightReminderEngine>();
+    final losses = await reminder.loadLosses();
     final loss = losses.firstWhereOrNull((l) => l.tag == tag);
     return _CardData(pack: pack, tag: tag, loss: loss);
   }
 
   Future<void> _startRecovery(_CardData data) async {
-    await const TrainingSessionLauncher().launch(data.pack);
-    await ScheduledTrainingQueueService.instance.pop();
+    await widget.launcher.launch(data.pack);
+    await (widget.queue ?? ScheduledTrainingQueueService.instance).pop();
     if (mounted) setState(() => _future = _load());
   }
 
