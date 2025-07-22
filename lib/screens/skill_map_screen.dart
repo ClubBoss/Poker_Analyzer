@@ -1,13 +1,26 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/tag_mastery_service.dart';
 import '../services/xp_tracker_service.dart';
+import '../services/mistake_tag_insights_service.dart';
+import '../services/mistake_cluster_analytics_service.dart';
+import '../services/mistake_tag_cluster_service.dart';
+import '../services/smart_review_service.dart';
+import '../services/template_storage_service.dart';
+import '../services/training_session_service.dart';
+import '../models/mistake_tag_cluster.dart';
+import '../models/mistake_insight.dart';
+import '../models/mistake_tag.dart';
+import '../models/v2/training_pack_template.dart';
 import '../widgets/skill_card.dart';
 import '../widgets/booster_packs_block.dart';
 import '../utils/responsive.dart';
 import 'library_screen.dart';
 import 'tag_insight_screen.dart';
+import 'training_session_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class SkillMapScreen extends StatefulWidget {
   const SkillMapScreen({super.key});
@@ -21,6 +34,9 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
   Map<String, double> _data = {};
   Map<String, int> _xp = {};
   bool _weakFirst = true;
+  List<ClusterAnalytics> _clusters = [];
+  final Map<MistakeTagCluster, List<MistakeInsight>> _clusterInsights = {};
+  double _maxClusterLoss = 0.0;
 
   @override
   void initState() {
@@ -32,6 +48,18 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
     setState(() => _loading = true);
     final masteryService = context.read<TagMasteryService>();
     final xpService = context.read<XPTrackerService>();
+    final insights = await const MistakeTagInsightsService()
+        .buildInsights(sortByEvLoss: true);
+    final clusters = const MistakeClusterAnalyticsService().compute(insights);
+    final clusterSvc = const MistakeTagClusterService();
+    final byCluster = <MistakeTagCluster, List<MistakeInsight>>{};
+    for (final i in insights) {
+      final c = clusterSvc.getClusterForTag(i.tag);
+      byCluster.putIfAbsent(c, () => []).add(i);
+    }
+    clusters.sort((a, b) => b.avgEvLoss.compareTo(a.avgEvLoss));
+    final maxLoss =
+        clusters.isEmpty ? 0.0 : clusters.map((e) => e.avgEvLoss).reduce(max);
     final map = await masteryService.computeMastery(force: true);
     final xpMap = await xpService.getTotalXpPerTag();
     final entries = map.entries.toList();
@@ -39,6 +67,11 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
     setState(() {
       _data = {for (final e in entries) e.key: e.value};
       _xp = xpMap;
+      _clusters = clusters;
+      _clusterInsights
+        ..clear()
+        ..addAll(byCluster);
+      _maxClusterLoss = maxLoss;
       _loading = false;
     });
   }
@@ -62,6 +95,99 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => TagInsightScreen(tag: tag),
+      ),
+    );
+  }
+
+  Future<void> _reviewCluster(Set<MistakeTag> tags) async {
+    final templates = context.read<TemplateStorageService>();
+    var spots = await SmartReviewService.instance
+        .getMistakeSpots(templates, context: context);
+    if (tags.isNotEmpty) {
+      final allowed = tags.map((e) => e.name.toLowerCase()).toSet();
+      spots = [
+        for (final s in spots)
+          if (s.tags.any((t) => allowed.contains(t.toLowerCase()))) s
+      ];
+    }
+    if (spots.isEmpty) return;
+    final tpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Повтор ошибок',
+      createdAt: DateTime.now(),
+      spots: spots,
+    );
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
+  Widget _clusterTile(ClusterAnalytics c) {
+    final insights = _clusterInsights[c.cluster] ?? const <MistakeInsight>[];
+    final ratio = _maxClusterLoss > 0
+        ? (c.avgEvLoss / _maxClusterLoss).clamp(0.0, 1.0)
+        : 0.0;
+    final mastery = 1 - ratio;
+    final color = Color.lerp(Colors.red, Colors.green, mastery) ?? Colors.red;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ExpansionTile(
+        collapsedIconColor: Colors.white,
+        iconColor: Colors.white,
+        title: Text(c.cluster.label,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold)),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Avg EV loss: ${c.avgEvLoss.toStringAsFixed(2)}',
+                style: const TextStyle(color: Colors.white70)),
+            const SizedBox(height: 4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: mastery,
+                backgroundColor: Colors.white24,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                minHeight: 6,
+              ),
+            ),
+          ],
+        ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final i in insights)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Text(
+                      '${i.tag.label}: ${i.count} · ${i.evLoss.toStringAsFixed(2)}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () =>
+                        _reviewCluster(insights.map((e) => e.tag).toSet()),
+                    child: const Text('Review',
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -103,6 +229,8 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
                       ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                for (final c in _clusters) _clusterTile(c),
                 const SizedBox(height: 16),
                 const BoosterPacksBlock(),
               ],
