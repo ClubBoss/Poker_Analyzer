@@ -47,6 +47,9 @@ import 'learning_dashboard_screen.dart';
 import 'notification_settings_screen.dart';
 import 'dev_menu_screen.dart';
 import 'package:provider/provider.dart';
+import '../utils/route_link.dart';
+import '../services/learning_path_registry_service.dart';
+import 'learning_path_screen_v2.dart';
 import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
 
@@ -76,6 +79,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       _maybeShowOnboarding();
       _maybeShowTrainingReminder();
       _maybeLaunchScheduledTraining();
+      _handleDeepLink();
     });
   }
 
@@ -108,6 +112,24 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   Future<void> _maybeLaunchScheduledTraining() async {
     await context.read<ScheduledTrainingLauncher>().launchNext();
+  }
+
+  Future<void> _handleDeepLink() async {
+    final link = RouteLink.tryParse(Uri.base);
+    if (link == null) return;
+    await LearningPathRegistryService.instance.loadAll();
+    final template = LearningPathRegistryService.instance.findById(link.pathId);
+    if (template == null) return;
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LearningPathScreen(
+          template: template,
+          highlightedStageId: link.stageId,
+        ),
+      ),
+    );
   }
 
   Future<void> _setDailyGoal() async {

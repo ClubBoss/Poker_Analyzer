@@ -17,8 +17,13 @@ import '../widgets/stage_progress_chip.dart';
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
   final LearningPathTemplateV2 template;
+  final String? highlightedStageId;
 
-  const LearningPathScreen({super.key, required this.template});
+  const LearningPathScreen({
+    super.key,
+    required this.template,
+    this.highlightedStageId,
+  });
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
@@ -33,6 +38,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Map<String, LearningStageUIState> _stageStates = {};
   Map<String, SessionLog> _logsByPack = {};
   bool _celebrationShown = false;
+  final ScrollController _scrollController = ScrollController();
+  final Map<String, GlobalKey> _stageKeys = {};
+  bool _scrollDone = false;
 
   @override
   void didChangeDependencies() {
@@ -67,6 +75,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       _loading = false;
     });
 
+    if (!_scrollDone && widget.highlightedStageId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToStage());
+    }
+
     final completedAll = const LearningPathCompletionEngine()
         .isCompleted(widget.template, aggregated);
     if (completedAll && !_celebrationShown && mounted) {
@@ -95,6 +107,20 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     }
     await const TrainingSessionLauncher().launch(template);
     if (mounted) _load();
+  }
+
+  void _scrollToStage() {
+    final id = widget.highlightedStageId;
+    if (id == null) return;
+    final key = _stageKeys[id];
+    if (key == null) return;
+    final context = key.currentContext;
+    if (context == null) return;
+    _scrollDone = true;
+    Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   Widget _buildStageTile(LearningPathStageModel stage, int index) {
@@ -150,11 +176,17 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         minHands: stage.minHands,
       );
     }
+    final highlight = widget.highlightedStageId == stage.id;
+    final key = _stageKeys.putIfAbsent(stage.id, () => GlobalKey());
     return Card(
+      key: key,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       shape: border,
-      color:
-          state == LearningStageUIState.locked ? Colors.grey.shade800 : null,
+      color: highlight
+          ? Colors.amber.withOpacity(0.2)
+          : state == LearningStageUIState.locked
+              ? Colors.grey.shade800
+              : null,
       child: ListTile(
         leading: Text('${index + 1}.', style: TextStyle(color: grey)),
         title: Text(stage.title, style: TextStyle(color: grey)),
@@ -185,9 +217,16 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              children: [
+          : Builder(
+              builder: (context) {
+                if (!_scrollDone && widget.highlightedStageId != null) {
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_) => _scrollToStage());
+                }
+                return ListView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  children: [
                 if (template.description.isNotEmpty)
                   Padding(
                     padding:
