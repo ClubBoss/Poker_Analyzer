@@ -12,4 +12,20 @@ class TrainingSpotAttempt {
     required this.correctAction,
     required this.evDiff,
   });
+
+  Map<String, dynamic> toJson() => {
+        'spot': spot.toJson(),
+        'userAction': userAction,
+        'correctAction': correctAction,
+        'evDiff': evDiff,
+      };
+
+  factory TrainingSpotAttempt.fromJson(Map<String, dynamic> json) =>
+      TrainingSpotAttempt(
+        spot: TrainingPackSpot.fromJson(
+            Map<String, dynamic>.from(json['spot'] as Map)),
+        userAction: json['userAction'] as String? ?? '',
+        correctAction: json['correctAction'] as String? ?? '',
+        evDiff: (json['evDiff'] as num?)?.toDouble() ?? 0.0,
+      );
 }
