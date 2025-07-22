@@ -46,6 +46,8 @@ import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
 import '../services/training_pack_template_validator.dart';
 import '../services/training_pack_template_storage.dart';
+import '../services/pack_search_engine.dart';
+import '../services/pack_library_index_loader.dart';
 import '../models/validation_issue.dart';
 import '../models/yaml_pack_review_report.dart';
 import '../models/yaml_pack_validation_report.dart';
@@ -154,6 +156,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _jsonLibraryLoading = false;
   bool _smartValidateLoading = false;
   bool _templateStorageTestLoading = false;
+  bool _packSearchLoading = false;
   bool _reminderLoading = false;
   bool _progressExportLoading = false;
   bool _progressImportLoading = false;
@@ -1361,6 +1364,53 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _testPackSearchEngine() async {
+    if (_packSearchLoading || !kDebugMode) return;
+    setState(() => _packSearchLoading = true);
+    await PackLibraryIndexLoader.instance.load();
+    final ctr = TextEditingController();
+    final query = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Search query'),
+        content: TextField(controller: ctr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ctr.text),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    final engine = const PackSearchEngine();
+    final results = engine.search(query ?? '');
+    setState(() => _packSearchLoading = false);
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Results'),
+        content: SingleChildScrollView(
+          child: Text(results.isEmpty
+              ? 'No results'
+              : results.map((e) => e.name).join('\n')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _checkTrainingReminder() async {
     if (_reminderLoading || !kDebugMode) return;
     setState(() => _reminderLoading = true);
@@ -2132,6 +2182,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('Send test reminder now'),
                 onTap: _sendTestLessonPathReminder,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔎 Test Pack Search Engine'),
+                onTap: _packSearchLoading ? null : _testPackSearchEngine,
               ),
             if (kDebugMode)
               ListTile(
