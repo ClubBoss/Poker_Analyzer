@@ -112,6 +112,7 @@ import '../services/achievement_trigger_engine.dart';
 import 'achievement_dashboard_screen.dart';
 import 'mistake_review_screen.dart';
 import 'mistake_insight_screen.dart';
+import 'cluster_mistake_dashboard_screen.dart';
 import '../services/lesson_path_reminder_scheduler.dart';
 import '../services/lesson_streak_engine.dart';
 
@@ -2275,6 +2276,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (_) => const MistakeInsightScreen()),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📈 Cluster Mistakes Dashboard'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const ClusterMistakeDashboardScreen()),
                   );
                 },
               ),
