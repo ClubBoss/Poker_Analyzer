@@ -40,8 +40,7 @@ class TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     if (_pathId == null || _template == null) return;
     final prefs = await SharedPreferences.getInstance();
-    final stage =
-        _template!.stages.firstWhereOrNull((s) => s.id == stageId);
+    final stage = _template!.stages.firstWhereOrNull((s) => s.id == stageId);
     if (stage == null) return;
     final stats = _computeStats(stage);
     final acc = accuracy.isNaN ? stats.accuracy : accuracy;
@@ -57,11 +56,22 @@ class TrainingPathProgressServiceV2 {
   double getStageAccuracy(String stageId) =>
       _progress[stageId]?.accuracy ?? 0.0;
 
+  /// Returns `true` if the given [stageId] meets hands and accuracy targets.
+  bool getStageCompletion(String stageId) {
+    final stage = _template?.stages.firstWhereOrNull((s) => s.id == stageId);
+    if (stage == null) return false;
+    final prog = _progress[stageId];
+    if (prog == null) return false;
+    return prog.hands >= stage.minHands &&
+        prog.accuracy >= stage.requiredAccuracy;
+  }
+
   List<String> unlockedStageIds() => List.unmodifiable(_unlocked);
 
   // --- internal helpers ---
 
-  String _prefix(String stageId) => 'training_path_v2_${_pathId ?? ''}_$stageId';
+  String _prefix(String stageId) =>
+      'training_path_v2_${_pathId ?? ''}_$stageId';
   String _accKey(String stageId) => '${_prefix(stageId)}_acc';
   String _handsKey(String stageId) => '${_prefix(stageId)}_hands';
 
@@ -98,7 +108,8 @@ class TrainingPathProgressServiceV2 {
       _unlocked.add(id);
       final stage = _template!.stages.firstWhere((e) => e.id == id);
       final prog = _progress[id];
-      final done = prog != null &&
+      final done =
+          prog != null &&
           prog.hands >= stage.minHands &&
           prog.accuracy >= stage.requiredAccuracy;
       if (done) {
