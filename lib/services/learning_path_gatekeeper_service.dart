@@ -75,6 +75,10 @@ class LearningPathGatekeeperService {
         for (final id in section.stageIds) {
           final stage = stageById[id];
           if (stage == null) continue;
+          if (stage.unlockAfter.isNotEmpty &&
+              !stage.unlockAfter.every(progress.getStageCompletion)) {
+            continue;
+          }
           if (!_meetsMastery(stage, masteryMap)) continue;
           if (_isBlocked(stage, blockedClusters)) continue;
           if (!_meetsSessionCount()) continue;
@@ -86,6 +90,10 @@ class LearningPathGatekeeperService {
       for (final stage in template.stages) {
         if (idsInSections.contains(stage.id)) continue;
         if (!base.contains(stage.id)) continue;
+        if (stage.unlockAfter.isNotEmpty &&
+            !stage.unlockAfter.every(progress.getStageCompletion)) {
+          continue;
+        }
         if (!_meetsMastery(stage, masteryMap)) continue;
         if (_isBlocked(stage, blockedClusters)) continue;
         if (!_meetsSessionCount()) continue;
@@ -94,6 +102,10 @@ class LearningPathGatekeeperService {
     } else {
       for (final stage in template.stages) {
         if (!base.contains(stage.id)) continue;
+        if (stage.unlockAfter.isNotEmpty &&
+            !stage.unlockAfter.every(progress.getStageCompletion)) {
+          continue;
+        }
         if (!_meetsMastery(stage, masteryMap)) continue;
         if (_isBlocked(stage, blockedClusters)) continue;
         if (!_meetsSessionCount()) continue;

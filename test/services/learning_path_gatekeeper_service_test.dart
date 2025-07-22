@@ -147,4 +147,38 @@ void main() {
     expect(gatekeeper.isStageUnlocked('sc2'), isTrue);
     expect(gatekeeper.isStageUnlocked('sc3'), isTrue);
   });
+
+  test('unlockAfter enforces intra-section order', () async {
+    final logs = [
+      SessionLog(
+        sessionId: '1',
+        templateId: 'pack1',
+        startedAt: DateTime.now(),
+        completedAt: DateTime.now(),
+        correctCount: 0,
+        mistakeCount: 0,
+      ),
+    ];
+    final progress = TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
+    await progress.loadProgress('unlock_after');
+
+    final gatekeeper = LearningPathGatekeeperService(
+      progress: progress,
+      mastery: _FakeMasteryService(const {}),
+    );
+
+    await gatekeeper.updateStageUnlocks('unlock_after');
+    expect(gatekeeper.isStageUnlocked('ua1'), isTrue);
+    expect(gatekeeper.isStageUnlocked('ua2'), isFalse);
+    expect(gatekeeper.isStageUnlocked('ua3'), isFalse);
+
+    await progress.markStageCompleted('ua1', 100);
+    await gatekeeper.updateStageUnlocks('unlock_after');
+    expect(gatekeeper.isStageUnlocked('ua2'), isTrue);
+    expect(gatekeeper.isStageUnlocked('ua3'), isFalse);
+
+    await progress.markStageCompleted('ua2', 100);
+    await gatekeeper.updateStageUnlocks('unlock_after');
+    expect(gatekeeper.isStageUnlocked('ua3'), isTrue);
+  });
 }
