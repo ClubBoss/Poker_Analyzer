@@ -10,6 +10,7 @@ import '../screens/training_session_screen.dart';
 import '../models/training_pack_template.dart';
 import 'package:uuid/uuid.dart';
 import '../models/mistake_profile.dart';
+import 'smart_mistake_review_strategy.dart';
 
 /// Stores IDs of spots where the user made a mistake for future review.
 class SmartReviewService {
@@ -74,6 +75,18 @@ class SmartReviewService {
     for (final id in _ids) {
       final spot = map[id];
       if (spot != null) result.add(spot);
+    }
+
+    final strategy = const SmartMistakeReviewStrategy();
+    final decision = await strategy.decide();
+    if (decision.type != ReviewStrategyType.repeatSameSpots &&
+        decision.targetTag != null) {
+      final tag = decision.targetTag!.toLowerCase();
+      final filtered = [
+        for (final s in result)
+          if (s.tags.any((t) => t.toLowerCase() == tag)) s
+      ];
+      if (filtered.isNotEmpty) result = filtered;
     }
 
     if (context != null && result.length > 5) {
