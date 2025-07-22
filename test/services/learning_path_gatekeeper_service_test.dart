@@ -117,4 +117,34 @@ void main() {
     await gatekeeper.updateStageUnlocks('no_sections');
     expect(gatekeeper.isStageUnlocked('ns2'), isTrue);
   });
+
+  test('ignores stage prerequisites within unlocked sections', () async {
+    final logs = [
+      SessionLog(
+        sessionId: '1',
+        templateId: 'pack1',
+        startedAt: DateTime.now(),
+        completedAt: DateTime.now(),
+        correctCount: 0,
+        mistakeCount: 0,
+      ),
+    ];
+    final progress = TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
+    await progress.loadProgress('section_chain');
+
+    final gatekeeper = LearningPathGatekeeperService(
+      progress: progress,
+      mastery: _FakeMasteryService(const {}),
+    );
+
+    await gatekeeper.updateStageUnlocks('section_chain');
+    expect(gatekeeper.isStageUnlocked('sc1'), isTrue);
+    expect(gatekeeper.isStageUnlocked('sc2'), isFalse);
+    expect(gatekeeper.isStageUnlocked('sc3'), isFalse);
+
+    await progress.markStageCompleted('sc1', 100);
+    await gatekeeper.updateStageUnlocks('section_chain');
+    expect(gatekeeper.isStageUnlocked('sc2'), isTrue);
+    expect(gatekeeper.isStageUnlocked('sc3'), isTrue);
+  });
 }

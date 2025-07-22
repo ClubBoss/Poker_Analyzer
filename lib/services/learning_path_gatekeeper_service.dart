@@ -75,7 +75,6 @@ class LearningPathGatekeeperService {
         for (final id in section.stageIds) {
           final stage = stageById[id];
           if (stage == null) continue;
-          if (!base.contains(stage.id)) continue;
           if (!_meetsMastery(stage, masteryMap)) continue;
           if (_isBlocked(stage, blockedClusters)) continue;
           if (!_meetsSessionCount()) continue;
