@@ -19,6 +19,7 @@ import '../widgets/next_up_banner.dart';
 import '../widgets/skill_loss_banner.dart';
 import '../widgets/tag_insight_reminder_card.dart';
 import '../widgets/review_path_card.dart';
+import '../widgets/smart_recovery_banner.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -239,6 +240,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
                 const NextUpBanner(),
                 const SizedBox(height: 12),
               ],
+              const SmartRecoveryBanner(),
               const ReviewPathCard(),
               const SizedBox(height: 12),
               _section('🎯 Completion', '$completion% complete'),
