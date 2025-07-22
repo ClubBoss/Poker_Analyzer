@@ -15,11 +15,13 @@ class LearningPathLibraryScreen extends StatefulWidget {
   const LearningPathLibraryScreen({super.key});
 
   @override
-  State<LearningPathLibraryScreen> createState() => _LearningPathLibraryScreenState();
+  State<LearningPathLibraryScreen> createState() =>
+      _LearningPathLibraryScreenState();
 }
 
 class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
-  late Future<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>> _future;
+  late Future<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>>
+  _future;
   final _repo = LearningPathRepository();
   late SessionLogService _logs;
   late LearningPathStageProgressEngine _progressEngine;
@@ -44,7 +46,8 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
     }
   }
 
-  Future<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>> _load() async {
+  Future<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>>
+  _load() async {
     final map = await _repo.loadAllTracksWithPaths();
     await _computeProgress(map.values.expand((e) => e));
     return map;
@@ -56,8 +59,11 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
     for (final log in _logs.logs) {
       final count = log.correctCount + log.mistakeCount;
       hands.update(log.templateId, (v) => v + count, ifAbsent: () => count);
-      correct.update(log.templateId, (v) => v + log.correctCount,
-          ifAbsent: () => log.correctCount);
+      correct.update(
+        log.templateId,
+        (v) => v + log.correctCount,
+        ifAbsent: () => log.correctCount,
+      );
     }
     final result = <String, LearningPathProgress>{};
     for (final path in paths) {
@@ -69,7 +75,9 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
         final played = hands[stage.packId] ?? 0;
         final corr = correct[stage.packId] ?? 0;
         final acc = played == 0 ? 0.0 : corr / played * 100;
-        if (played >= stage.minHands && acc >= stage.requiredAccuracy && ratio >= 1.0) {
+        if (played >= stage.minHands &&
+            acc >= stage.requiredAccuracy &&
+            ratio >= 1.0) {
           completed.add(stage.id);
         }
       }
@@ -78,13 +86,27 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
           unlocked.add(stage.id);
         }
       }
-      final percent = path.stages.isEmpty
-          ? 0.0
-          : completed.length / path.stages.length;
+      double accSum = 0.0;
+      for (final id in completed) {
+        final stage = path.stages.firstWhere((e) => e.id == id);
+        final played = hands[stage.packId] ?? 0;
+        final corr = correct[stage.packId] ?? 0;
+        final acc = played == 0 ? 0.0 : corr / played * 100;
+        accSum += acc;
+      }
+      final avgAcc = completed.isEmpty ? 0.0 : accSum / completed.length;
+      String? current;
+      for (final s in path.stages) {
+        if (unlocked.contains(s.id) && !completed.contains(s.id)) {
+          current = s.id;
+          break;
+        }
+      }
       result[path.id] = LearningPathProgress(
         completedStages: completed.length,
         totalStages: path.stages.length,
-        percentComplete: percent,
+        overallAccuracy: avgAcc,
+        currentStageId: current,
       );
     }
     setState(() => _progress = result);
@@ -97,7 +119,9 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>>(
+    return FutureBuilder<
+      Map<LearningPathTrackModel, List<LearningPathTemplateV2>>
+    >(
       future: _future,
       builder: (context, snapshot) {
         final data = snapshot.data ?? const {};
@@ -106,21 +130,21 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : data.isEmpty
-                  ? const Center(child: Text('Нет доступных треков'))
-                  : RefreshIndicator(
-                      onRefresh: _reload,
-                      child: ListView(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        children: [
-                          for (final entry in data.entries)
-                          TrackSectionWidget(
-                            track: entry.key,
-                            paths: entry.value,
-                            progress: _progress,
-                          ),
-                        ],
-                      ),
-                    ),
+              ? const Center(child: Text('Нет доступных треков'))
+              : RefreshIndicator(
+                  onRefresh: _reload,
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    children: [
+                      for (final entry in data.entries)
+                        TrackSectionWidget(
+                          track: entry.key,
+                          paths: entry.value,
+                          progress: _progress,
+                        ),
+                    ],
+                  ),
+                ),
         );
       },
     );
