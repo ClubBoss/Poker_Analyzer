@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'pack_library_service.dart';
+import 'review_path_recommender.dart';
+import 'skill_loss_detector.dart';
 
 /// Persists a queue of training pack IDs scheduled for automatic launch.
 class ScheduledTrainingQueueService extends ChangeNotifier {
   ScheduledTrainingQueueService._();
   static final ScheduledTrainingQueueService instance =
       ScheduledTrainingQueueService._();
+  factory ScheduledTrainingQueueService() => instance;
 
   static const _prefsKey = 'scheduled_training_queue';
 
@@ -52,4 +56,28 @@ class ScheduledTrainingQueueService extends ChangeNotifier {
   }
 
   bool get hasItems => _queue.isNotEmpty;
+
+  /// Automatically schedules recovery packs for the most urgent tags.
+  Future<void> autoSchedule({
+    required List<SkillLoss> losses,
+    required List<MistakeCluster> mistakeClusters,
+    required Map<String, double> goalMissRatesByTag,
+    PackLibraryService? library,
+    int maxCount = 3,
+  }) async {
+    final recommender = const ReviewPathRecommender();
+    final recs = recommender.suggestRecoveryPath(
+      losses: losses,
+      mistakeClusters: mistakeClusters,
+      goalMissRatesByTag: goalMissRatesByTag,
+    );
+
+    final lib = library ?? PackLibraryService.instance;
+    for (final r in recs.take(maxCount)) {
+      final pack = await lib.findByTag(r.tag);
+      if (pack != null) {
+        await add(pack.id);
+      }
+    }
+  }
 }
