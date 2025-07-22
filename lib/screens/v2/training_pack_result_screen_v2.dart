@@ -20,6 +20,9 @@ import '../../services/training_session_service.dart';
 import '../../core/training/generation/yaml_reader.dart';
 import '../../services/weak_spot_recommendation_service.dart';
 import '../training_session_screen.dart';
+import '../../services/auto_mistake_tagger_engine.dart';
+import '../../models/training_spot_attempt.dart';
+import '../../models/mistake_tag.dart';
 
 class TrainingPackResultScreenV2 extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -305,8 +308,7 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
                     final m = mistakes[i];
                     final board = m.spot.hand.board.join(' ');
                     final hero = m.spot.hand.heroCards;
-                    final diff =
-                        m.heroEv != null && m.bestEv != null ? m.heroEv! - m.bestEv! : null;
+                    final diff = _calcEvDiff(m.heroEv, m.bestEv, m.ans, m.exp);
                     final diffText = diff == null
                         ? '--'
                         : '${diff >= 0 ? '+' : ''}${diff.toStringAsFixed(1)}';
@@ -336,6 +338,28 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
                                     const TextStyle(color: Colors.greenAccent)),
                             Text('EV diff: $diffText',
                                 style: const TextStyle(color: Colors.white70)),
+                            if (m.tags.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Wrap(
+                                  spacing: 4,
+                                  children: [
+                                    for (final t in m.tags)
+                                      Chip(
+                                        label: Text(
+                                          t.label,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        backgroundColor:
+                                            _tagColors[t] ?? Colors.blueGrey,
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -578,6 +602,28 @@ class _IcmDiffChart extends StatelessWidget {
   }
 }
 
+double? _calcEvDiff(
+    double? heroEv, double? bestEv, String user, String correct) {
+  if (heroEv == null || bestEv == null) return null;
+  final c = correct.toLowerCase();
+  if (c == 'push' || c == 'call' || c == 'raise') {
+    return bestEv - heroEv;
+  }
+  return heroEv - bestEv;
+}
+
+const Map<MistakeTag, Color> _tagColors = {
+  MistakeTag.overpush: Colors.redAccent,
+  MistakeTag.looseCallBb: Colors.redAccent,
+  MistakeTag.looseCallSb: Colors.redAccent,
+  MistakeTag.looseCallCo: Colors.redAccent,
+  MistakeTag.overfoldBtn: Colors.blueAccent,
+  MistakeTag.overfoldShortStack: Colors.blueAccent,
+  MistakeTag.missedEvPush: Colors.blueAccent,
+  MistakeTag.missedEvCall: Colors.blueAccent,
+  MistakeTag.missedEvRaise: Colors.blueAccent,
+};
+
 class _MistakeData {
   final TrainingPackSpot spot;
   final String ans;
@@ -586,6 +632,17 @@ class _MistakeData {
   final double? bestEv;
   final double? heroIcmEv;
   final double? bestIcmEv;
-  const _MistakeData(this.spot, this.ans, this.exp, this.heroEv, this.bestEv,
-      this.heroIcmEv, this.bestIcmEv);
+  late final List<MistakeTag> tags;
+
+  _MistakeData(this.spot, this.ans, this.exp, this.heroEv, this.bestEv,
+      this.heroIcmEv, this.bestIcmEv) {
+    final diff = _calcEvDiff(heroEv, bestEv, ans, exp);
+    final attempt = TrainingSpotAttempt(
+      spot: spot,
+      userAction: ans,
+      correctAction: exp,
+      evDiff: diff ?? 0,
+    );
+    tags = const AutoMistakeTaggerEngine().tag(attempt);
+  }
 }
