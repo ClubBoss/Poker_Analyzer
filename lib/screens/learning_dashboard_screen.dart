@@ -11,9 +11,12 @@ import '../services/training_session_launcher.dart';
 import '../services/recommendation_feed_engine.dart';
 import 'package:collection/collection.dart';
 import '../services/weakness_review_engine.dart';
+import '../services/skill_loss_detector.dart';
+import '../services/progress_forecast_service.dart';
 import '../widgets/weakness_review_section.dart';
 import '../widgets/feed_recommendation_widget.dart';
 import '../widgets/next_up_banner.dart';
+import '../widgets/skill_loss_banner.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -30,11 +33,13 @@ class _DashboardData {
   final TrainingPackTemplateV2? nextPack;
   final Map<String, double> improvements;
   final List<WeaknessReviewItem> reviews;
+  final List<SkillLoss> losses;
   const _DashboardData({
     required this.progress,
     required this.nextPack,
     required this.improvements,
     required this.reviews,
+    required this.losses,
   });
 }
 
@@ -108,11 +113,19 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
       allPacks: packs,
     );
 
+    final forecast = context.read<ProgressForecastService>();
+    final tagHistory = {
+      for (final tag in forecast.tags)
+        tag: [for (final e in forecast.tagSeries(tag)) e.accuracy]
+    };
+    final losses = const SkillLossDetector().detect(tagHistory);
+
     return _DashboardData(
       progress: progress,
       nextPack: track.nextUpPack,
       improvements: improvements,
       reviews: reviewItems,
+      losses: losses,
     );
   }
 
@@ -122,6 +135,19 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
 
   Future<void> _handlePackLaunch(String id) async {
     final tpl = _packs.firstWhereOrNull((p) => p.id == id);
+    if (tpl != null) {
+      await _startPack(tpl);
+    }
+  }
+
+  Future<void> _handleTagReview(String tag) async {
+    final tpl = _packs.firstWhereOrNull(
+      (p) =>
+          p.tags.contains(tag) ||
+          (p.meta['focusTag'] == tag) ||
+          ((p.meta['focusTags'] is List) &&
+              (p.meta['focusTags'] as List).contains(tag)),
+    );
     if (tpl != null) {
       await _startPack(tpl);
     }
@@ -217,6 +243,11 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
               _improvements(data.improvements),
               const SizedBox(height: 12),
               _section('🔥 Streak', '${streak}-day streak'),
+              const SizedBox(height: 12),
+              SkillLossBanner(
+                losses: data.losses,
+                onTapReview: _handleTagReview,
+              ),
             ],
           ),
         );
