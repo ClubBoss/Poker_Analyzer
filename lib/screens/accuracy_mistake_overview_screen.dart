@@ -5,6 +5,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/sync_status_widget.dart';
+import 'tag_insight_screen.dart';
 
 /// Shows accuracy percentages grouped by tag, street and hero position.
 ///
@@ -87,6 +88,13 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
                 title: Text(e.key, style: const TextStyle(color: Colors.white)),
                 trailing: Text('${e.value.toStringAsFixed(1)}%',
                     style: const TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => TagInsightScreen(tag: e.key)),
+                  );
+                },
               ),
             const SizedBox(height: 16),
           ],

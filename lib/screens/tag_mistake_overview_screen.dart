@@ -18,6 +18,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../models/mistake_severity.dart';
 import '../models/mistake_sort_option.dart';
+import 'tag_insight_screen.dart';
 import '../theme/app_colors.dart';
 import '../services/ignored_mistake_service.dart';
 import '../services/tag_service.dart';
@@ -1008,12 +1009,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => _TagMistakeHandsScreen(
-                            tag: e.key,
-                            dateFilter: widget.dateFilter,
-                            dateRange: _range,
-                          ),
-                        ),
+                            builder: (_) => TagInsightScreen(tag: e.key)),
                       );
                     },
                   );

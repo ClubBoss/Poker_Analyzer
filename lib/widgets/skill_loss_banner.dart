@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/skill_loss_detector.dart';
+import '../screens/tag_insight_screen.dart';
 
 class SkillLossBanner extends StatelessWidget {
   final List<SkillLoss> losses;
@@ -38,9 +39,16 @@ class SkillLossBanner extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      '${loss.tag} — ${loss.trend}',
-                      style: const TextStyle(color: Colors.white),
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => TagInsightScreen(tag: loss.tag)),
+                      ),
+                      child: Text(
+                        '${loss.tag} — ${loss.trend}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                   ElevatedButton(

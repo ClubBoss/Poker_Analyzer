@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/tag_coverage_service.dart';
 import '../utils/responsive.dart';
 import '../widgets/tag_coverage_tile.dart';
+import 'tag_insight_screen.dart';
 
 class LessonTagHeatmapScreen extends StatefulWidget {
   const LessonTagHeatmapScreen({super.key});
@@ -87,7 +88,13 @@ class _LessonTagHeatmapScreenState extends State<LessonTagHeatmapScreen> {
                   tag: entry.key,
                   count: entry.value,
                   max: maxCount,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => TagInsightScreen(tag: entry.key)),
+                    );
+                  },
                 );
               },
             ),

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/tag_mastery_service.dart';
 import '../screens/skill_map_screen.dart';
-import '../screens/tag_skill_detail_screen.dart';
+import '../screens/tag_insight_screen.dart';
 
 class TagProgressCard extends StatelessWidget {
   const TagProgressCard({super.key});
@@ -21,7 +21,7 @@ class TagProgressCard extends StatelessWidget {
   void _openTag(BuildContext context, String tag) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TagSkillDetailScreen(tag: tag)),
+      MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
     );
   }
 

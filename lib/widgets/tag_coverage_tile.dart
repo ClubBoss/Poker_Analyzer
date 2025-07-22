@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/tag_insight_screen.dart';
+
 class TagCoverageTile extends StatelessWidget {
   final String tag;
   final int count;
@@ -20,7 +22,12 @@ class TagCoverageTile extends StatelessWidget {
     final color =
         Color.lerp(const Color(0xFF444444), const Color(0xFFFFA500), t)!;
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap ??
+          () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => TagInsightScreen(tag: tag)),
+              ),
       child: Container(
         decoration: BoxDecoration(
           color: color,
