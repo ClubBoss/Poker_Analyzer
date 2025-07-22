@@ -12,6 +12,7 @@ import '../services/training_pack_stats_service.dart';
 import '../services/weakness_review_engine.dart';
 import '../services/training_session_launcher.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../widgets/tag_insight_header.dart';
 
 class TagInsightScreen extends StatefulWidget {
   final String tag;
@@ -27,6 +28,8 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
   String? _trend;
   WeaknessReviewItem? _reviewItem;
   List<String> _mistakes = [];
+  double _skillLevel = 0;
+  int _handsAnalyzed = 0;
 
   @override
   void initState() {
@@ -41,6 +44,9 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     final history = {tag: [for (final e in series) e.accuracy]};
     final losses = const SkillLossDetector().detect(history);
     final trend = losses.isNotEmpty ? losses.first.trend : null;
+
+    final mastery = await context.read<TagMasteryService>().computeMastery();
+    final skill = mastery[tag] ?? 0.0;
 
     await PackLibraryLoaderService.instance.loadLibrary();
     final packs = PackLibraryLoaderService.instance.library;
@@ -59,8 +65,10 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     final review = items.firstWhereOrNull((e) => e.tag.toLowerCase() == tag);
 
     final hands = context.read<SavedHandManagerService>().hands;
+    final taggedHands =
+        hands.where((h) => h.tags.map((t) => t.toLowerCase()).contains(tag));
     final mistakes = [
-      for (final h in hands.where((h) => h.tags.map((t) => t.toLowerCase()).contains(tag)))
+      for (final h in taggedHands)
         if (h.expectedAction != null &&
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() != h.gtoAction!.trim().toLowerCase())
@@ -73,6 +81,8 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
       _trend = trend;
       _reviewItem = review;
       _mistakes = mistakes.take(3).toList();
+      _skillLevel = skill;
+      _handsAnalyzed = taggedHands.length;
       _loading = false;
     });
   }
@@ -201,16 +211,6 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final badge = _trend != null
-        ? Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.redAccent,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(_trend!, style: const TextStyle(fontSize: 12)),
-          )
-        : const SizedBox.shrink();
     return Scaffold(
       appBar: AppBar(title: Text('Tag: ${widget.tag}')),
       body: _loading
@@ -218,13 +218,11 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Row(
-                  children: [
-                    Text('Навык: ${widget.tag}',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 8),
-                    badge,
-                  ],
+                TagInsightHeader(
+                  tag: widget.tag,
+                  skillLevel: _skillLevel,
+                  trend: _trend ?? '',
+                  handsAnalyzed: _handsAnalyzed,
                 ),
                 const SizedBox(height: 16),
                 _chart(),
