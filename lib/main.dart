@@ -112,6 +112,7 @@ import 'screens/empty_training_screen.dart';
 import 'services/app_init_service.dart';
 import 'services/suggested_pack_push_service.dart';
 import 'services/lesson_path_reminder_scheduler.dart';
+import 'services/decay_reminder_scheduler.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -164,6 +165,7 @@ Future<void> main() async {
   tagCache = TagCacheService();
   await tagCache.load();
   unawaited(SuggestedPackPushService.instance.schedulePushReminder());
+  unawaited(DecayReminderScheduler.instance.register());
   await AppInitService.instance.init();
   runApp(
     MultiProvider(
