@@ -17,6 +17,8 @@ import 'training_session_screen.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../services/daily_spotlight_service.dart';
 
+import '../widgets/booster_suggestion_block.dart';
+
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/spot_of_the_day_card.dart';
 import '../widgets/streak_chart.dart';
@@ -130,6 +132,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           ),
           const ProgressSummaryCard(),
           const TrainingProgressCard(),
+          const BoosterSuggestionBlock(),
           if (!tablet) const DailySpotlightCard(),
           if (narrow) ...[
             const QuickContinueCard(),

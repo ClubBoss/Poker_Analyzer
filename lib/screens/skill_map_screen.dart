@@ -16,6 +16,7 @@ import '../models/mistake_tag.dart';
 import '../models/v2/training_pack_template.dart';
 import '../widgets/skill_card.dart';
 import '../widgets/booster_packs_block.dart';
+import '../widgets/booster_suggestion_block.dart';
 import '../utils/responsive.dart';
 import 'library_screen.dart';
 import 'tag_insight_screen.dart';
@@ -231,6 +232,8 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
                 ),
                 const SizedBox(height: 16),
                 for (final c in _clusters) _clusterTile(c),
+                const SizedBox(height: 16),
+                const BoosterSuggestionBlock(),
                 const SizedBox(height: 16),
                 const BoosterPacksBlock(),
               ],
