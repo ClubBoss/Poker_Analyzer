@@ -41,6 +41,7 @@ class _LearningPathStageListScreenState
   final Map<String, List<TrainingPackTemplateV2>> _boosters = {};
   bool _loading = true;
   bool _initialized = false;
+  final Set<String> _openSections = {};
 
   @override
   void didChangeDependencies() {
@@ -56,6 +57,9 @@ class _LearningPathStageListScreenState
         progress: _progress,
         gatekeeper: _gatekeeper,
       );
+      _openSections
+        ..clear()
+        ..addAll(widget.path.sections.map((s) => s.id));
       _load();
       _initialized = true;
     }
@@ -128,19 +132,28 @@ class _LearningPathStageListScreenState
     final map = {for (final s in stages) s.id: s};
     final list = <Widget>[];
     for (final section in widget.path.sections) {
-      list.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            section.title,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      );
+      final children = <Widget>[];
       for (final id in section.stageIds) {
         final stage = map[id];
-        if (stage != null) list.add(_buildStageItem(stage));
+        if (stage != null) children.add(_buildStageItem(stage));
       }
+      list.add(
+        ExpansionTile(
+          initiallyExpanded: _openSections.contains(section.id),
+          onExpansionChanged: (v) => setState(() {
+            if (v) {
+              _openSections.add(section.id);
+            } else {
+              _openSections.remove(section.id);
+            }
+          }),
+          title: Text(section.title),
+          subtitle:
+              section.description.isNotEmpty ? Text(section.description) : null,
+          childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+          children: children,
+        ),
+      );
     }
     return list;
   }
@@ -216,4 +229,3 @@ class _LearningPathStageListScreenState
     );
   }
 }
-
