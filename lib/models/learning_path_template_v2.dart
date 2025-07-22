@@ -1,9 +1,11 @@
 import "learning_path_stage_model.dart";
+import "learning_track_section_model.dart";
 class LearningPathTemplateV2 {
   final String id;
   final String title;
   final String description;
   final List<LearningPathStageModel> stages;
+  final List<LearningTrackSectionModel> sections;
   final List<String> tags;
   final String? recommendedFor;
   final List<String> prerequisitePathIds;
@@ -13,10 +15,12 @@ class LearningPathTemplateV2 {
     required this.title,
     required this.description,
     List<LearningPathStageModel>? stages,
+    List<LearningTrackSectionModel>? sections,
     List<String>? tags,
     this.recommendedFor,
     List<String>? prerequisitePathIds,
   })  : stages = stages ?? const [],
+        sections = sections ?? const [],
         tags = tags ?? const [],
         prerequisitePathIds = prerequisitePathIds ?? const [];
 
@@ -37,6 +41,12 @@ class LearningPathTemplateV2 {
         for (final s in (json['stages'] as List? ?? []))
           LearningPathStageModel.fromJson(Map<String, dynamic>.from(s)),
       ],
+      sections: [
+        for (final s in (json['sections'] as List? ?? []))
+          LearningTrackSectionModel.fromJson(
+            Map<String, dynamic>.from(s),
+          ),
+      ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       recommendedFor: json['recommendedFor'] as String?,
       prerequisitePathIds: [
@@ -51,6 +61,8 @@ class LearningPathTemplateV2 {
         'title': title,
         'description': description,
         if (stages.isNotEmpty) 'stages': [for (final s in stages) s.toJson()],
+        if (sections.isNotEmpty)
+          'sections': [for (final s in sections) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
         if (recommendedFor != null) 'recommendedFor': recommendedFor,
         if (prerequisitePathIds.isNotEmpty)

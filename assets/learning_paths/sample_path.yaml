@@ -20,3 +20,14 @@ stages:
     packId: pack2
     requiredAccuracy: 70
     minHands: 5
+sections:
+  - id: basics
+    title: Push/Fold Basics
+    description: Intro section
+    stageIds:
+      - s1
+  - id: advanced
+    title: ICM Spots
+    description: Advanced section
+    stageIds:
+      - s2
