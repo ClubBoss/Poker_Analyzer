@@ -16,10 +16,11 @@ void main() {
     required String correct,
     double ev = 1.0,
     HeroPosition pos = HeroPosition.btn,
+    int stack = 15,
   }) {
     final spot = TrainingPackSpot(
       id: 's',
-      hand: HandData(position: pos),
+      hand: HandData(position: pos, stacks: {'0': stack.toDouble()}),
       evalResult: EvaluationResult(
         correct: false,
         expectedAction: correct,
@@ -52,6 +53,12 @@ void main() {
     final a = attempt(user: 'push', correct: 'fold', pos: HeroPosition.utg, ev: -1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.overpush));
+  });
+
+  test('short stack overfold classified', () {
+    final a = attempt(user: 'fold', correct: 'push', pos: HeroPosition.sb, stack: 8, ev: 1);
+    final tags = engine.tag(a);
+    expect(tags, contains(MistakeTag.overfoldShortStack));
   });
 }
 
