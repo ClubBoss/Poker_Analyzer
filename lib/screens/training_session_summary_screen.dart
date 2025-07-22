@@ -22,6 +22,11 @@ import '../services/daily_tip_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/mistake_advice.dart';
 import '../helpers/poker_street_helper.dart';
+import '../services/session_log_service.dart';
+import '../services/training_path_progress_service_v2.dart';
+import '../services/learning_path_registry_service.dart';
+import 'stage_completed_screen.dart';
+import 'package:collection/collection.dart';
 import '../widgets/spot_viewer_dialog.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
@@ -59,6 +64,56 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
   final _shareBoundaryKey = GlobalKey();
   TrainingPackTemplate? _weakPack;
   bool _autoReview = true;
+
+  /// Computes aggregate hands played and accuracy for [packId].
+  _StageStats _computeStats(String packId, List<SessionLog> logs) {
+    var hands = 0;
+    var correct = 0;
+    for (final l in logs) {
+      if (l.templateId == packId) {
+        hands += l.correctCount + l.mistakeCount;
+        correct += l.correctCount;
+      }
+    }
+    final acc = hands == 0 ? 0.0 : correct * 100 / hands;
+    return _StageStats(hands: hands, accuracy: acc);
+  }
+
+  Future<void> _finish() async {
+    final registry = LearningPathRegistryService.instance;
+    final templates = await registry.loadAll();
+    final logs = context.read<SessionLogService>();
+    await logs.load();
+    for (final path in templates) {
+      final stage =
+          path.stages.firstWhereOrNull((s) => s.packId == widget.template.id);
+      if (stage == null) continue;
+      final progress = TrainingPathProgressServiceV2(logs: logs);
+      await progress.loadProgress(path.id);
+      final before = progress.getStageCompletion(stage.id);
+      final stats = _computeStats(stage.packId, logs.logs);
+      await progress.markStageCompleted(stage.id, stats.accuracy);
+      final after = progress.getStageCompletion(stage.id);
+      if (!before && after) {
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StageCompletedScreen(
+              pathId: path.id,
+              stageTitle: stage.title,
+              accuracy: stats.accuracy,
+              hands: stats.hands,
+            ),
+          ),
+        );
+        return;
+      }
+    }
+    if (mounted) {
+      Navigator.of(context).popUntil((r) => r.isFirst);
+    }
+  }
 
   @override
   void initState() {
@@ -446,9 +501,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                           return;
                         }
                       }
-                      if (mounted) {
-                        Navigator.of(context).popUntil((r) => r.isFirst);
-                      }
+                      await _finish();
                     },
                     child: const Text('Finish'),
                   ),
@@ -473,4 +526,10 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
       ),
     );
   }
+}
+
+class _StageStats {
+  final int hands;
+  final double accuracy;
+  const _StageStats({required this.hands, required this.accuracy});
 }
