@@ -8,6 +8,7 @@ import '../services/training_pack_stats_service.dart';
 import '../services/learning_track_engine.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/scheduled_training_launcher.dart';
 import '../services/recommendation_feed_engine.dart';
 import 'package:collection/collection.dart';
 import '../services/weakness_review_engine.dart';
@@ -52,6 +53,9 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
   void initState() {
     super.initState();
     _future = _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ScheduledTrainingLauncher>().launchNext();
+    });
   }
 
   Future<_DashboardData> _load() async {
