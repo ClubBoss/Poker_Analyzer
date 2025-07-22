@@ -1,0 +1,36 @@
+id: section_chain
+title: Section Chain Path
+description: Path with unlock chain inside section
+stages:
+  - id: sc1
+    title: SC1
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+  - id: sc2
+    title: SC2
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+    unlocks:
+      - sc3
+  - id: sc3
+    title: SC3
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+sections:
+  - id: first
+    title: First Section
+    description: ''
+    stageIds:
+      - sc1
+  - id: second
+    title: Second Section
+    description: ''
+    stageIds:
+      - sc2
+      - sc3
