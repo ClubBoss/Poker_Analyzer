@@ -13,6 +13,7 @@ import '../services/weakness_review_engine.dart';
 import '../services/training_session_launcher.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../widgets/tag_insight_header.dart';
+import '../widgets/tag_drill_launcher.dart';
 
 class TagInsightScreen extends StatefulWidget {
   final String tag;
@@ -234,6 +235,10 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
                     onPressed: _startReview,
                     child: const Text('🔁 Review now'),
                   ),
+                ],
+                if (_skillLevel < 0.8 && _handsAnalyzed >= 5) ...[
+                  const SizedBox(height: 16),
+                  TagDrillLauncher(tag: widget.tag),
                 ],
               ],
             ),
