@@ -98,6 +98,7 @@ import 'services/goal_suggestion_engine.dart';
 import 'services/goal_sync_service.dart';
 import 'services/tag_coverage_service.dart';
 import 'services/tag_mastery_history_service.dart';
+import 'services/tag_insight_reminder_engine.dart';
 import 'services/daily_training_reminder_service.dart';
 import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
@@ -462,6 +463,11 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     Provider(create: (_) => TagCoverageService()),
     Provider(create: (_) => TagMasteryHistoryService()),
+    Provider(
+      create: (context) => TagInsightReminderEngine(
+        history: context.read<TagMasteryHistoryService>(),
+      ),
+    ),
     Provider(create: (_) => DailyTrainingReminderService()),
     Provider(
       create: (context) => GoalSuggestionEngine(

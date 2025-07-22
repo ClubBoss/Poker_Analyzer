@@ -11,8 +11,7 @@ import '../services/training_session_launcher.dart';
 import '../services/recommendation_feed_engine.dart';
 import 'package:collection/collection.dart';
 import '../services/weakness_review_engine.dart';
-import '../services/skill_loss_detector.dart';
-import '../services/progress_forecast_service.dart';
+import '../services/tag_insight_reminder_engine.dart';
 import '../widgets/weakness_review_section.dart';
 import '../widgets/feed_recommendation_widget.dart';
 import '../widgets/next_up_banner.dart';
@@ -113,12 +112,8 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
       allPacks: packs,
     );
 
-    final forecast = context.read<ProgressForecastService>();
-    final tagHistory = {
-      for (final tag in forecast.tags)
-        tag: [for (final e in forecast.tagSeries(tag)) e.accuracy]
-    };
-    final losses = const SkillLossDetector().detect(tagHistory);
+    final reminder = context.read<TagInsightReminderEngine>();
+    final losses = await reminder.loadLosses();
 
     return _DashboardData(
       progress: progress,
