@@ -7,7 +7,8 @@ import 'package:collection/collection.dart';
 import '../models/mistake_tag.dart';
 import '../models/mistake_tag_cluster.dart';
 import '../models/v2/training_pack_template_v2.dart';
-import '../services/smart_booster_generator.dart';
+import '../services/booster_suggestion_engine.dart';
+import '../core/training/library/training_pack_library_v2.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
@@ -24,7 +25,7 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
   static const _cacheTimeKey = 'smart_booster_cache_time';
 
   bool _loading = true;
-  List<TrainingPackTemplateV2> _packs = [];
+  TrainingPackTemplateV2? _pack;
 
   @override
   void initState() {
@@ -35,20 +36,16 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final cacheTimeStr = prefs.getString(_cacheTimeKey);
-    final cacheStr = prefs.getString(_cacheKey);
+    final cacheId = prefs.getString(_cacheKey);
     final now = DateTime.now();
-    if (cacheTimeStr != null && cacheStr != null) {
+    if (cacheTimeStr != null && cacheId != null) {
       final ts = DateTime.tryParse(cacheTimeStr);
       if (ts != null && now.difference(ts) < const Duration(hours: 24)) {
-        final list = jsonDecode(cacheStr);
-        if (list is List) {
+        await TrainingPackLibraryV2.instance.loadFromFolder();
+        final tpl = TrainingPackLibraryV2.instance.getById(cacheId);
+        if (tpl != null) {
           setState(() {
-            _packs = [
-              for (final e in list)
-                if (e is Map)
-                  TrainingPackTemplateV2.fromJson(
-                      Map<String, dynamic>.from(e))
-            ];
+            _pack = tpl;
             _loading = false;
           });
           return;
@@ -56,15 +53,22 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
       }
     }
 
-    final packs = await const SmartBoosterGenerator().generate();
-    await prefs.setString(
-        _cacheKey, jsonEncode([for (final p in packs) p.toJson()]));
-    await prefs.setString(_cacheTimeKey, now.toIso8601String());
-    if (!mounted) return;
-    setState(() {
-      _packs = packs;
-      _loading = false;
-    });
+    final id = await const BoosterSuggestionEngine().suggestBooster();
+    if (id != null) {
+      await TrainingPackLibraryV2.instance.loadFromFolder();
+      final tpl = TrainingPackLibraryV2.instance.getById(id);
+      if (tpl != null) {
+        await prefs.setString(_cacheKey, tpl.id);
+        await prefs.setString(_cacheTimeKey, now.toIso8601String());
+        if (!mounted) return;
+        setState(() {
+          _pack = tpl;
+          _loading = false;
+        });
+        return;
+      }
+    }
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _start(TrainingPackTemplateV2 tpl) async {
@@ -104,7 +108,8 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
         child: Center(child: CircularProgressIndicator()),
       );
     }
-    if (_packs.isEmpty) return const SizedBox.shrink();
+    final pack = _pack;
+    if (pack == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     return FutureBuilder<Map<String, double>>(
       future: context.read<TagMasteryService>().computeMastery(),
@@ -127,66 +132,59 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
               const SizedBox(height: 8),
               SizedBox(
                 height: 160,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _packs.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, i) {
-                    final pack = _packs[i];
-                    final tag = pack.meta['tag'] as String?;
-                    final mastery = tag != null
-                        ? (_clusterMastery(tag, masteryMap) * 100).round()
-                        : null;
-                    return Container(
-                      width: 180,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(pack.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold)),
-                          if (tag != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                '$tag${mastery != null ? ' • $mastery%' : ''}',
-                                style: const TextStyle(
-                                    color: Colors.white70, fontSize: 12),
-                              ),
-                            ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              '${pack.spotCount} spots',
-                              style: const TextStyle(
-                                  color: Colors.white70, fontSize: 12),
-                            ),
-                          ),
-                          const Spacer(),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(
-                              onPressed: () => _start(pack),
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: accent),
-                              child: const Text('Start Training'),
-                            ),
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                child: _buildPackTile(pack, masteryMap, accent),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPackTile(TrainingPackTemplateV2 pack, Map<String, double> masteryMap,
+      Color accent) {
+    final tag = pack.meta['tag'] as String?;
+    final mastery = tag != null
+        ? (_clusterMastery(tag, masteryMap) * 100).round()
+        : null;
+    return Container(
+      width: 180,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(pack.name,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          if (tag != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '$tag${mastery != null ? ' • $mastery%' : ''}',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '${pack.spotCount} spots',
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ),
+          const Spacer(),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () => _start(pack),
+              style: ElevatedButton.styleFrom(backgroundColor: accent),
+              child: const Text('Start Training'),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
