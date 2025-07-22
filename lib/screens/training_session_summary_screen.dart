@@ -32,6 +32,7 @@ import 'goals_overview_screen.dart';
 import 'spot_of_the_day_screen.dart';
 import 'weakness_overview_screen.dart';
 import 'next_step_suggestion_dialog.dart';
+import '../widgets/mistake_review_button.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
@@ -466,6 +467,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
               },
               child: Text(l.exportWeaknessReport),
             ),
+            MistakeReviewButton(session: widget.session, template: widget.template),
           ],
         ),
       ),
