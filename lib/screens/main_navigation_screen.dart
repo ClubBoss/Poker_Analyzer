@@ -42,6 +42,7 @@ import 'progress_dashboard_screen.dart';
 import 'track_progress_dashboard_screen.dart';
 import 'position_tag_analytics_screen.dart';
 import 'weakness_overview_screen.dart';
+import 'learning_dashboard_screen.dart';
 import 'notification_settings_screen.dart';
 import 'dev_menu_screen.dart';
 import 'package:provider/provider.dart';
@@ -224,6 +225,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             const SpotOfTheDayScreen(),
             const SettingsPlaceholderScreen(),
             const WeaknessOverviewScreen(),
+            const LearningDashboardScreen(),
           ]
         : [
             _home(),
@@ -233,6 +235,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             const PackOverviewScreen(),
             const InsightsScreen(),
             const SettingsPlaceholderScreen(),
+            const LearningDashboardScreen(),
           ];
     return Scaffold(
       appBar: AppBar(
@@ -381,6 +384,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                       icon: Icon(Icons.analytics_outlined),
                       label: 'Аналитика',
                     ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.dashboard),
+                      label: 'Dashboard',
+                    ),
                   ]
                 : const [
                     BottomNavigationBarItem(
@@ -407,6 +414,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                     BottomNavigationBarItem(
                       icon: Icon(Icons.more_horiz),
                       label: 'Ещё',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.dashboard),
+                      label: 'Dashboard',
                     ),
                   ],
           ),
