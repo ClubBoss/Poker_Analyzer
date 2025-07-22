@@ -13,6 +13,7 @@ import 'package:collection/collection.dart';
 import '../services/weakness_review_engine.dart';
 import '../widgets/weakness_review_section.dart';
 import '../widgets/feed_recommendation_widget.dart';
+import '../widgets/next_up_banner.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -177,7 +178,6 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = Theme.of(context).colorScheme.secondary;
     return FutureBuilder<_DashboardData>(
       future: _future,
       builder: (context, snapshot) {
@@ -194,47 +194,29 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              if (_recommendationCards.isNotEmpty) ...[
+              if (data.reviews.isNotEmpty) ...[
+                WeaknessReviewSection(
+                  items: data.reviews,
+                  onTap: _handlePackLaunch,
+                ),
+                const SizedBox(height: 12),
+              ]
+              else if (_recommendationCards.isNotEmpty) ...[
                 FeedRecommendationWidget(
                   cards: _recommendationCards,
                   onTap: _handlePackLaunch,
                 ),
+                const SizedBox(height: 12),
+              ]
+              else if (data.nextPack != null) ...[
+                const NextUpBanner(),
                 const SizedBox(height: 12),
               ],
               _section('🎯 Completion', '$completion% complete'),
               const SizedBox(height: 12),
               _improvements(data.improvements),
               const SizedBox(height: 12),
-              WeaknessReviewSection(
-                items: data.reviews,
-                onTap: _handlePackLaunch,
-              ),
-              const SizedBox(height: 12),
               _section('🔥 Streak', '${streak}-day streak'),
-              const SizedBox(height: 12),
-              if (data.nextPack != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Next Up: ${data.nextPack!.name}',
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () => _startPack(data.nextPack!),
-                        style:
-                            ElevatedButton.styleFrom(backgroundColor: accent),
-                        child: const Text('Continue Training'),
-                      ),
-                    ],
-                  ),
-                ),
             ],
           ),
         );
