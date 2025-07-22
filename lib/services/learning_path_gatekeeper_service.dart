@@ -1,5 +1,6 @@
 
 import '../models/learning_path_stage_model.dart';
+import '../models/learning_track_section_model.dart';
 import '../services/learning_path_registry_service.dart';
 import '../services/training_path_progress_service_v2.dart';
 import '../services/tag_mastery_service.dart';
@@ -53,12 +54,52 @@ class LearningPathGatekeeperService {
     }
 
     _unlocked.clear();
-    for (final stage in template.stages) {
-      if (!base.contains(stage.id)) continue;
-      if (!_meetsMastery(stage, masteryMap)) continue;
-      if (_isBlocked(stage, blockedClusters)) continue;
-      if (!_meetsSessionCount()) continue;
-      _unlocked.add(stage.id);
+
+    // Map stage id to model for quick lookup
+    final stageById = {
+      for (final s in template.stages) s.id: s,
+    };
+
+    if (template.sections.isNotEmpty) {
+      final idsInSections = <String>{};
+      for (var i = 0; i < template.sections.length; i++) {
+        final section = template.sections[i];
+        idsInSections.addAll(section.stageIds);
+        var allow = true;
+        if (i > 0) {
+          final prev = template.sections[i - 1];
+          allow = prev.stageIds
+              .every((id) => progress.getStageCompletion(id));
+        }
+        if (!allow) continue;
+        for (final id in section.stageIds) {
+          final stage = stageById[id];
+          if (stage == null) continue;
+          if (!base.contains(stage.id)) continue;
+          if (!_meetsMastery(stage, masteryMap)) continue;
+          if (_isBlocked(stage, blockedClusters)) continue;
+          if (!_meetsSessionCount()) continue;
+          _unlocked.add(stage.id);
+        }
+      }
+
+      // Process stages not assigned to any section
+      for (final stage in template.stages) {
+        if (idsInSections.contains(stage.id)) continue;
+        if (!base.contains(stage.id)) continue;
+        if (!_meetsMastery(stage, masteryMap)) continue;
+        if (_isBlocked(stage, blockedClusters)) continue;
+        if (!_meetsSessionCount()) continue;
+        _unlocked.add(stage.id);
+      }
+    } else {
+      for (final stage in template.stages) {
+        if (!base.contains(stage.id)) continue;
+        if (!_meetsMastery(stage, masteryMap)) continue;
+        if (_isBlocked(stage, blockedClusters)) continue;
+        if (!_meetsSessionCount()) continue;
+        _unlocked.add(stage.id);
+      }
     }
   }
 

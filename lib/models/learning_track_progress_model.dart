@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 enum StageStatus { locked, unlocked, completed }
 
 class StageProgressStatus {
@@ -13,5 +15,5 @@ class LearningTrackProgressModel {
   const LearningTrackProgressModel({required this.stages});
 
   StageProgressStatus? statusFor(String stageId) =>
-      stages.firstWhere((e) => e.stageId == stageId, orElse: () => null);
+      stages.firstWhereOrNull((e) => e.stageId == stageId);
 }

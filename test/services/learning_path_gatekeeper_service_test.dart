@@ -59,4 +59,62 @@ void main() {
     await gatekeeper.updateStageUnlocks('sample');
     expect(gatekeeper.isStageUnlocked('s2'), isTrue);
   });
+
+  test('sequential unlock by section', () async {
+    final logs = [
+      SessionLog(
+        sessionId: '1',
+        templateId: 'pack1',
+        startedAt: DateTime.now(),
+        completedAt: DateTime.now(),
+        correctCount: 1,
+        mistakeCount: 0,
+      ),
+    ];
+    final progress = TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
+    await progress.loadProgress('section_gating');
+
+    final gatekeeper = LearningPathGatekeeperService(
+      progress: progress,
+      mastery: _FakeMasteryService(const {}),
+    );
+
+    await gatekeeper.updateStageUnlocks('section_gating');
+    expect(gatekeeper.isStageUnlocked('a1'), isTrue);
+    expect(gatekeeper.isStageUnlocked('a2'), isTrue);
+    expect(gatekeeper.isStageUnlocked('b1'), isFalse);
+
+    await progress.markStageCompleted('a1', 100);
+    await progress.markStageCompleted('a2', 100);
+    await gatekeeper.updateStageUnlocks('section_gating');
+    expect(gatekeeper.isStageUnlocked('b1'), isTrue);
+  });
+
+  test('fallback to stage unlocking when no sections', () async {
+    final logs = [
+      SessionLog(
+        sessionId: '1',
+        templateId: 'pack1',
+        startedAt: DateTime.now(),
+        completedAt: DateTime.now(),
+        correctCount: 1,
+        mistakeCount: 0,
+      ),
+    ];
+    final progress = TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
+    await progress.loadProgress('no_sections');
+
+    final gatekeeper = LearningPathGatekeeperService(
+      progress: progress,
+      mastery: _FakeMasteryService(const {}),
+    );
+
+    await gatekeeper.updateStageUnlocks('no_sections');
+    expect(gatekeeper.isStageUnlocked('ns1'), isTrue);
+    expect(gatekeeper.isStageUnlocked('ns2'), isFalse);
+
+    await progress.markStageCompleted('ns1', 100);
+    await gatekeeper.updateStageUnlocks('no_sections');
+    expect(gatekeeper.isStageUnlocked('ns2'), isTrue);
+  });
 }

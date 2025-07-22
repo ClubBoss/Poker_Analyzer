@@ -1,0 +1,34 @@
+id: section_gating
+title: Section Gating Path
+description: Path used for section gating tests
+stages:
+  - id: a1
+    title: A1
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+  - id: a2
+    title: A2
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+  - id: b1
+    title: B1
+    description: ''
+    packId: pack1
+    requiredAccuracy: 80
+    minHands: 1
+sections:
+  - id: first
+    title: First Section
+    description: ''
+    stageIds:
+      - a1
+      - a2
+  - id: second
+    title: Second Section
+    description: ''
+    stageIds:
+      - b1
