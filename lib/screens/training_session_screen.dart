@@ -38,6 +38,10 @@ import '../services/smart_stage_unlock_engine.dart';
 import '../services/training_milestone_engine.dart';
 import '../widgets/confetti_overlay.dart';
 import 'package:collection/collection.dart';
+import 'dart:math';
+import '../services/mistake_tag_history_service.dart';
+import '../services/auto_mistake_tagger_engine.dart';
+import '../models/training_spot_attempt.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -154,6 +158,36 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       if (a.playerIndex == spot.hand.heroIndex) return a.action;
     }
     return null;
+  }
+
+  double? _actionEv(TrainingPackSpot spot, String action) {
+    for (final a in spot.hand.actions[0] ?? []) {
+      if (a.playerIndex == spot.hand.heroIndex &&
+          a.action.toLowerCase() == action.toLowerCase()) {
+        return a.ev;
+      }
+    }
+    return null;
+  }
+
+  double? _bestEv(TrainingPackSpot spot) {
+    double? best;
+    for (final a in spot.hand.actions[0] ?? []) {
+      if (a.playerIndex == spot.hand.heroIndex && a.ev != null) {
+        best = best == null ? a.ev! : max(best!, a.ev!);
+      }
+    }
+    return best;
+  }
+
+  double? _calcEvDiff(
+      double? heroEv, double? bestEv, String user, String correct) {
+    if (heroEv == null || bestEv == null) return null;
+    final c = correct.toLowerCase();
+    if (c == 'push' || c == 'call' || c == 'raise') {
+      return bestEv - heroEv;
+    }
+    return heroEv - bestEv;
   }
 
   void _choose(String action, service, spot) {
@@ -331,6 +365,22 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         total: total,
         elapsed: elapsed,
       ));
+      for (final action in service.actionLog.where((a) => !a.isCorrect)) {
+        final spot = service.spots.firstWhereOrNull((s) => s.id == action.spotId);
+        if (spot == null) continue;
+        final exp = _expectedAction(spot) ?? spot.correctAction ?? '';
+        final heroEv = _actionEv(spot, action.chosenAction);
+        final bestEv = _bestEv(spot);
+        final diff = _calcEvDiff(heroEv, bestEv, action.chosenAction, exp) ?? 0;
+        final attempt = TrainingSpotAttempt(
+          spot: spot,
+          userAction: action.chosenAction,
+          correctAction: exp,
+          evDiff: diff,
+        );
+        final tags = const AutoMistakeTaggerEngine().tag(attempt);
+        unawaited(MistakeTagHistoryService.logTags(tpl.id, attempt, tags));
+      }
       if (service.totalCount < 3) {
         Map<String, int>? counts;
         if (tpl.id == 'suggested_weekly') {
