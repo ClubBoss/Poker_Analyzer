@@ -1,6 +1,7 @@
 import 'skill_loss_detector.dart';
 import 'tag_goal_tracker_service.dart';
 import 'pack_library_service.dart';
+import 'tag_review_history_service.dart';
 
 class SkillLossFeedItem {
   final String tag;
@@ -19,12 +20,15 @@ class SkillLossFeedItem {
 class SkillLossFeedEngine {
   final TagGoalTrackerService _goals;
   final PackLibraryService _library;
+  final TagReviewHistoryService _reviews;
 
   const SkillLossFeedEngine({
     TagGoalTrackerService? goals,
     PackLibraryService? library,
-  }) : _goals = goals ?? TagGoalTrackerService.instance,
-       _library = library ?? PackLibraryService.instance;
+    TagReviewHistoryService? reviews,
+  })  : _goals = goals ?? TagGoalTrackerService.instance,
+        _library = library ?? PackLibraryService.instance,
+        _reviews = reviews ?? TagReviewHistoryService.instance;
 
   Future<List<SkillLossFeedItem>> buildFeed(
     List<SkillLoss> losses, {
@@ -43,7 +47,18 @@ class SkillLossFeedEngine {
           ? 30
           : current.difference(last).inDays.clamp(0, 30);
       final recencyFactor = 1 + daysSince / 7;
-      final score = loss.drop * recencyFactor;
+      var score = loss.drop * recencyFactor;
+
+      final record = await _reviews.getRecord(loss.tag);
+      if (record != null) {
+        final days = current.difference(record.timestamp).inDays.toDouble();
+        final decay = (days / 14).clamp(0.0, 1.0);
+        if (record.accuracy >= 0.8) {
+          score *= 1 - 0.5 * (1 - decay);
+        } else if (record.accuracy < 0.5) {
+          score *= 1 + 0.2 * (1 - decay);
+        }
+      }
 
       final pack = await _library.findByTag(loss.tag);
       scored.add(

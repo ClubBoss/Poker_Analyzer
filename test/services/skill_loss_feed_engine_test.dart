@@ -6,6 +6,7 @@ import 'package:poker_analyzer/services/pack_library_service.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 import 'package:poker_analyzer/models/game_type.dart';
+import 'package:poker_analyzer/services/tag_review_history_service.dart';
 
 class _FakeGoals implements TagGoalTrackerService {
   final Map<String, DateTime?> map;
@@ -34,6 +35,16 @@ class _FakeLibrary implements PackLibraryService {
       .firstWhere((p) => p.id == id, orElse: () => byTag.values.first);
   @override
   Future<TrainingPackTemplateV2?> findByTag(String tag) async => byTag[tag];
+}
+
+class _FakeReviews implements TagReviewHistoryService {
+  final Map<String, TagReviewRecord> map;
+  _FakeReviews(this.map);
+  @override
+  Future<void> logReview(String tag, double accuracy) async {}
+
+  @override
+  Future<TagReviewRecord?> getRecord(String tag) async => map[tag];
 }
 
 TrainingPackTemplateV2 _tpl(String id, String tag) {
@@ -69,5 +80,30 @@ void main() {
     expect(result.first.tag, 'a');
     expect(result.first.suggestedPackId, 'pa');
     expect(result.last.tag, 'b');
+  });
+
+  test('recent high accuracy lowers urgency', () async {
+    final goals = _FakeGoals({
+      'a': DateTime.now().subtract(const Duration(days: 5)),
+      'b': DateTime.now().subtract(const Duration(days: 5)),
+    });
+    final library = _FakeLibrary({'a': _tpl('pa', 'a'), 'b': _tpl('pb', 'b')});
+    final reviews = _FakeReviews({
+      'a': TagReviewRecord(
+        accuracy: 0.9,
+        timestamp: DateTime.now(),
+      ),
+    });
+    final engine = SkillLossFeedEngine(
+      goals: goals,
+      library: library,
+      reviews: reviews,
+    );
+    final losses = [
+      SkillLoss(tag: 'a', drop: 0.6, trend: ''),
+      SkillLoss(tag: 'b', drop: 0.6, trend: ''),
+    ];
+    final result = await engine.buildFeed(losses);
+    expect(result.first.tag, 'b');
   });
 }
