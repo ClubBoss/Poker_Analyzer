@@ -1,0 +1,55 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Persists a queue of training pack IDs scheduled for automatic launch.
+class ScheduledTrainingQueueService extends ChangeNotifier {
+  ScheduledTrainingQueueService._();
+  static final ScheduledTrainingQueueService instance =
+      ScheduledTrainingQueueService._();
+
+  static const _prefsKey = 'scheduled_training_queue';
+
+  final List<String> _queue = [];
+
+  List<String> get queue => List.unmodifiable(_queue);
+
+  Future<void> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_prefsKey);
+    if (raw != null) {
+      try {
+        final data = jsonDecode(raw);
+        if (data is List) {
+          _queue
+            ..clear()
+            ..addAll(data.whereType<String>());
+        }
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsKey, jsonEncode(_queue));
+  }
+
+  /// Adds [packId] to the queue if not already present.
+  Future<void> add(String packId) async {
+    if (_queue.contains(packId)) return;
+    _queue.add(packId);
+    await _save();
+    notifyListeners();
+  }
+
+  /// Returns and removes the next scheduled pack ID, or `null` if none.
+  Future<String?> pop() async {
+    if (_queue.isEmpty) return null;
+    final id = _queue.removeAt(0);
+    await _save();
+    notifyListeners();
+    return id;
+  }
+
+  bool get hasItems => _queue.isNotEmpty;
+}
