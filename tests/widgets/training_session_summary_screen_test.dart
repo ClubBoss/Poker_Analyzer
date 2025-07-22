@@ -71,8 +71,8 @@ void main() {
             ),
           ),
           ChangeNotifierProvider<PlayerStyleService>(
-            create: (context) =>
-                PlayerStyleService(hands: context.read<SavedHandManagerService>()),
+            create: (context) => PlayerStyleService(
+                hands: context.read<SavedHandManagerService>()),
           ),
           ChangeNotifierProvider<ProgressForecastService>(
             create: (context) => ProgressForecastService(
@@ -91,6 +91,7 @@ void main() {
             preIcmPct: 25,
             xpEarned: 10,
             xpMultiplier: 1.0,
+            tagDeltas: const {},
           ),
         ),
       ),
@@ -100,6 +101,33 @@ void main() {
 
     expect(find.text('75.0%'), findsOneWidget);
     expect(find.text('Прогресс EV +25.0%, ICM +50.0%'), findsOneWidget);
+  });
+
+  testWidgets('skill gains section shows deltas', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const TrainingSessionSummaryScreen(
+          session: TrainingSession(
+            id: 'id',
+            templateId: 't',
+            completedAt: null,
+            results: {},
+          ),
+          template: TrainingPackTemplate(
+              id: 't', name: '', spots: [], createdAt: DateTime(0)),
+          preEvPct: 0,
+          preIcmPct: 0,
+          xpEarned: 0,
+          xpMultiplier: 1.0,
+          tagDeltas: {'a': 0.05},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Skill Gains'), findsOneWidget);
+    expect(find.text('+5.00%'), findsOneWidget);
   });
 }
 
@@ -140,7 +168,8 @@ class _FakeAdaptiveTrainingService extends ChangeNotifier
   Future<void> refresh() async {}
   @override
   Future<TrainingPackTemplate> buildAdaptivePack() async =>
-      TrainingPackTemplate(id: '', name: '', spots: [], createdAt: DateTime.now());
+      TrainingPackTemplate(
+          id: '', name: '', spots: [], createdAt: DateTime.now());
   @override
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

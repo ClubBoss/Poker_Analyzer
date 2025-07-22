@@ -46,6 +46,7 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
   final double preIcmPct;
   final int xpEarned;
   final double xpMultiplier;
+  final Map<String, double> tagDeltas;
   const TrainingSessionSummaryScreen({
     super.key,
     required this.session,
@@ -54,6 +55,7 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
     required this.preIcmPct,
     required this.xpEarned,
     required this.xpMultiplier,
+    this.tagDeltas = const {},
   });
 
   @override
@@ -298,6 +300,32 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
               ),
             ),
             const SizedBox(height: 16),
+            if (widget.tagDeltas.isNotEmpty) ...[
+              const Text('Skill Gains',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              for (final e in (widget.tagDeltas.entries.toList()
+                ..sort((a, b) => b.value.abs().compareTo(a.value.abs()))))
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(e.key, style: const TextStyle(color: Colors.white70)),
+                      Text(
+                        '${e.value >= 0 ? '+' : '-'}${(e.value.abs() * 100).toStringAsFixed(2)}%',
+                        style: TextStyle(
+                          color: e.value > 0
+                              ? Colors.green
+                              : (e.value < 0 ? Colors.red : Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+            ],
             Builder(
               builder: (context) {
                 final adv = <String>{};
