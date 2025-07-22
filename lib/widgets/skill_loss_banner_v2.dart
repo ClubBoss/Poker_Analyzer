@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +7,7 @@ import '../services/skill_loss_feed_engine.dart';
 import '../services/tag_insight_reminder_engine.dart';
 import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/engagement_analytics_service.dart';
 
 /// Compact banner showing top skill losses as review chips.
 class SkillLossBannerV2 extends StatefulWidget {
@@ -63,7 +66,17 @@ class _SkillLossBannerV2State extends State<SkillLossBannerV2> {
             children: [
               for (final item in display)
                 ActionChip(
-                  onPressed: () => _review(item),
+                  onPressed: () {
+                    unawaited(
+                      EngagementAnalyticsService.instance.logEvent(
+                        'review_cta.tap',
+                        source: 'SkillLossBannerV2',
+                        tag: item.tag,
+                        packId: item.suggestedPackId,
+                      ),
+                    );
+                    _review(item);
+                  },
                   backgroundColor: Colors.grey[700],
                   label: Row(
                     mainAxisSize: MainAxisSize.min,
