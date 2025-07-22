@@ -49,6 +49,12 @@ void main() {
     expect(tags, contains(MistakeTag.looseCallBb));
   });
 
+  test('loose call sb classified', () {
+    final a = attempt(user: 'call', correct: 'fold', pos: HeroPosition.sb, ev: -1);
+    final tags = engine.tag(a);
+    expect(tags, contains(MistakeTag.looseCallSb));
+  });
+
   test('overpush classified', () {
     final a = attempt(user: 'push', correct: 'fold', pos: HeroPosition.utg, ev: -1);
     final tags = engine.tag(a);

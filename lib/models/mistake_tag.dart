@@ -1,6 +1,7 @@
 enum MistakeTag {
   overfoldBtn('BTN Overfold'),
   looseCallBb('Loose Call BB'),
+  looseCallSb('Loose Call SB'),
   missedEvPush('Missed +EV Push'),
   missedEvCall('Missed +EV Call'),
   missedEvRaise('Missed +EV Raise'),
