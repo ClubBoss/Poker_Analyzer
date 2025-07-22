@@ -33,6 +33,13 @@ final List<MistakeTagRule> mistakeTagRules = [
         a.evDiff > 0,
   ),
   MistakeTagRule(
+    MistakeTag.missedEvCall,
+    (a) =>
+        a.correctAction.toLowerCase() == 'call' &&
+        a.userAction.toLowerCase() != 'call' &&
+        a.evDiff > 0,
+  ),
+  MistakeTagRule(
     MistakeTag.overpush,
     (a) =>
         a.userAction.toLowerCase() == 'push' &&
