@@ -16,7 +16,7 @@ import '../services/tag_insight_reminder_engine.dart';
 import '../widgets/weakness_review_section.dart';
 import '../widgets/feed_recommendation_widget.dart';
 import '../widgets/next_up_banner.dart';
-import '../widgets/skill_loss_banner.dart';
+import '../widgets/skill_loss_banner_v2.dart';
 import '../widgets/tag_insight_reminder_card.dart';
 import '../widgets/review_path_card.dart';
 import '../widgets/smart_recovery_banner.dart';
@@ -251,10 +251,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
               const SizedBox(height: 12),
               const TagInsightReminderCard(),
               const SizedBox(height: 12),
-              SkillLossBanner(
-                losses: data.losses,
-                onTapReview: _handleTagReview,
-              ),
+              const SkillLossBannerV2(),
             ],
           ),
         );
