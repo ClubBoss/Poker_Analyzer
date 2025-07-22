@@ -32,6 +32,7 @@ import '../widgets/streak_widget.dart';
 import '../widgets/resume_training_card.dart';
 import '../services/ab_test_engine.dart';
 import '../services/daily_training_reminder_service.dart';
+import '../services/scheduled_training_launcher.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
 import 'online_plugin_catalog_screen.dart';
@@ -74,6 +75,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeShowOnboarding();
       _maybeShowTrainingReminder();
+      _maybeLaunchScheduledTraining();
     });
   }
 
@@ -102,6 +104,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   Future<void> _maybeShowTrainingReminder() async {
     await context.read<DailyTrainingReminderService>().maybeShowReminder(context);
+  }
+
+  Future<void> _maybeLaunchScheduledTraining() async {
+    await context.read<ScheduledTrainingLauncher>().launchNext();
   }
 
   Future<void> _setDailyGoal() async {
@@ -155,6 +161,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _maybeShowTrainingReminder();
+      _maybeLaunchScheduledTraining();
     }
   }
 

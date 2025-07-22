@@ -101,6 +101,7 @@ import 'services/tag_mastery_history_service.dart';
 import 'services/tag_insight_reminder_engine.dart';
 import 'services/scheduled_training_queue_service.dart';
 import 'services/auto_recovery_trigger_service.dart';
+import 'services/scheduled_training_launcher.dart';
 import 'services/daily_training_reminder_service.dart';
 import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
@@ -479,6 +480,7 @@ List<SingleChildWidget> buildTrainingProviders() {
         queue: ScheduledTrainingQueueService.instance,
       )..run(),
     ),
+    Provider(create: (_) => const ScheduledTrainingLauncher()),
     Provider(create: (_) => DailyTrainingReminderService()),
     Provider(
       create: (context) => GoalSuggestionEngine(
