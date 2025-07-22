@@ -107,48 +107,69 @@ class _LearningPathStageListScreenState
   @override
   Widget build(BuildContext context) {
     final stages = widget.path.stages;
+    final hasSections = widget.path.sections.isNotEmpty;
     return Scaffold(
       appBar: AppBar(title: Text(widget.path.title)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView.builder(
+              child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                itemCount: stages.length,
-                itemBuilder: (context, index) {
-                  final stage = stages[index];
-                  final status =
-                      _model.statusFor(stage.id)?.status ?? StageStatus.locked;
-                  final progress = _progressStrings[stage.id] ?? '';
-                  final boosters = _boosters[stage.id] ?? const [];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LearningStageTile(
-                        stage: stage,
-                        status: status,
-                        subtitle: progress,
-                        onTap: () => _openStage(stage),
-                      ),
-                      if (boosters.isNotEmpty)
-                        SizedBox(
-                          height: 160,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            padding:
-                                const EdgeInsets.only(left: 16, top: 4, bottom: 8),
-                            itemBuilder: (context, i) =>
-                                _buildBoosterCard(boosters[i]),
-                            separatorBuilder: (_, __) => const SizedBox(width: 8),
-                            itemCount: boosters.length,
-                          ),
-                        ),
-                    ],
-                  );
-                },
+                children: hasSections
+                    ? _buildSectionedList(stages)
+                    : [for (final s in stages) _buildStageItem(s)],
               ),
             ),
+    );
+  }
+
+  List<Widget> _buildSectionedList(List<LearningPathStageModel> stages) {
+    final map = {for (final s in stages) s.id: s};
+    final list = <Widget>[];
+    for (final section in widget.path.sections) {
+      list.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            section.title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+      );
+      for (final id in section.stageIds) {
+        final stage = map[id];
+        if (stage != null) list.add(_buildStageItem(stage));
+      }
+    }
+    return list;
+  }
+
+  Widget _buildStageItem(LearningPathStageModel stage) {
+    final status = _model.statusFor(stage.id)?.status ?? StageStatus.locked;
+    final progress = _progressStrings[stage.id] ?? '';
+    final boosters = _boosters[stage.id] ?? const [];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LearningStageTile(
+          stage: stage,
+          status: status,
+          subtitle: progress,
+          onTap: () => _openStage(stage),
+        ),
+        if (boosters.isNotEmpty)
+          SizedBox(
+            height: 160,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: 16, top: 4, bottom: 8),
+              itemBuilder: (context, i) => _buildBoosterCard(boosters[i]),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemCount: boosters.length,
+            ),
+          ),
+      ],
     );
   }
 
