@@ -15,6 +15,7 @@ import '../services/learning_path_progress_tracker_service.dart';
 import '../services/skill_gap_booster_service.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/learning_stage_tile.dart';
+import 'learning_path_stage_preview_screen.dart';
 
 /// Displays stages of a learning path with progress indicators.
 class LearningPathStageListScreen extends StatefulWidget {
@@ -90,16 +91,16 @@ class _LearningPathStageListScreenState
     });
   }
 
-  Future<void> _startStage(LearningPathStageModel stage) async {
-    final template = await PackLibraryService.instance.getById(stage.packId);
-    if (template == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Training pack not found')),
-      );
-      return;
-    }
-    await const TrainingSessionLauncher().launch(template);
+  Future<void> _openStage(LearningPathStageModel stage) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LearningPathStagePreviewScreen(
+          path: widget.path,
+          stage: stage,
+        ),
+      ),
+    );
     if (mounted) _load();
   }
 
@@ -128,7 +129,7 @@ class _LearningPathStageListScreenState
                         stage: stage,
                         status: status,
                         subtitle: progress,
-                        onTap: () => _startStage(stage),
+                        onTap: () => _openStage(stage),
                       ),
                       if (boosters.isNotEmpty)
                         SizedBox(
