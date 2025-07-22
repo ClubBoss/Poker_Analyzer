@@ -10,6 +10,8 @@ import '../services/tag_mastery_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/recommendation_feed_engine.dart';
 import 'package:collection/collection.dart';
+import '../services/weakness_review_engine.dart';
+import '../widgets/weakness_review_section.dart';
 import '../widgets/feed_recommendation_widget.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -26,10 +28,12 @@ class _DashboardData {
   final TrainingProgress progress;
   final TrainingPackTemplateV2? nextPack;
   final Map<String, double> improvements;
+  final List<WeaknessReviewItem> reviews;
   const _DashboardData({
     required this.progress,
     required this.nextPack,
     required this.improvements,
+    required this.reviews,
   });
 }
 
@@ -96,10 +100,18 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
       for (final e in top.take(3)) e.key: e.value,
     };
 
+    final reviewItems = const WeaknessReviewEngine().analyze(
+      attempts: attempts,
+      stats: stats,
+      tagDeltas: deltas,
+      allPacks: packs,
+    );
+
     return _DashboardData(
       progress: progress,
       nextPack: track.nextUpPack,
       improvements: improvements,
+      reviews: reviewItems,
     );
   }
 
@@ -192,6 +204,11 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
               _section('🎯 Completion', '$completion% complete'),
               const SizedBox(height: 12),
               _improvements(data.improvements),
+              const SizedBox(height: 12),
+              WeaknessReviewSection(
+                items: data.reviews,
+                onTap: _handlePackLaunch,
+              ),
               const SizedBox(height: 12),
               _section('🔥 Streak', '${streak}-day streak'),
               const SizedBox(height: 12),
