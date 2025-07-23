@@ -6,7 +6,7 @@
     "type": "postflop",
     "gameType": "tournament",
     "bb": 40,
-    "spotCount": 2,
+    "spotCount": 6,
     "positions": [
       "btn",
       "bb"
@@ -280,7 +280,7 @@
     "type": "mtt",
     "gameType": "tournament",
     "bb": 25,
-    "spotCount": 2,
+    "spotCount": 6,
     "positions": [
       "btn"
     ],
@@ -303,7 +303,7 @@
     "type": "mtt",
     "gameType": "tournament",
     "bb": 25,
-    "spotCount": 2,
+    "spotCount": 6,
     "positions": [
       "btn"
     ],

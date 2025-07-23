@@ -8,5 +8,5 @@ const LearningPathStageModel threeBetPushBtnVsHjMttStageTemplate = LearningPathS
   packId: '3bet_push_btn_vs_hj',
   requiredAccuracy: 80,
   minHands: 10,
-  tags: ['level2', '3bet-push', 'btn', 'hj'],
+  tags: ['level2', '3bet-push', 'btn', 'hj', 'mtt'],
 );
