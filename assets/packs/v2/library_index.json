@@ -342,4 +342,29 @@
       "icon": "north"
     }
   }
+,
+  {
+    "id": "3bet_push_co_vs_btn",
+    "name": "3bet Push CO vs BTN",
+    "description": "CO shoves 25bb over BTN open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 2,
+    "positions": [
+      "co"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "co",
+      "btn",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
+  }
+
 ]
