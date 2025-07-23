@@ -341,8 +341,7 @@
       "recommended": true,
       "icon": "north"
     }
-  }
-,
+  },
   {
     "id": "3bet_push_co_vs_btn",
     "name": "3bet Push CO vs BTN",
@@ -457,8 +456,8 @@
       "recommended": true,
       "icon": "north"
     }
-  }
-  , {
+  },
+  {
     "id": "3bet_push_sb_vs_hj",
     "name": "3bet Push SB vs HJ",
     "description": "SB shoves 25bb over HJ open",
@@ -480,8 +479,8 @@
       "recommended": true,
       "icon": "north"
     }
-  }
-  , {
+  },
+  {
     "id": "3bet_push_bb_vs_btn",
     "name": "3bet Push BB vs BTN",
     "description": "BB shoves 25bb over BTN open",
@@ -503,7 +502,8 @@
       "recommended": true,
       "icon": "north"
     }
-  }, {
+  },
+  {
     "id": "3bet_push_bb_vs_lj",
     "name": "3bet Push BB vs LJ",
     "description": "BB shoves 25bb over LJ open",
@@ -525,7 +525,8 @@
       "recommended": true,
       "icon": "north"
     }
-  }, {
+  },
+  {
     "id": "3bet_push_bb_vs_hj",
     "name": "3bet Push BB vs HJ",
     "description": "BB shoves 25bb over HJ open",
@@ -541,6 +542,29 @@
       "3bet-push",
       "bb",
       "hj",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
+  },
+  {
+    "id": "3bet_push_hj_vs_lj",
+    "name": "3bet Push HJ vs LJ",
+    "description": "HJ shoves 25bb over LJ open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 6,
+    "positions": [
+      "hj"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "hj",
+      "lj",
       "mtt"
     ],
     "meta": {
