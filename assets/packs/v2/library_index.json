@@ -134,6 +134,28 @@
     }
   },
   {
+    "id": "open_fold_lj_mtt",
+    "name": "LJ Open/Fold MTT",
+    "description": "LJ opens or folds 25bb",
+    "type": "openingMTT",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 30,
+    "positions": [
+      "lj"
+    ],
+    "tags": [
+      "level2",
+      "mtt",
+      "lj",
+      "openfold"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "schedule"
+    }
+  },
+  {
     "id": "threebet_push_mid_mtt",
     "name": "3bet Push Mid MTT",
     "description": "Shove over opens from middle position",
