@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'confetti_overlay.dart';
 
 /// Overlay shown when user hits a streak milestone.
@@ -51,8 +52,11 @@ class _StreakMilestoneCelebrationOverlayState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.local_fire_department,
-                    color: Colors.orange, size: 120),
+                Lottie.asset(
+                  'assets/animations/congrats.json',
+                  width: 160,
+                  repeat: false,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   widget.message,

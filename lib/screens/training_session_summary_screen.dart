@@ -40,6 +40,7 @@ import 'weakness_overview_screen.dart';
 import 'next_step_suggestion_dialog.dart';
 import '../widgets/mistake_review_button.dart';
 import '../services/streak_tracker_service.dart';
+import '../services/streak_milestone_queue_service.dart';
 import '../widgets/confetti_overlay.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
@@ -139,6 +140,8 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
       final s = context.read<NextStepEngine>().suggestion;
       if (s != null) _showNextStep(s);
       await NextStepSuggestionDialog.show(context);
+      await StreakMilestoneQueueService.instance
+          .showNextMilestoneCelebrationIfAny(context);
     });
     _loadWeakPack();
   }
