@@ -1,0 +1,10 @@
+id: open_fold_utg_mtt
+title: UTG Open/Fold MTT
+description: UTG open or fold decisions 15-25bb
+stages:
+  - id: open_fold_utg_mtt_stage
+    title: UTG Open/Fold
+    description: Decisions facing a fold around 15-25bb
+    packId: open_fold_utg_mtt
+    requiredAccuracy: 80
+    minHands: 10

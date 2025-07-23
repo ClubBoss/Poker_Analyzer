@@ -7,8 +7,14 @@
     "gameType": "tournament",
     "bb": 40,
     "spotCount": 2,
-    "positions": ["btn", "bb"],
-    "tags": ["postflop", "cbet"]
+    "positions": [
+      "btn",
+      "bb"
+    ],
+    "tags": [
+      "postflop",
+      "cbet"
+    ]
   },
   {
     "id": "check_raise_oop",
@@ -18,9 +24,19 @@
     "gameType": "tournament",
     "bb": 50,
     "spotCount": 1,
-    "positions": ["bb", "btn"],
-    "tags": ["postflop", "check-raise"],
-    "unlockRules": {"requiredPacks": ["cbet_ip"]}
+    "positions": [
+      "bb",
+      "btn"
+    ],
+    "tags": [
+      "postflop",
+      "check-raise"
+    ],
+    "unlockRules": {
+      "requiredPacks": [
+        "cbet_ip"
+      ]
+    }
   },
   {
     "id": "float_turn",
@@ -30,8 +46,14 @@
     "gameType": "tournament",
     "bb": 50,
     "spotCount": 1,
-    "positions": ["btn", "sb"],
-    "tags": ["postflop", "float"]
+    "positions": [
+      "btn",
+      "sb"
+    ],
+    "tags": [
+      "postflop",
+      "float"
+    ]
   },
   {
     "id": "donk_bet_flop",
@@ -41,8 +63,14 @@
     "gameType": "tournament",
     "bb": 30,
     "spotCount": 1,
-    "positions": ["bb", "btn"],
-    "tags": ["postflop", "donk"]
+    "positions": [
+      "bb",
+      "btn"
+    ],
+    "tags": [
+      "postflop",
+      "donk"
+    ]
   },
   {
     "id": "river_bluffcatch",
@@ -52,8 +80,14 @@
     "gameType": "tournament",
     "bb": 40,
     "spotCount": 1,
-    "positions": ["bb", "btn"],
-    "tags": ["postflop", "bluffcatch"]
+    "positions": [
+      "bb",
+      "btn"
+    ],
+    "tags": [
+      "postflop",
+      "bluffcatch"
+    ]
   },
   {
     "id": "open_fold_early_mtt",
@@ -63,58 +97,135 @@
     "gameType": "tournament",
     "bb": 30,
     "spotCount": 30,
-    "positions": ["utg", "utg1"],
-    "tags": ["mtt", "open-fold", "early"],
-    "meta": {"recommended": true, "icon": "schedule"}
+    "positions": [
+      "utg",
+      "utg1"
+    ],
+    "tags": [
+      "mtt",
+      "open-fold",
+      "early"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "schedule"
+    }
   },
   {
-      "id": "threebet_push_mid_mtt",
-      "name": "3bet Push Mid MTT",
-      "description": "Shove over opens from middle position",
-      "type": "mtt",
-      "gameType": "tournament",
-      "bb": 20,
-      "spotCount": 30,
-      "positions": ["co", "btn"],
-      "tags": ["mtt", "3bet-push"],
-      "meta": {"recommended": true, "icon": "north"}
+    "id": "open_fold_utg_mtt",
+    "name": "UTG Open/Fold MTT",
+    "description": "UTG opens or folds 15-25bb",
+    "type": "openingMTT",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 30,
+    "positions": [
+      "utg"
+    ],
+    "tags": [
+      "level2",
+      "mtt",
+      "utg",
+      "openfold"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "schedule"
+    }
   },
   {
-      "id": "push_fold_cash",
-      "name": "Push/Fold Cash",
-      "description": "Short stack push/fold spots from the small blind",
-      "type": "cash",
-      "gameType": "cash",
-      "bb": 15,
-      "spotCount": 30,
-      "positions": ["sb"],
-      "tags": ["cash", "push-fold"],
-      "meta": {"recommended": true, "icon": "cash"}
+    "id": "threebet_push_mid_mtt",
+    "name": "3bet Push Mid MTT",
+    "description": "Shove over opens from middle position",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 30,
+    "positions": [
+      "co",
+      "btn"
+    ],
+    "tags": [
+      "mtt",
+      "3bet-push"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
   },
   {
-      "id": "open_fold_mid_cash",
-      "name": "Open/Fold Mid Cash",
-      "description": "Open or fold from LJ, HJ and CO in cash games",
-      "type": "cash",
-      "gameType": "cash",
-      "bb": 100,
-      "spotCount": 30,
-      "positions": ["lj", "hj", "co"],
-      "tags": ["cash", "open-fold"],
-      "meta": {"recommended": true, "icon": "cash"},
-      "unlockRules": {"requiredPacks": ["push_fold_cash"]}
+    "id": "push_fold_cash",
+    "name": "Push/Fold Cash",
+    "description": "Short stack push/fold spots from the small blind",
+    "type": "cash",
+    "gameType": "cash",
+    "bb": 15,
+    "spotCount": 30,
+    "positions": [
+      "sb"
+    ],
+    "tags": [
+      "cash",
+      "push-fold"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "cash"
+    }
   },
   {
-      "id": "threebet_push_late_cash",
-      "name": "3bet Push Late Cash",
-      "description": "Shove over BTN opens from the small blind",
-      "type": "cash",
-      "gameType": "cash",
-      "bb": 50,
-      "spotCount": 30,
-      "positions": ["sb"],
-      "tags": ["cash", "3bet-push", "shortstack"],
-      "meta": {"recommended": true, "icon": "cash"},
-      "unlockRules": {"requiredPacks": ["push_fold_cash", "open_fold_mid_cash"]}
+    "id": "open_fold_mid_cash",
+    "name": "Open/Fold Mid Cash",
+    "description": "Open or fold from LJ, HJ and CO in cash games",
+    "type": "cash",
+    "gameType": "cash",
+    "bb": 100,
+    "spotCount": 30,
+    "positions": [
+      "lj",
+      "hj",
+      "co"
+    ],
+    "tags": [
+      "cash",
+      "open-fold"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "cash"
+    },
+    "unlockRules": {
+      "requiredPacks": [
+        "push_fold_cash"
+      ]
+    }
+  },
+  {
+    "id": "threebet_push_late_cash",
+    "name": "3bet Push Late Cash",
+    "description": "Shove over BTN opens from the small blind",
+    "type": "cash",
+    "gameType": "cash",
+    "bb": 50,
+    "spotCount": 30,
+    "positions": [
+      "sb"
+    ],
+    "tags": [
+      "cash",
+      "3bet-push",
+      "shortstack"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "cash"
+    },
+    "unlockRules": {
+      "requiredPacks": [
+        "push_fold_cash",
+        "open_fold_mid_cash"
+      ]
+    }
   }
 ]
