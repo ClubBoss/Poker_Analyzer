@@ -13,6 +13,8 @@ import '../models/session_log.dart';
 import '../services/learning_path_progress_tracker_service.dart';
 import '../services/smart_stage_unlock_service.dart';
 import '../services/learning_path_personalization_service.dart';
+import '../services/tag_mastery_service.dart';
+import '../services/learning_path_prefs.dart';
 import 'learning_path_celebration_screen.dart';
 import '../widgets/stage_progress_chip.dart';
 import '../widgets/stage_preview_dialog.dart';
@@ -34,6 +36,8 @@ class LearningPathScreen extends StatefulWidget {
 
 class _LearningPathScreenState extends State<LearningPathScreen> {
   late SessionLogService _logs;
+  late TagMasteryService _mastery;
+  late LearningPathPrefs _prefs;
   final _gatekeeper = const LearningPathStageGatekeeperService();
   final _smartUnlock = const SmartStageUnlockService();
   final _progressTracker = const LearningPathProgressTrackerService();
@@ -41,6 +45,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   bool _loading = true;
   Map<String, LearningStageUIState> _stageStates = {};
   Map<String, SessionLog> _logsByPack = {};
+  Map<String, double> _masteryMap = {};
   Set<String> _reinforced = {};
   bool _celebrationShown = false;
   final ScrollController _scrollController = ScrollController();
@@ -51,12 +56,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _logs = context.read<SessionLogService>();
+    _mastery = context.read<TagMasteryService>();
+    _prefs = context.read<LearningPathPrefs>();
     _load();
   }
 
   Future<void> _load() async {
     setState(() => _loading = true);
     final aggregated = _progressTracker.aggregateLogsByPack(_logs.logs);
+    final mastery = await _mastery.computeMastery();
     final skillMap =
         LearningPathPersonalizationService.instance.getTagSkillMap();
     final extra = _smartUnlock.getAdditionalUnlockedStageIds(
@@ -88,6 +96,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     setState(() {
       _stageStates = states;
       _logsByPack = aggregated;
+      _masteryMap = mastery;
       _reinforced = extra;
       _loading = false;
     });
@@ -124,6 +133,40 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     }
     await const TrainingSessionLauncher().launch(template);
     if (mounted) _load();
+  }
+
+  Future<bool> _isReadyForStage(LearningPathStageModel stage) async {
+    final log = _logsByPack[stage.packId];
+    final correct = log?.correctCount ?? 0;
+    final mistakes = log?.mistakeCount ?? 0;
+    final hands = correct + mistakes;
+    final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+    if (hands >= stage.minHands && accuracy >= stage.requiredAccuracy) {
+      return true;
+    }
+    var map = _masteryMap;
+    if (map.isEmpty) {
+      map = await _mastery.computeMastery();
+      setState(() => _masteryMap = map);
+    }
+    if (stage.tags.isEmpty) return false;
+    for (final t in stage.tags) {
+      if ((map[t.toLowerCase()] ?? 0.0) < 0.9) return false;
+    }
+    return true;
+  }
+
+  Future<void> _handleStageTap(LearningPathStageModel stage) async {
+    final ready = _prefs.skipPreviewIfReady && await _isReadyForStage(stage);
+    if (ready) {
+      await _startStage(stage);
+      return;
+    }
+    final start = await showDialog<bool>(
+      context: context,
+      builder: (_) => StagePreviewDialog(stage: stage),
+    );
+    if (start == true) _startStage(stage);
   }
 
   void _scrollToStage() {
@@ -238,7 +281,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         ),
         onTap: state == LearningStageUIState.locked
             ? null
-            : () => _startStage(stage),
+            : () => _handleStageTap(stage),
       ),
     );
   }
