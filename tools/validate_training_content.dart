@@ -61,7 +61,12 @@ Future<void> main(List<String> args) async {
     stdout.writeln(jsonEncode({'issues': [for (final i in issues) i.toJson()]}));
   } else {
     for (final i in issues) {
-      stdout.writeln(i);
+      final line = i.toString();
+      if (i.error) {
+        stderr.writeln(line);
+      } else {
+        stdout.writeln(line);
+      }
     }
     stdout.writeln('Checked ${files.length} files, found ${issues.length} issues');
   }
@@ -142,10 +147,10 @@ List<_Issue> _validateFile(
   if (fix && newTags.isNotEmpty) map['tags'] = newTags;
 
   // bb warning
-  const validBbs = [10, 20, 25, 40, 50];
+  const validBbs = [10, 20, 25, 40, 50, 100];
   final bbVal = (map['bb'] as num?)?.toInt();
   if (bbVal != null && !validBbs.contains(bbVal)) {
-    issues.add(_Issue(file.path, 'Unrecognized bb value $bbVal'));
+    issues.add(_Issue(file.path, 'Unrecognized bb value $bbVal', error: true));
   }
 
   final spots = map['spots'] as List? ?? [];
@@ -189,13 +194,23 @@ List<_Issue> _validateFile(
   }
 
   final spotCount = map['spotCount'];
-  if (spotCount != null && spotCount != spots.length) {
+  if (spotCount == null || spotCount != spots.length) {
     issues.add(_Issue(file.path,
-        'spotCount $spotCount does not match spots length ${spots.length}'));
+        'spotCount $spotCount does not match spots length ${spots.length}',
+        error: true));
     if (fix) {
       map['spotCount'] = spots.length;
       changed = true;
     }
+  }
+
+  final meta = map['meta'];
+  final schemaVersion =
+      meta is Map ? meta['schemaVersion']?.toString() : null;
+  if (schemaVersion != '2.0.0') {
+    issues.add(_Issue(file.path,
+        'meta.schemaVersion expected 2.0.0 but found $schemaVersion',
+        error: true));
   }
 
   final gameType = map['gameType']?.toString();
