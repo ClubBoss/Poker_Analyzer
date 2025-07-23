@@ -3,29 +3,29 @@ name: 3bet Push BTN vs CO
 trainingType: mtt
 recommended: true
 icon: north
-bb: 20
+bb: 25
 gameType: tournament
 positions: [btn]
-tags: [level2, 3bet-push, co, btn]
+tags: [level2, 3bet-push, btn, co, mtt]
 spots:
   - id: tb_btn_co_1
-    title: BTN shove A5s vs CO open
+    title: BTN shove QJs vs CO open
     villainAction: open 2.5
     heroOptions: [3betPush, fold]
     hand:
-      heroCards: 'Ac 5c'
+      heroCards: 'Qh Jh'
       position: btn
       heroIndex: 0
       playerCount: 6
-      stacks: {'0': 20, '1': 20, '2': 20, '3': 20, '4': 20, '5': 20}
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
   - id: tb_btn_co_2
-    title: BTN shove QJo vs CO open
+    title: BTN shove A9s vs CO open
     villainAction: open 2.5
     heroOptions: [3betPush, fold]
     hand:
-      heroCards: 'Qh Jd'
+      heroCards: 'As 9s'
       position: btn
       heroIndex: 0
       playerCount: 6
-      stacks: {'0': 20, '1': 20, '2': 20, '3': 20, '4': 20, '5': 20}
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
 spotCount: 2
