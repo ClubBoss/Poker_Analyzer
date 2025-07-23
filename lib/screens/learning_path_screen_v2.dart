@@ -16,6 +16,7 @@ import '../services/learning_path_personalization_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/learning_path_prefs.dart';
 import 'learning_path_celebration_screen.dart';
+import '../widgets/next_steps_modal.dart';
 import '../widgets/stage_progress_chip.dart';
 import '../widgets/stage_preview_dialog.dart';
 
@@ -115,6 +116,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           MaterialPageRoute(
             builder: (_) => LearningPathCelebrationScreen(
               path: widget.template,
+              onNext: () async {
+                await NextStepsModal.show(
+                  context,
+                  widget.template.id,
+                );
+              },
             ),
           ),
         );
