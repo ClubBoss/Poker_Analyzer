@@ -1,0 +1,31 @@
+id: 3bet_push_btn_vs_lj
+name: 3bet Push BTN vs LJ
+trainingType: mtt
+recommended: true
+icon: north
+bb: 25
+gameType: tournament
+positions: [btn]
+tags: [level2, 3bet-push, btn, lj, mtt]
+spots:
+  - id: tb_btn_lj_1
+    title: BTN shove AJo vs LJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Ah Jd'
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_btn_lj_2
+    title: BTN shove 98s vs LJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: '9h 8h'
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+spotCount: 2
