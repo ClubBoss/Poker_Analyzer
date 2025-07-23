@@ -94,23 +94,23 @@ class TagMasteryService {
 
   Future<List<String>> topWeakTags(int count) async {
     final map = await computeMastery();
-    final list = map.entries.toList()
-      ..sort((a, b) => a.value.compareTo(b.value));
+    final list =
+        map.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
     return [for (final e in list.take(count)) e.key];
   }
 
   Future<List<String>> topStrongTags(int count) async {
     final map = await computeMastery();
-    final list = map.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final list =
+        map.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return [for (final e in list.take(count)) e.key];
   }
 
   /// Returns the weakest [count] tags sorted by mastery ascending.
   Future<List<String>> bottomWeakTags(int count) async {
     final map = await computeMastery();
-    final list = map.entries.toList()
-      ..sort((a, b) => a.value.compareTo(b.value));
+    final list =
+        map.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
     return [for (final e in list.take(count)) e.key];
   }
 
@@ -119,8 +119,18 @@ class TagMasteryService {
     final map = await computeMastery();
     return [
       for (final e in map.entries)
-        if (e.value < threshold) e.key
+        if (e.value < threshold) e.key,
     ];
+  }
+
+  /// Returns all tags with mastery below [threshold], sorted ascending.
+  Future<List<String>> findWeakTags({double threshold = 0.7}) async {
+    final map = await computeMastery();
+    final list = [
+      for (final e in map.entries)
+        if (e.value < threshold) MapEntry(e.key, e.value),
+    ]..sort((a, b) => a.value.compareTo(b.value));
+    return [for (final e in list) e.key];
   }
 
   /// Computes mastery deltas for a completed training [session]. When
@@ -139,10 +149,8 @@ class TagMasteryService {
     for (final entry in results.entries) {
       final spot = spotsById[entry.key];
       if (spot == null) continue;
-      final tags = <String>{
-        ...spot.tags,
-        ...spot.categories,
-      }..removeWhere((t) => t.trim().isEmpty);
+      final tags = <String>{...spot.tags, ...spot.categories}
+        ..removeWhere((t) => t.trim().isEmpty);
       for (final t in tags) {
         final key = t.trim().toLowerCase();
         totals.update(key, (v) => v + 1, ifAbsent: () => 1);
@@ -177,13 +185,18 @@ class TagMasteryService {
   Future<Map<String, double>> computeDelta({bool fromLastWeek = false}) async {
     await logs.load();
     final now = DateTime.now();
-    final thisWeekStart = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    final thisWeekStart = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
     final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
     final thisWeekLogs = logs.filter(range: DateTimeRange(thisWeekStart, now));
     final lastWeekLogs = logs.filter(
       range: DateTimeRange(
-          lastWeekStart, thisWeekStart.subtract(const Duration(seconds: 1))),
+        lastWeekStart,
+        thisWeekStart.subtract(const Duration(seconds: 1)),
+      ),
     );
 
     final current = await _computeForLogs(thisWeekLogs);

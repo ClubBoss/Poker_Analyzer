@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import '../widgets/confetti_overlay.dart';
+import '../widgets/weakness_booster_overlay.dart';
 import '../services/learning_path_registry_service.dart';
+import '../services/tag_mastery_service.dart';
+import '../services/weak_spot_recommendation_service.dart';
+import '../services/training_session_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'learning_path_screen_v2.dart';
+import 'training_session_screen.dart';
 
 /// Shown when a learning path stage is completed successfully.
 class StageCompletedScreen extends StatefulWidget {
@@ -27,19 +34,50 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showConfettiOverlay(context);
+      _maybeShowBooster();
     });
   }
 
+  Future<void> _maybeShowBooster() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('showWeaknessOverlay') ?? true)) return;
+    final mastery = context.read<TagMasteryService>();
+    final weak = await mastery.findWeakTags(threshold: 0.6);
+    if (weak.isEmpty) return;
+    final service = context.read<WeakSpotRecommendationService>();
+    final pack = await service.buildPack();
+    if (pack == null || pack.spots.length < 5) return;
+    if (!mounted) return;
+    await showWeaknessBoosterOverlay(
+      context,
+      tags: weak,
+      onStart: () async {
+        await context.read<TrainingSessionService>().startSession(
+          pack,
+          persist: false,
+        );
+        if (!context.mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+        );
+      },
+    );
+  }
+
   void _continue() {
-    final template = LearningPathRegistryService.instance.findById(widget.pathId);
+    final template = LearningPathRegistryService.instance.findById(
+      widget.pathId,
+    );
     if (template != null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => LearningPathScreen(
-            template: template,
-            highlightedStageId: null,
-          ),
+          builder:
+              (_) => LearningPathScreen(
+                template: template,
+                highlightedStageId: null,
+              ),
         ),
       );
     } else {
@@ -59,20 +97,15 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
             children: [
               const Icon(Icons.emoji_events, color: Colors.amber, size: 72),
               const SizedBox(height: 16),
-              const Text(
-                'Well done!',
-                style: TextStyle(fontSize: 28),
-              ),
+              const Text('Well done!', style: TextStyle(fontSize: 28)),
               const SizedBox(height: 8),
-              Text(
-                widget.stageTitle,
-                style: const TextStyle(fontSize: 20),
-              ),
+              Text(widget.stageTitle, style: const TextStyle(fontSize: 20)),
               const SizedBox(height: 16),
-              Text('Hands completed: ${widget.hands}',
-                  style: const TextStyle(fontSize: 16)),
-              Text('Accuracy: $acc%',
-                  style: const TextStyle(fontSize: 16)),
+              Text(
+                'Hands completed: ${widget.hands}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              Text('Accuracy: $acc%', style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _continue,
