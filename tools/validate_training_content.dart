@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
-import 'package:poker_analyzer/core/training/generation/yaml_reader.dart';
+import 'package:json2yaml/json2yaml.dart';
 
 class _Issue {
   _Issue(this.file, this.message, {this.error = false});
@@ -96,7 +96,8 @@ List<_Issue> _validateFile(
   final issues = <_Issue>[];
   Map<String, dynamic> map;
   try {
-    map = const YamlReader().read(file.readAsStringSync());
+    final yamlMap = loadYaml(file.readAsStringSync()) as YamlMap;
+    map = jsonDecode(jsonEncode(yamlMap)) as Map<String, dynamic>;
   } catch (e) {
     issues.add(_Issue(file.path, 'Invalid YAML: $e', error: true));
     return issues;
@@ -204,8 +205,8 @@ List<_Issue> _validateFile(
   }
 
   if (fix && changed) {
-    final yaml = const YamlEncoder().convert(map);
-    file.writeAsStringSync(yaml + '\n');
+    final yamlOut = json2yaml(map);
+    file.writeAsStringSync(yamlOut + '\n');
   }
 
   return issues;
