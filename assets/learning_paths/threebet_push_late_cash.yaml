@@ -1,0 +1,10 @@
+id: threebet_push_late_cash
+title: 3bet Push Late Cash
+description: SB 3bet shove vs BTN open with short stacks
+stages:
+  - id: threebet_push_cash_stage
+    title: 3bet Push
+    description: SB 3bet shoves 40-60bb
+    packId: threebet_push_late_cash
+    requiredAccuracy: 80
+    minHands: 10

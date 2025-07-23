@@ -1,0 +1,10 @@
+id: open_fold_mid_cash
+title: Open/Fold Mid Cash
+description: Open or fold from middle positions in cash games
+stages:
+  - id: open_fold_cash_stage
+    title: Open or Fold
+    description: LJ/ HJ/ CO openings 100bb deep
+    packId: open_fold_mid_cash
+    requiredAccuracy: 80
+    minHands: 10

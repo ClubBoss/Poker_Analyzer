@@ -78,5 +78,29 @@
     "positions": ["co", "btn"],
     "tags": ["mtt", "3bet-push"],
     "meta": {"recommended": true, "icon": "north"}
+  },
+  {
+    "id": "open_fold_mid_cash",
+    "name": "Open/Fold Mid Cash",
+    "description": "Open or fold from LJ, HJ and CO in cash games",
+    "type": "cash",
+    "gameType": "cash",
+    "bb": 100,
+    "spotCount": 30,
+    "positions": ["lj", "hj", "co"],
+    "tags": ["cash", "open-fold"],
+    "meta": {"recommended": true, "icon": "cash"}
+  },
+  {
+    "id": "threebet_push_late_cash",
+    "name": "3bet Push Late Cash",
+    "description": "Shove over BTN opens from the small blind",
+    "type": "cash",
+    "gameType": "cash",
+    "bb": 50,
+    "spotCount": 30,
+    "positions": ["sb"],
+    "tags": ["cash", "3bet-push", "shortstack"],
+    "meta": {"recommended": true, "icon": "cash"}
   }
 ]
