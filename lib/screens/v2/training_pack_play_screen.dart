@@ -24,6 +24,7 @@ import '../../widgets/common/explanation_text.dart';
 import '../../widgets/dynamic_progress_row.dart';
 import '../../theme/app_colors.dart';
 import '../../services/streak_service.dart';
+import '../../services/streak_tracker_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/mistake_review_pack_service.dart';
 import 'training_pack_result_screen_v2.dart';
@@ -563,6 +564,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _index = _spots.length - 1;
       _save();
       await context.read<StreakService>().onFinish();
+      await context.read<StreakTrackerService>().markActiveToday();
       await NotificationService.cancel(101);
       await NotificationService.cancel(102);
       final prefs = await SharedPreferences.getInstance();

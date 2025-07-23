@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/lesson_goal_engine.dart';
-import '../services/lesson_goal_streak_engine.dart';
+import '../services/streak_tracker_service.dart';
 import 'goal_progress_bar.dart';
 
 /// Compact dashboard widget showing today's and weekly goal progress
@@ -23,8 +23,8 @@ class GoalDashboardWidget extends StatelessWidget {
     }
     final daily = await LessonGoalEngine.instance.getDailyGoal();
     final weekly = await LessonGoalEngine.instance.getWeeklyGoal();
-    final current = await LessonGoalStreakEngine.instance.getCurrentStreak();
-    final best = await LessonGoalStreakEngine.instance.getBestStreak();
+    final current = await StreakTrackerService.instance.getCurrentStreak();
+    final best = await StreakTrackerService.instance.getBestStreak();
     return {
       'daily': daily,
       'weekly': weekly,
@@ -70,7 +70,7 @@ class GoalDashboardWidget extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text('🔥 $current-day streak',
+              Text('🔥 \u0421\u0442\u0440\u0438\u043A: $current \u0434\u043D\u044F \u043F\u043E\u0434\u0440\u044F\u0434',
                   style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 4),
               Text('🏆 Best: $best',
