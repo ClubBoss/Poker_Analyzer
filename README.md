@@ -127,3 +127,14 @@ echo 'ref: refs/heads/main' > .git/HEAD
 ```
 
 This removes hidden characters and resolves the error.
+
+## Content Validation
+
+Run the training content validator to lint YAML packs and ensure schema
+correctness:
+
+```bash
+dart tools/validate_training_content.dart --fix
+```
+
+Use `--ci` to exit with a non-zero code on errors.
