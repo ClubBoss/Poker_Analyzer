@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'streak_tracker_service.dart';
 
 import '../models/xp_entry.dart';
 import 'cloud_sync_service.dart';
@@ -128,6 +129,16 @@ class XPTrackerService extends ChangeNotifier {
     await _box!.put(entry.id, entry.toJson());
     await _save();
     notifyListeners();
+  }
+
+  /// Returns XP multiplier based on the current training streak.
+  Future<double> getStreakMultiplier() async {
+    final streak = await StreakTrackerService.instance.getCurrentStreak();
+    if (streak >= 30) return 1.25;
+    if (streak >= 14) return 1.15;
+    if (streak >= 7) return 1.10;
+    if (streak >= 3) return 1.05;
+    return 1.0;
   }
 
   Future<void> addPerTagXP(Map<String, int> tagXp, {required String source}) async {
