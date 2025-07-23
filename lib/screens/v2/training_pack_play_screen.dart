@@ -564,7 +564,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _index = _spots.length - 1;
       _save();
       await context.read<StreakService>().onFinish();
-      await context.read<StreakTrackerService>().markActiveToday();
+      await context
+          .read<StreakTrackerService>()
+          .markActiveToday(context);
       await NotificationService.cancel(101);
       await NotificationService.cancel(102);
       final prefs = await SharedPreferences.getInstance();

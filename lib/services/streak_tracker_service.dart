@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/streak_lost_dialog.dart';
 import '../widgets/streak_saved_dialog.dart';
+import '../widgets/streak_milestone_celebration_overlay.dart';
 
 class StreakTrackerService {
   StreakTrackerService._();
@@ -19,7 +20,7 @@ class StreakTrackerService {
   bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  Future<bool> markActiveToday() async {
+  Future<bool> markActiveToday(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -51,7 +52,12 @@ class StreakTrackerService {
     await prefs.setInt(_bestKey, best);
     await prefs.setStringList(_daysKey, set.toList());
 
-    return milestones.contains(current);
+    final milestone = milestones.contains(current);
+    if (milestone && context.mounted) {
+      showCelebrationOverlay(
+          context, '🔥 Ты достиг $current-дневного стрика!');
+    }
+    return milestone;
   }
 
   Future<int> getCurrentStreak() async {

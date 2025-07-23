@@ -8,7 +8,8 @@ void main() {
   test('streak increments on consecutive days', () async {
     SharedPreferences.setMockInitialValues({});
     final service = StreakTrackerService.instance;
-    final milestone1 = await service.markActiveToday();
+    final ctx = TestWidgetsFlutterBinding.instance.renderViewElement!;
+    final milestone1 = await service.markActiveToday(ctx);
     var current = await service.getCurrentStreak();
     var best = await service.getBestStreak();
     expect(current, 1);
@@ -21,7 +22,7 @@ void main() {
     await prefs.setInt('currentStreak', 1);
     await prefs.setInt('bestStreak', 3);
 
-    final milestone2 = await service.markActiveToday();
+    final milestone2 = await service.markActiveToday(ctx);
     current = await service.getCurrentStreak();
     best = await service.getBestStreak();
     expect(current, 2);
@@ -42,18 +43,19 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final service = StreakTrackerService.instance;
     // Day 1
-    await service.markActiveToday();
+    final ctx = TestWidgetsFlutterBinding.instance.renderViewElement!;
+    await service.markActiveToday(ctx);
     final prefs = await SharedPreferences.getInstance();
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
     await prefs.setString('lastActiveDate', yesterday.toIso8601String());
     await prefs.setInt('currentStreak', 1);
     // Day 2
-    await service.markActiveToday();
+    await service.markActiveToday(ctx);
     final yesterday2 = DateTime.now().subtract(const Duration(days: 1));
     await prefs.setString('lastActiveDate', yesterday2.toIso8601String());
     await prefs.setInt('currentStreak', 2);
     // Day 3 should hit milestone
-    final milestone = await service.markActiveToday();
+    final milestone = await service.markActiveToday(ctx);
     expect(milestone, true);
   });
 
@@ -85,7 +87,7 @@ void main() {
     await tester.pumpWidget(Container());
     final ctx = tester.element(find.byType(Container));
 
-    await service.markActiveToday();
+    await service.markActiveToday(ctx);
     final prefs = await SharedPreferences.getInstance();
     final twoAgo = DateTime.now().subtract(const Duration(days: 2));
     await prefs.setString('lastActiveDate', twoAgo.toIso8601String());
@@ -100,7 +102,7 @@ void main() {
     expect(DateTime.parse(lastStr!).day, yesterday.day);
     expect((prefs.getStringList('usedFreezes') ?? []).isNotEmpty, isTrue);
 
-    await service.markActiveToday();
+    await service.markActiveToday(ctx);
     final current = await service.getCurrentStreak();
     expect(current, 4);
   });
