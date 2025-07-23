@@ -350,7 +350,7 @@
     "type": "mtt",
     "gameType": "tournament",
     "bb": 25,
-    "spotCount": 2,
+    "spotCount": 6,
     "positions": [
       "co"
     ],
