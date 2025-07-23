@@ -1,0 +1,10 @@
+id: 3bet_push_bb_vs_hj
+title: 3bet Push BB vs HJ
+description: BB 3bet shoves vs HJ opens at 25bb
+stages:
+  - id: 3bet_push_bb_vs_hj_stage
+    title: 3bet Push
+    description: BB shoves over HJ open
+    packId: 3bet_push_bb_vs_hj
+    requiredAccuracy: 80
+    minHands: 10
