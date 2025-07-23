@@ -191,8 +191,7 @@ List<_Issue> _validateFile(
   final spotCount = map['spotCount'];
   if (spotCount != null && spotCount != spots.length) {
     issues.add(_Issue(file.path,
-        'spotCount $spotCount does not match spots length ${spots.length}',
-        error: true));
+        'spotCount $spotCount does not match spots length ${spots.length}'));
     if (fix) {
       map['spotCount'] = spots.length;
       changed = true;

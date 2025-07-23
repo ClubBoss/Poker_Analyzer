@@ -30,4 +30,4 @@ spots:
       heroIndex: 0
       playerCount: 6
       stacks: {'0': 45, '1': 45, '2': 45, '3': 45, '4': 45, '5': 45}
-spotCount: 30
+spotCount: 2
