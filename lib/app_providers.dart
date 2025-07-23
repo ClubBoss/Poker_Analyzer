@@ -59,6 +59,7 @@ import 'services/training_pack_tag_analytics_service.dart';
 import 'services/ignored_mistake_service.dart';
 import 'services/goals_service.dart';
 import 'services/streak_service.dart';
+import 'services/streak_tracker_service.dart';
 import 'services/achievement_service.dart';
 import 'services/achievement_engine.dart';
 import 'services/user_goal_engine.dart';
@@ -316,6 +317,7 @@ List<SingleChildWidget> buildTrainingProviders() {
         xp: context.read<XPTrackerService>(),
       )..load(),
     ),
+    Provider(create: (_) => StreakTrackerService()),
     ChangeNotifierProvider(
       create: (context) => AchievementService(
         stats: context.read<TrainingStatsService>(),
