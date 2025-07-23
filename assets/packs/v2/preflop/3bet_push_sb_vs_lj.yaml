@@ -1,0 +1,51 @@
+id: 3bet_push_sb_vs_lj
+name: 3bet Push SB vs LJ
+trainingType: mtt
+recommended: true
+icon: north
+bb: 25
+gameType: tournament
+positions: [sb]
+tags: [level2, 3bet-push, sb, lj, mtt]
+spots:
+  - id: tb_sb_lj_1
+    title: SB shove AJs vs LJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'As Js'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_sb_lj_2
+    title: SB shove 66 vs LJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: '6h 6c'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_sb_lj_3
+    title: SB shove QTs vs LJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Qd Td'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_sb_lj_4
+    title: SB shove KQo vs LJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Kh Qc'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+spotCount: 4
