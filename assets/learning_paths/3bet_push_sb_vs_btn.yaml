@@ -1,0 +1,11 @@
+id: 3bet_push_sb_vs_btn
+title: 3bet Push SB vs BTN
+description: SB 3bet shoves vs BTN opens at 25bb
+stages:
+  - id: 3bet_push_sb_vs_btn_stage
+    title: 3bet Push
+    description: SB shoves over BTN open
+    packId: 3bet_push_sb_vs_btn
+    requiredAccuracy: 80
+    minHands: 10
+
