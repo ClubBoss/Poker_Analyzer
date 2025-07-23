@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/streak_lost_dialog.dart';
 import '../widgets/streak_saved_dialog.dart';
-import '../widgets/streak_milestone_celebration_overlay.dart';
+import 'streak_milestone_queue_service.dart';
 
 class StreakTrackerService {
   StreakTrackerService._();
@@ -54,8 +54,7 @@ class StreakTrackerService {
 
     final milestone = milestones.contains(current);
     if (milestone && context.mounted) {
-      showCelebrationOverlay(
-          context, '🔥 Ты достиг $current-дневного стрика!');
+      StreakMilestoneQueueService.instance.addMilestoneToQueue(current);
     }
     return milestone;
   }
