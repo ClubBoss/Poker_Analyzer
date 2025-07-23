@@ -1,7 +1,7 @@
 id: donk_bet_flop
 name: Donk Bet Flop
 trainingType: postflop
-bb: 30
+bb: 25
 gameType: tournament
 positions: [bb, btn]
 tags: [postflop, donk]
@@ -20,3 +20,6 @@ spots:
       stacks: {'0': 30, '1': 30}
       board: [Ts,9d,4c]
 spotCount: 1
+
+meta:
+  schemaVersion: 2.0.0

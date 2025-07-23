@@ -22,3 +22,6 @@ spots:
       stacks: {'0': 50, '1': 50}
       board: [Kd,7h,3s]
 spotCount: 1
+
+meta:
+  schemaVersion: 2.0.0
