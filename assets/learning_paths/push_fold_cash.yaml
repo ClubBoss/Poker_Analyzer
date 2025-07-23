@@ -1,0 +1,10 @@
+id: push_fold_cash
+title: Push/Fold Cash
+description: Short stack push/fold decisions from the small blind
+stages:
+  - id: push_fold_cash_stage
+    title: Push/Fold
+    description: SB push or fold 10-15bb vs BB
+    packId: push_fold_cash
+    requiredAccuracy: 80
+    minHands: 10

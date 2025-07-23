@@ -7,6 +7,8 @@ bb: 100
 gameType: cash
 positions: [lj, hj, co]
 tags: [cash, open-fold]
+unlockRules:
+  requiredPacks: [push_fold_cash]
 spots:
   - id: of_mid_cash_1
     title: AQo LJ 100bb

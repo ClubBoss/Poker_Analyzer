@@ -62,4 +62,37 @@ class LearningPathRegistryService {
         for (final t in _templates)
           if (t.tags.contains(tag)) t,
       ];
+
+  /// Validates that all stage references and prerequisites are valid.
+  /// Prints errors to the console and returns the list of messages.
+  Future<List<String>> validateAll() async {
+    await loadAll();
+    final errors = <String>[];
+    final ids = {for (final t in _templates) t.id};
+    for (final t in _templates) {
+      for (final pre in t.prerequisitePathIds) {
+        if (!ids.contains(pre)) {
+          errors.add('Path ${t.id} references missing prerequisite $pre');
+        }
+      }
+      final stageIds = {for (final s in t.stages) s.id};
+      for (final s in t.stages) {
+        for (final u in s.unlocks) {
+          if (!stageIds.contains(u)) {
+            errors.add('Path ${t.id} stage ${s.id} unlocks missing stage $u');
+          }
+        }
+        for (final ua in s.unlockAfter) {
+          if (!stageIds.contains(ua)) {
+            errors.add('Path ${t.id} stage ${s.id} unlockAfter missing stage $ua');
+          }
+        }
+      }
+    }
+    for (final e in errors) {
+      // ignore: avoid_print
+      print('LearningPath validation: $e');
+    }
+    return errors;
+  }
 }

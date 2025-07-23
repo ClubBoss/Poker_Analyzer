@@ -7,6 +7,8 @@ bb: 50
 gameType: cash
 positions: [sb]
 tags: [cash, 3bet-push, shortstack]
+unlockRules:
+  requiredPacks: [push_fold_cash, open_fold_mid_cash]
 spots:
   - id: tb_late_cash_1
     title: SB shove A2s vs BTN open 50bb
