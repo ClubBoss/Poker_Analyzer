@@ -9,24 +9,63 @@ positions: [sb]
 tags: [level2, 3bet-push, sb, btn, mtt]
 spots:
   - id: tb_sb_btn_1
-    title: SB shove A5s vs BTN open
+    title: SB shove A8s vs BTN open
     villainAction: open 2.5
     heroOptions: [3betPush, fold]
     hand:
-      heroCards: 'As 5s'
+      heroCards: 'As 8s'
       position: sb
       heroIndex: 0
       playerCount: 6
       stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
   - id: tb_sb_btn_2
-    title: SB shove QJo vs BTN open
+    title: SB shove 55 vs BTN open
     villainAction: open 2.5
     heroOptions: [3betPush, fold]
     hand:
-      heroCards: 'Qh Jd'
+      heroCards: '5h 5d'
       position: sb
       heroIndex: 0
       playerCount: 6
       stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
-spotCount: 2
-
+  - id: tb_sb_btn_3
+    title: SB shove K9s vs BTN open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Kh 9h'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_sb_btn_4
+    title: SB shove A4s vs BTN open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Ac 4c'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_sb_btn_5
+    title: SB shove QTo vs BTN open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Qs Td'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_sb_btn_6
+    title: SB shove J9s vs BTN open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Js 9s'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+spotCount: 6
