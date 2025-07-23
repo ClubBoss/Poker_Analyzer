@@ -5,6 +5,7 @@ import 'learning_path_reminder_engine.dart';
 import 'notification_service.dart';
 import '../widgets/learning_path_modal_reminder.dart';
 import 'training_session_service.dart';
+import 'streak_tracker_service.dart';
 
 /// Performs daily app checks and triggers gentle reminders.
 class DailyAppCheckService {
@@ -31,6 +32,8 @@ class DailyAppCheckService {
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     if (last != null && _sameDay(last, now)) return;
     await prefs.setString(_lastKey, now.toIso8601String());
+
+    await StreakTrackerService.instance.checkAndHandleStreakBreak(context);
 
     final remind = await reminder.shouldRemindUser();
     if (remind) {

@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../widgets/streak_lost_dialog.dart';
 
 class StreakTrackerService {
   StreakTrackerService._();
@@ -8,7 +11,11 @@ class StreakTrackerService {
   static const String _currentKey = 'currentStreak';
   static const String _bestKey = 'bestStreak';
   static const String _daysKey = 'streakActiveDays';
+  static const String _breakKey = 'streakBreakNotified';
   static const List<int> milestones = [3, 7, 14, 30, 60, 100];
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<bool> markActiveToday() async {
     final prefs = await SharedPreferences.getInstance();
@@ -86,5 +93,35 @@ class StreakTrackerService {
       map[d] = set.contains(d);
     }
     return map;
+  }
+
+  Future<void> checkAndHandleStreakBreak(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final lastStr = prefs.getString(_lastKey);
+    final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
+    final breakStr = prefs.getString(_breakKey);
+    final lastBreak = breakStr != null ? DateTime.tryParse(breakStr) : null;
+    final prevStreak = prefs.getInt(_currentKey) ?? 0;
+
+    if (last == null) return;
+    final lastDay = DateTime(last.year, last.month, last.day);
+    final diff = today.difference(lastDay).inDays;
+    final todayActive = _sameDay(today, lastDay);
+
+    await getCurrentStreak();
+
+    if (diff > 1 && prevStreak > 0 && !todayActive) {
+      final notifiedToday =
+          lastBreak != null && _sameDay(today, lastBreak);
+      if (!notifiedToday && context.mounted) {
+        await showDialog(
+          context: context,
+          builder: (_) => StreakLostDialog(previous: prevStreak),
+        );
+        await prefs.setString(_breakKey, today.toIso8601String());
+      }
+    }
   }
 }
