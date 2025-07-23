@@ -19,6 +19,7 @@ import 'tag_goal_tracker_service.dart';
 import 'xp_reward_engine.dart';
 import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
+import 'streak_tracker_service.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -485,6 +486,9 @@ class TrainingSessionService extends ChangeNotifier {
     if (bonus > bonusCap) bonus = bonusCap;
     xp += bonus;
 
+    final streakMultiplier = await xpService.getStreakMultiplier();
+    xp = (xp * streakMultiplier).round();
+
     final Map<String, int> tagXp = {};
     for (final tag in _template!.tags) {
       final skill = skills[tag.toLowerCase()] ?? 0.5;
@@ -492,7 +496,8 @@ class TrainingSessionService extends ChangeNotifier {
       tagXp[tag.toLowerCase()] = txp.round();
     }
     await xpService.addPerTagXP(tagXp, source: 'training');
-    await xpService.add(xp: xp, source: 'training');
+    final streak = await StreakTrackerService.instance.getCurrentStreak();
+    await xpService.add(xp: xp, source: 'training', streak: streak);
     unawaited(XPRewardEngine.instance.addXp(25));
     for (final tag in _template!.tags) {
       unawaited(TagGoalTrackerService.instance.logTraining(tag));
@@ -515,6 +520,7 @@ class TrainingSessionService extends ChangeNotifier {
                   preIcmPct: _preIcmPct,
                   xpEarned: xp,
                   xpMultiplier: multiplier,
+                  streakMultiplier: streakMultiplier,
                   tagDeltas: deltas,
                 ),
       ),

@@ -49,6 +49,7 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
   final double preIcmPct;
   final int xpEarned;
   final double xpMultiplier;
+  final double streakMultiplier;
   final Map<String, double> tagDeltas;
   const TrainingSessionSummaryScreen({
     super.key,
@@ -58,6 +59,7 @@ class TrainingSessionSummaryScreen extends StatefulWidget {
     required this.preIcmPct,
     required this.xpEarned,
     required this.xpMultiplier,
+    this.streakMultiplier = 1.0,
     this.tagDeltas = const {},
   });
 
@@ -315,6 +317,14 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                 ],
               ),
             ),
+            if (widget.streakMultiplier > 1.0)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '🔥 Бонус за стрик: +${((widget.streakMultiplier - 1) * 100).round()}% XP',
+                  style: const TextStyle(color: Colors.orange),
+                ),
+              ),
             const SizedBox(height: 16),
             if (widget.tagDeltas.isNotEmpty) ...[
               const Text('Skill Gains',

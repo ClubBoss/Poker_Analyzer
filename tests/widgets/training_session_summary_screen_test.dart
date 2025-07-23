@@ -91,6 +91,7 @@ void main() {
             preIcmPct: 25,
             xpEarned: 10,
             xpMultiplier: 1.0,
+            streakMultiplier: 1.0,
             tagDeltas: const {},
           ),
         ),
@@ -121,6 +122,7 @@ void main() {
           preIcmPct: 0,
           xpEarned: 0,
           xpMultiplier: 1.0,
+          streakMultiplier: 1.0,
           tagDeltas: {'a': 0.05},
         ),
       ),
@@ -128,6 +130,33 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Skill Gains'), findsOneWidget);
     expect(find.text('+5.00%'), findsOneWidget);
+  });
+
+  testWidgets('streak bonus text is displayed', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: TrainingSessionSummaryScreen(
+          session: TrainingSession(
+            id: 'id2',
+            templateId: 't',
+            completedAt: null,
+            results: {},
+          ),
+          template:
+              TrainingPackTemplate(id: 't', name: '', spots: [], createdAt: DateTime(0)),
+          preEvPct: 0,
+          preIcmPct: 0,
+          xpEarned: 10,
+          xpMultiplier: 1.0,
+          streakMultiplier: 1.15,
+          tagDeltas: const {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('🔥 Бонус за стрик: +15% XP'), findsOneWidget);
   });
 }
 
