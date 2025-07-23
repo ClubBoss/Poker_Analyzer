@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/streak_lost_dialog.dart';
+import '../widgets/streak_saved_dialog.dart';
 
 class StreakTrackerService {
   StreakTrackerService._();
@@ -12,6 +13,7 @@ class StreakTrackerService {
   static const String _bestKey = 'bestStreak';
   static const String _daysKey = 'streakActiveDays';
   static const String _breakKey = 'streakBreakNotified';
+  static const String _freezesKey = 'usedFreezes';
   static const List<int> milestones = [3, 7, 14, 30, 60, 100];
 
   bool _sameDay(DateTime a, DateTime b) =>
@@ -113,14 +115,28 @@ class StreakTrackerService {
     await getCurrentStreak();
 
     if (diff > 1 && prevStreak > 0 && !todayActive) {
-      final notifiedToday =
-          lastBreak != null && _sameDay(today, lastBreak);
+      final notifiedToday = lastBreak != null && _sameDay(today, lastBreak);
+      final monthKey =
+          '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}';
+      final freezes = prefs.getStringList(_freezesKey) ?? <String>[];
+      final freezeAvailable = diff == 2 && !freezes.contains(monthKey);
       if (!notifiedToday && context.mounted) {
-        await showDialog(
-          context: context,
-          builder: (_) => StreakLostDialog(previous: prevStreak),
-        );
-        await prefs.setString(_breakKey, today.toIso8601String());
+        if (freezeAvailable) {
+          freezes.add(monthKey);
+          await prefs.setStringList(_freezesKey, freezes);
+          final yesterday = today.subtract(const Duration(days: 1));
+          await prefs.setString(_lastKey, yesterday.toIso8601String());
+          await showDialog(
+            context: context,
+            builder: (_) => const StreakSavedDialog(),
+          );
+        } else {
+          await showDialog(
+            context: context,
+            builder: (_) => StreakLostDialog(previous: prevStreak),
+          );
+          await prefs.setString(_breakKey, today.toIso8601String());
+        }
       }
     }
   }
