@@ -436,6 +436,29 @@
     }
   }
   , {
+    "id": "3bet_push_sb_vs_hj",
+    "name": "3bet Push SB vs HJ",
+    "description": "SB shoves 25bb over HJ open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 6,
+    "positions": [
+      "sb"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "sb",
+      "hj",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
+  }
+  , {
     "id": "3bet_push_bb_vs_btn",
     "name": "3bet Push BB vs BTN",
     "description": "BB shoves 25bb over BTN open",
