@@ -1,0 +1,32 @@
+id: 3bet_push_sb_vs_btn
+name: 3bet Push SB vs BTN
+trainingType: mtt
+recommended: true
+icon: north
+bb: 25
+gameType: tournament
+positions: [sb]
+tags: [level2, 3bet-push, sb, btn, mtt]
+spots:
+  - id: tb_sb_btn_1
+    title: SB shove A5s vs BTN open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'As 5s'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_sb_btn_2
+    title: SB shove QJo vs BTN open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Qh Jd'
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+spotCount: 2
+
