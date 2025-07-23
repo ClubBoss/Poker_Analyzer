@@ -5,7 +5,7 @@ import '../../../models/v2/training_pack_template_v2.dart';
 
 import 'package:flutter/material.dart';
 
-enum TrainingType { pushFold, postflop, icm, bounty, custom, quiz }
+enum TrainingType { pushFold, postflop, icm, bounty, custom, quiz, openingMTT }
 
 abstract class TrainingPackBuilder {
   Future<TrainingPackTemplateV2> build(PackGenerationRequest request);
@@ -99,6 +99,8 @@ extension TrainingTypeInfo on TrainingType {
         return 'Bounty';
       case TrainingType.quiz:
         return 'Quiz';
+      case TrainingType.openingMTT:
+        return 'Opening MTT';
       case TrainingType.custom:
       default:
         return 'Custom';
@@ -117,6 +119,8 @@ extension TrainingTypeInfo on TrainingType {
         return Icons.local_activity;
       case TrainingType.quiz:
         return Icons.question_mark;
+      case TrainingType.openingMTT:
+        return Icons.play_circle_outline;
       case TrainingType.custom:
       default:
         return Icons.extension;
