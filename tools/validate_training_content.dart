@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
+import 'package:poker_analyzer/core/training/generation/yaml_reader.dart';
 
 class _Issue {
   _Issue(this.file, this.message, {this.error = false});

@@ -1,0 +1,10 @@
+id: 3bet_push_co_vs_lj
+title: 3bet Push CO vs LJ
+description: CO 3bet shoves vs LJ opens at 25bb
+stages:
+  - id: 3bet_push_co_vs_lj_stage
+    title: 3bet Push
+    description: CO shoves over LJ open
+    packId: 3bet_push_co_vs_lj
+    requiredAccuracy: 80
+    minHands: 10
