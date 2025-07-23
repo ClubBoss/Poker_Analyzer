@@ -55,6 +55,7 @@ import '../widgets/weak_spot_card.dart';
 import '../widgets/achievements_card.dart';
 import '../widgets/daily_spotlight_card.dart';
 import '../widgets/streak_banner_widget.dart';
+import '../widgets/streak_analytics_card.dart';
 import 'training_progress_analytics_screen.dart';
 import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
@@ -165,6 +166,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             const ProgressForecastCard(),
             const PlayerStyleCard(),
             const StreakChart(),
+            const StreakAnalyticsCard(),
             const DailyProgressRing(),
             const GoalsCard(),
             const GoalDashboardWidget(),

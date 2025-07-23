@@ -49,11 +49,33 @@ void main() {
     await prefs.setInt('currentStreak', 1);
     // Day 2
     await service.markActiveToday();
-    final twoDaysAgo = DateTime.now().subtract(const Duration(days: 2));
-    await prefs.setString('lastActiveDate', twoDaysAgo.toIso8601String());
+    final yesterday2 = DateTime.now().subtract(const Duration(days: 1));
+    await prefs.setString('lastActiveDate', yesterday2.toIso8601String());
     await prefs.setInt('currentStreak', 2);
     // Day 3 should hit milestone
     final milestone = await service.markActiveToday();
     expect(milestone, true);
+  });
+
+  test('last 30 days map returns correct activity', () async {
+    SharedPreferences.setMockInitialValues({
+      'streakActiveDays': [
+        DateTime.now().toIso8601String().split('T').first,
+        DateTime.now()
+            .subtract(const Duration(days: 3))
+            .toIso8601String()
+            .split('T')
+            .first,
+      ]
+    });
+    final service = StreakTrackerService.instance;
+    final map = await service.getLast30DaysMap();
+    final today = DateTime.now();
+    final threeAgo = today.subtract(const Duration(days: 3));
+    final todayKey = DateTime(today.year, today.month, today.day);
+    final threeKey = DateTime(threeAgo.year, threeAgo.month, threeAgo.day);
+    expect(map[todayKey], true);
+    expect(map[threeKey], true);
+    expect(map[todayKey.subtract(const Duration(days: 1))], false);
   });
 }
