@@ -1,0 +1,10 @@
+id: open_fold_lj_mtt
+title: LJ Open/Fold MTT
+description: LJ open or fold decisions around 25bb
+stages:
+  - id: open_fold_lj_mtt_stage
+    title: LJ Open/Fold
+    description: Decisions facing a fold at 25bb
+    packId: open_fold_lj_mtt
+    requiredAccuracy: 80
+    minHands: 10
