@@ -5,100 +5,86 @@ import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
 import 'package:json2yaml/json2yaml.dart';
 
+/// Scans YAML training packs under `assets/packs/v2/` and fixes common
+/// validation errors. By default it runs in dry-run mode. Use `--apply`
+/// to overwrite files with the fixed contents.
 Future<void> main(List<String> args) async {
   final parser = ArgParser()
-    ..addFlag('dry-run', negatable: false)
-    ..addFlag('apply', negatable: false);
+    ..addFlag('apply', negatable: false, help: 'Write changes to files');
   final results = parser.parse(args);
-  final dryRun = results['dry-run'] as bool;
   final apply = results['apply'] as bool;
 
-  if (!dryRun && !apply) {
-    stdout.writeln(
-      'Usage: dart tools/fix_training_pack_errors.dart --dry-run|--apply',
-    );
-    exit(0);
-  }
-
-  final dir = Directory('assets/packs/v2/preflop');
+  final dir = Directory('assets/packs/v2');
   if (!dir.existsSync()) {
     stderr.writeln('Directory not found: ${dir.path}');
     exit(1);
   }
 
-  final changedFiles = <String>[];
-
+  final logBuffer = StringBuffer();
   final files = dir
       .listSync(recursive: true)
       .whereType<File>()
-      .where((f) => f.path.toLowerCase().endsWith('.yaml'));
+      .where((f) => f.path.toLowerCase().endsWith('.yaml'))
+      .toList();
 
   for (final file in files) {
-    final changed = _processFile(file, apply: apply);
-    if (changed) changedFiles.add(file.path);
+    final changes = _fixFile(file, apply: apply);
+    if (changes.isNotEmpty) {
+      logBuffer.writeln('${file.path}: ${changes.join(', ')}');
+    }
   }
 
-  if (apply && changedFiles.isNotEmpty) {
-    final logFile = File('fix_log.txt');
-    logFile.writeAsStringSync(changedFiles.join('\n') + '\n');
+  if (logBuffer.isNotEmpty) {
+    File('fix_log.txt').writeAsStringSync(logBuffer.toString());
   }
 
   stdout.writeln('Processed ${files.length} files');
-  if (changedFiles.isNotEmpty) {
-    stdout.writeln('Modified ${changedFiles.length} files');
-  }
+  stdout.writeln('Found ${logBuffer.isEmpty ? 0 : logBuffer.toString().split('\n').where((l) => l.trim().isNotEmpty).length} files with fixes');
+  if (apply) stdout.writeln('Changes applied');
 }
 
-bool _processFile(File file, {required bool apply}) {
-  final content = file.readAsStringSync();
-  final data = loadYaml(content);
+List<String> _fixFile(File file, {required bool apply}) {
+  final yamlContent = file.readAsStringSync();
+  final data = loadYaml(yamlContent);
   final map = jsonDecode(jsonEncode(data)) as Map<String, dynamic>;
-  var changed = false;
 
+  final changes = <String>[];
+
+  // spotCount check
   final spots = map['spots'] as List? ?? [];
   final spotCount = (map['spotCount'] as num?)?.toInt();
   if (spotCount != spots.length) {
     map['spotCount'] = spots.length;
-    changed = true;
+    changes.add('spotCount');
   }
 
+  // bb validation
+  const validBbs = [10, 20, 25, 40, 50, 100];
   final bbVal = (map['bb'] as num?)?.toInt();
-  const validBbs = {10, 20, 25, 40, 50, 100};
   if (bbVal == null || !validBbs.contains(bbVal)) {
-    final gameType = map['gameType']?.toString().toLowerCase();
-    final trainingType = map['trainingType']?.toString().toLowerCase();
-    final isCash =
-        (gameType != null && gameType.contains('cash')) ||
-        (trainingType != null && trainingType.contains('cash'));
-    map['bb'] = isCash ? 100 : 25;
-    changed = true;
+    map.remove('bb');
+    changes.add('bb');
   }
 
-  var meta = map['meta'] as Map?;
-  if (meta == null) {
+  // meta.schemaVersion
+  Map<String, dynamic> meta;
+  final existingMeta = map['meta'];
+  if (existingMeta is Map) {
+    meta = Map<String, dynamic>.from(existingMeta);
+  } else {
     meta = <String, dynamic>{};
     map['meta'] = meta;
-    changed = true;
+    changes.add('meta');
   }
   if (meta['schemaVersion'] != '2.0.0') {
     meta['schemaVersion'] = '2.0.0';
-    changed = true;
+    changes.add('meta.schemaVersion');
   }
 
-  if (map['recommended'] == null) {
-    map['recommended'] = false;
-    changed = true;
-  }
-
-  if (map['icon'] == null) {
-    map['icon'] = 'north';
-    changed = true;
-  }
-
-  if (apply && changed) {
+  if (apply && changes.isNotEmpty) {
     final yamlOut = json2yaml(map, yamlStyle: YamlStyle.pubspecYaml);
     file.writeAsStringSync(yamlOut + '\n');
   }
 
-  return changed;
+  return changes;
 }
