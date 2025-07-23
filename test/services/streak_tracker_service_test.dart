@@ -78,4 +78,30 @@ void main() {
     expect(map[threeKey], true);
     expect(map[todayKey.subtract(const Duration(days: 1))], false);
   });
+
+  testWidgets('missed day uses monthly freeze', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final service = StreakTrackerService.instance;
+    await tester.pumpWidget(Container());
+    final ctx = tester.element(find.byType(Container));
+
+    await service.markActiveToday();
+    final prefs = await SharedPreferences.getInstance();
+    final twoAgo = DateTime.now().subtract(const Duration(days: 2));
+    await prefs.setString('lastActiveDate', twoAgo.toIso8601String());
+    await prefs.setInt('currentStreak', 3);
+
+    await tester.runAsync(() async {
+      await service.checkAndHandleStreakBreak(ctx);
+    });
+
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final lastStr = prefs.getString('lastActiveDate');
+    expect(DateTime.parse(lastStr!).day, yesterday.day);
+    expect((prefs.getStringList('usedFreezes') ?? []).isNotEmpty, isTrue);
+
+    await service.markActiveToday();
+    final current = await service.getCurrentStreak();
+    expect(current, 4);
+  });
 }
