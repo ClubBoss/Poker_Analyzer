@@ -135,10 +135,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final milestone = await StreakTrackerService.instance.markActiveToday();
-      if (milestone && mounted) {
-        showConfettiOverlay(context);
-      }
+      await StreakTrackerService.instance.markActiveToday(context);
       final s = context.read<NextStepEngine>().suggestion;
       if (s != null) _showNextStep(s);
       await NextStepSuggestionDialog.show(context);
