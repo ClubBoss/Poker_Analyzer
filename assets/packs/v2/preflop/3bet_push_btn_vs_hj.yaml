@@ -1,0 +1,31 @@
+id: 3bet_push_btn_vs_hj
+name: 3bet Push BTN vs HJ
+trainingType: mtt
+recommended: true
+icon: north
+bb: 25
+gameType: tournament
+positions: [btn]
+tags: [level2, 3bet-push, btn, hj, mtt]
+spots:
+  - id: tb_btn_hj_1
+    title: BTN shove KTs vs HJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Kh Th'
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+  - id: tb_btn_hj_2
+    title: BTN shove ATo vs HJ open
+    villainAction: open 2.5
+    heroOptions: [3betPush, fold]
+    hand:
+      heroCards: 'Ad Ts'
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks: {'0': 25, '1': 25, '2': 25, '3': 25, '4': 25, '5': 25}
+spotCount: 2
