@@ -227,5 +227,27 @@
         "open_fold_mid_cash"
       ]
     }
+  },
+  {
+    "id": "3bet_push_btn_vs_co",
+    "name": "3bet Push BTN vs CO",
+    "description": "BTN shoves 20bb over CO open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 2,
+    "positions": [
+      "btn"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "co",
+      "btn"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
   }
 ]
