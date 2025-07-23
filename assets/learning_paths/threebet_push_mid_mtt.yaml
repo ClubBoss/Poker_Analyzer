@@ -1,0 +1,10 @@
+id: threebet_push_mid_mtt
+title: 3bet Push Mid MTT
+description: Shove over opens from middle position
+stages:
+  - id: threebet_push_stage
+    title: 3bet Push
+    description: CO/BTN 3bet shove spots
+    packId: threebet_push_mid_mtt
+    requiredAccuracy: 80
+    minHands: 10
