@@ -7,8 +7,9 @@ class StreakTrackerService {
   static const String _lastKey = 'lastActiveDate';
   static const String _currentKey = 'currentStreak';
   static const String _bestKey = 'bestStreak';
+  static const List<int> milestones = [3, 7, 14, 30, 60, 100];
 
-  Future<void> markActiveToday() async {
+  Future<bool> markActiveToday() async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -34,6 +35,8 @@ class StreakTrackerService {
     await prefs.setString(_lastKey, today.toIso8601String());
     await prefs.setInt(_currentKey, current);
     await prefs.setInt(_bestKey, best);
+
+    return milestones.contains(current);
   }
 
   Future<int> getCurrentStreak() async {
