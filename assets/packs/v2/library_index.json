@@ -96,7 +96,7 @@
     "type": "mtt",
     "gameType": "tournament",
     "bb": 30,
-    "spotCount": 30,
+    "spotCount": 2,
     "positions": [
       "utg",
       "utg1"
@@ -118,7 +118,7 @@
     "type": "openingMTT",
     "gameType": "tournament",
     "bb": 20,
-    "spotCount": 30,
+    "spotCount": 2,
     "positions": [
       "utg"
     ],
@@ -140,7 +140,7 @@
     "type": "openingMTT",
     "gameType": "tournament",
     "bb": 25,
-    "spotCount": 30,
+    "spotCount": 2,
     "positions": [
       "lj"
     ],
@@ -162,7 +162,7 @@
     "type": "mtt",
     "gameType": "tournament",
     "bb": 20,
-    "spotCount": 30,
+    "spotCount": 2,
     "positions": [
       "co",
       "btn"
@@ -183,7 +183,7 @@
     "type": "cash",
     "gameType": "cash",
     "bb": 15,
-    "spotCount": 30,
+    "spotCount": 2,
     "positions": [
       "sb"
     ],
@@ -203,7 +203,7 @@
     "type": "cash",
     "gameType": "cash",
     "bb": 100,
-    "spotCount": 30,
+    "spotCount": 2,
     "positions": [
       "lj",
       "hj",
@@ -230,7 +230,7 @@
     "type": "cash",
     "gameType": "cash",
     "bb": 50,
-    "spotCount": 30,
+    "spotCount": 2,
     "positions": [
       "sb"
     ],
