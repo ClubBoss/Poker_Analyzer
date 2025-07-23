@@ -367,6 +367,29 @@
     }
   },
   {
+    "id": "3bet_push_co_vs_lj",
+    "name": "3bet Push CO vs LJ",
+    "description": "CO shoves 25bb over LJ open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 6,
+    "positions": [
+      "co"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "co",
+      "lj",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
+  },
+  {
     "id": "3bet_push_sb_vs_btn",
     "name": "3bet Push SB vs BTN",
     "description": "SB shoves 25bb over BTN open",
