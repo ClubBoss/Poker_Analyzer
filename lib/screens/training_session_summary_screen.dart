@@ -25,6 +25,7 @@ import '../helpers/poker_street_helper.dart';
 import '../services/session_log_service.dart';
 import '../services/training_path_progress_service_v2.dart';
 import '../services/learning_path_registry_service.dart';
+import '../services/tag_mastery_service.dart';
 import 'stage_completed_screen.dart';
 import 'package:collection/collection.dart';
 import '../widgets/spot_viewer_dialog.dart';
@@ -97,6 +98,15 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
       await progress.markStageCompleted(stage.id, stats.accuracy);
       final after = progress.getStageCompletion(stage.id);
       if (!before && after) {
+        final mastery = context.read<TagMasteryService>();
+        await mastery.updateWithSession(
+          template: widget.template,
+          results: widget.session.results,
+          dryRun: false,
+          applyCompletionBonus: true,
+          requiredHands: stage.minHands,
+          requiredAccuracy: stage.requiredAccuracy,
+        );
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
