@@ -140,6 +140,9 @@ class TagMasteryService {
     required Map<String, bool> results,
     double learningRate = 0.15,
     bool dryRun = true,
+    bool applyCompletionBonus = false,
+    int requiredHands = 0,
+    double requiredAccuracy = 0.0,
   }) async {
     final current = await computeMastery();
     final totals = <String, int>{};
@@ -170,6 +173,25 @@ class TagMasteryService {
       if (delta.abs() > 1e-6) {
         deltas[tag] = delta;
         updated[tag] = neu;
+      }
+    }
+
+    if (applyCompletionBonus) {
+      final totalHands = results.length;
+      final correctHands = results.values.where((e) => e).length;
+      final accuracy = totalHands == 0 ? 0.0 : correctHands * 100 / totalHands;
+      if (totalHands >= requiredHands && accuracy >= requiredAccuracy) {
+        for (final tag in template.tags) {
+          final key = tag.trim().toLowerCase();
+          if (key.isEmpty) continue;
+          final old = updated[key] ?? 0.5;
+          final neu = (old + 0.1).clamp(0.0, 1.0);
+          final delta = neu - old;
+          if (delta.abs() > 1e-6) {
+            deltas[key] = (deltas[key] ?? 0) + delta;
+            updated[key] = neu;
+          }
+        }
       }
     }
 
