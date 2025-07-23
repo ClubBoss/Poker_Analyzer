@@ -434,6 +434,27 @@
       "recommended": true,
       "icon": "north"
     }
+  }, {
+    "id": "3bet_push_bb_vs_lj",
+    "name": "3bet Push BB vs LJ",
+    "description": "BB shoves 25bb over LJ open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 6,
+    "positions": [
+      "bb"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "bb",
+      "lj",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
   }
-
 ]
