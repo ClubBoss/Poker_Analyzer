@@ -318,5 +318,28 @@
       "recommended": true,
       "icon": "north"
     }
+  },
+  {
+    "id": "3bet_push_btn_vs_sb",
+    "name": "3bet Push BTN vs SB",
+    "description": "BTN shoves 25bb over SB open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 2,
+    "positions": [
+      "btn"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "btn",
+      "sb",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
   }
 ]
