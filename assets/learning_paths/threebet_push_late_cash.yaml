@@ -1,6 +1,7 @@
 id: threebet_push_late_cash
 title: 3bet Push Late Cash
 description: SB 3bet shove vs BTN open with short stacks
+prerequisitePathIds: [push_fold_cash, open_fold_mid_cash]
 stages:
   - id: threebet_push_cash_stage
     title: 3bet Push

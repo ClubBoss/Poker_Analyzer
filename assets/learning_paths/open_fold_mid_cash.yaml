@@ -1,6 +1,7 @@
 id: open_fold_mid_cash
 title: Open/Fold Mid Cash
 description: Open or fold from middle positions in cash games
+prerequisitePathIds: [push_fold_cash]
 stages:
   - id: open_fold_cash_stage
     title: Open or Fold
