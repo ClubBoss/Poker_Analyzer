@@ -294,5 +294,28 @@
       "recommended": true,
       "icon": "north"
     }
+  },
+  {
+    "id": "3bet_push_btn_vs_hj",
+    "name": "3bet Push BTN vs HJ",
+    "description": "BTN shoves 25bb over HJ open",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 2,
+    "positions": [
+      "btn"
+    ],
+    "tags": [
+      "level2",
+      "3bet-push",
+      "btn",
+      "hj",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
   }
 ]
