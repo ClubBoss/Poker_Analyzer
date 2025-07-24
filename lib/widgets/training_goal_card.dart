@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/training_goal.dart';
 import '../models/goal_progress.dart';
 import '../services/goal_completion_engine.dart';
+import '../services/goal_engagement_tracker.dart';
+import '../models/goal_engagement.dart';
 import '../utils/goal_status_utils.dart';
 
 class TrainingGoalCard extends StatelessWidget {
@@ -65,7 +67,19 @@ class TrainingGoalCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
-              onPressed: onStart,
+              onPressed: () async {
+                final tag = goal.tag;
+                if (tag != null) {
+                  await GoalEngagementTracker.instance.log(
+                    GoalEngagement(
+                      tag: tag,
+                      action: 'start',
+                      timestamp: DateTime.now(),
+                    ),
+                  );
+                }
+                onStart?.call();
+              },
               style: ElevatedButton.styleFrom(backgroundColor: accent),
               child: const Text('Начать'),
             ),
