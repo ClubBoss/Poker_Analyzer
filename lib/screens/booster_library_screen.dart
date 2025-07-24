@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../services/training_pack_library_loader_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/booster_progress_tracker_service.dart';
 
 class BoosterLibraryScreen extends StatefulWidget {
   const BoosterLibraryScreen({super.key});
@@ -65,43 +66,91 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
     return null;
   }
 
+  Future<void> _launch(TrainingPackTemplateV2 pack) async {
+    final progress = await BoosterProgressTrackerService.instance.getLastIndex(pack.id);
+    final completed = await BoosterProgressTrackerService.instance.isCompleted(pack.id);
+    var start = 0;
+    if (!completed && progress != null && progress > 0 && progress < pack.spotCount) {
+      final resume = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Resume?'),
+          content: Text('Continue from spot ${progress + 1}?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Restart')),
+            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Continue')),
+          ],
+        ),
+      );
+      if (resume == null || resume) {
+        start = progress;
+      } else {
+        await BoosterProgressTrackerService.instance.clearProgress(pack.id);
+      }
+    }
+    await const TrainingSessionLauncher().launch(pack, startIndex: start);
+  }
+
   Widget _buildCard(TrainingPackTemplateV2 p) {
     final tag = p.meta['tag']?.toString();
     final diff = _difficultyLabel(p);
-    return ListTile(
-      onTap: () => const TrainingSessionLauncher().launch(p),
-      title: Row(
-        children: [
-          Expanded(child: Text(p.name)),
-          if (p.recommended) const Text('🔥')
-        ],
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (p.description.isNotEmpty)
-            Text(p.description,
-                maxLines: 2, overflow: TextOverflow.ellipsis),
-          Wrap(
-            spacing: 4,
+    return FutureBuilder<List<dynamic>>( 
+      future: Future.wait([
+        BoosterProgressTrackerService.instance.getLastIndex(p.id),
+        BoosterProgressTrackerService.instance.isCompleted(p.id),
+      ]),
+      builder: (context, snapshot) {
+        final idx = snapshot.hasData ? snapshot.data![0] as int? : null;
+        final completed = snapshot.hasData ? snapshot.data![1] as bool : false;
+        return ListTile(
+          onTap: () => _launch(p),
+          title: Row(
             children: [
-              if (tag != null)
-                Chip(label: Text(tag), visualDensity: VisualDensity.compact),
-              if (diff != null)
-                Chip(label: Text(diff), visualDensity: VisualDensity.compact),
+              Expanded(child: Text(p.name)),
+              if (p.recommended) const Text('🔥')
             ],
-          )
-        ],
-      ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.grey[800],
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text('${p.spotCount}',
-            style: const TextStyle(color: Colors.white70)),
-      ),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (p.description.isNotEmpty)
+                Text(p.description,
+                    maxLines: 2, overflow: TextOverflow.ellipsis),
+              Wrap(
+                spacing: 4,
+                children: [
+                  if (tag != null)
+                    Chip(label: Text(tag), visualDensity: VisualDensity.compact),
+                  if (diff != null)
+                    Chip(label: Text(diff), visualDensity: VisualDensity.compact),
+                ],
+              )
+            ],
+          ),
+          trailing: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: completed ? Colors.grey : Colors.grey[800],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  completed ? '✓' : '${p.spotCount}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
+              if (!completed && idx != null && idx > 0 && idx < p.spotCount)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text('${idx + 1}/${p.spotCount}',
+                      style: const TextStyle(fontSize: 12)),
+                )
+            ],
+          ),
+        );
+      },
     );
   }
 
