@@ -83,6 +83,7 @@ import '../services/learning_path_service.dart';
 import '../services/smart_spot_injector.dart';
 import '../services/learning_path_engine.dart';
 import '../services/learning_path_stage_seeder.dart';
+import '../services/starter_learning_path_seeder.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -187,6 +188,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _seedAdvancedLoading = false;
   bool _seedFullPathLoading = false;
   bool _seedIcmMultiwayLoading = false;
+  bool _generateBeginnerPathLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1777,6 +1779,26 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _seedIcmMultiwayLoading = false);
   }
 
+  Future<void> _generateBeginnerPath() async {
+    if (_generateBeginnerPathLoading || !kDebugMode) return;
+    setState(() => _generateBeginnerPathLoading = true);
+    try {
+      await const StarterLearningPathSeeder().generateStarterPath();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Beginner path generated')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Generation failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _generateBeginnerPathLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2548,6 +2570,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Seed Beginner Path'),
                 onTap: _seedBeginnerLoading ? null : _seedBeginnerPath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Generate Beginner Path'),
+                onTap: _generateBeginnerPathLoading ? null : _generateBeginnerPath,
               ),
             if (kDebugMode)
               ListTile(
