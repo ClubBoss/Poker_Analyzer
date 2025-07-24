@@ -217,7 +217,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 itemBuilder: (context, index) {
                   final stage = _stages[index];
                   final status = _stageStatus[stage.id] ?? StageStatus.locked;
-                  return _DynamicStageTile(stage: stage, status: status);
+                  return _DynamicStageTile(
+                    stage: stage,
+                    status: status,
+                    onReturn: _loadCurrent,
+                  );
                 },
               ),
             ),
@@ -230,7 +234,13 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 class _DynamicStageTile extends StatelessWidget {
   final LearningPathStageModel stage;
   final StageStatus status;
-  const _DynamicStageTile({required this.stage, required this.status});
+  final Future<void> Function()? onReturn;
+
+  const _DynamicStageTile({
+    required this.stage,
+    required this.status,
+    this.onReturn,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -286,25 +296,26 @@ class _DynamicStageTile extends StatelessWidget {
             trailing: ElevatedButton(
               onPressed: status == StageStatus.locked
                   ? null
-                  : () {
-                final tpl = TrainingPackTemplateService.getById(
-                  stage.packId,
-                  context,
-                );
-                if (tpl == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Template not found')),
-                  );
-                  return;
-                }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        TrainingPackPlayScreen(template: tpl, original: tpl),
-                  ),
-                );
-              },
+                  : () async {
+                      final tpl = TrainingPackTemplateService.getById(
+                        stage.packId,
+                        context,
+                      );
+                      if (tpl == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Template not found')),
+                        );
+                        return;
+                      }
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              TrainingPackPlayScreen(template: tpl, original: tpl),
+                        ),
+                      );
+                      if (onReturn != null) await onReturn!();
+                    },
               child: Text(buttonLabel),
             ),
           ),
