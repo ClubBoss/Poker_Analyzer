@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
+import 'achievements_engine.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -173,6 +174,9 @@ class MistakeReviewPackService extends ChangeNotifier {
     _progress = value.clamp(0, _pack?.hands.length ?? 0);
     await _save();
     notifyListeners();
+    if (_progress > 0) {
+      unawaited(AchievementsEngine.instance.checkAll());
+    }
   }
 
   Future<void> addPack(List<String> spotIds,

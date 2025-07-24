@@ -4,6 +4,8 @@ import '../main.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../screens/training_session_screen.dart';
+import 'achievements_engine.dart';
+import 'dart:async';
 
 /// Helper to start a training session from a pack template.
 class TrainingSessionLauncher {
@@ -18,5 +20,6 @@ class TrainingSessionLauncher {
       ctx,
       MaterialPageRoute(builder: (_) => TrainingSessionScreen(pack: pack)),
     );
+    unawaited(AchievementsEngine.instance.checkAll());
   }
 }
