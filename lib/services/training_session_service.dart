@@ -31,6 +31,7 @@ import '../models/category_progress.dart';
 import 'daily_reminder_scheduler.dart';
 import 'training_reminder_push_service.dart';
 import 'tag_mastery_service.dart';
+import 'gift_drop_service.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -508,6 +509,9 @@ class TrainingSessionService extends ChangeNotifier {
     }
     unawaited(TrainingStreakTrackerService.instance.markTrainingCompletedToday());
     unawaited(StreakRewardEngine.instance.checkAndTriggerRewards());
+    unawaited(context
+        .read<GiftDropService>()
+        .checkAndDropGift(context: context));
     unawaited(_clearIndex());
     final mastery = context.read<TagMasteryService>();
     final deltas = await mastery.updateWithSession(
