@@ -1,0 +1,48 @@
+id: turn_xcall_vs_barrel
+name: Turn X-Call vs Barrel
+audience: Advanced
+trainingType: postflop
+bb: 30
+gameType: tournament
+positions:
+  - bb
+  - btn
+tags:
+  - bluffcatch
+  - hero-call
+  - advanced
+  - tournament
+spots:
+  - id: txb_1
+    title: Call turn barrel with mid pair
+    board: [Jh,8s,4d,2c]
+    street: 2
+    villainAction: bet
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: 8c 8d
+      position: bb
+      heroIndex: 1
+      playerCount: 2
+      stacks: {'0': 30, '1': 30}
+      board: [Jh,8s,4d,2c]
+  - id: txb_2
+    title: Float turn with ace high after flop check
+    board: [Td,6h,3s,9c]
+    street: 2
+    villainAction: bet
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: As Qs
+      position: bb
+      heroIndex: 1
+      playerCount: 2
+      stacks: {'0': 25, '1': 25}
+      board: [Td,6h,3s,9c]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

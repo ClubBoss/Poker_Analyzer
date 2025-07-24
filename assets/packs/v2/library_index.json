@@ -897,4 +897,37 @@
     "positions": ["bb", "btn"],
     "tags": ["advanced", "icm", "multiway", "tournament"]
   }
+  {
+    "id": "river_bluffcatch_overbet",
+    "name": "River Bluffcatch vs Overbet",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 40,
+    "spotCount": 2,
+    "positions": ["co", "btn"],
+    "tags": ["bluffcatch", "hero-call", "advanced", "tournament"]
+  },
+  {
+    "id": "turn_xcall_vs_barrel",
+    "name": "Turn X-Call vs Barrel",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 30,
+    "spotCount": 2,
+    "positions": ["bb", "btn"],
+    "tags": ["bluffcatch", "hero-call", "advanced", "tournament"]
+  },
+  {
+    "id": "marginal_bluffcatch_shove",
+    "name": "Facing Shove with Marginal Bluffcatcher",
+    "description": "Postflop training pack",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 2,
+    "positions": ["btn", "bb"],
+    "tags": ["bluffcatch", "hero-call", "advanced", "tournament"]
+  }
 ]
