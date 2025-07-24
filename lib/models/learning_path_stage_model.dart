@@ -1,3 +1,5 @@
+import 'unlock_condition.dart';
+
 class LearningPathStageModel {
   final String id;
   final String title;
@@ -10,6 +12,7 @@ class LearningPathStageModel {
   final List<String> tags;
   final int order;
   final bool isOptional;
+  final UnlockCondition? unlockCondition;
 
   const LearningPathStageModel({
     required this.id,
@@ -23,6 +26,7 @@ class LearningPathStageModel {
     List<String>? unlockAfter,
     this.order = 0,
     this.isOptional = false,
+    this.unlockCondition,
   })  : unlocks = unlocks ?? const [],
         unlockAfter = unlockAfter ?? const [],
         tags = tags ?? const [];
@@ -40,6 +44,10 @@ class LearningPathStageModel {
       tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       order: (json['order'] as num?)?.toInt() ?? 0,
       isOptional: json['isOptional'] as bool? ?? false,
+      unlockCondition: json['unlockCondition'] is Map
+          ? UnlockCondition.fromJson(
+              Map<String, dynamic>.from(json['unlockCondition'] as Map))
+          : null,
     );
   }
 
@@ -55,6 +63,8 @@ class LearningPathStageModel {
         if (tags.isNotEmpty) 'tags': tags,
         'order': order,
         if (isOptional) 'isOptional': true,
+        if (unlockCondition != null)
+          'unlockCondition': unlockCondition!.toJson(),
       };
 
   factory LearningPathStageModel.fromYaml(Map yaml) {
