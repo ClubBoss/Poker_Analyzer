@@ -33,8 +33,8 @@ class _LearningStageTileState extends State<LearningStageTile> {
     if (_loading) return;
     setState(() => _loading = true);
     for (final s in widget.stage.subStages) {
-      final prog =
-          await TrainingProgressService.instance.getProgress(s.id);
+      final prog = await TrainingProgressService.instance
+          .getSubStageProgress(widget.stage.id, s.id);
       _progress[s.id] = prog;
     }
     if (mounted) setState(() => _loading = false);
@@ -128,14 +128,16 @@ class _LearningStageTileState extends State<LearningStageTile> {
 
   Widget _buildSubStageTile(SubStageModel sub) {
     final prog = _progress[sub.id] ?? 0.0;
+    final done = prog >= 1.0;
     return ListTile(
       title: Text(sub.title),
-      subtitle:
-          sub.description.isNotEmpty ? Text(sub.description) : null,
-      trailing: SizedBox(
-        width: 80,
-        child: LinearProgressIndicator(value: prog),
-      ),
+      subtitle: sub.description.isNotEmpty ? Text(sub.description) : null,
+      trailing: done
+          ? const Icon(Icons.check_circle, color: Colors.green)
+          : SizedBox(
+              width: 80,
+              child: LinearProgressIndicator(value: prog),
+            ),
     );
   }
 }
