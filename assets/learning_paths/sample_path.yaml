@@ -20,6 +20,9 @@ stages:
     packId: pack2
     requiredAccuracy: 70
     minHands: 5
+    unlockCondition:
+      dependsOn: s1
+      minAccuracy: 75
 sections:
   - id: basics
     title: Push/Fold Basics

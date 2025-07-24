@@ -4,6 +4,7 @@ import '../services/training_pack_template_service.dart';
 import '../services/learning_path_config_loader.dart';
 import '../services/learning_path_stage_library.dart';
 import '../services/training_progress_service.dart';
+import '../services/training_pack_stats_service.dart';
 import '../models/learning_path_stage_model.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'learning_progress_stats_screen.dart';
@@ -82,7 +83,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   Map<String, StageStatus> _computeStageStatus(
     List<LearningPathStageModel> orderedStages,
-    Map<String, double> progressMap, {
+    Map<String, double> progressMap,
+    Map<String, double> accuracyMap, {
     int openCount = 2,
   }) {
     final map = <String, StageStatus>{};
@@ -91,11 +93,25 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final prog = progressMap[stage.id] ?? 0.0;
       if (prog >= 1.0) {
         map[stage.id] = StageStatus.completed;
-      } else if (open < openCount) {
-        map[stage.id] = StageStatus.open;
-        open++;
       } else {
-        map[stage.id] = StageStatus.locked;
+        bool unlocked = true;
+        final cond = stage.unlockCondition;
+        if (cond != null) {
+          if (cond.dependsOn != null) {
+            final depProg = progressMap[cond.dependsOn!] ?? 0.0;
+            final depAcc = accuracyMap[cond.dependsOn!] ?? 0.0;
+            final reqAcc = cond.minAccuracy?.toDouble() ?? 0.0;
+            if (!(depProg >= 1.0 && depAcc >= reqAcc)) {
+              unlocked = false;
+            }
+          }
+        }
+        if (unlocked && open < openCount) {
+          map[stage.id] = StageStatus.open;
+          open++;
+        } else {
+          map[stage.id] = StageStatus.locked;
+        }
       }
     }
     return map;
@@ -112,6 +128,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
     final pairs = <MapEntry<LearningPathStageModel, double>>[];
     final progressMap = <String, double>{};
+    final accuracyMap = <String, double>{};
     double sum = 0;
     int completed = 0;
     for (final s in stages) {
@@ -120,6 +137,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       if (prog >= 1.0) completed++;
       pairs.add(MapEntry(s, prog));
       progressMap[s.id] = prog;
+      final stat = await TrainingPackStatsService.getStats(s.packId);
+      accuracyMap[s.id] = (stat?.accuracy ?? 0.0) * 100;
     }
     final pct = stages.isEmpty ? 0 : (sum / stages.length * 100).round();
     _progressByPath[_selected] = pct;
@@ -128,7 +147,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
     _stageStatus
       ..clear()
-      ..addAll(_computeStageStatus(stages, progressMap));
+      ..addAll(_computeStageStatus(stages, progressMap, accuracyMap));
 
     pairs.sort((a, b) {
       final aDone = a.value >= 1.0;
