@@ -138,3 +138,12 @@ dart tools/validate_training_content.dart --fix
 ```
 
 Use `--ci` to exit with a non-zero code on errors.
+
+## Path YAML Visualizer
+
+The `tools` directory includes a small web tool for previewing a compiled
+`path.yaml` without running the Flutter app. Open
+`tools/path_yaml_visualizer.html` in a browser and drop a YAML file onto the
+page. The viewer renders a table of stages and subStages with their titles,
+`packId` values and unlock conditions. Rows are highlighted if a `packId` is
+missing or an `unlockCondition.dependsOn` refers to an unknown stage.
