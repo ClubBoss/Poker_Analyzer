@@ -85,7 +85,8 @@ import '../services/learning_path_engine.dart';
 import '../services/learning_path_stage_seeder.dart';
 import '../services/starter_learning_path_seeder.dart';
 import '../services/intermediate_learning_path_seeder.dart';
-import '../services/advanced_learning_path_seeder.dart';
+
+import '../services/icm_postflop_path_seeder.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -193,6 +194,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _generateBeginnerPathLoading = false;
   bool _generateIntermediatePathLoading = false;
   bool _generateAdvancedPathLoading = false;
+  bool _generateIcmPostflopPathLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1844,6 +1846,26 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _generateAdvancedPathLoading = false);
   }
 
+  Future<void> _generateIcmPostflopPath() async {
+    if (_generateIcmPostflopPathLoading || !kDebugMode) return;
+    setState(() => _generateIcmPostflopPathLoading = true);
+    try {
+      await const IcmPostflopPathSeeder().generateIcmPostflopPath();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ICM Postflop path generated')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Generation failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _generateIcmPostflopPathLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2641,6 +2663,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('⚙️ Generate Advanced Path'),
                 onTap:
                     _generateAdvancedPathLoading ? null : _generateAdvancedPath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Generate ICM Postflop Path'),
+                onTap: _generateIcmPostflopPathLoading ? null : _generateIcmPostflopPath,
               ),
             if (kDebugMode)
               ListTile(
