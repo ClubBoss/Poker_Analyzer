@@ -12,9 +12,11 @@ import '../services/xp_tracker_service.dart';
 import '../services/session_log_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/training_progress_service.dart';
 import '../services/skill_gap_booster_service.dart';
 import '../services/mistake_tag_history_service.dart';
 import '../models/mistake_tag_cluster.dart';
+import '../models/sub_stage_model.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/skill_card.dart';
 
@@ -45,6 +47,7 @@ class _LearningPathStagePreviewScreenState
   Map<String, int> _xpMap = {};
   List<TrainingPackTemplateV2> _boosters = [];
   StageStatus _status = StageStatus.locked;
+  final Map<String, double> _subProgress = {};
   List<String> _reasons = [];
 
   @override
@@ -73,6 +76,12 @@ class _LearningPathStagePreviewScreenState
     final xpService = context.read<XPTrackerService>();
     final masteryMap = await masteryService.computeMastery();
     final xpMap = await xpService.getTotalXpPerTag();
+    final progSvc = TrainingProgressService.instance;
+    final subProg = <String, double>{};
+    for (final s in widget.stage.subStages) {
+      final p = await progSvc.getSubStageProgress(widget.stage.id, s.packId);
+      subProg[s.packId] = p;
+    }
     final boosterService = const SkillGapBoosterService();
     final boosters = await boosterService.suggestBoosters(
       requiredTags: widget.stage.tags,
@@ -113,6 +122,9 @@ class _LearningPathStagePreviewScreenState
     setState(() {
       _mastery = masteryMap;
       _xpMap = xpMap;
+      _subProgress
+        ..clear()
+        ..addAll(subProg);
       _boosters = boosters;
       _status = status;
       _reasons = reasons;
@@ -131,6 +143,24 @@ class _LearningPathStagePreviewScreenState
       return;
     }
     await const TrainingSessionLauncher().launch(template);
+    if (mounted) _load();
+  }
+
+  Future<void> _startSub(SubStageModel sub) async {
+    final template = await PackLibraryService.instance.getById(sub.packId);
+    if (template == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Training pack not found')),
+      );
+      return;
+    }
+    final copy = TrainingPackTemplateV2.fromJson(template.toJson())
+      ..name = sub.title
+      ..description = sub.description.isNotEmpty
+          ? sub.description
+          : template.description;
+    await const TrainingSessionLauncher().launch(copy);
     if (mounted) _load();
   }
 
@@ -177,6 +207,54 @@ class _LearningPathStagePreviewScreenState
     );
   }
 
+  Widget _buildSubStageRow(SubStageModel sub) {
+    final prog = _subProgress[sub.packId] ?? 0.0;
+    final done = prog >= 1.0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  sub.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                if (sub.description.isNotEmpty)
+                  Text(
+                    sub.description,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                const SizedBox(height: 4),
+                LinearProgressIndicator(value: prog),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${sub.minHands} рук · ${sub.requiredAccuracy.toStringAsFixed(0)}%',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              done
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : ElevatedButton(
+                      onPressed: () => _startSub(sub),
+                      child: const Text('Начать'),
+                    ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,37 +277,7 @@ class _LearningPathStagePreviewScreenState
                   ),
                   const SizedBox(height: 8),
                   for (final sub in widget.stage.subStages)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  sub.title,
-                                  style:
-                                      const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                if (sub.description.isNotEmpty)
-                                  Text(
-                                    sub.description,
-                                    style:
-                                        const TextStyle(color: Colors.white70),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            '${sub.minHands} рук · ${sub.requiredAccuracy.toStringAsFixed(0)}%',
-                            style:
-                                const TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildSubStageRow(sub),
                 ],
                 if (widget.stage.objectives.isNotEmpty) ...[
                   const SizedBox(height: 16),
