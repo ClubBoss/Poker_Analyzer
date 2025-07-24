@@ -9,6 +9,7 @@ import 'screens/main_navigation_screen.dart';
 import 'screens/weakness_overview_screen.dart';
 import 'screens/master_mode_screen.dart';
 import 'screens/goal_center_screen.dart';
+import 'screens/achievements_dashboard_screen.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
@@ -324,6 +325,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
                   const WeaknessOverviewScreen(),
               MasterModeScreen.route: (_) => const MasterModeScreen(),
               GoalCenterScreen.route: (_) => const GoalCenterScreen(),
+              AchievementsDashboardScreen.route: (_) =>
+                  const AchievementsDashboardScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');

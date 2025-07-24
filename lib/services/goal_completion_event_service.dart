@@ -57,4 +57,14 @@ class GoalCompletionEventService {
     final key = tag.trim().toLowerCase();
     return _events[key];
   }
+
+  Future<List<GoalCompletionEvent>> getAllEvents() async {
+    await _load();
+    final list = [
+      for (final e in _events.entries)
+        GoalCompletionEvent(tag: e.key, timestamp: e.value)
+    ]
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return list;
+  }
 }
