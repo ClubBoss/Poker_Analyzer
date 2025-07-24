@@ -14,11 +14,17 @@ void main() {
       packId: 'test_pack',
       subStages: const [
         SubStageTemplateInput(
-            id: 'a', packId: 'a', title: 'A', minHands: 5, requiredAccuracy: 60),
+            id: 'a',
+            packId: 'a',
+            title: 'A',
+            description: 'desc A',
+            minHands: 5,
+            requiredAccuracy: 60),
         SubStageTemplateInput(
           id: 'b',
           packId: 'b',
           title: 'B',
+          description: 'desc B',
           minHands: 5,
           requiredAccuracy: 70,
           unlockCondition: UnlockConditionInput(dependsOn: 'a'),

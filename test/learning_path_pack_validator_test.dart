@@ -26,7 +26,12 @@ void main() {
         title: 'Stage',
         packId: 'main',
         subStages: [
-          SubStageTemplateInput(id: 'sub1', packId: 'sub', title: 'Sub'),
+          SubStageTemplateInput(
+            id: 'sub1',
+            packId: 'sub',
+            title: 'Sub',
+            description: '',
+          ),
         ],
       ),
     ];
@@ -56,7 +61,12 @@ void main() {
         title: 'Stage',
         packId: 'main',
         subStages: [
-          SubStageTemplateInput(id: 'sub1', packId: 'other', title: 'Sub'),
+          SubStageTemplateInput(
+            id: 'sub1',
+            packId: 'other',
+            title: 'Sub',
+            description: '',
+          ),
         ],
       ),
     ];

@@ -48,6 +48,7 @@ class LearningPathAutoPackAssigner {
           id: sub.id,
           packId: packId,
           title: sub.title,
+          description: sub.description,
           minHands: sub.minHands,
           requiredAccuracy: sub.requiredAccuracy,
           unlockCondition: sub.unlockCondition,
