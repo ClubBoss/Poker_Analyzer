@@ -34,6 +34,7 @@ void main() {
     expect(stage.subStages.first.packId, 'p1');
     expect(stage.subStages.first.unlockCondition?.dependsOn, 'p0');
     expect(stage.subStages.first.unlockCondition?.minAccuracy, 60);
+    expect(stage.subStages.first.objectives, isEmpty);
     expect(stage.subStages.last.minHands, 0);
   });
 
@@ -69,6 +70,7 @@ subStages:
     expect(stage.subStages.first.packId, 'p1');
     expect(stage.subStages.first.unlockCondition?.dependsOn, 'p0');
     expect(stage.subStages.first.unlockCondition?.minAccuracy, 60);
+    expect(stage.subStages.first.objectives, isEmpty);
     expect(stage.subStages.last.id, 'p2');
     expect(stage.subStages.last.packId, 'p2');
   });

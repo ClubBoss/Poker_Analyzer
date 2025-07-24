@@ -8,6 +8,7 @@ class SubStageTemplateInput {
   final String description;
   final int minHands;
   final double requiredAccuracy;
+  final List<String> objectives;
   final UnlockConditionInput? unlockCondition;
 
   const SubStageTemplateInput({
@@ -17,6 +18,7 @@ class SubStageTemplateInput {
     this.description = '',
     this.minHands = 0,
     this.requiredAccuracy = 0,
+    this.objectives = const [],
     this.unlockCondition,
   });
 
@@ -27,6 +29,7 @@ class SubStageTemplateInput {
         if (description.isNotEmpty) 'description': description,
         if (minHands > 0) 'minHands': minHands,
         if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
+        if (objectives.isNotEmpty) 'objectives': objectives,
         if (unlockCondition != null)
           'unlockCondition': unlockCondition!.toMap(),
       };
