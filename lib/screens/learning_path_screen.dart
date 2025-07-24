@@ -83,20 +83,31 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final library = LearningPathStageLibrary.instance;
     library.clear();
     await LearningPathConfigLoader.instance.loadPath(path);
-    final stages = List.from(library.stages)
+    final stages = List<LearningPathStageModel>.from(library.stages)
       ..sort((a, b) => a.order.compareTo(b.order));
-    _stages = stages;
+
+    final pairs = <MapEntry<LearningPathStageModel, double>>[];
     double sum = 0;
     int completed = 0;
     for (final s in stages) {
       final prog = await TrainingProgressService.instance.getProgress(s.packId);
       sum += prog;
       if (prog >= 1.0) completed++;
+      pairs.add(MapEntry(s, prog));
     }
     final pct = stages.isEmpty ? 0 : (sum / stages.length * 100).round();
     _progressByPath[_selected] = pct;
     _completedStagesByPath[_selected] = completed;
     _totalStagesByPath[_selected] = stages.length;
+
+    pairs.sort((a, b) {
+      final aDone = a.value >= 1.0;
+      final bDone = b.value >= 1.0;
+      if (aDone != bDone) return aDone ? 1 : -1;
+      return a.key.order.compareTo(b.key.order);
+    });
+    _stages = [for (final p in pairs) p.key];
+
     setState(() => _loading = false);
   }
 
