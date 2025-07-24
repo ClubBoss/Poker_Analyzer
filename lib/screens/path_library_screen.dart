@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/learning_path_template_v2.dart';
 import '../services/learning_path_registry_service.dart';
 import '../widgets/smart_path_preview_card.dart';
+import '../models/path_difficulty.dart';
 
 /// Sorting options for [PathLibraryScreen].
 enum PathSort { name, length, date }
@@ -38,6 +39,7 @@ class _PathLibraryScreenState extends State<PathLibraryScreen> {
   }
 
   PathDifficulty _difficultyOf(LearningPathTemplateV2 tpl) {
+    if (tpl.difficulty != null) return tpl.difficulty!;
     final count = tpl.stages.length;
     if (count <= 3) return PathDifficulty.easy;
     if (count <= 6) return PathDifficulty.medium;
@@ -150,8 +152,8 @@ class _PathLibraryScreenState extends State<PathLibraryScreen> {
                       pathTitle: tpl.title,
                       pathDescription: tpl.description,
                       stageCount: tpl.stages.length,
-                      packCount:
-                          tpl.stages.map((e) => e.packId).toSet().length,
+                      packCount: tpl.packCount,
+                      coverAsset: tpl.coverAsset,
                       difficulty: _difficultyOf(tpl),
                     );
                   },

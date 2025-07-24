@@ -1,5 +1,6 @@
 import 'learning_path_stage_model.dart';
 import 'learning_track_section_model.dart';
+import 'path_difficulty.dart';
 class LearningPathTemplateV2 {
   final String id;
   final String title;
@@ -9,6 +10,8 @@ class LearningPathTemplateV2 {
   final List<String> tags;
   final String? recommendedFor;
   final List<String> prerequisitePathIds;
+  final String? coverAsset;
+  final PathDifficulty? difficulty;
 
   const LearningPathTemplateV2({
     required this.id,
@@ -19,6 +22,8 @@ class LearningPathTemplateV2 {
     List<String>? tags,
     this.recommendedFor,
     List<String>? prerequisitePathIds,
+    this.coverAsset,
+    this.difficulty,
   })  : stages = stages ?? const [],
         sections = sections ?? const [],
         tags = tags ?? const [],
@@ -31,6 +36,8 @@ class LearningPathTemplateV2 {
     }
     return [for (final s in stages) if (!unlockedIds.contains(s.id)) s];
   }
+
+  int get packCount => {for (final s in stages) s.packId}.length;
 
   factory LearningPathTemplateV2.fromJson(Map<String, dynamic> json) {
     return LearningPathTemplateV2(
@@ -49,11 +56,26 @@ class LearningPathTemplateV2 {
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       recommendedFor: json['recommendedFor'] as String?,
+      coverAsset: json['cover'] as String?,
+      difficulty: _parseDifficulty(json['difficulty']),
       prerequisitePathIds: [
         for (final id in (json['prerequisitePathIds'] as List? ?? []))
           id.toString()
       ],
     );
+  }
+
+  static PathDifficulty? _parseDifficulty(dynamic value) {
+    final s = value?.toString();
+    switch (s) {
+      case 'easy':
+        return PathDifficulty.easy;
+      case 'medium':
+        return PathDifficulty.medium;
+      case 'hard':
+        return PathDifficulty.hard;
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() => {
@@ -65,6 +87,8 @@ class LearningPathTemplateV2 {
           'sections': [for (final s in sections) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
         if (recommendedFor != null) 'recommendedFor': recommendedFor,
+        if (coverAsset != null) 'cover': coverAsset,
+        if (difficulty != null) 'difficulty': difficulty!.name,
         if (prerequisitePathIds.isNotEmpty)
           'prerequisitePathIds': prerequisitePathIds,
       };

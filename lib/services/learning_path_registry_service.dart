@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -17,6 +18,36 @@ class LearningPathRegistryService {
   /// Subsequent calls return cached data.
   Future<List<LearningPathTemplateV2>> loadAll() async {
     if (_templates.isNotEmpty) return _templates;
+    // try compiled file first
+    await _loadCompiled();
+    if (_templates.isEmpty) {
+      await _loadFromAssets();
+    }
+    return _templates;
+  }
+
+  Future<void> _loadCompiled() async {
+    const path = 'compiled/learning_path.yaml';
+    String? raw;
+    try {
+      raw = await rootBundle.loadString(path);
+    } catch (_) {
+      final file = File(path);
+      if (file.existsSync()) raw = await file.readAsString();
+    }
+    if (raw == null) return;
+    try {
+      final doc = loadYaml(raw);
+      final list = doc is List ? doc : (doc['paths'] as List? ?? []);
+      for (final item in list) {
+        if (item is Map) {
+          _templates.add(LearningPathTemplateV2.fromYaml(Map.from(item)));
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loadFromAssets() async {
     try {
       final manifestRaw = await rootBundle.loadString('AssetManifest.json');
       final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
@@ -37,7 +68,6 @@ class LearningPathRegistryService {
         } catch (_) {}
       }
     } catch (_) {}
-    return _templates;
   }
 
   /// Returns template with the given [id] if loaded.
