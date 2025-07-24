@@ -14,12 +14,14 @@ class LearningPathConfigLoader {
   /// Loads stages from [yamlPath] and registers them in [LearningPathStageLibrary].
   Future<void> loadPath(String yamlPath) async {
     final library = LearningPathStageLibrary.instance;
+    library.clear();
     try {
       final raw = await rootBundle.loadString(yamlPath);
       final yaml = loadYaml(raw);
       if (yaml is! Map) return;
       final packPaths = [for (final p in (yaml['packs'] as List? ?? [])) p.toString()];
       final reader = const YamlReader();
+      var index = 0;
       for (final path in packPaths) {
         try {
           final tpl = await reader.loadTemplate(path);
@@ -31,9 +33,10 @@ class LearningPathConfigLoader {
             requiredAccuracy: 80,
             minHands: 10,
             tags: tpl.tags,
-            order: library.stages.length,
+            order: index,
           );
           library.add(stage);
+          index++;
         } catch (_) {}
       }
     } catch (_) {}

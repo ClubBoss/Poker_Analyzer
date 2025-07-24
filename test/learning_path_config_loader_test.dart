@@ -32,11 +32,15 @@ void main() {
       return null;
     });
 
+    LearningPathStageLibrary.instance.clear();
+
     await LearningPathConfigLoader.instance.loadPath('assets/learning_paths/beginner_path.yaml');
 
     final stages = LearningPathStageLibrary.instance.stages;
     expect(stages, hasLength(2));
     expect(stages.first.id, 'pack1');
+    expect(stages.first.order, 0);
     expect(stages[1].id, 'pack2');
+    expect(stages[1].order, 1);
   });
 }
