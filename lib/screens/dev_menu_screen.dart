@@ -81,6 +81,7 @@ import '../services/smart_stage_unlock_engine.dart';
 import '../services/learning_path_service.dart';
 import '../services/smart_spot_injector.dart';
 import '../services/learning_path_engine.dart';
+import '../services/learning_path_stage_seeder.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -179,6 +180,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _progressImportLoading = false;
   bool _trainingStreakExportLoading = false;
   bool _autoAdvanceLoading = false;
+  bool _seedBeginnerLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1610,6 +1612,33 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _seedBeginnerPath() async {
+    if (_seedBeginnerLoading || !kDebugMode) return;
+    setState(() => _seedBeginnerLoading = true);
+    try {
+      final raw = await rootBundle
+          .loadString('assets/learning_paths/beginner_path.yaml');
+      final map = const YamlReader().read(raw);
+      final paths = [for (final p in (map['packs'] as List? ?? [])) p.toString()];
+      await const LearningPathStageSeeder().seedStages(
+        paths,
+        audience: 'Beginner',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Beginner path seeded')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seed failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _seedBeginnerLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2371,6 +2400,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 onTap: () async {
                   await LearningPathProgressService.instance.resetCustomPath();
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Seed Beginner Path'),
+                onTap: _seedBeginnerLoading ? null : _seedBeginnerPath,
               ),
             if (kDebugMode)
               ListTile(

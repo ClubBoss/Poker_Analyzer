@@ -1,0 +1,11 @@
+packs:
+  - assets/packs/v2/preflop/3bet_push_bb_vs_btn.yaml
+  - assets/packs/v2/preflop/3bet_push_bb_vs_hj.yaml
+  - assets/packs/v2/preflop/3bet_push_bb_vs_lj.yaml
+  - assets/packs/v2/preflop/3bet_push_btn_vs_co.yaml
+  - assets/packs/v2/preflop/3bet_push_btn_vs_hj.yaml
+  - assets/packs/v2/preflop/3bet_push_btn_vs_lj.yaml
+  - assets/packs/v2/preflop/3bet_push_btn_vs_sb.yaml
+  - assets/packs/v2/preflop/3bet_push_co_vs_btn.yaml
+  - assets/packs/v2/preflop/3bet_push_co_vs_lj.yaml
+  - assets/packs/v2/preflop/3bet_push_hj_vs_lj.yaml
