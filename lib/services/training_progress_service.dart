@@ -22,6 +22,9 @@ class TrainingProgressService {
   TrainingProgressService._();
   static final instance = TrainingProgressService._();
 
+  /// Cached progress values for stage -> subStage pairs.
+  final Map<String, Map<String, double>> subStageProgress = {};
+
   Future<double> getProgress(String templateId) async {
     final prefs = await SharedPreferences.getInstance();
     final idx = prefs.getInt('tpl_prog_$templateId') ??
@@ -32,6 +35,19 @@ class TrainingProgressService {
     final count = tpl.spots.isNotEmpty ? tpl.spots.length : tpl.spotCount;
     if (count == 0) return 0.0;
     return ((idx + 1) / count).clamp(0.0, 1.0);
+  }
+
+  /// Returns progress for [subStageId] within [stageId].
+  ///
+  /// Progress values are cached in [subStageProgress]. The calculation is
+  /// delegated to [getProgress] using the subStage's pack id.
+  Future<double> getSubStageProgress(String stageId, String subStageId) async {
+    final cached = subStageProgress[stageId]?[subStageId];
+    if (cached != null) return cached;
+    final prog = await getProgress(subStageId);
+    final byStage = subStageProgress.putIfAbsent(stageId, () => {});
+    byStage[subStageId] = prog;
+    return prog;
   }
 
   /// Computes high-level training stats from [attempts] and [allPacks].
