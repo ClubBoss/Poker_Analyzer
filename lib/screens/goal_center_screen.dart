@@ -10,6 +10,7 @@ import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/smart_goal_tracking_service.dart';
 import '../services/goal_completion_engine.dart';
+import '../services/goal_completion_event_service.dart';
 import '../widgets/training_goal_card.dart';
 
 class GoalCenterScreen extends StatefulWidget {
@@ -45,6 +46,7 @@ class _GoalCenterScreenState extends State<GoalCenterScreen> {
       final tag = g.tag;
       if (tag != null) {
         final prog = await tracker.getGoalProgress(tag);
+        await GoalCompletionEventService.instance.logIfNew(prog);
         map[tag] = prog;
         if (_completionEngine.showCompletedGoals ||
             !_completionEngine.isGoalCompleted(prog)) {

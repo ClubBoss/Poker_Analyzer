@@ -1,0 +1,60 @@
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/goal_completion_event.dart';
+import '../models/goal_progress.dart';
+import 'goal_completion_engine.dart';
+
+class GoalCompletionEventService {
+  GoalCompletionEventService._();
+  static final instance = GoalCompletionEventService._();
+
+  static const _prefsKey = 'goal_completion_events';
+
+  final Map<String, DateTime> _events = {};
+  bool _loaded = false;
+
+  Map<String, DateTime> get events => Map.unmodifiable(_events);
+
+  Future<void> _load() async {
+    if (_loaded) return;
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_prefsKey);
+    if (raw != null) {
+      try {
+        final map = jsonDecode(raw) as Map<String, dynamic>;
+        _events.clear();
+        for (final entry in map.entries) {
+          final ts = DateTime.tryParse(entry.value as String? ?? '');
+          if (ts != null) _events[entry.key] = ts;
+        }
+      } catch (_) {
+        _events.clear();
+      }
+    }
+    _loaded = true;
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    final map = {
+      for (final e in _events.entries) e.key: e.value.toIso8601String()
+    };
+    await prefs.setString(_prefsKey, jsonEncode(map));
+  }
+
+  Future<void> logIfNew(GoalProgress progress) async {
+    await _load();
+    final tag = progress.tag.trim().toLowerCase();
+    if (_events.containsKey(tag)) return;
+    if (!GoalCompletionEngine.instance.isGoalCompleted(progress)) return;
+    _events[tag] = DateTime.now();
+    await _save();
+  }
+
+  DateTime? completedAt(String tag) {
+    final key = tag.trim().toLowerCase();
+    return _events[key];
+  }
+}
