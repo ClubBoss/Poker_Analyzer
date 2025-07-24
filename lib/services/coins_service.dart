@@ -31,4 +31,13 @@ class CoinsService extends ChangeNotifier {
     await _save();
     notifyListeners();
   }
+
+  Future<bool> spendCoins(int amount) async {
+    if (amount <= 0) return true;
+    if (_coins < amount) return false;
+    _coins -= amount;
+    await _save();
+    notifyListeners();
+    return true;
+  }
 }
