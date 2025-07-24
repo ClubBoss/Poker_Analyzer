@@ -49,6 +49,7 @@ import '../services/goal_completion_engine.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
+import '../services/pack_library_validator_service.dart';
 import '../services/training_pack_template_validator.dart';
 import '../services/training_pack_template_storage.dart';
 import '../services/pack_search_engine.dart';
@@ -168,6 +169,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _autoFixLoading = false;
   bool _refactorYamlPackLoading = false;
   bool _ratePackLoading = false;
+  bool _libraryValidateLoading = false;
   bool _libraryRatingLoading = false;
   bool _recommendPacksLoading = false;
   bool _jsonLibraryLoading = false;
@@ -674,6 +676,36 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         backgroundColor: const Color(0xFF121212),
         title: const Text('Рейтинг библиотеки'),
         content: SingleChildScrollView(child: Text(text)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _validateLibrary() async {
+    if (_libraryValidateLoading || !kDebugMode) return;
+    setState(() => _libraryValidateLoading = true);
+    final data = await compute(_validateLibraryTask, _audience);
+    if (!mounted) return;
+    setState(() => _libraryValidateLoading = false);
+    if (data.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибок нет')));
+      return;
+    }
+    final text = data.map((e) => '${e.$1}: ${e.$2}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1874,6 +1906,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('🔍 Validate Pack Library'),
+                onTap: _libraryValidateLoading ? null : _validateLibrary,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('📂 Просмотр YAML паков'),
                 onTap: () {
                   Navigator.push(
@@ -2672,4 +2709,8 @@ Future<List<Map<String, dynamic>>> _validateTemplateTask(String path) async {
 Future<Map<String, dynamic>> _smartValidateTask(String path) async {
   final result = await const PackLibrarySmartValidator().validateAndFix(path);
   return result.toJson();
+}
+
+Future<List<(String, String)>> _validateLibraryTask(String audience) async {
+  return const PackLibraryValidatorService().validateAll(audience: audience);
 }
