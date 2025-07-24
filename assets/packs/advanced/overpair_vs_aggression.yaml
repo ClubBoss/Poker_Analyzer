@@ -1,0 +1,48 @@
+id: overpair_vs_aggression
+name: Overpair vs Aggression
+audience: Advanced
+trainingType: postflop
+bb: 30
+gameType: tournament
+positions:
+  - co
+  - bb
+tags:
+  - advanced
+  - postflop-jam
+  - tournament
+spots:
+  - id: ova_1
+    title: JJ facing raise on flop 25bb
+    board: [8c,5d,2s]
+    street: 1
+    villainAction: raise
+    heroOptions:
+      - shove
+      - call
+    hand:
+      heroCards: Jd Jc
+      position: co
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 25, '1': 25}
+      board: [8c,5d,2s]
+  - id: ova_2
+    title: QQ vs donk bet 30bb
+    board: [7h,6s,2d]
+    street: 1
+    villainAction: bet
+    heroOptions:
+      - shove
+      - raise
+      - call
+    hand:
+      heroCards: Qh Qc
+      position: co
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 30, '1': 30}
+      board: [7h,6s,2d]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

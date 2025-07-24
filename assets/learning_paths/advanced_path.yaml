@@ -1,0 +1,5 @@
+packs:
+  - assets/packs/advanced/flop_draw_shove_check.yaml
+  - assets/packs/advanced/overpair_vs_aggression.yaml
+  - assets/packs/advanced/double_barrel_jam.yaml
+  - assets/packs/advanced/delayed_shove_vs_missed_cbet.yaml

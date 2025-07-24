@@ -1,0 +1,48 @@
+id: flop_draw_shove_check
+name: Flop Draw Shove or Check
+audience: Advanced
+trainingType: postflop
+bb: 25
+gameType: tournament
+positions:
+  - btn
+  - bb
+tags:
+  - advanced
+  - postflop-jam
+  - tournament
+spots:
+  - id: fdsc_1
+    title: Shove nut flush draw on flop after check
+    board: [Ah,7h,3c]
+    street: 1
+    villainAction: check
+    heroOptions:
+      - shove
+      - check
+    hand:
+      heroCards: Kh Th
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 25, '1': 25}
+      board: [Ah,7h,3c]
+  - id: fdsc_2
+    title: OESD vs flop bet
+    board: [9s,8d,2c]
+    street: 1
+    villainAction: bet
+    heroOptions:
+      - shove
+      - call
+      - fold
+    hand:
+      heroCards: 7h 6h
+      position: bb
+      heroIndex: 1
+      playerCount: 2
+      stacks: {'0': 20, '1': 20}
+      board: [9s,8d,2c]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0
