@@ -18,6 +18,7 @@ import '../widgets/feedback_banner.dart';
 import '../widgets/recent_unlocks_banner.dart';
 import '../widgets/today_progress_banner.dart';
 import '../widgets/pack_suggestion_banner.dart';
+import '../widgets/smart_goal_banner.dart';
 import '../widgets/ev_goal_banner.dart';
 import '../widgets/repeat_last_corrected_card.dart';
 import '../widgets/repeat_corrected_drill_card.dart';
@@ -102,12 +103,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       MaterialPageRoute(builder: (_) => const OnboardingScreen()),
     );
     if (mounted) {
-      setState(() => _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
+      setState(() =>
+          _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
     }
   }
 
   Future<void> _maybeShowTrainingReminder() async {
-    await context.read<DailyTrainingReminderService>().maybeShowReminder(context);
+    await context
+        .read<DailyTrainingReminderService>()
+        .maybeShowReminder(context);
   }
 
   Future<void> _maybeLaunchScheduledTraining() async {
@@ -201,6 +205,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),
         const ContinueTrainingButton(),
+        const SmartGoalBanner(),
         const NextBestStepBanner(),
         const SpotOfTheDayCard(),
         const PackSuggestionBanner(),
@@ -368,9 +373,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             },
             itemBuilder: (context) => const [
               PopupMenuItem(value: 'settings', child: Text('⚙️ Settings')),
-              PopupMenuItem(value: 'notifications', child: Text('🔔 Notifications')),
+              PopupMenuItem(
+                  value: 'notifications', child: Text('🔔 Notifications')),
               PopupMenuItem(value: 'plugins', child: Text('🧩 Plugins')),
-              PopupMenuItem(value: 'community_plugins', child: Text('🌐 Community')),
+              PopupMenuItem(
+                  value: 'community_plugins', child: Text('🌐 Community')),
               PopupMenuItem(value: 'onboarding', child: Text('📖 Обучение')),
               PopupMenuItem(value: 'evicm', child: Text('EV/ICM')),
               PopupMenuItem(value: 'evstats', child: Text('EV Stats')),
@@ -431,7 +438,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                       icon: Icon(Icons.history),
                       label: 'История',
                     ),
-                    BottomNavigationBarItem(icon: Icon(Icons.flag), label: 'Goal'),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.flag), label: 'Goal'),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.backpack),
                       label: 'My Packs',
