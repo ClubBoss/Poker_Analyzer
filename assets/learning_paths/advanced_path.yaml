@@ -3,3 +3,6 @@ packs:
   - assets/packs/advanced/overpair_vs_aggression.yaml
   - assets/packs/advanced/double_barrel_jam.yaml
   - assets/packs/advanced/delayed_shove_vs_missed_cbet.yaml
+  - assets/packs/advanced/draw_or_shove_flop.yaml
+  - assets/packs/advanced/overpair_vs_late_aggression.yaml
+  - assets/packs/advanced/barrel_jam_drawy.yaml

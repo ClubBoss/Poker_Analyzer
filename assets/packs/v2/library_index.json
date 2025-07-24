@@ -820,5 +820,37 @@
     "positions": ["sb", "bb"],
     "tags": ["advanced", "postflop-jam", "tournament"]
   }
+  ,{
+    "id": "draw_or_shove_flop",
+    "name": "Draw or Shove Flop",
+    "description": "Push or fold with strong draws on flop",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 2,
+    "positions": ["btn", "bb"],
+    "tags": ["advanced", "postflop-jam", "tournament"]
+  },
+  {
+    "id": "overpair_vs_late_aggression",
+    "name": "Overpair vs Late Aggression",
+    "description": "Handle overpairs facing turn/river pressure",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 2,
+    "positions": ["co", "bb"],
+    "tags": ["advanced", "postflop-jam", "tournament"]
+  },
+  {
+    "id": "barrel_jam_drawy",
+    "name": "Barrel Jam Drawy Boards",
+    "description": "Jam multi-barrel on draw heavy boards",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 2,
+    "positions": ["btn", "bb"],
+    "tags": ["advanced", "postflop-jam", "tournament"]
+  }
 ]
-

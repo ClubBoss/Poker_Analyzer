@@ -1,0 +1,48 @@
+id: draw_or_shove_flop
+name: Draw or Shove Flop
+audience: Advanced
+trainingType: postflop
+bb: 20
+gameType: tournament
+positions:
+  - btn
+  - bb
+tags:
+  - advanced
+  - postflop-jam
+  - tournament
+spots:
+  - id: dosf_1
+    title: Nut flush draw vs c-bet
+    board: [Jh,8h,3c]
+    street: 1
+    villainAction: bet
+    heroOptions:
+      - shove
+      - call
+      - fold
+    hand:
+      heroCards: Ah Kh
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 20, '1': 20}
+      board: [Jh,8h,3c]
+  - id: dosf_2
+    title: OESD + overcards vs flop check
+    board: [9d,8c,6s]
+    street: 1
+    villainAction: check
+    heroOptions:
+      - shove
+      - check
+    hand:
+      heroCards: Ad Td
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 18, '1': 18}
+      board: [9d,8c,6s]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0
