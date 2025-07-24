@@ -4,7 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/achievement_basic.dart';
 import '../widgets/achievement_dialog.dart';
+import '../widgets/achievement_reward_popup.dart';
 import '../services/xp_tracker_service.dart';
+import '../services/coins_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/streak_tracker_service.dart';
 import '../main.dart';
@@ -46,6 +48,7 @@ class AchievementsEngine extends ChangeNotifier {
         description: 'Получите 1 XP',
         isUnlocked: prefs.getBool('${_pref}first_xp') ?? false,
         unlockDate: _parse(prefs.getString('${_pref}first_xp_date')),
+        rewardXp: XPTrackerService.achievementXp,
       ),
       AchievementBasic(
         id: 'first_level',
@@ -53,6 +56,7 @@ class AchievementsEngine extends ChangeNotifier {
         description: 'Достигните уровня 1',
         isUnlocked: prefs.getBool('${_pref}first_level') ?? false,
         unlockDate: _parse(prefs.getString('${_pref}first_level_date')),
+        rewardXp: XPTrackerService.achievementXp,
       ),
       AchievementBasic(
         id: 'ten_packs',
@@ -60,6 +64,7 @@ class AchievementsEngine extends ChangeNotifier {
         description: 'Завершите 10 паков',
         isUnlocked: prefs.getBool('${_pref}ten_packs') ?? false,
         unlockDate: _parse(prefs.getString('${_pref}ten_packs_date')),
+        rewardXp: XPTrackerService.achievementXp,
       ),
       AchievementBasic(
         id: 'weekly_streak',
@@ -67,6 +72,7 @@ class AchievementsEngine extends ChangeNotifier {
         description: 'Поддерживайте стрик 7 дней',
         isUnlocked: prefs.getBool('${_pref}weekly_streak') ?? false,
         unlockDate: _parse(prefs.getString('${_pref}weekly_streak_date')),
+        rewardXp: XPTrackerService.achievementXp,
       ),
       AchievementBasic(
         id: 'first_mistake_review',
@@ -75,6 +81,7 @@ class AchievementsEngine extends ChangeNotifier {
         isUnlocked: prefs.getBool('${_pref}first_mistake_review') ?? false,
         unlockDate: _parse(
             prefs.getString('${_pref}first_mistake_review_date')),
+        rewardXp: XPTrackerService.achievementXp,
       ),
     ]);
     xp.addListener(() => unawaited(checkAll()));
@@ -99,9 +106,25 @@ class AchievementsEngine extends ChangeNotifier {
     final updated = a.copyWith(isUnlocked: true, unlockDate: DateTime.now());
     _achievements[i] = updated;
     await _save(updated);
+    if (updated.rewardXp > 0) {
+      await xp.add(xp: updated.rewardXp, source: 'achievement');
+    }
+    if (updated.rewardCoins > 0) {
+      await CoinsService.instance.addCoins(updated.rewardCoins);
+    }
     final ctx = navigatorKey.currentContext;
     if (ctx != null) {
-      await showAchievementDialog(ctx, updated);
+      if (updated.showRewardPopup) {
+        showAchievementRewardPopup(
+          ctx,
+          icon: Icons.emoji_events,
+          title: updated.title,
+          xp: updated.rewardXp,
+          coins: updated.rewardCoins,
+        );
+      } else {
+        await showAchievementDialog(ctx, updated);
+      }
     }
     notifyListeners();
   }
