@@ -15,13 +15,14 @@ void main() {
       'subStages': [
         {
           'id': 'p1',
+          'packId': 'p1',
           'title': 'A',
           'description': 'first',
           'requiredAccuracy': 70,
           'minHands': 5,
           'unlockCondition': {'dependsOn': 'p0', 'minAccuracy': 60},
         },
-        {'id': 'p2', 'title': 'B'}
+        {'id': 'p2', 'packId': 'p2', 'title': 'B'}
       ]
     };
     final stage = LearningPathStageModel.fromJson(json);
@@ -30,6 +31,7 @@ void main() {
     expect(stage.subStages.first.title, 'A');
     expect(stage.subStages.first.description, 'first');
     expect(stage.subStages.first.requiredAccuracy, 70);
+    expect(stage.subStages.first.packId, 'p1');
     expect(stage.subStages.first.unlockCondition?.dependsOn, 'p0');
     expect(stage.subStages.first.unlockCondition?.minAccuracy, 60);
     expect(stage.subStages.last.minHands, 0);
@@ -45,6 +47,7 @@ requiredAccuracy: 80
 minHands: 10
 subStages:
   - id: p1
+    packId: p1
     title: A
     description: first
     requiredAccuracy: 70
@@ -53,6 +56,7 @@ subStages:
       dependsOn: p0
       minAccuracy: 60
   - id: p2
+    packId: p2
     title: B
 ''';
     final map = const YamlReader().read(yamlStr);
@@ -62,8 +66,10 @@ subStages:
     expect(stage.subStages.first.title, 'A');
     expect(stage.subStages.first.description, 'first');
     expect(stage.subStages.first.requiredAccuracy, 70);
+    expect(stage.subStages.first.packId, 'p1');
     expect(stage.subStages.first.unlockCondition?.dependsOn, 'p0');
     expect(stage.subStages.first.unlockCondition?.minAccuracy, 60);
     expect(stage.subStages.last.id, 'p2');
+    expect(stage.subStages.last.packId, 'p2');
   });
 }

@@ -24,7 +24,7 @@ class LearningPathCompletionEngine {
         if (accuracy < stage.requiredAccuracy) return false;
       } else {
         for (final sub in stage.subStages) {
-          final log = logsByPackId[sub.id];
+          final log = logsByPackId[sub.packId];
           final correct = log?.correctCount ?? 0;
           final mistakes = log?.mistakeCount ?? 0;
           final hands = correct + mistakes;

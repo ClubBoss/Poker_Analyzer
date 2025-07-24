@@ -13,9 +13,11 @@ void main() {
       title: 'Stage',
       packId: 'test_pack',
       subStages: const [
-        SubStageTemplateInput(id: 'a', title: 'A', minHands: 5, requiredAccuracy: 60),
+        SubStageTemplateInput(
+            id: 'a', packId: 'a', title: 'A', minHands: 5, requiredAccuracy: 60),
         SubStageTemplateInput(
           id: 'b',
+          packId: 'b',
           title: 'B',
           minHands: 5,
           requiredAccuracy: 70,
@@ -27,6 +29,7 @@ void main() {
     final stage = LearningPathStageModel.fromJson(Map<String, dynamic>.from(map));
     expect(stage.id, 's1');
     expect(stage.subStages.length, 2);
+    expect(stage.subStages.first.packId, 'a');
     expect(stage.subStages.last.unlockCondition?.dependsOn, 'a');
   });
 

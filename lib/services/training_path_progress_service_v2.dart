@@ -87,7 +87,7 @@ class TrainingPathProgressServiceV2 {
     } else {
       for (final sub in stage.subStages) {
         for (final log in logs.logs) {
-          if (log.templateId == sub.id) {
+          if (log.templateId == sub.packId) {
             hands += log.correctCount + log.mistakeCount;
             correct += log.correctCount;
           }
@@ -132,7 +132,7 @@ class TrainingPathProgressServiceV2 {
                   id: '',
                   title: '',
                   description: '',
-                  packId: sub.id,
+                  packId: sub.packId,
                   requiredAccuracy: sub.requiredAccuracy,
                   minHands: sub.minHands,
                 ));
