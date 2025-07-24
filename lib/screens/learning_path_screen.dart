@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_pack_template_service.dart';
 import '../services/learning_path_config_loader.dart';
 import '../services/learning_path_stage_library.dart';
@@ -22,6 +23,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     'Live': 'assets/learning_paths/live_path.yaml',
   };
 
+  static const _prefsKey = 'selected_learning_path';
+
   String _selected = 'Beginner';
   List<LearningPathStageModel> _stages = [];
   bool _loading = true;
@@ -29,7 +32,21 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCurrent();
+    _init();
+  }
+
+  Future<void> _init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_prefsKey);
+    if (stored != null) {
+      for (final entry in _paths.entries) {
+        if (entry.value.endsWith(stored)) {
+          _selected = entry.key;
+          break;
+        }
+      }
+    }
+    await _loadCurrent();
   }
 
   Future<void> _loadCurrent() async {
@@ -67,6 +84,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               value: _selected,
               onChanged: (v) async {
                 if (v == null) return;
+                final prefs = await SharedPreferences.getInstance();
+                final file = _paths[v]!.split('/').last;
+                await prefs.setString(_prefsKey, file);
                 setState(() => _selected = v);
                 await _loadCurrent();
               },
