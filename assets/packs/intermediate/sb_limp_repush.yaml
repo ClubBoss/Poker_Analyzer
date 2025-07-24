@@ -1,0 +1,53 @@
+id: sb_limp_repush
+name: SB Limp Re-Push
+audience: Intermediate
+trainingType: mtt
+bb: 16
+gameType: tournament
+positions:
+  - sb
+  - bb
+tags:
+  - intermediate
+  - preflop-advanced
+  - tournament
+spots:
+  - id: sblr_1
+    title: SB limps KTo, BB raises 3bb
+    villainAction: raise 3
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: Kh Td
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 16
+        '1': 16
+        '2': 16
+        '3': 16
+        '4': 16
+        '5': 16
+  - id: sblr_2
+    title: SB limps 55, BB raises 4bb
+    villainAction: raise 4
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: 5c 5d
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0
