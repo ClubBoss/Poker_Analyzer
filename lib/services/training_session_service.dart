@@ -31,6 +31,8 @@ import '../models/category_progress.dart';
 import 'daily_reminder_scheduler.dart';
 import 'training_reminder_push_service.dart';
 import 'tag_mastery_service.dart';
+import 'session_log_service.dart';
+import 'smart_spot_injector.dart';
 import 'gift_drop_service.dart';
 import 'session_streak_tracker_service.dart';
 
@@ -350,6 +352,17 @@ class TrainingSessionService extends ChangeNotifier {
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
     _preIcmPct = total == 0 ? 0 : template.icmCovered * 100 / total;
     _spots = List<TrainingPackSpot>.from(template.spots);
+
+    if (SmartSpotInjector.instance.enabled) {
+      final logs = SessionLogService(sessions: this);
+      final mastery = TagMasteryService(logs: logs);
+      _spots = await SmartSpotInjector.instance.injectWeaknessSpots(
+        originalSpots: _spots,
+        logs: logs,
+        mastery: mastery,
+      );
+      logs.dispose();
+    }
     _evAverageAll = 0;
     _icmAverageAll = 0;
     if (_spots.isNotEmpty) {

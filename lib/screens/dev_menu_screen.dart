@@ -76,6 +76,7 @@ import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
 import '../services/smart_stage_unlock_engine.dart';
 import '../services/learning_path_service.dart';
+import '../services/smart_spot_injector.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -175,6 +176,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _autoAdvanceLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
+  bool _injectWeakSpots = false;
   bool _showCompletedGoals = false;
   bool _achievementsCheckLoading = false;
   int _lessonStreak = 0;
@@ -2256,6 +2258,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 onChanged: (v) {
                   setState(() => _smartMode = v ?? false);
                   LearningPathService.instance.smartMode = _smartMode;
+                },
+              ),
+            if (kDebugMode)
+              CheckboxListTile(
+                title:
+                    const Text('Inject weakness spots at start of training'),
+                value: _injectWeakSpots,
+                activeColor: Colors.greenAccent,
+                onChanged: (v) {
+                  setState(() => _injectWeakSpots = v ?? false);
+                  SmartSpotInjector.instance.enabled = _injectWeakSpots;
                 },
               ),
             if (kDebugMode)
