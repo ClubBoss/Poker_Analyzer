@@ -107,6 +107,7 @@ import 'tag_matrix_coverage_screen.dart';
 import 'skill_map_screen.dart';
 import 'goal_screen.dart';
 import 'goal_center_screen.dart';
+import 'goal_insights_screen.dart';
 import 'lesson_path_screen.dart';
 import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
@@ -2189,6 +2190,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (_) => const AchievementsDashboardScreen()),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📈 Статистика целей'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const GoalInsightsScreen()),
                   );
                 },
               ),
