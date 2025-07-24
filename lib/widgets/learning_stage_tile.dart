@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/learning_path_stage_model.dart';
 import '../models/learning_track_progress_model.dart';
 import '../services/training_progress_service.dart';
+import '../services/training_pack_template_service.dart';
+import '../screens/v2/training_pack_play_screen.dart';
 import '../models/sub_stage_model.dart';
 import 'tag_badge.dart';
 
@@ -28,15 +30,31 @@ class LearningStageTile extends StatefulWidget {
 class _LearningStageTileState extends State<LearningStageTile> {
   final Map<String, double> _progress = {};
   bool _loading = false;
+  String? _lastStartedId;
+
+  String? _computeLastStarted() {
+    String? id;
+    double last = 0.0;
+    for (final entry in _progress.entries) {
+      final prog = entry.value;
+      if (prog > 0 && prog < 1.0 && prog >= last) {
+        last = prog;
+        id = entry.key;
+      }
+    }
+    return id;
+  }
 
   Future<void> _load() async {
     if (_loading) return;
     setState(() => _loading = true);
+    _lastStartedId = null;
     for (final s in widget.stage.subStages) {
       final prog = await TrainingProgressService.instance
           .getSubStageProgress(widget.stage.id, s.id);
       _progress[s.id] = prog;
     }
+    _lastStartedId = _computeLastStarted();
     if (mounted) setState(() => _loading = false);
   }
 
@@ -129,7 +147,9 @@ class _LearningStageTileState extends State<LearningStageTile> {
   Widget _buildSubStageTile(SubStageModel sub) {
     final prog = _progress[sub.id] ?? 0.0;
     final done = prog >= 1.0;
+    final highlight = sub.id == _lastStartedId;
     return ListTile(
+      tileColor: highlight ? Colors.blue.withOpacity(0.1) : null,
       title: Text(sub.title),
       subtitle: sub.description.isNotEmpty ? Text(sub.description) : null,
       trailing: done
@@ -138,6 +158,22 @@ class _LearningStageTileState extends State<LearningStageTile> {
               width: 80,
               child: LinearProgressIndicator(value: prog),
             ),
+      onTap: () async {
+        final tpl = TrainingPackTemplateService.getById(sub.id, context);
+        if (tpl == null) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
+          ),
+        );
+        final updated = await TrainingProgressService.instance
+            .getSubStageProgress(widget.stage.id, sub.id);
+        setState(() {
+          _progress[sub.id] = updated;
+          _lastStartedId = _computeLastStarted();
+        });
+      },
     );
   }
 }
