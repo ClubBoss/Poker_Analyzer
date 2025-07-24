@@ -54,6 +54,7 @@ import '../widgets/achievements_card.dart';
 import '../widgets/daily_spotlight_card.dart';
 import '../widgets/streak_banner_widget.dart';
 import '../widgets/streak_analytics_card.dart';
+import 'booster_library_screen.dart';
 import 'training_progress_analytics_screen.dart';
 import 'training_recommendation_screen.dart';
 import '../helpers/training_onboarding.dart';
@@ -110,6 +111,17 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const TrainingRecommendationScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.local_fire_department),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const BoosterLibraryScreen(),
                 ),
               );
             },
