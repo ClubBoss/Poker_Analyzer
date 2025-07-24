@@ -48,6 +48,8 @@ class _LearningPathStagePreviewScreenState
   List<TrainingPackTemplateV2> _boosters = [];
   StageStatus _status = StageStatus.locked;
   final Map<String, double> _subProgress = {};
+  final Map<String, double> _subAccuracy = {};
+  final Map<String, TrainingPackTemplateV2> _subBoosters = {};
   List<String> _reasons = [];
 
   @override
@@ -78,11 +80,30 @@ class _LearningPathStagePreviewScreenState
     final xpMap = await xpService.getTotalXpPerTag();
     final progSvc = TrainingProgressService.instance;
     final subProg = <String, double>{};
+    final subAcc = <String, double>{};
+    final subBoosters = <String, TrainingPackTemplateV2>{};
+    final boosterService = const SkillGapBoosterService();
+    final tracker = const LearningPathProgressTrackerService();
+    final aggregated = tracker.aggregateLogsByPack(_logs.logs);
     for (final s in widget.stage.subStages) {
       final p = await progSvc.getSubStageProgress(widget.stage.id, s.packId);
       subProg[s.packId] = p;
+      final log = aggregated[s.packId];
+      final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
+      final acc = hands == 0 ? 0.0 : log!.correctCount / hands * 100;
+      subAcc[s.packId] = acc;
+      if (acc < s.requiredAccuracy && s.requiredAccuracy > 0) {
+        final tags = s.objectives.isNotEmpty ? s.objectives : widget.stage.tags;
+        if (tags.isNotEmpty) {
+          final packs = await boosterService.suggestBoosters(
+            requiredTags: tags,
+            masteryMap: masteryMap,
+            count: 1,
+          );
+          if (packs.isNotEmpty) subBoosters[s.packId] = packs.first;
+        }
+      }
     }
-    final boosterService = const SkillGapBoosterService();
     final boosters = await boosterService.suggestBoosters(
       requiredTags: widget.stage.tags,
       masteryMap: masteryMap,
@@ -125,6 +146,12 @@ class _LearningPathStagePreviewScreenState
       _subProgress
         ..clear()
         ..addAll(subProg);
+      _subAccuracy
+        ..clear()
+        ..addAll(subAcc);
+      _subBoosters
+        ..clear()
+        ..addAll(subBoosters);
       _boosters = boosters;
       _status = status;
       _reasons = reasons;
@@ -210,46 +237,72 @@ class _LearningPathStagePreviewScreenState
   Widget _buildSubStageRow(SubStageModel sub) {
     final prog = _subProgress[sub.packId] ?? 0.0;
     final done = prog >= 1.0;
+    final acc = _subAccuracy[sub.packId] ?? 0.0;
+    final booster = _subBoosters[sub.packId];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sub.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                if (sub.description.isNotEmpty)
-                  Text(
-                    sub.description,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                const SizedBox(height: 4),
-                LinearProgressIndicator(value: prog),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${sub.minHands} рук · ${sub.requiredAccuracy.toStringAsFixed(0)}%',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              done
-                  ? const Icon(Icons.check_circle, color: Colors.green)
-                  : ElevatedButton(
-                      onPressed: () => _startSub(sub),
-                      child: const Text('Начать'),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sub.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    if (sub.description.isNotEmpty)
+                      Text(
+                        sub.description,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    const SizedBox(height: 4),
+                    LinearProgressIndicator(value: prog),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${sub.minHands} рук · ${sub.requiredAccuracy.toStringAsFixed(0)}%',
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                  const SizedBox(height: 4),
+                  done
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : ElevatedButton(
+                          onPressed: () => _startSub(sub),
+                          child: const Text('Начать'),
+                        ),
+                  if (booster != null && acc < sub.requiredAccuracy)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            const TrainingSessionLauncher().launch(booster),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange),
+                        child: const Text('Усилить 🔥'),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
+          if (booster != null && acc < sub.requiredAccuracy)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 8),
+              child: Text(
+                booster.name,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ),
         ],
       ),
     );

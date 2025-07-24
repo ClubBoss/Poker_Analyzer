@@ -7,6 +7,7 @@ class SubStageModel {
   final String description;
   final int minHands;
   final double requiredAccuracy;
+  final List<String> objectives;
   final UnlockCondition? unlockCondition;
 
   const SubStageModel({
@@ -16,6 +17,7 @@ class SubStageModel {
     this.description = '',
     this.minHands = 0,
     this.requiredAccuracy = 0,
+    this.objectives = const [],
     this.unlockCondition,
   });
 
@@ -27,6 +29,9 @@ class SubStageModel {
       description: json['description'] as String? ?? '',
       minHands: (json['minHands'] as num?)?.toInt() ?? 0,
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
+      objectives: [
+        for (final o in (json['objectives'] as List? ?? [])) o.toString()
+      ],
       unlockCondition: json['unlockCondition'] is Map
           ? UnlockCondition.fromJson(
               Map<String, dynamic>.from(json['unlockCondition'] as Map))
@@ -41,6 +46,7 @@ class SubStageModel {
         if (description.isNotEmpty) 'description': description,
         if (minHands > 0) 'minHands': minHands,
         if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
+        if (objectives.isNotEmpty) 'objectives': objectives,
         if (unlockCondition != null)
           'unlockCondition': unlockCondition!.toJson(),
       };
