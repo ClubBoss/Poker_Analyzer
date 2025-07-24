@@ -48,6 +48,7 @@ import 'weakness_overview_screen.dart';
 import 'learning_dashboard_screen.dart';
 import 'notification_settings_screen.dart';
 import 'dev_menu_screen.dart';
+import 'shop_screen.dart';
 import 'package:provider/provider.dart';
 import '../utils/route_link.dart';
 import '../services/learning_path_registry_service.dart';
@@ -368,6 +369,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                     ),
                   );
                   break;
+                case 'shop':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ShopScreen()),
+                  );
+                  break;
                 case 'about':
                   showAboutDialog(context: context);
                   break;
@@ -387,6 +394,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
               PopupMenuItem(value: 'tracks', child: Text('🎓 Треки')),
               PopupMenuItem(value: 'dashboard', child: Text('📈 Dashboard')),
               PopupMenuItem(value: 'dev', child: Text('Dev Menu')),
+              PopupMenuItem(value: 'shop', child: Text('🛒 Shop')),
               PopupMenuItem(value: 'about', child: Text('About')),
             ],
           ),
