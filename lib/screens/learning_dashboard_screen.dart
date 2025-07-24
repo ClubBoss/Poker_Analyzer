@@ -21,6 +21,7 @@ import '../widgets/tag_insight_reminder_card.dart';
 import '../widgets/review_path_card.dart';
 import '../widgets/smart_recovery_banner.dart';
 import '../widgets/streak_recovery_block.dart';
+import '../widgets/training_streak_indicator.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -29,7 +30,8 @@ class LearningDashboardScreen extends StatefulWidget {
   const LearningDashboardScreen({super.key});
 
   @override
-  State<LearningDashboardScreen> createState() => _LearningDashboardScreenState();
+  State<LearningDashboardScreen> createState() =>
+      _LearningDashboardScreenState();
 }
 
 class _DashboardData {
@@ -105,9 +107,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
     );
 
     final deltas = await context.read<TagMasteryService>().computeDelta();
-    final top = deltas.entries
-        .where((e) => e.value > 0)
-        .toList()
+    final top = deltas.entries.where((e) => e.value > 0).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final improvements = {
       for (final e in top.take(3)) e.key: e.value,
@@ -170,7 +170,9 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
           const SizedBox(height: 4),
           Text(value,
               style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20)),
         ],
       ),
     );
@@ -216,13 +218,15 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
           );
         }
         final data = snapshot.data!;
-        final completion = (data.progress.completionRate * 100).toStringAsFixed(0);
-        final streak = data.progress.streakDays;
+        final completion =
+            (data.progress.completionRate * 100).toStringAsFixed(0);
         return Scaffold(
           appBar: AppBar(title: const Text('Learning Dashboard')),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              const TrainingStreakIndicator(),
+              const SizedBox(height: 12),
               const StreakRecoveryBlock(),
               if (data.reviews.isNotEmpty) ...[
                 WeaknessReviewSection(
@@ -230,15 +234,13 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
                   onTap: _handlePackLaunch,
                 ),
                 const SizedBox(height: 12),
-              ]
-              else if (_recommendationCards.isNotEmpty) ...[
+              ] else if (_recommendationCards.isNotEmpty) ...[
                 FeedRecommendationWidget(
                   cards: _recommendationCards,
                   onTap: _handlePackLaunch,
                 ),
                 const SizedBox(height: 12),
-              ]
-              else if (data.nextPack != null) ...[
+              ] else if (data.nextPack != null) ...[
                 const NextUpBanner(),
                 const SizedBox(height: 12),
               ],
@@ -248,8 +250,6 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
               _section('🎯 Completion', '$completion% complete'),
               const SizedBox(height: 12),
               _improvements(data.improvements),
-              const SizedBox(height: 12),
-              _section('🔥 Streak', '$streak-day streak'),
               const SizedBox(height: 12),
               const TagInsightReminderCard(),
               const SizedBox(height: 12),
