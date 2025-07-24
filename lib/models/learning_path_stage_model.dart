@@ -1,4 +1,5 @@
 import 'unlock_condition.dart';
+import 'learning_path_sub_stage.dart';
 
 class LearningPathStageModel {
   final String id;
@@ -7,6 +8,7 @@ class LearningPathStageModel {
   final String packId;
   final double requiredAccuracy;
   final int minHands;
+  final List<LearningPathSubStage> subStages;
   final List<String> unlocks;
   final List<String> unlockAfter;
   final List<String> tags;
@@ -21,6 +23,7 @@ class LearningPathStageModel {
     required this.packId,
     required this.requiredAccuracy,
     required this.minHands,
+    List<LearningPathSubStage>? subStages,
     List<String>? unlocks,
     List<String>? tags,
     List<String>? unlockAfter,
@@ -29,7 +32,8 @@ class LearningPathStageModel {
     this.unlockCondition,
   })  : unlocks = unlocks ?? const [],
         unlockAfter = unlockAfter ?? const [],
-        tags = tags ?? const [];
+        tags = tags ?? const [],
+        subStages = subStages ?? const [];
 
   factory LearningPathStageModel.fromJson(Map<String, dynamic> json) {
     return LearningPathStageModel(
@@ -48,6 +52,10 @@ class LearningPathStageModel {
           ? UnlockCondition.fromJson(
               Map<String, dynamic>.from(json['unlockCondition'] as Map))
           : null,
+      subStages: [
+        for (final s in (json['subStages'] as List? ?? []))
+          LearningPathSubStage.fromJson(Map<String, dynamic>.from(s)),
+      ],
     );
   }
 
@@ -65,6 +73,8 @@ class LearningPathStageModel {
         if (isOptional) 'isOptional': true,
         if (unlockCondition != null)
           'unlockCondition': unlockCondition!.toJson(),
+        if (subStages.isNotEmpty)
+          'subStages': [for (final s in subStages) s.toJson()],
       };
 
   factory LearningPathStageModel.fromYaml(Map yaml) {

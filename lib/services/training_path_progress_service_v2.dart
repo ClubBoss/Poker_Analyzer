@@ -77,10 +77,21 @@ class TrainingPathProgressServiceV2 {
   _StageProgress _computeStats(LearningPathStageModel stage) {
     var hands = 0;
     var correct = 0;
-    for (final log in logs.logs) {
-      if (log.templateId == stage.packId) {
-        hands += log.correctCount + log.mistakeCount;
-        correct += log.correctCount;
+    if (stage.subStages.isEmpty) {
+      for (final log in logs.logs) {
+        if (log.templateId == stage.packId) {
+          hands += log.correctCount + log.mistakeCount;
+          correct += log.correctCount;
+        }
+      }
+    } else {
+      for (final sub in stage.subStages) {
+        for (final log in logs.logs) {
+          if (log.templateId == sub.packId) {
+            hands += log.correctCount + log.mistakeCount;
+            correct += log.correctCount;
+          }
+        }
       }
     }
     final acc = hands == 0 ? 0.0 : correct / hands * 100;
@@ -107,10 +118,32 @@ class TrainingPathProgressServiceV2 {
       _unlocked.add(id);
       final stage = _template!.stages.firstWhere((e) => e.id == id);
       final prog = _progress[id];
-      final done =
-          prog != null &&
-          prog.hands >= stage.minHands &&
-          prog.accuracy >= stage.requiredAccuracy;
+      bool done = false;
+      if (prog != null) {
+        if (stage.subStages.isEmpty) {
+          done =
+              prog.hands >= stage.minHands &&
+              prog.accuracy >= stage.requiredAccuracy;
+        } else {
+          done = true;
+          for (final sub in stage.subStages) {
+            final stats = _computeStats(
+                LearningPathStageModel(
+                  id: '',
+                  title: '',
+                  description: '',
+                  packId: sub.packId,
+                  requiredAccuracy: sub.requiredAccuracy ?? 0,
+                  minHands: sub.minHands ?? 0,
+                ));
+            if (stats.hands < (sub.minHands ?? 0) ||
+                stats.accuracy < (sub.requiredAccuracy ?? 0)) {
+              done = false;
+              break;
+            }
+          }
+        }
+      }
       if (done) {
         completed.add(id);
         for (final next in stage.unlocks) {

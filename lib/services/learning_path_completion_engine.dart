@@ -14,13 +14,26 @@ class LearningPathCompletionEngine {
     Map<String, SessionLog> logsByPackId,
   ) {
     for (final stage in path.stages) {
-      final log = logsByPackId[stage.packId];
-      final correct = log?.correctCount ?? 0;
-      final mistakes = log?.mistakeCount ?? 0;
-      final hands = correct + mistakes;
-      if (hands < stage.minHands) return false;
-      final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-      if (accuracy < stage.requiredAccuracy) return false;
+      if (stage.subStages.isEmpty) {
+        final log = logsByPackId[stage.packId];
+        final correct = log?.correctCount ?? 0;
+        final mistakes = log?.mistakeCount ?? 0;
+        final hands = correct + mistakes;
+        if (hands < stage.minHands) return false;
+        final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+        if (accuracy < stage.requiredAccuracy) return false;
+      } else {
+        for (final sub in stage.subStages) {
+          final log = logsByPackId[sub.packId];
+          final correct = log?.correctCount ?? 0;
+          final mistakes = log?.mistakeCount ?? 0;
+          final hands = correct + mistakes;
+          if (hands < (sub.minHands ?? 0)) return false;
+          final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+          if (sub.requiredAccuracy != null &&
+              accuracy < sub.requiredAccuracy!) return false;
+        }
+      }
     }
     return true;
   }
