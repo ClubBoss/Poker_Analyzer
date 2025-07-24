@@ -7,6 +7,7 @@ import '../core/training/engine/training_type_engine.dart';
 import '../services/training_pack_template_service.dart';
 import 'smart_recommender_engine.dart';
 import 'tag_mastery_service.dart';
+import '../models/stage_id.dart';
 
 class LearningPathService {
   LearningPathService._();

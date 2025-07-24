@@ -1,15 +1,11 @@
 import '../models/training_result.dart';
 import '../models/learning_path_stage_model.dart';
+import '../models/stage_id.dart';
+import 'weakness_tag_resolver.dart';
 import 'weakness_cluster_engine.dart';
 import 'tag_mastery_service.dart';
+import 'package:collection/collection.dart';
 
-/// Lightweight identifier for a learning stage with associated tags.
-class StageID {
-  final String id;
-  final List<String> tags;
-
-  const StageID(this.id, {this.tags = const []});
-}
 
 /// Container for user progress data required by [SmartRecommenderEngine].
 class UserProgress {
@@ -22,10 +18,12 @@ class UserProgress {
 class SmartRecommenderEngine {
   final WeaknessClusterEngine clusterEngine;
   final TagMasteryService masteryService;
+  final WeaknessTagResolver tagResolver;
 
   const SmartRecommenderEngine({
     this.clusterEngine = const WeaknessClusterEngine(),
     required this.masteryService,
+    this.tagResolver = const WeaknessTagResolver(),
   });
 
   Future<StageID?> suggestNextStage({
@@ -45,6 +43,16 @@ class SmartRecommenderEngine {
       for (final e in mastery.entries)
         if (e.value < masteryThreshold) e.key.toLowerCase(),
     };
+
+    // First, check explicit mappings from tags to stages.
+    for (final tag in weakTags) {
+      final mapped = tagResolver.resolveRelevantStages(tag);
+      for (final target in mapped) {
+        final match =
+            availableStages.firstWhereOrNull((s) => s.id == target.id);
+        if (match != null) return match;
+      }
+    }
 
     for (final stage in availableStages) {
       final tags = stage.tags.map((e) => e.toLowerCase());
