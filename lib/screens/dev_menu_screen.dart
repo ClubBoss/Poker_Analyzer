@@ -42,6 +42,9 @@ import '../services/training_goal_suggestion_engine.dart';
 import '../services/smart_goal_recommender_service.dart';
 import '../services/session_log_service.dart';
 import '../services/tag_mastery_service.dart';
+import '../services/training_pack_generator_v2.dart';
+import '../models/training_attempt.dart';
+import '../services/weakness_cluster_engine_v2.dart';
 import '../services/goal_completion_engine.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
@@ -167,6 +170,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _recommendPacksLoading = false;
   bool _jsonLibraryLoading = false;
   bool _smartValidateLoading = false;
+  bool _weaknessYamlLoading = false;
   bool _templateStorageTestLoading = false;
   bool _packSearchLoading = false;
   bool _reminderLoading = false;
@@ -673,6 +677,48 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _generateWeaknessYamlPack() async {
+    if (_weaknessYamlLoading || !kDebugMode) return;
+    setState(() => _weaknessYamlLoading = true);
+    final logs = context.read<SessionLogService>();
+    await logs.load();
+    final attempts = [
+      for (final log in logs.logs)
+        TrainingAttempt(
+          packId: log.templateId,
+          spotId: log.templateId,
+          timestamp: log.completedAt,
+          accuracy: (log.correctCount + log.mistakeCount) == 0
+              ? 0
+              : log.correctCount / (log.correctCount + log.mistakeCount),
+          ev: 0,
+          icm: 0,
+        )
+    ];
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final packs = PackLibraryLoaderService.instance.library;
+    final clusters = const WeaknessClusterEngine()
+        .computeClusters(attempts: attempts, allPacks: packs);
+    if (clusters.isEmpty) {
+      if (mounted) setState(() => _weaknessYamlLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No weakness detected')),
+        );
+      }
+      return;
+    }
+    final mastery = await context.read<TagMasteryService>().computeMastery();
+    final generator = TrainingPackGeneratorV2();
+    final pack = await generator.generateFromWeakness(
+      cluster: clusters.first,
+      mastery: mastery,
+    );
+    if (!mounted) return;
+    setState(() => _weaknessYamlLoading = false);
+    await showTrainingPackYamlPreviewer(context, pack);
   }
 
   Future<void> _checkTagHealth() async {
@@ -1654,6 +1700,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔧 Generate weakness-based YAML pack'),
+                onTap:
+                    _weaknessYamlLoading ? null : _generateWeaknessYamlPack,
               ),
             if (kDebugMode)
               ListTile(
