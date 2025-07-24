@@ -115,6 +115,7 @@ import '../services/learning_path_progress_service.dart';
 import '../services/achievement_trigger_engine.dart';
 import 'achievement_dashboard_screen.dart';
 import 'achievements_dashboard_screen.dart';
+import 'basic_achievements_screen.dart';
 import 'mistake_review_screen.dart';
 import 'mistake_insight_screen.dart';
 import 'cluster_mistake_dashboard_screen.dart';
@@ -2194,6 +2195,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (_) => const AchievementDashboardScreen()),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🎖 Basic Achievements'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const AchievementsScreen()),
                   );
                 },
               ),
