@@ -117,6 +117,7 @@ import 'services/learning_path_summary_cache.dart';
 import 'services/learning_path_reminder_engine.dart';
 import 'services/daily_app_check_service.dart';
 import 'services/skill_loss_overlay_prompt_service.dart';
+import 'services/gift_drop_service.dart';
 import 'services/adaptive_next_step_engine.dart';
 import 'services/suggested_next_step_engine.dart';
 
@@ -557,6 +558,7 @@ List<SingleChildWidget> buildTrainingProviders() {
         logs: context.read<SessionLogService>(),
       ),
     ),
+    Provider(create: (_) => GiftDropService()),
   ];
 }
 

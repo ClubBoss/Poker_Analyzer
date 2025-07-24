@@ -55,6 +55,7 @@ import '../services/learning_path_registry_service.dart';
 import 'learning_path_screen_v2.dart';
 import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
+import '../services/gift_drop_service.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -83,6 +84,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       _maybeShowTrainingReminder();
       _maybeLaunchScheduledTraining();
       _handleDeepLink();
+      context.read<GiftDropService>().checkAndDropGift(context: context);
     });
   }
 
