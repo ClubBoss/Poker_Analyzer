@@ -5,10 +5,16 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/game_type.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../services/training_pack_template_service.dart';
+import 'smart_recommender_engine.dart';
+import 'tag_mastery_service.dart';
 
 class LearningPathService {
   LearningPathService._();
   static final instance = LearningPathService._();
+
+  /// When enabled, [getNextStage] uses [SmartRecommenderEngine] to choose
+  /// the next pack instead of the default sequential order.
+  bool smartMode = false;
 
   static const _progressKey = 'starter_path_progress';
 
@@ -98,5 +104,36 @@ class LearningPathService {
     );
 
     return [pack1, pack2, pack3, pack4, pack5];
+  }
+
+  /// Returns the next training pack for the starter path.
+  /// When [smartMode] is enabled, stages are recommended based on the player's
+  /// weaknesses using [SmartRecommenderEngine].
+  Future<TrainingPackTemplateV2?> getNextStage({
+    required UserProgress progress,
+    required TagMasteryService masteryService,
+  }) async {
+    final list = buildStarterPath();
+    final step = await getStarterPathProgress();
+    final remaining = list.skip(step).toList();
+    if (remaining.isEmpty) return null;
+
+    if (smartMode && remaining.length > 1) {
+      final stages = [
+        for (final p in remaining) StageID(p.id, tags: p.tags)
+      ];
+      final engine = SmartRecommenderEngine(
+        masteryService: masteryService,
+      );
+      final next = await engine.suggestNextStage(
+        progress: progress,
+        availableStages: stages,
+      );
+      final found =
+          remaining.firstWhere((e) => e.id == next?.id, orElse: () => remaining.first);
+      return found;
+    }
+
+    return remaining.first;
   }
 }
