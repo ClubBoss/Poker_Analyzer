@@ -47,17 +47,16 @@ class LearningPathStageUnlockEngine {
       } else {
         done = true;
         for (final sub in stage.subStages) {
-          final log = aggregatedLogs[sub.packId];
+          final log = aggregatedLogs[sub.id];
           final correct = log?.correctCount ?? 0;
           final mistakes = log?.mistakeCount ?? 0;
           final hands = correct + mistakes;
           final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-          if (hands < (sub.minHands ?? 0)) {
+          if (hands < sub.minHands) {
             done = false;
             break;
           }
-          if (sub.requiredAccuracy != null &&
-              accuracy < sub.requiredAccuracy!) {
+          if (accuracy < sub.requiredAccuracy) {
             done = false;
             break;
           }

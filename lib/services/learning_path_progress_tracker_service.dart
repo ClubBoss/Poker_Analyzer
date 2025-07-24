@@ -57,12 +57,12 @@ class LearningPathProgressTrackerService {
         var minHands = 0;
         double accSum = 0;
         for (final sub in stage.subStages) {
-          final log = aggregated[sub.packId];
+          final log = aggregated[sub.id];
           final h = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
           final correct = log?.correctCount ?? 0;
           final acc = h == 0 ? 0.0 : correct / h * 100;
           hands += h;
-          minHands += sub.minHands ?? 0;
+          minHands += sub.minHands;
           accSum += acc;
         }
         final accAvg = stage.subStages.isEmpty
@@ -91,14 +91,13 @@ class LearningPathProgressTrackerService {
         if (accuracy < stage.requiredAccuracy) return false;
       } else {
         for (final sub in stage.subStages) {
-          final log = aggregatedLogs[sub.packId];
+          final log = aggregatedLogs[sub.id];
           final correct = log?.correctCount ?? 0;
           final mistakes = log?.mistakeCount ?? 0;
           final hands = correct + mistakes;
-          if (hands < (sub.minHands ?? 0)) return false;
+          if (hands < sub.minHands) return false;
           final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-          if (sub.requiredAccuracy != null &&
-              accuracy < sub.requiredAccuracy!) return false;
+          if (accuracy < sub.requiredAccuracy) return false;
         }
       }
     }

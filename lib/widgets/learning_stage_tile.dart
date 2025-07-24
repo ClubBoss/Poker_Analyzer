@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/learning_path_stage_model.dart';
 import '../models/learning_track_progress_model.dart';
 import '../services/training_progress_service.dart';
-import '../models/learning_path_sub_stage.dart';
+import '../models/sub_stage_model.dart';
 import 'tag_badge.dart';
 
 /// Tile representing a stage of a learning path.
@@ -34,8 +34,8 @@ class _LearningStageTileState extends State<LearningStageTile> {
     setState(() => _loading = true);
     for (final s in widget.stage.subStages) {
       final prog =
-          await TrainingProgressService.instance.getProgress(s.packId);
-      _progress[s.packId] = prog;
+          await TrainingProgressService.instance.getProgress(s.id);
+      _progress[s.id] = prog;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -126,19 +126,15 @@ class _LearningStageTileState extends State<LearningStageTile> {
     }
   }
 
-  Widget _buildSubStageTile(LearningPathSubStage sub) {
-    final prog = _progress[sub.packId] ?? 0.0;
-    final percent = (prog * 100).round();
-    final buttonLabel = prog == 0
-        ? 'Начать'
-        : (prog >= 1.0 ? 'Повторить' : 'Продолжить');
+  Widget _buildSubStageTile(SubStageModel sub) {
+    final prog = _progress[sub.id] ?? 0.0;
     return ListTile(
       title: Text(sub.title),
-      subtitle: Text('$percent%'),
-      trailing: ElevatedButton(
-        onPressed:
-            widget.status == StageStatus.locked ? null : widget.onTap,
-        child: Text(buttonLabel),
+      subtitle:
+          sub.description.isNotEmpty ? Text(sub.description) : null,
+      trailing: SizedBox(
+        width: 80,
+        child: LinearProgressIndicator(value: prog),
       ),
     );
   }
