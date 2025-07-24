@@ -12,8 +12,18 @@ void main() {
       title: 'Stage',
       packId: 'main',
       subStages: [
-        SubStageTemplateInput(id: 'bb10_UTG_push', packId: '', title: 'A'),
-        SubStageTemplateInput(id: 'other', packId: '', title: 'B'),
+        SubStageTemplateInput(
+          id: 'bb10_UTG_push',
+          packId: '',
+          title: 'A',
+          description: '',
+        ),
+        SubStageTemplateInput(
+          id: 'other',
+          packId: '',
+          title: 'B',
+          description: '',
+        ),
       ],
     ),
   ];

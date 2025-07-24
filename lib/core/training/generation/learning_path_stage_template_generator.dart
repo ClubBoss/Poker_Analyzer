@@ -5,6 +5,7 @@ class SubStageTemplateInput {
   final String id;
   final String packId;
   final String title;
+  final String description;
   final int minHands;
   final double requiredAccuracy;
   final UnlockConditionInput? unlockCondition;
@@ -13,6 +14,7 @@ class SubStageTemplateInput {
     required this.id,
     required this.packId,
     required this.title,
+    this.description = '',
     this.minHands = 0,
     this.requiredAccuracy = 0,
     this.unlockCondition,
@@ -22,6 +24,7 @@ class SubStageTemplateInput {
         'id': id,
         'packId': packId,
         'title': title,
+        if (description.isNotEmpty) 'description': description,
         if (minHands > 0) 'minHands': minHands,
         if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
         if (unlockCondition != null)

@@ -12,6 +12,19 @@ stages:
     packId: pack1
     requiredAccuracy: 80
     minHands: 10
+    subStages:
+      - id: s1a
+        packId: pack1
+        title: Part A
+        description: Intro task
+        requiredAccuracy: 80
+        minHands: 5
+      - id: s1b
+        packId: pack1
+        title: Part B
+        description: Final task
+        requiredAccuracy: 80
+        minHands: 5
     objectives:
       - Push decisions
     unlocks:

@@ -191,6 +191,46 @@ class _LearningPathStagePreviewScreenState
                     widget.stage.description,
                     style: const TextStyle(color: Colors.white70),
                   ),
+                if (widget.stage.subStages.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Подэтапы',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  for (final sub in widget.stage.subStages)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  sub.title,
+                                  style:
+                                      const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                if (sub.description.isNotEmpty)
+                                  Text(
+                                    sub.description,
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '${sub.minHands} рук · ${sub.requiredAccuracy.toStringAsFixed(0)}%',
+                            style:
+                                const TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
                 if (widget.stage.objectives.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   const Text(

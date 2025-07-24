@@ -48,6 +48,7 @@ class SmartPathSeedGenerator {
             id: subId,
             packId: packId,
             title: token,
+            description: '',
             minHands: minHands,
             requiredAccuracy: requiredAccuracy,
             unlockCondition: unlock,
