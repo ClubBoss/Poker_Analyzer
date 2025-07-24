@@ -8,6 +8,7 @@ class LearningTrackProgressService {
   final TrainingPathProgressServiceV2 progress;
   final LearningPathGatekeeperService gatekeeper;
   final LearningPathRegistryService registry;
+  String? _currentPathId;
 
   const LearningTrackProgressService({
     required this.progress,
@@ -16,6 +17,7 @@ class LearningTrackProgressService {
   }) : registry = registry ?? LearningPathRegistryService.instance;
 
   Future<LearningTrackProgressModel> build(String pathId) async {
+    _currentPathId = pathId;
     await progress.loadProgress(pathId);
     await gatekeeper.updateStageUnlocks(pathId);
     final template = registry.findById(pathId);
@@ -34,5 +36,13 @@ class LearningTrackProgressService {
       statuses.add(StageProgressStatus(stageId: stage.id, status: status));
     }
     return LearningTrackProgressModel(stages: statuses);
+  }
+
+  /// Marks [stageId] completed and recomputes stage unlocks.
+  Future<void> advanceToNextStage(String stageId) async {
+    if (_currentPathId == null) return;
+    final acc = progress.getStageAccuracy(stageId);
+    await progress.markStageCompleted(stageId, acc);
+    await gatekeeper.updateStageUnlocks(_currentPathId!);
   }
 }
