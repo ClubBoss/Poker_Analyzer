@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart' show rootBundle;
+
 import '../core/training/generation/yaml_reader.dart';
 import '../models/learning_path_stage_model.dart';
 import 'learning_path_stage_library.dart';
@@ -30,5 +32,18 @@ class LearningPathStageSeeder {
         order++;
       } catch (_) {}
     }
+  }
+
+  Future<void> seedFromConfig({required String audience}) async {
+    try {
+      final raw =
+          await rootBundle.loadString('assets/learning_path_tracks.yaml');
+      final map = const YamlReader().read(raw);
+      final key = audience.toLowerCase();
+      final paths = [
+        for (final p in (map[key] as List? ?? [])) p.toString()
+      ];
+      await seedStages(paths, audience: audience);
+    } catch (_) {}
   }
 }

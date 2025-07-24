@@ -181,6 +181,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _trainingStreakExportLoading = false;
   bool _autoAdvanceLoading = false;
   bool _seedBeginnerLoading = false;
+  bool _seedFullPathLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1639,6 +1640,27 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _seedBeginnerLoading = false);
   }
 
+  Future<void> _seedFullPathFromConfig() async {
+    if (_seedFullPathLoading || !kDebugMode) return;
+    setState(() => _seedFullPathLoading = true);
+    try {
+      await const LearningPathStageSeeder()
+          .seedFromConfig(audience: _audience);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Full path seeded')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seed failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _seedFullPathLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2405,6 +2427,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Seed Beginner Path'),
                 onTap: _seedBeginnerLoading ? null : _seedBeginnerPath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Seed Full Path from Config'),
+                onTap: _seedFullPathLoading ? null : _seedFullPathFromConfig,
               ),
             if (kDebugMode)
               ListTile(
