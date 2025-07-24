@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../models/training_goal.dart';
+import '../models/goal_progress.dart';
 
 class TrainingGoalCard extends StatelessWidget {
   final TrainingGoal goal;
   final VoidCallback? onStart;
-  const TrainingGoalCard({super.key, required this.goal, this.onStart});
+  final GoalProgress? progress;
+  const TrainingGoalCard({
+    super.key,
+    required this.goal,
+    this.onStart,
+    this.progress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +36,14 @@ class TrainingGoalCard extends StatelessWidget {
             Text(
               goal.description,
               style: const TextStyle(color: Colors.white70),
+            ),
+          ],
+          if (progress != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Пройдено: ${progress!.stagesCompleted} стадий · Средняя точность: '
+              '${progress!.averageAccuracy.toStringAsFixed(0)}%',
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
           ],
           const SizedBox(height: 8),
