@@ -6,6 +6,9 @@ packs:
   - assets/packs/advanced/draw_or_shove_flop.yaml
   - assets/packs/advanced/overpair_vs_late_aggression.yaml
   - assets/packs/advanced/barrel_jam_drawy.yaml
+  - assets/packs/advanced/river_bluffcatch_overbet.yaml
+  - assets/packs/advanced/turn_xcall_vs_barrel.yaml
+  - assets/packs/advanced/marginal_bluffcatch_shove.yaml
   - assets/packs/advanced_icm/btn_open_bb_call_sb_shove.yaml
   - assets/packs/advanced_icm/limp_limp_hero_bb.yaml
   - assets/packs/advanced_icm/icm_final6_sb_vs_bb_reshove.yaml

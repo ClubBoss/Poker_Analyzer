@@ -1,0 +1,48 @@
+id: marginal_bluffcatch_shove
+name: Facing Shove with Marginal Bluffcatcher
+audience: Advanced
+trainingType: postflop
+bb: 20
+gameType: tournament
+positions:
+  - btn
+  - bb
+tags:
+  - bluffcatch
+  - hero-call
+  - advanced
+  - tournament
+spots:
+  - id: mbs_1
+    title: Hero call river shove with weak top pair
+    board: [Qc,7s,5d,5c,2h]
+    street: 3
+    villainAction: shove
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Qh Jd
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 20, '1': 20}
+      board: [Qc,7s,5d,5c,2h]
+  - id: mbs_2
+    title: Call or fold with pocket fours on blank river
+    board: [8h,6d,2c,9s,Kh]
+    street: 3
+    villainAction: shove
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: 4s 4d
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 25, '1': 25}
+      board: [8h,6d,2c,9s,Kh]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0
