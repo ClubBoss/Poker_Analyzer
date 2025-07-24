@@ -80,6 +80,7 @@ import 'pack_library_stats_screen.dart';
 import '../services/smart_stage_unlock_engine.dart';
 import '../services/learning_path_service.dart';
 import '../services/smart_spot_injector.dart';
+import '../services/learning_path_engine.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -181,6 +182,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
+  bool _smartRecoveryStage = false;
   bool _showCompletedGoals = false;
   bool _achievementsCheckLoading = false;
   int _lessonStreak = 0;
@@ -2321,6 +2323,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 onChanged: (v) {
                   setState(() => _injectWeakSpots = v ?? false);
                   SmartSpotInjector.instance.enabled = _injectWeakSpots;
+                },
+              ),
+            if (kDebugMode)
+              CheckboxListTile(
+                title: const Text('🧠 Enable smart recovery stage'),
+                value: _smartRecoveryStage,
+                activeColor: Colors.greenAccent,
+                onChanged: (v) {
+                  setState(() => _smartRecoveryStage = v ?? false);
+                  LearningPathEngine.smartRecoveryEnabled = _smartRecoveryStage;
                 },
               ),
             if (kDebugMode)
