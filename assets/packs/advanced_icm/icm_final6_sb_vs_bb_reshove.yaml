@@ -1,0 +1,46 @@
+id: icm_final6_sb_vs_bb_reshove
+name: ICM Final 6 SB vs BB Reshove
+audience: Advanced
+trainingType: mtt
+bb: 20
+gameType: tournament
+positions:
+  - sb
+  - bb
+tags:
+  - advanced
+  - icm
+  - multiway
+  - tournament
+spots:
+  - id: icm1
+    title: SB open 2bb, BB shove 18bb with ATo
+    villainAction: raise+shove 2 18
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Ad Td
+      position: sb
+      heroIndex: 0
+      playerCount: 2
+      stacks:
+        '0': 20
+        '1': 18
+  - id: icm2
+    title: SB open 2bb, BB shove 15bb with K9s
+    villainAction: raise+shove 2 15
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Kh 9h
+      position: sb
+      heroIndex: 0
+      playerCount: 2
+      stacks:
+        '0': 20
+        '1': 15
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

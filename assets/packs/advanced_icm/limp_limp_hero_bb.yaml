@@ -1,0 +1,51 @@
+id: limp_limp_hero_bb
+name: Limp Limp Hero BB
+audience: Advanced
+trainingType: mtt
+bb: 10
+gameType: tournament
+positions:
+  - bb
+  - utg
+  - mp
+tags:
+  - advanced
+  - icm
+  - multiway
+  - tournament
+spots:
+  - id: mw3
+    title: Hero BB 10bb vs two limpers with KQo
+    villainAction: limp+limp
+    heroOptions:
+      - push
+      - call
+      - fold
+    hand:
+      heroCards: Kc Qd
+      position: bb
+      heroIndex: 0
+      playerCount: 3
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+  - id: mw4
+    title: Hero BB 12bb vs two limpers with 78s
+    villainAction: limp+limp
+    heroOptions:
+      - push
+      - call
+      - fold
+    hand:
+      heroCards: 7s 8s
+      position: bb
+      heroIndex: 0
+      playerCount: 3
+      stacks:
+        '0': 12
+        '1': 12
+        '2': 12
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

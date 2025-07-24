@@ -186,6 +186,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
   bool _seedFullPathLoading = false;
+  bool _seedIcmMultiwayLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1749,6 +1750,33 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _seedFullPathLoading = false);
   }
 
+  Future<void> _seedIcmMultiwayPath() async {
+    if (_seedIcmMultiwayLoading || !kDebugMode) return;
+    setState(() => _seedIcmMultiwayLoading = true);
+    try {
+      final raw = await rootBundle
+          .loadString('assets/learning_paths/icm_multiway_path.yaml');
+      final map = const YamlReader().read(raw);
+      final paths = [for (final p in (map['packs'] as List? ?? [])) p.toString()];
+      await const LearningPathStageSeeder().seedStages(
+        paths,
+        audience: 'Advanced',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ICM/Multiway path seeded')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seed failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _seedIcmMultiwayLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2530,6 +2558,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Seed Advanced Path'),
                 onTap: _seedAdvancedLoading ? null : _seedAdvancedPath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Seed ICM/Multiway Path'),
+                onTap: _seedIcmMultiwayLoading ? null : _seedIcmMultiwayPath,
               ),
             if (kDebugMode)
               ListTile(

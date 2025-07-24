@@ -1,0 +1,46 @@
+id: icm_btn_shove_bb
+name: ICM BTN Shove vs BB
+audience: Advanced
+trainingType: mtt
+bb: 12
+gameType: tournament
+positions:
+  - bb
+  - btn
+tags:
+  - advanced
+  - icm
+  - multiway
+  - tournament
+spots:
+  - id: icm3
+    title: BTN shove 12bb, hero BB with AQo
+    villainAction: shove 12
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Ah Qd
+      position: bb
+      heroIndex: 0
+      playerCount: 2
+      stacks:
+        '0': 12
+        '1': 12
+  - id: icm4
+    title: BTN shove 10bb, hero BB with KTo
+    villainAction: shove 10
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Ks Th
+      position: bb
+      heroIndex: 0
+      playerCount: 2
+      stacks:
+        '0': 10
+        '1': 10
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0
