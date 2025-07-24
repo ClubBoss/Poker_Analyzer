@@ -42,6 +42,7 @@ import '../services/training_goal_suggestion_engine.dart';
 import '../services/smart_goal_recommender_service.dart';
 import '../services/session_log_service.dart';
 import '../services/tag_mastery_service.dart';
+import '../services/goal_completion_engine.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
@@ -169,6 +170,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _autoAdvanceLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
+  bool _showCompletedGoals = false;
   bool _achievementsCheckLoading = false;
   int _lessonStreak = 0;
   StreamSubscription<int>? _lessonSub;
@@ -2203,6 +2205,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 onChanged: (v) {
                   setState(() => _smartMode = v ?? false);
                   LearningPathService.instance.smartMode = _smartMode;
+                },
+              ),
+            if (kDebugMode)
+              CheckboxListTile(
+                title: const Text('🎯 Show completed goals'),
+                value: _showCompletedGoals,
+                activeColor: Colors.greenAccent,
+                onChanged: (v) {
+                  setState(() => _showCompletedGoals = v ?? false);
+                  GoalCompletionEngine.instance.showCompletedGoals =
+                      _showCompletedGoals;
                 },
               ),
             if (kDebugMode)
