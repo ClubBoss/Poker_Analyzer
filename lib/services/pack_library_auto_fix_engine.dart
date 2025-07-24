@@ -16,7 +16,7 @@ class PackLibraryAutoFixEngine {
     }
     final meta = Map<String, dynamic>.from(pack.meta);
     meta['schemaVersion'] = '2.0.0';
-    var bb = pack.bb <= 0 ? 10 : pack.bb;
+    final bb = pack.bb <= 0 ? 10 : pack.bb;
     for (final s in pack.spots) {
       final hand = s.hand;
       if (hand.position == HeroPosition.unknown) {

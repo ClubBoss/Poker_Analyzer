@@ -65,7 +65,7 @@ class ScheduledTrainingQueueService extends ChangeNotifier {
     PackLibraryService? library,
     int maxCount = 3,
   }) async {
-    final recommender = const ReviewPathRecommender();
+    const recommender = ReviewPathRecommender();
     final recs = recommender.suggestRecoveryPath(
       losses: losses,
       mistakeClusters: mistakeClusters,

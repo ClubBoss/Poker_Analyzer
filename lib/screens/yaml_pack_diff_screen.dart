@@ -14,7 +14,7 @@ class YamlPackDiffScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final yamlA = const TrainingPackExporterV2().exportYaml(packA);
     final yamlB = const TrainingPackExporterV2().exportYaml(packB);
-    final eq = const DeepCollectionEquality();
+    const eq = DeepCollectionEquality();
     final metaDiff = {...packA.meta.keys, ...packB.meta.keys}
         .where((k) => !eq.equals(packA.meta[k], packB.meta[k]))
         .length;
@@ -94,7 +94,7 @@ class YamlPackDiffScreen extends StatelessWidget {
     final posDiff = a?.hand.position != b?.hand.position;
     final handDiff = (a?.hand.heroCards ?? '') != (b?.hand.heroCards ?? '');
     return DataRow(
-      color: idDiff ? MaterialStateProperty.all(AppColors.errorBg) : null,
+      color: idDiff ? WidgetStateProperty.all(AppColors.errorBg) : null,
       cells: [
         DataCell(Text('${i + 1}')),
         DataCell(_diffBox(a?.id ?? '', idDiff, diffColor)),

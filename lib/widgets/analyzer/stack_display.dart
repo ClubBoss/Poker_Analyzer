@@ -84,8 +84,7 @@ class StackDisplay extends StatelessWidget {
               child: Transform.translate(
                 offset: Offset(0, -12 * scale),
                 child: CentralPotWidget(
-                  text: 'Main Pot: ' +
-                      ActionFormattingHelper.formatAmount(pot),
+                  text: 'Main Pot: ${ActionFormattingHelper.formatAmount(pot)}',
                   scale: scale,
                 ),
               ),
@@ -132,8 +131,7 @@ class StackDisplay extends StatelessWidget {
                   ),
                   child: CentralPotWidget(
                     key: ValueKey('side-$i-$amount'),
-                    text: 'Side Pot ${i + 1}: ' +
-                        ActionFormattingHelper.formatAmount(amount),
+                    text: 'Side Pot ${i + 1}: ${ActionFormattingHelper.formatAmount(amount)}',
                     scale: scale * 0.8,
                   ),
                 ),

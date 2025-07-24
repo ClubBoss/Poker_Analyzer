@@ -62,7 +62,6 @@ void showPotCollectionChips({
   double fadeStart = 0.7,
 }) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => PotCollectionChips(

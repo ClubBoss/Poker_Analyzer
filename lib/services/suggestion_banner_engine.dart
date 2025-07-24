@@ -57,7 +57,7 @@ class SuggestionBannerEngine {
         .map((e) => e.trim().toLowerCase())
         .toList();
 
-    bool _matches(TrainingPackTemplateV2? tpl) {
+    bool matches(TrainingPackTemplateV2? tpl) {
       if (tpl == null) return false;
       final tags = <String>{
         ...tpl.tags.map((e) => e.trim().toLowerCase()),
@@ -70,9 +70,9 @@ class SuggestionBannerEngine {
     final dormantPreview = await _dormantService.suggestPack();
     final resPreview = await _resuggestionEngine.previewNext();
 
-    final matchWeak = _matches(weakPreview.pack);
-    final matchDormant = _matches(dormantPreview);
-    final matchResuggest = _matches(resPreview);
+    final matchWeak = matches(weakPreview.pack);
+    final matchDormant = matches(dormantPreview);
+    final matchResuggest = matches(resPreview);
 
     Future<SuggestionBannerData?> weakBanner(bool match) async {
       final tpl = weakPreview.pack;

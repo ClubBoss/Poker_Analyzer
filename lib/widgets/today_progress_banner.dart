@@ -51,9 +51,9 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
         context.read<StreakCounterService>().recordStream.listen((_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('🏆 New record!'),
-          duration: const Duration(seconds: 2),
+        const SnackBar(
+          content: Text('🏆 New record!'),
+          duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );

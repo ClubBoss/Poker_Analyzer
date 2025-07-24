@@ -99,7 +99,9 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
 
   Future<void> _save() async {
     final list = <ActionEntry>[];
-    for (int s = 0; s < 4; s++) list.addAll(_actions[s]!);
+    for (int s = 0; s < 4; s++) {
+      list.addAll(_actions[s]!);
+    }
     final stacks = {
       for (int i = 0; i < widget.hand.numberOfPlayers; i++)
         i: int.tryParse(_stacks[i]?.text ?? '') ?? 0

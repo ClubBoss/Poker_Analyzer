@@ -108,7 +108,6 @@ class _AchievementUnlockedOverlayState extends State<AchievementUnlockedOverlay>
 
 void showAchievementUnlockedOverlay(BuildContext context, IconData icon, String title) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => AchievementUnlockedOverlay(

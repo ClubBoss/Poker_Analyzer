@@ -58,7 +58,7 @@ class _TrainingRecommenderBannerState extends State<TrainingRecommenderBanner> {
     final mastery = await context.read<TagMasteryService>().computeMastery();
     await PackLibraryLoaderService.instance.loadLibrary();
     final packs = PackLibraryLoaderService.instance.library;
-    final engine = const AdaptiveLearningFlowEngine();
+    const engine = AdaptiveLearningFlowEngine();
     final plan = engine.generate(
       history: results,
       tagMastery: mastery,

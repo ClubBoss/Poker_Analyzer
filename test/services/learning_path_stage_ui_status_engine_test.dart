@@ -8,13 +8,13 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const unlockEngine = LearningPathStageUnlockEngine();
-  final uiEngine = LearningPathStageUIStatusEngine(unlockEngine: unlockEngine);
+  const uiEngine = LearningPathStageUIStatusEngine(unlockEngine: unlockEngine);
 
-  LearningPathTemplateV2 _path() => LearningPathTemplateV2(
+  LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
         id: 'p',
         title: 'Path',
         description: '',
-        stages: const [
+        stages: [
           LearningPathStageModel(
             id: 'a',
             title: 'A',
@@ -36,7 +36,7 @@ void main() {
       );
 
   test('computeStageUIStates returns locked, active, done', () {
-    final path = _path();
+    final path = path0();
     final result1 = uiEngine.computeStageUIStates(path, const {});
     expect(result1['a'], LearningStageUIState.active);
     expect(result1['b'], LearningStageUIState.locked);

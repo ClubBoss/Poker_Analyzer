@@ -788,7 +788,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _startChipWinAnimation() {
     final overlay = Overlay.of(context);
     final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final media = MediaQuery.of(context).size;
     final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
     final end = box.localToGlobal(box.size.center(Offset.zero));
@@ -812,7 +812,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _startFoldChipAnimation() {
     final overlay = Overlay.of(context);
     final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final media = MediaQuery.of(context).size;
     final start = box.localToGlobal(box.size.center(Offset.zero));
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
@@ -836,7 +836,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _startShowdownLossAnimation() {
     final overlay = Overlay.of(context);
     final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final media = MediaQuery.of(context).size;
     final start = box.localToGlobal(box.size.center(Offset.zero));
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
@@ -1012,7 +1012,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void _showCardRevealOverlay() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -1027,7 +1026,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _playBetAnimation(int amount) {
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final start =
         box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
     final media = MediaQuery.of(context).size;
@@ -1061,7 +1060,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   }) {
     final overlay = Overlay.of(context);
     final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlay == null || stackBox == null) return;
+    if (stackBox == null) return;
     final media = MediaQuery.of(context).size;
     final start = startPosition ??
         Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
@@ -1095,7 +1094,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void playBetChipsToCenter(int amount, {Color color = Colors.amber}) {
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final start =
         box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
     final media = MediaQuery.of(context).size;
@@ -1131,7 +1130,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betOverlayEntry?.remove();
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -1154,7 +1153,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _refundMessageEntry?.remove();
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final pos =
         box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
     late OverlayEntry entry;
@@ -1177,7 +1176,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _lossAmountEntry?.remove();
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -1199,7 +1198,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _gainAmountEntry?.remove();
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -1221,7 +1220,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _actionLabelEntry?.remove();
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
     final pos = box.localToGlobal(Offset(box.size.width / 2, -32 * widget.scale));
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -1387,7 +1386,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (_winChipsAnimating) return;
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
+    if (box == null) return;
 
     _stackWinController.forward(from: 0.0);
 
@@ -1860,7 +1859,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   final card = index < _cards.length ? _cards[index] : null;
                   final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-                  Widget cardWidget = GestureDetector(
+                  final Widget cardWidget = GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: widget.isHero
                       ? () async {
@@ -1969,7 +1968,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           },
         ),
       ),
-        if (widget.editMode)
+        if (widget.editMode) {
           Padding(
             padding: EdgeInsets.only(top: 4 * widget.scale),
             child: Column(
@@ -2018,7 +2017,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ],
             ),
           )
-        else
+        
+        } else {
           GestureDetector(
             onLongPress: _editStack,
             child: Stack(
@@ -2215,7 +2215,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   ),
               ],
             ),
-          ),
+          )
+        },
         PlayerEffectiveStackLabel(
           stack: context.watch<PotSyncService>()
                   .effectiveStacks[widget.street],
@@ -2239,7 +2240,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 )
               : SizedBox(height: 4 * widget.scale),
         ),
-        if (widget.showPlayerTypeLabel)
+        if (widget.showPlayerTypeLabel) {
           AnimatedOpacity(
             opacity: widget.showPlayerTypeLabel ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 300),
@@ -2253,7 +2254,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 ),
               ),
             ),
-          ),
+          )
+        },
         FadeTransition(
           opacity: _stackBarFade,
           child: StackBarWidget(
@@ -2265,7 +2267,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           ),
         ),
         CurrentBetLabel(bet: _currentBet, scale: widget.scale),
-        if (_actionTagText != null)
+        if (_actionTagText != null) {
           Padding(
             padding: EdgeInsets.only(top: 4.0 * widget.scale),
             child: Container(
@@ -2280,9 +2282,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          ),
+          )
+        },
       ],
-    );
+    )
 
     final content = Stack(
       clipBehavior: Clip.none,
@@ -3636,7 +3639,7 @@ void showWinnerHighlight(BuildContext context, String playerName) {
 void showWinnerZoneOverlay(BuildContext context, String playerName) {
   final state = playerZoneRegistry[playerName];
   final overlay = Overlay.of(context);
-  if (overlay == null || state == null) return;
+  if (state == null) return;
   final box = state.context.findRenderObject() as RenderBox?;
   if (box == null) return;
   final rect = box.localToGlobal(Offset.zero) & box.size;
@@ -3692,7 +3695,7 @@ void showOpponentCards(
 void movePotToWinner(BuildContext context, String playerName) {
   final overlay = Overlay.of(context);
   final state = playerZoneRegistry[playerName];
-  if (overlay == null || state == null) return;
+  if (state == null) return;
 
   final box = state.context.findRenderObject() as RenderBox?;
   if (box == null) return;
@@ -3717,7 +3720,7 @@ void movePotToWinner(BuildContext context, String playerName) {
 void showWinnerCelebration(BuildContext context, String playerName) {
   final overlay = Overlay.of(context);
   final state = playerZoneRegistry[playerName];
-  if (overlay == null || state == null) return;
+  if (state == null) return;
 
   final box = state.context.findRenderObject() as RenderBox?;
   if (box == null) return;

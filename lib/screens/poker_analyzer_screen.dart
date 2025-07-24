@@ -274,7 +274,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late final ScrollController _timelineController;
   bool _animateTimeline = false;
   bool isPerspectiveSwitched = false;
-  bool _focusOnHero = false;
+  final bool _focusOnHero = false;
 
   final Map<int, BetDisplayInfo> _recentBets = {};
   final Map<int, BetDisplayInfo> _betDisplays = {};
@@ -311,7 +311,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _autoShowdownTriggered = false;
   bool _showHandCompleteIndicator = false;
   Timer? _autoNextHandTimer;
-  double _uiScale = 1.0;
+  final double _uiScale = 1.0;
 
   bool get _isHandEmpty =>
       actions.isEmpty &&
@@ -577,7 +577,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _triggerFoldChipReturn(ActionEntry entry) {
     if (entry.amount == null || entry.amount! <= 0) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -635,9 +634,10 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
         entry.amount! <= 0 ||
-        entry.generated) return;
+        entry.generated) {
+      return;
+    }
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -712,7 +712,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       return;
     }
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -763,14 +762,18 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
         entry.amount! <= 0 ||
-        entry.generated) return;
+        entry.generated) {
+      return;
+    }
     _playFoldRefundAnimation(entry.playerIndex, entry.amount!.round());
   }
 
   void _startChipFlight(ActionEntry entry) {
     if (!['bet', 'raise', 'call'].contains(entry.action) ||
         entry.amount == null ||
-        entry.generated) return;
+        entry.generated) {
+      return;
+    }
     final scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final tableWidth = screen.width * 0.9;
@@ -886,9 +889,10 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
         entry.amount! <= 0 ||
-        entry.generated) return;
+        entry.generated) {
+      return;
+    }
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1023,7 +1027,9 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_betDisplays.isEmpty &&
         _centerBetStacks.isEmpty &&
         _actionBetStacks.isEmpty &&
-        _betSlideOverlays.isEmpty) return;
+        _betSlideOverlays.isEmpty) {
+      return;
+    }
     setState(() {
       _betDisplays.clear();
       _centerBetStacks.clear();
@@ -1062,7 +1068,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _clearTableState() async {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final entries = <OverlayEntry>[];
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1343,9 +1348,10 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playReturnChipAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
-        entry.generated) return;
+        entry.generated) {
+      return;
+    }
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1521,7 +1527,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playUndoRefundAnimations(Map<int, int> refunds) {
     if (refunds.isEmpty) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1591,7 +1596,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playFoldTrashAnimation(int playerIndex) {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1635,7 +1639,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playFoldAnimation(int playerIndex) {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1673,7 +1676,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playShowCardsAnimation(int playerIndex,
       {List<CardModel>? cards, bool grayscale = false}) {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1716,7 +1718,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playWinnerFlipAnimation(int playerIndex) {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1821,17 +1822,15 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (payouts.isEmpty) return;
 
     final overlay = Overlay.of(context);
-    if (overlay != null) {
-      _showPotWinAnimations(
-        overlay,
-        payouts,
-        0,
-        AppColors.accent,
-        highlight: true,
-        fadeStart: 0.5,
-      );
-    }
-
+    _showPotWinAnimations(
+      overlay,
+      payouts,
+      0,
+      AppColors.accent,
+      highlight: true,
+      fadeStart: 0.5,
+    );
+  
     _potAnimationPlayed = true;
 
     final cleanupDelay = 300 * payouts.length + 500;
@@ -1890,7 +1889,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _showLossFadeAnimation(Set<int> winners) {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final losers = [for (final p in _showdownPlayers) if (!winners.contains(p)) p];
     if (losers.isEmpty) return;
 
@@ -1946,7 +1944,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _cleanupWinnerCards() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final winners = <int>{
       if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
       if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
@@ -1997,7 +1994,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _hideLosingHands() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final winners = <int>{
       if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
       if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
@@ -2071,7 +2067,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }) {
     if (targets.isEmpty) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double tableScale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -2479,7 +2474,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _showPotWinAnimation() {
     if (_potAnimationPlayed) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     final payouts = <int, int>{
       if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!,
@@ -2553,7 +2547,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playShowdownRewardAnimation() {
     if (_potAnimationPlayed) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     final wins = _winnings;
     if (wins != null && wins.isNotEmpty) {
@@ -2604,83 +2597,81 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _actionBetStacks[index] = entry.amount!.round();
       });
       final overlay = Overlay.of(context);
-      if (overlay != null) {
-        final double tableScale =
-            TableGeometryHelper.tableScale(numberOfPlayers);
-        final screen = MediaQuery.of(context).size;
-        final tableWidth = screen.width * 0.9;
-        final tableHeight = tableWidth * 0.55;
-        final centerX = screen.width / 2 + 10;
-        final centerY = screen.height / 2 -
-            TableGeometryHelper.centerYOffset(numberOfPlayers, tableScale);
-        final radiusMod =
-            TableGeometryHelper.radiusModifier(numberOfPlayers);
-        final radiusX =
-            (tableWidth / 2 - 60) * tableScale * radiusMod;
-        final radiusY =
-            (tableHeight / 2 + 90) * tableScale * radiusMod;
-        final i =
-            (entry.playerIndex - _viewIndex() + numberOfPlayers) %
-                numberOfPlayers;
-        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias =
-            TableGeometryHelper.verticalBiasFromAngle(angle) * tableScale;
-        final start =
-            Offset(centerX + dx, centerY + dy + bias + 92 * tableScale);
-        final end = Offset(centerX, centerY);
-        final midX = (start.dx + end.dx) / 2;
-        final midY = (start.dy + end.dy) / 2;
-        final perp = Offset(-sin(angle), cos(angle));
-        final control = Offset(
-          midX + perp.dx * 20 * tableScale,
-          midY - (40 + ChipStackMovingWidget.activeCount * 8) * tableScale,
-        );
-        late OverlayEntry overlayEntry;
-        overlayEntry = OverlayEntry(
-          builder: (_) => BetFlyingChips(
-            start: start,
-            end: end,
-            control: control,
-            amount: entry.amount!.round(),
-            color: color,
-            scale: tableScale,
-            fadeStart: 0.8,
-            labelStyle: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14 * tableScale,
-              shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
-            ),
-            onCompleted: () => overlayEntry.remove(),
+      final double tableScale =
+          TableGeometryHelper.tableScale(numberOfPlayers);
+      final screen = MediaQuery.of(context).size;
+      final tableWidth = screen.width * 0.9;
+      final tableHeight = tableWidth * 0.55;
+      final centerX = screen.width / 2 + 10;
+      final centerY = screen.height / 2 -
+          TableGeometryHelper.centerYOffset(numberOfPlayers, tableScale);
+      final radiusMod =
+          TableGeometryHelper.radiusModifier(numberOfPlayers);
+      final radiusX =
+          (tableWidth / 2 - 60) * tableScale * radiusMod;
+      final radiusY =
+          (tableHeight / 2 + 90) * tableScale * radiusMod;
+      final i =
+          (entry.playerIndex - _viewIndex() + numberOfPlayers) %
+              numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias =
+          TableGeometryHelper.verticalBiasFromAngle(angle) * tableScale;
+      final start =
+          Offset(centerX + dx, centerY + dy + bias + 92 * tableScale);
+      final end = Offset(centerX, centerY);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 20 * tableScale,
+        midY - (40 + ChipStackMovingWidget.activeCount * 8) * tableScale,
+      );
+      late OverlayEntry overlayEntry;
+      overlayEntry = OverlayEntry(
+        builder: (_) => BetFlyingChips(
+          start: start,
+          end: end,
+          control: control,
+          amount: entry.amount!.round(),
+          color: color,
+          scale: tableScale,
+          fadeStart: 0.8,
+          labelStyle: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 14 * tableScale,
+            shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
           ),
-        );
-        overlay.insert(overlayEntry);
+          onCompleted: () => overlayEntry.remove(),
+        ),
+      );
+      overlay.insert(overlayEntry);
 
-        // Chips sliding halfway with amount label
-        final mid = Offset.lerp(start, end, 0.5)!;
-        _betSlideOverlays[index]?.remove();
-        late OverlayEntry slideEntry;
-        slideEntry = OverlayEntry(
-          builder: (_) => BetSlideChips(
-            start: start,
-            end: mid,
-            amount: entry.amount!.round(),
-            color: color,
-            scale: tableScale,
-            onCompleted: () {
-              slideEntry.remove();
-              if (_betSlideOverlays[index] == slideEntry) {
-                _betSlideOverlays.remove(index);
-              }
-            },
-          ),
-        );
-        overlay.insert(slideEntry);
-        _betSlideOverlays[index] = slideEntry;
-      }
-      _betTimers[index] = Timer(const Duration(seconds: 2), () {
+      // Chips sliding halfway with amount label
+      final mid = Offset.lerp(start, end, 0.5)!;
+      _betSlideOverlays[index]?.remove();
+      late OverlayEntry slideEntry;
+      slideEntry = OverlayEntry(
+        builder: (_) => BetSlideChips(
+          start: start,
+          end: mid,
+          amount: entry.amount!.round(),
+          color: color,
+          scale: tableScale,
+          onCompleted: () {
+            slideEntry.remove();
+            if (_betSlideOverlays[index] == slideEntry) {
+              _betSlideOverlays.remove(index);
+            }
+          },
+        ),
+      );
+      overlay.insert(slideEntry);
+      _betSlideOverlays[index] = slideEntry;
+          _betTimers[index] = Timer(const Duration(seconds: 2), () {
         if (!mounted) return;
         setState(() {
           _recentBets.remove(index);
@@ -2963,7 +2954,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Restarts the demo sequence when in demo mode.
   void _replayDemo() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     lockService.safeSetState(this, () {
       _showReplayDemoButton = false;
@@ -3579,7 +3569,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _onOpponentCardTap(int cardIndex) async {
     if (lockService.isLocked) return;
-    if (opponentIndex == null) opponentIndex = activePlayerIndex;
+    opponentIndex ??= activePlayerIndex;
     final idx = opponentIndex ?? 0;
     await _onRevealedCardTap(idx, cardIndex);
   }
@@ -3770,7 +3760,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _setActivePlayer(index);
     final result = await _showActionPicker();
     if (result == null) return;
-    String action = result['action'] as String;
+    final String action = result['action'] as String;
     double? amount = result['amount'] as double?;
     if (action == 'all-in') {
       amount = _stackService.getStackForPlayer(index).toDouble();
@@ -3977,7 +3967,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playDealAnimations() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final tableWidth = screen.width * 0.9;
@@ -4047,7 +4036,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Deal two cards to each player with staggered delays at hand start.
   void _playPreflopDealAnimation() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final tableWidth = screen.width * 0.9;
@@ -4111,7 +4099,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playFlopRevealAnimation() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     if (boardCards.length < 3) return;
     if (widget.demoMode) _demoAnimations.showNarration('Dealing flop');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
@@ -4156,7 +4143,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playTurnRevealAnimation() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     if (boardCards.length < 4) return;
     if (widget.demoMode) _demoAnimations.showNarration('Turn revealed');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
@@ -4202,7 +4188,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playRiverRevealAnimation() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     if (boardCards.length < 5) return;
     if (widget.demoMode) _demoAnimations.showNarration('River revealed');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
@@ -4250,17 +4235,15 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _revealNextBoardCard(int street) {
     if (widget.demoMode) {
       final overlay = Overlay.of(context);
-      if (overlay != null) {
-        final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
-        final screen = MediaQuery.of(context).size;
-        final centerX = screen.width / 2 + 10;
-        final centerY =
-            screen.height / 2 -
-                TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-        final center = Offset(centerX, centerY);
-        _playBurnCardAnimation(overlay, center, scale);
-      }
-      Future.delayed(_burnDuration, () {
+      final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+      final screen = MediaQuery.of(context).size;
+      final centerX = screen.width / 2 + 10;
+      final centerY =
+          screen.height / 2 -
+              TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+      final center = Offset(centerX, centerY);
+      _playBurnCardAnimation(overlay, center, scale);
+          Future.delayed(_burnDuration, () {
         if (mounted) _boardReveal.revealStreet(street);
       });
     } else {
@@ -4331,7 +4314,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playStreetTransition(int street) {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     const names = ['Preflop', 'Flop', 'Turn', 'River'];
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -5457,6 +5439,45 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
+        floatingActionButtonLocation: widget.demoMode
+          ? FloatingActionButtonLocation.endTop
+          : FloatingActionButtonLocation.endFloat,
+      floatingActionButton: widget.demoMode
+          ? AnimatedOpacity(
+              opacity: _showReplayDemoButton ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 500),
+              child: FloatingActionButton(
+                heroTag: 'replayDemoFab',
+                onPressed: _replayDemo,
+                child: const Icon(Icons.replay),
+              ),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, anim) =>
+                      FadeTransition(opacity: anim, child: child),
+                  child: _isHandEmpty
+                      ? const FloatingActionButton.extended(
+                          key: ValueKey('newHandFab'),
+                          heroTag: 'newHandFab',
+                          onPressed: _startNewHandFromFab,
+                          label: Text('Новая раздача'),
+                          icon: Icon(Icons.add),
+                        )
+                      : const SizedBox.shrink(key: ValueKey('noNewHandFab')),
+                ),
+                const SizedBox(height: 12),
+                const FloatingActionButton(
+                  heroTag: 'debugFab',
+                  onPressed: _showDebugPanel,
+                  child: Icon(Icons.bug_report),
+                ),
+              ],
+            ),
         child: LayoutBuilder(
             builder: (context, constraints) {
               final landscape = constraints.maxWidth > constraints.maxHeight;
@@ -5658,49 +5679,10 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               );
             },
           ),
-      floatingActionButtonLocation: widget.demoMode
-          ? FloatingActionButtonLocation.endTop
-          : FloatingActionButtonLocation.endFloat,
-      floatingActionButton: widget.demoMode
-          ? AnimatedOpacity(
-              opacity: _showReplayDemoButton ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 500),
-              child: FloatingActionButton(
-                heroTag: 'replayDemoFab',
-                onPressed: _replayDemo,
-                child: const Icon(Icons.replay),
-              ),
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (child, anim) =>
-                      FadeTransition(opacity: anim, child: child),
-                  child: _isHandEmpty
-                      ? FloatingActionButton.extended(
-                          key: const ValueKey('newHandFab'),
-                          heroTag: 'newHandFab',
-                          onPressed: _startNewHandFromFab,
-                          label: const Text('Новая раздача'),
-                          icon: const Icon(Icons.add),
-                        )
-                      : const SizedBox.shrink(key: ValueKey('noNewHandFab')),
-                ),
-                const SizedBox(height: 12),
-                FloatingActionButton(
-                  heroTag: 'debugFab',
-                  onPressed: _showDebugPanel,
-                  child: const Icon(Icons.bug_report),
-                ),
-              ],
-            ),
         ),
       ),
     ),
-    );
+    )
   }
 
   List<Widget> _buildPlayerWidgets(int i, double scale) {
@@ -5728,7 +5710,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         i, numberOfPlayers, tableWidth, tableHeight);
     final dx = offset.dx;
     final dy = offset.dy;
-    final bias = 0.0;
+    const bias = 0.0;
 
     final String position = playerPositions[index] ?? '';
     final int dealerIndex = playerPositions.entries
@@ -6116,7 +6098,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   color: _recentBets[index]!.color,
                   scale: scale * 0.9,
                 )
-              : SizedBox(height: 0, width: 0),
+              : const SizedBox(height: 0, width: 0),
         ),
       ),
       if (_betDisplays[index] != null)
@@ -6283,7 +6265,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         i, numberOfPlayers, tableWidth, tableHeight);
     final dx = offset.dx;
     final dy = offset.dy;
-    final bias = 0.0;
+    const bias = 0.0;
 
     ActionEntry? lastAction;
     for (final a in visibleActions.reversed) {
@@ -6470,7 +6452,7 @@ class _ActivePlayerHighlightState extends State<_ActivePlayerHighlight>
   Widget build(BuildContext context) {
     final double avatarRadius = 55 * widget.scale;
     final double highlightRadius = avatarRadius + 6 * widget.scale;
-    final Color color = Colors.yellowAccent;
+    const Color color = Colors.yellowAccent;
     return Positioned(
       left: widget.position.dx - highlightRadius,
       top: widget.position.dy + widget.bias - highlightRadius,
@@ -6542,10 +6524,10 @@ class _DealerButtonIndicatorState extends State<_DealerButtonIndicator>
       child: Container(
         width: 20 * widget.scale,
         height: 20 * widget.scale,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 2)],
+          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 2)],
         ),
         alignment: Alignment.center,
         child: Text(
@@ -6574,7 +6556,6 @@ class _OpponentCardRowSection extends StatelessWidget {
     required this.players,
     required this.activePlayerIndex,
     required this.opponentIndex,
-    this.onCardTap,
   });
 
   @override
@@ -6693,7 +6674,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) {
-          bool need = act == 'bet' || act == 'raise' || act == 'call';
+          final bool need = act == 'bet' || act == 'raise' || act == 'call';
           return AlertDialog(
             title: const Text('Редактировать действие'),
             content: Column(
@@ -6895,7 +6876,7 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
     );
   }
 
-class _QueueTools extends StatelessWidget {
+class _QueueTools extends void StatelessWidget {
   const _QueueTools({required this.state});
 
   final _DebugPanelDialogState state;
@@ -6956,7 +6937,7 @@ class _QueueTools extends StatelessWidget {
   }
 }
 
-class _SnapshotControls extends StatelessWidget {
+class _SnapshotControls extends void StatelessWidget {
   const _SnapshotControls({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7054,7 +7035,7 @@ class _SnapshotControls extends StatelessWidget {
   }
 
 
-class _ProcessingControls extends StatelessWidget {
+class _ProcessingControls extends void StatelessWidget {
   const _ProcessingControls({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7102,7 +7083,7 @@ class _ProcessingControls extends StatelessWidget {
   }
 }
 
-class _QueueDisplaySection extends StatelessWidget {
+class _QueueDisplaySection extends void StatelessWidget {
   const _QueueDisplaySection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7230,7 +7211,7 @@ class _QueueDisplaySection extends StatelessWidget {
   }
 }
 
-class _EvaluationResultsSection extends StatelessWidget {
+class _EvaluationResultsSection extends void StatelessWidget {
   const _EvaluationResultsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7269,7 +7250,7 @@ class _EvaluationResultsSection extends StatelessWidget {
   }
 }
 
-class _PlaybackDiagnosticsSection extends StatelessWidget {
+class _PlaybackDiagnosticsSection extends void StatelessWidget {
   const _PlaybackDiagnosticsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7295,7 +7276,7 @@ class _PlaybackDiagnosticsSection extends StatelessWidget {
   }
 }
 
-class _HudOverlayDiagnosticsSection extends StatelessWidget {
+class _HudOverlayDiagnosticsSection extends void StatelessWidget {
   const _HudOverlayDiagnosticsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7328,7 +7309,7 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
   }
 }
 
-class _StreetTransitionDiagnosticsSection extends StatelessWidget {
+class _StreetTransitionDiagnosticsSection extends void StatelessWidget {
   const _StreetTransitionDiagnosticsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7356,7 +7337,7 @@ class _StreetTransitionDiagnosticsSection extends StatelessWidget {
   }
 }
 
-class _ChipTrailDiagnosticsSection extends StatelessWidget {
+class _ChipTrailDiagnosticsSection extends void StatelessWidget {
   const _ChipTrailDiagnosticsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7374,7 +7355,7 @@ class _ChipTrailDiagnosticsSection extends StatelessWidget {
   }
 }
 
-class _EvaluationQueueDiagnosticsSection extends StatelessWidget {
+class _EvaluationQueueDiagnosticsSection extends void StatelessWidget {
   const _EvaluationQueueDiagnosticsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7400,7 +7381,7 @@ class _EvaluationQueueDiagnosticsSection extends StatelessWidget {
   }
 }
 
-class _ExportConsistencySection extends StatelessWidget {
+class _ExportConsistencySection extends void StatelessWidget {
   const _ExportConsistencySection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7470,7 +7451,7 @@ class _ExportConsistencySection extends StatelessWidget {
   }
 }
 
-class _InternalStateFlagsSection extends StatelessWidget {
+class _InternalStateFlagsSection extends void StatelessWidget {
   const _InternalStateFlagsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7494,7 +7475,7 @@ class _InternalStateFlagsSection extends StatelessWidget {
   }
 }
 
-class _ThemeDiagnosticsSection extends StatelessWidget {
+class _ThemeDiagnosticsSection extends void StatelessWidget {
   const _ThemeDiagnosticsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7512,7 +7493,7 @@ class _ThemeDiagnosticsSection extends StatelessWidget {
   }
 }
 
-class _CollapsedStreetsSection extends StatelessWidget {
+class _CollapsedStreetsSection extends void StatelessWidget {
   const _CollapsedStreetsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7536,7 +7517,7 @@ class _CollapsedStreetsSection extends StatelessWidget {
   }
 }
 
-class _CenterChipDiagnosticsSection extends StatelessWidget {
+class _CenterChipDiagnosticsSection extends void StatelessWidget {
   const _CenterChipDiagnosticsSection({required this.state});
 
   final _DebugPanelDialogState state;
@@ -7847,8 +7828,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
 
  
 String _formatDuration(Duration d) {
-  final minutes = d.inMinutes.remainder(60).toString().padLeft(2, "0");
-  final seconds = d.inSeconds.remainder(60).toString().padLeft(2, "0");
-  return "$minutes:$seconds";
+  final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+  final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+  return '$minutes:$seconds';
 }
 

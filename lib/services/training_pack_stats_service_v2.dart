@@ -62,7 +62,7 @@ class TrainingPackStatsServiceV2 {
         return [
           for (final e in data)
             if (e is Map)
-              PackResultEntry.fromJson(Map<String, dynamic>.from(e as Map))
+              PackResultEntry.fromJson(Map<String, dynamic>.from(e))
         ];
       }
     } catch (_) {}

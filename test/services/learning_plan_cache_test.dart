@@ -21,7 +21,7 @@ void main() {
   });
 
   test('save and load roundtrip', () async {
-    final cache = const LearningPlanCache();
+    const cache = LearningPlanCache();
 
     final spot = TrainingPackSpot(
       id: 's1',
@@ -42,7 +42,7 @@ void main() {
       spots: [spot],
       tags: const ['push'],
     );
-    final goal = const LearningGoal(
+    const goal = LearningGoal(
       id: 'g1',
       title: 'Goal',
       description: 'desc',
@@ -79,7 +79,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'learning_plan_cache': 'oops'
     });
-    final cache = const LearningPlanCache();
+    const cache = LearningPlanCache();
     final result = await cache.load();
     expect(result, isNull);
   });

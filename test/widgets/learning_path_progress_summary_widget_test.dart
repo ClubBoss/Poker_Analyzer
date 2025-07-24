@@ -7,11 +7,11 @@ import 'package:poker_analyzer/widgets/learning_path_progress_summary_widget.dar
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final template = LearningPathTemplateV2(
+  const template = LearningPathTemplateV2(
     id: 'p1',
     title: 'Path',
     description: '',
-    stages: const [
+    stages: [
       LearningPathStageModel(
         id: 's1',
         title: 'Stage 1',
@@ -33,10 +33,10 @@ void main() {
 
   testWidgets('shows progress summary', (WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: LearningPathProgressSummaryWidget(
           template: template,
-          handsPlayedByPackId: const {'pack1': 10, 'pack2': 2},
+          handsPlayedByPackId: {'pack1': 10, 'pack2': 2},
         ),
       ),
     );

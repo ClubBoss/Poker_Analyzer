@@ -177,9 +177,9 @@ class TrainingPackStatsService {
 
   static Future<int> getHandsCompleted(String templateId) async {
     final prefs = await SharedPreferences.getInstance();
-    final v = prefs.getInt('tpl_prog_' + templateId);
+    final v = prefs.getInt('tpl_prog_$templateId');
     if (v != null) return v + 1;
-    final legacy = prefs.getInt('progress_tpl_' + templateId);
+    final legacy = prefs.getInt('progress_tpl_$templateId');
     return legacy != null ? legacy + 1 : 0;
   }
 
@@ -258,7 +258,7 @@ class TrainingPackStatsService {
         return [
           for (final e in data)
             if (e is Map)
-              TrainingPackStat.fromJson(Map<String, dynamic>.from(e as Map))
+              TrainingPackStat.fromJson(Map<String, dynamic>.from(e))
         ];
       }
     } catch (_) {}

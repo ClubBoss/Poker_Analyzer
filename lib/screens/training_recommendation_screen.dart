@@ -49,7 +49,7 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     final weakTags = await context.read<TagMasteryService>().topWeakTags(1);
     final hasWeak = weakTags.isNotEmpty;
     final hasMistakes = SmartReviewService.instance.hasMistakes();
-    final advisor = const NextStepAdvisorService();
+    const advisor = NextStepAdvisorService();
     final advice = advisor.recommend(
       stats: LearningStats(
         completedPacks: global.packsCompleted,

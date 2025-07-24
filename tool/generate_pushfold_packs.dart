@@ -79,9 +79,9 @@ void main(List<String> args) {
       File(jsonPath).writeAsStringSync(jsonEncode(tpl.toJson()));
       final csvPath = p.join(outDir.path, '$id.csv');
       File(csvPath).writeAsStringSync(_tplToCsv(tpl));
-      stdout.writeln('[${index}/$total] $id - ${tpl.spots.length} spots - OK');
+      stdout.writeln('[$index/$total] $id - ${tpl.spots.length} spots - OK');
     } catch (e) {
-      stderr.writeln('[${index}/$total] ${item is YamlMap ? item['id'] : ''} - [ERROR] $e');
+      stderr.writeln('[$index/$total] ${item is YamlMap ? item['id'] : ''} - [ERROR] $e');
     }
   }
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;

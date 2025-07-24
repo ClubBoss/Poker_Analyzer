@@ -108,28 +108,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
         color: AppColors.evPre,
         barWidth: 2,
         isCurved: false,
-        dotData: FlDotData(show: true),
+        dotData: const FlDotData(show: true),
       ),
       LineChartBarData(
         spots: postEv,
         color: AppColors.evPost,
         barWidth: 2,
         isCurved: false,
-        dotData: FlDotData(show: true),
+        dotData: const FlDotData(show: true),
       ),
       LineChartBarData(
         spots: preIcm,
         color: AppColors.icmPre,
         barWidth: 2,
         isCurved: false,
-        dotData: FlDotData(show: true),
+        dotData: const FlDotData(show: true),
       ),
       LineChartBarData(
         spots: postIcm,
         color: AppColors.icmPost,
         barWidth: 2,
         isCurved: false,
-        dotData: FlDotData(show: true),
+        dotData: const FlDotData(show: true),
       ),
     ];
     return SizedBox(
@@ -167,13 +167,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     drawVerticalLine: false,
                     horizontalInterval: 20,
                     getDrawingHorizontalLine: (value) =>
-                        FlLine(color: Colors.white24, strokeWidth: 1),
+                        const FlLine(color: Colors.white24, strokeWidth: 1),
                   ),
                   titlesData: FlTitlesData(
                     rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,

@@ -1,5 +1,4 @@
 import '../models/learning_track_progress_model.dart';
-import '../models/learning_path_template_v2.dart';
 import 'learning_path_gatekeeper_service.dart';
 import 'learning_path_registry_service.dart';
 import 'training_path_progress_service_v2.dart';

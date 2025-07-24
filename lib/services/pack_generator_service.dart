@@ -191,7 +191,7 @@ class PackGeneratorService {
     const idxBB = 1;
     final callCutoff =
         (PackGeneratorService.handRanking.length * bbCallPct / 100).round();
-    final evService = const PushFoldEvService();
+    const evService = PushFoldEvService();
     for (var i = 0; i < heroRange.length; i++) {
       final hand = heroRange[i];
       final heroCards = _firstCombo(hand);
@@ -317,7 +317,7 @@ class PackGeneratorService {
 
   static Set<String> parseRangeString(String raw) {
     return {
-      for (final t in raw.split(RegExp('[,;\s]+')))
+      for (final t in raw.split(RegExp('[,;s]+')))
         if (t.trim().isNotEmpty) t.trim()
     };
   }

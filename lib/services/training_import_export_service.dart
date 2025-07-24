@@ -506,13 +506,6 @@ class TrainingImportExportService {
       archive.addFile(ArchiveFile(name, data.length, data));
     }
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Не удалось создать архив')));
-      }
-      return;
-    }
     final fileName = 'training_spots_${DateTime.now().millisecondsSinceEpoch}.zip';
     final savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Сохранить архив',

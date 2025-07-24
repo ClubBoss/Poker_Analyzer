@@ -39,7 +39,7 @@ class _DailyChallengeHistoryScreenState extends State<DailyChallengeHistoryScree
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('🎯 История челленджей'),
+        title: const Text('🎯 История челленджей'),
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFF121212),

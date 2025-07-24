@@ -75,7 +75,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   Map<String, String> _results = {};
   int _index = 0;
   bool _loading = true;
-  PlayOrder _order = PlayOrder.sequential;
+  final PlayOrder _order = PlayOrder.sequential;
   int _streetCount = 0;
   final Map<String, int> _handCounts = {};
   final Map<String, int> _handTotals = {};
@@ -370,14 +370,14 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
         final ev = v is num
             ? v.toDouble()
             : (v is Map && v['ev'] is num ? (v['ev'] as num).toDouble() : null);
-        if (ev != null) best = best == null ? ev : max(best!, ev);
+        if (ev != null) best = best == null ? ev : max(best, ev);
       }
       return best;
     }
     double? best;
     for (final a in spot.hand.actions[_currentStreet] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.ev != null) {
-        best = best == null ? a.ev! : max(best!, a.ev!);
+        best = best == null ? a.ev! : max(best, a.ev!);
       }
     }
     return best;
@@ -392,14 +392,14 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
         final ev = v is Map && v['icmEv'] is num
             ? (v['icmEv'] as num).toDouble()
             : null;
-        if (ev != null) best = best == null ? ev : max(best!, ev);
+        if (ev != null) best = best == null ? ev : max(best, ev);
       }
       return best;
     }
     double? best;
     for (final a in spot.hand.actions[_currentStreet] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.icmEv != null) {
-        best = best == null ? a.icmEv! : max(best!, a.icmEv!);
+        best = best == null ? a.icmEv! : max(best, a.icmEv!);
       }
     }
     return best;
@@ -644,7 +644,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
       final first = !_results.containsKey(key);
       _results[key] = act.toLowerCase();
       if (first && (!spot.streetMode || _street == spot.street) &&
-          _matchStreet(spot)) _streetCount++;
+          _matchStreet(spot)) {
+        _streetCount++;
+      }
       if (first) {
         for (final g in widget.template.focusHandTypes) {
           if (_matchHandTypeLabel(spot, g.label)) {
@@ -693,7 +695,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
           !evaluation.correct;
       String? category;
       if (incorrect) {
-        final engine = const MistakeCategorizationEngine();
+        const engine = MistakeCategorizationEngine();
         final strength = engine.computeHandStrength(spot.hand.heroCards);
         final m = Mistake(
           spot: spot,

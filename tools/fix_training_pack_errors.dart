@@ -83,7 +83,7 @@ List<String> _fixFile(File file, {required bool apply}) {
 
   if (apply && changes.isNotEmpty) {
     final yamlOut = json2yaml(map, yamlStyle: YamlStyle.pubspecYaml);
-    file.writeAsStringSync(yamlOut + '\n');
+    file.writeAsStringSync('$yamlOut\n');
   }
 
   return changes;

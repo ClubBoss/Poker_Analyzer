@@ -1,4 +1,3 @@
-import '../models/tag_xp_history_entry.dart';
 import 'tag_mastery_history_service.dart';
 
 enum TagTrend { rising, flat, falling }

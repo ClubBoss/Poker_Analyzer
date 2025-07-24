@@ -20,7 +20,7 @@ class SpotTemplateEngine {
     bool withIcm = false,
     String? name,
   }) async {
-    final uuid = const Uuid();
+    const uuid = Uuid();
     final spots = <TrainingPackSpot>[];
     for (final stack in stackRange) {
       final actions = <int, List<ActionEntry>>{

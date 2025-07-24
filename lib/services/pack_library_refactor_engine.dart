@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
@@ -67,7 +66,7 @@ class PackLibraryRefactorEngine {
   Map<String, dynamic> _orderedMap(TrainingPackTemplateV2 tpl) {
     final json = tpl.toJson();
     json['title'] = json.remove('name');
-    final map = LinkedHashMap<String, dynamic>();
+    final map = <String, dynamic>{};
     for (final k in ['id', 'title', 'tags', 'meta', 'spots']) {
       if (json.containsKey(k)) map[k] = json.remove(k);
     }

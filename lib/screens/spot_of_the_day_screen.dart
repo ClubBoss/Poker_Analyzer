@@ -97,7 +97,7 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
           final centerX = constraints.maxWidth / 2;
           final centerY = constraints.maxHeight / 2 - 40;
 
-          List<Widget> children = [
+          final List<Widget> children = [
             Positioned(
               left: centerX - tableWidth / 2,
               top: centerY - tableHeight / 2,
@@ -109,7 +109,7 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
             ),
             Positioned.fill(
               child: Align(
-                alignment: Alignment(0, -0.1),
+                alignment: const Alignment(0, -0.1),
                 child: BoardCardsWidget(
                   currentStreet: 3,
                   boardCards: spot.boardCards,

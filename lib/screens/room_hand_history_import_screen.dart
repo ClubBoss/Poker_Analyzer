@@ -46,8 +46,12 @@ class _RoomHandHistoryImportScreenState
   bool get _canAdd => _selectionMode && !_undoActive;
   Set<String> get _allTags {
     final tags = <String>{};
-    for (final h in _pack.hands) tags.addAll(h.tags);
-    for (final e in _hands) tags.addAll(e.hand.tags);
+    for (final h in _pack.hands) {
+      tags.addAll(h.tags);
+    }
+    for (final e in _hands) {
+      tags.addAll(e.hand.tags);
+    }
     return tags;
   }
 
@@ -308,7 +312,7 @@ class _RoomHandHistoryImportScreenState
   List<_Entry> _filteredHands() {
     final query = _searchController.text.toLowerCase();
     return _hands.where((e) {
-      if (_tagFilter != null && !_tagFilter!.isEmpty) {
+      if (_tagFilter != null && _tagFilter!.isNotEmpty) {
         if (!e.hand.tags.contains(_tagFilter)) return false;
       }
       switch (_filter) {

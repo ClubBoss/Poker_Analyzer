@@ -10,7 +10,7 @@ import 'icm_push_ev_service.dart';
 
 class TrainingPackAuthorService {
   static final Map<String, PresetConfig> _presets = {
-    '10bb_co_vs_bb': PresetConfig(
+    '10bb_co_vs_bb': const PresetConfig(
       '10bb CO vs BB',
       HeroPosition.co,
       10,
@@ -29,7 +29,7 @@ class TrainingPackAuthorService {
       category: 'Push/Fold',
       description: '10 bb, CO vs BB push-fold',
     ),
-    '10bb_sb_vs_bb': PresetConfig(
+    '10bb_sb_vs_bb': const PresetConfig(
       '10bb SB vs BB',
       HeroPosition.sb,
       10,
@@ -48,7 +48,7 @@ class TrainingPackAuthorService {
       category: 'Push/Fold',
       description: '10 bb, SB vs BB push-fold',
     ),
-    '15bb_hj_vs_bb': PresetConfig(
+    '15bb_hj_vs_bb': const PresetConfig(
       '15bb HJ vs BB',
       HeroPosition.mp,
       15,
@@ -66,7 +66,7 @@ class TrainingPackAuthorService {
       category: 'Push/Fold',
       description: '15 bb, HJ vs BB push-fold',
     ),
-    '25bb_co_vs_btn_3bet': PresetConfig(
+    '25bb_co_vs_btn_3bet': const PresetConfig(
       '25bb CO vs BTN 3bet',
       HeroPosition.co,
       25,
@@ -83,7 +83,7 @@ class TrainingPackAuthorService {
       category: '3bet',
       description: '25 bb, CO vs BTN 3bet',
     ),
-    'icm_final_table_6max_12bb_co': PresetConfig(
+    'icm_final_table_6max_12bb_co': const PresetConfig(
       'ICM Final Table 6max 12bb CO',
       HeroPosition.co,
       12,

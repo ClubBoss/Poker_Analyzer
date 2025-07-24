@@ -485,7 +485,6 @@ class BackupManagerService {
         archive.addFile(ArchiveFile(name, data.length, data));
       }
       final bytes = ZipEncoder().encode(archive);
-      if (bytes == null) throw Exception('Could not create archive');
       final fileName = '${prefix}_${_timestamp()}.zip';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: dialogTitle,

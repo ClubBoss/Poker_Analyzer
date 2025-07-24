@@ -203,7 +203,6 @@ class DebugSnapshotService {
         archive.addFile(ArchiveFile(name, data.length, data));
       }
       final bytes = ZipEncoder().encode(archive);
-      if (bytes == null) throw Exception('Could not create archive');
       final fileName = 'evaluation_snapshots_${_timestamp()}.zip';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Snapshots Archive',

@@ -64,7 +64,7 @@ class DemoAnimationManager {
     required int Function() viewIndex,
   }) {
     final overlay = Overlay.of(context);
-    if (overlay == null || winners.isEmpty) return;
+    if (winners.isEmpty) return;
 
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -121,7 +121,6 @@ class DemoAnimationManager {
   }) {
     if (amount <= 0) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;

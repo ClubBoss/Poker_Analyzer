@@ -190,16 +190,9 @@ class PlayerProfileImportExportService {
   Future<void> exportArchive(BuildContext context) async {
     final archive = Archive();
     final data = utf8.encode(serialize());
-    final name = 'profile.json';
+    const name = 'profile.json';
     archive.addFile(ArchiveFile(name, data.length, data));
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to create archive')));
-      }
-      return;
-    }
     final fileName =
         'player_profile_${DateTime.now().millisecondsSinceEpoch}.zip';
     final savePath = await FilePicker.platform.saveFile(

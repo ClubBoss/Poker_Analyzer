@@ -120,7 +120,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
-    final stackParts = _stackController.text.split(RegExp('[,\s]+')).where((e) => e.isNotEmpty).toList();
+    final stackParts = _stackController.text.split(RegExp('[,s]+')).where((e) => e.isNotEmpty).toList();
     final heroStack = int.tryParse(stackParts.isNotEmpty ? stackParts.first : '') ?? 10;
     final count = int.tryParse(_playersController.text.trim()) ?? 2;
     final players = [

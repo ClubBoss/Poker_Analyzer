@@ -82,8 +82,8 @@ class _PackInsightsBannerState extends State<PackInsightsBanner> {
             children: [
               Icon(Icons.insights, color: accent),
               const SizedBox(width: 8),
-              Text('Pack Insights',
-                  style: const TextStyle(color: Colors.white, fontSize: 16)),
+              const Text('Pack Insights',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ],
           ),
           const SizedBox(height: 8),

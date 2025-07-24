@@ -40,7 +40,7 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
     }
     final insights =
         await const MistakeTagInsightsService(exampleCount: 2).buildInsights();
-    final clusterSvc = const MistakeTagClusterService();
+    const clusterSvc = MistakeTagClusterService();
     for (final ins in insights) {
       final c = clusterSvc.getClusterForTag(ins.tag);
       _clusters.putIfAbsent(c, () => []).add(ins);

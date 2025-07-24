@@ -6,8 +6,6 @@ import 'package:poker_analyzer/models/mistake_tag_cluster.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/models/game_type.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
-import 'package:poker_analyzer/models/v2/hand_data.dart';
-import 'package:poker_analyzer/models/training_history_entry_v2.dart';
 
 TrainingPackTemplateV2 booster({required String id, required MistakeTagCluster c}) {
   return TrainingPackTemplateV2(

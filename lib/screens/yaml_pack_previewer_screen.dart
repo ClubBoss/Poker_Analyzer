@@ -57,7 +57,9 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
   double _avgPriority(List<TrainingPackSpot> spots) {
     if (spots.isEmpty) return 0;
     var sum = 0;
-    for (final s in spots) sum += s.priority;
+    for (final s in spots) {
+      sum += s.priority;
+    }
     return sum / spots.length;
   }
 
@@ -120,7 +122,7 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
                     child: Text('Average priority: ${_avgPriority(pack.spots).toStringAsFixed(1)}'),
                   ),
                   const SizedBox(height: 12),
-                  Text('Positions:', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Positions:', style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -129,7 +131,7 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text('Hand types:', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Hand types:', style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -139,7 +141,7 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
                   ),
                   if (pack.tags.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    Text('Tags:', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Tags:', style: TextStyle(fontWeight: FontWeight.bold)),
                     Wrap(
                       spacing: 8,
                       children: [for (final t in pack.tags) Chip(label: Text(t))],

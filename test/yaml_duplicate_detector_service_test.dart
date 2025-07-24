@@ -9,7 +9,7 @@ void main() {
     final c = TrainingPackTemplateV2(id: '2', name: 'A', trainingType: TrainingType.pushFold);
     final d = TrainingPackTemplateV2(id: '4', name: 'D', trainingType: TrainingType.pushFold);
     final e = TrainingPackTemplateV2(id: '4', name: 'D', trainingType: TrainingType.pushFold);
-    final service = const YamlDuplicateDetectorService();
+    const service = YamlDuplicateDetectorService();
     final res = service.detectDuplicates([a, b, c, d, e]);
     expect(res.where((g) => g.type == 'id').length, 2);
     expect(res.where((g) => g.type == 'name').length, 2);

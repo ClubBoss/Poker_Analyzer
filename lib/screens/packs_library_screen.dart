@@ -584,12 +584,12 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       ),
                     ),
                   if (isNew)
-                    Chip(
-                      label: const Text('NEW'),
+                    const Chip(
+                      label: Text('NEW'),
                       backgroundColor: Colors.amber,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       visualDensity:
-                          const VisualDensity(horizontal: -4, vertical: -4),
+                          VisualDensity(horizontal: -4, vertical: -4),
                     ),
                 ],
               ),
@@ -597,7 +597,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Coverage: ${coveragePct}%',
+            'Coverage: $coveragePct%',
             style: TextStyle(
               fontSize: 11,
               color: coveragePct < 70
@@ -693,7 +693,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  '${done} / $total (${(ratio * 100).round()}%)',
+                  '$done / $total (${(ratio * 100).round()}%)',
                   style: const TextStyle(
                     fontSize: 11,
                     color: Colors.white,
@@ -867,7 +867,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       onChanged: (v) => set(() => stack = v),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text('${stack.round()} bb')
                 ],
               ),
@@ -1333,9 +1333,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           });
                         } else if (_currentGroupKey == 'stack') {
                           keys.sort((a, b) {
-                            int ia = _StackRange.values
+                            final int ia = _StackRange.values
                                 .indexWhere((r) => r.label == a);
-                            int ib = _StackRange.values
+                            final int ib = _StackRange.values
                                 .indexWhere((r) => r.label == b);
                             return ia.compareTo(ib);
                           });
@@ -1383,7 +1383,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           );
         ],
       ),
-    );
+    )
   }
 }
 

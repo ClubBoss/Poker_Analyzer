@@ -6,7 +6,6 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/push_fold_ev_service.dart';
 import '../services/icm_push_ev_service.dart';
 import '../models/saved_hand.dart';
-import '../models/action_entry.dart';
 import '../helpers/hand_utils.dart';
 import '../utils/responsive.dart';
 import '../theme/app_colors.dart';
@@ -150,11 +149,11 @@ class WeeklyProgressScreen extends StatelessWidget {
                   drawVerticalLine: false,
                   horizontalInterval: interval,
                   getDrawingHorizontalLine: (value) =>
-                      FlLine(color: Colors.white24, strokeWidth: 1),
+                      const FlLine(color: Colors.white24, strokeWidth: 1),
                 ),
                 titlesData: FlTitlesData(
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -198,21 +197,21 @@ class WeeklyProgressScreen extends StatelessWidget {
                     color: Colors.orangeAccent,
                     barWidth: 2,
                     isCurved: false,
-                    dotData: FlDotData(show: false),
+                    dotData: const FlDotData(show: false),
                   ),
                   LineChartBarData(
                     spots: evSpots,
                     color: Colors.greenAccent,
                     barWidth: 2,
                     isCurved: false,
-                    dotData: FlDotData(show: false),
+                    dotData: const FlDotData(show: false),
                   ),
                   LineChartBarData(
                     spots: icmSpots,
                     color: Colors.lightBlueAccent,
                     barWidth: 2,
                     isCurved: false,
-                    dotData: FlDotData(show: false),
+                    dotData: const FlDotData(show: false),
                   ),
                 ],
               ),

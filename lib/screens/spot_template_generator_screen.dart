@@ -22,7 +22,7 @@ class _SpotTemplateGeneratorScreenState extends State<SpotTemplateGeneratorScree
   bool _loading = false;
 
   List<int> _parseRange(String text) {
-    final clean = text.replaceAll(RegExp('[^0-9\-– ]'), '');
+    final clean = text.replaceAll(RegExp('[^0-9-– ]'), '');
     if (clean.contains('-') || clean.contains('–')) {
       final p = clean.split(RegExp('[-–]'));
       int a = int.tryParse(p.first.trim()) ?? 0;
@@ -35,7 +35,7 @@ class _SpotTemplateGeneratorScreenState extends State<SpotTemplateGeneratorScree
       return [for (var i = a; i <= b; i++) i];
     }
     return [
-      for (final part in clean.split(RegExp('[\s,]+')))
+      for (final part in clean.split(RegExp('[s,]+')))
         if (part.isNotEmpty) int.tryParse(part.trim()) ?? 0
     ];
   }

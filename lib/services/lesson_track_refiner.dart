@@ -1,6 +1,5 @@
 import '../models/training_track.dart';
 import '../models/v2/training_pack_spot.dart';
-import '../models/action_entry.dart';
 
 class LessonTrackRefiner {
   const LessonTrackRefiner();
@@ -44,7 +43,7 @@ class LessonTrackRefiner {
     }
     foldEv ??= 0;
     if (pushEv == null && foldEv == null) return null;
-    if (pushEv == null) return foldEv!.abs();
-    return (pushEv! - foldEv!).abs();
+    if (pushEv == null) return foldEv.abs();
+    return (pushEv - foldEv).abs();
   }
 }

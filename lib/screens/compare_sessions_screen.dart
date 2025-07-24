@@ -46,8 +46,8 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
     final h = d.inHours;
     final m = d.inMinutes.remainder(60);
     final parts = <String>[];
-    if (h > 0) parts.add('${h}ч');
-    parts.add('${m}м');
+    if (h > 0) parts.add('$hч');
+    parts.add('$mм');
     return parts.join(' ');
   }
 
@@ -137,8 +137,8 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
             const SizedBox(height: 16),
             const Text('Совпадающие споты', style: TextStyle(color: Colors.white)),
             const SizedBox(height: 8),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Expanded(child: SizedBox()),
                 Expanded(child: Text('Первая', textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),
                 Expanded(child: Text('Вторая', textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),

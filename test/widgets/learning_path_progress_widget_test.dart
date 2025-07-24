@@ -8,11 +8,11 @@ import 'package:poker_analyzer/widgets/learning_path_progress_widget.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final template = LearningPathTemplateV2(
+  const template = LearningPathTemplateV2(
     id: 'p1',
     title: 'Path',
     description: '',
-    stages: const [
+    stages: [
       LearningPathStageModel(
         id: 's1',
         title: 'Stage 1',
@@ -40,20 +40,20 @@ void main() {
     ],
   );
 
-  final stats = LearningPathProgressStats(
+  const stats = LearningPathProgressStats(
     totalStages: 3,
     completedStages: 1,
     completionPercent: 1 / 3,
-    sections: const [
+    sections: [
       SectionStats(id: 'sec1', title: 'Intro', completedStages: 1, totalStages: 2),
       SectionStats(id: 'sec2', title: 'Advanced', completedStages: 0, totalStages: 1),
     ],
-    lockedStageIds: const ['s3'],
+    lockedStageIds: ['s3'],
   );
 
   testWidgets('renders progress and sections', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: LearningPathProgressWidget(template: template, stats: stats),
       ),
     );

@@ -44,7 +44,7 @@ Future<void> main(List<String> args) async {
     return;
   }
   await Directory(outputDir).create(recursive: true);
-  final exporter = const PackLibraryExporter();
+  const exporter = PackLibraryExporter();
   List<String> paths;
   try {
     paths = await exporter.export(packs, outputDir);

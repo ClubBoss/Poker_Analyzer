@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 import '../helpers/training_pack_storage.dart';
 import '../models/v2/training_pack_template.dart';
-import '../models/v2/training_pack_spot.dart';
 import '../helpers/pack_spot_utils.dart';
 import 'training_screen.dart';
 

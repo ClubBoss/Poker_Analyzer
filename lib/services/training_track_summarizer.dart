@@ -1,7 +1,6 @@
 import '../models/training_track.dart';
 import '../models/training_result.dart';
 import '../models/training_track_summary.dart';
-import '../models/v2/training_pack_spot.dart';
 
 class TrainingTrackSummarizer {
   const TrainingTrackSummarizer();
@@ -27,7 +26,7 @@ class TrainingTrackSummarizer {
     final tagEvAfterSum = <String, double>{};
     final tagEvAfterCount = <String, int>{};
 
-    String? _spotId(dynamic r) {
+    String? spotId(dynamic r) {
       try {
         final id = r.spotId;
         if (id is String) return id;
@@ -35,7 +34,7 @@ class TrainingTrackSummarizer {
       return null;
     }
 
-    bool _isCorrect(dynamic r) {
+    bool isCorrect(dynamic r) {
       try {
         final v = r.isCorrect;
         if (v is bool) return v;
@@ -48,7 +47,7 @@ class TrainingTrackSummarizer {
       return false;
     }
 
-    double? _evAfter(dynamic r) {
+    double? evAfter0(dynamic r) {
       try {
         final v = r.ev;
         if (v is num) return v.toDouble();
@@ -61,18 +60,18 @@ class TrainingTrackSummarizer {
     }
 
     for (final r in results) {
-      final id = _spotId(r);
+      final id = spotId(r);
       if (id == null || !spotIds.contains(id)) continue;
       final spot = spotsById[id];
       total += 1;
-      final correctFlag = _isCorrect(r);
+      final correctFlag = isCorrect(r);
       if (correctFlag) correct++;
       final before = spot?.heroEv;
       if (before != null) {
         evBeforeSum += before;
         evBeforeCount++;
       }
-      final after = _evAfter(r);
+      final after = evAfter0(r);
       if (after != null) {
         evAfterSum += after;
         evAfterCount++;

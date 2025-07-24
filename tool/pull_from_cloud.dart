@@ -39,13 +39,13 @@ Future<void> main(List<String> args) async {
       final path = p.join(dir.path, '$id.pka');
       final file = File(path);
       if (file.existsSync() && file.lengthSync() == bytes.length) {
-        stdout.writeln('[${index}/${items.length}] ${p.basename(path)}  –  SKIP (up-to-date)');
+        stdout.writeln('[$index/${items.length}] ${p.basename(path)}  –  SKIP (up-to-date)');
         continue;
       }
       file.writeAsBytesSync(bytes);
-      stdout.writeln('[${index}/${items.length}] ${p.basename(path)}  –  OK');
+      stdout.writeln('[$index/${items.length}] ${p.basename(path)}  –  OK');
     } catch (_) {
-      stdout.writeln('[${index}/${items.length}] ${id}.pka  –  [ERROR]');
+      stdout.writeln('[$index/${items.length}] $id.pka  –  [ERROR]');
     }
   }
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;

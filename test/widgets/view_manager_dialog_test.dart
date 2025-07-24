@@ -23,7 +23,7 @@ void main() {
     );
 
     final list = tester.widget<ReorderableListView>(find.byType(ReorderableListView));
-    list.onReorder!(0, views.length);
+    list.onReorder(0, views.length);
     await tester.pump();
 
     expect(changed!.map((e) => e.name), ['Two', 'Three', 'One']);

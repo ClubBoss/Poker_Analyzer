@@ -51,7 +51,6 @@ class FirstLaunchOverlay extends StatelessWidget {
 
 void showFirstLaunchOverlay(BuildContext context, VoidCallback onClose) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => FirstLaunchOverlay(

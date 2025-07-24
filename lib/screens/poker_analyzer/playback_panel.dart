@@ -110,7 +110,7 @@ class _PlaybackControlsSection extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                "Step $playbackIndex / $actionCount" + (isPlaying ? " - " + _formatDuration(elapsedTime) : ""),
+                "Step $playbackIndex / $actionCount${isPlaying ? " - " + _formatDuration(elapsedTime) : ""}",
                 style: const TextStyle(color: Colors.white),
               ),
             ],
@@ -120,7 +120,7 @@ class _PlaybackControlsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: disabled ? null : (isPlaying ? onPause : onPlayAll), child: Text(isPlaying ? "Pause" : "Play All")),
+            ElevatedButton(onPressed: disabled ? null : (isPlaying ? onPause : onPlayAll), child: Text(isPlaying ? 'Pause' : 'Play All')),
           ],
         ),
         const SizedBox(height: 8),

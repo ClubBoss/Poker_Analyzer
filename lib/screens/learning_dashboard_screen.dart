@@ -249,7 +249,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
               const SizedBox(height: 12),
               _improvements(data.improvements),
               const SizedBox(height: 12),
-              _section('🔥 Streak', '${streak}-day streak'),
+              _section('🔥 Streak', '$streak-day streak'),
               const SizedBox(height: 12),
               const TagInsightReminderCard(),
               const SizedBox(height: 12),

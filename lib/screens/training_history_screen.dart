@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +15,6 @@ import 'package:flutter/services.dart';
 import '../helpers/color_utils.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 import '../services/progress_export_service.dart';
 
 import '../theme/app_colors.dart';
@@ -209,7 +207,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   Future<void> _exportHistory() async {
     if (_history.isEmpty) return;
-    final encoder = JsonEncoder.withIndent('  ');
+    const encoder = JsonEncoder.withIndent('  ');
     final jsonStr = encoder.convert([for (final r in _history) r.toJson()]);
     final dir = await getTemporaryDirectory();
     final file = File(
@@ -476,12 +474,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           comment: r.comment,
         )
     ];
-    final encoder = JsonEncoder.withIndent('  ');
+    const encoder = JsonEncoder.withIndent('  ');
     final bytes = Uint8List.fromList(
       utf8.encode(encoder.convert([for (final s in sessions) s.toJson()])),
     );
-    final name = 'training_history_' +
-        DateTime.now().millisecondsSinceEpoch.toString();
+    final name = 'training_history_${DateTime.now().millisecondsSinceEpoch}';
     try {
       await FileSaver.instance.saveAs(
         name: name,
@@ -491,8 +488,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Экспортировано ' +
-              sessions.length.toString() + ' сессий в JSON')),
+          SnackBar(content: Text('Экспортировано ${sessions.length} сессий в JSON')),
         );
       }
     } catch (_) {
@@ -1934,7 +1930,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         TextEditingController(text: session.correct.toString());
     final totalController =
         TextEditingController(text: session.total.toString());
-    List<int>? updated = await showDialog<List<int>>(
+    final List<int>? updated = await showDialog<List<int>>(
       context: ctx,
       builder: (context) {
         int? correct = session.correct;
@@ -2362,10 +2358,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           'Игнорировать сессии без заметок',
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                       Checkbox(
@@ -2672,10 +2668,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           'Экспортировать только сессии с ≥ 3 тегами',
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                       Checkbox(

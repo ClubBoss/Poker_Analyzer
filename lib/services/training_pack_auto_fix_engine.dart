@@ -24,8 +24,8 @@ class TrainingPackAutoFixEngine {
     }
     if (pack.positions.isEmpty) pack.positions = ['Unknown'];
     _recountCoverage(pack);
-    double? evScore = (pack.meta['evScore'] as num?)?.toDouble();
-    double? icmScore = (pack.meta['icmScore'] as num?)?.toDouble();
+    final double? evScore = (pack.meta['evScore'] as num?)?.toDouble();
+    final double? icmScore = (pack.meta['icmScore'] as num?)?.toDouble();
     if (evScore == null || evScore < 0 || evScore > 100) {
       pack.meta['evScore'] = 0;
     }

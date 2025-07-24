@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
@@ -308,9 +307,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
                               subtitle: Text(entry.value.join(', '),
                                   style:
                                       const TextStyle(color: Colors.white70)),
-                              trailing: Row(
+                              trailing: const Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
+                                children: [
                                   Icon(Icons.edit, color: Colors.grey),
                                   SizedBox(width: 8),
                                   Icon(Icons.delete, color: Colors.grey),
@@ -1757,9 +1756,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
         return StatefulBuilder(builder: (context, setStateDialog) {
           return AlertDialog(
             backgroundColor: AppColors.cardBackground,
-            title: Text(
+            title: const Text(
               'Рейтинг для \$count спотов',
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white),
             ),
             content: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1802,7 +1801,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     widget.onChanged?.call();
     _saveOrderToPrefs();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Рейтинг \$result поставлен для \$count спотов')),
+      const SnackBar(content: Text('Рейтинг \$result поставлен для \$count спотов')),
     );
   }
 
@@ -1817,9 +1816,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: Text(
+          title: const Text(
             'Комментарий для \$count спотов',
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white),
           ),
           content: TextField(
             controller: controller,
@@ -1860,7 +1859,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     widget.onChanged?.call();
     _saveOrderToPrefs();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Комментарий обновлен у \$count спотов')),
+      const SnackBar(content: Text('Комментарий обновлен у \$count спотов')),
     );
   }
 
@@ -1875,9 +1874,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: Text(
+          title: const Text(
             'История действий для \$count спотов',
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -1923,7 +1922,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     widget.onChanged?.call();
     _saveOrderToPrefs();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('История действий обновлена у \$count спотов')),
+      const SnackBar(content: Text('История действий обновлена у \$count спотов')),
     );
   }
 
@@ -2777,10 +2776,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                   padding: const EdgeInsets.only(
                                                       top: 4),
                                                   child: Builder(builder: (context) {
-                                                    var _txt = spot.userComment!
+                                                    var txt = spot.userComment!
                                                         .replaceAll('\n', ' ');
-                                                    if (_txt.length > 80) {
-                                                      _txt = _txt.substring(0, 80) + '…';
+                                                    if (txt.length > 80) {
+                                                      txt = '${txt.substring(0, 80)}…';
                                                     }
                                                     return Row(
                                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2791,7 +2790,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                         const SizedBox(width: 4),
                                                         Expanded(
                                                           child: Text.rich(
-                                                            _highlightSpan(_txt),
+                                                            _highlightSpan(txt),
                                                           ),
                                                         ),
                                                       ],
@@ -2803,10 +2802,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                 Padding(
                                                   padding: const EdgeInsets.only(top: 4),
                                                   child: Builder(builder: (context) {
-                                                    var _txt = spot.actionHistory!
+                                                    var txt = spot.actionHistory!
                                                         .replaceAll('\n', ' ');
-                                                    if (_txt.length > 80) {
-                                                      _txt = _txt.substring(0, 80) + '…';
+                                                    if (txt.length > 80) {
+                                                      txt = '${txt.substring(0, 80)}…';
                                                     }
                                                     return Row(
                                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2815,7 +2814,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                             style: TextStyle(color: Colors.white70)),
                                                         const SizedBox(width: 4),
                                                         Expanded(
-                                                          child: Text.rich(_highlightSpan(_txt)),
+                                                          child: Text.rich(_highlightSpan(txt)),
                                                         ),
                                                       ],
                                                     );
@@ -3003,10 +3002,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                 padding: const EdgeInsets.only(
                                                     top: 4),
                                                 child: Builder(builder: (context) {
-                                                  var _txt = spot.userComment!
+                                                  var txt = spot.userComment!
                                                       .replaceAll('\n', ' ');
-                                                  if (_txt.length > 80) {
-                                                    _txt = _txt.substring(0, 80) + '…';
+                                                  if (txt.length > 80) {
+                                                    txt = '${txt.substring(0, 80)}…';
                                                   }
                                                   return Row(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -3016,7 +3015,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                       const SizedBox(width: 4),
                                                       Expanded(
                                                         child: Text.rich(
-                                                          _highlightSpan(_txt),
+                                                          _highlightSpan(txt),
                                                         ),
                                                       ),
                                                     ],
@@ -3028,10 +3027,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                               Padding(
                                                 padding: const EdgeInsets.only(top: 4),
                                                 child: Builder(builder: (context) {
-                                                  var _txt = spot.actionHistory!
+                                                  var txt = spot.actionHistory!
                                                       .replaceAll('\n', ' ');
-                                                  if (_txt.length > 80) {
-                                                    _txt = _txt.substring(0, 80) + '…';
+                                                  if (txt.length > 80) {
+                                                    txt = '${txt.substring(0, 80)}…';
                                                   }
                                                   return Row(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -3041,7 +3040,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                       const SizedBox(width: 4),
                                                       Expanded(
                                                         child: Text.rich(
-                                                          _highlightSpan(_txt),
+                                                          _highlightSpan(txt),
                                                         ),
                                                       ),
                                                     ],
@@ -3577,7 +3576,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
             ),
           ),
         ),
-    );
+    )
   }
 
   Widget _buildSearchField() {
@@ -4211,7 +4210,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _exportPack(List<TrainingSpot> spots) async {
     if (spots.isEmpty) return;
-    final encoder = JsonEncoder.withIndent('  ');
+    const encoder = JsonEncoder.withIndent('  ');
     final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
     final dir = await getTemporaryDirectory();
     final file = File(
@@ -4222,7 +4221,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _exportNamedPack(List<TrainingSpot> spots, String name) async {
     if (spots.isEmpty) return;
-    final encoder = JsonEncoder.withIndent('  ');
+    const encoder = JsonEncoder.withIndent('  ');
     final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
     final dir = await getTemporaryDirectory();
     final safe = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
@@ -4351,7 +4350,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _handleDrop(DropDoneDetails details) async {
     for (final item in details.files) {
       final path = item.path;
-      if (path != null && path.toLowerCase().endsWith('.json')) {
+      if (path.toLowerCase().endsWith('.json')) {
         await _importFromFile(path);
       }
     }
@@ -4541,7 +4540,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
         _ratingSort == null &&
         _simpleSortField == null &&
         _listSort == null &&
-        _quickSort == null) return;
+        _quickSort == null) {
+      return;
+    }
     setState(() {
       if (_originalOrder != null &&
           widget.spots.length == _originalOrder!.length) {

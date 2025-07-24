@@ -11,7 +11,7 @@ class YamlPackRefactorEngine {
     pack.meta.removeWhere((k, _) =>
         k == 'generatedAt' ||
         k == 'legacyScore' ||
-        (k is String && k.toString().startsWith('legacy')));
+        (k.toString().startsWith('legacy')));
     pack.meta['schemaVersion'] = '2.0.0';
     pack.spots.sort(_spotCompare);
     return pack;

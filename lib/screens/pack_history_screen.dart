@@ -13,8 +13,8 @@ class PackHistoryScreen extends StatelessWidget {
     final h = d.inHours;
     final m = d.inMinutes.remainder(60);
     final parts = <String>[];
-    if (h > 0) parts.add('${h}ч');
-    parts.add('${m}м');
+    if (h > 0) parts.add('$hч');
+    parts.add('$mм');
     return parts.join(' ');
   }
 

@@ -10,7 +10,6 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 import '../services/tag_service.dart';
 import '../helpers/color_utils.dart';
 import '../theme/app_colors.dart';
@@ -79,7 +78,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   static const _viewsKey = 'pack_editor_views';
   String? _tagFilter;
   _MistakeFilter _mistakeFilter = _MistakeFilter.any;
-  bool _showFind = false;
+  final bool _showFind = false;
   final TextEditingController _findController = TextEditingController();
   final TextEditingController _replaceController = TextEditingController();
   bool _regex = false;
@@ -434,7 +433,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     final before = _hands.length;
     await _addHands(parsed);
     _pasteUndo = beforeState;
-    for (final h in _hands.skip(before)) h.isNew = true;
+    for (final h in _hands.skip(before)) {
+      h.isNew = true;
+    }
     setState(() {});
     Future.delayed(const Duration(seconds: 30), () {
       if (!mounted) return;
@@ -513,7 +514,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       ),
     );
     }
-    if (parsed.length > 0 && parsed.length <= 3) {
+    if (parsed.isNotEmpty && parsed.length <= 3) {
       final hand = parsed.first;
       if (widget.pack.isBuiltIn) {
         await _previewHand(hand);
@@ -964,7 +965,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _modified = true;
         }
       }
-      for (final h in list) h.isNew = false;
+      for (final h in list) {
+        h.isNew = false;
+      }
       if (ids == null) _selected.clear();
       _rebuildStats();
     });
@@ -1087,7 +1090,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     final target = await _pickTargetPack();
     if (target == null) return;
     final service = context.read<TrainingPackStorageService>();
-    var pack = service.packs.firstWhere(
+    final pack = service.packs.firstWhere(
       (p) => p.id == target.id,
       orElse: () => target,
     );
@@ -1111,7 +1114,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         }
         _modified = true;
       }
-      for (final h in selected) h.isNew = false;
+      for (final h in selected) {
+        h.isNew = false;
+      }
       if (ids == null) _selected.clear();
     });
     service.applyDiff(pack, added: toAdd);
@@ -1665,7 +1670,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       await _saveSnapshot();
       return;
     }
-    var format = action;
+    final format = action;
     final savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Save Pack',
       fileName: format == 'json' ? 'pack_export.json' : 'pack_export.csv',
@@ -2127,13 +2132,13 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   Future<void> _showRenameDialog() async {
     final list = _selected.toList()
       ..sort((a, b) => _hands.indexOf(a).compareTo(_hands.indexOf(b)));
-    String template = '#{index} – {old}';
+    const String template = '#{index} – {old}';
     final c = TextEditingController(text: template);
     final result = await showDialog<String>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) {
-          List<String> preview = [
+          final List<String> preview = [
             for (int i = 0; i < list.length && i < 3; i++)
               c.text
                   .replaceAll('{index}', '${i + 1}')
@@ -2686,7 +2691,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       }
       addShortcut(const LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyK), 'palette');
       addShortcut(const LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK), 'palette');
-      for (final c in _commands) addShortcut(c.shortcut, c.id);
+      for (final c in _commands) {
+        addShortcut(c.shortcut, c.id);
+      }
       shortcutMap
         ..clear()
         ..addEntries(shortcutToId.entries

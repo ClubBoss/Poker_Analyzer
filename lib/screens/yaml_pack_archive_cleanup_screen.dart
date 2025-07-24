@@ -51,13 +51,17 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
 
   int _countAll() {
     var count = 0;
-    for (final l in _items.values) count += l.length;
+    for (final l in _items.values) {
+      count += l.length;
+    }
     return count;
   }
 
   String _sizeStr(List<File> files) {
     var size = 0;
-    for (final f in files) size += f.lengthSync();
+    for (final f in files) {
+      size += f.lengthSync();
+    }
     if (size < 1024) return '$size B';
     if (size < 1024 * 1024) return '${(size / 1024).toStringAsFixed(1)} KB';
     return '${(size / 1024 / 1024).toStringAsFixed(1)} MB';

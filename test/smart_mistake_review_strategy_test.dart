@@ -19,19 +19,19 @@ void main() {
 
   test('dominant tag triggers trainTagPack', () async {
     final insights = [
-      MistakeInsight(
+      const MistakeInsight(
         tag: MistakeTag.overfoldBtn,
         count: 8,
         evLoss: 0,
         shortExplanation: '',
-        examples: const [],
+        examples: [],
       ),
-      MistakeInsight(
+      const MistakeInsight(
         tag: MistakeTag.looseCallBb,
         count: 2,
         evLoss: 0,
         shortExplanation: '',
-        examples: const [],
+        examples: [],
       ),
     ];
 

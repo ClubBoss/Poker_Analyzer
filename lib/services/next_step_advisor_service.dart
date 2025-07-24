@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 /// Aggregated learning progress stats used for recommendations.
 class LearningStats {

@@ -8,7 +8,7 @@ enum SortMode { progress, difficulty, recent, focus }
 class TrainingPackSortEngine {
   const TrainingPackSortEngine();
 
-  static final instance = TrainingPackSortEngine();
+  static const instance = TrainingPackSortEngine();
 
   final Map<String, int> _progressCache = {};
 

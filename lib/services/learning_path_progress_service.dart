@@ -207,7 +207,7 @@ class LearningPathProgressService {
     }
 
     final stages = [
-      LearningStageState(
+      const LearningStageState(
           levelIndex: 1,
           title: 'Beginner',
           goal: 'Освой базовый пуш-фолд',
@@ -237,7 +237,7 @@ class LearningPathProgressService {
           templateId: 'starter_pushfold_15bb',
         ),
       ]),
-      LearningStageState(
+      const LearningStageState(
           levelIndex: 2,
           title: 'Intermediate',
           goal: 'Изучи ICM и диапазоны 20bb',
@@ -259,7 +259,7 @@ class LearningPathProgressService {
           templateId: 'starter_pushfold_20bb',
         ),
       ]),
-      LearningStageState(
+      const LearningStageState(
           levelIndex: 3,
           title: 'Advanced',
           goal: 'Углуби стратегию и эксплойт',
@@ -279,7 +279,7 @@ class LearningPathProgressService {
     var prevCompleted = true;
     for (final stage in stages) {
       final items = <LearningStageItem>[];
-      var stageUnlocked = unlockAllStages ||
+      final stageUnlocked = unlockAllStages ||
           prevCompleted ||
           await SmartStageUnlockEngine.instance.isStageUnlocked(stage.title);
       var itemUnlock = stageUnlocked;

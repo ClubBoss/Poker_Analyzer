@@ -196,7 +196,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
 
   String get _prompt {
     final tagStr = _tags.join(', ');
-    return '${_basePrompt} для audience: ${_audience}, tags: ${tagStr}, формат: 10 BB турниры.';
+    return '$_basePrompt для audience: $_audience, tags: $tagStr, формат: 10 BB турниры.';
   }
 
   Future<void> _selectTags() async {
@@ -341,7 +341,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               started = true;
               Future.microtask(() async {
                 final gpt = GptPackTemplateGenerator(apiKey: _apiKey);
-                final parser = const PackYamlConfigParser();
+                const parser = PackYamlConfigParser();
                 final dir = await getApplicationDocumentsDirectory();
                 final custom = Directory('${dir.path}/training_packs/custom');
                 await custom.create(recursive: true);
@@ -618,13 +618,13 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (_normalizeYamlLoading || !kDebugMode) return;
     setState(() => _normalizeYamlLoading = true);
     await const PackLibraryRefactorEngine().refactorAll(
-      "training_packs/library",
+      'training_packs/library',
     );
     if (!mounted) return;
     setState(() => _normalizeYamlLoading = false);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text("Готово")));
+    ).showSnackBar(const SnackBar(content: Text('Готово')));
   }
 
   Future<void> _recalcRating() async {
@@ -1022,13 +1022,13 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     }
     if (!mounted) return;
     setState(() => _autoFixLoading = false);
-    if (json == null || json!.isEmpty || path == null) {
+    if (json == null || json.isEmpty || path == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Ошибка')));
       return;
     }
-    final pack = TrainingPackTemplateV2.fromJson(json!);
+    final pack = TrainingPackTemplateV2.fromJson(json);
     await showTrainingPackYamlPreviewer(context, pack);
     final ok = await showDialog<bool>(
       context: context,
@@ -1048,7 +1048,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       ),
     );
     if (ok == true) {
-      await const YamlWriter().write(json!, path);
+      await const YamlWriter().write(json, path);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -1071,13 +1071,13 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     }
     if (!mounted) return;
     setState(() => _refactorYamlPackLoading = false);
-    if (json == null || json!.isEmpty || path == null) {
+    if (json == null || json.isEmpty || path == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Ошибка')));
       return;
     }
-    final pack = TrainingPackTemplateV2.fromJson(json!);
+    final pack = TrainingPackTemplateV2.fromJson(json);
     await showTrainingPackYamlPreviewer(context, pack);
     final ok = await showDialog<bool>(
       context: context,
@@ -1097,7 +1097,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       ),
     );
     if (ok == true) {
-      await const YamlWriter().write(json!, path);
+      await const YamlWriter().write(json, path);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -1165,11 +1165,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _smartValidateLoading = false);
     if (report == null) return;
-    final text =
+    const text =
         'Errors: \${report.before.errors.length}->\${report.after.errors.length}\n'
         'Warnings: \${report.before.warnings.length}->\${report.after.warnings.length}\n'
         'Fixed: \${report.fixed.length}';
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(text)));
   }
 
   Future<void> _selectBestPacks() async {
@@ -1426,7 +1426,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       ),
     );
     if (!mounted) return;
-    final engine = const PackSearchEngine();
+    const engine = PackSearchEngine();
     final results = engine.search(query ?? '');
     setState(() => _packSearchLoading = false);
     await showDialog(
@@ -1712,7 +1712,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
-                title: const Text("🧹 Нормализовать YAML библиотеку"),
+                title: const Text('🧹 Нормализовать YAML библиотеку'),
                 onTap: _normalizeYamlLoading ? null : _normalizeYamlLibrary,
               ),
             if (kDebugMode)
@@ -2246,7 +2246,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
-                title: Text('🔥 Стрик уроков: \$_lessonStreak'),
+                title: const Text('🔥 Стрик уроков: \$_lessonStreak'),
                 onTap: _loadStreak,
               ),
             if (kDebugMode)
@@ -2414,7 +2414,7 @@ Future<Map<String, dynamic>> _refactorYamlPackTask(String path) async {
   final yaml = await file.readAsString();
   final map = const YamlReader().read(yaml);
   final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
-  final engine = const PackTemplateRefactorEngine();
+  const engine = PackTemplateRefactorEngine();
   engine.refactor(tpl);
   return engine.orderedJson(tpl);
 }

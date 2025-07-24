@@ -27,8 +27,8 @@ class HeroRangeGridWidget extends StatelessWidget {
     final r1 = _ranks[row];
     final r2 = _ranks[col];
     if (row == col) return '$r1$r2';
-    if (row < col) return '${r1}${r2}s';
-    return '${r2}${r1}o';
+    if (row < col) return '$r1${r2}s';
+    return '$r2${r1}o';
   }
 
   Color _cellColor(double freq) {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'mistake_detail_screen.dart';
 import '../helpers/category_translations.dart';
@@ -34,10 +33,9 @@ class _CorrectedMistakeHistoryScreenState
         : all;
     final title = widget.category == null
         ? 'Исправленные ошибки'
-        : 'Исправленные ошибки: ' +
-            (translateCategory(widget.category).isEmpty
+        : 'Исправленные ошибки: ${translateCategory(widget.category).isEmpty
                 ? 'Без категории'
-                : translateCategory(widget.category));
+                : translateCategory(widget.category)}';
     return Scaffold(
       appBar: AppBar(
         title: Text(title),

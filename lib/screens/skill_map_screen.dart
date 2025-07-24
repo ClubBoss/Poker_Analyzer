@@ -18,7 +18,6 @@ import '../widgets/skill_card.dart';
 import '../widgets/booster_packs_block.dart';
 import '../widgets/booster_suggestion_block.dart';
 import '../utils/responsive.dart';
-import 'library_screen.dart';
 import 'tag_insight_screen.dart';
 import 'training_session_screen.dart';
 import 'package:uuid/uuid.dart';
@@ -52,7 +51,7 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
     final insights = await const MistakeTagInsightsService()
         .buildInsights(sortByEvLoss: true);
     final clusters = const MistakeClusterAnalyticsService().compute(insights);
-    final clusterSvc = const MistakeTagClusterService();
+    const clusterSvc = MistakeTagClusterService();
     final byCluster = <MistakeTagCluster, List<MistakeInsight>>{};
     for (final i in insights) {
       final c = clusterSvc.getClusterForTag(i.tag);

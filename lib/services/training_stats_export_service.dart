@@ -133,7 +133,7 @@ class TrainingStatsExportService {
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return [
-            pw.Text('Training Stats', style: pw.TextStyle(fontSize: 24)),
+            pw.Text('Training Stats', style: const pw.TextStyle(fontSize: 24)),
             pw.SizedBox(height: 8),
             pw.Text('Total hands: $totalHands'),
             pw.Text('Accuracy: ${acc.toStringAsFixed(1)}%'),

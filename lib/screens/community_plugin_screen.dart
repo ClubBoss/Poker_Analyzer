@@ -182,10 +182,11 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
                       final needsUpdate =
                           installed && localVersion != plugin.version;
                       final subtitle = <Widget>[];
-                      if (plugin.category != null)
+                      if (plugin.category != null) {
                         subtitle.add(Text(plugin.category!));
+                      }
                       subtitle.add(Text('v${plugin.version}'));
-                      if (plugin.rating != null)
+                      if (plugin.rating != null) {
                         subtitle.add(
                           Row(
                             children: [
@@ -198,15 +199,18 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
                             ],
                           ),
                         );
-                      if (plugin.description != null)
+                      }
+                      if (plugin.description != null) {
                         subtitle.add(Text(plugin.description!));
-                      if (needsUpdate)
+                      }
+                      if (needsUpdate) {
                         subtitle.add(
                           Text(
                             'Installed v$localVersion',
                             style: const TextStyle(color: Colors.red),
                           ),
                         );
+                      }
                       return ListTile(
                         title: Text(plugin.name),
                         subtitle: Column(

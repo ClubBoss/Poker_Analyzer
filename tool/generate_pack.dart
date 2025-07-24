@@ -24,7 +24,7 @@ Future<void> main(List<String> args) async {
         'Usage: dart run tool/generate_pack.dart --input=spots.json --output=pack.yaml');
     exit(1);
   }
-  final file = File(input!);
+  final file = File(input);
   if (!file.existsSync()) {
     stderr.writeln('Input not found: $input');
     exit(1);
@@ -39,7 +39,7 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
   final spots = <TrainingPackSpot>[];
-  final evService = const PushFoldEvService();
+  const evService = PushFoldEvService();
   for (var i = 0; i < list.length; i++) {
     final item = list[i];
     if (item is! Map) {
@@ -77,8 +77,8 @@ Future<void> main(List<String> args) async {
   }
   final first = spots.first.hand;
   final tpl = TrainingPackTemplate(
-    id: p.basenameWithoutExtension(output!),
-    name: p.basenameWithoutExtension(output!),
+    id: p.basenameWithoutExtension(output),
+    name: p.basenameWithoutExtension(output),
     gameType: GameType.tournament,
     spots: spots,
     heroBbStack: first.stacks['0']?.round() ?? 0,
@@ -93,7 +93,7 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Invalid pack: ${issues.join('; ')}');
     exit(1);
   }
-  final outPath = p.join('assets', 'packs', output!);
+  final outPath = p.join('assets', 'packs', output);
   File(outPath).createSync(recursive: true);
   File(outPath).writeAsStringSync(const YamlEncoder().convert(tpl.toJson()));
   stdout.writeln('Pack generated: $outPath');

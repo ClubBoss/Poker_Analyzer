@@ -82,7 +82,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
 
   void _nextTheme() {
     setState(() {
-      final values = TableTheme.values;
+      const values = TableTheme.values;
       _theme = values[(_theme.index + 1) % values.length];
     });
   }

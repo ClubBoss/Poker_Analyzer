@@ -153,7 +153,7 @@ class _YamlPackValidatorScreenState extends State<YamlPackValidatorScreen> {
 Future<List<Map<String, dynamic>>> _validateTask(String _) async {
   final docs = await getApplicationDocumentsDirectory();
   final dir = Directory(p.join(docs.path, 'training_packs', 'library'));
-  final reader = const YamlReader();
+  const reader = YamlReader();
   const validator = TrainingPackTemplateValidator();
   final list = <Map<String, dynamic>>[];
   if (dir.existsSync()) {

@@ -81,7 +81,7 @@ class SmartSuggestionEngine {
 
     entries.sort((a, b) => b.value.compareTo(a.value));
 
-    final similarity = const PackSimilarityEngine();
+    const similarity = PackSimilarityEngine();
     final added = <String>{for (final e in entries) e.key.id};
     final similar = <MapEntry<TrainingPackTemplateV2, double>>[];
     for (final e in entries.take(3)) {

@@ -9,7 +9,6 @@ import '../services/training_path_progress_service_v2.dart';
 import '../services/learning_path_gatekeeper_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/session_log_service.dart';
-import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/learning_path_progress_tracker_service.dart';
 import '../services/skill_gap_booster_service.dart';

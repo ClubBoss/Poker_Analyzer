@@ -270,7 +270,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
         actions: [
-          StreakWidget(),
+          const StreakWidget(),
           SyncStatusIcon.of(context),
           PopupMenuButton<String>(
             onSelected: (value) {

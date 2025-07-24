@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 class AssetManifest {
   AssetManifest._();
-  static late final Future<Map<String, dynamic>> instance = rootBundle
+  static final Future<Map<String, dynamic>> instance = rootBundle
       .loadString('AssetManifest.json')
       .then((s) => jsonDecode(s) as Map<String, dynamic>)
       .catchError((e) {

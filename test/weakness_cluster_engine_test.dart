@@ -14,7 +14,7 @@ void main() {
 
     final mastery = {'a': 0.5, 'b': 0.9};
 
-    final engine = const WeaknessClusterEngine();
+    const engine = WeaknessClusterEngine();
     final clusters = engine.detectWeaknesses(results: results, tagMastery: mastery);
 
     expect(clusters.first.tag, 'a');

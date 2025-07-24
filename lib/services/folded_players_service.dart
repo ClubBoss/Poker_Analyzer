@@ -121,5 +121,6 @@ class FoldedPlayersService extends ChangeNotifier {
     }
   }
 
+  @override
   void dispose() => detach();
 }

@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import '../../import_export/converter_pipeline.dart';
 import 'package:poker_analyzer/plugins/converter_registry.dart';
 import 'package:poker_analyzer/plugins/converter_plugin.dart';
-import 'package:poker_analyzer/plugins/converter_info.dart';
 import 'package:poker_analyzer/plugins/converter_format_capabilities.dart';
 import 'package:poker_analyzer/models/saved_hand.dart';
 import 'package:poker_analyzer/models/card_model.dart';

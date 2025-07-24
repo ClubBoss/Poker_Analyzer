@@ -9,7 +9,7 @@ void main() {
     bool toggled = false;
     await tester.pumpWidget(MaterialApp(
       home: EvSummaryCard(
-        values: [1, -0.5, 0, 0.2],
+        values: const [1, -0.5, 0, 0.2],
         isIcm: false,
         onToggle: () => toggled = true,
       ),

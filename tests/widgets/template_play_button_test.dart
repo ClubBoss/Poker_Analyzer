@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/v2/training_pack_variant.dart';
-import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template.dart';
-import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:poker_analyzer/models/game_type.dart';
 import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';
@@ -17,12 +15,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('play button opens variant chooser', (tester) async {
-    final variant1 = const TrainingPackVariant(
+    const variant1 = TrainingPackVariant(
       position: HeroPosition.btn,
       gameType: GameType.tournament,
       rangeId: 'test',
     );
-    final variant2 = const TrainingPackVariant(
+    const variant2 = TrainingPackVariant(
       position: HeroPosition.sb,
       gameType: GameType.tournament,
       rangeId: 'test',

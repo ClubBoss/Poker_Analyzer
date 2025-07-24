@@ -158,7 +158,7 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _add() async {
     final service = context.read<TrainingPackTemplateStorageService>();
-    final base = 'Новый шаблон';
+    const base = 'Новый шаблон';
     final names = service.templates.map((e) => e.name).toSet();
     var name = base;
     int i = 1;
@@ -469,8 +469,9 @@ class _TrainingPackTemplateListScreenState
   IconData _categoryIcon(String value) {
     final v = value.toLowerCase();
     if (v.contains('spin')) return Icons.videogame_asset;
-    if (v.contains('mtt') || v.contains('tournament'))
+    if (v.contains('mtt') || v.contains('tournament')) {
       return Icons.emoji_events;
+    }
     if (v.contains('heads') || v.contains('hu')) return Icons.sports_esports;
     return Icons.folder_open;
   }
@@ -781,7 +782,7 @@ class _TrainingPackTemplateListScreenState
                                   .difference(t.lastGeneratedAt!)
                                   .inHours <
                               48;
-                      Widget tile = ListTile(
+                      final Widget tile = ListTile(
                         tileColor: isActive ? Colors.blueGrey.shade800 : null,
                         leading: Row(
                           mainAxisSize: MainAxisSize.min,

@@ -55,7 +55,7 @@ class _WeakAreaSpotlightBlockState extends State<WeakAreaSpotlightBlock> {
 
     final insights = await const MistakeTagInsightsService()
         .buildInsights(sortByEvLoss: true);
-    final clusterService = const MistakeTagClusterService();
+    const clusterService = MistakeTagClusterService();
     double loss = 0.0;
     for (final i in insights) {
       if (clusterService.getClusterForTag(i.tag) == cluster) {

@@ -26,7 +26,7 @@ class _PackLibraryConflictsScreenState extends State<PackLibraryConflictsScreen>
     setState(() {
       _items
         ..clear()
-        ..addAll([for (final e in res) (e[0] as String, e[1] as String)]);
+        ..addAll([for (final e in res) (e[0], e[1])]);
       _loading = false;
     });
   }

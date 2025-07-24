@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../models/v2/hero_position.dart';
 import '../services/training_pack_service.dart';

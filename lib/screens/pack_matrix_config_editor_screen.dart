@@ -100,8 +100,9 @@ class _PackMatrixConfigEditorScreenState
             _TagsEditorScreen(initial: List<String>.from(_matrix[index].$2)),
       ),
     );
-    if (result != null)
+    if (result != null) {
       setState(() => _matrix[index] = (_matrix[index].$1, result));
+    }
   }
 
   void _removeAudience(int index) {

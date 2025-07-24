@@ -73,7 +73,7 @@ class TrainingCoverageService {
           for (final item in data) {
             if (item is Map) {
               list.add(TrainingPackTemplateV2.fromJson(
-                  Map<String, dynamic>.from(item as Map)));
+                  Map<String, dynamic>.from(item)));
             }
           }
           processed = true;

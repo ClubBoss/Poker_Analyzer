@@ -22,7 +22,7 @@ class _MockEvaluationExecutorService implements EvaluationExecutorService {
   }
 
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {

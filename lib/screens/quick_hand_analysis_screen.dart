@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import '../models/card_model.dart';
 import '../widgets/card_picker_widget.dart';
-import '../services/push_fold_ev_service.dart';
 import '../services/hand_analysis_history_service.dart';
 import '../models/hand_analysis_record.dart';
 import '../services/hand_analyzer_service.dart';
@@ -13,7 +12,6 @@ import '../services/training_session_service.dart';
 import 'training_session_screen.dart';
 import '../models/v2/training_pack_template.dart';
 import '../theme/app_colors.dart';
-import '../helpers/hand_utils.dart';
 
 class QuickHandAnalysisScreen extends StatefulWidget {
   final HandAnalysisRecord? record;

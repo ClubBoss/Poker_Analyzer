@@ -82,28 +82,28 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final TextEditingController _handTypeCtr;
   late final FocusNode _descFocus;
   late String _templateName;
-  String _query = '';
+  final String _query = '';
   String? _tagFilter;
   late TextEditingController _searchCtrl;
   late TextEditingController _tagSearchCtrl;
-  String _tagSearch = '';
-  Set<String> _selectedTags = {};
-  Set<String> _selectedSpotIds = {};
+  final String _tagSearch = '';
+  final Set<String> _selectedTags = {};
+  final Set<String> _selectedSpotIds = {};
   bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
-  SortBy _sortBy = SortBy.manual;
-  bool _autoSortEv = false;
-  bool _pinnedOnly = false;
-  bool _heroPushOnly = false;
-  bool _filterMistakes = false;
-  bool _filterOutdated = false;
-  bool _filterEvCovered = false;
-  bool _changedOnly = false;
-  bool _duplicatesOnly = false;
-  bool _newOnly = false;
-  bool _showMissingOnly = false;
+  final SortBy _sortBy = SortBy.manual;
+  final bool _autoSortEv = false;
+  final bool _pinnedOnly = false;
+  final bool _heroPushOnly = false;
+  final bool _filterMistakes = false;
+  final bool _filterOutdated = false;
+  final bool _filterEvCovered = false;
+  final bool _changedOnly = false;
+  final bool _duplicatesOnly = false;
+  final bool _newOnly = false;
+  final bool _showMissingOnly = false;
   int? _priorityFilter;
   final FocusNode _focusNode = FocusNode();
-  bool _filtersShown = false;
+  final bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
   static const _prefsEvFilterKey = 'ev_filter';
@@ -124,13 +124,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static String _trainedPromptKey(String tplId) => '_trainPrompt_$tplId';
   String _scrollKeyFor(TrainingPackTemplate t) => '$_prefsScrollPrefix${t.id}';
   String get _scrollKey => _scrollKeyFor(widget.template);
-  String _evFilter = 'all';
-  RangeValues _evRange = const RangeValues(-5, 5);
-  bool _evAsc = false;
-  bool _sortEvAsc = false;
-  bool _mistakeFirst = false;
-  SpotSort _spotSort = SpotSort.original;
-  SortMode _sortMode = SortMode.position;
+  final String _evFilter = 'all';
+  final RangeValues _evRange = const RangeValues(-5, 5);
+  final bool _evAsc = false;
+  final bool _sortEvAsc = false;
+  final bool _mistakeFirst = false;
+  final SpotSort _spotSort = SpotSort.original;
+  final SortMode _sortMode = SortMode.position;
   static const _quickFilters = [
     'BTN',
     'SB',
@@ -144,32 +144,32 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _scrollDebounce;
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
-  bool _summaryIcm = false;
-  bool _evaluatingAll = false;
-  bool _generatingAll = false;
-  bool _generatingIcm = false;
-  bool _generatingExample = false;
-  bool _calculatingMissing = false;
-  double _calcProgress = 0;
-  bool _cancelRequested = false;
-  bool _exportingBundle = false;
-  bool _exportingPreview = false;
-  bool _showPasteBubble = false;
+  final bool _summaryIcm = false;
+  final bool _evaluatingAll = false;
+  final bool _generatingAll = false;
+  final bool _generatingIcm = false;
+  final bool _generatingExample = false;
+  final bool _calculatingMissing = false;
+  final double _calcProgress = 0;
+  final bool _cancelRequested = false;
+  final bool _exportingBundle = false;
+  final bool _exportingPreview = false;
+  final bool _showPasteBubble = false;
   Timer? _clipboardTimer;
-  bool _showImportIndicator = false;
-  bool _showDupHint = false;
+  final bool _showImportIndicator = false;
+  final bool _showDupHint = false;
   bool _multiTipShown = false;
   Timer? _importTimer;
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
-  List<TemplateSnapshot> _snapshots = [];
-  Map<String, _CatStat> _catStats = {};
-  bool _loadingEval = false;
+  final List<TemplateSnapshot> _snapshots = [];
+  final Map<String, _CatStat> _catStats = {};
+  final bool _loadingEval = false;
   double _scrollProgress = 0;
   bool _showScrollIndicator = false;
   Timer? _scrollThrottle;
-  bool _previewMode = false;
-  bool _previewJsonPng = false;
+  final bool _previewMode = false;
+  final bool _previewJsonPng = false;
   String? _previewPath;
   TrainingPackPreset? _originPreset;
   bool get _canUndo => _history.canUndo;
@@ -559,7 +559,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         archive.addFile(ArchiveFile(name, data.length, data));
       }
       final bytes = ZipEncoder().encode(archive);
-      if (bytes == null) throw Exception('zip');
       final downloads = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
       final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
       final zipFile = File('${downloads.path}/$safe.zip');
@@ -916,7 +915,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     }
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) return;
     final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final name = 'preview_$safe';
     try {
@@ -948,7 +946,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     await Future.delayed(Duration.zero);
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) return;
     final tmp = await getTemporaryDirectory();
     final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final file = File(
@@ -1912,7 +1909,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       for (final id in _selectedSpotIds) {
         final s = widget.template.spots.firstWhere((e) => e.id == id);
         s.tags
-          ..clear();
+          .clear();
         if (tag.isNotEmpty) {
           s.tags.add(tag);
           _history.log('Tagged', s.title, s.id);
@@ -1991,7 +1988,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         if (_autoSortEv) _sortSpots();
       }
-      for (final s in spots) s.isNew = false;
+      for (final s in spots) {
+        s.isNew = false;
+      }
     });
     await _persist();
     if (_newOnly && widget.template.spots.every((s) => !s.isNew)) {
@@ -2297,7 +2296,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (ok ?? false) {
       _recordSnapshot();
       _lastRemoved = widget.template.spots.where((s) => _selectedSpotIds.contains(s.id)).toList();
-      for (final s in _lastRemoved!) s.isNew = false;
+      for (final s in _lastRemoved!) {
+        s.isNew = false;
+      }
       setState(() {
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         _selectedSpotIds.clear();
@@ -2469,11 +2470,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       automaticallyImplyLeading: false,
       backgroundColor: Colors.grey[900],
       title: Text('$n selected'),
-      actions: [
-        IconButton(icon: const Icon(Icons.delete), tooltip: 'Delete', onPressed: _bulkDeleteQuick),
-        IconButton(icon: const Icon(Icons.copy_all), tooltip: 'Duplicate', onPressed: _bulkDuplicate),
-        IconButton(icon: const Icon(Icons.label), tooltip: 'Tag', onPressed: _bulkTag),
-        IconButton(icon: const Icon(Icons.open_in_new), tooltip: 'Export to Pack', onPressed: _bulkExport),
+      actions: const [
+        IconButton(icon: Icon(Icons.delete), tooltip: 'Delete', onPressed: _bulkDeleteQuick),
+        IconButton(icon: Icon(Icons.copy_all), tooltip: 'Duplicate', onPressed: _bulkDuplicate),
+        IconButton(icon: Icon(Icons.label), tooltip: 'Tag', onPressed: _bulkTag),
+        IconButton(icon: Icon(Icons.open_in_new), tooltip: 'Export to Pack', onPressed: _bulkExport),
       ],
     );
   }
@@ -3028,9 +3029,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final countCtr = TextEditingController(text: widget.template.spotCount.toString());
     double bbCall = widget.template.bbCallPct.toDouble();
     final anteCtr = TextEditingController(text: widget.template.anteBb.toString());
-    String _rangeStr = widget.template.heroRange?.join(' ') ?? '';
+    String rangeStr = widget.template.heroRange?.join(' ') ?? '';
     String rangeMode = 'simple';
-    final rangeCtr = TextEditingController(text: _rangeStr);
+    final rangeCtr = TextEditingController(text: rangeStr);
     bool rangeErr = false;
     final eval = EvaluationSettingsService.instance;
     final thresholdCtr =
@@ -3185,7 +3186,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               errorText: rangeErr ? '' : null,
                             ),
                             onChanged: (v) => set(() {
-                              _rangeStr = v;
+                              rangeStr = v;
                               rangeErr = v.trim().isNotEmpty &&
                                   PackGeneratorService.parseRangeString(v).isEmpty;
                             }),
@@ -3193,7 +3194,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         : GestureDetector(
                             onTap: () async {
                               final init = PackGeneratorService
-                                  .parseRangeString(_rangeStr)
+                                  .parseRangeString(rangeStr)
                                   .toSet();
                               final res = await Navigator.push<Set<String>>(
                                 context,
@@ -3202,12 +3203,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                   builder: (_) => MatrixPickerPage(initial: init),
                                 ),
                               );
-                              if (res != null) set(() {
-                                _rangeStr = PackGeneratorService.serializeRange(res);
-                                rangeCtr.text = _rangeStr;
-                                rangeErr = _rangeStr.trim().isNotEmpty &&
-                                    PackGeneratorService.parseRangeString(_rangeStr).isEmpty;
+                              if (res != null) {
+                                set(() {
+                                rangeStr = PackGeneratorService.serializeRange(res);
+                                rangeCtr.text = rangeStr;
+                                rangeErr = rangeStr.trim().isNotEmpty &&
+                                    PackGeneratorService.parseRangeString(rangeStr).isEmpty;
                               });
+                              }
                             },
                             child: InputDecorator(
                               decoration: InputDecoration(
@@ -3215,7 +3218,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 errorText: rangeErr ? '' : null,
                               ),
                               child: Text(
-                                _rangeStr.isEmpty ? 'All hands' : _rangeStr,
+                                rangeStr.isEmpty ? 'All hands' : rangeStr,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -3286,7 +3289,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       int ante = int.parse(anteCtr.text.trim());
       if (ante < 0) ante = 0;
       if (ante > 5) ante = 5;
-      final parsedSet = PackGeneratorService.parseRangeString(_rangeStr);
+      final parsedSet = PackGeneratorService.parseRangeString(rangeStr);
       setState(() {
         widget.template.heroBbStack = hero;
         widget.template.playerStacksBb = list;
@@ -3305,7 +3308,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     }
     heroCtr.dispose();
-    for (final c in stackCtrs) c.dispose();
+    for (final c in stackCtrs) {
+      c.dispose();
+    }
     countCtr.dispose();
     anteCtr.dispose();
     rangeCtr.dispose();
@@ -3323,7 +3328,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final hasSpots = widget.template.spots.isNotEmpty;
     final variants = widget.template.playableVariants();
     final showExample = !hasSpots && variants.length == 1;
-    const _posLabels = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+    const posLabels = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
@@ -3491,8 +3496,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               ),
                             const SizedBox(width: 8),
                             Builder(builder: (_) {
-                              int evPct = (evCoverage * 100).round();
-                              int icmPct = (icmCoverage * 100).round();
+                              final int evPct = (evCoverage * 100).round();
+                              final int icmPct = (icmCoverage * 100).round();
                               Color colorFor(int p) {
                                 if (p < 70) return Colors.red;
                                 if (p < 90) return Colors.amber;
@@ -3549,11 +3554,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               if (avgEv != null) ...[
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${avgEv! >= 0 ? '+' : ''}${avgEv!.toStringAsFixed(2)} BB',
+                                  '${avgEv >= 0 ? '+' : ''}${avgEv.toStringAsFixed(2)} BB',
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelSmall
-                                      ?.copyWith(color: avgColor(avgEv!)),
+                                      ?.copyWith(color: avgColor(avgEv)),
                                 ),
                               ],
                               const SizedBox(width: 8),
@@ -3644,9 +3649,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
         actions: widget.readOnly
             ? [
-                IconButton(
+                const IconButton(
                     onPressed: _startTrainingSession,
-                    icon: const Text('Start Training')),
+                    icon: Text('Start Training')),
                 TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
               ]
             : [
@@ -3665,24 +3670,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Text('↶'), onPressed: _canUndo ? _undo : null),
           IconButton(icon: const Text('↷'), onPressed: _canRedo ? _redo : null),
-          IconButton(
-            icon: const Text('🔄'),
+          const IconButton(
+            icon: Text('🔄'),
             tooltip: 'Jump to last change',
             onPressed: _jumpToLastChange,
           ),
-          IconButton(
-            icon: const Icon(Icons.bookmark_add),
+          const IconButton(
+            icon: Icon(Icons.bookmark_add),
             tooltip: 'Save Snapshot',
             onPressed: _saveSnapshotAction,
           ),
-          IconButton(
-            icon: const Icon(Icons.history),
+          const IconButton(
+            icon: Icon(Icons.history),
             tooltip: 'Snapshots',
             onPressed: _showSnapshots,
           ),
           if (_showPasteBubble &&
               widget.template.spots.any((s) => s.isNew))
-            TextButton(onPressed: _undoImport, child: const Text('Undo Import')),
+            const TextButton(onPressed: _undoImport, child: Text('Undo Import')),
           IconButton(
             icon: Icon(_evAsc ? Icons.arrow_upward : Icons.arrow_downward),
             tooltip: 'Sort by EV',
@@ -3708,9 +3713,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ],
           ),
           if (widget.template.spots.any((s) => !s.isNew && _isDup(s)))
-            TextButton(
+            const TextButton(
               onPressed: _selectAllDuplicates,
-              child: const Text('Select Duplicates'),
+              child: Text('Select Duplicates'),
             ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
@@ -3734,20 +3739,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
             ),
           if (_isMultiSelect)
-            IconButton(
-              icon: const Icon(Icons.copy_all),
+            const IconButton(
+              icon: Icon(Icons.copy_all),
               tooltip: 'New Pack',
               onPressed: _newPackFromSelection,
             ),
           if (_isMultiSelect)
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+            const IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
               tooltip: 'Delete (Ctrl + Backspace)',
               onPressed: _bulkDelete,
             ),
           if (_isMultiSelect)
-            IconButton(
-              icon: const Icon(Icons.auto_fix_high),
+            const IconButton(
+              icon: Icon(Icons.auto_fix_high),
               tooltip: 'Recalc EV/ICM',
               onPressed: _recalcSelected,
             ),
@@ -3791,25 +3796,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               PopupMenuItem(value: 'rename', child: Text('Rename Tag')),
             ],
           ),
-          IconButton(
-            icon: const Text('🏷️'),
+          const IconButton(
+            icon: Text('🏷️'),
             tooltip: 'Manage Tags',
             onPressed: _manageTags,
           ),
-          IconButton(
-            icon: const Text('🧹'),
+          const IconButton(
+            icon: Text('🧹'),
             tooltip: 'Clear Tags',
             onPressed: _clearTags,
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_sweep),
+          const IconButton(
+            icon: Icon(Icons.delete_sweep),
             tooltip: 'Clear All Spots',
             onPressed: _clearAll,
           ),
-          IconButton(icon: const Text('📋 Paste Spot'), onPressed: _pasteSpot),
-          IconButton(icon: const Text('📥 Paste Hand'), onPressed: _pasteHandHistory),
-          IconButton(icon: const Icon(Icons.upload), onPressed: _import),
-          IconButton(icon: const Icon(Icons.download), onPressed: _export),
+          const IconButton(icon: Text('📋 Paste Spot'), onPressed: _pasteSpot),
+          const IconButton(icon: Text('📥 Paste Hand'), onPressed: _pasteHandHistory),
+          const IconButton(icon: Icon(Icons.upload), onPressed: _import),
+          const IconButton(icon: Icon(Icons.download), onPressed: _export),
           Badge.count(
             count: mistakeCount,
             isLabelVisible: mistakeCount > 0,
@@ -3831,9 +3836,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Export PNG Preview',
             onPressed: _exportingPreview ? null : _exportPreview,
           ),
-          IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
-          IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
-          IconButton(icon: const Text('✅ All'), tooltip: 'Validate All', onPressed: _validateAllSpots),
+          const IconButton(icon: Icon(Icons.info_outline), onPressed: _showSummary),
+          const IconButton(icon: Text('🚦 Validate'), onPressed: _validateTemplate),
+          const IconButton(icon: Text('✅ All'), tooltip: 'Validate All', onPressed: _validateAllSpots),
           IconButton(
             icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
             tooltip: 'Pinned Only',
@@ -3861,9 +3866,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               _storeQuickFilter();
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.copy_all),
-            tooltip: "Find Duplicates",
+          const IconButton(
+            icon: Icon(Icons.copy_all),
+            tooltip: 'Find Duplicates',
             onPressed: _findDuplicateSpots,
           ),
           IconButton(
@@ -3875,7 +3880,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               _storeDupOnly();
             },
           ),
-          IconButton(icon: const Text('⚙️ Settings'), onPressed: _showTemplateSettings),
+          const IconButton(icon: Text('⚙️ Settings'), onPressed: _showTemplateSettings),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (v) {
@@ -3931,13 +3936,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.bug_report),
+        const IconButton(
+          icon: Icon(Icons.bug_report),
           tooltip: 'Make Mistake Pack',
           onPressed: _makeMistakePack,
         ),
-        IconButton(icon: const Icon(Icons.save), onPressed: _save),
-        IconButton(icon: const Icon(Icons.description), onPressed: _showMarkdownPreview),
+        const IconButton(icon: Icon(Icons.save), onPressed: _save),
+        const IconButton(icon: Icon(Icons.description), onPressed: _showMarkdownPreview),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () async {
@@ -3954,9 +3959,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               }
             },
           ),
-          IconButton(
+          const IconButton(
               onPressed: _startTrainingSession,
-              icon: const Text('Start Training'))
+              icon: Text('Start Training'))
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight + 72),
@@ -3999,7 +4004,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (final label in _posLabels) ...[
+                      for (final label in posLabels) ...[
                         FilterChip(
                           label: Text(label),
                           selected: _positionFilter == label,
@@ -4026,18 +4031,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (_showPasteBubble) ...[
-                  Row(
+                  const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       FloatingActionButton.extended(
                         heroTag: 'tmplPasteBubble',
                         mini: true,
                         onPressed: _importFromClipboardSpots,
-                        label: const Text('Paste Hands'),
+                        label: Text('Paste Hands'),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                   IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.white),
+                        icon: Icon(Icons.delete_outline, color: Colors.white),
                         onPressed: _clearClipboard,
                       ),
                     ],
@@ -4059,50 +4064,50 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   const SizedBox(height: 12),
                 ],
                 if (narrow)
-                  FloatingActionButton(
+                  const FloatingActionButton(
                     heroTag: 'filterSpotFab',
                     onPressed: _showFilters,
-                    child: const Icon(Icons.filter_list),
+                    child: Icon(Icons.filter_list),
                   ),
                 if (narrow) const SizedBox(height: 12),
-                FloatingActionButton(
+                const FloatingActionButton(
                   heroTag: 'addSpotFab',
                   onPressed: _addSpot,
-                  child: const Icon(Icons.add),
+                  child: Icon(Icons.add),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'newSpotFab',
                   onPressed: _newSpot,
-                  icon: const Icon(Icons.add),
-                  label: const Text('+ New Spot'),
+                  icon: Icon(Icons.add),
+                  label: Text('+ New Spot'),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'quickSpotFab',
                   onPressed: _quickSpot,
-                  icon: const Icon(Icons.flash_on),
-                  label: const Text('+ Quick Spot'),
+                  icon: Icon(Icons.flash_on),
+                  label: Text('+ Quick Spot'),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton(
+                const FloatingActionButton(
                   heroTag: 'generateSpotFab',
                   tooltip: 'Generate Spot',
                   onPressed: _generateSpot,
-                  child: const Icon(Icons.auto_fix_high),
+                  child: Icon(Icons.auto_fix_high),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'generateSpotsFab',
-                  icon: const Icon(Icons.auto_fix_high),
-                  label: const Text('Generate Spots'),
+                  icon: Icon(Icons.auto_fix_high),
+                  label: Text('Generate Spots'),
                   onPressed: _generateSpots,
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'generateMissingFab',
-                  icon: const Icon(Icons.playlist_add),
-                  label: const Text('Generate Missing'),
+                  icon: Icon(Icons.playlist_add),
+                  label: Text('Generate Missing'),
                   onPressed: _generateMissingSpots,
                 ),
                 const SizedBox(height: 12),
@@ -4134,11 +4139,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 ),
                 if (canAddToLibrary) ...[
                   const SizedBox(height: 12),
-                  FloatingActionButton.extended(
+                  const FloatingActionButton.extended(
                     heroTag: 'addToLibFab',
                     onPressed: _addToLibrary,
-                    label: const Text('Add to Library'),
-                    icon: const Icon(Icons.library_add),
+                    label: Text('Add to Library'),
+                    icon: Icon(Icons.library_add),
                   ),
                 ],
               ],
@@ -4195,33 +4200,33 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.table_chart),
+                          const IconButton(
+                            icon: Icon(Icons.table_chart),
                             onPressed: _exportPreviewCsv,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.download),
+                          const IconButton(
+                            icon: Icon(Icons.download),
                             onPressed: _exportPreviewJson,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.info_outline),
+                          const IconButton(
+                            icon: Icon(Icons.info_outline),
                             onPressed: _exportPreviewSummary,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.description),
+                          const IconButton(
+                            icon: Icon(Icons.description),
                             onPressed: _exportPreviewMarkdown,
                             onLongPress: _previewMarkdown,
                           ),
                           Badge.count(
                             count: mistakeCount,
                             isLabelVisible: mistakeCount > 0,
-                            child: IconButton(
-                              icon: const Icon(Icons.archive),
+                            child: const IconButton(
+                              icon: Icon(Icons.archive),
                               onPressed: _exportPreviewZip,
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.share),
+                          const IconButton(
+                            icon: Icon(Icons.share),
                             onPressed: _sharePreviewZip,
                           ),
                         ],
@@ -4423,8 +4428,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       _persist();
                     },
                   ),
-                InputChip(
-                  label: const Text('+ Add'),
+                const InputChip(
+                  label: Text('+ Add'),
                   onPressed: _addPackTag,
                 ),
               ],
@@ -4818,9 +4823,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           )
                         : const Text('Generate ICM'),
                   ),
-                  ElevatedButton(
+                  const ElevatedButton(
                     onPressed: _recalculateAll,
-                    child: const Text('Recalculate All'),
+                    child: Text('Recalculate All'),
                   ),
                 ],
               ),
@@ -5109,8 +5114,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                             },
                                           ),
                                           if (_isMultiSelect)
-                                            IconButton(
-                                              icon: const Icon(Icons.delete_forever, color: Colors.red),
+                                            const IconButton(
+                                              icon: Icon(Icons.delete_forever, color: Colors.red),
                                               onPressed: _bulkDeleteQuick,
                                             ),
                                         ],
@@ -5532,28 +5537,28 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final TextEditingController _handTypeCtr;
   late final FocusNode _descFocus;
   late String _templateName;
-  String _query = '';
+  final String _query = '';
   String? _tagFilter;
   late TextEditingController _searchCtrl;
   late TextEditingController _tagSearchCtrl;
-  String _tagSearch = '';
-  Set<String> _selectedTags = {};
-  Set<String> _selectedSpotIds = {};
+  final String _tagSearch = '';
+  final Set<String> _selectedTags = {};
+  final Set<String> _selectedSpotIds = {};
   bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
-  SortBy _sortBy = SortBy.manual;
-  bool _autoSortEv = false;
-  bool _pinnedOnly = false;
-  bool _heroPushOnly = false;
-  bool _filterMistakes = false;
-  bool _filterOutdated = false;
-  bool _filterEvCovered = false;
-  bool _changedOnly = false;
-  bool _duplicatesOnly = false;
-  bool _newOnly = false;
-  bool _showMissingOnly = false;
+  final SortBy _sortBy = SortBy.manual;
+  final bool _autoSortEv = false;
+  final bool _pinnedOnly = false;
+  final bool _heroPushOnly = false;
+  final bool _filterMistakes = false;
+  final bool _filterOutdated = false;
+  final bool _filterEvCovered = false;
+  final bool _changedOnly = false;
+  final bool _duplicatesOnly = false;
+  final bool _newOnly = false;
+  final bool _showMissingOnly = false;
   int? _priorityFilter;
   final FocusNode _focusNode = FocusNode();
-  bool _filtersShown = false;
+  final bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
   static const _prefsEvFilterKey = 'ev_filter';
@@ -5574,13 +5579,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static String _trainedPromptKey(String tplId) => '_trainPrompt_$tplId';
   String _scrollKeyFor(TrainingPackTemplate t) => '$_prefsScrollPrefix${t.id}';
   String get _scrollKey => _scrollKeyFor(widget.template);
-  String _evFilter = 'all';
-  RangeValues _evRange = const RangeValues(-5, 5);
-  bool _evAsc = false;
-  bool _sortEvAsc = false;
-  bool _mistakeFirst = false;
-  SpotSort _spotSort = SpotSort.original;
-  SortMode _sortMode = SortMode.position;
+  final String _evFilter = 'all';
+  final RangeValues _evRange = const RangeValues(-5, 5);
+  final bool _evAsc = false;
+  final bool _sortEvAsc = false;
+  final bool _mistakeFirst = false;
+  final SpotSort _spotSort = SpotSort.original;
+  final SortMode _sortMode = SortMode.position;
   static const _quickFilters = [
     'BTN',
     'SB',
@@ -5594,31 +5599,31 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _scrollDebounce;
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
-  bool _summaryIcm = false;
-  bool _evaluatingAll = false;
-  bool _generatingAll = false;
-  bool _generatingIcm = false;
-  bool _generatingExample = false;
-  bool _calculatingMissing = false;
-  double _calcProgress = 0;
-  bool _cancelRequested = false;
-  bool _exportingBundle = false;
-  bool _exportingPreview = false;
-  bool _showPasteBubble = false;
+  final bool _summaryIcm = false;
+  final bool _evaluatingAll = false;
+  final bool _generatingAll = false;
+  final bool _generatingIcm = false;
+  final bool _generatingExample = false;
+  final bool _calculatingMissing = false;
+  final double _calcProgress = 0;
+  final bool _cancelRequested = false;
+  final bool _exportingBundle = false;
+  final bool _exportingPreview = false;
+  final bool _showPasteBubble = false;
   Timer? _clipboardTimer;
-  bool _showImportIndicator = false;
-  bool _showDupHint = false;
+  final bool _showImportIndicator = false;
+  final bool _showDupHint = false;
   bool _multiTipShown = false;
   Timer? _importTimer;
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
-  List<TemplateSnapshot> _snapshots = [];
-  bool _loadingEval = false;
+  final List<TemplateSnapshot> _snapshots = [];
+  final bool _loadingEval = false;
   double _scrollProgress = 0;
   bool _showScrollIndicator = false;
   Timer? _scrollThrottle;
-  bool _previewMode = false;
-  bool _previewJsonPng = false;
+  final bool _previewMode = false;
+  final bool _previewJsonPng = false;
   String? _previewPath;
   TrainingPackPreset? _originPreset;
   bool get _canUndo => _history.canUndo;
@@ -5989,7 +5994,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         archive.addFile(ArchiveFile(name, data.length, data));
       }
       final bytes = ZipEncoder().encode(archive);
-      if (bytes == null) throw Exception('zip');
       final downloads = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
       final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
       final zipFile = File('${downloads.path}/$safe.zip');
@@ -6355,7 +6359,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     }
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) return;
     final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final name = 'preview_$safe';
     try {
@@ -6387,7 +6390,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     await Future.delayed(Duration.zero);
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) return;
     final tmp = await getTemporaryDirectory();
     final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final file = File(
@@ -7307,7 +7309,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       for (final id in _selectedSpotIds) {
         final s = widget.template.spots.firstWhere((e) => e.id == id);
         s.tags
-          ..clear();
+          .clear();
         if (tag.isNotEmpty) {
           s.tags.add(tag);
           _history.log('Tagged', s.title, s.id);
@@ -7386,7 +7388,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         if (_autoSortEv) _sortSpots();
       }
-      for (final s in spots) s.isNew = false;
+      for (final s in spots) {
+        s.isNew = false;
+      }
     });
     await _persist();
     if (_newOnly && widget.template.spots.every((s) => !s.isNew)) {
@@ -7692,7 +7696,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (ok ?? false) {
       _recordSnapshot();
       _lastRemoved = widget.template.spots.where((s) => _selectedSpotIds.contains(s.id)).toList();
-      for (final s in _lastRemoved!) s.isNew = false;
+      for (final s in _lastRemoved!) {
+        s.isNew = false;
+      }
       setState(() {
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         _selectedSpotIds.clear();
@@ -7864,11 +7870,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       automaticallyImplyLeading: false,
       backgroundColor: Colors.grey[900],
       title: Text('$n selected'),
-      actions: [
-        IconButton(icon: const Icon(Icons.delete), tooltip: 'Delete', onPressed: _bulkDeleteQuick),
-        IconButton(icon: const Icon(Icons.copy_all), tooltip: 'Duplicate', onPressed: _bulkDuplicate),
-        IconButton(icon: const Icon(Icons.label), tooltip: 'Tag', onPressed: _bulkTag),
-        IconButton(icon: const Icon(Icons.open_in_new), tooltip: 'Export to Pack', onPressed: _bulkExport),
+      actions: const [
+        IconButton(icon: Icon(Icons.delete), tooltip: 'Delete', onPressed: _bulkDeleteQuick),
+        IconButton(icon: Icon(Icons.copy_all), tooltip: 'Duplicate', onPressed: _bulkDuplicate),
+        IconButton(icon: Icon(Icons.label), tooltip: 'Tag', onPressed: _bulkTag),
+        IconButton(icon: Icon(Icons.open_in_new), tooltip: 'Export to Pack', onPressed: _bulkExport),
       ],
     );
   }
@@ -8423,9 +8429,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final countCtr = TextEditingController(text: widget.template.spotCount.toString());
     double bbCall = widget.template.bbCallPct.toDouble();
     final anteCtr = TextEditingController(text: widget.template.anteBb.toString());
-    String _rangeStr = widget.template.heroRange?.join(' ') ?? '';
+    String rangeStr = widget.template.heroRange?.join(' ') ?? '';
     String rangeMode = 'simple';
-    final rangeCtr = TextEditingController(text: _rangeStr);
+    final rangeCtr = TextEditingController(text: rangeStr);
     bool rangeErr = false;
     final eval = EvaluationSettingsService.instance;
     final thresholdCtr =
@@ -8580,7 +8586,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               errorText: rangeErr ? '' : null,
                             ),
                             onChanged: (v) => set(() {
-                              _rangeStr = v;
+                              rangeStr = v;
                               rangeErr = v.trim().isNotEmpty &&
                                   PackGeneratorService.parseRangeString(v).isEmpty;
                             }),
@@ -8588,7 +8594,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         : GestureDetector(
                             onTap: () async {
                               final init = PackGeneratorService
-                                  .parseRangeString(_rangeStr)
+                                  .parseRangeString(rangeStr)
                                   .toSet();
                               final res = await Navigator.push<Set<String>>(
                                 context,
@@ -8597,12 +8603,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                   builder: (_) => MatrixPickerPage(initial: init),
                                 ),
                               );
-                              if (res != null) set(() {
-                                _rangeStr = PackGeneratorService.serializeRange(res);
-                                rangeCtr.text = _rangeStr;
-                                rangeErr = _rangeStr.trim().isNotEmpty &&
-                                    PackGeneratorService.parseRangeString(_rangeStr).isEmpty;
+                              if (res != null) {
+                                set(() {
+                                rangeStr = PackGeneratorService.serializeRange(res);
+                                rangeCtr.text = rangeStr;
+                                rangeErr = rangeStr.trim().isNotEmpty &&
+                                    PackGeneratorService.parseRangeString(rangeStr).isEmpty;
                               });
+                              }
                             },
                             child: InputDecorator(
                               decoration: InputDecoration(
@@ -8610,7 +8618,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 errorText: rangeErr ? '' : null,
                               ),
                               child: Text(
-                                _rangeStr.isEmpty ? 'All hands' : _rangeStr,
+                                rangeStr.isEmpty ? 'All hands' : rangeStr,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -8681,7 +8689,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       int ante = int.parse(anteCtr.text.trim());
       if (ante < 0) ante = 0;
       if (ante > 5) ante = 5;
-      final parsedSet = PackGeneratorService.parseRangeString(_rangeStr);
+      final parsedSet = PackGeneratorService.parseRangeString(rangeStr);
       setState(() {
         widget.template.heroBbStack = hero;
         widget.template.playerStacksBb = list;
@@ -8700,7 +8708,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     }
     heroCtr.dispose();
-    for (final c in stackCtrs) c.dispose();
+    for (final c in stackCtrs) {
+      c.dispose();
+    }
     countCtr.dispose();
     anteCtr.dispose();
     rangeCtr.dispose();
@@ -8718,7 +8728,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final hasSpots = widget.template.spots.isNotEmpty;
     final variants = widget.template.playableVariants();
     final showExample = !hasSpots && variants.length == 1;
-    const _posLabels = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+    const posLabels = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
@@ -8883,8 +8893,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               ),
                             const SizedBox(width: 8),
                             Builder(builder: (_) {
-                              int evPct = (evCoverage * 100).round();
-                              int icmPct = (icmCoverage * 100).round();
+                              final int evPct = (evCoverage * 100).round();
+                              final int icmPct = (icmCoverage * 100).round();
                               Color colorFor(int p) {
                                 if (p < 70) return Colors.red;
                                 if (p < 90) return Colors.amber;
@@ -8941,11 +8951,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               if (avgEv != null) ...[
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${avgEv! >= 0 ? '+' : ''}${avgEv!.toStringAsFixed(2)} BB',
+                                  '${avgEv >= 0 ? '+' : ''}${avgEv.toStringAsFixed(2)} BB',
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelSmall
-                                      ?.copyWith(color: avgColor(avgEv!)),
+                                      ?.copyWith(color: avgColor(avgEv)),
                                 ),
                               ],
                               const SizedBox(width: 8),
@@ -9036,9 +9046,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
         actions: widget.readOnly
             ? [
-                IconButton(
+                const IconButton(
                     onPressed: _startTrainingSession,
-                    icon: const Text('Start Training')),
+                    icon: Text('Start Training')),
                 TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
               ]
             : [
@@ -9057,24 +9067,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Text('↶'), onPressed: _canUndo ? _undo : null),
           IconButton(icon: const Text('↷'), onPressed: _canRedo ? _redo : null),
-          IconButton(
-            icon: const Text('🔄'),
+          const IconButton(
+            icon: Text('🔄'),
             tooltip: 'Jump to last change',
             onPressed: _jumpToLastChange,
           ),
-          IconButton(
-            icon: const Icon(Icons.bookmark_add),
+          const IconButton(
+            icon: Icon(Icons.bookmark_add),
             tooltip: 'Save Snapshot',
             onPressed: _saveSnapshotAction,
           ),
-          IconButton(
-            icon: const Icon(Icons.history),
+          const IconButton(
+            icon: Icon(Icons.history),
             tooltip: 'Snapshots',
             onPressed: _showSnapshots,
           ),
           if (_showPasteBubble &&
               widget.template.spots.any((s) => s.isNew))
-            TextButton(onPressed: _undoImport, child: const Text('Undo Import')),
+            const TextButton(onPressed: _undoImport, child: Text('Undo Import')),
           IconButton(
             icon: Icon(_evAsc ? Icons.arrow_upward : Icons.arrow_downward),
             tooltip: 'Sort by EV',
@@ -9100,9 +9110,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ],
           ),
           if (widget.template.spots.any((s) => !s.isNew && _isDup(s)))
-            TextButton(
+            const TextButton(
               onPressed: _selectAllDuplicates,
-              child: const Text('Select Duplicates'),
+              child: Text('Select Duplicates'),
             ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
@@ -9126,20 +9136,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
             ),
           if (_isMultiSelect)
-            IconButton(
-              icon: const Icon(Icons.copy_all),
+            const IconButton(
+              icon: Icon(Icons.copy_all),
               tooltip: 'New Pack',
               onPressed: _newPackFromSelection,
             ),
           if (_isMultiSelect)
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+            const IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
               tooltip: 'Delete (Ctrl + Backspace)',
               onPressed: _bulkDelete,
             ),
           if (_isMultiSelect)
-            IconButton(
-              icon: const Icon(Icons.auto_fix_high),
+            const IconButton(
+              icon: Icon(Icons.auto_fix_high),
               tooltip: 'Recalc EV/ICM',
               onPressed: _recalcSelected,
             ),
@@ -9183,25 +9193,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               PopupMenuItem(value: 'rename', child: Text('Rename Tag')),
             ],
           ),
-          IconButton(
-            icon: const Text('🏷️'),
+          const IconButton(
+            icon: Text('🏷️'),
             tooltip: 'Manage Tags',
             onPressed: _manageTags,
           ),
-          IconButton(
-            icon: const Text('🧹'),
+          const IconButton(
+            icon: Text('🧹'),
             tooltip: 'Clear Tags',
             onPressed: _clearTags,
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_sweep),
+          const IconButton(
+            icon: Icon(Icons.delete_sweep),
             tooltip: 'Clear All Spots',
             onPressed: _clearAll,
           ),
-          IconButton(icon: const Text('📋 Paste Spot'), onPressed: _pasteSpot),
-          IconButton(icon: const Text('📥 Paste Hand'), onPressed: _pasteHandHistory),
-          IconButton(icon: const Icon(Icons.upload), onPressed: _import),
-          IconButton(icon: const Icon(Icons.download), onPressed: _export),
+          const IconButton(icon: Text('📋 Paste Spot'), onPressed: _pasteSpot),
+          const IconButton(icon: Text('📥 Paste Hand'), onPressed: _pasteHandHistory),
+          const IconButton(icon: Icon(Icons.upload), onPressed: _import),
+          const IconButton(icon: Icon(Icons.download), onPressed: _export),
           Badge.count(
             count: mistakeCount,
             isLabelVisible: mistakeCount > 0,
@@ -9223,9 +9233,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Export PNG Preview',
             onPressed: _exportingPreview ? null : _exportPreview,
           ),
-          IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
-          IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
-          IconButton(icon: const Text('✅ All'), tooltip: 'Validate All', onPressed: _validateAllSpots),
+          const IconButton(icon: Icon(Icons.info_outline), onPressed: _showSummary),
+          const IconButton(icon: Text('🚦 Validate'), onPressed: _validateTemplate),
+          const IconButton(icon: Text('✅ All'), tooltip: 'Validate All', onPressed: _validateAllSpots),
           IconButton(
             icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
             tooltip: 'Pinned Only',
@@ -9253,9 +9263,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               _storeQuickFilter();
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.copy_all),
-            tooltip: "Find Duplicates",
+          const IconButton(
+            icon: Icon(Icons.copy_all),
+            tooltip: 'Find Duplicates',
             onPressed: _findDuplicateSpots,
           ),
           IconButton(
@@ -9267,7 +9277,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               _storeDupOnly();
             },
           ),
-          IconButton(icon: const Text('⚙️ Settings'), onPressed: _showTemplateSettings),
+          const IconButton(icon: Text('⚙️ Settings'), onPressed: _showTemplateSettings),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (v) {
@@ -9323,13 +9333,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.bug_report),
+        const IconButton(
+          icon: Icon(Icons.bug_report),
           tooltip: 'Make Mistake Pack',
           onPressed: _makeMistakePack,
         ),
-        IconButton(icon: const Icon(Icons.save), onPressed: _save),
-        IconButton(icon: const Icon(Icons.description), onPressed: _showMarkdownPreview),
+        const IconButton(icon: Icon(Icons.save), onPressed: _save),
+        const IconButton(icon: Icon(Icons.description), onPressed: _showMarkdownPreview),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             onPressed: () async {
@@ -9348,9 +9358,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               }
             },
           ),
-          IconButton(
+          const IconButton(
               onPressed: _startTrainingSession,
-              icon: const Text('Start Training'))
+              icon: Text('Start Training'))
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight + 72),
@@ -9393,7 +9403,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (final label in _posLabels) ...[
+                      for (final label in posLabels) ...[
                         FilterChip(
                           label: Text(label),
                           selected: _positionFilter == label,
@@ -9420,18 +9430,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (_showPasteBubble) ...[
-                  Row(
+                  const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       FloatingActionButton.extended(
                         heroTag: 'tmplPasteBubble',
                         mini: true,
                         onPressed: _importFromClipboardSpots,
-                        label: const Text('Paste Hands'),
+                        label: Text('Paste Hands'),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                   IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.white),
+                        icon: Icon(Icons.delete_outline, color: Colors.white),
                         onPressed: _clearClipboard,
                       ),
                     ],
@@ -9453,50 +9463,50 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   const SizedBox(height: 12),
                 ],
                 if (narrow)
-                  FloatingActionButton(
+                  const FloatingActionButton(
                     heroTag: 'filterSpotFab',
                     onPressed: _showFilters,
-                    child: const Icon(Icons.filter_list),
+                    child: Icon(Icons.filter_list),
                   ),
                 if (narrow) const SizedBox(height: 12),
-                FloatingActionButton(
+                const FloatingActionButton(
                   heroTag: 'addSpotFab',
                   onPressed: _addSpot,
-                  child: const Icon(Icons.add),
+                  child: Icon(Icons.add),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'newSpotFab',
                   onPressed: _newSpot,
-                  icon: const Icon(Icons.add),
-                  label: const Text('+ New Spot'),
+                  icon: Icon(Icons.add),
+                  label: Text('+ New Spot'),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'quickSpotFab',
                   onPressed: _quickSpot,
-                  icon: const Icon(Icons.flash_on),
-                  label: const Text('+ Quick Spot'),
+                  icon: Icon(Icons.flash_on),
+                  label: Text('+ Quick Spot'),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton(
+                const FloatingActionButton(
                   heroTag: 'generateSpotFab',
                   tooltip: 'Generate Spot',
                   onPressed: _generateSpot,
-                  child: const Icon(Icons.auto_fix_high),
+                  child: Icon(Icons.auto_fix_high),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'generateSpotsFab',
-                  icon: const Icon(Icons.auto_fix_high),
-                  label: const Text('Generate Spots'),
+                  icon: Icon(Icons.auto_fix_high),
+                  label: Text('Generate Spots'),
                   onPressed: _generateSpots,
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton.extended(
+                const FloatingActionButton.extended(
                   heroTag: 'generateMissingFab',
-                  icon: const Icon(Icons.playlist_add),
-                  label: const Text('Generate Missing'),
+                  icon: Icon(Icons.playlist_add),
+                  label: Text('Generate Missing'),
                   onPressed: _generateMissingSpots,
                 ),
                 const SizedBox(height: 12),
@@ -9528,11 +9538,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 ),
                 if (canAddToLibrary) ...[
                   const SizedBox(height: 12),
-                  FloatingActionButton.extended(
+                  const FloatingActionButton.extended(
                     heroTag: 'addToLibFab',
                     onPressed: _addToLibrary,
-                    label: const Text('Add to Library'),
-                    icon: const Icon(Icons.library_add),
+                    label: Text('Add to Library'),
+                    icon: Icon(Icons.library_add),
                   ),
                 ],
               ],
@@ -9589,33 +9599,33 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.table_chart),
+                          const IconButton(
+                            icon: Icon(Icons.table_chart),
                             onPressed: _exportPreviewCsv,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.download),
+                          const IconButton(
+                            icon: Icon(Icons.download),
                             onPressed: _exportPreviewJson,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.info_outline),
+                          const IconButton(
+                            icon: Icon(Icons.info_outline),
                             onPressed: _exportPreviewSummary,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.description),
+                          const IconButton(
+                            icon: Icon(Icons.description),
                             onPressed: _exportPreviewMarkdown,
                             onLongPress: _previewMarkdown,
                           ),
                           Badge.count(
                             count: mistakeCount,
                             isLabelVisible: mistakeCount > 0,
-                            child: IconButton(
-                              icon: const Icon(Icons.archive),
+                            child: const IconButton(
+                              icon: Icon(Icons.archive),
                               onPressed: _exportPreviewZip,
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.share),
+                          const IconButton(
+                            icon: Icon(Icons.share),
                             onPressed: _sharePreviewZip,
                           ),
                         ],
@@ -9817,8 +9827,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       _persist();
                     },
                   ),
-                InputChip(
-                  label: const Text('+ Add'),
+                const InputChip(
+                  label: Text('+ Add'),
                   onPressed: _addPackTag,
                 ),
               ],
@@ -10161,9 +10171,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           )
                         : const Text('Generate ICM'),
                   ),
-                  ElevatedButton(
+                  const ElevatedButton(
                     onPressed: _recalculateAll,
-                    child: const Text('Recalculate All'),
+                    child: Text('Recalculate All'),
                   ),
                 ],
               ),
@@ -10452,8 +10462,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                             },
                                           ),
                                           if (_isMultiSelect)
-                                            IconButton(
-                                              icon: const Icon(Icons.delete_forever, color: Colors.red),
+                                            const IconButton(
+                                              icon: Icon(Icons.delete_forever, color: Colors.red),
                                               onPressed: _bulkDeleteQuick,
                                             ),
                                         ],
@@ -10674,7 +10684,7 @@ class _ManageTagTile extends StatefulWidget {
   final String tag;
   final ValueChanged<String> onRename;
   final VoidCallback onDelete;
-  const _ManageTagTile({super.key, required this.tag, required this.onRename, required this.onDelete});
+  const _ManageTagTile({required this.tag, required this.onRename, required this.onDelete});
 
   @override
   State<_ManageTagTile> createState() => _ManageTagTileState();

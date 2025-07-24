@@ -32,7 +32,7 @@ class SamplePackPreviewButton extends StatelessWidget {
         onPressed: locked
             ? null
             : () async {
-                final sampler = const TrainingPackSampler();
+                const sampler = TrainingPackSampler();
                 final tplV2 = TrainingPackTemplateV2.fromTemplate(
                   template,
                   type: const TrainingTypeEngine().detectTrainingType(template),

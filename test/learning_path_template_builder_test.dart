@@ -22,7 +22,7 @@ void main() {
   });
 
   test('checkForCycles detects simple loop', () {
-    final tpl = LearningPathTemplateV2(
+    const tpl = LearningPathTemplateV2(
       id: 'cycle',
       title: 'cycle',
       description: '',
@@ -52,7 +52,7 @@ void main() {
   });
 
   test('validate fails on missing pack', () {
-    final tpl = LearningPathTemplateV2(
+    const tpl = LearningPathTemplateV2(
       id: 'x',
       title: 'x',
       description: '',

@@ -113,14 +113,14 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                         ),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: steps!.length,
+                            itemCount: steps.length,
                             itemBuilder: (context, index) {
-                              final step = steps![index];
+                              final step = steps[index];
                               final intro = step.introText;
                               final preview = intro.length > 100
                                   ? '${intro.substring(0, 100)}...'
                                   : intro;
-                              final firstIncomplete = steps!
+                              final firstIncomplete = steps
                                   .indexWhere((s) => !completed.contains(s.id));
                               final isDone = completed.contains(step.id);
                               final trackerDone =

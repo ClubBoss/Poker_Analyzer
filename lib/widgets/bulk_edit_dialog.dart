@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../helpers/color_utils.dart';
 import 'color_picker_dialog.dart';
 
 Future<(String, Color?)?> showBulkEditDialog(BuildContext context) {

@@ -21,7 +21,9 @@ class AssetSyncService {
     final ts = prefs.getInt(_tsKey);
     if (ts != null &&
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(ts)) <
-            kSyncInterval) return;
+            kSyncInterval) {
+      return;
+    }
     try {
       await _sync(prefs);
     } catch (e, st) {

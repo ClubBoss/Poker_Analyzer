@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -270,8 +269,9 @@ class TrainingSessionService extends ChangeNotifier {
   }
 
   void _saveActive() {
-    if (_session == null || _activeBox == null || _session!.authorPreview)
+    if (_session == null || _activeBox == null || _session!.authorPreview) {
       return;
+    }
     if (_session!.completedAt != null) {
       _activeBox!.delete('session');
     } else {
@@ -415,7 +415,7 @@ class TrainingSessionService extends ChangeNotifier {
     final ids = <String>{};
     for (final v in _box!.values.whereType<Map>()) {
       try {
-        final s = TrainingSession.fromJson(Map<String, dynamic>.from(v as Map));
+        final s = TrainingSession.fromJson(Map<String, dynamic>.from(v));
         if (s.templateId == template.id) {
           ids.addAll(s.results.entries
               .where((e) => e.value == false)

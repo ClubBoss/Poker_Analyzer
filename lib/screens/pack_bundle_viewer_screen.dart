@@ -63,7 +63,7 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
         TrainingPackTemplateListScreen.maybeOf(context);
     final messenger =
         ScaffoldMessenger.maybeOf(listState?.context ?? context);
-    List<TrainingPackTemplate> templates = await TrainingPackStorage.load();
+    final List<TrainingPackTemplate> templates = await TrainingPackStorage.load();
     final idx = templates.indexWhere((t) => t.id == info.template.id);
     final identical =
         idx != -1 && templates[idx].createdAt == info.template.createdAt;

@@ -119,11 +119,11 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
             drawVerticalLine: false,
             horizontalInterval: maxVal / 4,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

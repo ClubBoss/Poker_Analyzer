@@ -20,7 +20,7 @@ void main() {
       position: HeroPosition.sb,
       gameType: GameType.tournament,
     );
-    final builder = PackRuntimeBuilder();
+    const builder = PackRuntimeBuilder();
     final list1 = await builder.buildIfNeeded(tpl, variant);
     await Future.delayed(Duration.zero);
     final list2 = await builder.buildIfNeeded(tpl, variant);

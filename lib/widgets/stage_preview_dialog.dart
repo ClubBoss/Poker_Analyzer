@@ -25,10 +25,12 @@ class _StagePreviewDialogState extends State<StagePreviewDialog> {
 
   Future<void> _load() async {
     final p = await PackLibraryService.instance.getById(widget.stage.packId);
-    if (mounted) setState(() {
+    if (mounted) {
+      setState(() {
       _pack = p;
       _loading = false;
     });
+    }
   }
 
   @override

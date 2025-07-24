@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import 'pack_library_loader_service.dart';
@@ -69,7 +68,7 @@ class TrainingTagPerformanceEngine {
         MapEntry(e.key, e.value.toPerformance(e.key))
     ]..sort((a, b) => b.value.totalAttempts.compareTo(a.value.totalAttempts));
 
-    final result = LinkedHashMap<String, TagPerformance>();
+    final result = <String, TagPerformance>{};
     for (final e in entries) {
       result[e.key] = e.value;
     }

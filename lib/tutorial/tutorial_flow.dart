@@ -46,13 +46,13 @@ class TutorialFlow {
     final step = steps[_index];
     final overlay = Overlay.of(context);
     final renderBox = step.targetKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlay == null || renderBox == null) return;
+    if (renderBox == null) return;
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
     _entry = OverlayEntry(
       builder: (_) => Stack(
         children: [
-          ModalBarrier(color: Colors.black54, dismissible: false),
+          const ModalBarrier(color: Colors.black54, dismissible: false),
           Positioned(
             left: offset.dx - 4,
             top: offset.dy - 4,

@@ -7,7 +7,7 @@ import 'package:poker_analyzer/models/training_recommendation.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final service = const AdaptiveSchedulerService();
+  const service = AdaptiveSchedulerService();
 
   test('returns sorted recommendations based on mistakes and mastery', () {
     final clusters = [

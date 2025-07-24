@@ -27,7 +27,7 @@ class TagMasteryHistoryService {
             for (final item in list) {
               if (item is Map) {
                 entries.add(TagXpHistoryEntry.fromJson(
-                    Map<String, dynamic>.from(item as Map)));
+                    Map<String, dynamic>.from(item)));
               }
             }
           }

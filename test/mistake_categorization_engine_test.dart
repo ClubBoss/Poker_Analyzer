@@ -9,7 +9,7 @@ import 'package:poker_analyzer/widgets/poker_table_view.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  final engine = const MistakeCategorizationEngine();
+  const engine = MistakeCategorizationEngine();
 
   TrainingPackSpot spot(String exp, {HeroPosition pos = HeroPosition.btn}) {
     return TrainingPackSpot(

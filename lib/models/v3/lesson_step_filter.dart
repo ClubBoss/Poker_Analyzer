@@ -29,10 +29,10 @@ class LessonStepFilter {
     return LessonStepFilter(
       minXp: (yaml['minXp'] as num?)?.toInt(),
       tags: tagSet,
-      completedLessonIds: [
+      completedLessonIds: {
         for (final id in (yaml['completedLessonIds'] as List? ?? []))
           id.toString()
-      ].toSet(),
+      },
       gameType:
           yaml['gameType'] != null ? parseGameType(yaml['gameType']) : null,
       skillLevel: yaml['skillLevel'] != null

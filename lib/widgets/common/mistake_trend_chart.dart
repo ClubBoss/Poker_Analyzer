@@ -131,7 +131,7 @@ class MistakeTrendChart extends StatelessWidget {
       );
     }
 
-    String _tooltipText(int index) {
+    String tooltipText(int index) {
       final d = dates[index];
       final label = mode == MistakeTrendMode.weekly
           ? _weekLabel(d)
@@ -162,7 +162,7 @@ class MistakeTrendChart extends StatelessWidget {
             fitInsideVertically: true,
             getTooltipItems: (spots) {
               final idx = spots.first.spotIndex;
-              final text = _tooltipText(idx);
+              final text = tooltipText(idx);
               return [
                 for (int i = 0; i < spots.length; i++)
                   LineTooltipItem(
@@ -178,11 +178,11 @@ class MistakeTrendChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: interval,
           getDrawingHorizontalLine: (value) =>
-              FlLine(color: Colors.white24, strokeWidth: 1),
+              const FlLine(color: Colors.white24, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,

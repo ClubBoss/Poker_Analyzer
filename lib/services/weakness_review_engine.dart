@@ -49,7 +49,9 @@ class WeaknessReviewEngine {
     double avgAcc(List<TrainingAttempt> list) {
       if (list.isEmpty) return 1.0;
       var sum = 0.0;
-      for (final a in list) sum += a.accuracy;
+      for (final a in list) {
+        sum += a.accuracy;
+      }
       return sum / list.length;
     }
 

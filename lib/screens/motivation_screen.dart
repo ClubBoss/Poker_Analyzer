@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../services/xp_tracker_service.dart';
 import '../services/achievement_engine.dart';
 import '../services/user_goal_engine.dart';
-import '../services/next_step_engine.dart';
 import '../models/user_goal.dart';
 import '../models/achievement.dart';
 import '../models/level_stage.dart';

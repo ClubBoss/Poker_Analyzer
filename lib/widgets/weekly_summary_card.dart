@@ -101,7 +101,7 @@ class WeeklySummaryCard extends StatelessWidget {
                     ),
                 ],
                 const SizedBox(height: 8),
-                Align(
+                const Align(
                   alignment: Alignment.centerRight,
                   child: Text(
                     'View full analytics',

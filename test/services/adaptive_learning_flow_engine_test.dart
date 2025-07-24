@@ -49,7 +49,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('generate creates full learning plan', () {
-    final engine = const AdaptiveLearningFlowEngine();
+    const engine = AdaptiveLearningFlowEngine();
     final history = [
       _Result(spotId: 's1', isCorrect: false, heroEv: 0.5),
       _Result(spotId: 's2', isCorrect: true, heroEv: 1.2),

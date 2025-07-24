@@ -74,7 +74,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     double? best;
     for (final a in s.hand.actions[0] ?? []) {
       if (a.playerIndex == s.hand.heroIndex && a.ev != null) {
-        best = best == null ? a.ev! : math.max(best!, a.ev!);
+        best = best == null ? a.ev! : math.max(best, a.ev!);
       }
     }
     return best;
@@ -84,7 +84,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     double? best;
     for (final a in s.hand.actions[0] ?? []) {
       if (a.playerIndex == s.hand.heroIndex && a.icmEv != null) {
-        best = best == null ? a.icmEv! : math.max(best!, a.icmEv!);
+        best = best == null ? a.icmEv! : math.max(best, a.icmEv!);
       }
     }
     return best;
@@ -336,9 +336,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                 spacing: 8,
                 children: [
                   Text(l.spotsLabel('$_total'), style: const TextStyle(color: Colors.white)),
-                  Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                  Text('•', style: TextStyle(color: Colors.white.withOpacity(0.5))),
                   Text(l.accuracyLabel(_rate.toStringAsFixed(0)), style: const TextStyle(color: Colors.white)),
-                  Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                  Text('•', style: TextStyle(color: Colors.white.withOpacity(0.5))),
                   Text(
                     l.evBb("${_evSum >= 0 ? '+' : ''}${_evSum.toStringAsFixed(1)}"),
                     style: TextStyle(
@@ -348,7 +348,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                     ),
                   ),
                   if (_icmEvs.isNotEmpty) ...[
-                    Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                    Text('•', style: TextStyle(color: Colors.white.withOpacity(0.5))),
                     Text(
                       l.icmLabel("${_icmSum >= 0 ? '+' : ''}${_icmSum.toStringAsFixed(1)}"),
                       style: TextStyle(
@@ -618,11 +618,11 @@ class _DeltaChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: interval,
-            getDrawingHorizontalLine: (value) => FlLine(color: Colors.white24, strokeWidth: 1),
+            getDrawingHorizontalLine: (value) => const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -661,7 +661,7 @@ class _DeltaChart extends StatelessWidget {
                 color: Colors.greenAccent,
                 barWidth: 2,
                 isCurved: false,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
               ),
             if (icmSpots.isNotEmpty)
               LineChartBarData(
@@ -669,7 +669,7 @@ class _DeltaChart extends StatelessWidget {
                 color: Colors.lightBlueAccent,
                 barWidth: 2,
                 isCurved: false,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
               ),
           ],
         ),

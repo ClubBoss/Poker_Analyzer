@@ -4,7 +4,7 @@ import 'package:poker_analyzer/services/training_progress_timeline_service.dart'
 import 'package:poker_analyzer/models/learning_event.dart';
 
 void main() {
-  final service = const TrainingProgressTimelineService();
+  const service = TrainingProgressTimelineService();
 
   test('builds track completion events', () {
     final history = [

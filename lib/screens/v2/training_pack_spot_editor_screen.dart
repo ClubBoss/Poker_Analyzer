@@ -109,8 +109,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
           color: bg,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Row(
-          children: const [
+        child: const Row(
+          children: [
             Text('EV Preview',
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70)),
             Spacer(),
@@ -208,13 +208,15 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     _actions = List<ActionEntry>.from(widget.spot.hand.actions[0] ?? []);
     _priority = widget.spot.priority;
     _street = widget.spot.street;
-    if (_street == 0) _street = widget.spot.hand.board.length >= 5
+    if (_street == 0) {
+      _street = widget.spot.hand.board.length >= 5
         ? 3
         : widget.spot.hand.board.length == 4
             ? 2
             : widget.spot.hand.board.length >= 3
                 ? 1
                 : 1;
+    }
     _villainAction = widget.spot.villainAction ?? 'none';
     _heroOptions = widget.spot.heroOptions.toSet();
     widget.spot.hand.playerCount = 2;

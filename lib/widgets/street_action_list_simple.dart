@@ -89,10 +89,10 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
     final list = actions[widget.street] ?? [];
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
-    Color _cardColor() => isDark ? Colors.grey[800]! : Colors.grey[100]!;
-    Color _textColor() => isDark ? Colors.white : Colors.black87;
+    Color cardColor() => isDark ? Colors.grey[800]! : Colors.grey[100]!;
+    Color textColor() => isDark ? Colors.white : Colors.black87;
 
-    String _iconForAction(String action) {
+    String iconForAction(String action) {
       switch (action) {
         case 'fold':
           return '❌';
@@ -116,14 +116,14 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
               onTap: () => setState(() => _expanded = !_expanded),
               child: Text(
                 _expanded ? '▼' : '▶',
-                style: TextStyle(color: _textColor()),
+                style: TextStyle(color: textColor()),
               ),
             ),
             const SizedBox(width: 4),
             Text(
               widget.street,
               style: TextStyle(
-                color: _textColor(),
+                color: textColor(),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -135,7 +135,7 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: Text(
                 'No actions',
-                style: TextStyle(color: _textColor().withOpacity(0.6)),
+                style: TextStyle(color: textColor().withOpacity(0.6)),
               ),
             )
           else
@@ -145,18 +145,18 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
                 child: InkWell(
                   onTap: () => _editAction(i, list[i]),
                   child: Card(
-                    color: _cardColor(),
+                    color: cardColor(),
                     elevation: 2,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         children: [
-                          Text(_iconForAction(list[i].action)),
+                          Text(iconForAction(list[i].action)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               '${list[i].playerName}: ${list[i].action}${list[i].amount != null ? ' ${list[i].amount}' : ''}',
-                              style: TextStyle(color: _textColor()),
+                              style: TextStyle(color: textColor()),
                             ),
                           ),
                         ],

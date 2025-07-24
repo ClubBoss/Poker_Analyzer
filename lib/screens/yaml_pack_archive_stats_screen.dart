@@ -160,8 +160,8 @@ Future<Map<String, dynamic>> _statsTask(String _) async {
             count++;
             size += stat.size;
             final m = stat.modified;
-            first = first == null || m.isBefore(first!) ? m : first;
-            last = last == null || m.isAfter(last!) ? m : last;
+            first = first == null || m.isBefore(first) ? m : first;
+            last = last == null || m.isAfter(last) ? m : last;
           }
         }
         if (count > 0 && first != null && last != null) {

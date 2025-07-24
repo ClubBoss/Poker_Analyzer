@@ -8,13 +8,13 @@ void main() {
 
   const engine = LearningPathStageUnlockEngine();
 
-  LearningPathTemplateV2 _path() {
-    return LearningPathTemplateV2(
+  LearningPathTemplateV2 path0() {
+    return const LearningPathTemplateV2(
       id: 'p',
       title: 'Path',
       description: '',
       stages: [
-        const LearningPathStageModel(
+        LearningPathStageModel(
           id: 'a',
           title: 'A',
           description: '',
@@ -23,7 +23,7 @@ void main() {
           minHands: 1,
           unlocks: ['b'],
         ),
-        const LearningPathStageModel(
+        LearningPathStageModel(
           id: 'b',
           title: 'B',
           description: '',
@@ -32,7 +32,7 @@ void main() {
           minHands: 1,
           unlocks: ['d'],
         ),
-        const LearningPathStageModel(
+        LearningPathStageModel(
           id: 'c',
           title: 'C',
           description: '',
@@ -41,7 +41,7 @@ void main() {
           minHands: 1,
           unlocks: ['d'],
         ),
-        const LearningPathStageModel(
+        LearningPathStageModel(
           id: 'd',
           title: 'D',
           description: '',
@@ -54,19 +54,19 @@ void main() {
   }
 
   test('root stage is unlocked', () {
-    final path = _path();
+    final path = path0();
     final ok = engine.isStageUnlocked(path, 'a', <String>{});
     expect(ok, isTrue);
   });
 
   test('single unlock dependency', () {
-    final path = _path();
+    final path = path0();
     expect(engine.isStageUnlocked(path, 'b', <String>{}), isFalse);
     expect(engine.isStageUnlocked(path, 'b', {'a'}), isTrue);
   });
 
   test('multiple unlock dependencies', () {
-    final path = _path();
+    final path = path0();
     expect(engine.isStageUnlocked(path, 'd', {'b'}), isFalse);
     expect(engine.isStageUnlocked(path, 'd', {'c'}), isFalse);
     expect(engine.isStageUnlocked(path, 'd', {'b', 'c'}), isTrue);

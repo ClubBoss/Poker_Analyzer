@@ -106,15 +106,15 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     if (url.isEmpty) return;
     final messenger = ScaffoldMessenger.of(context);
     final controller = messenger.showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Row(
-          children: const [
+          children: [
             SizedBox(width: 24, height: 24, child: CircularProgressIndicator()),
             SizedBox(width: 16),
             Text('Downloading...'),
           ],
         ),
-        duration: const Duration(days: 1),
+        duration: Duration(days: 1),
       ),
     );
     try {
@@ -193,12 +193,14 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
                 final version = info?['version'] as String?;
                 final subtitleWidgets = <Widget>[];
                 if (name != null) subtitleWidgets.add(Text(name));
-                if (version != null)
+                if (version != null) {
                   subtitleWidgets.add(Text('v$version'));
+                }
                 if (desc != null) subtitleWidgets.add(Text(desc));
-                if (status != null && status != 'loaded')
+                if (status != null && status != 'loaded') {
                   subtitleWidgets.add(
                       Text(status, style: const TextStyle(color: Colors.red)));
+                }
                 return ListTile(
                   title: Text(file),
                   subtitle: subtitleWidgets.isEmpty

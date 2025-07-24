@@ -16,7 +16,9 @@ String? handTypeLabelError(String label) {
         'CONNECTORS',
         'SUITED AX',
         'OFFSUIT AX'
-      }.contains(l)) return null;
+      }.contains(l)) {
+    return null;
+  }
   if (RegExp(r'^[2-9TJQKA]X[so]?$').hasMatch(l)) return null;
   if (RegExp(r'^[2-9TJQKA]{2}(?:[so](?:\+)?|\+)?$').hasMatch(l)) return null;
   return 'Invalid hand type (e.g. JXs, 76s+, suited connectors)';

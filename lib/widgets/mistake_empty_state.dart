@@ -52,9 +52,9 @@ class _MistakeEmptyStateState extends State<MistakeEmptyState>
                 ),
               ],
             ),
-            child: Column(
+            child: const Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Icon(Icons.emoji_events, color: Colors.amberAccent, size: 64),
                 SizedBox(height: 12),
                 Text(

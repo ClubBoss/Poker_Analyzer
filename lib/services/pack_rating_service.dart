@@ -36,6 +36,6 @@ class PackRatingService {
 
   Future<double?> getAverageRating(String packId) async {
     final r = _ratings[packId];
-    return r != null ? r.toDouble() : null;
+    return r?.toDouble();
   }
 }

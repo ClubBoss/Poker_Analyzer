@@ -7,7 +7,7 @@ void main() {
 
   final engine = LearningPathUnlockEngine.instance;
 
-  LearningPathTemplateV2 _path({List<String>? prereq}) => LearningPathTemplateV2(
+  LearningPathTemplateV2 path0({List<String>? prereq}) => LearningPathTemplateV2(
         id: 'p',
         title: 'Path',
         description: '',
@@ -15,19 +15,19 @@ void main() {
       );
 
   test('unlocked when no prerequisites', () {
-    final path = _path();
+    final path = path0();
     final ok = engine.isPathUnlocked(path, {'a'});
     expect(ok, isTrue);
   });
 
   test('unlocked when all prerequisites completed', () {
-    final path = _path(prereq: ['a', 'b']);
+    final path = path0(prereq: ['a', 'b']);
     final ok = engine.isPathUnlocked(path, {'a', 'b', 'x'});
     expect(ok, isTrue);
   });
 
   test('locked when any prerequisite missing', () {
-    final path = _path(prereq: ['a', 'b']);
+    final path = path0(prereq: ['a', 'b']);
     final ok = engine.isPathUnlocked(path, {'a'});
     expect(ok, isFalse);
   });

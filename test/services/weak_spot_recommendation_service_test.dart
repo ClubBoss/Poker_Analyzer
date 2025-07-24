@@ -6,11 +6,11 @@ import 'package:flutter/foundation.dart';
 
 class _FakeSavedHandManagerService extends ChangeNotifier {
   final List hands;
-  _FakeSavedHandManagerService([this.hands = const []]);
+  _FakeSavedHandManagerService();
 }
 
 class _FakePlayerProgressService extends ChangeNotifier {
-  Map<HeroPosition, PositionProgress> _progress;
+  final Map<HeroPosition, PositionProgress> _progress;
   _FakePlayerProgressService(this._progress);
   Map<HeroPosition, PositionProgress> get progress => _progress;
 }

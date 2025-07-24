@@ -316,7 +316,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     double? best;
     for (final a in spot.hand.actions[0] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.ev != null) {
-        best = best == null ? a.ev! : max(best!, a.ev!);
+        best = best == null ? a.ev! : max(best, a.ev!);
       }
     }
     return best;
@@ -326,7 +326,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     double? best;
     for (final a in spot.hand.actions[0] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.icmEv != null) {
-        best = best == null ? a.icmEv! : max(best!, a.icmEv!);
+        best = best == null ? a.icmEv! : max(best, a.icmEv!);
       }
     }
     return best;
@@ -530,7 +530,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           if (choice == 'mistakes') {
             await SmartReviewService.instance.buildMistakePack(ctx);
           } else if (choice == 'weak') {
-            final builder = const TrainingPackTemplateBuilder();
+            const builder = TrainingPackTemplateBuilder();
             final mastery = ctx.read<TagMasteryService>();
             final weakTpl = await builder.buildWeaknessPack(mastery);
             await ctx
@@ -658,7 +658,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           !evaluation.correct;
       String? category;
       if (incorrect) {
-        final engine = const MistakeCategorizationEngine();
+        const engine = MistakeCategorizationEngine();
         final strength = engine.computeHandStrength(spot.hand.heroCards);
         final m = Mistake(
           spot: spot,

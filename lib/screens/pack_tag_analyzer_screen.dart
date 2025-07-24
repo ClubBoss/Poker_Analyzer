@@ -95,7 +95,7 @@ class _PackTagAnalyzerScreenState extends State<PackTagAnalyzerScreen> {
   DataRow _row(_TagInfo info) {
     final highlight = info.count == 1 || info.dups.isNotEmpty || info.similar.isNotEmpty;
     return DataRow(
-      color: highlight ? MaterialStateProperty.all(AppColors.errorBg) : null,
+      color: highlight ? WidgetStateProperty.all(AppColors.errorBg) : null,
       onSelectChanged: (_) => _showPacks(info),
       cells: [
         DataCell(Text(info.tag)),
@@ -124,7 +124,7 @@ class _PackTagAnalyzerScreenState extends State<PackTagAnalyzerScreen> {
                 columns: [
                   const DataColumn(label: Text('Tag')),
                   DataColumn(
-                    label: Text('Count'),
+                    label: const Text('Count'),
                     numeric: true,
                     onSort: (_, __) => _toggleSort(),
                   ),
@@ -142,8 +142,12 @@ int _levenshtein(String a, String b) {
   if (m == 0) return n;
   if (n == 0) return m;
   final dp = List.generate(m + 1, (_) => List<int>.filled(n + 1, 0));
-  for (var i = 0; i <= m; i++) dp[i][0] = i;
-  for (var j = 0; j <= n; j++) dp[0][j] = j;
+  for (var i = 0; i <= m; i++) {
+    dp[i][0] = i;
+  }
+  for (var j = 0; j <= n; j++) {
+    dp[0][j] = j;
+  }
   for (var i = 1; i <= m; i++) {
     for (var j = 1; j <= n; j++) {
       final cost = a[i - 1] == b[j - 1] ? 0 : 1;

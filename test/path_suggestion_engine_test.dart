@@ -10,11 +10,10 @@ class _Path extends LearningPathTemplateV2 {
     required String id,
     List<String>? tags,
     this.meta = const {},
-    this.recommendedFlag = false,
   }) : super(id: id, title: id, description: '', tags: tags);
 
   @override
-  noSuchMethod(Invocation invocation) {
+  dynamic noSuchMethod(Invocation invocation) {
     if (invocation.memberName == #meta) return meta;
     if (invocation.memberName == #recommended) return recommendedFlag;
     return super.noSuchMethod(invocation);
@@ -24,7 +23,7 @@ class _Path extends LearningPathTemplateV2 {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final engine = const PathSuggestionEngine();
+  const engine = PathSuggestionEngine();
 
   test('returns null when all paths completed', () async {
     final paths = [_Path(id: 'a'), _Path(id: 'b')];

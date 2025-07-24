@@ -30,7 +30,7 @@ class MistakeReplayPackGenerator {
     final added = <String>{};
     final spots = <TrainingPackSpot>[];
 
-    bool _shouldAdd(PlayResult r) {
+    bool shouldAdd(PlayResult r) {
       if (!r.isCorrect) return true;
       final ev = r.evGain;
       return ev != null && ev < evThreshold;
@@ -40,7 +40,7 @@ class MistakeReplayPackGenerator {
       for (final r in h.results) {
         if (spots.length >= maxSpots) break;
         if (added.contains(r.spotId)) continue;
-        if (_shouldAdd(r)) {
+        if (shouldAdd(r)) {
           spots.add(TrainingPackSpot.fromJson(r.spot.toJson()));
           added.add(r.spotId);
         }
@@ -84,7 +84,7 @@ class MistakeReplayPackGenerator {
   }) {
     final mistakeIds = <String>{};
 
-    String? _spotId(dynamic r) {
+    String? spotId(dynamic r) {
       try {
         final id = r.spotId;
         if (id is String && id.isNotEmpty) return id;
@@ -92,7 +92,7 @@ class MistakeReplayPackGenerator {
       return null;
     }
 
-    bool _isCorrect(dynamic r) {
+    bool isCorrect(dynamic r) {
       try {
         final v = r.isCorrect;
         if (v is bool) return v;
@@ -104,7 +104,7 @@ class MistakeReplayPackGenerator {
       return true;
     }
 
-    double? _heroEv(dynamic r) {
+    double? heroEv(dynamic r) {
       try {
         final v = r.heroEv;
         if (v is num) return v.toDouble();
@@ -113,10 +113,10 @@ class MistakeReplayPackGenerator {
     }
 
     for (final r in results) {
-      final id = _spotId(r);
+      final id = spotId(r);
       if (id == null) continue;
-      final correct = !_isCorrect(r);
-      final ev = _heroEv(r);
+      final correct = !isCorrect(r);
+      final ev = heroEv(r);
       if (correct || (ev != null && ev < 0.8)) {
         mistakeIds.add(id);
         if (mistakeIds.length >= maxSpots) break;

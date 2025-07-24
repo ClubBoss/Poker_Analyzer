@@ -24,7 +24,7 @@ class SuggestedWeakTagPackService {
 
   Future<SuggestedWeakTagPackResult> suggestPack() async {
     final weak = _detectWeakTags != null
-        ? await _detectWeakTags!()
+        ? await _detectWeakTags()
         : await WeakTagDetectorService.detectWeakTags();
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = _libraryOverride ?? PackLibraryLoaderService.instance.library;

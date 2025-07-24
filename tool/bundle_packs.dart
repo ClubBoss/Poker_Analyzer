@@ -12,7 +12,7 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Usage: dart run tool/bundle_packs.dart <templatesDir> [outputDir] [--keep-original] [--index]');
     exit(1);
   }
-  var srcPath = args[0];
+  final srcPath = args[0];
   var outPath = './bundles';
   var keep = false;
   var buildIndex = false;

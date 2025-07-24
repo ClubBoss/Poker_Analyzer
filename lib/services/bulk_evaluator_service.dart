@@ -1,6 +1,5 @@
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
-import 'push_fold_ev_service.dart';
 import 'offline_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 

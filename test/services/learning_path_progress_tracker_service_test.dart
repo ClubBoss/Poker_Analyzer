@@ -9,11 +9,11 @@ void main() {
 
   const tracker = LearningPathProgressTrackerService();
 
-  LearningPathTemplateV2 _path() => LearningPathTemplateV2(
+  LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
         id: 'p',
         title: 'Path',
         description: '',
-        stages: const [
+        stages: [
           LearningPathStageModel(
             id: 's1',
             title: 'Stage 1',
@@ -33,7 +33,7 @@ void main() {
         ],
       );
 
-  List<SessionLog> _logs() => [
+  List<SessionLog> logs0() => [
         SessionLog(
           sessionId: 'l1',
           templateId: 'pack1',
@@ -77,22 +77,22 @@ void main() {
   });
 
   test('computeProgressStrings returns formatted strings', () {
-    final path = _path();
-    final logs = _logs();
+    final path = path0();
+    final logs = logs0();
     final progress = tracker.computeProgressStrings(path, logs);
     expect(progress['s1'], '10 / 10 рук · 80%');
     expect(progress['s2'], '5 / 5 рук · 80%');
   });
 
   test('isPathCompleted returns true when all stages passed', () {
-    final path = _path();
-    final aggregated = tracker.aggregateLogsByPack(_logs());
+    final path = path0();
+    final aggregated = tracker.aggregateLogsByPack(logs0());
     final ok = tracker.isPathCompleted(path, aggregated);
     expect(ok, isTrue);
   });
 
   test('isPathCompleted false when requirements not met', () {
-    final path = _path();
+    final path = path0();
     final logs = [
       SessionLog(
         sessionId: 'l1',

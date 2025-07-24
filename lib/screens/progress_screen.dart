@@ -274,11 +274,11 @@ class _ProgressScreenState extends State<ProgressScreen>
             drawVerticalLine: false,
             horizontalInterval: 1,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -291,7 +291,7 @@ class _ProgressScreenState extends State<ProgressScreen>
               ),
             ),
             bottomTitles:
-                AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(
             show: true,
@@ -306,7 +306,7 @@ class _ProgressScreenState extends State<ProgressScreen>
               color: accent,
               barWidth: 2,
               isCurved: false,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
             ),
           ],
         ),
@@ -349,11 +349,11 @@ class _ProgressScreenState extends State<ProgressScreen>
             drawVerticalLine: false,
             horizontalInterval: 20,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -400,7 +400,7 @@ class _ProgressScreenState extends State<ProgressScreen>
               color: accent,
               barWidth: 2,
               isCurved: false,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
             ),
           ],
         ),
@@ -450,11 +450,11 @@ class _ProgressScreenState extends State<ProgressScreen>
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -632,11 +632,11 @@ class _ProgressScreenState extends State<ProgressScreen>
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -1014,7 +1014,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             ),
           ),
           const SizedBox(height: 12),
-          RepaintBoundary(key: _evIcmKey, child: EvIcmHistoryChart()),
+          RepaintBoundary(key: _evIcmKey, child: const EvIcmHistoryChart()),
           const SizedBox(height: 24),
           const Text(
             'История стрика',

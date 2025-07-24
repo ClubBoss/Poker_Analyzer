@@ -18,9 +18,9 @@ part of 'training_pack_template_editor_screen.dart';
     final countCtr = TextEditingController(text: widget.template.spotCount.toString());
     double bbCall = widget.template.bbCallPct.toDouble();
     final anteCtr = TextEditingController(text: widget.template.anteBb.toString());
-    String _rangeStr = widget.template.heroRange?.join(' ') ?? '';
+    String rangeStr = widget.template.heroRange?.join(' ') ?? '';
     String rangeMode = 'simple';
-    final rangeCtr = TextEditingController(text: _rangeStr);
+    final rangeCtr = TextEditingController(text: rangeStr);
     bool rangeErr = false;
     final eval = EvaluationSettingsService.instance;
     final thresholdCtr =
@@ -175,7 +175,7 @@ part of 'training_pack_template_editor_screen.dart';
                               errorText: rangeErr ? '' : null,
                             ),
                             onChanged: (v) => set(() {
-                              _rangeStr = v;
+                              rangeStr = v;
                               rangeErr = v.trim().isNotEmpty &&
                                   PackGeneratorService.parseRangeString(v).isEmpty;
                             }),
@@ -183,7 +183,7 @@ part of 'training_pack_template_editor_screen.dart';
                         : GestureDetector(
                             onTap: () async {
                               final init = PackGeneratorService
-                                  .parseRangeString(_rangeStr)
+                                  .parseRangeString(rangeStr)
                                   .toSet();
                               final res = await Navigator.push<Set<String>>(
                                 context,
@@ -192,12 +192,14 @@ part of 'training_pack_template_editor_screen.dart';
                                   builder: (_) => _MatrixPickerPage(initial: init),
                                 ),
                               );
-                              if (res != null) set(() {
-                                _rangeStr = PackGeneratorService.serializeRange(res);
-                                rangeCtr.text = _rangeStr;
-                                rangeErr = _rangeStr.trim().isNotEmpty &&
-                                    PackGeneratorService.parseRangeString(_rangeStr).isEmpty;
+                              if (res != null) {
+                                set(() {
+                                rangeStr = PackGeneratorService.serializeRange(res);
+                                rangeCtr.text = rangeStr;
+                                rangeErr = rangeStr.trim().isNotEmpty &&
+                                    PackGeneratorService.parseRangeString(rangeStr).isEmpty;
                               });
+                              }
                             },
                             child: InputDecorator(
                               decoration: InputDecoration(
@@ -205,7 +207,7 @@ part of 'training_pack_template_editor_screen.dart';
                                 errorText: rangeErr ? '' : null,
                               ),
                               child: Text(
-                                _rangeStr.isEmpty ? 'All hands' : _rangeStr,
+                                rangeStr.isEmpty ? 'All hands' : rangeStr,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -219,12 +221,14 @@ part of 'training_pack_template_editor_screen.dart';
                     onPressed: () async {
                       final range = await const RangeImportExportService()
                           .readRange(widget.template.id);
-                      if (range != null) set(() {
-                        _rangeStr = range.join(' ');
-                        rangeCtr.text = _rangeStr;
-                        rangeErr = _rangeStr.trim().isNotEmpty &&
-                            PackGeneratorService.parseRangeString(_rangeStr).isEmpty;
+                      if (range != null) {
+                        set(() {
+                        rangeStr = range.join(' ');
+                        rangeCtr.text = rangeStr;
+                        rangeErr = rangeStr.trim().isNotEmpty &&
+                            PackGeneratorService.parseRangeString(rangeStr).isEmpty;
                       });
+                      }
                     },
                     child: const Text('Import Range'),
                   ),
@@ -232,7 +236,7 @@ part of 'training_pack_template_editor_screen.dart';
                   TextButton(
                     onPressed: () async {
                       final list =
-                          PackGeneratorService.parseRangeString(_rangeStr).toList();
+                          PackGeneratorService.parseRangeString(rangeStr).toList();
                       await const RangeImportExportService()
                           .writeRange(widget.template.id, list);
                       if (context.mounted) {
@@ -307,7 +311,7 @@ part of 'training_pack_template_editor_screen.dart';
       int ante = int.parse(anteCtr.text.trim());
       if (ante < 0) ante = 0;
       if (ante > 5) ante = 5;
-      final parsedSet = PackGeneratorService.parseRangeString(_rangeStr);
+      final parsedSet = PackGeneratorService.parseRangeString(rangeStr);
       setState(() {
         widget.template.heroBbStack = hero;
         widget.template.playerStacksBb = list;
@@ -327,7 +331,9 @@ part of 'training_pack_template_editor_screen.dart';
       }
     }
     heroCtr.dispose();
-    for (final c in stackCtrs) c.dispose();
+    for (final c in stackCtrs) {
+      c.dispose();
+    }
     countCtr.dispose();
     anteCtr.dispose();
     rangeCtr.dispose();

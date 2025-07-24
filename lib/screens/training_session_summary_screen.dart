@@ -365,8 +365,9 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                   if (pAdv != null) adv.add(pAdv);
                   int street = 0;
                   final b = m.hand.board.length;
-                  if (b >= 5) street = 3;
-                  else if (b == 4) street = 2;
+                  if (b >= 5) {
+                    street = 3;
+                  } else if (b == 4) street = 2;
                   else if (b == 3) street = 1;
                   final sAdv = kMistakeAdvice[streetName(street)];
                   if (sAdv != null) adv.add(sAdv);

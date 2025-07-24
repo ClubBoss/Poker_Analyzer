@@ -73,11 +73,11 @@ class EvIcmHistoryChart extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (v) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -121,21 +121,21 @@ class EvIcmHistoryChart extends StatelessWidget {
               color: AppColors.evPre,
               barWidth: 2,
               isCurved: false,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
             ),
             LineChartBarData(
               spots: spotsIcm,
               color: AppColors.icmPre,
               barWidth: 2,
               isCurved: false,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
             ),
             LineChartBarData(
               spots: spotsAcc,
               color: AppColors.accent,
               barWidth: 2,
               isCurved: false,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
             ),
           ],
         ),

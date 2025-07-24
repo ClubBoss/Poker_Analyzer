@@ -63,7 +63,7 @@ class ChipWidget extends StatelessWidget {
                   ),
                   child: i == chipCount - 1
                       ? Text(
-                          '\$${amount}',
+                          '\$$amount',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 10 * scale,

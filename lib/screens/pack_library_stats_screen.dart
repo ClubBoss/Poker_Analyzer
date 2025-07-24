@@ -95,7 +95,7 @@ class _PackLibraryStatsScreenState extends State<PackLibraryStatsScreen> {
 Future<Map<String, dynamic>> _statsTask(String _) async {
   final docs = await getApplicationDocumentsDirectory();
   final dir = Directory('${docs.path}/training_packs/library');
-  final reader = const YamlReader();
+  const reader = YamlReader();
   int total = 0;
   final aud = <String, int>{};
   final tags = <String, int>{};

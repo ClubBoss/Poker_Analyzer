@@ -23,8 +23,8 @@ class DiffSnapshotService {
       if (_equality.equals(av, bv)) continue;
       if (av is Map && bv is Map) {
         final sub = _diffMap(
-          Map<String, dynamic>.from(av as Map),
-          Map<String, dynamic>.from(bv as Map),
+          Map<String, dynamic>.from(av),
+          Map<String, dynamic>.from(bv),
         );
         if (sub.isNotEmpty) diff[k] = sub;
       } else {
@@ -38,7 +38,7 @@ class DiffSnapshotService {
     diff.forEach((k, v) {
       final tv = target[k];
       if (v is Map && tv is Map<String, dynamic>) {
-        _applyMap(tv, Map<String, dynamic>.from(v as Map));
+        _applyMap(tv, Map<String, dynamic>.from(v));
       } else {
         target[k] = v;
       }

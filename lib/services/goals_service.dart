@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -228,13 +227,13 @@ class GoalsService extends ChangeNotifier {
           : const [];
 
   DateTime? _readDate(SharedPreferences prefs, int index) {
-    final ts = prefs.getInt('${_prefPrefix}${index}_date');
+    final ts = prefs.getInt('$_prefPrefix${index}_date');
     if (ts == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(ts);
   }
 
   DateTime _readCreated(SharedPreferences prefs, int index) {
-    final key = '${_prefPrefix}${index}_created';
+    final key = '$_prefPrefix${index}_created';
     final ts = prefs.getInt(key);
     if (ts != null) return DateTime.fromMillisecondsSinceEpoch(ts);
     final now = DateTime.now();
@@ -503,11 +502,11 @@ class GoalsService extends ChangeNotifier {
 
   Future<void> _saveProgress(int index) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('${_prefPrefix}$index', _goals[index].progress);
+    await prefs.setInt('$_prefPrefix$index', _goals[index].progress);
     await prefs.setInt(
-        '${_prefPrefix}${index}_created',
+        '$_prefPrefix${index}_created',
         _goals[index].createdAt.millisecondsSinceEpoch);
-    final dateKey = '${_prefPrefix}${index}_date';
+    final dateKey = '$_prefPrefix${index}_date';
     final date = _goals[index].completedAt;
     if (date != null) {
       await prefs.setInt(dateKey, date.millisecondsSinceEpoch);

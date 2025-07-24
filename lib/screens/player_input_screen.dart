@@ -103,7 +103,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                 final data = await Navigator.push<Map<String, dynamic>?>(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => TrainingPacksScreen(),
+                    builder: (_) => const TrainingPacksScreen(),
                   ),
                 );
                 if (data != null) {

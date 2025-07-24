@@ -28,7 +28,7 @@ Future<Color?> showColorPickerDialog(BuildContext context, {Color? initialColor}
               controller: controller,
               decoration: const InputDecoration(prefixText: '#'),
               onChanged: (v) {
-                final hex = v.startsWith('#') ? v : '#'+v;
+                final hex = v.startsWith('#') ? v : '#$v';
                 if (RegExp(r'^#[0-9A-Fa-f]{6}\$').hasMatch(hex)) {
                   color = colorFromHex(hex);
                   setState(() {});

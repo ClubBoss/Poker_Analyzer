@@ -90,7 +90,7 @@ class SmartReviewService {
     }
 
     if (context != null && result.length > 5) {
-      final builder = const TrainingPackTemplateBuilder();
+      const builder = TrainingPackTemplateBuilder();
       final mastery = context.read<TagMasteryService>();
       final tpl = await builder.buildSimplifiedPack(result, mastery);
       await showDialog<void>(
@@ -215,7 +215,7 @@ class SmartReviewService {
         ),
       );
       if (confirm == true) {
-        final builder = const TrainingPackTemplateBuilder();
+        const builder = TrainingPackTemplateBuilder();
         final mastery = context.read<TagMasteryService>();
         final tpl = await builder.buildAdvancedPack(mastery);
         await context
@@ -249,7 +249,7 @@ class SmartReviewService {
         ),
       );
       if (confirm == true) {
-        final builder = const TrainingPackTemplateBuilder();
+        const builder = TrainingPackTemplateBuilder();
         final mastery = context.read<TagMasteryService>();
         final tpl = await builder.buildWeaknessPack(mastery);
         await context

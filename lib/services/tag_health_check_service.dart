@@ -90,8 +90,12 @@ class TagHealthCheckService {
     if (m == 0) return n;
     if (n == 0) return m;
     final table = List.generate(m + 1, (_) => List<int>.filled(n + 1, 0));
-    for (var i = 0; i <= m; i++) table[i][0] = i;
-    for (var j = 0; j <= n; j++) table[0][j] = j;
+    for (var i = 0; i <= m; i++) {
+      table[i][0] = i;
+    }
+    for (var j = 0; j <= n; j++) {
+      table[0][j] = j;
+    }
     for (var i = 1; i <= m; i++) {
       for (var j = 1; j <= n; j++) {
         final cost = s[i - 1] == t[j - 1] ? 0 : 1;

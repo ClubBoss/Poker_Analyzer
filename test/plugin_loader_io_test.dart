@@ -28,7 +28,7 @@ class _Request implements HttpClientRequest {
   @override
   Future<HttpClientResponse> close() async => _Response(data);
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _Response extends Stream<List<int>> implements HttpClientResponse {
@@ -43,7 +43,7 @@ class _Response extends Stream<List<int>> implements HttpClientResponse {
         .listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {

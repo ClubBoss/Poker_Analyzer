@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
@@ -328,9 +327,9 @@ class TrainingPackStorageService extends ChangeNotifier {
       final content = utf8.decode(data);
       final json = jsonDecode(content);
       if (json is! Map<String, dynamic>) return 'Неверный формат файла';
-      var pack = TrainingPack.fromJson(Map<String, dynamic>.from(json))
+      final pack = TrainingPack.fromJson(Map<String, dynamic>.from(json))
           .copyWith(createdAt: DateTime.now());
-      String base = pack.name.isEmpty ? 'Pack' : pack.name;
+      final String base = pack.name.isEmpty ? 'Pack' : pack.name;
       String name = base;
       int idx = 2;
       while (_packs.any((p) => p.name == name)) {
@@ -444,7 +443,7 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<TrainingPack> duplicatePack(TrainingPack pack) async {
     assert(!pack.isBuiltIn);
-    String base = pack.name.replaceAll(RegExp(r'\s*\(copy\d*\)\$'), '');
+    final String base = pack.name.replaceAll(RegExp(r'\s*\(copy\d*\)\$'), '');
     String name = '$base (copy)';
     int idx = 2;
     while (_packs.any((p) => p.name == name)) {
@@ -510,7 +509,7 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<TrainingPack> createPackFromTemplate(TrainingPackTemplate tpl) async {
     final ts = DateFormat('dd.MM HH:mm').format(DateTime.now());
-    String base = 'Новый пак: ${tpl.name} ($ts)';
+    final String base = 'Новый пак: ${tpl.name} ($ts)';
     String name = base;
     int idx = 2;
     while (_packs.any((p) => p.name == name)) {
@@ -561,7 +560,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     final selected = hands ?? template.hands;
     final category =
         (template.category?.isNotEmpty == true ? template.category! : 'custom');
-    String base = 'Новый пак: $category';
+    final String base = 'Новый пак: $category';
     String name = base;
     int idx = 2;
     while (_packs.any((p) => p.name == name)) {

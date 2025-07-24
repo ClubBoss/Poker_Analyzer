@@ -65,8 +65,8 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     final hours = d.inHours;
     final minutes = d.inMinutes.remainder(60);
     final parts = <String>[];
-    if (hours > 0) parts.add('${hours}ч');
-    parts.add('${minutes}м');
+    if (hours > 0) parts.add('$hoursч');
+    parts.add('$minutesм');
     return parts.join(' ');
   }
 
@@ -218,7 +218,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
         ? sessionIds[currentIndex + 1]
         : null;
 
-    Widget _buildGroupedList() {
+    Widget buildGroupedList() {
       final groups = <String, List<SavedHand>>{
         'Push': [],
         'Call': [],
@@ -327,7 +327,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                 ),
                 _buildSummary(hands),
                 _buildNoteField(),
-                Expanded(child: _buildGroupedList()),
+                Expanded(child: buildGroupedList()),
               ],
             ),
       ),

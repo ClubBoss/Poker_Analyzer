@@ -24,7 +24,7 @@ void main() {
       ),
     ];
 
-    final generator = const MistakeReplayPackGenerator();
+    const generator = MistakeReplayPackGenerator();
     final pack = generator.generate(history: history, evThreshold: 0.8);
 
     expect(pack.spots.length, 1);

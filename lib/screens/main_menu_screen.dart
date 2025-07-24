@@ -143,7 +143,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   Future<void> _loadSpot() async {
-    final service = const TrainingSpotOfDayService();
+    const service = TrainingSpotOfDayService();
     final spot = await service.getSpot();
     if (mounted) {
       setState(() => _spotOfDay = spot);
@@ -217,7 +217,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     final streak = service.count;
     if (streak <= 0) return const SizedBox.shrink();
 
-    final threshold = StreakService.bonusThreshold;
+    const threshold = StreakService.bonusThreshold;
     final highlight = service.hasBonus;
     final progressDays = streak >= threshold ? threshold : streak;
     final progress = progressDays / threshold;
@@ -508,8 +508,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: const [
+          const Row(
+            children: [
               Icon(Icons.bar_chart, color: Colors.white),
               SizedBox(width: 8),
               Text('📈 Мой прогресс',

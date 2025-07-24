@@ -137,7 +137,7 @@ class PlayerInfoWidget extends StatelessWidget {
         break;
     }
 
-    Widget box = Container(
+    final Widget box = Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
@@ -462,9 +462,9 @@ class PlayerInfoWidget extends StatelessWidget {
     if (isActive) {
       clickable = _ActivePlayerGlow(child: clickable);
       clickable = ActionTimerRing(
-        child: clickable,
         isActive: !timersDisabled,
         onTimeExpired: timersDisabled ? null : onTimeExpired,
+        child: clickable,
       );
     }
 

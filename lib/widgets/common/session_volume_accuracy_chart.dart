@@ -44,14 +44,14 @@ class SessionVolumeAccuracyChart extends StatelessWidget {
 
     final step = (sorted.length / 6).ceil();
 
-    double volumeInterval = 20;
+    const double volumeInterval = 20;
 
     final accuracyLine = LineChartBarData(
       spots: accuracySpots,
       isCurved: true,
       color: AppColors.accent,
       barWidth: 2,
-      dotData: FlDotData(show: false),
+      dotData: const FlDotData(show: false),
     );
 
     final volumeLine = LineChartBarData(
@@ -59,7 +59,7 @@ class SessionVolumeAccuracyChart extends StatelessWidget {
       isCurved: true,
       color: Colors.lightBlueAccent,
       barWidth: 2,
-      dotData: FlDotData(show: false),
+      dotData: const FlDotData(show: false),
     );
 
     return Padding(
@@ -80,10 +80,10 @@ class SessionVolumeAccuracyChart extends StatelessWidget {
               drawVerticalLine: false,
               horizontalInterval: 20,
               getDrawingHorizontalLine: (value) =>
-                  FlLine(color: Colors.white24, strokeWidth: 1),
+                  const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,

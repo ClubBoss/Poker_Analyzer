@@ -458,9 +458,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Оцените спот',
+                  const Text('Оцените спот',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white70)),
+                      style: TextStyle(color: Colors.white70)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -782,14 +782,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
           buffer.writeln('<div style="margin:4px 0;">');
           buffer.writeln(
               '<div style="display:flex;align-items:center;">'
-              '<div style="background-color:#f44336;height:8px;width:${userPct}%;"></div>'
-              '<span style="margin-left:4px;font-size:12px;color:#f44336;">${userPct}%</span>'
+              '<div style="background-color:#f44336;height:8px;width:$userPct%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#f44336;">$userPct%</span>'
               '<span style="margin-left:4px;font-size:12px;">Ваше equity</span>'
               '</div>');
           buffer.writeln(
               '<div style="display:flex;align-items:center;margin-top:2px;">'
-              '<div style="background-color:#4caf50;height:8px;width:${expectedPct}%;"></div>'
-              '<span style="margin-left:4px;font-size:12px;color:#4caf50;">${expectedPct}%</span>'
+              '<div style="background-color:#4caf50;height:8px;width:$expectedPct%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#4caf50;">$expectedPct%</span>'
               '<span style="margin-left:4px;font-size:12px;">Оптимальное</span>'
               '</div>');
           buffer.writeln('</div>');
@@ -865,14 +865,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
           buffer.writeln('<div style="margin:4px 0;">');
           buffer.writeln(
               '<div style="display:flex;align-items:center;">'
-              '<div style="background-color:#f44336;height:8px;width:${userPct}%;"></div>'
-              '<span style="margin-left:4px;font-size:12px;color:#f44336;">${userPct}%</span>'
+              '<div style="background-color:#f44336;height:8px;width:$userPct%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#f44336;">$userPct%</span>'
               '<span style="margin-left:4px;font-size:12px;">Ваше equity</span>'
               '</div>');
           buffer.writeln(
               '<div style="display:flex;align-items:center;margin-top:2px;">'
-              '<div style="background-color:#4caf50;height:8px;width:${expectedPct}%;"></div>'
-              '<span style="margin-left:4px;font-size:12px;color:#4caf50;">${expectedPct}%</span>'
+              '<div style="background-color:#4caf50;height:8px;width:$expectedPct%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#4caf50;">$expectedPct%</span>'
               '<span style="margin-left:4px;font-size:12px;">Оптимальное</span>'
               '</div>');
           buffer.writeln('</div>');
@@ -1468,8 +1468,8 @@ body { font-family: sans-serif; padding: 16px; }
             ),
             const SizedBox(height: 12),
             if (_sessionComment != null && _sessionComment!.isNotEmpty) ...[
-              Text('Комментарий: \$_sessionComment',
-                  style: const TextStyle(color: Colors.white70)),
+              const Text('Комментарий: \$_sessionComment',
+                  style: TextStyle(color: Colors.white70)),
               const SizedBox(height: 8),
             ],
             ElevatedButton(
@@ -1751,8 +1751,8 @@ body { font-family: sans-serif; padding: 16px; }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: const [
+        const Row(
+          children: [
             Icon(Icons.bar_chart, color: Colors.white),
             SizedBox(width: 8),
             Text(
@@ -1821,7 +1821,7 @@ body { font-family: sans-serif; padding: 16px; }
       isCurved: true,
       color: Colors.greenAccent,
       barWidth: 2,
-      dotData: FlDotData(show: false),
+      dotData: const FlDotData(show: false),
     );
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -1852,11 +1852,11 @@ body { font-family: sans-serif; padding: 16px; }
                   drawVerticalLine: false,
                   horizontalInterval: 20,
                   getDrawingHorizontalLine: (value) =>
-                      FlLine(color: Colors.white24, strokeWidth: 1),
+                      const FlLine(color: Colors.white24, strokeWidth: 1),
                 ),
                 titlesData: FlTitlesData(
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -2509,6 +2509,13 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
                 ),
                 const Divider(color: Colors.white12, height: 1),
                 Expanded(
+                  bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(8),
+        child: ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Назад'),
+        ),
+      ),
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: results.length + (mistakes.isNotEmpty ? 1 : 0),
@@ -2607,13 +2614,6 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
                 );
               },
             ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.all(8),
-        child: ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Назад'),
-        ),
-      ),
     );
   }
 }
@@ -2665,11 +2665,11 @@ class _EvIcmLineChart extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (v) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -2713,7 +2713,7 @@ class _EvIcmLineChart extends StatelessWidget {
                 color: AppColors.evPre,
                 barWidth: 2,
                 isCurved: false,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
               ),
             if (icmSpots.isNotEmpty)
               LineChartBarData(
@@ -2721,7 +2721,7 @@ class _EvIcmLineChart extends StatelessWidget {
                 color: AppColors.icmPre,
                 barWidth: 2,
                 isCurved: false,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
               ),
           ],
         ),

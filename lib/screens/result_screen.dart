@@ -35,10 +35,9 @@ class ResultScreen extends StatelessWidget {
           children: [
             Text(
               winnings.length > 1
-                  ? 'Победители: ' +
-                      winnings.entries
+                  ? 'Победители: ${winnings.entries
                           .map((e) => 'P${e.key + 1} (${e.value})')
-                          .join(', ')
+                          .join(', ')}'
                   : 'Победитель: Игрок ${winnerIndex + 1}',
               style: const TextStyle(fontSize: 18, color: Colors.white),
             ),

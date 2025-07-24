@@ -220,7 +220,7 @@ List<_Issue> _validateFile(
 
   if (fix && changed) {
     final yamlOut = json2yaml(map);
-    file.writeAsStringSync(yamlOut + '\n');
+    file.writeAsStringSync('$yamlOut\n');
   }
 
   return issues;

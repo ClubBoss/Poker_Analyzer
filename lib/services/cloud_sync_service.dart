@@ -268,7 +268,7 @@ class CloudSyncService {
       return [
         for (final e in list)
           if (e is Map)
-            SavedHand.fromJson(Map<String, dynamic>.from(e as Map))
+            SavedHand.fromJson(Map<String, dynamic>.from(e))
       ];
     }
     return [];
@@ -284,7 +284,7 @@ class CloudSyncService {
         hands = [
           for (final e in list)
             if (e is Map)
-              SavedHand.fromJson(Map<String, dynamic>.from(e as Map))
+              SavedHand.fromJson(Map<String, dynamic>.from(e))
         ];
       }
       localAt = DateTime.tryParse(cached['updatedAt'] as String? ?? '') ??
@@ -307,7 +307,7 @@ class CloudSyncService {
           hands = [
             for (final e in list)
               if (e is Map)
-                SavedHand.fromJson(Map<String, dynamic>.from(e as Map))
+                SavedHand.fromJson(Map<String, dynamic>.from(e))
           ];
           if (_local) {
             await _box!.put('cached_saved_hands', remote);
@@ -372,7 +372,7 @@ class CloudSyncService {
       return [
         for (final e in list)
           if (e is Map)
-            SessionLog.fromJson(Map<String, dynamic>.from(e as Map))
+            SessionLog.fromJson(Map<String, dynamic>.from(e))
       ];
     }
     return [];

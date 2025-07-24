@@ -24,7 +24,7 @@ class MistakeTagHistoryService {
           for (final e in data)
             if (e is Map)
               MistakeTagHistoryEntry.fromJson(
-                Map<String, dynamic>.from(e as Map),
+                Map<String, dynamic>.from(e),
               )
         ];
       }

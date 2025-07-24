@@ -11,7 +11,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     LearningPathProgressService.instance
-      ..mock = true;
+      .mock = true;
     await LearningPathProgressService.instance.resetProgress();
     AutoAdvancePackEngine.instance
       ..mock = true

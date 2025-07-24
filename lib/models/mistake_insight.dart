@@ -1,5 +1,5 @@
-import "mistake_tag.dart";
-import "training_spot_attempt.dart";
+import 'mistake_tag.dart';
+import 'training_spot_attempt.dart';
 
 class MistakeInsight {
   final MistakeTag tag;

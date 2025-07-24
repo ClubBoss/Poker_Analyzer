@@ -34,8 +34,8 @@ void main() {
   }
 
   test('builds track with sorted spots', () {
-    final builder = const DynamicTrackBuilder();
-    final goal = LearningGoal(
+    const builder = DynamicTrackBuilder();
+    const goal = LearningGoal(
       id: 'g1',
       title: '',
       description: '',

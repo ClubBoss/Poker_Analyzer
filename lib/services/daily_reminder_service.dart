@@ -98,7 +98,7 @@ class DailyReminderService extends ChangeNotifier {
     final needGoals = goals.anyIncomplete;
     if (!needSpot && !needTarget && !needGoals) return;
     final now = DateTime.now();
-    var when = tz.TZDateTime.local(now.year, now.month, now.day, _hour);
+    final when = tz.TZDateTime.local(now.year, now.month, now.day, _hour);
     if (when.isBefore(tz.TZDateTime.now(tz.local))) return;
     await _plugin.zonedSchedule(
       _id,

@@ -8,11 +8,11 @@ void main() {
 
   const engine = LearningPathProgressEngine();
 
-  LearningPathTemplateV2 _path() => LearningPathTemplateV2(
+  LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
         id: 'p1',
         title: 'Path',
         description: '',
-        stages: const [
+        stages: [
           LearningPathStageModel(
             id: 's1',
             title: 'Stage 1',
@@ -33,21 +33,21 @@ void main() {
       );
 
   test('computeProgress 0 percent', () {
-    final path = _path();
+    final path = path0();
     final progress = engine.computeProgress(path, const {});
     expect(progress, 0);
     expect(engine.completedStages(path, const {}), 0);
   });
 
   test('computeProgress partial', () {
-    final path = _path();
+    final path = path0();
     final progress = engine.computeProgress(path, const {'s1'});
     expect(progress, closeTo(0.5, 0.01));
     expect(engine.completedStages(path, const {'s1'}), 1);
   });
 
   test('computeProgress full', () {
-    final path = _path();
+    final path = path0();
     final progress = engine.computeProgress(path, const {'s1', 's2'});
     expect(progress, 1);
     expect(engine.completedStages(path, const {'s1', 's2'}), 2);

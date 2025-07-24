@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../models/learning_path_template_v2.dart';
 import '../models/session_log.dart';
 import '../services/learning_path_progress_tracker_service.dart';
-import '../services/learning_path_progress_service.dart';
 import '../services/session_log_service.dart';
 import '../widgets/confetti_overlay.dart';
 
@@ -93,7 +92,7 @@ class _LearningPathCelebrationScreenState
     final internal = halfWidth / 2.5;
     final center = Offset(halfWidth, halfWidth);
     final path = Path();
-    final step = math.pi / points;
+    const step = math.pi / points;
     for (int i = 0; i < points * 2; i++) {
       final radius = i.isEven ? external : internal;
       final angle = step * i;

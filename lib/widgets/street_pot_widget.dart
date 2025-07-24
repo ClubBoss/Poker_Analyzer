@@ -33,7 +33,7 @@ class StreetPotWidget extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         builder: (context, value, child) {
           final factor = potSize > 0
-              ? (value / potSize).clamp(0.0, 1.0) as double
+              ? (value / potSize).clamp(0.0, 1.0)
               : 0.0;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,

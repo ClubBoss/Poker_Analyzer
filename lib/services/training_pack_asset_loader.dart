@@ -46,7 +46,7 @@ class TrainingPackAssetLoader {
             for (final item in list) {
               if (item is Map) {
                 final tpl = TrainingPackTemplate.fromJson(
-                    Map<String, dynamic>.from(item as Map));
+                    Map<String, dynamic>.from(item));
                 tpl.tags = [for (final t in tpl.tags) if (t.trim().isNotEmpty) t];
                 if (!_validMeta(tpl, ids)) continue;
                 final issues = validateTrainingPackTemplate(tpl);

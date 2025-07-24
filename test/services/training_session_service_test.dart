@@ -31,7 +31,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await SmartReviewService.instance.load();
     LearningPathProgressService.instance
-      ..mock = true;
+      .mock = true;
     await LearningPathProgressService.instance.resetProgress();
     await LearningPathProgressService.instance.resetCustomPath();
     final spot = TrainingPackSpot(id: 'c');
@@ -46,7 +46,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await SmartReviewService.instance.load();
     LearningPathProgressService.instance
-      ..mock = true;
+      .mock = true;
     await LearningPathProgressService.instance.resetProgress();
     await LearningPathProgressService.instance.resetCustomPath();
     final spot = TrainingPackSpot(id: 'd');

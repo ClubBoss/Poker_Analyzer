@@ -1,5 +1,5 @@
-import "learning_path_stage_model.dart";
-import "learning_track_section_model.dart";
+import 'learning_path_stage_model.dart';
+import 'learning_track_section_model.dart';
 class LearningPathTemplateV2 {
   final String id;
   final String title;

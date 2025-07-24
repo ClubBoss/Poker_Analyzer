@@ -6,7 +6,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../asset_manifest.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 
@@ -303,7 +302,7 @@ class TemplateStorageService extends ChangeNotifier {
     final paths = manifest.keys
         .where((e) => e.startsWith('assets/packs/') && e.endsWith('.yaml'));
     if (paths.isEmpty) return;
-    final reader = const YamlReader();
+    const reader = YamlReader();
     for (final p in paths) {
       try {
         final map = reader.read(await rootBundle.loadString(p));

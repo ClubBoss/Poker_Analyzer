@@ -90,7 +90,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: interval,
                 getDrawingHorizontalLine: (value) =>
-                    FlLine(color: Colors.white24, strokeWidth: 1),
+                    const FlLine(color: Colors.white24, strokeWidth: 1),
               ),
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
@@ -148,7 +148,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                   ),
                 ),
                 rightTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
               borderData: FlBorderData(
                 show: true,

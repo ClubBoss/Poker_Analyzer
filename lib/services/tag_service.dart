@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -104,7 +103,7 @@ class TagService extends ChangeNotifier {
 
   Future<void> exportToFile(BuildContext context) async {
     try {
-      final encoder = JsonEncoder.withIndent('  ');
+      const encoder = JsonEncoder.withIndent('  ');
       final data = [
         for (final name in _tags)
           {'name': name, 'color': _colors[name] ?? _defaultColor}

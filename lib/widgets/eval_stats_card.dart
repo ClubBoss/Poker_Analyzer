@@ -38,7 +38,7 @@ class EvalStatsCard extends StatelessWidget {
                 data: LineChartData(
                   minY: 0,
                   maxY: 100,
-                  gridData: FlGridData(show: false),
+                  gridData: const FlGridData(show: false),
                   titlesData: const FlTitlesData(show: false),
                   borderData: FlBorderData(show: false),
                   lineBarsData: [
@@ -47,7 +47,7 @@ class EvalStatsCard extends StatelessWidget {
                       color: accent,
                       barWidth: 2,
                       isCurved: true,
-                      dotData: FlDotData(show: false),
+                      dotData: const FlDotData(show: false),
                     ),
                   ],
                 ),

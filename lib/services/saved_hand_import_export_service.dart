@@ -203,7 +203,7 @@ class SavedHandImportExportService {
     if (_pipeline != null) {
       for (final id in _pipeline!.supportedFormats()) {
         hand = _pipeline!.tryImport(id, data.text!);
-        if (hand != null) break;
+        break;
       }
     }
     hand ??= _tryInternal(data.text!);
@@ -327,13 +327,6 @@ class SavedHandImportExportService {
       archive.addFile(ArchiveFile(name, data.length, data));
     }
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to create archive')));
-      }
-      return;
-    }
     final fileName = 'saved_hands_${DateTime.now().millisecondsSinceEpoch}.zip';
     final savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Save Hands Archive',

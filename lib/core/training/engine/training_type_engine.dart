@@ -1,6 +1,5 @@
 import '../generation/push_fold_pack_generator.dart';
 import '../generation/pack_generation_request.dart';
-import '../../../models/v2/training_pack_template.dart';
 import '../../../models/v2/training_pack_template_v2.dart';
 
 import 'package:flutter/material.dart';

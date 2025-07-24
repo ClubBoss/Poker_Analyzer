@@ -35,7 +35,7 @@ void main() {
       _Result(spotId: 'a', isCorrect: true, heroEv: 1.2),
       _Result(spotId: 'b', isCorrect: false, heroEv: 0.5),
     ];
-    final generator = const MistakeReplayPackGenerator();
+    const generator = MistakeReplayPackGenerator();
     final pack = generator.generateMistakePack(
       results: results,
       sourcePacks: [tpl],

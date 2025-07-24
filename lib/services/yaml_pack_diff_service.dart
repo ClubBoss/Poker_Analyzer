@@ -30,7 +30,7 @@ class YamlPackDiffService {
     TrainingPackTemplateV2 b,
   ) {
     const ignore = {'id', 'createdAt', 'updatedAt'};
-    final eq = const DeepCollectionEquality();
+    const eq = DeepCollectionEquality();
     final keys = {...a.meta.keys, ...b.meta.keys}..removeWhere(ignore.contains);
     final out = <String>[];
     for (final k in keys) {
@@ -72,7 +72,7 @@ class YamlPackDiffService {
     final mapB = {for (final s in b.spots) s.id: s};
     final ids = {...mapA.keys, ...mapB.keys};
     final out = <String>[];
-    final eq = const DeepCollectionEquality();
+    const eq = DeepCollectionEquality();
     for (final id in ids) {
       final sa = mapA[id];
       final sb = mapB[id];

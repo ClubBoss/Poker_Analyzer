@@ -19,7 +19,11 @@ class Achievement {
   int get levelIndex {
     var idx = 0;
     for (final t in thresholds) {
-      if (progress >= t) idx++; else break;
+      if (progress >= t) {
+        idx++;
+      } else {
+        break;
+      }
     }
     return idx;
   }

@@ -134,7 +134,9 @@ part of 'training_pack_template_editor_screen.dart';
       ..sort((a, b) => a.key.compareTo(b.key));
     for (final e in entries) {
       rows.add(_Row.header(e.key));
-      for (final s in e.value) rows.add(_Row.spot(s));
+      for (final s in e.value) {
+        rows.add(_Row.spot(s));
+      }
     }
     return rows;
   }
@@ -208,12 +210,12 @@ part of 'training_pack_template_editor_screen.dart';
       }
     }
     }
-    if (!mounted) return;
+    dynamic if (!mounted) return;
     setState(() {
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    if (mounted) setState(() => _log('Edited', spot));
+    void if (mounted) setState(() => _log('Edited', spot));
   }
 
   TrainingSpot _toSpot(TrainingPackSpot spot) {
@@ -549,7 +551,7 @@ part of 'training_pack_template_editor_screen.dart';
 
   Future<void> _generateSpots() async {
     _recordSnapshot();
-    final service = TrainingPackTemplateUiService();
+    const service = TrainingPackTemplateUiService();
     final generated =
         await service.generateSpotsWithProgress(context, widget.template);
     if (!mounted) return;
@@ -566,7 +568,7 @@ part of 'training_pack_template_editor_screen.dart';
   }
 
   Future<void> _generateMissingSpots() async {
-    final service = TrainingPackTemplateUiService();
+    const service = TrainingPackTemplateUiService();
     final missing =
         await service.generateMissingSpotsWithProgress(context, widget.template);
     if (missing.isEmpty) {
@@ -710,7 +712,9 @@ part of 'training_pack_template_editor_screen.dart';
     setState(() {
       widget.template.spots.addAll(spots);
       if (_autoSortEv) _sortSpots();
-      for (final s in spots) s.isNew = true;
+      for (final s in spots) {
+        s.isNew = true;
+      }
       _showImportIndicator = true;
       _showPasteBubble = false;
     });
@@ -738,7 +742,9 @@ part of 'training_pack_template_editor_screen.dart';
     await _persist();
     final hasDup = _importDuplicateGroups(spots);
     if (hasDup) setState(() => _showDupHint = true);
-    for (final s in spots) _log('Added', s);
+    for (final s in spots) {
+      _log('Added', s);
+    }
     final addedIds = [for (final s in spots) s.id];
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -794,7 +800,7 @@ part of 'training_pack_template_editor_screen.dart';
           ),
         ),
       );
-      );
+      )
     }
     if (spots.length <= 3) {
       await showSpotViewerDialog(

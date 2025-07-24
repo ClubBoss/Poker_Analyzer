@@ -373,7 +373,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
   // Parse showdown section for revealed hole cards.
   final showdownIndex =
       lines.indexWhere((l) => l.startsWith('*** SHOW'));
-  Map<int, String> showdownDescriptions = {};
+  final Map<int, String> showdownDescriptions = {};
   if (showdownIndex != -1) {
     final showRegex = RegExp(
         r'^([^:]+?):\s*shows? \[(.+?)\](?:\s*\((.+)\))?',

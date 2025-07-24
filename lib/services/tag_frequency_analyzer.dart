@@ -47,7 +47,9 @@ class TagFrequencyAnalyzer {
           try {
             final yaml = await f.readAsString();
             final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
-            for (final t in tpl.tags) addTag(t);
+            for (final t in tpl.tags) {
+              addTag(t);
+            }
             final c = tpl.category ??
                 (tpl.tags.isNotEmpty ? tpl.tags.first : null);
             if (c != null && c.isNotEmpty) addCategory(c);

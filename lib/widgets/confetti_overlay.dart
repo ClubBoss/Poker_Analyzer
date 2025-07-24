@@ -55,7 +55,6 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
 void showConfettiOverlay(BuildContext context,
     {Path Function(Size size)? particlePath}) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
 
   late OverlayEntry entry;
   entry = OverlayEntry(

@@ -19,7 +19,7 @@ class BetStackChips extends StatelessWidget {
     if (amount <= 0) return const SizedBox.shrink();
     final chipCount = (amount / 10).clamp(1, 10).round();
     final double size = 8 * scale;
-    final Color chipColor = Colors.purpleAccent;
+    const Color chipColor = Colors.purpleAccent;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -42,7 +42,7 @@ class BetStackChips extends StatelessWidget {
                   height: size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [chipColor, Colors.black],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,

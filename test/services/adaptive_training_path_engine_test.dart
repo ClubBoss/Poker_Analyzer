@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collection/collection.dart';
 import 'package:poker_analyzer/services/adaptive_training_path_engine.dart';
-import 'package:poker_analyzer/services/weakness_cluster_engine_v2.dart';
 import 'package:poker_analyzer/models/learning_path_stage_model.dart';
 import 'package:poker_analyzer/models/learning_path_template_v2.dart';
 import 'package:poker_analyzer/models/training_attempt.dart';
@@ -51,13 +49,13 @@ TrainingAttempt _attempt(String packId, String spotId, double acc) => TrainingAt
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final engine = AdaptiveTrainingPathEngine();
+  const engine = AdaptiveTrainingPathEngine();
 
-  LearningPathTemplateV2 _path() => LearningPathTemplateV2(
+  LearningPathTemplateV2 path() => const LearningPathTemplateV2(
         id: 'p',
         title: 'Path',
         description: '',
-        stages: const [
+        stages: [
           LearningPathStageModel(
             id: 's1',
             title: 'S1',
@@ -94,7 +92,7 @@ void main() {
       allPacks: packs,
       stats: stats,
       attempts: attempts,
-      path: _path(),
+      path: path(),
     );
     expect(ids.contains('s1'), isTrue);
     expect(ids.contains('s2'), isTrue);
@@ -112,7 +110,7 @@ void main() {
       allPacks: packs,
       stats: stats,
       attempts: attempts,
-      path: _path(),
+      path: path(),
     );
     expect(ids.contains('s1'), isTrue);
     expect(ids.contains('s2'), isFalse);
@@ -128,7 +126,7 @@ void main() {
       allPacks: packs,
       stats: stats,
       attempts: attempts,
-      path: _path(),
+      path: path(),
     );
     expect(ids.contains('s1'), isTrue);
     expect(ids.contains('s2'), isFalse);

@@ -1,5 +1,4 @@
 import 'lesson_loader_service.dart';
-import '../models/v3/lesson_step.dart';
 
 /// Provides tags for each lesson step.
 abstract class LessonStepTagProvider {

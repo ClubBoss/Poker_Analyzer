@@ -8,7 +8,7 @@ class MistakeReviewService extends ChangeNotifier {
   List<Mistake> get mistakes => List.unmodifiable(_mistakes);
 
   void addMistake(Mistake mistake) {
-    final engine = const MistakeCategorizationEngine();
+    const engine = MistakeCategorizationEngine();
     final result = engine.categorize(mistake);
     mistake.category = result.isNotEmpty ? result : 'Unclassified';
     _mistakes.add(mistake);

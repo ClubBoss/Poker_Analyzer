@@ -131,9 +131,9 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
           minY: 0,
           barGroups: groups,
           titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -210,7 +210,7 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
     final logs = context.read<SessionLogService>().logs;
     final library = PackLibraryLoaderService.instance.library;
     final range = _rangeToDates();
-    final exporter = const TrainingStatsExportService();
+    const exporter = TrainingStatsExportService();
     if (result == 'share_csv') {
       final file = await exporter.exportCsv(
         logs: logs,

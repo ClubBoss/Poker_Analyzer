@@ -96,7 +96,6 @@ class _LessonOnboardingOverlayState extends State<LessonOnboardingOverlay>
 
 void showLessonOnboardingOverlay(BuildContext context, {VoidCallback? onDismiss}) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => LessonOnboardingOverlay(

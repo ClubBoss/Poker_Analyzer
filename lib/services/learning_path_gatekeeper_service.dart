@@ -1,6 +1,5 @@
 
 import '../models/learning_path_stage_model.dart';
-import '../models/learning_track_section_model.dart';
 import '../services/learning_path_registry_service.dart';
 import '../services/training_path_progress_service_v2.dart';
 import '../services/tag_mastery_service.dart';

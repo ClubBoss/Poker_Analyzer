@@ -137,7 +137,7 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
         .where((e) => !ignored.contains('position:${e.key}'))
         .toList();
 
-    int _score(MapEntry<String, int> e) {
+    int score(MapEntry<String, int> e) {
       final severity = service.classifySeverity(e.value);
       switch (severity) {
         case MistakeSeverity.high:
@@ -152,7 +152,7 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
 
     if (_sort == MistakeSortOption.severity) {
       entries.sort((a, b) {
-        final cmp = _score(b).compareTo(_score(a));
+        final cmp = score(b).compareTo(score(a));
         if (cmp != 0) return cmp;
         return b.value.compareTo(a.value);
       });

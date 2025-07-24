@@ -74,7 +74,9 @@ class DailyFocusRecapService extends ChangeNotifier {
     if (_date != null &&
         _date!.year == now.year &&
         _date!.month == now.month &&
-        _date!.day == now.day) return;
+        _date!.day == now.day) {
+      return;
+    }
     _compute();
     _date = DateTime(now.year, now.month, now.day);
     _shown = false;

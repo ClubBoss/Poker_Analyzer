@@ -133,7 +133,7 @@ class PackExportService {
     final archive = Archive()
       ..addFile(ArchiveFile('template.json', jsonData.length, jsonData))
       ..addFile(ArchiveFile('preview.pdf', pdfBytes.length, pdfBytes));
-    final bytes = ZipEncoder().encode(archive)!;
+    final bytes = ZipEncoder().encode(archive);
     final dir = await getTemporaryDirectory();
     final base = _toSnakeCase(tpl.name);
     var path = '${dir.path}/$base.pka';

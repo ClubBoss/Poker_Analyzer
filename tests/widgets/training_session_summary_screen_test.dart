@@ -151,7 +151,7 @@ void main() {
           xpEarned: 10,
           xpMultiplier: 1.0,
           streakMultiplier: 1.15,
-          tagDeltas: const {},
+          tagDeltas: {},
         ),
       ),
     );
@@ -169,7 +169,7 @@ class _FakeMistakeReviewPackService extends ChangeNotifier
   @override
   Future<TrainingPackTemplate?> buildPack(BuildContext context) async => null;
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeWeakSpotRecommendationService extends ChangeNotifier
@@ -181,7 +181,7 @@ class _FakeWeakSpotRecommendationService extends ChangeNotifier
   @override
   Future<TrainingPackTemplate?> buildPack([HeroPosition? pos]) async => null;
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeAdaptiveTrainingService extends ChangeNotifier
@@ -200,7 +200,7 @@ class _FakeAdaptiveTrainingService extends ChangeNotifier
       TrainingPackTemplate(
           id: '', name: '', spots: [], createdAt: DateTime.now());
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeDailyTipService extends ChangeNotifier implements DailyTipService {
@@ -209,12 +209,12 @@ class _FakeDailyTipService extends ChangeNotifier implements DailyTipService {
   @override
   Future<void> ensureTodayTip() async {}
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeNextStepEngine extends ChangeNotifier implements NextStepEngine {
   @override
   NextStepSuggestion? get suggestion => null;
   @override
-  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

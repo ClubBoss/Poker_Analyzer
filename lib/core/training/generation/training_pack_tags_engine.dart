@@ -7,7 +7,7 @@ class TrainingPackTagsEngine {
   List<String> generate(TrainingPackTemplateV2 template) {
     final set = <String>{};
     final positions = <HeroPosition>{};
-    var streets = <int>{};
+    final streets = <int>{};
     var pushfold = false;
     var river = false;
     for (final s in template.spots) {
@@ -38,8 +38,9 @@ class TrainingPackTagsEngine {
     }
     if (streets.length >= 2) set.add('postflop');
     if (pushfold || template.bb == 10) set.add('pushfold');
-    if (positions.length >= 3 || template.positions.length >= 3)
+    if (positions.length >= 3 || template.positions.length >= 3) {
       set.add('multiway');
+    }
     if (river) set.add('river');
     final list = set.toList();
     list.sort();

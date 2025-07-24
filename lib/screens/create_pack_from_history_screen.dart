@@ -77,7 +77,7 @@ class _CreatePackFromHistoryScreenState extends State<CreatePackFromHistoryScree
   Future<void> _export() async {
     if (_selected.isEmpty) return;
     final tpl = await _buildPack();
-    final fileName = tpl.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_') + '.json';
+    final fileName = '${tpl.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')}.json';
     final path = await FilePicker.platform.saveFile(
       dialogTitle: 'Save Pack',
       fileName: fileName,

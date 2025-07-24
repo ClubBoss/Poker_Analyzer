@@ -191,7 +191,7 @@ class WeakSpotRecommendationService extends ChangeNotifier {
     }
 
     final result = (weakest != null && weakestAcc < 0.9)
-        ? weakest!.name
+        ? weakest.name
         : null;
 
     await prefs.setString('weak_training_type_time', now.toIso8601String());

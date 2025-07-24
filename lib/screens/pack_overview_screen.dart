@@ -432,7 +432,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         .where((p) => !p.isBuiltIn)
         .toList();
     final categories = {for (final p in all) p.category};
-    List<TrainingPack> packs = all.where((p) {
+    final List<TrainingPack> packs = all.where((p) {
       final q = _filter.query.value.trim().toLowerCase();
       if (q.isNotEmpty && !p.name.toLowerCase().contains(q)) return false;
       if (_filter.categories.isNotEmpty && !_filter.categories.contains(p.category)) {

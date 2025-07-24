@@ -58,7 +58,7 @@ void main() {
   });
 
   testWidgets('launchNextStage starts next pack', (tester) async {
-    final stage = LearningPathStageModel(
+    const stage = LearningPathStageModel(
       id: 's',
       title: 'Stage',
       description: '',
@@ -66,7 +66,7 @@ void main() {
       requiredAccuracy: 0,
       minHands: 0,
     );
-    final summary = LearningPathSummary(
+    const summary = LearningPathSummary(
       id: 'path',
       title: '',
       completedStages: 0,
@@ -105,7 +105,7 @@ void main() {
   });
 
   testWidgets('shows snackbar when no stage available', (tester) async {
-    final summary = LearningPathSummary(
+    const summary = LearningPathSummary(
       id: 'path',
       title: '',
       completedStages: 1,

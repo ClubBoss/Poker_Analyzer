@@ -14,12 +14,12 @@ class TrainingLibraryHeaderCard extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('📚', style: TextStyle(fontSize: 28)),
-          const SizedBox(width: 12),
-          const Expanded(
+          Text('📚', style: TextStyle(fontSize: 28)),
+          SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

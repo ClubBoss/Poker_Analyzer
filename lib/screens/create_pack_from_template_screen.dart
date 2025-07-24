@@ -213,7 +213,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     if (cat.isNotEmpty) await prefs.setString(_lastCategoryKey, cat);
     final hands = List<SavedHand>.from(_selected);
     if (_shuffle) hands.shuffle();
-    var pack = await service.createFromTemplateWithOptions(
+    final pack = await service.createFromTemplateWithOptions(
       widget.template,
       hands: hands,
       colorTag: colorToHex(_color),
@@ -244,6 +244,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
       appBar: AppBar(title: Text(widget.template.name)),
       body: Padding(
         padding: const EdgeInsets.all(16),
+      actions: [SyncStatusIcon.of(context)],
         child: Column(
           children: [
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Название')),
@@ -404,7 +405,6 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
             ),
           ],
         ),
-      actions: [SyncStatusIcon.of(context)],
       ),
     );
   }

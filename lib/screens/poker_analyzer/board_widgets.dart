@@ -190,7 +190,6 @@ class _HudOverlaySection extends StatelessWidget {
     required this.streetName,
     required this.potText,
     required this.stackText,
-    this.sprText,
   });
   @override
   Widget build(BuildContext context) {
@@ -210,10 +209,10 @@ class _BoardTransitionBusyIndicator extends StatelessWidget {
   const _BoardTransitionBusyIndicator();
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
+    return const Positioned.fill(
       child: ColoredBox(
         color: Colors.black38,
-        child: const Center(
+        child: Center(
           child: SizedBox(width: 40, height: 40, child: CircularProgressIndicator()),
         ),
       ),
@@ -319,9 +318,9 @@ class _HandCompleteOverlay extends StatelessWidget {
               color: Colors.black.withOpacity(0.8),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Icon(Icons.check_circle, color: Colors.greenAccent, size: 28),
                 SizedBox(width: 8),
                 Text('Раздача завершена', style: TextStyle(color: Colors.white, fontSize: 20)),

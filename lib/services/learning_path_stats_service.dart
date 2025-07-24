@@ -32,7 +32,7 @@ class LearningPathStatsService {
     final baseUnlocked = progress.unlockedStageIds().toSet();
     final locked = <String>[];
 
-    bool _sectionReady(String stageId) {
+    bool sectionReady(String stageId) {
       if (path.sections.isEmpty) return true;
       final idx =
           path.sections.indexWhere((s) => s.stageIds.contains(stageId));
@@ -49,7 +49,7 @@ class LearningPathStatsService {
           !stage.unlockAfter.every(completed.contains)) {
         unlocked = false;
       }
-      if (unlocked && !_sectionReady(stage.id)) {
+      if (unlocked && !sectionReady(stage.id)) {
         unlocked = false;
       }
       if (!unlocked) locked.add(stage.id);

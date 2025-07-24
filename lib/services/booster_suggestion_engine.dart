@@ -1,5 +1,4 @@
 import '../models/mistake_insight.dart';
-import '../models/mistake_tag_cluster.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/training_history_entry_v2.dart';
 import '../core/training/library/training_pack_library_v2.dart';
@@ -49,7 +48,7 @@ class BoosterSuggestionEngine {
     if (boosterMap.isEmpty || insights.isEmpty) return null;
 
     const threshold = 0.05;
-    final clusterService = const MistakeTagClusterService();
+    const clusterService = MistakeTagClusterService();
 
     String? bestId;
     for (final i in insights) {

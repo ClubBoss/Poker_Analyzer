@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
-import '../models/v2/unlock_rules.dart';
 import '../models/unlock_rule.dart';
 import 'learning_path_progress_service.dart';
 import 'learning_path_service.dart';
@@ -60,7 +59,7 @@ class PackUnlockingRulesEngine {
                 : null,
           );
     if (rules == null) return const UnlockCheckResult(true);
-    String? hint = rules.unlockHint;
+    final String? hint = rules.unlockHint;
 
     if (rules.requiresPackCompleted != null) {
       final id = rules.requiresPackCompleted!;

@@ -616,7 +616,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     ]..sort();
     double remaining = _pot;
     double prev = 0;
-    Set<int> active = hands.keys.toSet();
+    final Set<int> active = hands.keys.toSet();
     for (final level in levels) {
       final participants = [
         for (int i = 0; i < _playerCount; i++)

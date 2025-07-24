@@ -27,7 +27,7 @@ class DailyFocusCard extends StatelessWidget {
     final service = context.watch<DailyFocusService>();
     final tag = service.tag;
     final accent = Theme.of(context).colorScheme.secondary;
-    final title = '🎯 Сегодняшний фокус';
+    const title = '🎯 Сегодняшний фокус';
     final desc = tag == null
         ? 'Тренируйте 10 раздач для возобновления серии'
         : '${_capitalize(tag)}: низкий винрейт';
@@ -41,8 +41,8 @@ class DailyFocusCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(desc, style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 8),

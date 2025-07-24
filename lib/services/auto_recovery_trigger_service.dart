@@ -4,7 +4,6 @@ import 'tag_insight_reminder_engine.dart';
 import 'tag_goal_tracker_service.dart';
 import 'pack_library_service.dart';
 import 'scheduled_training_queue_service.dart';
-import 'skill_loss_detector.dart';
 
 /// Automatically queues recovery drills when skill loss is detected.
 class AutoRecoveryTriggerService {

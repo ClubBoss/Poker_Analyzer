@@ -318,7 +318,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                 final recent = list.length > 10
                     ? list.sublist(list.length - 10)
                     : List<SavedHand>.from(list);
-                var tpl = manager
+                final tpl = manager
                     .createPack('Draft', recent)
                     .copyWith(isDraft: true);
                 final session = await context
@@ -585,9 +585,9 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ChoiceChip(
-            label: Row(
+            label: const Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Text('🔥'),
                 SizedBox(width: 4),
                 Text('Горячие', style: TextStyle(fontWeight: FontWeight.bold)),

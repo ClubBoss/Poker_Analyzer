@@ -17,7 +17,6 @@ class BlockCompletionRewardService {
       (s) => s.title.toLowerCase() == stageTitle.toLowerCase(),
       orElse: () => null,
     );
-    if (stage == null) return false;
     final completed =
         stage.items.every((i) => i.status == LearningItemStatus.completed);
     if (!completed) return false;

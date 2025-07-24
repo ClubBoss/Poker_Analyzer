@@ -132,7 +132,6 @@ void showLossFadeOverlay({
   double scale = 1.0,
 }) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => LossFadeWidget(

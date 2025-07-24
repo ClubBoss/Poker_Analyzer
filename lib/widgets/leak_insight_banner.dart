@@ -44,10 +44,8 @@ class _LeakInsightBannerState extends State<LeakInsightBanner> {
         .then((_) => PackLibraryLoaderService.instance.library)
         .then((list) => list
             .firstWhere((p) => p.id == leak.suggestedPackId, orElse: () => null));
-    if (pack != null) {
-      await const TrainingSessionLauncher().launch(pack);
+    await const TrainingSessionLauncher().launch(pack);
     }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +87,7 @@ class _LeakInsightBannerState extends State<LeakInsightBanner> {
                 child: ElevatedButton(
                   onPressed: () {
                     final l = leak;
-                    if (l != null) _train(l);
+                    _train(l);
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: accent),
                   child: const Text('Train this spot'),

@@ -590,7 +590,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..clear()
         ..add(tag);
       await prefs.setStringList(_actTagsKey, [tag]);
-      _activeCategories..clear();
+      _activeCategories.clear();
       await prefs.remove(_actCatsKey);
     }
     await UserProfilePreferenceService.instance.setPreferredTags(_activeTags);
@@ -629,7 +629,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..add(cat);
       await prefs.setStringList(_actCatsKey, [cat]);
       await prefs.setString(_lastCatKey, cat);
-      _activeTags..clear();
+      _activeTags.clear();
       await prefs.remove(_actTagsKey);
     }
     setState(() {});
@@ -2046,7 +2046,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               if (locked && reason != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
-                  child: Text(reason!,
+                  child: Text(reason,
                       style: const TextStyle(
                           color: Colors.redAccent, fontSize: 12)),
                 ),
@@ -2064,7 +2064,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             if (await _maybeAutoSample(TrainingPackTemplateV2.fromTemplate(
               t,
               type: const TrainingTypeEngine().detectTrainingType(t),
-            ))) return;
+            ))) {
+              return;
+            }
             final create = await showDialog<bool>(
               context: context,
               builder: (_) => TemplatePreviewDialog(template: t),
@@ -2087,7 +2089,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             top: 4,
             left: 4,
             child: Tooltip(
-              message: "Weak skill: $weakTag",
+              message: 'Weak skill: $weakTag',
               child: const Icon(
                 Icons.brightness_1,
                 size: 10,
@@ -2110,7 +2112,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             bottom: 4,
             left: 4,
             child: PackUnlockRequirementBadge(
-              text: reason!,
+              text: reason,
               tooltip: reason,
             ),
           ),
@@ -2366,7 +2368,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             top: 4,
             left: 4,
             child: Tooltip(
-              message: "Weak skill: $weakTag",
+              message: 'Weak skill: $weakTag',
               child: const Icon(
                 Icons.brightness_1,
                 size: 10,
@@ -2389,7 +2391,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             bottom: 4,
             left: 4,
             child: PackUnlockRequirementBadge(
-              text: reason!,
+              text: reason,
               tooltip: reason,
             ),
           ),
@@ -2418,7 +2420,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   ? 'Пак заблокирован'
                   : 'Чтобы разблокировать: $reason',
               child: InkWell(
-                onTap: reason != null ? () => _showUnlockHint(reason!) : null,
+                onTap: reason != null ? () => _showUnlockHint(reason) : null,
                 child: Container(
                   color: Colors.black54,
                   alignment: Alignment.center,
@@ -2560,7 +2562,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (stat != null) return false;
 
     _autoSampled.add(t.id);
-    final sampler = const TrainingPackSampler();
+    const sampler = TrainingPackSampler();
     final sample = sampler.sample(t);
     final preview = TrainingPackTemplate.fromJson(sample.toJson());
     preview.meta['samplePreview'] = true;
@@ -2612,7 +2614,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ),
       );
       if (confirm == true && context.mounted) {
-        final sampler = const TrainingPackSampler();
+        const sampler = TrainingPackSampler();
         final tplV2 = TrainingPackTemplateV2.fromTemplate(
           t,
           type: const TrainingTypeEngine().detectTrainingType(t),
@@ -2663,7 +2665,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ),
       );
       if (confirm == true && context.mounted) {
-        final sampler = const TrainingPackSampler();
+        const sampler = TrainingPackSampler();
         final sample = sampler.sample(t);
         final preview = TrainingPackTemplate.fromJson(sample.toJson());
         preview.meta['samplePreview'] = true;
@@ -2732,7 +2734,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             if (locked && reason != null)
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: Text(reason!,
+                child: Text(reason,
                     style:
                         const TextStyle(color: Colors.redAccent, fontSize: 12)),
               ),
@@ -2755,7 +2757,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             top: 4,
             left: 4,
             child: Tooltip(
-              message: "Weak skill: ${_weakLibTagMap[t.id]}",
+              message: 'Weak skill: ${_weakLibTagMap[t.id]}',
               child: const Icon(Icons.brightness_1, size: 10, color: Colors.redAccent),
             ),
           ),
@@ -2774,7 +2776,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             bottom: 4,
             left: 4,
             child: PackUnlockRequirementBadge(
-              text: reason!,
+              text: reason,
               tooltip: reason,
             ),
           ),
@@ -2796,7 +2798,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     const Text('🔒 Заблокировано',
                         style: TextStyle(color: Colors.white)),
                     if (reason != null)
-                      Text(reason!,
+                      Text(reason,
                           style: const TextStyle(
                               color: Colors.white, fontSize: 12)),
                   ],

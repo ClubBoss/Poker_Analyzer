@@ -300,7 +300,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           ? (calculateAccuracy(e.result.correct, e.result.total)).toStringAsFixed(0)
           : '0';
       buffer.writeln(
-          '- ${e.packName} — ${formatDateTime(e.result.date)} — ${e.result.correct}/${e.result.total} (${percent}%)');
+          '- ${e.packName} — ${formatDateTime(e.result.date)} — ${e.result.correct}/${e.result.total} ($percent%)');
     }
 
     final fileName =
@@ -446,7 +446,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                 border: pw.TableBorder.all(),
                 children: [
                   pw.TableRow(
-                    decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                    decoration: const pw.BoxDecoration(color: PdfColors.grey300),
                     children: [
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(4),
@@ -526,7 +526,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
               border: pw.TableBorder.all(),
               children: [
                 pw.TableRow(
-                  decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                  decoration: const pw.BoxDecoration(color: PdfColors.grey300),
                   children: [
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(4),
@@ -760,11 +760,11 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
               drawVerticalLine: false,
               horizontalInterval: 20,
               getDrawingHorizontalLine: (value) =>
-                  FlLine(color: Colors.white24, strokeWidth: 1),
+                  const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,

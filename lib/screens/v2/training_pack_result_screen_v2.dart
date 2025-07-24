@@ -145,7 +145,7 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
     double? best;
     for (final a in s.hand.actions[0] ?? []) {
       if (a.playerIndex == s.hand.heroIndex && a.ev != null) {
-        best = best == null ? a.ev! : max(best!, a.ev!);
+        best = best == null ? a.ev! : max(best, a.ev!);
       }
     }
     return best;
@@ -155,7 +155,7 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
     double? best;
     for (final a in s.hand.actions[0] ?? []) {
       if (a.playerIndex == s.hand.heroIndex && a.icmEv != null) {
-        best = best == null ? a.icmEv! : max(best!, a.icmEv!);
+        best = best == null ? a.icmEv! : max(best, a.icmEv!);
       }
     }
     return best;
@@ -462,11 +462,11 @@ class _EvDiffChart extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -557,11 +557,11 @@ class _IcmDiffChart extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

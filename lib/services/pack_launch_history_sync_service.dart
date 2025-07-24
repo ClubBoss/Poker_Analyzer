@@ -34,7 +34,7 @@ class PackLaunchHistorySyncService {
         for (final e in list)
           if (e is Map)
             TrainingHistoryEntryV2.fromJson(
-                Map<String, dynamic>.from(e as Map))
+                Map<String, dynamic>.from(e))
       ];
     }
     return [];

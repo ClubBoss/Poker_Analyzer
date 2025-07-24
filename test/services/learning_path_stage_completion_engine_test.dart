@@ -6,14 +6,14 @@ import 'package:poker_analyzer/services/learning_path_stage_completion_engine.da
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final engine = const LearningPathStageCompletionEngine();
+  const engine = LearningPathStageCompletionEngine();
 
-  LearningPathTemplateV2 _samplePath() => LearningPathTemplateV2(
+  LearningPathTemplateV2 samplePath() => const LearningPathTemplateV2(
         id: 'p',
         title: 'Path',
         description: '',
         stages: [
-          const LearningPathStageModel(
+          LearningPathStageModel(
             id: 's1',
             title: 'Stage 1',
             description: '',
@@ -21,7 +21,7 @@ void main() {
             requiredAccuracy: 0,
             minHands: 10,
           ),
-          const LearningPathStageModel(
+          LearningPathStageModel(
             id: 's2',
             title: 'Stage 2',
             description: '',
@@ -33,19 +33,19 @@ void main() {
       );
 
   test('isStageComplete checks minHands', () {
-    final stage = _samplePath().stages.first;
+    final stage = samplePath().stages.first;
     expect(engine.isStageComplete(stage, 9), isFalse);
     expect(engine.isStageComplete(stage, 10), isTrue);
   });
 
   test('isPathComplete true when all stages complete', () {
-    final path = _samplePath();
+    final path = samplePath();
     final done = engine.isPathComplete(path, {'pack1': 10, 'pack2': 5});
     expect(done, isTrue);
   });
 
   test('isPathComplete false when any stage incomplete', () {
-    final path = _samplePath();
+    final path = samplePath();
     final done = engine.isPathComplete(path, {'pack1': 10, 'pack2': 4});
     expect(done, isFalse);
   });

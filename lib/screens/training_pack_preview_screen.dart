@@ -34,10 +34,12 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
   Future<void> _loadRating() async {
     final r = await PackRatingService.instance.getUserRating(widget.template.id);
     final avg = await PackRatingService.instance.getAverageRating(widget.template.id);
-    if (mounted) setState(() {
+    if (mounted) {
+      setState(() {
       _userRating = r;
       _average = avg;
     });
+    }
   }
 
   Future<void> _loadComment() async {
@@ -54,10 +56,12 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
   Future<void> _setRating(int r) async {
     await PackRatingService.instance.rate(widget.template.id, r);
     final avg = await PackRatingService.instance.getAverageRating(widget.template.id);
-    if (mounted) setState(() {
+    if (mounted) {
+      setState(() {
       _userRating = r;
       _average = avg;
     });
+    }
   }
 
   Future<void> _editComment() async {

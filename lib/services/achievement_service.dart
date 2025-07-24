@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement_info.dart';
 import '../models/simple_achievement.dart';
-import '../models/achievement_v2.dart';
 import '../widgets/achievement_unlocked_overlay.dart';
 import '../services/training_stats_service.dart';
 import '../services/saved_hand_manager_service.dart';

@@ -6,7 +6,6 @@ import 'package:uuid/uuid.dart';
 import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
-import '../services/training_pack_template_storage_service.dart';
 import '../services/yaml_pack_history_service.dart';
 import '../services/yaml_pack_exporter_service.dart';
 import '../services/yaml_pack_changelog_service.dart';
@@ -37,8 +36,12 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     if (v == null || v.isEmpty) return true;
     final a = v.split('.').map(int.parse).toList();
     final b = target.split('.').map(int.parse).toList();
-    while (a.length < 3) a.add(0);
-    while (b.length < 3) b.add(0);
+    while (a.length < 3) {
+      a.add(0);
+    }
+    while (b.length < 3) {
+      b.add(0);
+    }
     for (var i = 0; i < 3; i++) {
       if (a[i] < b[i]) return true;
       if (a[i] > b[i]) return false;

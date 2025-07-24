@@ -31,6 +31,7 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Player Zone Demo')),
       body: Column(
+        actions: [SyncStatusIcon.of(context)],
         children: [
           StreetTabs(
             currentStreet: _street,
@@ -72,7 +73,6 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
             ),
           ),
         ],
-      actions: [SyncStatusIcon.of(context)],
       ),
     );
   }

@@ -12,7 +12,7 @@ void main() {
       positions: ['sb'],
       trainingType: TrainingType.pushFold,
     );
-    final tagger = YamlPackAutoTagger();
+    const tagger = YamlPackAutoTagger();
     final tags = tagger.generateTags(tpl);
     expect(tags.contains('cat:Push/Fold'), true);
     expect(tags.contains('position:sb'), true);

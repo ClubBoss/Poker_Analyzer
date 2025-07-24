@@ -74,7 +74,7 @@ void main() {
         attempt,
         [MistakeTag.overfoldBtn],
       );
-      final file = await File('${dir.path}/app_data/mistake_tag_history.json');
+      final file = File('${dir.path}/app_data/mistake_tag_history.json');
       final data = await file.readAsString();
       final list = List<Map<String, dynamic>>.from(jsonDecode(data) as List);
       list[0]['timestamp'] = ts.toIso8601String();

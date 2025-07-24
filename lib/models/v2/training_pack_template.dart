@@ -342,7 +342,7 @@ class TrainingPackTemplate {
   }
 
   String handTypeSummary() {
-    final ranks = '23456789TJQKA';
+    const ranks = '23456789TJQKA';
     final List<String> hands = heroRange ??
         [
           for (final s in spots)
@@ -424,7 +424,9 @@ extension TrainingPackTemplateUpdated on TrainingPackTemplate {
 extension TrainingPackTemplateStreetCoverage on TrainingPackTemplate {
   List<int> streetTotals() {
     final totals = List<int>.filled(4, 0);
-    for (final s in spots) totals[s.street]++;
+    for (final s in spots) {
+      totals[s.street]++;
+    }
     return totals;
   }
 

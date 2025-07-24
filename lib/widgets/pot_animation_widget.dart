@@ -89,7 +89,7 @@ class _PotAnimationWidgetState extends State<PotAnimationWidget>
                 width: size * 2,
                 height: size * 2,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.black45,
                   shape: BoxShape.circle,
                 ),

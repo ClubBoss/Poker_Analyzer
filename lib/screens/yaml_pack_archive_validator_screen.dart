@@ -98,8 +98,12 @@ Future<List<Map<String, dynamic>>> _validateTask(String _) async {
     if (v == null || v.isEmpty) return true;
     final a = v.split('.').map(int.parse).toList();
     final b = '2.0.0'.split('.').map(int.parse).toList();
-    while (a.length < 3) a.add(0);
-    while (b.length < 3) b.add(0);
+    while (a.length < 3) {
+      a.add(0);
+    }
+    while (b.length < 3) {
+      b.add(0);
+    }
     for (var i = 0; i < 3; i++) {
       if (a[i] < b[i]) return true;
       if (a[i] > b[i]) return false;

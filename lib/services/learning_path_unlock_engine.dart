@@ -205,7 +205,7 @@ class LearningPathUnlockEngine {
     if (streakReq != null) {
       final streak = await streakEngine.getCurrentStreak();
       if (streak < streakReq) {
-        return 'Reach ${streakReq}-day streak';
+        return 'Reach $streakReq-day streak';
       }
     }
 

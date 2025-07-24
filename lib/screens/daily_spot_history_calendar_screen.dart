@@ -15,7 +15,7 @@ class DailySpotHistoryCalendarScreen extends StatefulWidget {
 class _DailySpotHistoryCalendarScreenState extends State<DailySpotHistoryCalendarScreen> {
   late final DateTime _firstDay;
   late final DateTime _lastDay;
-  DateTime _focusedDay = DateTime.now();
+  final DateTime _focusedDay = DateTime.now();
   Set<DateTime> _history = {};
 
   @override

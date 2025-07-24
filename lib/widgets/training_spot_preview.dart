@@ -26,7 +26,7 @@ class TrainingSpotPreview extends StatelessWidget {
   }
 
   Widget _buildAction(ActionEntry entry) {
-    String label = '${entry.action}';
+    String label = entry.action;
     if (entry.amount != null) {
       label += ' ${entry.amount}';
     }
@@ -34,7 +34,7 @@ class TrainingSpotPreview extends StatelessWidget {
     if (entry.playerIndex < spot.stacks.length) {
       final stack = spot.stacks[entry.playerIndex];
       final bb = (stack / 12.5).round();
-      label += ' $stack (${bb} BB)';
+      label += ' $stack ($bb BB)';
     }
 
     String? advice;

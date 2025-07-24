@@ -5,7 +5,6 @@ import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import 'spot_template_engine.dart';
 import 'yaml_pack_importer_service.dart';
-import '../models/v2/training_pack_spot.dart';
 
 class PackLibraryGenerator {
   final SpotTemplateEngine engine;

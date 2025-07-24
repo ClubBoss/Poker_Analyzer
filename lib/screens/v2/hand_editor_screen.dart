@@ -34,7 +34,9 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   @override
   void dispose() {
     _cardsCtr.dispose();
-    for (final c in _stackCtr) c.dispose();
+    for (final c in _stackCtr) {
+      c.dispose();
+    }
     super.dispose();
   }
 

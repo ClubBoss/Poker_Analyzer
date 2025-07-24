@@ -18,7 +18,7 @@ void main() {
       trainingType: TrainingType.pushFold,
       spots: [spot],
     );
-    final engine = PackAugmentationEngine();
+    const engine = PackAugmentationEngine();
     final res = engine.augment([pack]);
     expect(res.length, 2);
     final generated = res.last;

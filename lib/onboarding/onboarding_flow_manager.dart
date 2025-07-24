@@ -157,7 +157,7 @@ class _MistakeRepeatCongratsStep implements OnboardingStep {
 }
 
 class _WelcomeScreen extends StatelessWidget {
-  const _WelcomeScreen({super.key});
+  const _WelcomeScreen();
 
   @override
   Widget build(BuildContext context) {

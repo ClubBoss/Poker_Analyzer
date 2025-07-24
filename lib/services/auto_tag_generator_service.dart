@@ -29,13 +29,17 @@ class AutoTagGeneratorService {
     }
     if (heroActs.isNotEmpty) {
       final counts = <String, int>{};
-      for (final a in heroActs) counts[a] = (counts[a] ?? 0) + 1;
+      for (final a in heroActs) {
+        counts[a] = (counts[a] ?? 0) + 1;
+      }
       tags.add(counts.entries.reduce((a, b) => a.value >= b.value ? a : b).key);
     }
     if (oppActs.isNotEmpty) {
       const aggr = {'bet', 'raise', '3bet', 'push'};
       var aggrCount = 0;
-      for (final a in oppActs) if (aggr.contains(a)) aggrCount++;
+      for (final a in oppActs) {
+        if (aggr.contains(a)) aggrCount++;
+      }
       final ratio = aggrCount / oppActs.length;
       tags.add(ratio >= 0.6 ? 'aggressive' : 'passive');
     }

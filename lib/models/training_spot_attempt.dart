@@ -1,4 +1,4 @@
-import "v2/training_pack_spot.dart";
+import 'v2/training_pack_spot.dart';
 
 class TrainingSpotAttempt {
   final TrainingPackSpot spot;

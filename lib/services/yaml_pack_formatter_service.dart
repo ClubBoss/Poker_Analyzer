@@ -12,7 +12,7 @@ class YamlPackFormatterService {
   }
 
   Map<String, dynamic> _packMap(TrainingPackTemplateV2 p) {
-    final map = LinkedHashMap<String, dynamic>();
+    final map = <String, dynamic>{};
     final meta = _cleanMap(p.meta);
     meta['trainingType'] = p.trainingType.name;
     if (meta.isNotEmpty) map['meta'] = meta;
@@ -57,7 +57,7 @@ class YamlPackFormatterService {
   }
 
   Map<String, dynamic> _cleanMap(Map<String, dynamic> source) {
-    final out = LinkedHashMap<String, dynamic>();
+    final out = <String, dynamic>{};
     for (final e in source.entries) {
       final v = _cleanValue(e.value);
       if (v == null) continue;

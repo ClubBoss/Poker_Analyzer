@@ -70,7 +70,7 @@ class _ShowCardFlipState extends State<ShowCardFlip>
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            double value = _controller.value;
+            final double value = _controller.value;
             double angle = value * pi;
             Widget display;
             if (value <= 0.5) {

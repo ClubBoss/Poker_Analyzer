@@ -482,9 +482,9 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     entries.removeWhere(
         (e) => !_levels.contains(service.classifySeverity(e.value)));
 
-    List<MapEntry<String, int>> cmpEntries = [];
+    final List<MapEntry<String, int>> cmpEntries = [];
 
-    int _score(MapEntry<String, int> e) {
+    int score(MapEntry<String, int> e) {
       final severity = service.classifySeverity(e.value);
       switch (severity) {
         case MistakeSeverity.high:
@@ -499,12 +499,12 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
 
     if (_sort == MistakeSortOption.severity) {
       entries.sort((a, b) {
-        final cmp = _score(b).compareTo(_score(a));
+        final cmp = score(b).compareTo(score(a));
         if (cmp != 0) return cmp;
         return b.value.compareTo(a.value);
       });
       cmpEntries.sort((a, b) {
-        final cmp = _score(b).compareTo(_score(a));
+        final cmp = score(b).compareTo(score(a));
         if (cmp != 0) return cmp;
         return b.value.compareTo(a.value);
       });
@@ -606,8 +606,9 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         final gto = h.gtoAction;
         if (exp == null || gto == null) continue;
         if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
-        if (visibleTags.isNotEmpty && !h.tags.any(visibleTags.contains))
+        if (visibleTags.isNotEmpty && !h.tags.any(visibleTags.contains)) {
           continue;
+        }
         final day = DateTime(h.date.year, h.date.month, h.date.day);
         if (day.isBefore(cmpStart) || day.isAfter(cmpEnd)) continue;
         if (cmpOverlay) {
@@ -1028,7 +1029,7 @@ class _TagMistakeHandsScreen extends StatelessWidget {
   final String dateFilter;
   final DateTimeRange? dateRange;
   const _TagMistakeHandsScreen(
-      {required this.tag, required this.dateFilter, this.dateRange});
+      {required this.tag, required this.dateFilter});
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;

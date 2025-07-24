@@ -14,7 +14,7 @@ void main() {
       hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10)
         ..board.addAll(['Kh', 'Qd', '2c']),
     );
-    final expander = TrainingSpotExpander();
+    const expander = TrainingSpotExpander();
     final list = expander.expand(spot);
     expect(list.length > 1, true);
     expect(list.first.id, 's1');
@@ -36,7 +36,7 @@ void main() {
       trainingType: TrainingType.pushFold,
       spots: [spot],
     );
-    final expander = TrainingSpotExpander();
+    const expander = TrainingSpotExpander();
     final res = expander.expandPack(pack);
     expect(res.spots.length, greaterThan(1));
     expect(res.spotCount, res.spots.length);

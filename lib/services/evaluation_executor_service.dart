@@ -174,7 +174,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
       throw Exception('Missing evaluation data');
     }
     final spot = TrainingSpot.fromJson(map);
-    final ctx = WidgetsBinding.instance.renderViewElement;
+    final ctx = WidgetsBinding.instance.rootElement;
     if (ctx == null) throw Exception('No context');
     final result = evaluateSpot(ctx, spot, action);
     req.metadata?['result'] = result.toJson();
@@ -402,8 +402,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
     );
   }
 
+  @override
   Future<EvaluationResult> evaluate(TrainingPackSpot spot) async {
-    final ctx = WidgetsBinding.instance.renderViewElement;
+    final ctx = WidgetsBinding.instance.rootElement;
     if (ctx == null) throw Exception('No context');
     final hand = spot.hand;
     final heroCards = hand.heroCards
@@ -595,7 +596,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
       if (act != null) {
         final bestEv = spot.correctAction == 'push' ? heroPushEv : foldEv;
         final heroEv = act == 'push' ? heroPushEv : foldEv;
-        double loss = bestEv - heroEv;
+        final double loss = bestEv - heroEv;
         var updated = hand.copyWith(
           gtoAction: spot.correctAction,
           evLoss: loss,

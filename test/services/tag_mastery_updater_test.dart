@@ -6,14 +6,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('updateMastery moves value towards accuracy', () {
-    final updater = const TagMasteryUpdater();
+    const updater = TagMasteryUpdater();
     final current = {'a': 0.4};
-    final summary = TrainingTrackSummary(
+    const summary = TrainingTrackSummary(
       goalId: 'g1',
       accuracy: 80,
       mistakeCount: 2,
       tagBreakdown: {
-        'a': const TagSummary(total: 10, correct: 8, accuracy: 80),
+        'a': TagSummary(total: 10, correct: 8, accuracy: 80),
       },
     );
 
@@ -23,13 +23,13 @@ void main() {
   });
 
   test('new tags start at 0.5', () {
-    final updater = const TagMasteryUpdater();
-    final summary = TrainingTrackSummary(
+    const updater = TagMasteryUpdater();
+    const summary = TrainingTrackSummary(
       goalId: 'g1',
       accuracy: 50,
       mistakeCount: 5,
       tagBreakdown: {
-        'b': const TagSummary(total: 4, correct: 2, accuracy: 50),
+        'b': TagSummary(total: 4, correct: 2, accuracy: 50),
       },
     );
     final updated = updater.updateMastery(current: const {}, summary: summary);

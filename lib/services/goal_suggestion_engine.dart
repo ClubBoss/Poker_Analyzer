@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '../models/user_goal.dart';
-import '../models/v2/training_pack_template_v2.dart';
 import 'pack_library_loader_service.dart';
 import 'session_log_service.dart';
 import 'tag_mastery_service.dart';

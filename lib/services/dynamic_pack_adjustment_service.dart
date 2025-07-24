@@ -85,7 +85,7 @@ class DynamicPackAdjustmentService {
       case PlayerStyle.neutral:
         break;
     }
-    var stack = (tpl.heroBbStack + diff).clamp(5, 40);
+    final stack = (tpl.heroBbStack + diff).clamp(5, 40);
     final base = tpl.heroRange ?? PackGeneratorService.topNHands(25).toList();
     var pct = (base.length * 100 / 169).round() + diff * 5;
     pct = pct.clamp(5, 100);

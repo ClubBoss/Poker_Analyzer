@@ -15,7 +15,7 @@ class PackStatsIndexService {
     final dir = Directory(p.join(docs.path, path));
     if (!dir.existsSync()) return 0;
     final tagFile = File(p.join(dir.path, 'tag_stats.json'));
-    Map<String, int> tagCounts = {};
+    final Map<String, int> tagCounts = {};
     if (tagFile.existsSync()) {
       try {
         final data = jsonDecode(await tagFile.readAsString());

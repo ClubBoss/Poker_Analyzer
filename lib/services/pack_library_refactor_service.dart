@@ -100,7 +100,7 @@ class PackLibraryRefactorService {
   Map<String, dynamic> _orderedMap(TrainingPackTemplateV2 tpl) {
     final json = tpl.toJson();
     json['title'] = json.remove('name');
-    final map = LinkedHashMap<String, dynamic>();
+    final map = <String, dynamic>{};
     for (final k in ['id', 'title', 'tags', 'meta', 'spots']) {
       if (json.containsKey(k)) map[k] = json.remove(k);
     }

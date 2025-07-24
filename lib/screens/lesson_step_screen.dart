@@ -124,10 +124,10 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
 
     if (_completed) {
       children.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
           child: Row(
-            children: const [
+            children: [
               Icon(Icons.check_circle, color: Colors.green, size: 20),
               SizedBox(width: 8),
               Text(

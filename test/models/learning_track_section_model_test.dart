@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/learning_path_template_v2.dart';
-import 'package:poker_analyzer/models/learning_path_stage_model.dart';
 import 'package:poker_analyzer/models/learning_track_section_model.dart';
 
 void main() {
@@ -51,12 +50,12 @@ void main() {
       description: '',
       stageIds: ['s1'],
     );
-    final tpl = LearningPathTemplateV2(
+    const tpl = LearningPathTemplateV2(
       id: 'p',
       title: 't',
       description: '',
-      stages: const [],
-      sections: const [section],
+      stages: [],
+      sections: [section],
     );
     final map = tpl.toJson();
     expect(map['sections'], isNotNull);

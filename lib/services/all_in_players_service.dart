@@ -100,5 +100,6 @@ class AllInPlayersService extends ChangeNotifier {
     }
   }
 
+  @override
   void dispose() => detach();
 }

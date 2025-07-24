@@ -92,7 +92,6 @@ class _FirstLaunchTutorialState extends State<FirstLaunchTutorial> {
 
 void showFirstLaunchTutorial(BuildContext context) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   void close() => entry.remove();
   entry = OverlayEntry(

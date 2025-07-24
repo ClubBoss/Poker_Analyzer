@@ -163,7 +163,7 @@ class _TrainingPackTemplateEditorScreenState
     final path = result.files.single.path;
     if (path == null) return;
     try {
-      final reader = const YamlReader();
+      const reader = YamlReader();
       final map = reader.read(await File(path).readAsString());
       final service = context.read<TemplateStorageService>();
       final error = service.validateTemplateJson(Map<String, dynamic>.from(map));
@@ -208,6 +208,10 @@ class _TrainingPackTemplateEditorScreenState
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _importYaml,
+        child: const Icon(Icons.upload_file),
+      ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -251,10 +255,6 @@ class _TrainingPackTemplateEditorScreenState
           ),
         ],
       ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _importYaml,
-        child: const Icon(Icons.upload_file),
       ),
     );
   }

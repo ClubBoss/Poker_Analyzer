@@ -63,11 +63,11 @@ class SavedHandManagerService extends ChangeNotifier {
 
   Future<void> _sync() async {
     if (_cloud == null) return;
-    await _cloud!.queueMutation('saved_hands', 'main', {
+    await _cloud.queueMutation('saved_hands', 'main', {
       'hands': [for (final h in hands) h.toJson()],
       'updatedAt': DateTime.now().toIso8601String(),
     });
-    unawaited(_cloud!.syncUp());
+    unawaited(_cloud.syncUp());
   }
 
   List<SavedHand> get hands => _storage.hands;
@@ -216,7 +216,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<String?> exportAllSessionsMarkdown(Map<int, String> notes) async {
     if (hands.isEmpty) return null;
 
-    String _durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
@@ -233,7 +233,7 @@ class SavedHandManagerService extends ChangeNotifier {
 
       buffer.writeln('## Сессия $id');
       buffer.writeln('- Дата: ${formatDateTime(stats.end)}');
-      buffer.writeln('- Длительность: ${_durToStr(stats.duration)}');
+      buffer.writeln('- Длительность: ${durToStr(stats.duration)}');
       buffer.writeln('- Раздач: ${stats.count}');
       buffer.writeln('- Верно: ${stats.correct}');
       buffer.writeln('- Ошибки: ${stats.incorrect}');
@@ -262,7 +262,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<String?> exportAllSessionsPdf(Map<int, String> notes) async {
     if (hands.isEmpty) return null;
 
-    String _durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -290,7 +290,7 @@ class SavedHandManagerService extends ChangeNotifier {
                   pw.SizedBox(height: 4),
                   pw.Text('Дата: ${formatDateTime(stats.end)}',
                       style: pw.TextStyle(font: regularFont)),
-                  pw.Text('Длительность: ${_durToStr(stats.duration)}',
+                  pw.Text('Длительность: ${durToStr(stats.duration)}',
                       style: pw.TextStyle(font: regularFont)),
                   pw.Text('Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
                       style: pw.TextStyle(font: regularFont)),
@@ -333,7 +333,7 @@ class SavedHandManagerService extends ChangeNotifier {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String _durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession();
     final ids = List<int>.from(sessionIds)..sort();
@@ -349,7 +349,7 @@ class SavedHandManagerService extends ChangeNotifier {
 
       buffer.writeln('## Сессия $id');
       buffer.writeln('- Дата: ${formatDateTime(stats.end)}');
-      buffer.writeln('- Длительность: ${_durToStr(stats.duration)}');
+      buffer.writeln('- Длительность: ${durToStr(stats.duration)}');
       buffer.writeln('- Раздач: ${stats.count}');
       buffer.writeln('- Верно: ${stats.correct}');
       buffer.writeln('- Ошибки: ${stats.incorrect}');
@@ -380,7 +380,7 @@ class SavedHandManagerService extends ChangeNotifier {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String _durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -408,7 +408,7 @@ class SavedHandManagerService extends ChangeNotifier {
                     pw.SizedBox(height: 4),
                   pw.Text('Дата: ${formatDateTime(stats.end)}',
                         style: pw.TextStyle(font: regularFont)),
-                  pw.Text('Длительность: ${_durToStr(stats.duration)}',
+                  pw.Text('Длительность: ${durToStr(stats.duration)}',
                         style: pw.TextStyle(font: regularFont)),
                   pw.Text('Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
                         style: pw.TextStyle(font: regularFont)),
@@ -445,7 +445,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<String?> exportAllSessionsCsv(Map<int, String> notes) async {
     if (hands.isEmpty) return null;
 
-    String _durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
@@ -480,7 +480,7 @@ class SavedHandManagerService extends ChangeNotifier {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String _durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = handsBySession();
     final ids = List<int>.from(sessionIds)..sort();
@@ -528,7 +528,7 @@ class SavedHandManagerService extends ChangeNotifier {
       buffer.write(ExportUtils.handMarkdown(hand));
     }
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/session_${sessionId}.md');
+    final file = File('${dir.path}/session_$sessionId.md');
     await file.writeAsString(buffer.toString());
     return file.path;
   }
@@ -567,7 +567,7 @@ class SavedHandManagerService extends ChangeNotifier {
 
     final bytes = await pdf.save();
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/session_${sessionId}.pdf');
+    final file = File('${dir.path}/session_$sessionId.pdf');
     await file.writeAsBytes(bytes);
     return file.path;
   }
@@ -578,7 +578,7 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<String?> exportSessionsArchive({bool pdf = false}) async {
     if (hands.isEmpty) return null;
 
-    String _folder(DateTime d) {
+    String folder0(DateTime d) {
       final y = d.year.toString().padLeft(4, '0');
       final m = d.month.toString().padLeft(2, '0');
       final day = d.day.toString().padLeft(2, '0');
@@ -592,7 +592,7 @@ class SavedHandManagerService extends ChangeNotifier {
       final list = List<SavedHand>.from(entry.value)
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (list.isEmpty) continue;
-      final folder = _folder(list.first.savedAt);
+      final folder = folder0(list.first.savedAt);
       final path = pdf
           ? await exportSessionHandsPdf(id)
           : await exportSessionHandsMarkdown(id);
@@ -606,7 +606,6 @@ class SavedHandManagerService extends ChangeNotifier {
     }
 
     final bytes = ZipEncoder().encode(archive);
-    if (bytes == null) return null;
     final dir = await getApplicationDocumentsDirectory();
     final out =
         File('${dir.path}/saved_hands_archive_${DateTime.now().millisecondsSinceEpoch}.zip');
@@ -619,7 +618,7 @@ class SavedHandManagerService extends ChangeNotifier {
     String filter = '';
     String dateFilter = 'Все';
     String sortOrder = 'По дате (новые сверху)';
-    Set<String> localFilters = {...tagFilters};
+    final Set<String> localFilters = {...tagFilters};
     final selected = await showDialog<SavedHand>(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -1080,7 +1079,7 @@ class SavedHandManagerService extends ChangeNotifier {
   }
 
   TrainingPackTemplate createPack(String name, List<SavedHand> selected) {
-    HeroPosition _pos(String s) => parseHeroPosition(s);
+    HeroPosition pos(String s) => parseHeroPosition(s);
 
     TrainingPackSpot spotFromHand(SavedHand h) {
       final cards =
@@ -1094,7 +1093,7 @@ class SavedHandManagerService extends ChangeNotifier {
         id: const Uuid().v4(),
         hand: HandData(
           heroCards: cards,
-          position: _pos(h.heroPosition),
+          position: pos(h.heroPosition),
           heroIndex: h.heroIndex,
           playerCount: h.numberOfPlayers,
           stacks: stacks,

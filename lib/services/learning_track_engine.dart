@@ -8,23 +8,23 @@ class LearningTrackEngine {
   const LearningTrackEngine();
 
   static final List<LessonTrack> _tracks = [
-    LessonTrack(
+    const LessonTrack(
       id: 'mtt_pro',
       title: 'MTT Pro Track',
       description: 'Become a tournament crusher',
-      stepIds: const ['lesson1'],
+      stepIds: ['lesson1'],
     ),
-    LessonTrack(
+    const LessonTrack(
       id: 'live_exploit',
       title: 'Live Exploit Track',
       description: 'Exploitative lines for live games',
-      stepIds: const ['lesson1'],
+      stepIds: ['lesson1'],
     ),
-    LessonTrack(
+    const LessonTrack(
       id: 'leak_fixer',
       title: 'Leak Fixer',
       description: 'Fix your weakest spots using tags',
-      stepIds: const ['lesson1'],
+      stepIds: ['lesson1'],
     ),
   ];
 
@@ -38,7 +38,7 @@ class LearningTrackEngine {
     required List<TrainingPackTemplateV2> allPacks,
     required Map<String, TrainingPackStat> stats,
   }) {
-    final unlockService = const TrainingPathUnlockService();
+    const unlockService = TrainingPathUnlockService();
     final unlocked = unlockService.getUnlocked(allPacks, stats);
 
     TrainingPackTemplateV2? next;

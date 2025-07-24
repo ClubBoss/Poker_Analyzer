@@ -31,7 +31,7 @@ class LearningPathProgressEngine {
     return tpl.spots.isNotEmpty ? tpl.spots.length : tpl.spotCount;
   }
 
-  Map<String, double> _pathProgress = {};
+  final Map<String, double> _pathProgress = {};
   DateTime _lastComputed = DateTime.fromMillisecondsSinceEpoch(0);
   Future<void>? _loading;
 

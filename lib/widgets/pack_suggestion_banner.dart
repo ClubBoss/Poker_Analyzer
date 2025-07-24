@@ -5,7 +5,6 @@ import '../services/smart_suggestion_engine.dart';
 import '../services/training_history_service_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_v2.dart';
-import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
 import '../screens/pack_suggestion_preview_screen.dart';
 

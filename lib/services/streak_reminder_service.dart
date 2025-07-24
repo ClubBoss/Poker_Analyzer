@@ -71,7 +71,7 @@ class StreakReminderService extends ChangeNotifier {
     await _plugin.zonedSchedule(
       _id,
       'Poker Analyzer',
-      "Don\u2019t break your streak! Quick session to keep the momentum.",
+      'Don\u2019t break your streak! Quick session to keep the momentum.',
       when,
       const NotificationDetails(
         android: AndroidNotificationDetails('streak_reminder', 'Streak Reminder'),

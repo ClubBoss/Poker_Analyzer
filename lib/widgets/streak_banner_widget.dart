@@ -73,7 +73,7 @@ class _StreakBannerWidgetState extends State<StreakBannerWidget>
   @override
   Widget build(BuildContext context) {
     if (_loading || _streak <= 0 || !_active) return const SizedBox.shrink();
-    final label = '${_streak}-дневная серия${_streak >= 7 ? '!' : ''}';
+    final label = '$_streak-дневная серия${_streak >= 7 ? '!' : ''}';
     return FadeTransition(
       opacity: _controller,
       child: Container(

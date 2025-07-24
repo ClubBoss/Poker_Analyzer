@@ -69,7 +69,9 @@ class EvaluationProcessingService {
   Future<void> processQueue() async {
     await _initFuture;
     if (processing ||
-        await queueService.queueLock.synchronized(() => queueService.pending.isEmpty)) return;
+        await queueService.queueLock.synchronized(() => queueService.pending.isEmpty)) {
+      return;
+    }
     processing = true;
     while (await queueService.queueLock.synchronized(() => queueService.pending.isNotEmpty)) {
       if (pauseRequested || cancelRequested) break;

@@ -105,7 +105,7 @@ class StreakChart extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: interval,
                 getDrawingHorizontalLine: (value) =>
-                    FlLine(color: Colors.white24, strokeWidth: 1),
+                    const FlLine(color: Colors.white24, strokeWidth: 1),
               ),
               titlesData: const FlTitlesData(
                 rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),

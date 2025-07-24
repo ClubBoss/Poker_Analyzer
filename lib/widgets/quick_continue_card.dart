@@ -19,7 +19,7 @@ class QuickContinueCard extends StatelessWidget {
         final focus =
             service.focusHandTypes.map((e) => e.label).join(', ');
         final total = template.totalWeight;
-        final progress = '${session.index}/${total}';
+        final progress = '${session.index}/$total';
         final evPct = total == 0 ? 0.0 : template.evCovered * 100 / total;
         final icmPct = total == 0 ? 0.0 : template.icmCovered * 100 / total;
         final deltaEv = evPct - service.preEvPct;

@@ -16,7 +16,9 @@ class ActionHistoryService {
   /// [visibleCount] actions are taken into account. Existing lists are replaced.
   void updateHistory(List<ActionEntry> actions, {int? visibleCount}) {
     _allActions = List<ActionEntry>.from(actions);
-    for (final list in _actionsByStreet.values) list.clear();
+    for (final list in _actionsByStreet.values) {
+      list.clear();
+    }
     final source =
         visibleCount != null ? actions.take(visibleCount).toList() : actions;
     for (final a in source) {
@@ -26,7 +28,9 @@ class ActionHistoryService {
 
   /// Clears all stored actions.
   void clear() {
-    for (final list in _actionsByStreet.values) list.clear();
+    for (final list in _actionsByStreet.values) {
+      list.clear();
+    }
     _allActions.clear();
   }
 

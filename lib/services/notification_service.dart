@@ -98,7 +98,7 @@ class NotificationService {
     final rec = context.read<PersonalRecommendationService>();
     final tpl = rec.packs.isNotEmpty ? rec.packs.first : null;
     final prefs = await SharedPreferences.getInstance();
-    var focus = tpl?.heroPos.label ?? 'training';
+    final focus = tpl?.heroPos.label ?? 'training';
     var remaining = 0;
     if (tpl != null) {
       final idx = prefs.getInt('tpl_prog_${tpl.id}') ?? 0;

@@ -6,7 +6,6 @@ import '../models/v2/hero_position.dart';
 import '../models/evaluation_result.dart';
 import '../widgets/poker_table_view.dart' show PlayerAction;
 import '../helpers/hand_utils.dart';
-import '../helpers/poker_position_helper.dart';
 import 'mistake_categorization_engine.dart';
 
 class MistakeCategorizer {

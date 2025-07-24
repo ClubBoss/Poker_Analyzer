@@ -200,7 +200,7 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('${challengeProgress}/${challenge.target}',
+                Text('$challengeProgress/${challenge.target}',
                     style: const TextStyle(color: Colors.white70)),
               ],
             ),

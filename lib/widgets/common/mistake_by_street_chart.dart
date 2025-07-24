@@ -67,11 +67,11 @@ class MistakeByStreetChart extends StatelessWidget {
               drawVerticalLine: false,
               horizontalInterval: interval,
               getDrawingHorizontalLine: (value) =>
-                  FlLine(color: Colors.white24, strokeWidth: 1),
+                  const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,

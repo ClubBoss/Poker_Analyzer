@@ -86,7 +86,7 @@ class PackLibraryCompletionService {
       final data = jsonDecode(raw);
       if (data is Map) {
         return PackCompletionData.fromJson(
-            Map<String, dynamic>.from(data as Map));
+            Map<String, dynamic>.from(data));
       }
     } catch (_) {}
     return null;
@@ -104,7 +104,7 @@ class PackLibraryCompletionService {
           if (data is Map) {
             final id = k.substring(_prefix.length);
             result[id] = PackCompletionData.fromJson(
-                Map<String, dynamic>.from(data as Map));
+                Map<String, dynamic>.from(data));
           }
         } catch (_) {}
       }

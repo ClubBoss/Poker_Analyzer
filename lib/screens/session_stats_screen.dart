@@ -98,8 +98,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final h = d.inHours;
     final m = d.inMinutes.remainder(60);
     final parts = <String>[];
-    if (h > 0) parts.add('${h}ч');
-    parts.add('${m}м');
+    if (h > 0) parts.add('$hч');
+    parts.add('$mм');
     return parts.join(' ');
   }
 
@@ -385,7 +385,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
 
     final Map<int, _SessionData> sessionStats = {};
 
-    int totalHands = hands.length;
+    final int totalHands = hands.length;
     Duration totalDuration = Duration.zero;
     int totalCorrect = 0;
     int totalIncorrect = 0;
@@ -858,7 +858,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       isCurved: true,
       color: Colors.greenAccent,
       barWidth: 2,
-      dotData: FlDotData(show: false),
+      dotData: const FlDotData(show: false),
     );
 
     return Scaffold(
@@ -976,13 +976,13 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                     drawVerticalLine: false,
                     horizontalInterval: 20,
                     getDrawingHorizontalLine: (value) =>
-                        FlLine(color: Colors.white24, strokeWidth: 1),
+                        const FlLine(color: Colors.white24, strokeWidth: 1),
                   ),
                   titlesData: FlTitlesData(
                     rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -1107,7 +1107,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => SavedHandsScreen(
+                      builder: (_) => const SavedHandsScreen(
                         initialPosition: 'SB',
                         initialAccuracy: 'Только ошибки',
                       ),
@@ -1125,7 +1125,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => SavedHandsScreen(
+                      builder: (_) => const SavedHandsScreen(
                         initialPosition: 'BB',
                         initialAccuracy: 'Только ошибки',
                       ),

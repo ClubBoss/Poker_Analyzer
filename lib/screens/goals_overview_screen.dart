@@ -107,6 +107,7 @@ class GoalsOverviewScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Цели'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
+      actions: [SyncStatusIcon.of(context)],
         children: [
           _tile(context,
               title: 'Раздач за неделю',
@@ -122,7 +123,6 @@ class GoalsOverviewScreen extends StatelessWidget {
               onEdit: () => _editAccuracy(context),
               percent: true),
         ],
-      actions: [SyncStatusIcon.of(context)],
       ),
     );
   }

@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/training/generation/yaml_reader.dart';
 import '../models/training_pack.dart';
-import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'pack_tag_index_service.dart';
 import 'training_pack_storage_service.dart';
@@ -94,7 +93,7 @@ class SmartSuggestionService {
   }
 
   Future<List<String>> suggestRelated(List<String> tags) async {
-    final index = const PackTagIndexService();
+    const index = PackTagIndexService();
     final paths = await index.search(tags, mode: TagFilterMode.and);
     if (paths.isEmpty) return [];
     final prefs = await SharedPreferences.getInstance();

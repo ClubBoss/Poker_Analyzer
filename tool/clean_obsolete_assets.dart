@@ -49,7 +49,7 @@ Future<void> main(List<String> args) async {
   final keep = <String>{
     storage.ref(p.join(kPrefix, 'manifest.json')).fullPath,
   };
-  final manifestRegex = RegExp(r"manifest.*\.json$");
+  final manifestRegex = RegExp(r'manifest.*\.json$');
   for (final item in manifest) {
     final name = (item as Map<String, dynamic>)['png'] as String?;
     if (name != null) {

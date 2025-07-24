@@ -457,9 +457,9 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                                 style: TextStyle(color: Colors.white70)),
                             const SizedBox(height: 4),
                             Text(
-                              translateCategory(mainError!.key).isEmpty
+                              translateCategory(mainError.key).isEmpty
                                   ? 'Без категории'
-                                  : translateCategory(mainError!.key),
+                                  : translateCategory(mainError.key),
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold),

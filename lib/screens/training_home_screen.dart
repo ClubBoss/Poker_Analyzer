@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collection/collection.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import '../helpers/category_translations.dart';
@@ -12,7 +11,6 @@ import '../services/training_pack_stats_service.dart';
 import '../services/adaptive_training_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/dynamic_pack_adjustment_service.dart';
-import '../utils/template_priority.dart';
 import 'training_session_screen.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../services/daily_spotlight_service.dart';

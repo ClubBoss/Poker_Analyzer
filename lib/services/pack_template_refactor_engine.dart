@@ -1,4 +1,3 @@
-import 'dart:collection';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
@@ -48,7 +47,7 @@ class PackTemplateRefactorEngine {
 
   Map<String, dynamic> orderedJson(TrainingPackTemplateV2 tpl) {
     final json = tpl.toJson();
-    final map = LinkedHashMap<String, dynamic>();
+    final map = <String, dynamic>{};
     for (final k in ['id', 'name', 'tags', 'meta', 'spots']) {
       if (json.containsKey(k)) map[k] = json.remove(k);
     }

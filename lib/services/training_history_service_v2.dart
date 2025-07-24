@@ -19,7 +19,7 @@ class TrainingHistoryServiceV2 {
         return [
           for (final e in data)
             if (e is Map)
-              TrainingHistoryEntryV2.fromJson(Map<String, dynamic>.from(e as Map))
+              TrainingHistoryEntryV2.fromJson(Map<String, dynamic>.from(e))
         ];
       }
     } catch (_) {}

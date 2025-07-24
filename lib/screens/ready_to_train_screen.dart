@@ -54,7 +54,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     final community = await TrainingPackService.createDrillFromGlobalMistakes(
       context,
     );
-    SavedHand? last = context
+    final SavedHand? last = context
         .read<SavedHandManagerService>()
         .hands
         .reversed

@@ -27,8 +27,9 @@ class TrainingPackSuggestionService {
     String? audience;
     final diffs = <double>[];
     for (final t in last) {
-      if (t.audience != null && t.audience!.isNotEmpty)
+      if (t.audience != null && t.audience!.isNotEmpty) {
         audience ??= t.audience!;
+      }
       for (final tag in t.tags) {
         final key = tag.trim().toLowerCase();
         if (key.isNotEmpty) tags.update(key, (v) => v + 1, ifAbsent: () => 1);

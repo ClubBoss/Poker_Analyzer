@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/achievement_service.dart';
 import 'learning_path_progress_service.dart';
 import 'learning_path_completion_service.dart';
-import 'training_progress_service.dart';
 import 'training_stats_service.dart';
 
 /// Engine that unlocks achievements based on learning path progress.

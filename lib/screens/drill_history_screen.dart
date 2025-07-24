@@ -46,7 +46,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
     if (data.length < 2) {
       return SizedBox(
         height: responsiveSize(context, 200),
-        child: Center(
+        child: const Center(
           child:
               Text('Недостаточно данных', style: TextStyle(color: Colors.white70)),
         ),
@@ -76,11 +76,11 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
             drawVerticalLine: false,
             horizontalInterval: 20,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -127,7 +127,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
               isCurved: true,
               color: AppColors.accent,
               barWidth: 2,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
             ),
           ],
         ),
@@ -158,7 +158,9 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   Future<void> _repeatMistakes() async {
     final history = context.read<DrillHistoryService>().results;
     final ids = <String>{};
-    for (final r in history) ids.addAll(r.wrongSpotIds.where((e) => e.isNotEmpty));
+    for (final r in history) {
+      ids.addAll(r.wrongSpotIds.where((e) => e.isNotEmpty));
+    }
     if (ids.isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));

@@ -73,7 +73,7 @@ class TrainingSpotExpander {
 
   TrainingPackSpot _positionVariant(TrainingPackSpot spot) {
     final clone = _clone(spot);
-    final values = HeroPosition.values;
+    const values = HeroPosition.values;
     final idx = values.indexOf(spot.hand.position);
     if (idx >= 0 && idx + 1 < values.length) {
       clone.hand.position = values[idx + 1];

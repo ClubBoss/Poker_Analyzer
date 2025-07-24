@@ -62,7 +62,7 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
         for (final e in entries)
           DataRow(
             color: e.value == 0
-                ? MaterialStateProperty.all(AppColors.errorBg)
+                ? WidgetStateProperty.all(AppColors.errorBg)
                 : null,
             cells: [
               DataCell(Text(e.key)),
@@ -125,7 +125,7 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
 
 Future<Map<String, dynamic>> _statsTask(String filter) async {
   final docs = await getApplicationDocumentsDirectory();
-  final reader = const YamlReader();
+  const reader = YamlReader();
   final pos = <String, int>{};
   final stack = <String, int>{};
   final type = <String, int>{};

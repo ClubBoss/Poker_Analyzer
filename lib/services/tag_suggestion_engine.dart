@@ -21,9 +21,13 @@ class TagSuggestionEngine {
     if (aud == 'beginner') set.add('beginner');
     final kw = pack.meta['keywords'];
     if (kw is List) {
-      for (final k in kw) if (k is String && k.isNotEmpty) set.add(k);
+      for (final k in kw) {
+        if (k is String && k.isNotEmpty) set.add(k);
+      }
     } else if (kw is String) {
-      for (final w in kw.split(RegExp(r'[;, ]+'))) if (w.isNotEmpty) set.add(w);
+      for (final w in kw.split(RegExp(r'[;, ]+'))) {
+        if (w.isNotEmpty) set.add(w);
+      }
     }
     final list = set.toList()..sort();
     return list;

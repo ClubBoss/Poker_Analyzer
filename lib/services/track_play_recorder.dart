@@ -21,7 +21,7 @@ class TrackPlayRecorder {
         final data = jsonDecode(raw);
         if (data is List) {
           _history.addAll(data.whereType<Map>().map((e) =>
-              TrackPlayHistory.fromJson(Map<String, dynamic>.from(e as Map))));
+              TrackPlayHistory.fromJson(Map<String, dynamic>.from(e))));
         }
       } catch (_) {}
     }

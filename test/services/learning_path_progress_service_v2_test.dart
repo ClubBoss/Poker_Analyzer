@@ -8,13 +8,13 @@ import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final service = const LearningPathProgressService();
+  const service = LearningPathProgressService();
 
-  LearningPathTemplateV2 _path() => LearningPathTemplateV2(
+  LearningPathTemplateV2 path() => const LearningPathTemplateV2(
     id: 'p1',
     title: 'Test Path',
     description: '',
-    stages: const [
+    stages: [
       LearningPathStageModel(
         id: 's1',
         title: 'Stage 1',
@@ -49,7 +49,7 @@ void main() {
     final progress = service.computeProgress(
       allPacks: allPacks,
       stats: stats,
-      path: _path(),
+      path: path(),
     );
 
     expect(progress.completedStages, 1);
@@ -66,7 +66,7 @@ void main() {
     final progress = service.computeProgress(
       allPacks: allPacks,
       stats: stats,
-      path: _path(),
+      path: path(),
     );
 
     expect(progress.completedStages, 0);

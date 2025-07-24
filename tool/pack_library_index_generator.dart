@@ -2,11 +2,10 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
-import 'package:poker_analyzer/core/training/generation/yaml_reader.dart';
 
 Future<void> main(List<String> args) async {
-  var src = args.isNotEmpty ? args[0] : 'assets/packs/v2';
-  var out = args.length > 1 ? args[1] : 'assets/packs/v2/library_index.json';
+  final src = args.isNotEmpty ? args[0] : 'assets/packs/v2';
+  final out = args.length > 1 ? args[1] : 'assets/packs/v2/library_index.json';
   final dir = Directory(src);
   if (!dir.existsSync()) {
     stderr.writeln('Directory not found: $src');

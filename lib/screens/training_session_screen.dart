@@ -174,7 +174,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     double? best;
     for (final a in spot.hand.actions[0] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex && a.ev != null) {
-        best = best == null ? a.ev! : max(best!, a.ev!);
+        best = best == null ? a.ev! : max(best, a.ev!);
       }
     }
     return best;
@@ -736,7 +736,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
-                              categoryName!,
+                              categoryName,
                               style: const TextStyle(color: Colors.white70),
                             ),
                           ),
@@ -765,8 +765,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                 ? FloatingActionButton(
                     heroTag: 'stopDrillFab',
                     tooltip: 'Stop Drill & show summary',
-                    child: const Icon(Icons.stop),
                     onPressed: _showEndlessSummary,
+                    child: const Icon(Icons.stop),
                   )
                 : null,
           );

@@ -17,7 +17,7 @@ class PlayerNoteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasNote = note != null && note!.isNotEmpty;
 
-    Widget button = IconButton(
+    final Widget button = IconButton(
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),
       iconSize: 16 * scale,

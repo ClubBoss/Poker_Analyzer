@@ -121,7 +121,9 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
         positions[i] = order[i % order.length];
       }
     } catch (_) {
-      for (int i = 0; i < playerCount; i++) positions[i] = '';
+      for (int i = 0; i < playerCount; i++) {
+        positions[i] = '';
+      }
     }
     return SavedHand(
       name: handId,

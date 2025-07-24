@@ -96,7 +96,6 @@ class _SessionLabelOverlayState extends State<SessionLabelOverlay>
 /// Display a [SessionLabelOverlay] above the current screen.
 void showSessionLabelOverlay(BuildContext context, String text) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => SessionLabelOverlay(

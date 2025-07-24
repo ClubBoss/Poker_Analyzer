@@ -10,11 +10,11 @@ void main() {
 
   const engine = LearningPathStageUnlockEngine();
 
-  LearningPathTemplateV2 _path() => LearningPathTemplateV2(
+  LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
     id: 'p',
     title: 'Path',
     description: '',
-    stages: const [
+    stages: [
       LearningPathStageModel(
         id: 's1',
         title: 'S1',
@@ -42,7 +42,7 @@ void main() {
     ],
   );
 
-  SessionLog _log(String id, int correct, int mistakes) => SessionLog(
+  SessionLog log(String id, int correct, int mistakes) => SessionLog(
     sessionId: '1',
     templateId: id,
     startedAt: DateTime.now(),
@@ -52,8 +52,8 @@ void main() {
   );
 
   test('only next stage active after completion', () {
-    final path = _path();
-    final logs = {'pack1': _log('pack1', 2, 0)};
+    final path = path0();
+    final logs = {'pack1': log('pack1', 2, 0)};
     final states = engine.computeStageUIStates(path, logs);
     expect(states['s1'], LearningStageUIState.done);
     expect(states['s2'], LearningStageUIState.active);
@@ -61,7 +61,7 @@ void main() {
   });
 
   test('first stage active when none completed', () {
-    final path = _path();
+    final path = path0();
     final states = engine.computeStageUIStates(path, const {});
     expect(states['s1'], LearningStageUIState.active);
     expect(states['s2'], LearningStageUIState.locked);

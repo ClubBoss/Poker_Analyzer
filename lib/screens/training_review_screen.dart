@@ -30,7 +30,7 @@ class TrainingReviewScreen extends StatelessWidget {
   }
 
   Widget _buildAction(ActionEntry entry) {
-    String label = '${entry.action}';
+    String label = entry.action;
     if (entry.amount != null) {
       label += ' ${entry.amount}';
     }
@@ -38,7 +38,7 @@ class TrainingReviewScreen extends StatelessWidget {
     if (entry.playerIndex < spot.stacks.length) {
       final stack = spot.stacks[entry.playerIndex];
       final bb = (stack / 12.5).round();
-      label += ' $stack (${bb} BB)';
+      label += ' $stack ($bb BB)';
     }
 
     String? advice;
@@ -118,7 +118,7 @@ class TrainingReviewScreen extends StatelessWidget {
       final stack = spot.stacks[i];
       final bb = (stack / 12.5).round();
       stackRows.add(
-        Text('Stack: $stack (${bb} BB)',
+        Text('Stack: $stack ($bb BB)',
             style: const TextStyle(color: Colors.white70)),
       );
     }

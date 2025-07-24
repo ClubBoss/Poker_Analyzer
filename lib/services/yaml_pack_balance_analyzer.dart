@@ -24,7 +24,7 @@ class YamlPackBalanceAnalyzer {
       stacks[stack] = (stacks[stack] ?? 0) + 1;
     }
     final total = spots.length;
-    _checkBias(String type, Map<dynamic, int> map, int severity) {
+    void checkBias(String type, Map<dynamic, int> map, int severity) {
       if (map.length <= 1) return;
       final entry = map.entries.reduce((a, b) => b.value > a.value ? b : a);
       final pct = entry.value / total;
@@ -37,10 +37,10 @@ class YamlPackBalanceAnalyzer {
       }
     }
 
-    _checkBias('position_bias', pos, 2);
-    _checkBias('action_repetition', acts, 1);
-    _checkBias('street_bias', streets, 1);
-    _checkBias('stack_bias', stacks, 1);
+    checkBias('position_bias', pos, 2);
+    checkBias('action_repetition', acts, 1);
+    checkBias('street_bias', streets, 1);
+    checkBias('stack_bias', stacks, 1);
 
     final evs = [for (final s in spots) if (s.heroEv != null) s.heroEv!];
     if (evs.length >= 5) {

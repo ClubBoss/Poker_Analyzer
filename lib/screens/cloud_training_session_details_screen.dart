@@ -272,7 +272,7 @@ class _CloudTrainingSessionDetailsScreenState
       handNotes: _handNotes.isEmpty ? null : _handNotes,
       handTags: _handTags.isEmpty ? null : _handTags,
     );
-    final encoder = const JsonEncoder.withIndent('  ');
+    const encoder = JsonEncoder.withIndent('  ');
     final bytes = Uint8List.fromList(
       utf8.encode(encoder.convert(session.toJson())),
     );

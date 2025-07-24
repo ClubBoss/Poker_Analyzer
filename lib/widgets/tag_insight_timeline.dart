@@ -88,7 +88,7 @@ class TagInsightTimeline extends StatelessWidget {
     final slope = points.last.value - points.first.value;
     final lineColor = slope >= 0 ? Colors.green : Colors.red;
 
-    String _label(DateTime d) {
+    String label(DateTime d) {
       return weekly
           ? 'W${DateFormat('w').format(d)}'
           : '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
@@ -115,7 +115,7 @@ class TagInsightTimeline extends StatelessWidget {
                   final d = dates[s.spotIndex];
                   final value = (s.y * 100).toStringAsFixed(0);
                   return LineTooltipItem(
-                    '${_label(d)}\n$value%',
+                    '${label(d)}\n$value%',
                     const TextStyle(color: Colors.white, fontSize: 12),
                   );
                 }).toList();
@@ -127,11 +127,11 @@ class TagInsightTimeline extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -154,7 +154,7 @@ class TagInsightTimeline extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
                   return Text(
-                    _label(dates[i]),
+                    label(dates[i]),
                     style: const TextStyle(color: Colors.white, fontSize: 10),
                   );
                 },
@@ -174,7 +174,7 @@ class TagInsightTimeline extends StatelessWidget {
               color: lineColor,
               barWidth: 2,
               isCurved: false,
-              dotData: FlDotData(show: false),
+              dotData: const FlDotData(show: false),
             ),
           ],
         ),

@@ -37,11 +37,11 @@ class _EvalResultViewState extends State<EvalResultView> {
         if (!snapshot.hasData) return const SizedBox.shrink();
         final res = snapshot.data!;
         if (res.isError) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 4),
+          return const Padding(
+            padding: EdgeInsets.only(top: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Icon(Icons.warning, color: Colors.orange),
                 SizedBox(width: 4),
                 Text('Evaluation failed',

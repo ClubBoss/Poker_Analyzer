@@ -552,9 +552,11 @@ class _TrainingPackTemplateListScreenState
   Future<void> _loadRecent() async {
     final prefs = await SharedPreferences.getInstance();
     final list = prefs.getStringList(_prefsRecentKey) ?? [];
-    if (mounted) setState(() => _recentIds
+    if (mounted) {
+      setState(() => _recentIds
       ..clear()
       ..addAll(list));
+    }
   }
 
   Future<void> _addRecent(String id) async {
@@ -622,7 +624,7 @@ class _TrainingPackTemplateListScreenState
   }
 
   String _mixedSummary() {
-    final parts = <String>['${_mixedCount} spots'];
+    final parts = <String>['$_mixedCount spots'];
     parts.add(_mixedStreet == 'any' ? 'Any' : _streetName(_mixedStreet));
     if (_mixedHandGoalOnly) parts.add('Hand Goal only');
     if (_mixedAutoOnly) parts.add('Auto only');
@@ -692,7 +694,7 @@ class _TrainingPackTemplateListScreenState
     for (final a in acts) {
       if (a.action == 'board') continue;
       final label = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
-      parts.add('${label}${a.amount != null ? ' ${a.amount}' : ''}');
+      parts.add('$label${a.amount != null ? ' ${a.amount}' : ''}');
     }
     return parts.join(' – ');
   }
@@ -1328,7 +1330,7 @@ class _TrainingPackTemplateListScreenState
             icon: const Icon(Icons.auto_fix_high),
             tooltip: l.generateSpots,
             onPressed: () async {
-              final service = TrainingPackTemplateUiService();
+              const service = TrainingPackTemplateUiService();
               final generated =
                   await service.generateSpotsWithProgress(context, t);
               if (!mounted) return;
@@ -1477,7 +1479,7 @@ class _TrainingPackTemplateListScreenState
               icon: const Icon(Icons.auto_fix_high),
               tooltip: l.generateSpots,
               onPressed: () async {
-                final service = TrainingPackTemplateUiService();
+                const service = TrainingPackTemplateUiService();
                 final generated =
                     await service.generateSpotsWithProgress(context, t);
                 if (!mounted) return;
@@ -1701,7 +1703,7 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _generateMissing(TrainingPackTemplate t) async {
-    final service = TrainingPackTemplateUiService();
+    const service = TrainingPackTemplateUiService();
     final missing = await service.generateMissingSpotsWithProgress(context, t);
     if (missing.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2515,8 +2517,7 @@ class _TrainingPackTemplateListScreenState
       TrainingPackStorage.save(_templates);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Imported ${tpl.spots.length} spots' +
-              (skipped > 0 ? ', $skipped skipped' : '')),
+          content: Text('Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
         ),
       );
       _edit(tpl);
@@ -2554,8 +2555,7 @@ class _TrainingPackTemplateListScreenState
       TrainingPackStorage.save(_templates);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Imported ${tpl.spots.length} spots' +
-              (skipped > 0 ? ', $skipped skipped' : '')),
+          content: Text('Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
         ),
       );
       _edit(tpl);

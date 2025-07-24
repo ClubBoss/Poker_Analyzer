@@ -5,7 +5,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('detect flags degrading skills sorted by drop', () {
-    final detector = const SkillLossDetector();
+    const detector = SkillLossDetector();
     final history = {
       'a': [0.8, 0.7, 0.6],
       'b': [0.5, 0.6, 0.7],

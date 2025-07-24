@@ -139,7 +139,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       audiences: _selectedAudiences.isEmpty ? null : _selectedAudiences,
     );
 
-    DateTime _createdAt(TrainingPackTemplateV2 p) {
+    DateTime createdAt(TrainingPackTemplateV2 p) {
       final v = p.meta['createdAt'];
       if (v is String) {
         final dt = DateTime.tryParse(v);
@@ -160,7 +160,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         final r = db.compareTo(da);
         if (r != 0) return r;
       }
-      return _createdAt(b).compareTo(_createdAt(a));
+      return createdAt(b).compareTo(createdAt(a));
     });
 
     return Scaffold(
@@ -193,7 +193,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 MaterialPageRoute(builder: (_) => const SkillMapScreen()),
               );
             },
-            child: const Text("🧠 Карта навыков"),
+            child: const Text('🧠 Карта навыков'),
           ),
         ],
       ),

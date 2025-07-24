@@ -101,7 +101,7 @@ class ProgressForecastService extends ChangeNotifier {
       }
     }
 
-    List<ProgressEntry> _build(Map<DateTime, List<SavedHand>> source,
+    List<ProgressEntry> build(Map<DateTime, List<SavedHand>> source,
         {String position = '', String? tag}) {
       final entries = source.entries.toList()
         ..sort((a, b) => a.key.compareTo(b.key));
@@ -141,12 +141,12 @@ class ProgressForecastService extends ChangeNotifier {
       return list;
     }
 
-    _history = _build(map);
+    _history = build(map);
     _positionHistory = {
-      for (final e in posMap.entries) e.key: _build(e.value, position: e.key)
+      for (final e in posMap.entries) e.key: build(e.value, position: e.key)
     };
     _tagHistory = {
-      for (final e in tagMap.entries) e.key: _build(e.value, tag: e.key)
+      for (final e in tagMap.entries) e.key: build(e.value, tag: e.key)
     };
 
     var f = _calcForecast(_history);
@@ -174,10 +174,12 @@ class ProgressForecastService extends ChangeNotifier {
 
   ProgressForecast _calcForecast(List<ProgressEntry> data) {
     if (data.isEmpty) return const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
-    if (data.length == 1) return ProgressForecast(
+    if (data.length == 1) {
+      return ProgressForecast(
         accuracy: data.last.accuracy,
         ev: data.last.ev,
         icm: data.last.icm);
+    }
     final n = data.length;
     final xs = [for (var i = 0; i < n; i++) i + 1];
     final sumX = xs.reduce((a, b) => a + b);

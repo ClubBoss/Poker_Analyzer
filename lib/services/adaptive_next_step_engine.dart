@@ -84,7 +84,7 @@ class AdaptiveNextStepEngine {
     }
 
     if (bestId != null) {
-      recent.add(bestId!);
+      recent.add(bestId);
       while (recent.length > 5) {
         recent.removeAt(0);
       }

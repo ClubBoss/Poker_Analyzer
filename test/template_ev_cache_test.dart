@@ -49,7 +49,7 @@ void main() {
       ctx = c;
       return const SizedBox();
     })));
-    final service = TrainingPackTemplateUiService();
+    const service = TrainingPackTemplateUiService();
     final generated = await service.generateMissingSpotsWithProgress(ctx, tpl);
     tpl.spots.addAll(generated);
     TemplateCoverageUtils.recountAll(tpl);

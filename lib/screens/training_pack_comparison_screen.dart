@@ -91,7 +91,7 @@ class _PackDataSource extends DataTableSource {
     return DataRow(
       selected: selectedRow,
       color: forgotten
-          ? MaterialStateProperty.all(Colors.grey.shade800)
+          ? WidgetStateProperty.all(Colors.grey.shade800)
           : null,
       onSelectChanged: (_) =>
           selectionMode ? onToggle(s.pack) : onOpen(s),
@@ -238,7 +238,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   final TextEditingController _controller = TextEditingController();
   final Set<TrainingPack> _selected = {};
   int _firstRowIndex = 0;
-  int _rowsPerPage = 10;
+  final int _rowsPerPage = 10;
   PackChartSort _chartSort = PackChartSort.progress;
   GameType? _typeFilter;
   int _diffFilter = 0;
@@ -1187,7 +1187,7 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
               maxY: 100,
               minY: 0,
               barGroups: groups,
-              gridData: FlGridData(show: false),
+              gridData: const FlGridData(show: false),
               borderData: FlBorderData(show: false),
               barTouchData: BarTouchData(
                 handleBuiltInTouches: false,
@@ -1203,8 +1203,8 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
                 },
               ),
               titlesData: FlTitlesData(
-                leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -1224,7 +1224,7 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
                     },
                   ),
                 ),
-                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
             ),
           ),

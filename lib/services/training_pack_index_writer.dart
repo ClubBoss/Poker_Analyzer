@@ -20,7 +20,7 @@ class TrainingPackIndexWriter {
         .whereType<File>()
         .where((f) => f.path.toLowerCase().endsWith('.yaml'))
         .toList();
-    final reader = const YamlReader();
+    const reader = YamlReader();
     final list = <Map<String, dynamic>>[];
     for (final file in files) {
       try {

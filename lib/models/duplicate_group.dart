@@ -1,4 +1,4 @@
-import "v2/training_pack_template_v2.dart";
+import 'v2/training_pack_template_v2.dart';
 class DuplicateGroup {
   final String type;
   final String key;

@@ -9,7 +9,7 @@ void main() {
 
   const service = MistakeClusterAnalyticsService();
 
-  MistakeInsight _insight(MistakeTag tag, int count, double loss) {
+  MistakeInsight insight(MistakeTag tag, int count, double loss) {
     return MistakeInsight(
       tag: tag,
       count: count,
@@ -21,9 +21,9 @@ void main() {
 
   test('compute aggregates insights by cluster', () {
     final insights = [
-      _insight(MistakeTag.overfoldBtn, 3, 1.5),
-      _insight(MistakeTag.looseCallBb, 2, 2.0),
-      _insight(MistakeTag.missedEvPush, 1, 0.5),
+      insight(MistakeTag.overfoldBtn, 3, 1.5),
+      insight(MistakeTag.looseCallBb, 2, 2.0),
+      insight(MistakeTag.missedEvPush, 1, 0.5),
     ];
 
     final results = service.compute(insights);

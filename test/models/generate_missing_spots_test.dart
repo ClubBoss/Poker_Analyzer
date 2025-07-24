@@ -35,7 +35,7 @@ void main() {
       ctx = c;
       return const SizedBox();
     })));
-    final service = TrainingPackTemplateUiService();
+    const service = TrainingPackTemplateUiService();
     final future = service.generateMissingSpotsWithProgress(ctx, tpl);
     await tester.pumpAndSettle();
     final missing = await future;

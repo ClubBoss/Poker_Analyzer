@@ -26,7 +26,7 @@ void main() {
       spots: spots,
       spotCount: spots.length,
     );
-    final sampler = TrainingPackSampler();
+    const sampler = TrainingPackSampler();
     final sample = sampler.sample(pack, maxSpots: 10);
 
     expect(sample.spots.length, 10);
@@ -49,7 +49,7 @@ void main() {
       spots: spots,
       spotCount: spots.length,
     );
-    final sampler = TrainingPackSampler();
+    const sampler = TrainingPackSampler();
     final sample = sampler.sample(pack, maxSpots: 6);
     final positions = {for (final s in sample.spots) s.hand.position};
     expect(positions.containsAll(kPositionOrder), true);

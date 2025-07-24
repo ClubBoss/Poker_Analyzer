@@ -63,7 +63,7 @@ class _YamlPackQuickPreviewScreenState extends State<YamlPackQuickPreviewScreen>
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
-    final engine = const YamlPackPreviewEngine();
+    const engine = YamlPackPreviewEngine();
     return Scaffold(
       appBar: AppBar(title: const Text('Быстрый просмотр YAML')),
       backgroundColor: AppColors.background,

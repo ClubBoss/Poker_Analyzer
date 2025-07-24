@@ -97,7 +97,7 @@ class PotAnimationService {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       for (final p in payouts.keys) {
-        this.showWinnerHighlight(context, players[p].name);
+        showWinnerHighlight(context, players[p].name);
       }
       final prevPot = displayedPots[currentStreet];
       if (prevPot > 0) {
@@ -185,7 +185,7 @@ class PotAnimationService {
     Future.delayed(Duration(milliseconds: 500 + delay), () {
       if (!mounted) return;
       for (final p in payouts.keys) {
-        this.showWinnerHighlight(context, players[p].name);
+        showWinnerHighlight(context, players[p].name);
       }
       final prevPot = displayedPots[currentStreet];
       if (prevPot > 0) {
