@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../screens/path_preview_screen.dart';
+import '../screens/path_overview_screen.dart';
 import '../models/path_difficulty.dart';
 
 /// Visual card widget showing a brief overview of a learning path.
@@ -39,7 +39,7 @@ class SmartPathPreviewCard extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => PathPreviewScreen(pathId: pathId),
+        builder: (_) => PathOverviewScreen(pathId: pathId),
       ),
     );
   }
