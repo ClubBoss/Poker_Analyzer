@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'streak_tracker_service.dart';
 import 'xp_level_engine.dart';
+import 'level_up_celebration_engine.dart';
 
 import '../models/xp_entry.dart';
 import 'cloud_sync_service.dart';
@@ -85,11 +86,11 @@ class XPTrackerService extends ChangeNotifier {
     if (cloud != null) {
       final remote = await cloud!.downloadXp();
       if (remote != null) {
-        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-            DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt =
-            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+        final remoteAt =
+            DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
                 DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['entries'];
           if (list is List) {
@@ -117,7 +118,8 @@ class XPTrackerService extends ChangeNotifier {
     await prefs.setInt(_xpKey, _xp);
   }
 
-  Future<void> add({required int xp, required String source, int? streak}) async {
+  Future<void> add(
+      {required int xp, required String source, int? streak}) async {
     final entry = XPEntry(
       date: DateTime.now(),
       xp: xp,
@@ -126,7 +128,9 @@ class XPTrackerService extends ChangeNotifier {
     );
     _history.insert(0, entry);
     _trim();
+    final oldXp = _xp;
     _xp += xp;
+    unawaited(LevelUpCelebrationEngine.instance.checkAndCelebrate(oldXp, _xp));
     unawaited(GoalEngine.instance.updateXP(xp));
     await _box!.put(entry.id, entry.toJson());
     await _save();
@@ -143,7 +147,8 @@ class XPTrackerService extends ChangeNotifier {
     return 1.0;
   }
 
-  Future<void> addPerTagXP(Map<String, int> tagXp, {required String source}) async {
+  Future<void> addPerTagXP(Map<String, int> tagXp,
+      {required String source}) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     for (final entry in tagXp.entries) {
@@ -158,7 +163,8 @@ class XPTrackerService extends ChangeNotifier {
           data = {};
         }
       }
-      final history = List<Map<String, dynamic>>.from(data['history'] as List? ?? []);
+      final history =
+          List<Map<String, dynamic>>.from(data['history'] as List? ?? []);
       history.insert(0, {
         'date': now.toIso8601String(),
         'xp': entry.value,
@@ -168,7 +174,8 @@ class XPTrackerService extends ChangeNotifier {
         history.removeLast();
       }
       final total = (data['total'] as num?)?.toInt() ?? 0;
-      await prefs.setString(key, jsonEncode({'total': total + entry.value, 'history': history}));
+      await prefs.setString(
+          key, jsonEncode({'total': total + entry.value, 'history': history}));
     }
   }
 
