@@ -147,7 +147,8 @@ class _PathOverviewScreenState extends State<PathOverviewScreen> {
                       alignment: Alignment.center,
                       child: ElevatedButton(
                         onPressed: _startLearning,
-                        child: Text(_progress > 0 ? 'Продолжить обучение' : 'Начать'),
+                        child: Text(
+                            _progress > 0 ? 'Продолжить обучение' : 'Начать'),
                       ),
                     ),
                   ],
@@ -173,9 +174,21 @@ class _PathOverviewScreenState extends State<PathOverviewScreen> {
     return ListTile(
       leading: Icon(icon, color: color),
       title: Text('${index}. ${stage.title}'),
-      subtitle: stage.description.isNotEmpty ? Text(stage.description) : null,
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (stage.description.isNotEmpty) Text(stage.description),
+          if (stage.objectives.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Навыки: ${stage.objectives.join(', ')}',
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
+              ),
+            ),
+        ],
+      ),
       trailing: Text('$hands / ${stage.minHands}'),
     );
   }
 }
-

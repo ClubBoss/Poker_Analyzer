@@ -27,22 +27,22 @@ class _StagePreviewDialogState extends State<StagePreviewDialog> {
     final p = await PackLibraryService.instance.getById(widget.stage.packId);
     if (mounted) {
       setState(() {
-      _pack = p;
-      _loading = false;
-    });
+        _pack = p;
+        _loading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final pack = _pack;
-    final estMinutes =
-        pack == null ? null : (pack.spotCount / 2).ceil();
+    final estMinutes = pack == null ? null : (pack.spotCount / 2).ceil();
     return AlertDialog(
       backgroundColor: const Color(0xFF1E1E1E),
       title: Text(widget.stage.title),
       content: _loading
-          ? const SizedBox(height: 100, child: Center(child: CircularProgressIndicator()))
+          ? const SizedBox(
+              height: 100, child: Center(child: CircularProgressIndicator()))
           : Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,13 +58,22 @@ class _StagePreviewDialogState extends State<StagePreviewDialog> {
                     Text('Estimated time: ${estMinutes}m',
                         style: const TextStyle(color: Colors.white70)),
                 ],
+                if (widget.stage.objectives.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    children: [
+                      for (final o in widget.stage.objectives)
+                        Chip(label: Text(o)),
+                    ],
+                  ),
+                ],
                 if (widget.stage.tags.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 4,
                     children: [
-                      for (final t in widget.stage.tags)
-                        Chip(label: Text(t)),
+                      for (final t in widget.stage.tags) Chip(label: Text(t)),
                     ],
                   ),
                 ],

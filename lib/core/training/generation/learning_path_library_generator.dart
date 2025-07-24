@@ -14,6 +14,7 @@ class LearningPathStageTemplateInput {
   final List<SubStageTemplateInput> subStages;
   final UnlockConditionInput? unlockCondition;
   final List<String>? tags;
+  final List<String>? objectives;
 
   const LearningPathStageTemplateInput({
     required this.id,
@@ -25,13 +26,15 @@ class LearningPathStageTemplateInput {
     this.subStages = const [],
     this.unlockCondition,
     this.tags,
+    this.objectives,
   });
 }
 
 /// Generates a learning path YAML file from stage templates.
 class LearningPathLibraryGenerator {
   final LearningPathStageTemplateGenerator stageGenerator;
-  const LearningPathLibraryGenerator({LearningPathStageTemplateGenerator? stageGenerator})
+  const LearningPathLibraryGenerator(
+      {LearningPathStageTemplateGenerator? stageGenerator})
       : stageGenerator = stageGenerator ?? LearningPathStageTemplateGenerator();
 
   /// Generates YAML for a complete learning path based on [stages].
@@ -48,6 +51,7 @@ class LearningPathLibraryGenerator {
         minHands: s.minHands,
         subStages: s.subStages,
         unlockCondition: s.unlockCondition,
+        objectives: s.objectives,
         tags: s.tags,
       );
       final map = const YamlReader().read(yaml);
@@ -65,4 +69,3 @@ class LearningPathLibraryGenerator {
     return json2yaml(pathMap, yamlStyle: YamlStyle.pubspecYaml);
   }
 }
-

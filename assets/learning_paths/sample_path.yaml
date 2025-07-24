@@ -12,6 +12,8 @@ stages:
     packId: pack1
     requiredAccuracy: 80
     minHands: 10
+    objectives:
+      - Push decisions
     unlocks:
       - s2
   - id: s2
@@ -20,6 +22,8 @@ stages:
     packId: pack2
     requiredAccuracy: 70
     minHands: 5
+    objectives:
+      - Postflop calls
     unlockCondition:
       dependsOn: s1
       minAccuracy: 75
