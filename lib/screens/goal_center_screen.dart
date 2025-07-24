@@ -9,6 +9,7 @@ import '../services/tag_mastery_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/smart_goal_tracking_service.dart';
+import '../services/goal_completion_engine.dart';
 import '../widgets/training_goal_card.dart';
 
 class GoalCenterScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class GoalCenterScreen extends StatefulWidget {
 class _GoalCenterScreenState extends State<GoalCenterScreen> {
   List<TrainingGoal>? _goals;
   final Map<String, GoalProgress> _progress = {};
+  final GoalCompletionEngine _completionEngine = GoalCompletionEngine.instance;
 
   @override
   void initState() {
@@ -38,15 +40,23 @@ class _GoalCenterScreenState extends State<GoalCenterScreen> {
     final tracker =
         SmartGoalTrackingService(logs: context.read<SessionLogService>());
     final map = <String, GoalProgress>{};
+    final filtered = <TrainingGoal>[];
     for (final g in goals) {
       final tag = g.tag;
       if (tag != null) {
-        map[tag] = await tracker.getGoalProgress(tag);
+        final prog = await tracker.getGoalProgress(tag);
+        map[tag] = prog;
+        if (_completionEngine.showCompletedGoals ||
+            !_completionEngine.isGoalCompleted(prog)) {
+          filtered.add(g);
+        }
+      } else {
+        filtered.add(g);
       }
     }
     if (!mounted) return;
     setState(() {
-      _goals = goals;
+      _goals = filtered;
       _progress
         ..clear()
         ..addAll(map);
