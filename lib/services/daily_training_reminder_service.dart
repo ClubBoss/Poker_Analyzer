@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'tag_mastery_history_service.dart';
 import '../screens/library_screen.dart';
@@ -8,8 +11,41 @@ import '../screens/library_screen.dart';
 class DailyTrainingReminderService {
   static const _lastKey = 'daily_training_reminder_last';
 
+  static final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
+  static bool _initialized = false;
+
+  Future<void> _initPlugin() async {
+    if (_initialized) return;
+    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const ios = DarwinInitializationSettings();
+    await _plugin.initialize(const InitializationSettings(android: android, iOS: ios));
+    tz.initializeTimeZones();
+    _initialized = true;
+  }
+
   bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
+
+  /// Schedules a one-time push notification [body] a few minutes from now.
+  Future<void> scheduleOneTimePush(String body,
+      {Duration delay = const Duration(minutes: 1)}) async {
+    await _initPlugin();
+    final when = tz.TZDateTime.now(tz.local).add(delay);
+    await _plugin.zonedSchedule(
+      240,
+      'Poker Analyzer',
+      body,
+      when,
+      const NotificationDetails(
+        android: AndroidNotificationDetails('goal_reengage', 'Goal Reengagement'),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
 
   Future<void> maybeShowReminder(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();

@@ -105,6 +105,8 @@ import 'services/scheduled_training_queue_service.dart';
 import 'services/auto_recovery_trigger_service.dart';
 import 'services/scheduled_training_launcher.dart';
 import 'services/daily_training_reminder_service.dart';
+import 'services/goal_reengagement_service.dart';
+import 'services/smart_push_scheduler_service.dart';
 import 'services/lesson_progress_tracker_service.dart';
 import 'services/lesson_path_progress_service.dart';
 import 'services/training_path_progress_service.dart';
@@ -487,6 +489,17 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     Provider(create: (_) => const ScheduledTrainingLauncher()),
     Provider(create: (_) => DailyTrainingReminderService()),
+    Provider(
+      create: (context) => GoalReengagementService(
+        logs: context.read<SessionLogService>(),
+      ),
+    ),
+    Provider(
+      create: (context) => SmartPushSchedulerService(
+        reengagement: context.read<GoalReengagementService>(),
+        reminder: context.read<DailyTrainingReminderService>(),
+      ),
+    ),
     Provider(
       create: (context) => GoalSuggestionEngine(
         mastery: context.read<TagMasteryService>(),
