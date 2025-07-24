@@ -55,10 +55,10 @@ class _LearningStageTileState extends State<LearningStageTile> {
     _lastStartedId = null;
     for (final s in widget.stage.subStages) {
       final prog = await TrainingProgressService.instance
-          .getSubStageProgress(widget.stage.id, s.id);
-      _progress[s.id] = prog;
-      final stat = await TrainingPackStatsService.getStats(s.id);
-      _accuracy[s.id] = (stat?.accuracy ?? 0.0) * 100;
+          .getSubStageProgress(widget.stage.id, s.packId);
+      _progress[s.packId] = prog;
+      final stat = await TrainingPackStatsService.getStats(s.packId);
+      _accuracy[s.packId] = (stat?.accuracy ?? 0.0) * 100;
     }
     _lastStartedId = _computeLastStarted();
     if (mounted) setState(() => _loading = false);
@@ -151,9 +151,9 @@ class _LearningStageTileState extends State<LearningStageTile> {
   }
 
   Widget _buildSubStageTile(SubStageModel sub) {
-    final prog = _progress[sub.id] ?? 0.0;
+    final prog = _progress[sub.packId] ?? 0.0;
     final done = prog >= 1.0;
-    final highlight = sub.id == _lastStartedId;
+    final highlight = sub.packId == _lastStartedId;
     final unlocked =
         _evaluator.isUnlocked(sub.unlockCondition, _progress, _accuracy);
     final grey = unlocked ? null : Colors.white60;
@@ -177,8 +177,8 @@ class _LearningStageTileState extends State<LearningStageTile> {
       onTap: !unlocked
           ? null
           : () async {
-              final tplId = TrainingPackTemplateService.hasTemplate(sub.id)
-                  ? sub.id
+              final tplId = TrainingPackTemplateService.hasTemplate(sub.packId)
+                  ? sub.packId
                   : widget.stage.packId;
               final tpl = TrainingPackTemplateService.getById(tplId, context);
               if (tpl == null) return;
@@ -190,9 +190,9 @@ class _LearningStageTileState extends State<LearningStageTile> {
                 ),
               );
               final updated = await TrainingProgressService.instance
-                  .getSubStageProgress(widget.stage.id, sub.id);
+                  .getSubStageProgress(widget.stage.id, sub.packId);
               setState(() {
-                _progress[sub.id] = updated;
+                _progress[sub.packId] = updated;
                 _lastStartedId = _computeLastStarted();
               });
             },

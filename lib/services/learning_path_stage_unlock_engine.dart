@@ -47,7 +47,7 @@ class LearningPathStageUnlockEngine {
       } else {
         done = true;
         for (final sub in stage.subStages) {
-          final log = aggregatedLogs[sub.id];
+          final log = aggregatedLogs[sub.packId];
           final correct = log?.correctCount ?? 0;
           final mistakes = log?.mistakeCount ?? 0;
           final hands = correct + mistakes;

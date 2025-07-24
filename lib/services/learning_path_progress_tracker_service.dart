@@ -57,7 +57,7 @@ class LearningPathProgressTrackerService {
         var minHands = 0;
         double accSum = 0;
         for (final sub in stage.subStages) {
-          final log = aggregated[sub.id];
+          final log = aggregated[sub.packId];
           final h = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
           final correct = log?.correctCount ?? 0;
           final acc = h == 0 ? 0.0 : correct / h * 100;
@@ -91,7 +91,7 @@ class LearningPathProgressTrackerService {
         if (accuracy < stage.requiredAccuracy) return false;
       } else {
         for (final sub in stage.subStages) {
-          final log = aggregatedLogs[sub.id];
+          final log = aggregatedLogs[sub.packId];
           final correct = log?.correctCount ?? 0;
           final mistakes = log?.mistakeCount ?? 0;
           final hands = correct + mistakes;

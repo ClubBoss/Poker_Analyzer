@@ -2,6 +2,7 @@ import 'unlock_condition.dart';
 
 class SubStageModel {
   final String id;
+  final String packId;
   final String title;
   final String description;
   final int minHands;
@@ -10,6 +11,7 @@ class SubStageModel {
 
   const SubStageModel({
     required this.id,
+    required this.packId,
     required this.title,
     this.description = '',
     this.minHands = 0,
@@ -20,6 +22,7 @@ class SubStageModel {
   factory SubStageModel.fromJson(Map<String, dynamic> json) {
     return SubStageModel(
       id: json['id'] as String? ?? '',
+      packId: json['packId'] as String? ?? json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
       minHands: (json['minHands'] as num?)?.toInt() ?? 0,
@@ -33,6 +36,7 @@ class SubStageModel {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'packId': packId,
         'title': title,
         if (description.isNotEmpty) 'description': description,
         if (minHands > 0) 'minHands': minHands,

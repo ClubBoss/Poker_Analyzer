@@ -3,6 +3,7 @@ import 'package:json2yaml/json2yaml.dart';
 /// Input model for sub-stage generation.
 class SubStageTemplateInput {
   final String id;
+  final String packId;
   final String title;
   final int minHands;
   final double requiredAccuracy;
@@ -10,6 +11,7 @@ class SubStageTemplateInput {
 
   const SubStageTemplateInput({
     required this.id,
+    required this.packId,
     required this.title,
     this.minHands = 0,
     this.requiredAccuracy = 0,
@@ -18,6 +20,7 @@ class SubStageTemplateInput {
 
   Map<String, dynamic> toMap() => {
         'id': id,
+        'packId': packId,
         'title': title,
         if (minHands > 0) 'minHands': minHands,
         if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
