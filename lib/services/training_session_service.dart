@@ -19,6 +19,7 @@ import 'xp_reward_engine.dart';
 import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
 import 'streak_tracker_service.dart';
+import 'training_streak_tracker_service.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -504,6 +505,7 @@ class TrainingSessionService extends ChangeNotifier {
     for (final tag in _template!.tags) {
       unawaited(TagGoalTrackerService.instance.logTraining(tag));
     }
+    unawaited(TrainingStreakTrackerService.instance.markTrainingCompletedToday());
     unawaited(_clearIndex());
     final mastery = context.read<TagMasteryService>();
     final deltas = await mastery.updateWithSession(

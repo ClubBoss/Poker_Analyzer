@@ -120,6 +120,7 @@ import 'mistake_insight_screen.dart';
 import 'cluster_mistake_dashboard_screen.dart';
 import '../services/lesson_path_reminder_scheduler.dart';
 import '../services/lesson_streak_engine.dart';
+import '../services/training_streak_tracker_service.dart';
 
 class DevMenuScreen extends StatefulWidget {
   const DevMenuScreen({super.key});
@@ -169,6 +170,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _reminderLoading = false;
   bool _progressExportLoading = false;
   bool _progressImportLoading = false;
+  bool _trainingStreakExportLoading = false;
   bool _autoAdvanceLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
@@ -1514,6 +1516,19 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _progressImportLoading = false);
   }
 
+  Future<void> _exportTrainingStreak() async {
+    if (_trainingStreakExportLoading || !kDebugMode) return;
+    setState(() => _trainingStreakExportLoading = true);
+    final data = await TrainingStreakTrackerService.instance.exportData();
+    await Clipboard.setData(ClipboardData(text: jsonEncode(data)));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Training streak copied to clipboard')),
+      );
+    }
+    setState(() => _trainingStreakExportLoading = false);
+  }
+
   Future<void> _autoAdvancePack() async {
     if (_autoAdvanceLoading || !kDebugMode) return;
     setState(() => _autoAdvanceLoading = true);
@@ -2277,6 +2292,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📥 Импорт прогресса из буфера'),
                 onTap: _progressImportLoading ? null : _importLearningProgress,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Export Training Streak'),
+                onTap: _trainingStreakExportLoading ? null : _exportTrainingStreak,
               ),
             if (kDebugMode)
               ListTile(
