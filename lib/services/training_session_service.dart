@@ -340,6 +340,7 @@ class TrainingSessionService extends ChangeNotifier {
   Future<void> startSession(
     TrainingPackTemplate template, {
     bool persist = true,
+    int startIndex = 0,
   }) async {
     if (persist) await _openBox();
     unawaited(DailyReminderScheduler.instance.cancelAll());
@@ -387,8 +388,8 @@ class TrainingSessionService extends ChangeNotifier {
           _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
       _handGoalCount[g.label] = 0;
     }
-    int savedIndex = 0;
-    if (persist) {
+    int savedIndex = startIndex;
+    if (persist && startIndex == 0) {
       final prefs = await SharedPreferences.getInstance();
       savedIndex = prefs.getInt('$_indexPrefix${template.id}') ?? 0;
     }

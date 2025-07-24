@@ -69,11 +69,13 @@ class TrainingSessionScreen extends StatefulWidget {
   final VoidCallback? onSessionEnd;
   final TrainingSession? session;
   final TrainingPackV2? pack;
+  final int startIndex;
   const TrainingSessionScreen({
     super.key,
     this.onSessionEnd,
     this.session,
     this.pack,
+    this.startIndex = 0,
   });
 
   @override
@@ -92,7 +94,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final pack = widget.pack;
     if (pack == null) return;
     final tpl = _fromPack(pack);
-    context.read<TrainingSessionService>().startSession(tpl, persist: false);
+    context
+        .read<TrainingSessionService>()
+        .startSession(tpl, persist: false, startIndex: 0);
     if (widget.onSessionEnd != null) _endlessStats.reset();
     setState(() {
       _selected = null;
@@ -125,7 +129,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final tpl = _fromPack(widget.pack!);
       Future.microtask(() => context
           .read<TrainingSessionService>()
-          .startSession(tpl, persist: false));
+          .startSession(tpl, persist: false, startIndex: widget.startIndex));
     }
     if (widget.onSessionEnd != null &&
         _endlessStats.total == 0 &&

@@ -12,13 +12,14 @@ class TrainingSessionLauncher {
   const TrainingSessionLauncher();
 
   /// Launches a training session for [template].
-  Future<void> launch(TrainingPackTemplateV2 template) async {
+  Future<void> launch(TrainingPackTemplateV2 template, {int startIndex = 0}) async {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
     final pack = TrainingPackV2.fromTemplate(template, template.id);
     await Navigator.push(
       ctx,
-      MaterialPageRoute(builder: (_) => TrainingSessionScreen(pack: pack)),
+      MaterialPageRoute(
+          builder: (_) => TrainingSessionScreen(pack: pack, startIndex: startIndex)),
     );
     unawaited(AchievementsEngine.instance.checkAll());
   }
