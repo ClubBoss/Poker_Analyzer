@@ -40,6 +40,7 @@ import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
 import 'services/reward_service.dart';
 import 'services/reward_system_service.dart';
+import 'services/coins_service.dart';
 import 'services/goal_engine.dart';
 import 'services/daily_challenge_service.dart';
 import 'services/daily_spotlight_service.dart';
@@ -255,6 +256,7 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     ChangeNotifierProvider(create: (_) => RewardService()..load()),
     ChangeNotifierProvider(create: (_) => RewardSystemService()..load()),
+    ChangeNotifierProvider(create: (_) => CoinsService()..load()),
     ChangeNotifierProvider(create: (_) => GoalEngine()),
     ChangeNotifierProvider(create: (_) => DailyChallengeService()),
     ChangeNotifierProvider(
