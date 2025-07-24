@@ -686,6 +686,97 @@
     }
   },
   {
+    "id": "threebet_push_vs_open_low",
+    "name": "3bet Push vs Open (12-20bb)",
+    "description": "Short-stack shove over opens",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 18,
+    "spotCount": 3,
+    "positions": [
+      "sb",
+      "co",
+      "bb"
+    ],
+    "tags": [
+      "intermediate",
+      "preflop-advanced",
+      "tournament"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
+  },
+  {
+    "id": "call_open_vs_isopush",
+    "name": "Call Open vs Iso-Push",
+    "description": "Facing squeezes after calling",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 17,
+    "spotCount": 3,
+    "positions": [
+      "co",
+      "btn",
+      "bb"
+    ],
+    "tags": [
+      "intermediate",
+      "preflop-advanced",
+      "tournament"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "schedule"
+    }
+  },
+  {
+    "id": "sb_limp_repush",
+    "name": "SB Limp Re-Push",
+    "description": "Limp then shove over BB raise",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 16,
+    "spotCount": 2,
+    "positions": [
+      "sb",
+      "bb"
+    ],
+    "tags": [
+      "intermediate",
+      "preflop-advanced",
+      "tournament"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
+  },
+  {
+    "id": "bb_vs_limp_raise",
+    "name": "BB vs Limp-Raise",
+    "description": "Big blind response to limp-raise",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 15,
+    "spotCount": 2,
+    "positions": [
+      "bb",
+      "sb",
+      "btn"
+    ],
+    "tags": [
+      "intermediate",
+      "preflop-advanced",
+      "tournament"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "schedule"
+    }
+  },
+  {
     "id": "flop_draw_shove_check",
     "name": "Flop Draw Shove or Check",
     "description": "Postflop jam decision with draws",

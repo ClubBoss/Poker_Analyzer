@@ -1,0 +1,55 @@
+id: bb_vs_limp_raise
+name: BB vs Limp-Raise
+audience: Intermediate
+trainingType: mtt
+bb: 15
+gameType: tournament
+positions:
+  - bb
+  - sb
+  - btn
+tags:
+  - intermediate
+  - preflop-advanced
+  - tournament
+spots:
+  - id: bvlr_1
+    title: UTG limps, MP raises 3bb, hero BB 15bb
+    villainAction: limp+raise 3
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: Ad Td
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 15
+        '1': 15
+        '2': 15
+        '3': 15
+        '4': 15
+        '5': 15
+  - id: bvlr_2
+    title: SB limps, BTN raises 4bb, hero BB 20bb
+    villainAction: limp+raise 4
+    heroOptions:
+      - push
+      - call
+      - fold
+    hand:
+      heroCards: Kd Qd
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

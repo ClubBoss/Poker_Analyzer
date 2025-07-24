@@ -4,3 +4,7 @@ packs:
   - assets/packs/intermediate/threebet_push_vs_steal.yaml
   - assets/packs/intermediate/limp_call_fold.yaml
   - assets/packs/intermediate/bvb_push_call_adjustments.yaml
+  - assets/packs/intermediate/threebet_push_vs_open_low.yaml
+  - assets/packs/intermediate/call_open_vs_isopush.yaml
+  - assets/packs/intermediate/sb_limp_repush.yaml
+  - assets/packs/intermediate/bb_vs_limp_raise.yaml

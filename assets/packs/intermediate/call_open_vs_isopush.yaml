@@ -1,0 +1,72 @@
+id: call_open_vs_isopush
+name: Call Open vs Iso-Push
+audience: Intermediate
+trainingType: mtt
+bb: 17
+gameType: tournament
+positions:
+  - co
+  - btn
+  - bb
+tags:
+  - intermediate
+  - preflop-advanced
+  - tournament
+spots:
+  - id: covip_1
+    title: CO calls UTG, BTN shoves 15bb
+    villainAction: isoPush 15
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Ad Qd
+      position: co
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 17
+        '1': 17
+        '2': 17
+        '3': 17
+        '4': 17
+        '5': 17
+  - id: covip_2
+    title: BTN calls CO, SB shoves 18bb
+    villainAction: isoPush 18
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Jh Jd
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 18
+        '1': 18
+        '2': 18
+        '3': 18
+        '4': 18
+        '5': 18
+  - id: covip_3
+    title: BB calls SB, UTG shoves 20bb
+    villainAction: isoPush 20
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Kc Qc
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+spotCount: 3
+meta:
+  schemaVersion: 2.0.0

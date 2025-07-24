@@ -1,0 +1,72 @@
+id: threebet_push_vs_open_low
+name: 3bet Push vs Open (12-20bb)
+audience: Intermediate
+trainingType: mtt
+bb: 18
+gameType: tournament
+positions:
+  - sb
+  - co
+  - bb
+tags:
+  - intermediate
+  - preflop-advanced
+  - tournament
+spots:
+  - id: tpvol_1
+    title: SB shove AJo 18bb vs BTN open
+    villainAction: open 2.2
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: As Jh
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 18
+        '1': 18
+        '2': 18
+        '3': 18
+        '4': 18
+        '5': 18
+  - id: tpvol_2
+    title: CO shove KQs 15bb vs HJ open
+    villainAction: open 2
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ks Qs
+      position: co
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 15
+        '1': 15
+        '2': 15
+        '3': 15
+        '4': 15
+        '5': 15
+  - id: tpvol_3
+    title: BB shove A5s 12bb vs CO open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ac 5c
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 12
+        '1': 12
+        '2': 12
+        '3': 12
+        '4': 12
+        '5': 12
+spotCount: 3
+meta:
+  schemaVersion: 2.0.0
