@@ -684,5 +684,50 @@
       "recommended": true,
       "icon": "north"
     }
+  },
+  {
+    "id": "flop_draw_shove_check",
+    "name": "Flop Draw Shove or Check",
+    "description": "Postflop jam decision with draws",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 2,
+    "positions": ["btn", "bb"],
+    "tags": ["advanced", "postflop-jam", "tournament"]
+  },
+  {
+    "id": "overpair_vs_aggression",
+    "name": "Overpair vs Aggression",
+    "description": "Handle overpairs facing aggression",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 30,
+    "spotCount": 2,
+    "positions": ["co", "bb"],
+    "tags": ["advanced", "postflop-jam", "tournament"]
+  },
+  {
+    "id": "double_barrel_jam",
+    "name": "Turn Barrel Jam",
+    "description": "2-barrel shove after flop cbet",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 2,
+    "positions": ["btn", "bb"],
+    "tags": ["advanced", "postflop-jam", "tournament"]
+  },
+  {
+    "id": "delayed_shove_vs_missed_cbet",
+    "name": "Delayed Shove vs Missed CBet",
+    "description": "Jam after opponent skips c-bet",
+    "type": "postflop",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 2,
+    "positions": ["sb", "bb"],
+    "tags": ["advanced", "postflop-jam", "tournament"]
   }
 ]
+

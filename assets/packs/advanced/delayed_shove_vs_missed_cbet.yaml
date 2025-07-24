@@ -1,0 +1,48 @@
+id: delayed_shove_vs_missed_cbet
+name: Delayed Shove vs Missed CBet
+audience: Advanced
+trainingType: postflop
+bb: 20
+gameType: tournament
+positions:
+  - sb
+  - bb
+tags:
+  - advanced
+  - postflop-jam
+  - tournament
+spots:
+  - id: dsvc_1
+    title: Turn shove after flop check-check
+    board: [8s,5h,3c,2s]
+    street: 2
+    villainAction: check
+    heroOptions:
+      - shove
+      - bet 4
+      - check
+    hand:
+      heroCards: As Qs
+      position: sb
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 20, '1': 20}
+      board: [8s,5h,3c,2s]
+  - id: dsvc_2
+    title: Flop shove vs missed cbet
+    board: [Kc,8d,4c]
+    street: 1
+    villainAction: check
+    heroOptions:
+      - shove
+      - check
+    hand:
+      heroCards: As 4d
+      position: sb
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 15, '1': 15}
+      board: [Kc,8d,4c]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

@@ -1,0 +1,48 @@
+id: double_barrel_jam
+name: Turn Barrel Jam
+audience: Advanced
+trainingType: postflop
+bb: 25
+gameType: tournament
+positions:
+  - btn
+  - bb
+tags:
+  - advanced
+  - postflop-jam
+  - tournament
+spots:
+  - id: dbj_1
+    title: Jam turn after flop cbet with AK
+    board: [Qh,8d,2s,5h]
+    street: 2
+    villainAction: check
+    heroOptions:
+      - shove
+      - check
+    hand:
+      heroCards: Ah Kh
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 25, '1': 25}
+      board: [Qh,8d,2s,5h]
+  - id: dbj_2
+    title: Jam turn with pair+draw vs bet
+    board: [Jc,9c,4s,6d]
+    street: 2
+    villainAction: bet
+    heroOptions:
+      - shove
+      - call
+      - fold
+    hand:
+      heroCards: Tc 9d
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 30, '1': 30}
+      board: [Jc,9c,4s,6d]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0
