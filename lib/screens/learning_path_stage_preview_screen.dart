@@ -18,7 +18,6 @@ import '../models/mistake_tag_cluster.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/skill_card.dart';
 
-
 class LearningPathStagePreviewScreen extends StatefulWidget {
   final LearningPathTemplateV2 path;
   final LearningPathStageModel stage;
@@ -81,7 +80,8 @@ class _LearningPathStagePreviewScreenState
       count: 3,
     );
     final model = await _service.build(widget.path.id);
-    final status = model.statusFor(widget.stage.id)?.status ?? StageStatus.locked;
+    final status =
+        model.statusFor(widget.stage.id)?.status ?? StageStatus.locked;
     final reasons = <String>[];
     if (status == StageStatus.locked) {
       final threshold = _gatekeeper.masteryThreshold;
@@ -121,7 +121,8 @@ class _LearningPathStagePreviewScreenState
   }
 
   Future<void> _start() async {
-    final template = await PackLibraryService.instance.getById(widget.stage.packId);
+    final template =
+        await PackLibraryService.instance.getById(widget.stage.packId);
     if (template == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -190,10 +191,26 @@ class _LearningPathStagePreviewScreenState
                     widget.stage.description,
                     style: const TextStyle(color: Colors.white70),
                   ),
-                if (widget.stage.tags.isNotEmpty) ...[
+                if (widget.stage.objectives.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   const Text(
                     'Навыки',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: -4,
+                    children: [
+                      for (final o in widget.stage.objectives)
+                        Chip(label: Text(o)),
+                    ],
+                  ),
+                ],
+                if (widget.stage.tags.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Теги',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -238,7 +255,8 @@ class _LearningPathStagePreviewScreenState
                     height: 160,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, i) => _buildBoosterCard(_boosters[i]),
+                      itemBuilder: (context, i) =>
+                          _buildBoosterCard(_boosters[i]),
                       separatorBuilder: (_, __) => const SizedBox(width: 8),
                       itemCount: _boosters.length,
                     ),
@@ -248,8 +266,7 @@ class _LearningPathStagePreviewScreenState
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
-                    onPressed:
-                        _status == StageStatus.unlocked ? _start : null,
+                    onPressed: _status == StageStatus.unlocked ? _start : null,
                     child: const Text('Начать тренировку'),
                   ),
                 ),
@@ -258,4 +275,3 @@ class _LearningPathStagePreviewScreenState
     );
   }
 }
-

@@ -68,6 +68,7 @@ class LearningPathStageTemplateGenerator {
     int minHands = 10,
     List<SubStageTemplateInput> subStages = const [],
     UnlockConditionInput? unlockCondition,
+    List<String>? objectives,
     List<String>? tags,
   }) {
     _order += 1;
@@ -87,6 +88,9 @@ class LearningPathStageTemplateGenerator {
     }
     if (unlockCondition != null) {
       map['unlockCondition'] = unlockCondition.toMap();
+    }
+    if (objectives != null && objectives.isNotEmpty) {
+      map['objectives'] = objectives;
     }
     if (subStages.isNotEmpty) {
       map['subStages'] = [for (final s in subStages) s.toMap()];
