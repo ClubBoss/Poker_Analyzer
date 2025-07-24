@@ -55,6 +55,8 @@ class TrainingPathProgressServiceV2 {
   double getStageAccuracy(String stageId) =>
       _progress[stageId]?.accuracy ?? 0.0;
 
+  int getStageHands(String stageId) => _progress[stageId]?.hands ?? 0;
+
   /// Returns `true` if the given [stageId] meets hands and accuracy targets.
   bool getStageCompletion(String stageId) {
     final stage = _template?.stages.firstWhereOrNull((s) => s.id == stageId);
