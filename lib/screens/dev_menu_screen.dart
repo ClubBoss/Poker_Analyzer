@@ -105,6 +105,7 @@ import 'tools/spot_duplication_wizard.dart';
 import 'tag_matrix_coverage_screen.dart';
 import 'skill_map_screen.dart';
 import 'goal_screen.dart';
+import 'goal_center_screen.dart';
 import 'lesson_path_screen.dart';
 import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
@@ -2103,6 +2104,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const GoalScreen()),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🎯 Goal Center'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GoalCenterScreen()),
                   );
                 },
               ),

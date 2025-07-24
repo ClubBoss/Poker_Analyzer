@@ -31,7 +31,7 @@ class GoalSuggestionService {
       final title = mapping?['title'] ?? 'Улучшить игру $tag';
       final desc = mapping?['description'] ??
           'Закрой хотя бы 3 стадии с этим тегом';
-      goals.add(TrainingGoal(title, description: desc));
+      goals.add(TrainingGoal(title, description: desc, tag: tag));
       if (goals.length >= 3) break;
     }
 

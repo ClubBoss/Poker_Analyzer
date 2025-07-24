@@ -3,6 +3,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
 import 'learning_path_personalization_service.dart';
+import 'pack_library_loader_service.dart';
+import 'smart_recommender_engine.dart';
+
+import '../models/training_result.dart';
 
 import '../models/session_log.dart';
 import 'training_session_service.dart';
@@ -143,6 +147,32 @@ class SessionLogService extends ChangeNotifier {
     final entries = map.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return {for (final e in entries) e.key: e.value};
+  }
+
+  /// Builds [UserProgress] from stored session logs.
+  Future<UserProgress> getUserProgress() async {
+    await load();
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final library = {
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+    };
+    final history = <TrainingResult>[];
+    for (final log in _logs) {
+      final tpl = library[log.templateId];
+      final tags = tpl?.tags ?? const <String>[];
+      final total = log.correctCount + log.mistakeCount;
+      final acc = total > 0 ? log.correctCount / total * 100 : 0.0;
+      history.add(
+        TrainingResult(
+          date: log.completedAt,
+          total: total,
+          correct: log.correctCount,
+          accuracy: acc,
+          tags: tags,
+        ),
+      );
+    }
+    return UserProgress(history: history);
   }
 
   @override
