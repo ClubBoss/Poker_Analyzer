@@ -10,6 +10,7 @@ import 'level_up_celebration_engine.dart';
 import '../models/xp_entry.dart';
 import 'cloud_sync_service.dart';
 import 'goal_engine.dart';
+import 'achievements_engine.dart';
 
 class XPTrackerService extends ChangeNotifier {
   XPTrackerService({this.cloud});
@@ -135,6 +136,7 @@ class XPTrackerService extends ChangeNotifier {
     await _box!.put(entry.id, entry.toJson());
     await _save();
     notifyListeners();
+    unawaited(AchievementsEngine.instance.checkAll());
   }
 
   /// Returns XP multiplier based on the current training streak.

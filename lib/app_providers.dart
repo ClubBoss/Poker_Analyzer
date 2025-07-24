@@ -62,6 +62,7 @@ import 'services/streak_service.dart';
 import 'services/streak_tracker_service.dart';
 import 'services/achievement_service.dart';
 import 'services/achievement_engine.dart';
+import 'services/achievements_engine.dart';
 import 'services/user_goal_engine.dart';
 import 'services/goal_toast_service.dart';
 import 'services/personal_recommendation_service.dart';
@@ -328,6 +329,13 @@ List<SingleChildWidget> buildTrainingProviders() {
         dailyGoal: context.read<DailyLearningGoalService>(),
         mastery: context.read<TagMasteryService>(),
         xp: context.read<XPTrackerService>(),
+      ),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => AchievementsEngine(
+        xp: context.read<XPTrackerService>(),
+        stats: context.read<TrainingStatsService>(),
+        streak: context.read<StreakTrackerService>(),
       ),
     ),
     ChangeNotifierProvider(

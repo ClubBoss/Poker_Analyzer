@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/streak_lost_dialog.dart';
 import '../widgets/streak_saved_dialog.dart';
 import 'streak_milestone_queue_service.dart';
+import 'achievements_engine.dart';
+import 'dart:async';
 
 class StreakTrackerService {
   StreakTrackerService._();
@@ -56,6 +58,7 @@ class StreakTrackerService {
     if (milestone && context.mounted) {
       StreakMilestoneQueueService.instance.addMilestoneToQueue(current);
     }
+    unawaited(AchievementsEngine.instance.checkAll());
     return milestone;
   }
 
