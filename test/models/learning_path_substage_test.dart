@@ -18,6 +18,7 @@ void main() {
           'description': 'first',
           'requiredAccuracy': 70,
           'minHands': 5,
+          'unlockCondition': {'dependsOn': 'p0', 'minAccuracy': 60},
         },
         {
           'id': 'p2',
@@ -31,6 +32,8 @@ void main() {
     expect(stage.subStages.first.title, 'A');
     expect(stage.subStages.first.description, 'first');
     expect(stage.subStages.first.requiredAccuracy, 70);
+    expect(stage.subStages.first.unlockCondition?.dependsOn, 'p0');
+    expect(stage.subStages.first.unlockCondition?.minAccuracy, 60);
     expect(stage.subStages.last.minHands, 0);
   });
 }

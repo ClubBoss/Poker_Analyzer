@@ -4,6 +4,8 @@ import '../models/learning_path_stage_model.dart';
 import '../models/learning_track_progress_model.dart';
 import '../services/training_progress_service.dart';
 import '../services/training_pack_template_service.dart';
+import '../services/training_pack_stats_service.dart';
+import '../services/unlock_condition_evaluator.dart';
 import '../screens/v2/training_pack_play_screen.dart';
 import '../models/sub_stage_model.dart';
 import 'tag_badge.dart';
@@ -29,6 +31,8 @@ class LearningStageTile extends StatefulWidget {
 
 class _LearningStageTileState extends State<LearningStageTile> {
   final Map<String, double> _progress = {};
+  final Map<String, double> _accuracy = {};
+  final UnlockConditionEvaluator _evaluator = const UnlockConditionEvaluator();
   bool _loading = false;
   String? _lastStartedId;
 
@@ -53,6 +57,8 @@ class _LearningStageTileState extends State<LearningStageTile> {
       final prog = await TrainingProgressService.instance
           .getSubStageProgress(widget.stage.id, s.id);
       _progress[s.id] = prog;
+      final stat = await TrainingPackStatsService.getStats(s.id);
+      _accuracy[s.id] = (stat?.accuracy ?? 0.0) * 100;
     }
     _lastStartedId = _computeLastStarted();
     if (mounted) setState(() => _loading = false);
@@ -148,32 +154,48 @@ class _LearningStageTileState extends State<LearningStageTile> {
     final prog = _progress[sub.id] ?? 0.0;
     final done = prog >= 1.0;
     final highlight = sub.id == _lastStartedId;
+    final unlocked =
+        _evaluator.isUnlocked(sub.unlockCondition, _progress, _accuracy);
+    final grey = unlocked ? null : Colors.white60;
+    Widget trailing;
+    if (!unlocked) {
+      trailing = const Icon(Icons.lock, color: Colors.grey);
+    } else if (done) {
+      trailing = const Icon(Icons.check_circle, color: Colors.green);
+    } else {
+      trailing = SizedBox(
+        width: 80,
+        child: LinearProgressIndicator(value: prog),
+      );
+    }
     return ListTile(
       tileColor: highlight ? Colors.blue.withOpacity(0.1) : null,
-      title: Text(sub.title),
-      subtitle: sub.description.isNotEmpty ? Text(sub.description) : null,
-      trailing: done
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : SizedBox(
-              width: 80,
-              child: LinearProgressIndicator(value: prog),
-            ),
-      onTap: () async {
-        final tpl = TrainingPackTemplateService.getById(sub.id, context);
-        if (tpl == null) return;
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
-          ),
-        );
-        final updated = await TrainingProgressService.instance
-            .getSubStageProgress(widget.stage.id, sub.id);
-        setState(() {
-          _progress[sub.id] = updated;
-          _lastStartedId = _computeLastStarted();
-        });
-      },
+      title: Text(sub.title, style: TextStyle(color: grey)),
+      subtitle:
+          sub.description.isNotEmpty ? Text(sub.description, style: TextStyle(color: grey)) : null,
+      trailing: trailing,
+      onTap: !unlocked
+          ? null
+          : () async {
+              final tplId = TrainingPackTemplateService.hasTemplate(sub.id)
+                  ? sub.id
+                  : widget.stage.packId;
+              final tpl = TrainingPackTemplateService.getById(tplId, context);
+              if (tpl == null) return;
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      TrainingPackPlayScreen(template: tpl, original: tpl),
+                ),
+              );
+              final updated = await TrainingProgressService.instance
+                  .getSubStageProgress(widget.stage.id, sub.id);
+              setState(() {
+                _progress[sub.id] = updated;
+                _lastStartedId = _computeLastStarted();
+              });
+            },
     );
   }
 }

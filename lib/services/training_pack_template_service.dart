@@ -963,6 +963,11 @@ class TrainingPackTemplateService {
         ...TrainingPackAssetLoader.instance.getAll(),
       ];
 
+  /// Returns `true` if a template with [id] exists.
+  static bool hasTemplate(String id) {
+    return getAllTemplates().any((t) => t.id == id);
+  }
+
   static TrainingPackTemplate? getById(String id, [BuildContext? ctx]) {
     return getAllTemplates(ctx).firstWhereOrNull((t) => t.id == id);
   }
