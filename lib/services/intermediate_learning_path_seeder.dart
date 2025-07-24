@@ -1,0 +1,74 @@
+import '../asset_manifest.dart';
+import 'pack_library_index_loader.dart';
+import '../core/training/generation/yaml_writer.dart';
+import '../models/v2/training_pack_template_v2.dart';
+
+class IntermediateLearningPathSeeder {
+  const IntermediateLearningPathSeeder();
+
+  Future<void> generateIntermediatePath() async {
+    await PackLibraryIndexLoader.instance.load();
+    final manifest = await AssetManifest.instance;
+    final library = PackLibraryIndexLoader.instance.library;
+
+    final selected = _selectPacks(library);
+    final paths = <String>[];
+    for (final p in selected) {
+      final path = _findAssetPath(manifest, p.id);
+      if (path != null) paths.add(path);
+    }
+
+    final unique = <String>[];
+    final seen = <String>{};
+    for (final p in paths) {
+      if (seen.add(p)) unique.add(p);
+    }
+
+    const writer = YamlWriter();
+    await writer.write({'packs': unique},
+        'assets/learning_paths/intermediate_path.yaml');
+  }
+
+  List<TrainingPackTemplateV2> _selectPacks(List<TrainingPackTemplateV2> packs) {
+    final list = <TrainingPackTemplateV2>[];
+    for (final p in packs) {
+      final aud = p.audience?.toLowerCase();
+      final tags = p.tags.map((t) => t.toLowerCase()).toList();
+      if (p.spotCount < 2) continue;
+      if (aud == 'intermediate') {
+        list.add(p);
+      } else if (tags.contains('intermediate') ||
+          tags.contains('midgame') ||
+          tags.contains('trap') ||
+          tags.contains('resteal')) {
+        list.add(p);
+      }
+    }
+    list.sort((a, b) {
+      final cmp = _rank(a).compareTo(_rank(b));
+      if (cmp != 0) return cmp;
+      return a.spotCount.compareTo(b.spotCount);
+    });
+    return list;
+  }
+
+  int _rank(TrainingPackTemplateV2 p) {
+    final name = p.name.toLowerCase();
+    final tags = p.tags.map((t) => t.toLowerCase()).toList();
+    if (name.contains('trap') || tags.contains('trap')) return 0;
+    if (name.contains('resteal') || tags.contains('resteal')) return 1;
+    if (name.contains('3bet') || name.contains('3-bet') || tags.contains('3bet') || tags.contains('3bet-push')) return 2;
+    if (name.contains('float') || name.contains('call') || tags.contains('float') || tags.contains('call')) return 3;
+    if (name.contains('delayed') || tags.contains('delayed')) return 4;
+    return 5;
+  }
+
+  String? _findAssetPath(Map<String, dynamic> manifest, String id) {
+    for (final entry in manifest.keys) {
+      if (entry.startsWith('assets/packs/') && entry.endsWith('$id.yaml')) {
+        return entry;
+      }
+    }
+    return null;
+  }
+}

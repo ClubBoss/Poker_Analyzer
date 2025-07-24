@@ -84,6 +84,7 @@ import '../services/smart_spot_injector.dart';
 import '../services/learning_path_engine.dart';
 import '../services/learning_path_stage_seeder.dart';
 import '../services/starter_learning_path_seeder.dart';
+import '../services/intermediate_learning_path_seeder.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -189,6 +190,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _seedFullPathLoading = false;
   bool _seedIcmMultiwayLoading = false;
   bool _generateBeginnerPathLoading = false;
+  bool _generateIntermediatePathLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1799,6 +1801,27 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _generateBeginnerPathLoading = false);
   }
 
+  Future<void> _generateIntermediatePath() async {
+    if (_generateIntermediatePathLoading || !kDebugMode) return;
+    setState(() => _generateIntermediatePathLoading = true);
+    try {
+      await const IntermediateLearningPathSeeder()
+          .generateIntermediatePath();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Intermediate path generated')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Generation failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _generateIntermediatePathLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2580,6 +2603,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Seed Intermediate Path'),
                 onTap: _seedIntermediateLoading ? null : _seedIntermediatePath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Generate Intermediate Path'),
+                onTap: _generateIntermediatePathLoading ? null : _generateIntermediatePath,
               ),
             if (kDebugMode)
               ListTile(
