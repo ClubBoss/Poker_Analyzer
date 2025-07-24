@@ -1,0 +1,51 @@
+id: btn_open_bb_call_sb_shove
+name: BTN Open BB Call -> SB Shove
+audience: Advanced
+trainingType: mtt
+bb: 15
+gameType: tournament
+positions:
+  - sb
+  - btn
+  - bb
+tags:
+  - advanced
+  - icm
+  - multiway
+  - tournament
+spots:
+  - id: mw1
+    title: SB shove AJs 15bb after BTN open & BB call
+    villainAction: open+call 2.5
+    heroOptions:
+      - push
+      - call
+      - fold
+    hand:
+      heroCards: As Js
+      position: sb
+      heroIndex: 0
+      playerCount: 3
+      stacks:
+        '0': 15
+        '1': 15
+        '2': 15
+  - id: mw2
+    title: SB shove T9s 20bb after BTN open & BB call
+    villainAction: open+call 2.2
+    heroOptions:
+      - push
+      - call
+      - fold
+    hand:
+      heroCards: Ts 9s
+      position: sb
+      heroIndex: 0
+      playerCount: 3
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

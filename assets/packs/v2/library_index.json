@@ -852,5 +852,49 @@
     "spotCount": 2,
     "positions": ["btn", "bb"],
     "tags": ["advanced", "postflop-jam", "tournament"]
+  },
+  {
+    "id": "btn_open_bb_call_sb_shove",
+    "name": "BTN Open BB Call -> SB Shove",
+    "description": "Multiway shove from SB after open and call",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 15,
+    "spotCount": 2,
+    "positions": ["sb", "btn", "bb"],
+    "tags": ["advanced", "icm", "multiway", "tournament"]
+  },
+  {
+    "id": "limp_limp_hero_bb",
+    "name": "Limp Limp Hero BB",
+    "description": "BB decision after two limpers",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 10,
+    "spotCount": 2,
+    "positions": ["bb", "utg", "mp"],
+    "tags": ["advanced", "icm", "multiway", "tournament"]
+  },
+  {
+    "id": "icm_final6_sb_vs_bb_reshove",
+    "name": "ICM Final 6 SB vs BB Reshove",
+    "description": "Call or fold facing BB reshove",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 2,
+    "positions": ["sb", "bb"],
+    "tags": ["advanced", "icm", "multiway", "tournament"]
+  },
+  {
+    "id": "icm_btn_shove_bb",
+    "name": "ICM BTN Shove vs BB",
+    "description": "BB decision vs BTN shove",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 12,
+    "spotCount": 2,
+    "positions": ["bb", "btn"],
+    "tags": ["advanced", "icm", "multiway", "tournament"]
   }
 ]
