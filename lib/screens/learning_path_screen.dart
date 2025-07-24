@@ -29,6 +29,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   List<LearningPathStageModel> _stages = [];
   bool _loading = true;
   final Map<String, int> _progressByPath = {};
+  final Map<String, int> _completedStagesByPath = {};
+  final Map<String, int> _totalStagesByPath = {};
 
   @override
   void initState() {
@@ -59,11 +61,18 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       await loader.loadPath(entry.value);
       final stages = List<LearningPathStageModel>.from(library.stages);
       double sum = 0;
+      int completed = 0;
       for (final s in stages) {
-        sum += await TrainingProgressService.instance.getProgress(s.packId);
+        final prog = await TrainingProgressService.instance.getProgress(
+          s.packId,
+        );
+        sum += prog;
+        if (prog >= 1.0) completed++;
       }
       final pct = stages.isEmpty ? 0 : (sum / stages.length * 100).round();
       _progressByPath[entry.key] = pct;
+      _completedStagesByPath[entry.key] = completed;
+      _totalStagesByPath[entry.key] = stages.length;
     }
     setState(() {});
   }
@@ -78,11 +87,16 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       ..sort((a, b) => a.order.compareTo(b.order));
     _stages = stages;
     double sum = 0;
+    int completed = 0;
     for (final s in stages) {
-      sum += await TrainingProgressService.instance.getProgress(s.packId);
+      final prog = await TrainingProgressService.instance.getProgress(s.packId);
+      sum += prog;
+      if (prog >= 1.0) completed++;
     }
     final pct = stages.isEmpty ? 0 : (sum / stages.length * 100).round();
     _progressByPath[_selected] = pct;
+    _completedStagesByPath[_selected] = completed;
+    _totalStagesByPath[_selected] = stages.length;
     setState(() => _loading = false);
   }
 
@@ -98,7 +112,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => const LearningProgressStatsScreen()),
+                builder: (_) => const LearningProgressStatsScreen(),
+              ),
             ),
           ),
         ],
@@ -124,7 +139,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     value: name,
                     child: Text(
                       _progressByPath.containsKey(name)
-                          ? '$name · ${_progressByPath[name]}%'
+                          ? '$name · ${_progressByPath[name]}% · '
+                                '${_completedStagesByPath[name] ?? 0}/'
+                                '${_totalStagesByPath[name] ?? 0}'
                           : name,
                     ),
                   ),
@@ -171,8 +188,10 @@ class _DynamicStageTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (stage.description.isNotEmpty)
-                  Text(stage.description,
-                      style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    stage.description,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: LinearProgressIndicator(
@@ -183,16 +202,19 @@ class _DynamicStageTile extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
-                  child: Text('$percent%',
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.white70)),
+                  child: Text(
+                    '$percent%',
+                    style: const TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
                 ),
               ],
             ),
             trailing: ElevatedButton(
               onPressed: () {
-                final tpl =
-                    TrainingPackTemplateService.getById(stage.packId, context);
+                final tpl = TrainingPackTemplateService.getById(
+                  stage.packId,
+                  context,
+                );
                 if (tpl == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Template not found')),
