@@ -88,6 +88,7 @@ import '../services/intermediate_learning_path_seeder.dart';
 
 import '../services/icm_postflop_path_seeder.dart';
 import '../services/live_hud_pack_seeder.dart';
+import '../services/cash_path_seeder.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -197,6 +198,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _generateAdvancedPathLoading = false;
   bool _generateIcmPostflopPathLoading = false;
   bool _generateLivePathLoading = false;
+  bool _generateCashPathLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1888,6 +1890,26 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _generateLivePathLoading = false);
   }
 
+  Future<void> _generateCashPath() async {
+    if (_generateCashPathLoading || !kDebugMode) return;
+    setState(() => _generateCashPathLoading = true);
+    try {
+      await const CashPathSeeder().generateCashPath();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cash path generated')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Generation failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _generateCashPathLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2695,6 +2717,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Generate Live Path'),
                 onTap: _generateLivePathLoading ? null : _generateLivePath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Generate Cash Path'),
+                onTap: _generateCashPathLoading ? null : _generateCashPath,
               ),
             if (kDebugMode)
               ListTile(
