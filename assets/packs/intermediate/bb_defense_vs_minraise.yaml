@@ -1,0 +1,53 @@
+id: bb_defense_vs_minraise
+name: BB Defense vs Minraise
+audience: Intermediate
+trainingType: mtt
+bb: 20
+gameType: tournament
+positions:
+  - bb
+tags:
+  - intermediate
+  - defense
+  - bb
+  - minraise
+spots:
+  - id: bb_def_1
+    title: Call JTs vs BTN minraise
+    villainAction: open 2
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Jc Tc
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bb_def_2
+    title: Fold 74s vs CO minraise
+    villainAction: open 2
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: 7s 4s
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

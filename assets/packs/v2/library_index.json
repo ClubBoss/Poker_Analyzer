@@ -571,5 +571,118 @@
       "recommended": true,
       "icon": "north"
     }
+  },
+  {
+    "id": "open_fold_btn_co_lj",
+    "name": "Open/Fold BTN-CO-LJ",
+    "description": "Open or fold decisions 15-25bb",
+    "type": "openingMTT",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 3,
+    "positions": [
+      "btn",
+      "co",
+      "lj"
+    ],
+    "tags": [
+      "intermediate",
+      "openfold",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "schedule"
+    }
+  },
+  {
+    "id": "bb_defense_vs_minraise",
+    "name": "BB Defense vs Minraise",
+    "description": "Defend big blind versus minraises",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 2,
+    "positions": [
+      "bb"
+    ],
+    "tags": [
+      "intermediate",
+      "defense",
+      "bb",
+      "minraise"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "pan_tool"
+    }
+  },
+  {
+    "id": "threebet_push_vs_steal",
+    "name": "3bet Push vs Steal",
+    "description": "Shove over steal attempts",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 3,
+    "positions": [
+      "bb",
+      "co"
+    ],
+    "tags": [
+      "intermediate",
+      "3bet-push",
+      "steal",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
+  },
+  {
+    "id": "limp_call_fold",
+    "name": "Limp Call/Fold",
+    "description": "SB and BTN limp pots",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 15,
+    "spotCount": 2,
+    "positions": [
+      "sb",
+      "btn"
+    ],
+    "tags": [
+      "intermediate",
+      "limp",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "schedule"
+    }
+  },
+  {
+    "id": "bvb_push_call_adjustments",
+    "name": "BvB Push/Call Adjustments",
+    "description": "Blind versus blind shoving and calling",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 2,
+    "positions": [
+      "sb",
+      "bb"
+    ],
+    "tags": [
+      "intermediate",
+      "bvb",
+      "push-fold",
+      "mtt"
+    ],
+    "meta": {
+      "recommended": true,
+      "icon": "north"
+    }
   }
 ]

@@ -1,0 +1,53 @@
+id: limp_call_fold
+name: Limp Call/Fold
+audience: Intermediate
+trainingType: mtt
+bb: 15
+gameType: tournament
+positions:
+  - sb
+  - btn
+tags:
+  - intermediate
+  - limp
+  - mtt
+spots:
+  - id: lcf_1
+    title: SB limps 98s vs BB
+    villainAction: none
+    heroOptions:
+      - limp
+      - fold
+    hand:
+      heroCards: 9s 8s
+      position: sb
+      heroIndex: 4
+      playerCount: 6
+      stacks:
+        '0': 15
+        '1': 15
+        '2': 15
+        '3': 15
+        '4': 15
+        '5': 15
+  - id: lcf_2
+    title: BTN limps JTo vs BB
+    villainAction: none
+    heroOptions:
+      - limp
+      - fold
+    hand:
+      heroCards: Jd Th
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 15
+        '1': 15
+        '2': 15
+        '3': 15
+        '4': 15
+        '5': 15
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

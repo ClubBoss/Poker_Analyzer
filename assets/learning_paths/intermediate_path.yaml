@@ -1,0 +1,6 @@
+packs:
+  - assets/packs/intermediate/open_fold_btn_co_lj.yaml
+  - assets/packs/intermediate/bb_defense_vs_minraise.yaml
+  - assets/packs/intermediate/threebet_push_vs_steal.yaml
+  - assets/packs/intermediate/limp_call_fold.yaml
+  - assets/packs/intermediate/bvb_push_call_adjustments.yaml

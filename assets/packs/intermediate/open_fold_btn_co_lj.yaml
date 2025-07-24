@@ -1,0 +1,72 @@
+id: open_fold_btn_co_lj
+name: Open/Fold BTN-CO-LJ
+audience: Intermediate
+trainingType: openingMTT
+bb: 20
+gameType: tournament
+positions:
+  - btn
+  - co
+  - lj
+tags:
+  - intermediate
+  - openfold
+  - mtt
+spots:
+  - id: of_int_1
+    title: BTN open A8s 20bb?
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: As 8s
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: of_int_2
+    title: CO open 55 25bb?
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: 5d 5s
+      position: co
+      heroIndex: 1
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: of_int_3
+    title: LJ open KJs 15bb?
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: Kc Jc
+      position: lj
+      heroIndex: 2
+      playerCount: 6
+      stacks:
+        '0': 15
+        '1': 15
+        '2': 15
+        '3': 15
+        '4': 15
+        '5': 15
+spotCount: 3
+meta:
+  schemaVersion: 2.0.0
