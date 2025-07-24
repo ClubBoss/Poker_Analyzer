@@ -5,7 +5,7 @@ import '../services/session_log_service.dart';
 import '../services/training_session_service.dart';
 import '../models/learning_path_track_model.dart';
 import '../models/learning_path_template_v2.dart';
-import '../screens/learning_path_library_screen.dart';
+import '../screens/path_library_screen.dart';
 
 /// Dashboard widget highlighting the next learning path to continue.
 class LearningPathDashboardBlock extends StatefulWidget {
@@ -53,7 +53,7 @@ class _LearningPathDashboardBlockState extends State<LearningPathDashboardBlock>
   void _openPath() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const LearningPathLibraryScreen()),
+      MaterialPageRoute(builder: (_) => const PathLibraryScreen()),
     );
   }
 
