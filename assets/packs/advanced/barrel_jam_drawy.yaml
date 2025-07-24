@@ -1,0 +1,48 @@
+id: barrel_jam_drawy
+name: Barrel Jam Drawy Boards
+audience: Advanced
+trainingType: postflop
+bb: 25
+gameType: tournament
+positions:
+  - btn
+  - bb
+tags:
+  - advanced
+  - postflop-jam
+  - tournament
+spots:
+  - id: bjd_1
+    title: Jam turn on flush draw board after cbet
+    board: [Qs,9s,4d,7s]
+    street: 2
+    villainAction: check
+    heroOptions:
+      - shove
+      - check
+    hand:
+      heroCards: As Ks
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 25, '1': 25}
+      board: [Qs,9s,4d,7s]
+  - id: bjd_2
+    title: Jam flop with combo draw vs bet
+    board: [Jh,Th,4c]
+    street: 1
+    villainAction: bet
+    heroOptions:
+      - shove
+      - call
+      - fold
+    hand:
+      heroCards: Ah Qh
+      position: btn
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 20, '1': 20}
+      board: [Jh,Th,4c]
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0
