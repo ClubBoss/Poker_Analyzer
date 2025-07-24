@@ -147,3 +147,13 @@ The `tools` directory includes a small web tool for previewing a compiled
 page. The viewer renders a table of stages and subStages with their titles,
 `packId` values and unlock conditions. Rows are highlighted if a `packId` is
 missing or an `unlockCondition.dependsOn` refers to an unknown stage.
+
+## Pack Library Publisher Dashboard
+
+For a no-code publishing workflow open `tools/publisher_dashboard.html` in a
+browser. The page lets you upload a directory of training packs and a path spec
+file, then run the `publish_content.dart` script via a local server or Web
+Assembly build. Buttons are provided for validation, full publish or dry-run
+modes. After processing the dashboard shows how many packs and paths were
+published or skipped and provides links to the generated `index.json` and
+compiled `path.yaml` files.
