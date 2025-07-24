@@ -28,6 +28,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   String _selected = 'Beginner';
   List<LearningPathStageModel> _stages = [];
   bool _loading = true;
+  final Map<String, int> _progressByPath = {};
 
   @override
   void initState() {
@@ -46,15 +47,42 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         }
       }
     }
+    await _computeAllProgress();
     await _loadCurrent();
+  }
+
+  Future<void> _computeAllProgress() async {
+    final loader = LearningPathConfigLoader.instance;
+    final library = LearningPathStageLibrary.instance;
+    for (final entry in _paths.entries) {
+      library.clear();
+      await loader.loadPath(entry.value);
+      final stages = List<LearningPathStageModel>.from(library.stages);
+      double sum = 0;
+      for (final s in stages) {
+        sum += await TrainingProgressService.instance.getProgress(s.packId);
+      }
+      final pct = stages.isEmpty ? 0 : (sum / stages.length * 100).round();
+      _progressByPath[entry.key] = pct;
+    }
+    setState(() {});
   }
 
   Future<void> _loadCurrent() async {
     setState(() => _loading = true);
     final path = _paths[_selected]!;
+    final library = LearningPathStageLibrary.instance;
+    library.clear();
     await LearningPathConfigLoader.instance.loadPath(path);
-    _stages = List.from(LearningPathStageLibrary.instance.stages)
+    final stages = List.from(library.stages)
       ..sort((a, b) => a.order.compareTo(b.order));
+    _stages = stages;
+    double sum = 0;
+    for (final s in stages) {
+      sum += await TrainingProgressService.instance.getProgress(s.packId);
+    }
+    final pct = stages.isEmpty ? 0 : (sum / stages.length * 100).round();
+    _progressByPath[_selected] = pct;
     setState(() => _loading = false);
   }
 
@@ -92,7 +120,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               },
               items: [
                 for (final name in _paths.keys)
-                  DropdownMenuItem(value: name, child: Text(name)),
+                  DropdownMenuItem(
+                    value: name,
+                    child: Text(
+                      _progressByPath.containsKey(name)
+                          ? '$name · ${_progressByPath[name]}%'
+                          : name,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -149,7 +184,8 @@ class _DynamicStageTile extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text('$percent%',
-                      style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.white70)),
                 ),
               ],
             ),
@@ -179,4 +215,3 @@ class _DynamicStageTile extends StatelessWidget {
     );
   }
 }
-
