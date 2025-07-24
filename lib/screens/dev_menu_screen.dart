@@ -89,6 +89,7 @@ import '../services/intermediate_learning_path_seeder.dart';
 import '../services/icm_postflop_path_seeder.dart';
 import '../services/live_hud_pack_seeder.dart';
 import '../services/cash_path_seeder.dart';
+import '../services/learning_path_config_loader.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -199,6 +200,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _generateIcmPostflopPathLoading = false;
   bool _generateLivePathLoading = false;
   bool _generateCashPathLoading = false;
+  bool _loadAllPathsLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
   bool _injectWeakSpots = false;
@@ -1910,6 +1912,26 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _generateCashPathLoading = false);
   }
 
+  Future<void> _loadAllLearningPaths() async {
+    if (_loadAllPathsLoading || !kDebugMode) return;
+    setState(() => _loadAllPathsLoading = true);
+    try {
+      await LearningPathConfigLoader.instance.loadAllPaths();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Learning paths loaded')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Load failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _loadAllPathsLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2722,6 +2744,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Generate Cash Path'),
                 onTap: _generateCashPathLoading ? null : _generateCashPath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Load All Learning Paths'),
+                onTap: _loadAllPathsLoading ? null : _loadAllLearningPaths,
               ),
             if (kDebugMode)
               ListTile(
