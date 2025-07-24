@@ -22,6 +22,7 @@ import '../widgets/review_path_card.dart';
 import '../widgets/smart_recovery_banner.dart';
 import '../widgets/streak_recovery_block.dart';
 import '../widgets/training_streak_indicator.dart';
+import '../widgets/level_badge_widget.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -226,6 +227,8 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               const TrainingStreakIndicator(),
+              const SizedBox(height: 12),
+              const LevelBadgeWidget(),
               const SizedBox(height: 12),
               const StreakRecoveryBlock(),
               if (data.reviews.isNotEmpty) ...[
