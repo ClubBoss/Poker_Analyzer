@@ -55,6 +55,7 @@ import 'training_home_screen.dart';
 import 'ready_to_train_screen.dart';
 import '../widgets/lesson_suggestion_banner.dart';
 import '../widgets/recovery_prompt_banner.dart';
+import '../widgets/goal_reengagement_banner.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -818,6 +819,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const LessonSuggestionBanner(),
+                    const GoalReengagementBannerWidget(),
                     const RecoveryPromptBanner(),
                     _buildSuggestedBanner(context),
                     _buildStreakCard(context),
