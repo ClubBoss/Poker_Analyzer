@@ -1,0 +1,5 @@
+packs:
+  - assets/packs/advanced_icm/btn_open_bb_call_sb_shove.yaml
+  - assets/packs/advanced_icm/limp_limp_hero_bb.yaml
+  - assets/packs/advanced_icm/icm_final6_sb_vs_bb_reshove.yaml
+  - assets/packs/advanced_icm/icm_btn_shove_bb.yaml
