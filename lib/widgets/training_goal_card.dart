@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/training_goal.dart';
 import '../models/goal_progress.dart';
+import '../services/goal_completion_engine.dart';
+import '../utils/goal_status_utils.dart';
 
 class TrainingGoalCard extends StatelessWidget {
   final TrainingGoal goal;
@@ -17,19 +19,33 @@ class TrainingGoalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            goal.title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    final prog = progress;
+    final completed =
+        prog != null && GoalCompletionEngine.instance.isGoalCompleted(prog);
+    return Opacity(
+      opacity: completed ? 0.6 : 1,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  goal.title,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (prog != null) _GoalProgressBadge(progress: prog),
+            ],
           ),
           if (goal.description.isNotEmpty) ...[
             const SizedBox(height: 4),
@@ -38,11 +54,10 @@ class TrainingGoalCard extends StatelessWidget {
               style: const TextStyle(color: Colors.white70),
             ),
           ],
-          if (progress != null) ...[
+          if (prog != null) ...[
             const SizedBox(height: 4),
             Text(
-              'Пройдено: ${progress!.stagesCompleted} стадий · Средняя точность: '
-              '${progress!.averageAccuracy.toStringAsFixed(0)}%',
+              getGoalStatus(prog),
               style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
           ],
@@ -56,6 +71,31 @@ class TrainingGoalCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    ),
+    );
+  }
+}
+
+class _GoalProgressBadge extends StatelessWidget {
+  final GoalProgress progress;
+  const _GoalProgressBadge({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    final completed =
+        GoalCompletionEngine.instance.isGoalCompleted(progress);
+    final color = completed ? Colors.green[700] : Colors.grey[700];
+    return Container(
+      margin: const EdgeInsets.only(left: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        getGoalStatus(progress),
+        style: const TextStyle(color: Colors.white, fontSize: 11),
       ),
     );
   }
