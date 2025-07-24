@@ -8,6 +8,8 @@ import '../services/pack_library_service.dart';
 import '../services/session_log_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/goal_engagement_tracker.dart';
+import '../models/goal_engagement.dart';
 
 class SmartGoalBanner extends StatefulWidget {
   const SmartGoalBanner({super.key});
@@ -47,10 +49,29 @@ class _SmartGoalBannerState extends State<SmartGoalBanner> {
     if (g == null || g.tag == null) return;
     final pack = await PackLibraryService.instance.findByTag(g.tag!);
     if (pack == null) return;
+    await GoalEngagementTracker.instance.log(
+      GoalEngagement(
+        tag: g.tag!,
+        action: 'start',
+        timestamp: DateTime.now(),
+      ),
+    );
     await const TrainingSessionLauncher().launch(pack);
   }
 
-  void _dismiss() => setState(() => _hidden = true);
+  void _dismiss() async {
+    final g = _goal;
+    if (g != null && g.tag != null) {
+      await GoalEngagementTracker.instance.log(
+        GoalEngagement(
+          tag: g.tag!,
+          action: 'dismiss',
+          timestamp: DateTime.now(),
+        ),
+      );
+    }
+    setState(() => _hidden = true);
+  }
 
   @override
   Widget build(BuildContext context) {

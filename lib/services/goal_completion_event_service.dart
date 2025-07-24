@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/goal_completion_event.dart';
 import '../models/goal_progress.dart';
 import 'goal_completion_engine.dart';
+import 'goal_engagement_tracker.dart';
+import '../models/goal_engagement.dart';
 
 class GoalCompletionEventService {
   GoalCompletionEventService._();
@@ -49,8 +51,12 @@ class GoalCompletionEventService {
     final tag = progress.tag.trim().toLowerCase();
     if (_events.containsKey(tag)) return;
     if (!GoalCompletionEngine.instance.isGoalCompleted(progress)) return;
-    _events[tag] = DateTime.now();
+    final now = DateTime.now();
+    _events[tag] = now;
     await _save();
+    await GoalEngagementTracker.instance.log(
+      GoalEngagement(tag: tag, action: 'completed', timestamp: now),
+    );
   }
 
   DateTime? completedAt(String tag) {
