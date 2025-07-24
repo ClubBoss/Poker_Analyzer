@@ -24,14 +24,13 @@ class LearningPathCompletionEngine {
         if (accuracy < stage.requiredAccuracy) return false;
       } else {
         for (final sub in stage.subStages) {
-          final log = logsByPackId[sub.packId];
+          final log = logsByPackId[sub.id];
           final correct = log?.correctCount ?? 0;
           final mistakes = log?.mistakeCount ?? 0;
           final hands = correct + mistakes;
-          if (hands < (sub.minHands ?? 0)) return false;
+          if (hands < sub.minHands) return false;
           final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-          if (sub.requiredAccuracy != null &&
-              accuracy < sub.requiredAccuracy!) return false;
+          if (accuracy < sub.requiredAccuracy) return false;
         }
       }
     }

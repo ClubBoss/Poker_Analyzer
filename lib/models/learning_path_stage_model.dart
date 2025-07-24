@@ -1,5 +1,5 @@
 import 'unlock_condition.dart';
-import 'learning_path_sub_stage.dart';
+import 'sub_stage_model.dart';
 
 class LearningPathStageModel {
   final String id;
@@ -8,7 +8,7 @@ class LearningPathStageModel {
   final String packId;
   final double requiredAccuracy;
   final int minHands;
-  final List<LearningPathSubStage> subStages;
+  final List<SubStageModel> subStages;
   final List<String> unlocks;
   final List<String> unlockAfter;
   final List<String> tags;
@@ -23,7 +23,7 @@ class LearningPathStageModel {
     required this.packId,
     required this.requiredAccuracy,
     required this.minHands,
-    List<LearningPathSubStage>? subStages,
+    List<SubStageModel>? subStages,
     List<String>? unlocks,
     List<String>? tags,
     List<String>? unlockAfter,
@@ -54,7 +54,7 @@ class LearningPathStageModel {
           : null,
       subStages: [
         for (final s in (json['subStages'] as List? ?? []))
-          LearningPathSubStage.fromJson(Map<String, dynamic>.from(s)),
+          SubStageModel.fromJson(Map<String, dynamic>.from(s)),
       ],
     );
   }

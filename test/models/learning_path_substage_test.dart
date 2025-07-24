@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/learning_path_stage_model.dart';
-import 'package:poker_analyzer/models/learning_path_sub_stage.dart';
+import 'package:poker_analyzer/models/sub_stage_model.dart';
 
 void main() {
   test('parses subStages from json', () {
@@ -13,21 +13,24 @@ void main() {
       'minHands': 10,
       'subStages': [
         {
+          'id': 'p1',
           'title': 'A',
-          'packId': 'p1',
+          'description': 'first',
           'requiredAccuracy': 70,
           'minHands': 5,
         },
         {
-          'title': 'B',
-          'packId': 'p2'
+          'id': 'p2',
+          'title': 'B'
         }
       ]
     };
     final stage = LearningPathStageModel.fromJson(json);
     expect(stage.subStages.length, 2);
+    expect(stage.subStages.first.id, 'p1');
     expect(stage.subStages.first.title, 'A');
+    expect(stage.subStages.first.description, 'first');
     expect(stage.subStages.first.requiredAccuracy, 70);
-    expect(stage.subStages.last.minHands, isNull);
+    expect(stage.subStages.last.minHands, 0);
   });
 }

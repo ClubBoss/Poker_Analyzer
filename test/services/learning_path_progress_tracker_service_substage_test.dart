@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/learning_path_stage_model.dart';
 import 'package:poker_analyzer/models/learning_path_template_v2.dart';
-import 'package:poker_analyzer/models/learning_path_sub_stage.dart';
+import 'package:poker_analyzer/models/sub_stage_model.dart';
 import 'package:poker_analyzer/models/session_log.dart';
 import 'package:poker_analyzer/services/learning_path_progress_tracker_service.dart';
 
@@ -23,17 +23,17 @@ void main() {
         requiredAccuracy: 0,
         minHands: 0,
         subStages: [
-          LearningPathSubStage(
+          SubStageModel(
+            id: 'p1',
             title: 'A',
-            packId: 'p1',
+            minHands: 5,
             requiredAccuracy: 80,
-            minHands: 5,
           ),
-          LearningPathSubStage(
+          SubStageModel(
+            id: 'p2',
             title: 'B',
-            packId: 'p2',
-            requiredAccuracy: 60,
             minHands: 5,
+            requiredAccuracy: 60,
           ),
         ],
       )

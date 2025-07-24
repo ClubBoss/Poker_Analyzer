@@ -21,8 +21,8 @@ class LearningPathStageCompletionEngine {
         if (!isStageComplete(stage, hands)) return false;
       } else {
         for (final sub in stage.subStages) {
-          final hands = handsPlayedByPackId[sub.packId] ?? 0;
-          if (hands < (sub.minHands ?? 0)) return false;
+          final hands = handsPlayedByPackId[sub.id] ?? 0;
+          if (hands < sub.minHands) return false;
         }
       }
     }
