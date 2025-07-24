@@ -12,6 +12,7 @@ import '../services/training_pack_cloud_sync_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
+import 'basic_achievements_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -262,6 +263,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
           _buildChart(),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+              );
+            },
+            child: const Text('Достижения'),
+          ),
           const SizedBox(height: 16),
           Consumer<AuthService>(
             builder: (context, auth, child) {
