@@ -13,6 +13,7 @@ import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
 import 'basic_achievements_screen.dart';
+import 'booster_library_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -272,6 +273,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             },
             child: const Text('Достижения'),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BoosterLibraryScreen()),
+              );
+            },
+            child: const Text('Booster Library'),
           ),
           const SizedBox(height: 16),
           Consumer<AuthService>(
