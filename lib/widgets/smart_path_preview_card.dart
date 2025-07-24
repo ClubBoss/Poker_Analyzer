@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/path_preview_screen.dart';
-
-/// Difficulty level used in [SmartPathPreviewCard].
-enum PathDifficulty { easy, medium, hard }
+import '../models/path_difficulty.dart';
 
 /// Visual card widget showing a brief overview of a learning path.
 class SmartPathPreviewCard extends StatelessWidget {
