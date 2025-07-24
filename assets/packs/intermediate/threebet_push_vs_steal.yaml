@@ -1,0 +1,72 @@
+id: threebet_push_vs_steal
+name: 3bet Push vs Steal
+audience: Intermediate
+trainingType: mtt
+bb: 25
+gameType: tournament
+positions:
+  - bb
+  - co
+tags:
+  - intermediate
+  - 3bet-push
+  - steal
+  - mtt
+spots:
+  - id: tbps_1
+    title: BB shove A5s vs BTN open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: As 5s
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tbps_2
+    title: CO shove AQo vs HJ open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ad Qc
+      position: co
+      heroIndex: 1
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tbps_3
+    title: BB shove K9s vs SB open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ks 9s
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+spotCount: 3
+meta:
+  schemaVersion: 2.0.0

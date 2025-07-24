@@ -1,0 +1,46 @@
+id: bvb_push_call_adjustments
+name: BvB Push/Call Adjustments
+audience: Intermediate
+trainingType: mtt
+bb: 20
+gameType: tournament
+positions:
+  - sb
+  - bb
+tags:
+  - intermediate
+  - bvb
+  - push-fold
+  - mtt
+spots:
+  - id: bvb_1
+    title: SB shove Q8s 20bb vs BB
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: Qs 8s
+      position: sb
+      heroIndex: 4
+      playerCount: 2
+      stacks:
+        '0': 20
+        '1': 20
+  - id: bvb_2
+    title: BB call A9o vs SB shove 15bb
+    villainAction: shove 15
+    heroOptions:
+      - call
+      - fold
+    hand:
+      heroCards: Ac 9d
+      position: bb
+      heroIndex: 1
+      playerCount: 2
+      stacks:
+        '0': 15
+        '1': 15
+spotCount: 2
+meta:
+  schemaVersion: 2.0.0

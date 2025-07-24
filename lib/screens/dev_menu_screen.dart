@@ -183,6 +183,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _trainingStreakExportLoading = false;
   bool _autoAdvanceLoading = false;
   bool _seedBeginnerLoading = false;
+  bool _seedIntermediateLoading = false;
   bool _seedFullPathLoading = false;
   bool _unlockStages = false;
   bool _smartMode = false;
@@ -1672,6 +1673,33 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _seedBeginnerLoading = false);
   }
 
+  Future<void> _seedIntermediatePath() async {
+    if (_seedIntermediateLoading || !kDebugMode) return;
+    setState(() => _seedIntermediateLoading = true);
+    try {
+      final raw = await rootBundle
+          .loadString('assets/learning_paths/intermediate_path.yaml');
+      final map = const YamlReader().read(raw);
+      final paths = [for (final p in (map['packs'] as List? ?? [])) p.toString()];
+      await const LearningPathStageSeeder().seedStages(
+        paths,
+        audience: 'Intermediate',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Intermediate path seeded')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seed failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _seedIntermediateLoading = false);
+  }
+
   Future<void> _seedFullPathFromConfig() async {
     if (_seedFullPathLoading || !kDebugMode) return;
     setState(() => _seedFullPathLoading = true);
@@ -2464,6 +2492,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Seed Beginner Path'),
                 onTap: _seedBeginnerLoading ? null : _seedBeginnerPath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚙️ Seed Intermediate Path'),
+                onTap: _seedIntermediateLoading ? null : _seedIntermediatePath,
               ),
             if (kDebugMode)
               ListTile(
