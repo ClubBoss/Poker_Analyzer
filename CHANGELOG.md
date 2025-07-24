@@ -8,3 +8,4 @@
 - Add Import Starter Packs button to Template Library.
 - Suggest next built-in pack from the same category when one is completed.
 - Add hand analysis history with EV/ICM stats and filters.
+- Introduce XPLevelEngine for computing user level progression.

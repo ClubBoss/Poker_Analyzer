@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'streak_tracker_service.dart';
+import 'xp_level_engine.dart';
 
 import '../models/xp_entry.dart';
 import 'cloud_sync_service.dart';
@@ -60,9 +61,10 @@ class XPTrackerService extends ChangeNotifier {
   }
 
   int get xp => _xp;
-  int get level => _xp ~/ 100 + 1;
-  int get nextLevelXp => level * 100;
-  double get progress => (_xp % 100) / 100;
+  int getTotalXP() => _xp;
+  int get level => XPLevelEngine.instance.getLevel(_xp);
+  int get nextLevelXp => XPLevelEngine.instance.xpForLevel(level + 1);
+  double get progress => XPLevelEngine.instance.getProgressToNextLevel(_xp);
   List<XPEntry> get history => List.unmodifiable(_history);
 
   Future<void> load() async {
