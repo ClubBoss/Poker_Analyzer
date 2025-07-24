@@ -16,8 +16,15 @@ class LearningPathStageCompletionEngine {
     Map<String, int> handsPlayedByPackId,
   ) {
     for (final stage in path.stages) {
-      final hands = handsPlayedByPackId[stage.packId] ?? 0;
-      if (!isStageComplete(stage, hands)) return false;
+      if (stage.subStages.isEmpty) {
+        final hands = handsPlayedByPackId[stage.packId] ?? 0;
+        if (!isStageComplete(stage, hands)) return false;
+      } else {
+        for (final sub in stage.subStages) {
+          final hands = handsPlayedByPackId[sub.packId] ?? 0;
+          if (hands < (sub.minHands ?? 0)) return false;
+        }
+      }
     }
     return true;
   }

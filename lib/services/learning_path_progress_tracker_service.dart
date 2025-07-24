@@ -45,12 +45,32 @@ class LearningPathProgressTrackerService {
     final aggregated = aggregateLogsByPack(logs);
     final result = <String, String>{};
     for (final stage in path.stages) {
-      final log = aggregated[stage.packId];
-      final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
-      final correct = log?.correctCount ?? 0;
-      final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-      result[stage.id] =
-          '$hands / ${stage.minHands} рук · ${accuracy.toStringAsFixed(0)}%';
+      if (stage.subStages.isEmpty) {
+        final log = aggregated[stage.packId];
+        final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
+        final correct = log?.correctCount ?? 0;
+        final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+        result[stage.id] =
+            '$hands / ${stage.minHands} рук · ${accuracy.toStringAsFixed(0)}%';
+      } else {
+        var hands = 0;
+        var minHands = 0;
+        double accSum = 0;
+        for (final sub in stage.subStages) {
+          final log = aggregated[sub.packId];
+          final h = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
+          final correct = log?.correctCount ?? 0;
+          final acc = h == 0 ? 0.0 : correct / h * 100;
+          hands += h;
+          minHands += sub.minHands ?? 0;
+          accSum += acc;
+        }
+        final accAvg = stage.subStages.isEmpty
+            ? 0.0
+            : accSum / stage.subStages.length;
+        result[stage.id] =
+            '$hands / $minHands рук · ${accAvg.toStringAsFixed(0)}%';
+      }
     }
     return result;
   }
@@ -61,13 +81,26 @@ class LearningPathProgressTrackerService {
     Map<String, SessionLog> aggregatedLogs,
   ) {
     for (final stage in path.stages) {
-      final log = aggregatedLogs[stage.packId];
-      final correct = log?.correctCount ?? 0;
-      final mistakes = log?.mistakeCount ?? 0;
-      final hands = correct + mistakes;
-      if (hands < stage.minHands) return false;
-      final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-      if (accuracy < stage.requiredAccuracy) return false;
+      if (stage.subStages.isEmpty) {
+        final log = aggregatedLogs[stage.packId];
+        final correct = log?.correctCount ?? 0;
+        final mistakes = log?.mistakeCount ?? 0;
+        final hands = correct + mistakes;
+        if (hands < stage.minHands) return false;
+        final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+        if (accuracy < stage.requiredAccuracy) return false;
+      } else {
+        for (final sub in stage.subStages) {
+          final log = aggregatedLogs[sub.packId];
+          final correct = log?.correctCount ?? 0;
+          final mistakes = log?.mistakeCount ?? 0;
+          final hands = correct + mistakes;
+          if (hands < (sub.minHands ?? 0)) return false;
+          final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+          if (sub.requiredAccuracy != null &&
+              accuracy < sub.requiredAccuracy!) return false;
+        }
+      }
     }
     return true;
   }

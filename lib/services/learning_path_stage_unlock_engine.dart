@@ -36,13 +36,33 @@ class LearningPathStageUnlockEngine {
     final states = <String, LearningStageUIState>{};
     var foundActive = false;
     for (final stage in path.stages) {
-      final log = aggregatedLogs[stage.packId];
-      final correct = log?.correctCount ?? 0;
-      final mistakes = log?.mistakeCount ?? 0;
-      final hands = correct + mistakes;
-      final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-      final done =
-          hands >= stage.minHands && accuracy >= stage.requiredAccuracy;
+      bool done = false;
+      if (stage.subStages.isEmpty) {
+        final log = aggregatedLogs[stage.packId];
+        final correct = log?.correctCount ?? 0;
+        final mistakes = log?.mistakeCount ?? 0;
+        final hands = correct + mistakes;
+        final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+        done = hands >= stage.minHands && accuracy >= stage.requiredAccuracy;
+      } else {
+        done = true;
+        for (final sub in stage.subStages) {
+          final log = aggregatedLogs[sub.packId];
+          final correct = log?.correctCount ?? 0;
+          final mistakes = log?.mistakeCount ?? 0;
+          final hands = correct + mistakes;
+          final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
+          if (hands < (sub.minHands ?? 0)) {
+            done = false;
+            break;
+          }
+          if (sub.requiredAccuracy != null &&
+              accuracy < sub.requiredAccuracy!) {
+            done = false;
+            break;
+          }
+        }
+      }
       if (done) {
         states[stage.id] = LearningStageUIState.done;
         continue;
