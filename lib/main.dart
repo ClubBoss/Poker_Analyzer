@@ -21,6 +21,8 @@ import 'services/cloud_sync_service.dart';
 import 'services/auth_service.dart';
 import 'services/connectivity_sync_controller.dart';
 import 'services/training_session_service.dart';
+import 'services/training_reminder_push_service.dart';
+import 'services/goal_reengagement_service.dart';
 import 'services/personal_recommendation_service.dart';
 import 'services/notification_service.dart';
 import 'services/daily_challenge_notification_service.dart';
@@ -226,6 +228,10 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     NotificationService.startRecommendedPackTask(context);
     unawaited(context.read<LearningPathSummaryCache>().refresh());
     unawaited(context.read<DailyAppCheckService>().run(context));
+    unawaited(TrainingReminderPushService.instance.reschedule(
+      reengagement: context.read<GoalReengagementService>(),
+      sessions: context.read<TrainingSessionService>(),
+    ));
     unawaited(context.read<SkillLossOverlayPromptService>().run(context));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeStartPinnedTraining();

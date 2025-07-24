@@ -27,6 +27,7 @@ import '../models/v2/training_action.dart';
 import '../models/v2/focus_goal.dart';
 import '../models/category_progress.dart';
 import 'daily_reminder_scheduler.dart';
+import 'training_reminder_push_service.dart';
 import 'tag_mastery_service.dart';
 
 class TrainingSessionService extends ChangeNotifier {
@@ -336,6 +337,7 @@ class TrainingSessionService extends ChangeNotifier {
   }) async {
     if (persist) await _openBox();
     unawaited(DailyReminderScheduler.instance.cancelAll());
+    unawaited(TrainingReminderPushService.instance.cancelAll());
     if (template.tags.contains('customPath')) {
       unawaited(LearningPathProgressService.instance.markCustomPathStarted());
     }
