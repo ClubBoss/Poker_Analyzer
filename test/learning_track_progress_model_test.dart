@@ -66,4 +66,35 @@ void main() {
     expect(model.statusFor('s1')?.status, StageStatus.completed);
     expect(model.statusFor('s2')?.status, StageStatus.unlocked);
   });
+
+  test('advanceToNextStage marks stage completed', () async {
+    final logs = [
+      SessionLog(
+        sessionId: '1',
+        templateId: 'pack1',
+        startedAt: DateTime.now(),
+        completedAt: DateTime.now(),
+        correctCount: 8,
+        mistakeCount: 2,
+      ),
+    ];
+    final progress = TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
+    await progress.loadProgress('sample');
+
+    final gatekeeper = LearningPathGatekeeperService(
+      progress: progress,
+      mastery: _FakeMasteryService(const {}),
+    );
+    await gatekeeper.updateStageUnlocks('sample');
+
+    final svc = LearningTrackProgressService(
+      progress: progress,
+      gatekeeper: gatekeeper,
+    );
+    await svc.build('sample');
+    await svc.advanceToNextStage('s1');
+    final model = await svc.build('sample');
+    expect(model.statusFor('s1')?.status, StageStatus.completed);
+    expect(gatekeeper.isStageUnlocked('s2'), isTrue);
+  });
 }

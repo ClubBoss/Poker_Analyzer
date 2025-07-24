@@ -51,6 +51,9 @@ class _LearningPathStagePreviewScreenState
   final Map<String, double> _subAccuracy = {};
   final Map<String, TrainingPackTemplateV2> _subBoosters = {};
   List<String> _reasons = [];
+  bool _stageDone = false;
+  int _stageHands = 0;
+  double _stageAccuracy = 0.0;
 
   @override
   void didChangeDependencies() {
@@ -85,12 +88,17 @@ class _LearningPathStagePreviewScreenState
     final boosterService = const SkillGapBoosterService();
     final tracker = const LearningPathProgressTrackerService();
     final aggregated = tracker.aggregateLogsByPack(_logs.logs);
+    var stageHands = 0;
+    var stageCorrect = 0;
+    var stageDone = widget.stage.subStages.isNotEmpty;
     for (final s in widget.stage.subStages) {
       final p = await progSvc.getSubStageProgress(widget.stage.id, s.packId);
       subProg[s.packId] = p;
       final log = aggregated[s.packId];
       final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
       final acc = hands == 0 ? 0.0 : log!.correctCount / hands * 100;
+      stageHands += hands;
+      stageCorrect += log?.correctCount ?? 0;
       subAcc[s.packId] = acc;
       if (acc < s.requiredAccuracy && s.requiredAccuracy > 0) {
         final tags = s.objectives.isNotEmpty ? s.objectives : widget.stage.tags;
@@ -103,7 +111,9 @@ class _LearningPathStagePreviewScreenState
           if (packs.isNotEmpty) subBoosters[s.packId] = packs.first;
         }
       }
+      if (p < 1.0) stageDone = false;
     }
+    final stageAcc = stageHands == 0 ? 0.0 : stageCorrect * 100 / stageHands;
     final boosters = await boosterService.suggestBoosters(
       requiredTags: widget.stage.tags,
       masteryMap: masteryMap,
@@ -155,6 +165,9 @@ class _LearningPathStagePreviewScreenState
       _boosters = boosters;
       _status = status;
       _reasons = reasons;
+      _stageDone = stageDone;
+      _stageHands = stageHands;
+      _stageAccuracy = stageAcc;
       _loading = false;
     });
   }
@@ -308,6 +321,46 @@ class _LearningPathStagePreviewScreenState
     );
   }
 
+  Widget _buildStageSummary() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green[900],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Stage Complete',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text('Hands: \$_stageHands'),
+          Text('Accuracy: \${_stageAccuracy.toStringAsFixed(1)}%'),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: _start,
+                child: const Text('Review Stage'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () async {
+                  await _service.advanceToNextStage(widget.stage.id);
+                  if (!mounted) return;
+                  Navigator.pop(context);
+                },
+                child: const Text('Continue'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -404,13 +457,16 @@ class _LearningPathStagePreviewScreenState
                   ),
                 ],
                 const SizedBox(height: 24),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: _status == StageStatus.unlocked ? _start : null,
-                    child: const Text('Начать тренировку'),
-                  ),
-                ),
+                _stageDone
+                    ? _buildStageSummary()
+                    : Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed:
+                              _status == StageStatus.unlocked ? _start : null,
+                          child: const Text('Начать тренировку'),
+                        ),
+                      ),
               ],
             ),
     );
