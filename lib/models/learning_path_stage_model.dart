@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'unlock_condition.dart';
 import 'sub_stage_model.dart';
 
@@ -44,13 +46,16 @@ class LearningPathStageModel {
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
       minHands: (json['minHands'] as num?)?.toInt() ?? 0,
       unlocks: [for (final u in (json['unlocks'] as List? ?? [])) u.toString()],
-      unlockAfter: [for (final u in (json['unlockAfter'] as List? ?? [])) u.toString()],
+      unlockAfter: [
+        for (final u in (json['unlockAfter'] as List? ?? [])) u.toString(),
+      ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       order: (json['order'] as num?)?.toInt() ?? 0,
       isOptional: json['isOptional'] as bool? ?? false,
       unlockCondition: json['unlockCondition'] is Map
           ? UnlockCondition.fromJson(
-              Map<String, dynamic>.from(json['unlockCondition'] as Map))
+              Map<String, dynamic>.from(json['unlockCondition'] as Map),
+            )
           : null,
       subStages: [
         for (final s in (json['subStages'] as List? ?? []))
@@ -78,8 +83,7 @@ class LearningPathStageModel {
       };
 
   factory LearningPathStageModel.fromYaml(Map yaml) {
-    final map = <String, dynamic>{};
-    yaml.forEach((k, v) => map[k.toString()] = v);
+    final map = jsonDecode(jsonEncode(yaml)) as Map<String, dynamic>;
     return LearningPathStageModel.fromJson(map);
   }
 }
