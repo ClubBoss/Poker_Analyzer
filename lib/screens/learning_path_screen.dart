@@ -8,6 +8,8 @@ import '../models/learning_path_stage_model.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'learning_progress_stats_screen.dart';
 
+enum StageStatus { completed, open, locked }
+
 class LearningPathScreen extends StatefulWidget {
   const LearningPathScreen({super.key});
 
@@ -31,6 +33,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   final Map<String, int> _progressByPath = {};
   final Map<String, int> _completedStagesByPath = {};
   final Map<String, int> _totalStagesByPath = {};
+  final Map<String, StageStatus> _stageStatus = {};
 
   @override
   void initState() {
@@ -77,6 +80,27 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     setState(() {});
   }
 
+  Map<String, StageStatus> _computeStageStatus(
+    List<LearningPathStageModel> orderedStages,
+    Map<String, double> progressMap, {
+    int openCount = 2,
+  }) {
+    final map = <String, StageStatus>{};
+    var open = 0;
+    for (final stage in orderedStages) {
+      final prog = progressMap[stage.id] ?? 0.0;
+      if (prog >= 1.0) {
+        map[stage.id] = StageStatus.completed;
+      } else if (open < openCount) {
+        map[stage.id] = StageStatus.open;
+        open++;
+      } else {
+        map[stage.id] = StageStatus.locked;
+      }
+    }
+    return map;
+  }
+
   Future<void> _loadCurrent() async {
     setState(() => _loading = true);
     final path = _paths[_selected]!;
@@ -87,6 +111,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       ..sort((a, b) => a.order.compareTo(b.order));
 
     final pairs = <MapEntry<LearningPathStageModel, double>>[];
+    final progressMap = <String, double>{};
     double sum = 0;
     int completed = 0;
     for (final s in stages) {
@@ -94,11 +119,16 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       sum += prog;
       if (prog >= 1.0) completed++;
       pairs.add(MapEntry(s, prog));
+      progressMap[s.id] = prog;
     }
     final pct = stages.isEmpty ? 0 : (sum / stages.length * 100).round();
     _progressByPath[_selected] = pct;
     _completedStagesByPath[_selected] = completed;
     _totalStagesByPath[_selected] = stages.length;
+
+    _stageStatus
+      ..clear()
+      ..addAll(_computeStageStatus(stages, progressMap));
 
     pairs.sort((a, b) {
       final aDone = a.value >= 1.0;
@@ -167,7 +197,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 itemCount: _stages.length,
                 itemBuilder: (context, index) {
                   final stage = _stages[index];
-                  return _DynamicStageTile(stage: stage);
+                  final status = _stageStatus[stage.id] ?? StageStatus.locked;
+                  return _DynamicStageTile(stage: stage, status: status);
                 },
               ),
             ),
@@ -179,7 +210,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
 class _DynamicStageTile extends StatelessWidget {
   final LearningPathStageModel stage;
-  const _DynamicStageTile({required this.stage});
+  final StageStatus status;
+  const _DynamicStageTile({required this.stage, required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -191,10 +223,22 @@ class _DynamicStageTile extends StatelessWidget {
         final buttonLabel = progress == 0
             ? 'Начать'
             : (progress >= 1.0 ? 'Повторить' : 'Продолжить');
+        String prefix;
+        switch (status) {
+          case StageStatus.completed:
+            prefix = '✅';
+            break;
+          case StageStatus.open:
+            prefix = '🔓';
+            break;
+          case StageStatus.locked:
+          default:
+            prefix = '🔒';
+        }
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
-            title: Text(stage.title),
+            title: Text('$prefix ${stage.title}'),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -221,7 +265,9 @@ class _DynamicStageTile extends StatelessWidget {
               ],
             ),
             trailing: ElevatedButton(
-              onPressed: () {
+              onPressed: status == StageStatus.locked
+                  ? null
+                  : () {
                 final tpl = TrainingPackTemplateService.getById(
                   stage.packId,
                   context,
