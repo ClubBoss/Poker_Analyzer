@@ -74,6 +74,7 @@ import 'yaml_pack_editor_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
 import '../services/smart_stage_unlock_engine.dart';
+import '../services/learning_path_service.dart';
 import 'pack_filter_debug_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
@@ -166,6 +167,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _progressImportLoading = false;
   bool _autoAdvanceLoading = false;
   bool _unlockStages = false;
+  bool _smartMode = false;
   bool _achievementsCheckLoading = false;
   int _lessonStreak = 0;
   StreamSubscription<int>? _lessonSub;
@@ -2180,6 +2182,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   setState(() => _unlockStages = v ?? false);
                   LearningPathProgressService.instance.unlockAllStages =
                       _unlockStages;
+                },
+              ),
+            if (kDebugMode)
+              CheckboxListTile(
+                title: const Text('🤖 Smart Mode'),
+                value: _smartMode,
+                activeColor: Colors.greenAccent,
+                onChanged: (v) {
+                  setState(() => _smartMode = v ?? false);
+                  LearningPathService.instance.smartMode = _smartMode;
                 },
               ),
             if (kDebugMode)
