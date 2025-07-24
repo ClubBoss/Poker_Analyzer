@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/xp_tracker_service.dart';
+import 'xp_progress_bar_widget.dart';
 
 /// Displays the current level and progress toward the next level.
 class LevelBadgeWidget extends StatelessWidget {
@@ -54,19 +55,11 @@ class LevelBadgeWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.white24,
-                    valueColor: AlwaysStoppedAnimation(accent),
-                    minHeight: 6,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$currentXp / $nextXp XP',
-                  style: const TextStyle(color: Colors.white70),
+                XPProgressBarWidget(
+                  currentXp: currentXp,
+                  nextLevelXp: nextXp,
+                  progress: progress,
+                  color: accent,
                 ),
               ],
             ),
