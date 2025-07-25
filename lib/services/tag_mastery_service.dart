@@ -289,4 +289,24 @@ class TagMasteryService {
     }
     return normalized;
   }
+
+  /// Computes the total number of hands played for each tag.
+  Future<Map<String, int>> computeAttempts() async {
+    await logs.load();
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final library = {for (final t in PackLibraryLoaderService.instance.library) t.id: t};
+
+    final counts = <String, int>{};
+    for (final log in logs.logs) {
+      final tpl = library[log.templateId];
+      if (tpl == null) continue;
+      final total = log.correctCount + log.mistakeCount;
+      for (final tag in tpl.tags) {
+        final key = tag.trim().toLowerCase();
+        if (key.isEmpty) continue;
+        counts.update(key, (v) => v + total, ifAbsent: () => total);
+      }
+    }
+    return counts;
+  }
 }
