@@ -50,6 +50,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Map<String, SessionLog> _logsByPack = {};
   Map<String, double> _masteryMap = {};
   Map<String, bool> _theoryDone = {};
+  Map<String, String?> _nextBooster = {};
   Set<String> _reinforced = {};
   bool _celebrationShown = false;
   final ScrollController _scrollController = ScrollController();
@@ -71,11 +72,28 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final mastery = await _mastery.computeMastery();
     final prefs = await SharedPreferences.getInstance();
     final theoryMap = <String, bool>{};
+    final boosterMap = <String, String?>{};
     for (final stage in widget.template.stages) {
       final id = stage.theoryPackId;
       if (id != null) {
         theoryMap[stage.id] = prefs.getBool('completed_tpl_$id') ?? false;
       }
+      String? boosterId;
+      final boosters = stage.boosterTheoryPackIds;
+      if (boosters != null && boosters.isNotEmpty) {
+        final weak = stage.tags.any(
+          (t) => (mastery[t.toLowerCase()] ?? 1.0) < 0.6,
+        );
+        if (weak) {
+          for (final b in boosters) {
+            if (!(prefs.getBool('completed_booster_$b') ?? false)) {
+              boosterId = b;
+              break;
+            }
+          }
+        }
+      }
+      boosterMap[stage.id] = boosterId;
     }
     final skillMap =
         LearningPathPersonalizationService.instance.getTagSkillMap();
@@ -92,7 +110,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final mistakes = log?.mistakeCount ?? 0;
       final total = correct + mistakes;
       final accuracy = total == 0 ? 0.0 : correct / total * 100;
-      final theoryOk = theoryMap[stage.id] ?? true;
+      final boosterOk = boosterMap[stage.id] == null;
+      final theoryOk = boosterOk && (theoryMap[stage.id] ?? true);
       final done =
           theoryOk && total >= stage.minHands && accuracy >= stage.requiredAccuracy;
       if (done) {
@@ -113,6 +132,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       _masteryMap = mastery;
       _reinforced = extra;
       _theoryDone = theoryMap;
+      _nextBooster = boosterMap;
       _loading = false;
     });
 
@@ -173,6 +193,28 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     if (mounted) _load();
   }
 
+  Future<void> _startBooster(LearningPathStageModel stage) async {
+    final id = _nextBooster[stage.id];
+    if (id == null) return;
+    final template = await PackLibraryService.instance.getById(id);
+    if (template == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Booster pack not found')),
+      );
+      return;
+    }
+    await const TrainingSessionLauncher().launch(template);
+    if (mounted) {
+      final prefs = await SharedPreferences.getInstance();
+      final completed = prefs.getBool('completed_tpl_${template.id}') ?? false;
+      if (completed) {
+        await prefs.setBool('completed_booster_$id', true);
+      }
+      _load();
+    }
+  }
+
   Future<void> _startTheory(LearningPathStageModel stage) async {
     final id = stage.theoryPackId;
     if (id == null) return;
@@ -217,6 +259,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   }
 
   Future<void> _handleStageTap(LearningPathStageModel stage) async {
+    if (_nextBooster[stage.id] != null) {
+      await _startBooster(stage);
+      return;
+    }
     if (stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false)) {
       await _startTheory(stage);
       return;
@@ -271,10 +317,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         label = 'Заблокировано';
         break;
     }
+    final boosterPending = _nextBooster[stage.id] != null;
     final theoryPending =
         stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false);
     if (state == LearningStageUIState.active) {
-      if (theoryPending) {
+      if (boosterPending) {
+        icon = Icons.menu_book;
+        label = '📘 Усиление';
+      } else if (theoryPending) {
         icon = Icons.menu_book;
         label = '📘 Пройти теорию';
       } else {
@@ -336,7 +386,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 child: Icon(Icons.star, color: Colors.orange),
               ),
             if (_reinforced.contains(stage.id)) const SizedBox(width: 4),
-            if (state == LearningStageUIState.active && !theoryPending)
+            if (state == LearningStageUIState.active && !boosterPending && !theoryPending)
               IconButton(
                 icon: const Icon(Icons.visibility),
                 tooltip: 'Preview',
@@ -349,7 +399,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                   if (start == true) _startStage(stage);
                 },
               ),
-            if (state == LearningStageUIState.active && !theoryPending)
+            if (state == LearningStageUIState.active && !boosterPending && !theoryPending)
               const SizedBox(width: 4),
             Icon(icon, color: color),
             const SizedBox(width: 4),
