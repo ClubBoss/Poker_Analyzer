@@ -170,14 +170,19 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     }
     final ps = _packSpots[_index];
     if (ps.type == 'theory') {
-      await Navigator.push(
+      final last = await Navigator.push<int>(
         context,
         MaterialPageRoute(
-          builder: (_) => TheorySpotWidget(spot: ps),
+          builder: (_) => TheorySpotWidget(spots: _packSpots, index: _index),
         ),
       );
-      _results[ps.id] = true;
-      _index++;
+      final end = last ?? _index;
+      for (int i = _index; i <= end && i < _packSpots.length; i++) {
+        if (_packSpots[i].type == 'theory') {
+          _results[_packSpots[i].id] = true;
+        }
+      }
+      _index = end + 1;
       await _showSpot();
       return;
     }
