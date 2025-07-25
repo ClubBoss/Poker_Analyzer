@@ -37,6 +37,7 @@ import '../services/training_pack_suggestion_service.dart';
 import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/theory_pack_generator_service.dart';
+import '../services/theory_validation_engine.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/pack_dependency_map.dart';
 import '../services/training_goal_suggestion_engine.dart';
@@ -157,6 +158,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _yamlAssetsDupeLoading = false;
   bool _mergeLoading = false;
   bool _yamlMergeLoading = false;
+  bool _theoryValidateLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
@@ -601,6 +603,36 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Удалено: $count')));
+  }
+
+  Future<void> _validateTheoryYaml() async {
+    if (_theoryValidateLoading || !kDebugMode) return;
+    setState(() => _theoryValidateLoading = true);
+    final errors = await compute(_validateTheoryTask, '');
+    if (!mounted) return;
+    setState(() => _theoryValidateLoading = false);
+    if (errors.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибок нет')));
+      return;
+    }
+    final text = errors.map((e) => '${e.$1}: ${e.$2}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _mergeLibraries() async {
@@ -2130,6 +2162,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('📋 Проверить теоретические YAML'),
+                onTap:
+                    _theoryValidateLoading ? null : _validateTheoryYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🧹 Рефакторинг библиотеки'),
                 onTap: _refactorLoading ? null : _refactorLibrary,
               ),
@@ -2887,6 +2925,10 @@ Future<bool> _coverageTask(String _) async {
 
 Future<List<(String, String)>> _validateYamlTask(String _) async {
   return const YamlValidationService().validateAll();
+}
+
+Future<List<(String, String)>> _validateTheoryTask(String _) async {
+  return const TheoryValidationEngine().validateAll();
 }
 
 Future<int> _rankTask(String _) async {
