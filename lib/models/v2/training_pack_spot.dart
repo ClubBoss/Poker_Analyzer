@@ -25,6 +25,7 @@ class TrainingPackSpot {
   EvaluationResult? evalResult;
   String? correctAction;
   String? explanation;
+  String? image;
   bool streetMode;
   List<String> board;
   int street;
@@ -49,6 +50,7 @@ class TrainingPackSpot {
     this.evalResult,
     this.correctAction,
     this.explanation,
+    this.image,
     this.streetMode = false,
     List<String>? board,
     this.street = 0,
@@ -82,6 +84,7 @@ class TrainingPackSpot {
     EvaluationResult? evalResult,
     String? correctAction,
     String? explanation,
+    String? image,
     bool? streetMode,
     List<String>? board,
     int? street,
@@ -106,6 +109,7 @@ class TrainingPackSpot {
         evalResult: evalResult ?? this.evalResult,
         correctAction: correctAction ?? this.correctAction,
         explanation: explanation ?? this.explanation,
+        image: image ?? this.image,
         streetMode: streetMode ?? this.streetMode,
         board: board ?? List<String>.from(this.board),
         street: street ?? this.street,
@@ -140,6 +144,7 @@ class TrainingPackSpot {
             : null,
         correctAction: j['correctAction'] as String?,
         explanation: j['explanation'] as String?,
+        image: j['image'] as String?,
         streetMode: j['streetMode'] == true,
         board: [for (final c in (j['board'] as List? ?? [])) c.toString()],
         street: (j['street'] as num?)?.toInt() ?? 0,
@@ -165,6 +170,7 @@ class TrainingPackSpot {
         if (evalResult != null) 'evalResult': evalResult!.toJson(),
         if (correctAction != null) 'correctAction': correctAction,
         if (explanation != null) 'explanation': explanation,
+        if (image != null) 'image': image,
         if (streetMode) 'streetMode': true,
         if (board.isNotEmpty) 'board': board,
         if (street > 0) 'street': street,
@@ -239,6 +245,7 @@ class TrainingPackSpot {
           evalResult == other.evalResult &&
           correctAction == other.correctAction &&
           explanation == other.explanation &&
+          image == other.image &&
           streetMode == other.streetMode &&
           const ListEquality().equals(board, other.board) &&
           street == other.street &&
@@ -261,6 +268,7 @@ class TrainingPackSpot {
         evalResult,
         correctAction,
         explanation,
+        image,
         streetMode,
         const ListEquality().hash(board),
         street,

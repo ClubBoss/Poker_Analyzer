@@ -32,6 +32,7 @@ Future<void> main(List<String> args) async {
   final ci = results['ci'] as bool;
 
   final allowedTags = _loadAllowedTags();
+  final declaredAssets = _loadDeclaredAssets();
   final issues = <_Issue>[];
   final globalSpotIds = <String, String>{};
   final packIds = <String, String>{};
@@ -54,6 +55,7 @@ Future<void> main(List<String> args) async {
       globalSpotIds,
       packIds,
       fix: fix,
+      declaredAssets: declaredAssets,
     ));
   }
 
@@ -91,12 +93,31 @@ Set<String> _loadAllowedTags() {
   }
 }
 
+Set<String> _loadDeclaredAssets() {
+  final file = File('pubspec.yaml');
+  if (!file.existsSync()) return <String>{};
+  try {
+    final yamlMap = loadYaml(file.readAsStringSync()) as YamlMap;
+    final flutter = yamlMap['flutter'];
+    if (flutter is YamlMap) {
+      final assets = flutter['assets'];
+      if (assets is YamlList) {
+        return {for (final a in assets) a.toString()};
+      }
+    }
+    return <String>{};
+  } catch (_) {
+    return <String>{};
+  }
+}
+
 List<_Issue> _validateFile(
   File file,
   Set<String> allowedTags,
   Map<String, String> spotIds,
   Map<String, String> packIds, {
   bool fix = false,
+  required Set<String> declaredAssets,
 }) {
   final issues = <_Issue>[];
   Map<String, dynamic> map;
@@ -175,6 +196,33 @@ List<_Issue> _validateFile(
     }
     final type = s['type']?.toString();
     final isTheory = type == 'theory';
+    if (isTheory) {
+      final image = s['image']?.toString();
+      if (image != null) {
+        if (!File(image).existsSync()) {
+          issues.add(_Issue(file.path,
+              'Spot `$id` image not found: $image',
+              error: true));
+        }
+        bool declared = false;
+        for (final a in declaredAssets) {
+          if (a.endsWith('/')) {
+            if (image.startsWith(a)) {
+              declared = true;
+              break;
+            }
+          } else if (a == image) {
+            declared = true;
+            break;
+          }
+        }
+        if (!declared) {
+          issues.add(_Issue(file.path,
+              'Image `$image` not declared in pubspec.yaml',
+              error: true));
+        }
+      }
+    }
     final hand = s['hand'] as Map?;
     if (!isTheory) {
       if (hand == null) {
