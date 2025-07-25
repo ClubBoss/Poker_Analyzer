@@ -46,6 +46,7 @@ import '../widgets/player_style_card.dart';
 import '../widgets/skill_progress_card.dart';
 import '../widgets/training_progress_card.dart';
 import '../widgets/booster_progress_card.dart';
+import '../widgets/recommended_drill_tile.dart';
 import '../widgets/weak_area_spotlight_block.dart';
 import '../widgets/track_unlock_preview_card.dart';
 import '../widgets/review_past_mistakes_card.dart';
@@ -147,6 +148,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const TrainingProgressCard(),
           const WeakAreaSpotlightBlock(),
           const BoosterProgressCard(),
+          const RecommendedDrillTile(),
           const BoosterSuggestionBlock(),
           if (!tablet) const DailySpotlightCard(),
           if (narrow) ...[
