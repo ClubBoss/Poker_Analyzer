@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'pack_library_loader_service.dart';
 import 'session_log_service.dart';
 import 'training_pack_stats_service.dart';
@@ -11,6 +12,9 @@ class TagMasteryService {
 
   static Map<String, double>? _cache;
   static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
+  static Map<String, DateTime>? _lastTrained;
+  static Map<String, double>? _lastAccuracy;
+  static DateTime _metaTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   Future<Map<String, double>> computeMastery({bool force = false}) async {
     if (!force &&
@@ -27,6 +31,8 @@ class TagMasteryService {
     final sums = <String, double>{};
     final counts = <String, int>{};
     final spotCounts = <String, int>{};
+    final lastTrained = <String, DateTime>{};
+    final lastAcc = <String, double>{};
 
     for (final t in library) {
       for (final s in t.spots) {
@@ -49,6 +55,11 @@ class TagMasteryService {
         if (key.isEmpty) continue;
         sums[key] = (sums[key] ?? 0) + acc;
         counts[key] = (counts[key] ?? 0) + 1;
+        final prev = lastTrained[key];
+        if (prev == null || log.completedAt.isAfter(prev)) {
+          lastTrained[key] = log.completedAt;
+          lastAcc[key] = acc;
+        }
       }
     }
 
@@ -69,6 +80,9 @@ class TagMasteryService {
     if (result.isEmpty) {
       _cache = {};
       _cacheTime = DateTime.now();
+      _lastTrained = lastTrained;
+      _lastAccuracy = lastAcc;
+      _metaTime = DateTime.now();
       return _cache!;
     }
 
@@ -89,28 +103,31 @@ class TagMasteryService {
 
     _cache = normalized;
     _cacheTime = DateTime.now();
+    _lastTrained = lastTrained;
+    _lastAccuracy = lastAcc;
+    _metaTime = DateTime.now();
     return normalized;
   }
 
   Future<List<String>> topWeakTags(int count) async {
     final map = await computeMastery();
-    final list =
-        map.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
+    final list = map.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
     return [for (final e in list.take(count)) e.key];
   }
 
   Future<List<String>> topStrongTags(int count) async {
     final map = await computeMastery();
-    final list =
-        map.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final list = map.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     return [for (final e in list.take(count)) e.key];
   }
 
   /// Returns the weakest [count] tags sorted by mastery ascending.
   Future<List<String>> bottomWeakTags(int count) async {
     final map = await computeMastery();
-    final list =
-        map.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
+    final list = map.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
     return [for (final e in list.take(count)) e.key];
   }
 
@@ -294,7 +311,9 @@ class TagMasteryService {
   Future<Map<String, int>> computeAttempts() async {
     await logs.load();
     await PackLibraryLoaderService.instance.loadLibrary();
-    final library = {for (final t in PackLibraryLoaderService.instance.library) t.id: t};
+    final library = {
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+    };
 
     final counts = <String, int>{};
     for (final log in logs.logs) {
@@ -308,5 +327,21 @@ class TagMasteryService {
       }
     }
     return counts;
+  }
+
+  Future<Map<String, DateTime>> getLastTrained() async {
+    if (_lastTrained == null ||
+        DateTime.now().difference(_metaTime) > const Duration(hours: 6)) {
+      await computeMastery(force: true);
+    }
+    return _lastTrained ?? {};
+  }
+
+  Future<Map<String, double>> getLastAccuracy() async {
+    if (_lastAccuracy == null ||
+        DateTime.now().difference(_metaTime) > const Duration(hours: 6)) {
+      await computeMastery(force: true);
+    }
+    return _lastAccuracy ?? {};
   }
 }
