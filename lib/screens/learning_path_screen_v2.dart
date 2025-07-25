@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart';
 
 import '../models/learning_path_template_v2.dart';
 import '../models/learning_path_stage_model.dart';
@@ -115,6 +116,23 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       _loading = false;
     });
 
+    final justCompletedId = prefs.getString('justCompletedTheoryStageId');
+    if (justCompletedId != null) {
+      final stage =
+          widget.template.stages.firstWhereOrNull((s) => s.id == justCompletedId);
+      final theoryOk = stage == null ? false : theoryMap[stage.id] ?? false;
+      if (stage != null && theoryOk && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          final start = await showDialog<bool>(
+            context: context,
+            builder: (_) => StagePreviewDialog(stage: stage),
+          );
+          if (start == true) _startStage(stage);
+        });
+      }
+      await prefs.remove('justCompletedTheoryStageId');
+    }
+
     if (!_scrollDone && widget.highlightedStageId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToStage());
     }
@@ -167,7 +185,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       return;
     }
     await const TrainingSessionLauncher().launch(template);
-    if (mounted) _load();
+    if (mounted) {
+      final prefs = await SharedPreferences.getInstance();
+      final completed = prefs.getBool('completed_tpl_${template.id}') ?? false;
+      if (completed) {
+        await prefs.setString('justCompletedTheoryStageId', stage.id);
+      }
+      _load();
+    }
   }
 
   Future<bool> _isReadyForStage(LearningPathStageModel stage) async {
