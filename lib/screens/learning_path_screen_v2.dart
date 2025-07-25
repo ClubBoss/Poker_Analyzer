@@ -15,6 +15,7 @@ import '../services/smart_stage_unlock_service.dart';
 import '../services/learning_path_personalization_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/learning_path_prefs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'learning_path_celebration_screen.dart';
 import '../widgets/next_steps_modal.dart';
 import '../widgets/stage_progress_chip.dart';
@@ -47,6 +48,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Map<String, LearningStageUIState> _stageStates = {};
   Map<String, SessionLog> _logsByPack = {};
   Map<String, double> _masteryMap = {};
+  Map<String, bool> _theoryDone = {};
   Set<String> _reinforced = {};
   bool _celebrationShown = false;
   final ScrollController _scrollController = ScrollController();
@@ -66,6 +68,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     setState(() => _loading = true);
     final aggregated = _progressTracker.aggregateLogsByPack(_logs.logs);
     final mastery = await _mastery.computeMastery();
+    final prefs = await SharedPreferences.getInstance();
+    final theoryMap = <String, bool>{};
+    for (final stage in widget.template.stages) {
+      final id = stage.theoryPackId;
+      if (id != null) {
+        theoryMap[stage.id] = prefs.getBool('completed_tpl_$id') ?? false;
+      }
+    }
     final skillMap =
         LearningPathPersonalizationService.instance.getTagSkillMap();
     final extra = _smartUnlock.getAdditionalUnlockedStageIds(
@@ -81,7 +91,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final mistakes = log?.mistakeCount ?? 0;
       final total = correct + mistakes;
       final accuracy = total == 0 ? 0.0 : correct / total * 100;
-      final done = total >= stage.minHands && accuracy >= stage.requiredAccuracy;
+      final theoryOk = theoryMap[stage.id] ?? true;
+      final done =
+          theoryOk && total >= stage.minHands && accuracy >= stage.requiredAccuracy;
       if (done) {
         states[stage.id] = LearningStageUIState.done;
       } else if (_gatekeeper.isStageUnlocked(
@@ -99,6 +111,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       _logsByPack = aggregated;
       _masteryMap = mastery;
       _reinforced = extra;
+      _theoryDone = theoryMap;
       _loading = false;
     });
 
@@ -142,6 +155,21 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     if (mounted) _load();
   }
 
+  Future<void> _startTheory(LearningPathStageModel stage) async {
+    final id = stage.theoryPackId;
+    if (id == null) return;
+    final template = await PackLibraryService.instance.getById(id);
+    if (template == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Theory pack not found')),
+      );
+      return;
+    }
+    await const TrainingSessionLauncher().launch(template);
+    if (mounted) _load();
+  }
+
   Future<bool> _isReadyForStage(LearningPathStageModel stage) async {
     final log = _logsByPack[stage.packId];
     final correct = log?.correctCount ?? 0;
@@ -164,6 +192,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   }
 
   Future<void> _handleStageTap(LearningPathStageModel stage) async {
+    if (stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false)) {
+      await _startTheory(stage);
+      return;
+    }
     final ready = _prefs.skipPreviewIfReady && await _isReadyForStage(stage);
     if (ready) {
       await _startStage(stage);
@@ -203,7 +235,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         label = 'Завершено';
         break;
       case LearningStageUIState.active:
-        icon = Icons.lock_open;
+        icon = Icons.play_circle_fill;
         color = accent;
         label = 'Доступно';
         break;
@@ -213,6 +245,18 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         color = Colors.grey;
         label = 'Заблокировано';
         break;
+    }
+    final theoryPending =
+        stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false);
+    if (state == LearningStageUIState.active) {
+      if (theoryPending) {
+        icon = Icons.menu_book;
+        label = '📘 Пройти теорию';
+      } else {
+        icon = Icons.play_circle_fill;
+        label = '▶️ Практика';
+      }
+      color = accent;
     }
     final grey = state == LearningStageUIState.locked ? Colors.white60 : null;
     final border = state == LearningStageUIState.active
@@ -267,7 +311,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 child: Icon(Icons.star, color: Colors.orange),
               ),
             if (_reinforced.contains(stage.id)) const SizedBox(width: 4),
-            if (state == LearningStageUIState.active)
+            if (state == LearningStageUIState.active && !theoryPending)
               IconButton(
                 icon: const Icon(Icons.visibility),
                 tooltip: 'Preview',
@@ -280,7 +324,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                   if (start == true) _startStage(stage);
                 },
               ),
-            if (state == LearningStageUIState.active) const SizedBox(width: 4),
+            if (state == LearningStageUIState.active && !theoryPending)
+              const SizedBox(width: 4),
             Icon(icon, color: color),
             const SizedBox(width: 4),
             Text(label, style: TextStyle(color: color)),
