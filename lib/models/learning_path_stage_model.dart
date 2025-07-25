@@ -8,6 +8,7 @@ class LearningPathStageModel {
   final String title;
   final String description;
   final String packId;
+  final String? theoryPackId;
   final double requiredAccuracy;
   final int minHands;
   final List<SubStageModel> subStages;
@@ -24,6 +25,7 @@ class LearningPathStageModel {
     required this.title,
     required this.description,
     required this.packId,
+    this.theoryPackId,
     required this.requiredAccuracy,
     required this.minHands,
     List<SubStageModel>? subStages,
@@ -46,6 +48,7 @@ class LearningPathStageModel {
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
       packId: json['packId'] as String? ?? '',
+      theoryPackId: json['theoryPackId'] as String?,
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
       minHands: (json['minHands'] as num?)?.toInt() ?? 0,
       unlocks: [for (final u in (json['unlocks'] as List? ?? [])) u.toString()],
@@ -75,6 +78,7 @@ class LearningPathStageModel {
         'title': title,
         'description': description,
         'packId': packId,
+        if (theoryPackId != null) 'theoryPackId': theoryPackId,
         'requiredAccuracy': requiredAccuracy,
         'minHands': minHands,
         if (unlocks.isNotEmpty) 'unlocks': unlocks,
