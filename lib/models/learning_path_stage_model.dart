@@ -9,6 +9,7 @@ class LearningPathStageModel {
   final String description;
   final String packId;
   final String? theoryPackId;
+  final List<String>? boosterTheoryPackIds;
   final double requiredAccuracy;
   final int minHands;
   final List<SubStageModel> subStages;
@@ -26,6 +27,7 @@ class LearningPathStageModel {
     required this.description,
     required this.packId,
     this.theoryPackId,
+    this.boosterTheoryPackIds,
     required this.requiredAccuracy,
     required this.minHands,
     List<SubStageModel>? subStages,
@@ -49,6 +51,10 @@ class LearningPathStageModel {
       description: json['description'] as String? ?? '',
       packId: json['packId'] as String? ?? '',
       theoryPackId: json['theoryPackId'] as String?,
+      boosterTheoryPackIds: [
+        for (final b in (json['boosterTheoryPackIds'] as List? ?? []))
+          b.toString()
+      ],
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
       minHands: (json['minHands'] as num?)?.toInt() ?? 0,
       unlocks: [for (final u in (json['unlocks'] as List? ?? [])) u.toString()],
@@ -79,6 +85,8 @@ class LearningPathStageModel {
         'description': description,
         'packId': packId,
         if (theoryPackId != null) 'theoryPackId': theoryPackId,
+        if (boosterTheoryPackIds != null && boosterTheoryPackIds!.isNotEmpty)
+          'boosterTheoryPackIds': boosterTheoryPackIds,
         'requiredAccuracy': requiredAccuracy,
         'minHands': minHands,
         if (unlocks.isNotEmpty) 'unlocks': unlocks,
