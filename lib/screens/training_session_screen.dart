@@ -15,6 +15,8 @@ import '../services/achievement_trigger_engine.dart';
 import '../services/smart_review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/tag_review_history_service.dart';
+import '../services/skill_boost_log_service.dart';
+import '../models/skill_boost_log_entry.dart';
 import '../models/v2/training_session.dart';
 import 'pack_stats_screen.dart';
 import 'training_recap_screen.dart';
@@ -299,6 +301,18 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   Future<void> _showSummary(TrainingSessionService service) async {
     final tpl = service.template;
     if (tpl != null) {
+      final isBooster = tpl.meta['type']?.toString().toLowerCase() == 'booster';
+      double? accBefore;
+      String? boosterTag;
+      if (isBooster) {
+        boosterTag = tpl.meta['tag']?.toString() ??
+            (tpl.tags.isNotEmpty ? tpl.tags.first : null);
+        if (boosterTag != null) {
+          final mastery = context.read<TagMasteryService>();
+          final map = await mastery.computeMastery(force: true);
+          accBefore = map[boosterTag.toLowerCase()] ?? 0.0;
+        }
+      }
       final correct = service.correctCount;
       final total = service.totalCount;
       final totalSpots = tpl.totalWeight;
@@ -412,6 +426,22 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             correct: correct,
             total: total,
             elapsed: elapsed,
+          ),
+        );
+      }
+
+      if (isBooster && boosterTag != null) {
+        final mastery = context.read<TagMasteryService>();
+        final after = await mastery.computeMastery(force: true);
+        final accAfter = after[boosterTag.toLowerCase()] ?? accBefore ?? 0.0;
+        await SkillBoostLogService.instance.add(
+          SkillBoostLogEntry(
+            tag: boosterTag,
+            packId: tpl.id,
+            timestamp: DateTime.now(),
+            accuracyBefore: accBefore ?? 0.0,
+            accuracyAfter: accAfter,
+            handsPlayed: service.totalCount,
           ),
         );
       }
