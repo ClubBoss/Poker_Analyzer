@@ -4,6 +4,7 @@ import '../evaluation_result.dart';
 
 class TrainingPackSpot {
   final String id;
+  String type;
   String title;
   String note;
   HandData hand;
@@ -32,6 +33,7 @@ class TrainingPackSpot {
 
   TrainingPackSpot({
     required this.id,
+    this.type = 'quiz',
     this.title = '',
     this.note = '',
     HandData? hand,
@@ -64,6 +66,7 @@ class TrainingPackSpot {
 
   TrainingPackSpot copyWith({
     String? id,
+    String? type,
     String? title,
     String? note,
     HandData? hand,
@@ -87,6 +90,7 @@ class TrainingPackSpot {
   }) =>
       TrainingPackSpot(
         id: id ?? this.id,
+        type: type ?? this.type,
         title: title ?? this.title,
         note: note ?? this.note,
         hand: hand ?? this.hand,
@@ -111,6 +115,7 @@ class TrainingPackSpot {
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
         id: j['id'] as String? ?? '',
+        type: j['type'] as String? ?? 'quiz',
         title: j['title'] as String? ?? '',
         note: j['note'] as String? ?? '',
         hand: j['hand'] != null
@@ -146,6 +151,7 @@ class TrainingPackSpot {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'type': type,
         'title': title,
         'note': note,
         'hand': hand.toJson(),
@@ -178,6 +184,8 @@ class TrainingPackSpot {
   factory TrainingPackSpot.fromYaml(Map yaml) {
     final map = <String, dynamic>{};
     yaml.forEach((k, v) => map[k.toString()] = v);
+
+    map['type'] = yaml['type']?.toString() ?? 'quiz';
 
     final board = <String>[for (final c in (yaml['board'] as List? ?? [])) c.toString()];
     if (board.length >= 3 && board.length <= 5) map['board'] = board;
@@ -218,6 +226,7 @@ class TrainingPackSpot {
       other is TrainingPackSpot &&
           runtimeType == other.runtimeType &&
           id == other.id &&
+          type == other.type &&
           title == other.title &&
           note == other.note &&
           hand == other.hand &&
@@ -239,6 +248,7 @@ class TrainingPackSpot {
   @override
   int get hashCode => Object.hash(
         id,
+        type,
         title,
         note,
         hand,

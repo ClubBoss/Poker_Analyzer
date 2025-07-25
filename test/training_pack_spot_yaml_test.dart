@@ -48,4 +48,17 @@ title: Test
     expect(spot.villainAction, isNull);
     expect(spot.heroOptions, isEmpty);
   });
+
+  test('fromYaml parses theory spot type', () {
+    const yamlStr = '''
+id: t1
+type: theory
+title: Intro
+explanation: Hello
+''';
+    final map = const YamlReader().read(yamlStr);
+    final spot = TrainingPackSpot.fromYaml(map);
+    expect(spot.type, 'theory');
+    expect(spot.explanation, 'Hello');
+  });
 }

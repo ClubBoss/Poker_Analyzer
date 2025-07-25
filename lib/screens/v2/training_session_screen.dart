@@ -6,6 +6,7 @@ import '../../models/card_model.dart';
 import '../../models/action_entry.dart';
 import '../../models/player_model.dart';
 import '../spot_solve_screen.dart';
+import '../../widgets/theory_spot_widget.dart';
 import '../../theme/app_colors.dart';
 import '../../helpers/training_pack_storage.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -167,12 +168,25 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       }
       return;
     }
+    final ps = _packSpots[_index];
+    if (ps.type == 'theory') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TheorySpotWidget(spot: ps),
+        ),
+      );
+      _results[ps.id] = true;
+      _index++;
+      await _showSpot();
+      return;
+    }
     final solved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => SpotSolveScreen(
           spot: _spots[_index],
-          packSpot: _packSpots[_index],
+          packSpot: ps,
           template: widget.template,
         ),
       ),
