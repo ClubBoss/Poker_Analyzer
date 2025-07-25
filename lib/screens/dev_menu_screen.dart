@@ -38,6 +38,7 @@ import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/theory_pack_generator_service.dart';
 import '../services/theory_validation_engine.dart';
+import '../services/theory_template_index.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/pack_dependency_map.dart';
 import '../services/training_goal_suggestion_engine.dart';
@@ -164,6 +165,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _tagHealthLoading = false;
   bool _normalizeYamlLoading = false;
   bool _tagIndexLoading = false;
+  bool _theoryIndexLoading = false;
   bool _tagSuggestLoading = false;
   bool _yamlTagSuggestLoading = false;
   bool _templateTagSuggestLoading = false;
@@ -844,6 +846,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Индекс: $count')));
+  }
+
+  Future<void> _generateTheoryIndex() async {
+    if (_theoryIndexLoading || !kDebugMode) return;
+    setState(() => _theoryIndexLoading = true);
+    final count = await compute(_theoryIndexTask, '');
+    if (!mounted) return;
+    setState(() => _theoryIndexLoading = false);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Indexed: $count')));
   }
 
   Future<void> _suggestTags() async {
@@ -2376,6 +2389,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('📦 Сгенерировать index теории'),
+                onTap: _theoryIndexLoading ? null : _generateTheoryIndex,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('📦 Pack Tag Analyzer'),
                 onTap: () {
                   Navigator.push(
@@ -2950,6 +2968,10 @@ Future<bool> _tagHealthTask(String _) async {
 
 Future<int> _tagIndexTask(String _) async {
   return const PackTagIndexService().buildIndex();
+}
+
+Future<int> _theoryIndexTask(String _) async {
+  return const TheoryTemplateIndex().generateJsonIndex();
 }
 
 Future<List<String>> _suggestTagsTask(String path) async {
