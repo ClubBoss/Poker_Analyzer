@@ -97,6 +97,7 @@ import 'services/session_analysis_service.dart';
 import 'services/user_action_logger.dart';
 import 'services/hand_analyzer_service.dart';
 import 'services/tag_mastery_service.dart';
+import 'services/tag_retention_tracker.dart';
 import 'services/goal_suggestion_engine.dart';
 import 'services/goal_sync_service.dart';
 import 'services/tag_coverage_service.dart';
@@ -481,6 +482,10 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(
       create: (context) =>
           TagMasteryService(logs: context.read<SessionLogService>()),
+    ),
+    Provider(
+      create: (context) =>
+          TagRetentionTracker(mastery: context.read<TagMasteryService>()),
     ),
     Provider(create: (_) => LearningPathPrefs()..load()),
     Provider(create: (_) => TagCoverageService()),
