@@ -36,6 +36,7 @@ import '../services/smart_pack_recommendation_engine.dart';
 import '../services/training_pack_suggestion_service.dart';
 import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
+import '../services/theory_pack_generator_service.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/pack_dependency_map.dart';
 import '../services/training_goal_suggestion_engine.dart';
@@ -150,6 +151,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _libraryLoading = false;
   bool _importLoading = false;
   bool _exportLoading = false;
+  bool _tagTheoryExportLoading = false;
   bool _cleanLoading = false;
   bool _yamlDupeLoading = false;
   bool _yamlAssetsDupeLoading = false;
@@ -548,6 +550,21 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
+  }
+
+  Future<void> _exportTheoryTags() async {
+    if (_tagTheoryExportLoading || !kDebugMode) return;
+    setState(() => _tagTheoryExportLoading = true);
+    int count = 0;
+    const service = TheoryPackGeneratorService();
+    for (final tag in TheoryPackGeneratorService.tags) {
+      await service.exportYamlForTag(tag);
+      count++;
+    }
+    if (!mounted) return;
+    setState(() => _tagTheoryExportLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
   }
 
   Future<void> _cleanDuplicates() async {
@@ -2090,6 +2107,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📤 Экспортировать библиотеку'),
                 onTap: _exportLoading ? null : _exportLibrary,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📤 Экспортировать теорию по тегам'),
+                onTap: _tagTheoryExportLoading ? null : _exportTheoryTags,
               ),
             if (kDebugMode)
               ListTile(
