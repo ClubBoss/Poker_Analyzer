@@ -148,6 +148,9 @@ class TrainingPackTemplateV2 {
     return TrainingPackTemplateV2.fromJson(map);
   }
 
+  factory TrainingPackTemplateV2.fromYamlString(String source) =>
+      TrainingPackTemplateV2.fromYaml(source);
+
   factory TrainingPackTemplateV2.fromYamlAuto(String source) {
     final map = const YamlReader().read(source);
     final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
