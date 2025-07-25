@@ -46,6 +46,11 @@ import '../training_recommendation_screen.dart';
 import '../../services/pack_dependency_map.dart';
 import '../../services/pack_library_loader_service.dart';
 import '../../services/smart_stage_unlock_engine.dart';
+import '../../services/mistake_tag_classifier.dart';
+import '../../services/mistake_tag_cluster_service.dart';
+import '../../core/training/library/training_pack_library_v2.dart';
+import '../../models/v2/training_pack_template_v2.dart';
+import '../../services/training_session_launcher.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -656,6 +661,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           (evDiff != null && evDiff < 0) ||
           (icmDiff != null && icmDiff < 0) ||
           !evaluation.correct;
+      TrainingPackTemplateV2? booster;
       String? category;
       if (incorrect) {
         const engine = MistakeCategorizationEngine();
@@ -666,6 +672,25 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           handStrength: strength,
         );
         category = engine.categorize(m);
+
+        final attempt = TrainingSpotAttempt(
+          spot: spot,
+          userAction: act,
+          correctAction: expected,
+          evDiff: evDiff ?? 0,
+        );
+        final cls = const MistakeTagClassifier().classify(attempt);
+        if (cls != null && cls.severity >= 0.8) {
+          await TrainingPackLibraryV2.instance.loadFromFolder();
+          final cluster =
+              const MistakeTagClusterService().getClusterForTag(cls.tag);
+          final tag = cluster.label.toLowerCase();
+          booster = TrainingPackLibraryV2.instance.packs.firstWhereOrNull(
+            (p) =>
+                p.meta['type'] == 'booster' &&
+                (p.meta['tag']?.toString().toLowerCase() == tag),
+          );
+        }
       }
       final repeated = incorrect &&
           context
@@ -715,6 +740,30 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 category: category,
                 evLoss: evDiff != null && evDiff < 0 ? -evDiff : null,
               ),
+              if (booster != null) ...[
+                SizedBox(height: 12 * scale),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    const TrainingSessionLauncher().launch(booster!);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8 * scale),
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '🔥 Fix this leak',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               if (category != null) ...[
                 SizedBox(height: 12 * scale),
                 ElevatedButton(
