@@ -24,6 +24,7 @@ import '../core/training/engine/training_type_engine.dart';
 import '../services/training_type_filter_service.dart';
 import '../utils/template_difficulty.dart';
 import '../services/training_session_service.dart';
+import '../services/training_session_launcher.dart';
 import 'training_session_screen.dart';
 import 'create_pack_from_template_screen.dart';
 import 'create_template_screen.dart';
@@ -285,12 +286,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       final tpl = await context
           .read<TrainingPackTemplateStorageService>()
           .loadBuiltinTemplate('starter_btn_vs_bb');
-      await context.read<TrainingSessionService>().startSession(tpl);
-      if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-      );
+      await const TrainingSessionLauncher().launch(tpl);
     }
   }
 
@@ -1742,79 +1738,68 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       return builtIn[Random().nextInt(builtIn.length)];
     }());
     if (tpl == null) return;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    final tplV2 = TrainingPackTemplateV2.fromTemplate(
+      tpl,
+      type: const TrainingTypeEngine().detectTrainingType(tpl),
     );
+    await const TrainingSessionLauncher().launch(tplV2);
   }
 
   Future<void> _top3CategoriesDrill() async {
     final tpl = await TrainingPackService.createDrillFromTopCategories(context);
     if (tpl == null) return;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    final tplV2 = TrainingPackTemplateV2.fromTemplate(
+      tpl,
+      type: const TrainingTypeEngine().detectTrainingType(tpl),
     );
+    await const TrainingSessionLauncher().launch(tplV2);
   }
 
   Future<void> _weakCategoriesDrill() async {
     final tpl =
         await TrainingPackService.createDrillFromWeakCategories(context);
     if (tpl == null) return;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    final tplV2 = TrainingPackTemplateV2.fromTemplate(
+      tpl,
+      type: const TrainingTypeEngine().detectTrainingType(tpl),
     );
+    await const TrainingSessionLauncher().launch(tplV2);
   }
 
   Future<void> _worstCategoryDrill() async {
     final tpl = await TrainingPackService.createDrillFromWorstCategory(context);
     if (tpl == null) return;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    final tplV2 = TrainingPackTemplateV2.fromTemplate(
+      tpl,
+      type: const TrainingTypeEngine().detectTrainingType(tpl),
     );
+    await const TrainingSessionLauncher().launch(tplV2);
   }
 
   Future<void> _repeatCorrected() async {
     final tpl = await TrainingPackService.createRepeatForCorrected(context);
     if (tpl == null) return;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    final tplV2 = TrainingPackTemplateV2.fromTemplate(
+      tpl,
+      type: const TrainingTypeEngine().detectTrainingType(tpl),
     );
+    await const TrainingSessionLauncher().launch(tplV2);
   }
 
   Future<void> _smartReviewDrill() async {
     final tpl = await TrainingPackService.createSmartReviewDrill(context);
     if (tpl == null) return;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    final tplV2 = TrainingPackTemplateV2.fromTemplate(
+      tpl,
+      type: const TrainingTypeEngine().detectTrainingType(tpl),
     );
+    await const TrainingSessionLauncher().launch(tplV2);
   }
 
   Future<void> _startDailyPack() async {
     final tpl = context.read<DailyPackService>().template;
     if (tpl == null) return;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-    );
+    await const TrainingSessionLauncher().launch(tpl);
   }
 
   Future<void> _startRecommendedPack() async {
@@ -1826,12 +1811,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final list = await engine.suggestTopPacks(profile);
     if (list.isEmpty) return;
     final tpl = list.first;
-    await context.read<TrainingSessionService>().startSession(tpl);
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-    );
+    await const TrainingSessionLauncher().launch(tpl);
   }
 
   Future<void> _showRecommendedForYou() async {
@@ -2330,13 +2310,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             TextButton(
               onPressed: locked || previewRequired
                   ? null
-                  : () {
-                      context.read<TrainingSessionService>().startSession(t);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
+                  : () async {
+                      final tplV2 = TrainingPackTemplateV2.fromTemplate(
+                        t,
+                        type:
+                            const TrainingTypeEngine().detectTrainingType(t),
                       );
+                      await const TrainingSessionLauncher().launch(tplV2);
                     },
               child: const Text('▶️ Train'),
             ),
@@ -2501,12 +2481,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       builder: (_) => MistakeReviewScreen(template: tpl)),
                 );
               } else if (choice == 1) {
-                context.read<TrainingSessionService>().startSession(t);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                final tplV2 = TrainingPackTemplateV2.fromTemplate(
+                  t,
+                  type: const TrainingTypeEngine().detectTrainingType(t),
                 );
+                await const TrainingSessionLauncher().launch(tplV2);
               }
             },
             onReview: () async {
@@ -3252,15 +3231,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     onTap: () async {
                       final tpl = await service.buildPack(context);
                       if (tpl == null) return;
-                      await context
-                          .read<TrainingSessionService>()
-                          .startSession(tpl, persist: false);
-                      if (!context.mounted) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
+                      final tplV2 = TrainingPackTemplateV2.fromTemplate(
+                        tpl,
+                        type:
+                            const TrainingTypeEngine().detectTrainingType(tpl),
                       );
+                      await const TrainingSessionLauncher().launch(tplV2);
                     },
                   ),
                 ),
