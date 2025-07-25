@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:path/path.dart' as p;
+
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hand_data.dart';
@@ -33,6 +36,12 @@ class TheoryPackGeneratorService {
     },
   };
 
+  /// List of all supported theory tags.
+  static List<String> get tags => {
+        ..._titles.keys,
+        ..._explanations.keys,
+      }.toSet().toList();
+
   TrainingPackTemplateV2 generateForTag(String tag, {String lang = 'en'}) {
     final titleMap = _titles[tag];
     final expMap = _explanations[tag];
@@ -59,5 +68,15 @@ class TheoryPackGeneratorService {
     );
     tpl.trainingType = const TrainingTypeEngine().detectTrainingType(tpl);
     return tpl;
+  }
+
+  /// Generates a theory pack for [tag] and writes it to `yaml_out/{tag}_theory.yaml`.
+  Future<File> exportYamlForTag(String tag) async {
+    final tpl = generateForTag(tag);
+    final dir = Directory('yaml_out');
+    await dir.create(recursive: true);
+    final file = File(p.join(dir.path, '${tag}_theory.yaml'));
+    await file.writeAsString(tpl.toYamlString());
+    return file;
   }
 }
