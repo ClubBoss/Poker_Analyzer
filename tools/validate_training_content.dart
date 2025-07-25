@@ -173,23 +173,27 @@ List<_Issue> _validateFile(
         spotIds[id] = file.path;
       }
     }
+    final type = s['type']?.toString();
+    final isTheory = type == 'theory';
     final hand = s['hand'] as Map?;
-    if (hand == null) {
-      issues.add(_Issue(file.path, 'Spot `$id` missing hand', error: true));
-      continue;
-    }
-    if (hand['heroCards'] == null) {
-      issues.add(_Issue(file.path, 'Spot `$id` missing heroCards', error: true));
-    }
-    if (hand['position'] == null) {
-      issues.add(_Issue(file.path, 'Spot `$id` missing position', error: true));
-    }
-    if (hand['stacks'] == null) {
-      issues.add(_Issue(file.path, 'Spot `$id` missing stacks', error: true));
-    }
-    final heroOptions = s['heroOptions'] as List?;
-    if (heroOptions == null || heroOptions.isEmpty) {
-      issues.add(_Issue(file.path, 'Spot `$id` missing heroOptions', error: true));
+    if (!isTheory) {
+      if (hand == null) {
+        issues.add(_Issue(file.path, 'Spot `$id` missing hand', error: true));
+        continue;
+      }
+      if (hand['heroCards'] == null) {
+        issues.add(_Issue(file.path, 'Spot `$id` missing heroCards', error: true));
+      }
+      if (hand['position'] == null) {
+        issues.add(_Issue(file.path, 'Spot `$id` missing position', error: true));
+      }
+      if (hand['stacks'] == null) {
+        issues.add(_Issue(file.path, 'Spot `$id` missing stacks', error: true));
+      }
+      final heroOptions = s['heroOptions'] as List?;
+      if (heroOptions == null || heroOptions.isEmpty) {
+        issues.add(_Issue(file.path, 'Spot `$id` missing heroOptions', error: true));
+      }
     }
   }
 
