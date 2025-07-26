@@ -99,6 +99,7 @@ import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
 import 'yaml_coverage_stats_screen.dart';
 import 'pack_coverage_stats_screen.dart';
+import '../services/booster_tag_coverage_stats.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -196,6 +197,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _progressImportLoading = false;
   bool _trainingStreakExportLoading = false;
   bool _autoAdvanceLoading = false;
+  bool _boosterTagCoverageLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -570,6 +572,28 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _tagTheoryExportLoading = false);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
+  }
+
+  Future<void> _showBoosterTagCoverageStats() async {
+    if (_boosterTagCoverageLoading || !kDebugMode) return;
+    setState(() => _boosterTagCoverageLoading = true);
+    final text = await const BoosterTagCoverageStats().buildReport();
+    if (!mounted) return;
+    setState(() => _boosterTagCoverageLoading = false);
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Booster Tag Stats'),
+        content: SingleChildScrollView(child: Text(text)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _cleanDuplicates() async {
@@ -2087,6 +2111,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Статистика тэгов booster\'ов'),
+                onTap: _boosterTagCoverageLoading ? null : _showBoosterTagCoverageStats,
               ),
             if (kDebugMode)
               ListTile(
