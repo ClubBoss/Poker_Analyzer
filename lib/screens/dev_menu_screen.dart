@@ -2414,6 +2414,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('📊 Booster Bulk Stats'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BoosterBulkStatsDashboard(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🔍 Diff booster паков'),
                 onTap: _boosterDiffLoading ? null : _diffBoosterPacks,
               ),
