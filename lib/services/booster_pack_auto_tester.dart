@@ -3,11 +3,11 @@ import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 
-class BoosterTestReport {
+class BoosterAutoTestReport {
   final List<String> passed;
   final Map<String, List<String>> failed;
 
-  BoosterTestReport({List<String>? passed, Map<String, List<String>>? failed})
+  BoosterAutoTestReport({List<String>? passed, Map<String, List<String>>? failed})
       : passed = passed ?? <String>[],
         failed = failed ?? <String, List<String>>{};
 
@@ -20,8 +20,8 @@ class BoosterTestReport {
 class BoosterPackAutoTester {
   const BoosterPackAutoTester();
 
-  Future<BoosterTestReport> testAll({String dir = 'yaml_out/boosters'}) async {
-    final report = BoosterTestReport();
+  Future<BoosterAutoTestReport> testAll({String dir = 'yaml_out/boosters'}) async {
+    final report = BoosterAutoTestReport();
     final directory = Directory(dir);
     if (!directory.existsSync()) return report;
     final files = directory

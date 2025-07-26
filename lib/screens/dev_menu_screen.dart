@@ -108,6 +108,7 @@ import '../services/booster_pack_diff_checker.dart';
 import '../services/booster_snapshot_archiver.dart';
 import '../services/booster_pack_changelog_generator.dart';
 import '../services/booster_pack_linter_engine.dart';
+import '../services/booster_quick_tester_engine.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -208,6 +209,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterTagCoverageLoading = false;
   bool _boosterRefineLoading = false;
   bool _boosterYamlTestLoading = false;
+  bool _boosterQuickTestLoading = false;
   bool _boosterDiffLoading = false;
   bool _boosterArchiveLoading = false;
   bool _boosterChangelogLoading = false;
@@ -764,6 +766,57 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         backgroundColor: const Color(0xFF121212),
         content: SingleChildScrollView(
           child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _quickTestBoosterYaml() async {
+    if (_boosterQuickTestLoading || !kDebugMode) return;
+    setState(() => _boosterQuickTestLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    BoosterTestReport? report;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        try {
+          final yaml = await File(path).readAsString();
+          final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+          report = const BoosterQuickTesterEngine().test(tpl);
+        } catch (_) {}
+      }
+    }
+    if (!mounted) return;
+    setState(() => _boosterQuickTestLoading = false);
+    if (report == null) return;
+    final buffer = StringBuffer()
+      ..writeln('Spots: ${report.totalSpots}')
+      ..writeln('EV avg: ${report.evAvg.toStringAsFixed(2)}')
+      ..writeln('Empty explanations: ${report.emptyExplanations}')
+      ..writeln('Tags: ${report.tagHistogram}')
+      ..writeln('Quality: ${report.quality}');
+    if (report.issues.isNotEmpty) {
+      buffer.writeln('Issues:');
+      for (final i in report.issues) buffer.writeln('- $i');
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(
+            buffer.toString(),
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
         actions: [
           TextButton(
@@ -2352,6 +2405,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧪 Автотест booster YAML'),
                 onTap:
                     _boosterYamlTestLoading ? null : _autoTestBoosterYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚡ Быстрый тест booster YAML'),
+                onTap:
+                    _boosterQuickTestLoading ? null : _quickTestBoosterYaml,
               ),
             if (kDebugMode)
               ListTile(
