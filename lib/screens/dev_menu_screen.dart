@@ -122,6 +122,7 @@ import '../services/booster_pack_similarity_reporter.dart';
 import '../services/booster_thematic_tagger.dart';
 import '../services/booster_theory_pack_batch_generator.dart';
 import '../services/booster_theory_export_engine.dart';
+import '../services/theory_export_validator.dart';
 import '../services/booster_thematic_descriptions.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
@@ -188,6 +189,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _mergeLoading = false;
   bool _yamlMergeLoading = false;
   bool _theoryValidateLoading = false;
+  bool _theoryExportValidateLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
@@ -1261,6 +1263,39 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Ошибок нет')));
       return;
+    }
+    final text = errors.map((e) => '${e.$1}: ${e.$2}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _validateTheoryExport() async {
+    if (_theoryExportValidateLoading || !kDebugMode) return;
+    setState(() => _theoryExportValidateLoading = true);
+    final errors = await compute(_validateTheoryExportTask, '');
+    if (!mounted) return;
+    setState(() => _theoryExportValidateLoading = false);
+    if (errors.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибок нет')));
+      return;
+    }
+    for (final e in errors) {
+      debugPrint('${e.$1}: ${e.$2}');
     }
     final text = errors.map((e) => '${e.$1}: ${e.$2}').join('\n');
     await showDialog(
@@ -3103,6 +3138,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('✅ Проверка теории (yaml_out/theory)'),
+                onTap:
+                    _theoryExportValidateLoading ? null : _validateTheoryExport,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🧹 Рефакторинг библиотеки'),
                 onTap: _refactorLoading ? null : _refactorLibrary,
               ),
@@ -3925,6 +3966,10 @@ Future<List<(String, String)>> _validateYamlTask(String _) async {
 
 Future<List<(String, String)>> _validateTheoryTask(String _) async {
   return const TheoryValidationEngine().validateAll();
+}
+
+Future<List<(String, String)>> _validateTheoryExportTask(String _) async {
+  return const TheoryExportValidator().validateAll();
 }
 
 Future<int> _rankTask(String _) async {
