@@ -31,6 +31,7 @@ class TrainingPackSpot {
   int street;
   String? villainAction;
   List<String> heroOptions;
+  Map<String, dynamic> meta;
 
   TrainingPackSpot({
     required this.id,
@@ -56,11 +57,13 @@ class TrainingPackSpot {
     this.street = 0,
     this.villainAction,
     List<String>? heroOptions,
+    Map<String, dynamic>? meta,
   })  : isNew = isNew ?? false,
         isGenerated = isGenerated ?? false,
         hand = hand ?? HandData(),
         board = board ?? const [],
         heroOptions = heroOptions ?? const [],
+        meta = meta ?? {},
         tags = tags ?? [],
         categories = categories ?? [],
         editedAt = editedAt ?? DateTime.now(),
@@ -90,6 +93,7 @@ class TrainingPackSpot {
     int? street,
     String? villainAction,
     List<String>? heroOptions,
+    Map<String, dynamic>? meta,
   }) =>
       TrainingPackSpot(
         id: id ?? this.id,
@@ -115,6 +119,7 @@ class TrainingPackSpot {
         street: street ?? this.street,
         villainAction: villainAction ?? this.villainAction,
         heroOptions: heroOptions ?? List<String>.from(this.heroOptions),
+        meta: meta ?? Map<String, dynamic>.from(this.meta),
       );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
@@ -152,6 +157,7 @@ class TrainingPackSpot {
         heroOptions: [
           for (final a in (j['heroOptions'] as List? ?? [])) a.toString()
         ],
+        meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
       );
 
   Map<String, dynamic> toJson() => {
@@ -176,6 +182,7 @@ class TrainingPackSpot {
         if (street > 0) 'street': street,
         if (villainAction != null) 'villainAction': villainAction,
         if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
+        if (meta.isNotEmpty) 'meta': meta,
       };
 
   /// Converts this spot to a YAML-compatible map.
@@ -206,6 +213,10 @@ class TrainingPackSpot {
 
     final heroOptions = <String>[for (final o in (yaml['heroOptions'] as List? ?? [])) o.toString()];
     if (heroOptions.isNotEmpty) map['heroOptions'] = heroOptions;
+
+    if (yaml['meta'] is Map) {
+      map['meta'] = Map<String, dynamic>.from(yaml['meta']);
+    }
 
     return TrainingPackSpot.fromJson(Map<String, dynamic>.from(map));
   }
@@ -250,7 +261,8 @@ class TrainingPackSpot {
           const ListEquality().equals(board, other.board) &&
           street == other.street &&
           villainAction == other.villainAction &&
-          const ListEquality().equals(heroOptions, other.heroOptions);
+          const ListEquality().equals(heroOptions, other.heroOptions) &&
+          const DeepCollectionEquality().equals(meta, other.meta);
 
   @override
   int get hashCode => Object.hash(
@@ -274,6 +286,7 @@ class TrainingPackSpot {
         street,
         villainAction,
         const ListEquality().hash(heroOptions),
+        const DeepCollectionEquality().hash(meta),
       );
 }
 
