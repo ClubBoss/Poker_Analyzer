@@ -106,6 +106,7 @@ import '../services/booster_pack_auto_tester.dart';
 import '../services/booster_pack_diff_checker.dart';
 import '../services/booster_snapshot_archiver.dart';
 import '../services/booster_pack_changelog_generator.dart';
+import '../services/booster_pack_linter_engine.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -209,6 +210,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterDiffLoading = false;
   bool _boosterArchiveLoading = false;
   bool _boosterChangelogLoading = false;
+  bool _boosterLintLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -731,6 +733,45 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     await const BoosterSnapshotArchiver().archive(pack);
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Booster archived')));
+  }
+
+  Future<void> _lintBoosterPack() async {
+    if (_boosterLintLoading || !kDebugMode) return;
+    setState(() => _boosterLintLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    List<String>? errors;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        try {
+          final yaml = await File(path).readAsString();
+          final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+          errors = const BoosterPackLinterEngine().lint(tpl);
+        } catch (_) {}
+      }
+    }
+    if (!mounted) return;
+    setState(() => _boosterLintLoading = false);
+    if (errors == null) return;
+    final text = errors.isEmpty ? 'OK' : errors.join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showBoosterChangelog() async {
@@ -2320,6 +2361,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('💾 Архивировать booster пак'),
                 onTap: _boosterArchiveLoading ? null : _archiveBoosterPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔎 Проверить booster pack'),
+                onTap: _boosterLintLoading ? null : _lintBoosterPack,
               ),
             if (kDebugMode)
               ListTile(
