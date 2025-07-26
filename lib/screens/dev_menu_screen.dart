@@ -81,6 +81,7 @@ import 'yaml_pack_quick_preview_screen.dart';
 import 'yaml_pack_previewer_screen.dart';
 import 'theory_booster_preview_screen.dart';
 import 'theory_staging_preview_screen.dart';
+import '../services/theory_pack_promoter.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -193,6 +194,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _theoryValidateLoading = false;
   bool _theoryExportValidateLoading = false;
   bool _theoryStagingImportLoading = false;
+  bool _theoryPromoteLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
@@ -1326,6 +1328,37 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _theoryStagingImportLoading = false);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Imported: $count')),
+    );
+  }
+
+  Future<void> _promoteTheory() async {
+    if (_theoryPromoteLoading || !kDebugMode) return;
+    final ctr = TextEditingController();
+    final category = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Theory category'),
+        content: TextField(controller: ctr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ctr.text.trim()),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (category == null || category.isEmpty) return;
+    setState(() => _theoryPromoteLoading = true);
+    final count = const TheoryPackPromoter().promoteAll(category);
+    if (!mounted) return;
+    setState(() => _theoryPromoteLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Promoted: $count')),
     );
   }
 
@@ -3173,6 +3206,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📤 Promote теорию из staging → main'),
+                onTap: _theoryPromoteLoading ? null : _promoteTheory,
               ),
             if (kDebugMode)
               ListTile(

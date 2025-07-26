@@ -1,10 +1,11 @@
 import 'v2/training_pack_template_v2.dart';
 
-/// Simple in-memory library used for staging imported packs.
+/// Simple in-memory libraries used during development.
 class PackLibrary {
   PackLibrary._();
 
   static final PackLibrary staging = PackLibrary._();
+  static final PackLibrary main = PackLibrary._();
 
   final List<TrainingPackTemplateV2> _packs = [];
   final Map<String, TrainingPackTemplateV2> _index = {};
