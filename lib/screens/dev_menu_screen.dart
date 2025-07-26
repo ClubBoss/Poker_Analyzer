@@ -92,6 +92,8 @@ import '../services/learning_path_promoter.dart';
 import '../ui/tools/theory_pack_quick_view.dart';
 import '../models/theory_pack_model.dart';
 import '../services/learning_path_library.dart';
+import '../services/theory_pack_library_service.dart';
+import '../services/booster_theory_usage_audit_service.dart';
 import '../services/smart_path_preview_launcher.dart';
 import '../services/learning_path_template_validator.dart';
 import '../services/learning_path_library_validator.dart';
@@ -224,6 +226,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _normalizeYamlLoading = false;
   bool _tagIndexLoading = false;
   bool _theoryIndexLoading = false;
+  bool _theoryUsageAuditLoading = false;
   bool _theoryPackGenerateLoading = false;
   bool _theoryBatchGenerateLoading = false;
   bool _tagSuggestLoading = false;
@@ -1837,6 +1840,41 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Indexed: $count')));
+  }
+
+  Future<void> _auditTheoryUsage() async {
+    if (_theoryUsageAuditLoading || !kDebugMode) return;
+    setState(() => _theoryUsageAuditLoading = true);
+    await TheoryPackLibraryService.instance.loadAll();
+    final packs = TheoryPackLibraryService.instance.all;
+    final paths = [
+      ...LearningPathLibrary.main.paths,
+      ...LearningPathLibrary.staging.paths,
+    ];
+    final issues = const BoosterTheoryUsageAuditService()
+        .audit(allTheoryPacks: packs, allPaths: paths);
+    if (!mounted) return;
+    setState(() => _theoryUsageAuditLoading = false);
+    if (issues.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No issues found')));
+      return;
+    }
+    final text = issues.map((e) => '${e.id} (${e.reason})').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Theory Usage Issues'),
+        content: SingleChildScrollView(child: Text(text)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _generateTheoryPackByTag() async {
@@ -3903,6 +3941,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📦 Сгенерировать index теории'),
                 onTap: _theoryIndexLoading ? null : _generateTheoryIndex,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Theory Usage Audit'),
+                onTap:
+                    _theoryUsageAuditLoading ? null : _auditTheoryUsage,
               ),
             if (kDebugMode)
               ListTile(
