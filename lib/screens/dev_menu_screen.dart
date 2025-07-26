@@ -109,6 +109,8 @@ import '../services/booster_snapshot_archiver.dart';
 import '../services/booster_pack_changelog_generator.dart';
 import '../services/booster_pack_linter_engine.dart';
 import '../services/booster_quick_tester_engine.dart';
+import '../services/booster_anomaly_detector.dart';
+import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -210,6 +212,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterRefineLoading = false;
   bool _boosterYamlTestLoading = false;
   bool _boosterQuickTestLoading = false;
+  bool _boosterAnomalyLoading = false;
   bool _boosterDiffLoading = false;
   bool _boosterArchiveLoading = false;
   bool _boosterChangelogLoading = false;
@@ -791,7 +794,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         try {
           final yaml = await File(path).readAsString();
           final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
-          report = const BoosterQuickTesterEngine().test(tpl);
+          report = const BoosterQuickTesterEngine()
+              .test(tpl, detectAnomalies: true);
         } catch (_) {}
       }
     }
@@ -815,6 +819,69 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         content: SingleChildScrollView(
           child: Text(
             buffer.toString(),
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _detectBoosterAnomalies() async {
+    if (_boosterAnomalyLoading || !kDebugMode) return;
+    setState(() => _boosterAnomalyLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    BoosterAnomalyReport? report;
+    if (result != null && result.files.isNotEmpty) {
+      final packs = <TrainingPackTemplateV2>[];
+      for (final f in result.files) {
+        final path = f.path;
+        if (path == null) continue;
+        try {
+          final yaml = await File(path).readAsString();
+          packs.add(TrainingPackTemplateV2.fromYamlAuto(yaml));
+        } catch (_) {}
+      }
+      if (packs.isNotEmpty) {
+        report = const BoosterAnomalyDetector().analyze(packs);
+      }
+    }
+    if (!mounted) return;
+    setState(() => _boosterAnomalyLoading = false);
+    if (report == null) return;
+    final buffer = StringBuffer();
+    if (report.duplicatedHands.isNotEmpty) {
+      buffer.writeln('Duplicated hands:');
+      for (final h in report.duplicatedHands) buffer.writeln('- $h');
+    }
+    if (report.repeatedBoards.isNotEmpty) {
+      buffer.writeln('Repeated boards:');
+      for (final b in report.repeatedBoards) buffer.writeln('- $b');
+    }
+    if (report.evOutliers.isNotEmpty) {
+      buffer.writeln('EV outliers:');
+      for (final e in report.evOutliers) buffer.writeln('- $e');
+    }
+    if (report.weakExplanations.isNotEmpty) {
+      buffer.writeln('Weak explanations:');
+      for (final w in report.weakExplanations) buffer.writeln('- $w');
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(
+            buffer.isEmpty ? 'No issues' : buffer.toString(),
             style: const TextStyle(color: Colors.white),
           ),
         ),
@@ -2411,6 +2478,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('⚡ Быстрый тест booster YAML'),
                 onTap:
                     _boosterQuickTestLoading ? null : _quickTestBoosterYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🕵️ Booster Anomaly Detector'),
+                onTap:
+                    _boosterAnomalyLoading ? null : _detectBoosterAnomalies,
               ),
             if (kDebugMode)
               ListTile(
