@@ -89,7 +89,7 @@ import 'theory_staging_preview_screen.dart';
 import '../services/theory_pack_promoter.dart';
 import '../services/learning_path_promoter.dart';
 import '../services/learning_path_library.dart';
-import '../services/learning_path_preview_launcher.dart';
+import '../services/smart_path_preview_launcher.dart';
 import '../services/learning_path_template_validator.dart';
 import '../services/learning_path_library_validator.dart';
 import 'booster_preview_screen.dart';
@@ -1458,7 +1458,14 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
     if (!mounted || id == null || id.isEmpty) return;
     setState(() => _previewPathLoading = true);
-    await const LearningPathPreviewLauncher().launch(context, id);
+    final tpl = LearningPathLibrary.staging.getById(id);
+    if (tpl != null) {
+      await const SmartPathPreviewLauncher().launch(context, tpl);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Path not found: $id')),
+      );
+    }
     if (mounted) setState(() => _previewPathLoading = false);
   }
 
