@@ -47,6 +47,7 @@ import '../services/smart_goal_recommender_service.dart';
 import '../services/session_log_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/smart_theory_suggestion_engine.dart';
+import '../services/auto_theory_stage_seeder.dart';
 import '../services/training_pack_generator_v2.dart';
 import '../models/training_attempt.dart';
 import '../services/weakness_cluster_engine_v2.dart';
@@ -264,6 +265,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _seedIcmMultiwayLoading = false;
   bool _seedTheoryStagesLoading = false;
   bool _autoSeedTheoryPathLoading = false;
+  bool _autoTheorySeedLoading = false;
   bool _generateBeginnerPathLoading = false;
   bool _generateIntermediatePathLoading = false;
   bool _generateAdvancedPathLoading = false;
@@ -1848,6 +1850,36 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _autoCreateTheoryStages() async {
+    if (_autoTheorySeedLoading || !kDebugMode) return;
+    setState(() => _autoTheorySeedLoading = true);
+    try {
+      final engine = SmartTheorySuggestionEngine(
+        mastery: context.read<TagMasteryService>(),
+      );
+      final seeder = AutoTheoryStageSeeder(engine: engine);
+      final path = await seeder.exportYamlFile(inject: true);
+      if (!mounted) return;
+      if (path == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет предложений')),
+        );
+      } else {
+        final name = path.split(Platform.pathSeparator).last;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Файл сохранён: $name')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seed failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _autoTheorySeedLoading = false);
   }
 
   Future<void> _analyzeBalance() async {
@@ -3654,6 +3686,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧠 Предложить недостающую теорию'),
                 onTap:
                     _theorySuggestionLoading ? null : _suggestMissingTheoryStages,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('⚡ Автосоздание стадий теории'),
+                onTap: _autoTheorySeedLoading ? null : _autoCreateTheoryStages,
               ),
             if (kDebugMode)
               ListTile(
