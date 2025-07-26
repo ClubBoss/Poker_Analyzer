@@ -116,6 +116,7 @@ import '../services/booster_similarity_pruner.dart';
 import '../services/booster_cluster_engine.dart';
 import '../services/booster_smart_selector.dart';
 import '../services/booster_pack_similarity_reporter.dart';
+import '../services/booster_thematic_tagger.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
@@ -229,6 +230,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterClusterLoading = false;
   bool _boosterVariationLoading = false;
   bool _boosterSmartSelectLoading = false;
+  bool _thematicTagLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -1942,6 +1944,20 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _assignThematicTags() async {
+    if (_thematicTagLoading || !kDebugMode) return;
+    setState(() => _thematicTagLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) await compute(_assignThematicTagsTask, path);
+    }
+    if (mounted) setState(() => _thematicTagLoading = false);
+  }
+
   Future<void> _smartValidateYamlPack() async {
     if (_smartValidateLoading || !kDebugMode) return;
     setState(() => _smartValidateLoading = true);
@@ -2867,6 +2883,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('🏷 Присвоить тематические теги'),
+                onTap:
+                    _thematicTagLoading ? null : _assignThematicTags,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🔍 Анализ пака на баланс'),
                 onTap: _balanceLoading ? null : _analyzeBalance,
               ),
@@ -3762,6 +3784,20 @@ Future<List<(String, double)>> _templateTagSuggestionTask(String path) async {
   final map = const YamlReader().read(yaml);
   final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
   return const SmartTagSuggestor().suggestTags(tpl);
+}
+
+Future<void> _assignThematicTagsTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return;
+  final yaml = await file.readAsString();
+  final map = const YamlReader().read(yaml);
+  final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+  final tags = const BoosterThematicTagger().suggestThematicTags(tpl);
+  final set = <String>{...tpl.tags, ...tags};
+  tpl.tags
+    ..clear()
+    ..addAll(set);
+  await file.writeAsString(tpl.toYamlString());
 }
 
 Future<List<Map<String, dynamic>>> _balanceTask(String path) async {
