@@ -5,6 +5,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../services/theory_yaml_importer.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_preview_screen.dart';
+import '../services/booster_preview_launcher.dart';
 
 class TheoryBoosterPreviewScreen extends StatefulWidget {
   const TheoryBoosterPreviewScreen({super.key});
@@ -66,6 +67,11 @@ class _TheoryBoosterPreviewScreenState
                   title: Text(tpl.name),
                   subtitle: Text('Spots: $count • $type'),
                   onTap: () => _open(tpl),
+                  trailing: TextButton.icon(
+                    onPressed: () => const BoosterPreviewLauncher().launch(context, tpl),
+                    icon: const Text("▶️"),
+                    label: const Text("Запустить"),
+                  ),
                 );
               },
             ),
