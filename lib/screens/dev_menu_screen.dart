@@ -120,6 +120,8 @@ import '../services/booster_cluster_engine.dart';
 import '../services/booster_smart_selector.dart';
 import '../services/booster_pack_similarity_reporter.dart';
 import '../services/booster_thematic_tagger.dart';
+import '../services/booster_theory_pack_batch_generator.dart';
+import '../services/booster_thematic_descriptions.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
@@ -192,6 +194,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _tagIndexLoading = false;
   bool _theoryIndexLoading = false;
   bool _theoryPackGenerateLoading = false;
+  bool _theoryBatchGenerateLoading = false;
   bool _tagSuggestLoading = false;
   bool _yamlTagSuggestLoading = false;
   bool _templateTagSuggestLoading = false;
@@ -1546,6 +1549,27 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       }
     } else {
       if (mounted) setState(() => _theoryPackGenerateLoading = false);
+    }
+  }
+
+  Future<void> _batchGenerateTheoryPacks() async {
+    if (_theoryBatchGenerateLoading || !kDebugMode) return;
+    setState(() => _theoryBatchGenerateLoading = true);
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final library = PackLibraryLoaderService.instance.library;
+    final tags = BoosterThematicDescriptions.tags;
+    const generator = BoosterTheoryPackBatchGenerator();
+    final updated = generator.generate(library, tags);
+    final newPacks = updated.sublist(library.length);
+    if (mounted) setState(() => _theoryBatchGenerateLoading = false);
+    if (newPacks.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Новых паков нет')));
+      return;
+    }
+    for (final pack in newPacks) {
+      await showTrainingPackYamlPreviewer(context, pack);
     }
   }
 
@@ -3045,6 +3069,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📘 Сгенерировать теоретический пак по тегу'),
                 onTap: _theoryPackGenerateLoading ? null : _generateTheoryPackByTag,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📘 Массовая генерация теории по тегам'),
+                onTap:
+                    _theoryBatchGenerateLoading ? null : _batchGenerateTheoryPacks,
               ),
             if (kDebugMode)
               ListTile(
