@@ -1,0 +1,9 @@
+id: sample_theory
+title: 'Sample Theory Pack'
+sections:
+  - title: 'Intro'
+    text: 'Basic intro.'
+    type: info
+  - title: 'Tip'
+    text: 'Remember to fold more.'
+    type: tip
