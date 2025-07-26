@@ -36,4 +36,25 @@ void main() {
     expect(varSpot.isGenerated, true);
     expect(varSpot.meta['variation'], true);
   });
+
+  test('injectVariations can add multiple variations', () {
+    final s1 = _spot('a', 'AhKh', HeroPosition.btn);
+    final s2 = _spot('b', 'QhJh', HeroPosition.btn);
+    final s3 = _spot('c', '9d8d', HeroPosition.sb);
+    final cluster = SpotCluster(spots: [s1, s2, s3], clusterId: 'c1');
+
+    final pack = TrainingPackTemplateV2(
+      id: 'p1',
+      name: 'Test',
+      trainingType: TrainingType.pushFold,
+      spots: [s1],
+    );
+
+    const injector = BoosterVariationInjector(variationsPerSpot: 2);
+    final res = injector.injectVariations(pack, [cluster]);
+
+    expect(res.spots.length, 3);
+    final ids = res.spots.skip(1).map((e) => e.id).toList();
+    expect(ids.where((id) => id.startsWith('a_var')).length, 2);
+  });
 }
