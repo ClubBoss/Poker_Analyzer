@@ -86,6 +86,7 @@ import 'yaml_pack_previewer_screen.dart';
 import 'theory_booster_preview_screen.dart';
 import 'booster_theory_preview_screen.dart';
 import 'theory_staging_preview_screen.dart';
+import 'theory_pack_debugger_screen.dart';
 import '../services/theory_pack_promoter.dart';
 import '../services/learning_path_promoter.dart';
 import '../ui/tools/theory_pack_quick_view.dart';
@@ -3718,6 +3719,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ],
                   );
                   TheoryPackQuickView.launch(context, pack);
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📘 Theory Pack Debugger'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TheoryPackDebuggerScreen(),
+                    ),
+                  );
                 },
               ),
             if (kDebugMode)
