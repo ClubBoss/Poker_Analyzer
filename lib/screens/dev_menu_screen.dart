@@ -221,6 +221,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterLintLoading = false;
   bool _boosterPruneLoading = false;
   bool _boosterClusterLoading = false;
+  bool _boosterVariationLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -759,6 +760,29 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _injectBoosterVariations() async {
+    if (_boosterVariationLoading || !kDebugMode) return;
+    setState(() => _boosterVariationLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        try {
+          final yaml = await File(path).readAsString();
+          var tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+          final clusters = const BoosterClusterEngine().analyzePack(tpl);
+          tpl = const BoosterVariationInjector().injectVariations(tpl, clusters);
+          await File(path).writeAsString(tpl.toYamlString());
+        } catch (_) {}
+      }
+    }
+    if (!mounted) return;
+    setState(() => _boosterVariationLoading = false);
   }
 
   Future<void> _archiveBoosterPack() async {
@@ -2560,6 +2584,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧩 Разбить booster пак на кластеры'),
                 onTap: _boosterClusterLoading ? null : _clusterBoosterPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('♻️ Добавить варьируемые версии спотов'),
+                onTap:
+                    _boosterVariationLoading ? null : _injectBoosterVariations,
               ),
             if (kDebugMode)
               ListTile(
