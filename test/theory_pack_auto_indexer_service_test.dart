@@ -21,9 +21,13 @@ void main() {
   test('buildIndexYaml groups packs by usage', () {
     final longText = List.filled(150, 'word').join(' ');
     final packs = [
-      TheoryPackModel(id: 't1', title: 'A', sections: [
-        TheorySectionModel(title: 's', text: longText, type: 'info'),
-      ]),
+      TheoryPackModel(
+        id: 't1',
+        title: 'A',
+        sections: [
+          TheorySectionModel(title: 's', text: longText, type: 'info'),
+        ],
+      ),
       TheoryPackModel(id: 't2', title: 'B', sections: const []),
     ];
     final paths = [
@@ -31,12 +35,17 @@ void main() {
         id: 'path',
         title: 'Path',
         description: '',
-        stages: [_stage(theoryId: 't1'), _stage(id: 's2', theoryId: 't3')],
+        stages: [
+          _stage(theoryId: 't1'),
+          _stage(id: 's2', theoryId: 't3'),
+        ],
       ),
     ];
 
-    final yaml = const TheoryPackAutoIndexerService()
-        .buildIndexYaml(packs, paths);
+    final yaml = const TheoryPackAutoIndexerService().buildIndexYaml(
+      packs,
+      paths,
+    );
 
     final map = const YamlReader().read(yaml);
 
@@ -48,6 +57,7 @@ void main() {
     expect(map['used'][0]['reviewStatus'], 'approved');
     expect(map['used'][0]['wordCount'], 150);
     expect(map['used'][0]['readTimeMinutes'], 1);
+    expect(map['used'][0]['tags'], isList);
     expect(map['unused'][0]['id'], 't2');
     expect(map['unused'][0]['reviewStatus'], 'rewrite');
     expect(map['missing'][0]['id'], 't3');
