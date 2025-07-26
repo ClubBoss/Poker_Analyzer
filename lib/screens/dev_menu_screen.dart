@@ -111,6 +111,7 @@ import '../services/booster_pack_linter_engine.dart';
 import '../services/booster_quick_tester_engine.dart';
 import '../services/booster_anomaly_detector.dart';
 import '../services/booster_similarity_pruner.dart';
+import '../services/booster_cluster_engine.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
@@ -219,6 +220,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterChangelogLoading = false;
   bool _boosterLintLoading = false;
   bool _boosterPruneLoading = false;
+  bool _boosterClusterLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -709,6 +711,46 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             style: const TextStyle(color: Colors.white),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _clusterBoosterPack() async {
+    if (_boosterClusterLoading || !kDebugMode) return;
+    setState(() => _boosterClusterLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    List<SpotCluster> clusters = [];
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        try {
+          final yaml = await File(path).readAsString();
+          final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+          clusters = const BoosterClusterEngine().analyzePack(tpl);
+        } catch (_) {}
+      }
+    }
+    if (!mounted) return;
+    setState(() => _boosterClusterLoading = false);
+    if (clusters.isEmpty) return;
+    final buffer = StringBuffer();
+    for (var i = 0; i < clusters.length; i++) {
+      buffer.writeln('Cluster ${i + 1}: ${clusters[i].spots.length}');
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: Text(buffer.toString()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -2513,6 +2555,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     ),
                   );
                 },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧩 Разбить booster пак на кластеры'),
+                onTap: _boosterClusterLoading ? null : _clusterBoosterPack,
               ),
             if (kDebugMode)
               ListTile(
