@@ -100,6 +100,7 @@ import 'pack_suggestion_preview_screen.dart';
 import 'yaml_coverage_stats_screen.dart';
 import 'pack_coverage_stats_screen.dart';
 import '../services/booster_tag_coverage_stats.dart';
+import '../services/booster_refiner_engine.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -198,6 +199,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _trainingStreakExportLoading = false;
   bool _autoAdvanceLoading = false;
   bool _boosterTagCoverageLoading = false;
+  bool _boosterRefineLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -594,6 +596,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _refineBoosters() async {
+    if (_boosterRefineLoading || !kDebugMode) return;
+    setState(() => _boosterRefineLoading = true);
+    final count = await const BoosterRefinerEngine().refineAll();
+    if (!mounted) return;
+    setState(() => _boosterRefineLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Обновлено: $count')));
   }
 
   Future<void> _cleanDuplicates() async {
@@ -2116,6 +2128,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📊 Статистика тэгов booster\'ов'),
                 onTap: _boosterTagCoverageLoading ? null : _showBoosterTagCoverageStats,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🛠 Улучшить booster паки'),
+                onTap: _boosterRefineLoading ? null : _refineBoosters,
               ),
             if (kDebugMode)
               ListTile(
