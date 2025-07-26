@@ -19,9 +19,10 @@ LearningPathStageModel _stage({String id = 's1', String? theoryId}) =>
 
 void main() {
   test('buildIndexYaml groups packs by usage', () {
+    final longText = List.filled(150, 'word').join(' ');
     final packs = [
-      TheoryPackModel(id: 't1', title: 'A', sections: const [
-        TheorySectionModel(title: 's', text: 'text text', type: 'info'),
+      TheoryPackModel(id: 't1', title: 'A', sections: [
+        TheorySectionModel(title: 's', text: longText, type: 'info'),
       ]),
       TheoryPackModel(id: 't2', title: 'B', sections: const []),
     ];
@@ -44,7 +45,9 @@ void main() {
     expect(map['missing'], isNotEmpty);
 
     expect(map['used'][0]['id'], 't1');
+    expect(map['used'][0]['reviewStatus'], 'approved');
     expect(map['unused'][0]['id'], 't2');
+    expect(map['unused'][0]['reviewStatus'], 'rewrite');
     expect(map['missing'][0]['id'], 't3');
   });
 }
