@@ -46,6 +46,8 @@ void main() {
 
     expect(map['used'][0]['id'], 't1');
     expect(map['used'][0]['reviewStatus'], 'approved');
+    expect(map['used'][0]['wordCount'], 150);
+    expect(map['used'][0]['readTimeMinutes'], 1);
     expect(map['unused'][0]['id'], 't2');
     expect(map['unused'][0]['reviewStatus'], 'rewrite');
     expect(map['missing'][0]['id'], 't3');
