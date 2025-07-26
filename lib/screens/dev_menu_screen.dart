@@ -115,6 +115,7 @@ import '../services/booster_anomaly_detector.dart';
 import '../services/booster_similarity_pruner.dart';
 import '../services/booster_cluster_engine.dart';
 import '../services/booster_smart_selector.dart';
+import '../services/booster_pack_similarity_reporter.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
@@ -220,6 +221,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterAnomalyLoading = false;
   bool _boosterDiffLoading = false;
   bool _boosterDiffReportLoading = false;
+  bool _boosterSimilarityLoading = false;
   bool _boosterArchiveLoading = false;
   bool _boosterChangelogLoading = false;
   bool _boosterLintLoading = false;
@@ -791,6 +793,75 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF121212),
         content: Text(buffer.toString()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showBoosterSimilarityReport() async {
+    if (_boosterSimilarityLoading || !kDebugMode) return;
+    setState(() => _boosterSimilarityLoading = true);
+    final aCtr = TextEditingController();
+    final bCtr = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Booster similarity report'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: aCtr,
+                maxLines: 6,
+                decoration: const InputDecoration(labelText: 'Pack A YAML'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: bCtr,
+                maxLines: 6,
+                decoration: const InputDecoration(labelText: 'Pack B YAML'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    TrainingPackTemplateV2? packA;
+    TrainingPackTemplateV2? packB;
+    if (confirmed == true) {
+      try {
+        packA = TrainingPackTemplateV2.fromYamlAuto(aCtr.text);
+        packB = TrainingPackTemplateV2.fromYamlAuto(bCtr.text);
+      } catch (_) {}
+    }
+    if (!mounted) return;
+    setState(() => _boosterSimilarityLoading = false);
+    if (packA == null || packB == null) return;
+    final report = const BoosterPackSimilarityReporter().computeSimilarity(packA, packB);
+    final msg =
+        '${report.similarSpotCount} похожих спотов (${(report.similarityPercent * 100).toStringAsFixed(0)}%)';
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: Text(msg),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -2720,6 +2791,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('📊 Booster diff report'),
                 onTap:
                     _boosterDiffReportLoading ? null : _showBoosterDiffReport,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔁 Booster similarity report'),
+                onTap:
+                    _boosterSimilarityLoading ? null : _showBoosterSimilarityReport,
               ),
             if (kDebugMode)
               ListTile(
