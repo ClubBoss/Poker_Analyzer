@@ -80,6 +80,7 @@ import 'yaml_library_preview_screen.dart';
 import 'yaml_pack_quick_preview_screen.dart';
 import 'yaml_pack_previewer_screen.dart';
 import 'theory_booster_preview_screen.dart';
+import 'booster_theory_preview_screen.dart';
 import 'theory_staging_preview_screen.dart';
 import '../services/theory_pack_promoter.dart';
 import 'booster_preview_screen.dart';
@@ -3320,6 +3321,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const TheoryBoosterPreviewScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📖 Просмотр стадий теории'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BoosterTheoryPreviewScreen(),
                     ),
                   );
                 },
