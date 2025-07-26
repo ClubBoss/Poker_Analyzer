@@ -102,6 +102,7 @@ import 'yaml_coverage_stats_screen.dart';
 import 'pack_coverage_stats_screen.dart';
 import '../services/booster_tag_coverage_stats.dart';
 import '../services/booster_refiner_engine.dart';
+import '../services/booster_pack_auto_tester.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -201,6 +202,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _autoAdvanceLoading = false;
   bool _boosterTagCoverageLoading = false;
   bool _boosterRefineLoading = false;
+  bool _boosterYamlTestLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -607,6 +609,41 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _boosterRefineLoading = false);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Обновлено: $count')));
+  }
+
+  Future<void> _autoTestBoosterYaml() async {
+    if (_boosterYamlTestLoading || !kDebugMode) return;
+    setState(() => _boosterYamlTestLoading = true);
+    final report = await const BoosterPackAutoTester().testAll();
+    if (!mounted) return;
+    setState(() => _boosterYamlTestLoading = false);
+    final buffer = StringBuffer();
+    if (report.failed.isEmpty) {
+      buffer.writeln('All packs passed: ${report.passed.length}');
+    } else {
+      buffer.writeln('Failed packs:');
+      for (final e in report.failed.entries) {
+        buffer.writeln('${e.key}: ${e.value.join(', ')}');
+      }
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(
+            buffer.toString(),
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _cleanDuplicates() async {
@@ -2134,6 +2171,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🛠 Улучшить booster паки'),
                 onTap: _boosterRefineLoading ? null : _refineBoosters,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧪 Автотест booster YAML'),
+                onTap:
+                    _boosterYamlTestLoading ? null : _autoTestBoosterYaml,
               ),
             if (kDebugMode)
               ListTile(
