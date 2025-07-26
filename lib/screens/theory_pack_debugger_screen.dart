@@ -7,13 +7,15 @@ import '../ui/tools/theory_pack_quick_view.dart';
 import '../theme/app_colors.dart';
 import '../services/theory_pack_review_status_engine.dart';
 import '../services/theory_pack_completion_estimator.dart';
+import '../services/theory_pack_auto_fix_engine.dart';
 
 /// Developer screen to browse and preview all bundled theory packs.
 class TheoryPackDebuggerScreen extends StatefulWidget {
   const TheoryPackDebuggerScreen({super.key});
 
   @override
-  State<TheoryPackDebuggerScreen> createState() => _TheoryPackDebuggerScreenState();
+  State<TheoryPackDebuggerScreen> createState() =>
+      _TheoryPackDebuggerScreenState();
 }
 
 class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
@@ -54,6 +56,11 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
     ];
   }
 
+  void _autoFix(TheoryPackModel pack) {
+    final fixed = const TheoryPackAutoFixEngine().autoFix(pack);
+    TheoryPackQuickView.launch(context, fixed);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
@@ -66,7 +73,8 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
             padding: const EdgeInsets.all(8),
             child: TextField(
               controller: _searchController,
-              decoration: const InputDecoration(hintText: 'Search by ID or title'),
+              decoration:
+                  const InputDecoration(hintText: 'Search by ID or title'),
               onChanged: (_) => setState(() {}),
             ),
           ),
@@ -82,8 +90,8 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
               itemBuilder: (_, i) {
                 final pack = _filtered[i];
                 final status = _reviewEngine.getStatus(pack);
-                final completion = const TheoryPackCompletionEstimator()
-                    .estimate(pack);
+                final completion =
+                    const TheoryPackCompletionEstimator().estimate(pack);
                 Widget icon;
                 switch (status) {
                   case ReviewStatus.approved:
@@ -97,7 +105,8 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                     break;
                 }
                 return ListTile(
-                  title: Text(pack.title.isNotEmpty ? pack.title : '(no title)'),
+                  title:
+                      Text(pack.title.isNotEmpty ? pack.title : '(no title)'),
                   subtitle: Text(
                     '${pack.id} • ${completion.wordCount}w • ${completion.estimatedMinutes}m',
                   ),
@@ -106,12 +115,18 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                     children: [
                       Text('${pack.sections.length}'),
                       const SizedBox(width: 8),
-                      Text('${(completion.completionRatio * 100).toStringAsFixed(0)}%'),
+                      Text(
+                          '${(completion.completionRatio * 100).toStringAsFixed(0)}%'),
                       const SizedBox(width: 8),
                       icon,
                       IconButton(
+                        icon: const Icon(Icons.build),
+                        onPressed: () => _autoFix(pack),
+                      ),
+                      IconButton(
                         icon: const Icon(Icons.visibility),
-                        onPressed: () => TheoryPackQuickView.launch(context, pack),
+                        onPressed: () =>
+                            TheoryPackQuickView.launch(context, pack),
                       ),
                     ],
                   ),
@@ -121,4 +136,3 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
     );
   }
 }
-
