@@ -128,6 +128,7 @@ import '../models/pack_library_rating_report.dart';
 import '../services/yaml_pack_history_service.dart';
 import 'yaml_pack_history_screen.dart';
 import 'yaml_pack_archive_screen.dart';
+import 'package:json2yaml/json2yaml.dart';
 import 'yaml_pack_archive_cleanup_screen.dart';
 import 'yaml_pack_archive_stats_screen.dart';
 import 'yaml_pack_archive_duplicates_screen.dart';
@@ -235,6 +236,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterSmartSelectLoading = false;
   bool _boosterClusterExportLoading = false;
   bool _thematicTagLoading = false;
+  bool _autoLinkTheoryLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -1866,6 +1868,53 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Готово')));
     }
+  }
+
+  Future<void> _autoLinkTheory() async {
+    if (_autoLinkTheoryLoading || !kDebugMode) return;
+    setState(() => _autoLinkTheoryLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    String? yamlOut;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        final raw = await File(path).readAsString();
+        final map = const YamlReader().read(raw);
+        var tpl = LearningPathTemplateV2.fromJson(
+          Map<String, dynamic>.from(map),
+        );
+        await PackLibraryLoaderService.instance.loadLibrary();
+        final library = PackLibraryLoaderService.instance.library;
+        tpl = const BoosterTheoryPackLinker().link(tpl, library);
+        yamlOut = json2yaml(tpl.toJson(), yamlStyle: YamlStyle.pubspecYaml);
+      }
+    }
+    if (!mounted) return;
+    setState(() => _autoLinkTheoryLoading = false);
+    if (yamlOut == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибка')));
+      return;
+    }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(yamlOut!, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _refactorYamlPack() async {
@@ -3678,6 +3727,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📚 Seed theory stages'),
                 onTap: _seedTheoryStagesLoading ? null : _seedTheoryStages,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔗 Автопривязка теории'),
+                onTap: _autoLinkTheoryLoading ? null : _autoLinkTheory,
               ),
             if (kDebugMode)
               ListTile(
