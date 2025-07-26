@@ -81,6 +81,7 @@ import 'yaml_pack_previewer_screen.dart';
 import 'theory_booster_preview_screen.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
+import 'booster_bulk_stats_dashboard.dart';
 import 'yaml_pack_editor_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -2411,6 +2412,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('⚡ Быстрый тест booster YAML'),
                 onTap:
                     _boosterQuickTestLoading ? null : _quickTestBoosterYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Booster Bulk Stats'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BoosterBulkStatsDashboard(),
+                    ),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
