@@ -1,11 +1,20 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
+
 import '../models/mistake_insight.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/training_history_entry_v2.dart';
+import '../models/mistake_tag_history_entry.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import 'mistake_tag_insights_service.dart';
 import 'mistake_tag_cluster_service.dart';
 import 'training_pack_stats_service_v2.dart';
 import 'training_history_service_v2.dart';
+import 'theory_pack_generator_service.dart';
+import 'theory_yaml_importer.dart';
 
 class BoosterSuggestionEngine {
   const BoosterSuggestionEngine();
@@ -76,5 +85,45 @@ class BoosterSuggestionEngine {
     }
 
     return null;
+  }
+
+  /// Generates a simple YAML booster for the first tag in [mistake] if no
+  /// existing booster pack matches the tag and `meta.generatedBy`.
+  Future<void> generateIfMissing(
+    MistakeTagHistoryEntry mistake, {
+    String dir = 'yaml_out/boosters',
+  }) async {
+    final importer = const TheoryYamlImporter();
+    final packs = await importer.importFromDirectory(dir);
+
+    final existing = <String>{};
+    for (final p in packs) {
+      final meta = p.meta;
+      if (meta['generatedBy'] != 'BoosterPackLibraryBuilder v1') continue;
+      final tag = meta['tag']?.toString().toLowerCase();
+      if (tag != null && tag.isNotEmpty) existing.add(tag);
+    }
+
+    if (mistake.tags.isEmpty) return;
+    final tag = mistake.tags.first.label.toLowerCase();
+    if (existing.contains(tag)) return;
+
+    const generator = TheoryPackGeneratorService();
+    final tpl = generator.generateForTag(tag);
+    final map = tpl.toJson();
+    map['id'] = const Uuid().v4();
+    final meta = Map<String, dynamic>.from(map['meta'] ?? {});
+    meta['type'] = 'booster';
+    meta['tag'] = tag;
+    meta['generatedBy'] = 'BoosterSuggestionEngine v1';
+    map['meta'] = meta;
+    final booster =
+        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+
+    final outDir = Directory(dir);
+    await outDir.create(recursive: true);
+    final file = File(p.join(outDir.path, '${booster.id}.yaml'));
+    await file.writeAsString(booster.toYamlString());
+    debugPrint('booster auto-generated for $tag');
   }
 }
