@@ -150,6 +150,7 @@ import 'goal_insights_screen.dart';
 import 'lesson_path_screen.dart';
 import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
+import 'path_map_screen.dart';
 import '../services/learning_path_progress_service.dart';
 import '../services/achievement_trigger_engine.dart';
 import 'achievement_dashboard_screen.dart';
@@ -3450,14 +3451,24 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                       : const LearningPathIntroScreen();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => screen),
-                  );
-                },
-              ),
-            if (kDebugMode)
-              ListTile(
-                title: const Text('🎯 Следующий обучающий пак'),
-                onTap: _autoAdvanceLoading ? null : _autoAdvancePack,
+                MaterialPageRoute(builder: (_) => screen),
+              );
+            },
+          ),
+          if (kDebugMode)
+            ListTile(
+              title: const Text('🗺 Карта тем обучения'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PathMapScreen()),
+                );
+              },
+            ),
+          if (kDebugMode)
+            ListTile(
+              title: const Text('🎯 Следующий обучающий пак'),
+              onTap: _autoAdvanceLoading ? null : _autoAdvancePack,
               ),
             if (kDebugMode)
               ListTile(
