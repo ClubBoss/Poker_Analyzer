@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/learning_path_template_v2.dart';
 import '../models/learning_path_stage_model.dart';
 import '../models/stage_type.dart';
+import '../services/theory_pack_library_service.dart';
+import '../ui/tools/theory_pack_quick_view.dart';
 
 /// Lightweight preview showing key details of a learning path.
 class SmartPathPreviewScreen extends StatelessWidget {
@@ -70,9 +72,32 @@ class SmartPathPreviewScreen extends StatelessWidget {
             leading: Icon(icon, color: color),
             title: Text(stage.title),
             subtitle: Text(stage.packId),
+            trailing: _buildPreviewButton(context, stage),
+            tileColor:
+                stage.type == StageType.theory ? color.withOpacity(0.1) : null,
           ),
         const SizedBox(height: 12),
       ],
+    );
+  }
+
+  Widget? _buildPreviewButton(
+    BuildContext context,
+    LearningPathStageModel stage,
+  ) {
+    if (stage.type != StageType.theory || stage.packId.isEmpty) return null;
+    return IconButton(
+      icon: const Icon(Icons.visibility),
+      onPressed: () async {
+        final pack = TheoryPackLibraryService.instance.getById(stage.packId);
+        if (pack != null) {
+          await TheoryPackQuickView.launch(context, pack);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Pack not found: ${stage.packId}')),
+          );
+        }
+      },
     );
   }
 
