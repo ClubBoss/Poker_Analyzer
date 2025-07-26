@@ -103,6 +103,7 @@ import 'pack_coverage_stats_screen.dart';
 import '../services/booster_tag_coverage_stats.dart';
 import '../services/booster_refiner_engine.dart';
 import '../services/booster_pack_auto_tester.dart';
+import '../services/booster_pack_diff_checker.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -203,6 +204,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterTagCoverageLoading = false;
   bool _boosterRefineLoading = false;
   bool _boosterYamlTestLoading = false;
+  bool _boosterDiffLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -626,6 +628,63 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         buffer.writeln('${e.key}: ${e.value.join(', ')}');
       }
     }
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(
+            buffer.toString(),
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _diffBoosterPacks() async {
+    if (_boosterDiffLoading || !kDebugMode) return;
+    setState(() => _boosterDiffLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml', 'bak.yaml'],
+    );
+    if (result == null || result.files.length != 2) {
+      if (mounted) setState(() => _boosterDiffLoading = false);
+      return;
+    }
+    TrainingPackTemplateV2? a;
+    TrainingPackTemplateV2? b;
+    try {
+      a = TrainingPackTemplateV2.fromYamlAuto(
+        await File(result.files[0].path!).readAsString(),
+      );
+      b = TrainingPackTemplateV2.fromYamlAuto(
+        await File(result.files[1].path!).readAsString(),
+      );
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _boosterDiffLoading = false);
+    if (a == null || b == null) return;
+    final report = const BoosterPackDiffChecker().diff(a, b);
+    final buffer = StringBuffer();
+    if (report.added.isNotEmpty) {
+      buffer.writeln('Added: ${report.added.join(', ')}');
+    }
+    if (report.removed.isNotEmpty) {
+      buffer.writeln('Removed: ${report.removed.join(', ')}');
+    }
+    for (final d in report.modified) {
+      buffer.writeln('${d.id}: ${d.fields.join(', ')}');
+    }
+    buffer.writeln('Breaking: ${report.breaking ? 'YES' : 'NO'}');
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -2177,6 +2236,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧪 Автотест booster YAML'),
                 onTap:
                     _boosterYamlTestLoading ? null : _autoTestBoosterYaml,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔍 Diff booster паков'),
+                onTap: _boosterDiffLoading ? null : _diffBoosterPacks,
               ),
             if (kDebugMode)
               ListTile(
