@@ -96,6 +96,7 @@ import '../services/learning_path_stage_seeder.dart';
 import '../services/starter_learning_path_seeder.dart';
 import '../services/intermediate_learning_path_seeder.dart';
 import '../services/theory_path_stage_seeder.dart';
+import '../services/learning_path_auto_seeder.dart';
 
 import '../services/icm_postflop_path_seeder.dart';
 import '../services/live_hud_pack_seeder.dart';
@@ -256,6 +257,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _seedFullPathLoading = false;
   bool _seedIcmMultiwayLoading = false;
   bool _seedTheoryStagesLoading = false;
+  bool _autoSeedTheoryPathLoading = false;
   bool _generateBeginnerPathLoading = false;
   bool _generateIntermediatePathLoading = false;
   bool _generateAdvancedPathLoading = false;
@@ -2701,6 +2703,26 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _seedTheoryStagesLoading = false);
   }
 
+  Future<void> _autoSeedTheoryPath() async {
+    if (_autoSeedTheoryPathLoading || !kDebugMode) return;
+    setState(() => _autoSeedTheoryPathLoading = true);
+    try {
+      await const LearningPathAutoSeeder().seed();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Theory path seeded')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seed failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _autoSeedTheoryPathLoading = false);
+  }
+
   Future<void> _seedIcmMultiwayPath() async {
     if (_seedIcmMultiwayLoading || !kDebugMode) return;
     setState(() => _seedIcmMultiwayLoading = true);
@@ -3921,6 +3943,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📚 Seed theory stages'),
                 onTap: _seedTheoryStagesLoading ? null : _seedTheoryStages,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🪄 Seed теория → Learning Path'),
+                onTap:
+                    _autoSeedTheoryPathLoading ? null : _autoSeedTheoryPath,
               ),
             if (kDebugMode)
               ListTile(
