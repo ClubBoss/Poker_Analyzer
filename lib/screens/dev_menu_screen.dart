@@ -94,6 +94,7 @@ import '../models/theory_pack_model.dart';
 import '../services/learning_path_library.dart';
 import '../services/theory_pack_library_service.dart';
 import '../services/booster_theory_usage_audit_service.dart';
+import '../services/theory_pack_auto_indexer_service.dart';
 import '../services/smart_path_preview_launcher.dart';
 import '../services/learning_path_template_validator.dart';
 import '../services/learning_path_library_validator.dart';
@@ -226,6 +227,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _normalizeYamlLoading = false;
   bool _tagIndexLoading = false;
   bool _theoryIndexLoading = false;
+  bool _theoryIndexExportLoading = false;
   bool _theoryUsageAuditLoading = false;
   bool _theoryPackGenerateLoading = false;
   bool _theoryBatchGenerateLoading = false;
@@ -1840,6 +1842,23 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Indexed: $count')));
+
+  Future<void> _exportTheoryIndexYaml() async {
+    if (_theoryIndexExportLoading || !kDebugMode) return;
+    setState(() => _theoryIndexExportLoading = true);
+    await TheoryPackLibraryService.instance.loadAll();
+    final packs = TheoryPackLibraryService.instance.all;
+    final paths = [
+      ...LearningPathLibrary.main.paths,
+      ...LearningPathLibrary.staging.paths,
+    ];
+    final yaml = const TheoryPackAutoIndexerService()
+        .buildIndexYaml(packs, paths);
+    await Clipboard.setData(ClipboardData(text: yaml));
+    if (!mounted) return;
+    setState(() => _theoryIndexExportLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Index copied')));
   }
 
   Future<void> _auditTheoryUsage() async {
@@ -3941,6 +3960,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📦 Сгенерировать index теории'),
                 onTap: _theoryIndexLoading ? null : _generateTheoryIndex,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📦 Export Theory Index YAML'),
+                onTap: _theoryIndexExportLoading ? null : _exportTheoryIndexYaml,
               ),
             if (kDebugMode)
               ListTile(
