@@ -5,6 +5,7 @@ import '../services/theory_pack_library_service.dart';
 import '../models/theory_pack_model.dart';
 import '../ui/tools/theory_pack_quick_view.dart';
 import '../theme/app_colors.dart';
+import '../services/theory_pack_review_status_engine.dart';
 
 /// Developer screen to browse and preview all bundled theory packs.
 class TheoryPackDebuggerScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<TheoryPackModel> _packs = [];
   bool _loading = true;
+  final _reviewEngine = const TheoryPackReviewStatusEngine();
 
   @override
   void initState() {
@@ -78,7 +80,19 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (_, i) {
                 final pack = _filtered[i];
-                final hasIssues = pack.title.isEmpty || pack.sections.isEmpty;
+                final status = _reviewEngine.getStatus(pack);
+                Widget icon;
+                switch (status) {
+                  case ReviewStatus.approved:
+                    icon = const Icon(Icons.check_circle, color: Colors.green);
+                    break;
+                  case ReviewStatus.draft:
+                    icon = const Icon(Icons.edit, color: Colors.yellow);
+                    break;
+                  case ReviewStatus.rewrite:
+                    icon = const Icon(Icons.error, color: Colors.orange);
+                    break;
+                }
                 return ListTile(
                   title: Text(pack.title.isNotEmpty ? pack.title : '(no title)'),
                   subtitle: Text(pack.id),
@@ -86,10 +100,8 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('${pack.sections.length}'),
-                      if (hasIssues) ...[
-                        const SizedBox(width: 8),
-                        const Icon(Icons.error, color: Colors.orange),
-                      ],
+                      const SizedBox(width: 8),
+                      icon,
                       IconButton(
                         icon: const Icon(Icons.visibility),
                         onPressed: () => TheoryPackQuickView.launch(context, pack),

@@ -2,6 +2,7 @@ import 'package:yaml/yaml.dart';
 
 import '../models/theory_pack_model.dart';
 import '../models/learning_path_template_v2.dart';
+import 'theory_pack_review_status_engine.dart';
 
 /// Builds YAML index of theory packs with usage metadata.
 class TheoryPackAutoIndexerService {
@@ -32,6 +33,8 @@ class TheoryPackAutoIndexerService {
     int _wordCount(String text) =>
         text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
 
+    final reviewEngine = const TheoryPackReviewStatusEngine();
+
     int _readTime(TheoryPackModel p) {
       final words = p.sections.fold<int>(0, (s, e) => s + _wordCount(e.text));
       if (words == 0) return 1;
@@ -48,6 +51,7 @@ class TheoryPackAutoIndexerService {
         'id': pack.id,
         'title': pack.title,
         'readTimeMinutes': _readTime(pack),
+        'reviewStatus': reviewEngine.getStatus(pack).name,
         'usedInPaths': pathsUsed,
       };
       if (pathsUsed.isNotEmpty) {
