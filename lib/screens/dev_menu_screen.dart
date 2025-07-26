@@ -81,6 +81,7 @@ import 'yaml_pack_previewer_screen.dart';
 import 'theory_booster_preview_screen.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
+import 'booster_variation_editor_screen.dart';
 import 'yaml_pack_editor_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -2590,6 +2591,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('♻️ Добавить варьируемые версии спотов'),
                 onTap:
                     _boosterVariationLoading ? null : _injectBoosterVariations,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🛠 Booster Variation Editor'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BoosterVariationEditorScreen(),
+                    ),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
