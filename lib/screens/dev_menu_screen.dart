@@ -104,6 +104,7 @@ import '../services/booster_tag_coverage_stats.dart';
 import '../services/booster_refiner_engine.dart';
 import '../services/booster_pack_auto_tester.dart';
 import '../services/booster_pack_diff_checker.dart';
+import '../services/booster_snapshot_archiver.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -205,6 +206,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterRefineLoading = false;
   bool _boosterYamlTestLoading = false;
   bool _boosterDiffLoading = false;
+  bool _boosterArchiveLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -703,6 +705,30 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _archiveBoosterPack() async {
+    if (_boosterArchiveLoading || !kDebugMode) return;
+    setState(() => _boosterArchiveLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    TrainingPackTemplateV2? pack;
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        try {
+          pack = TrainingPackTemplateV2.fromYamlAuto(await File(path).readAsString());
+        } catch (_) {}
+      }
+    }
+    if (!mounted) return;
+    setState(() => _boosterArchiveLoading = false);
+    if (pack == null) return;
+    await const BoosterSnapshotArchiver().archive(pack);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Booster archived')));
   }
 
   Future<void> _cleanDuplicates() async {
@@ -2241,6 +2267,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🔍 Diff booster паков'),
                 onTap: _boosterDiffLoading ? null : _diffBoosterPacks,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('💾 Архивировать booster пак'),
+                onTap: _boosterArchiveLoading ? null : _archiveBoosterPack,
               ),
             if (kDebugMode)
               ListTile(
