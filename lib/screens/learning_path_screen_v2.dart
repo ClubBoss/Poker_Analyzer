@@ -17,6 +17,9 @@ import '../services/learning_path_personalization_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/learning_path_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/intro_seen_tracker.dart';
+import '../services/booster_thematic_descriptions.dart';
+import '../widgets/theory_intro_banner.dart';
 import 'learning_path_celebration_screen.dart';
 import '../widgets/next_steps_modal.dart';
 import '../widgets/stage_progress_chip.dart';
@@ -225,6 +228,24 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         const SnackBar(content: Text('Theory pack not found')),
       );
       return;
+    }
+    final tag = stage.tags.isNotEmpty ? stage.tags.first : null;
+    if (tag != null) {
+      final tracker = const IntroSeenTracker();
+      final seen = await tracker.hasSeen(tag);
+      if (!seen && mounted) {
+        final desc = BoosterThematicDescriptions.get(tag) ?? '';
+        final ok = await showTheoryIntroBanner(
+          context,
+          title: stage.title,
+          description: desc,
+        );
+        if (ok == true) {
+          await tracker.markSeen(tag);
+        } else {
+          return;
+        }
+      }
     }
     await const TrainingSessionLauncher().launch(template);
     if (mounted) {
