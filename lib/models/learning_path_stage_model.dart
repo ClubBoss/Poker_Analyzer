@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'unlock_condition.dart';
 import 'sub_stage_model.dart';
+import 'stage_type.dart';
 
 class LearningPathStageModel {
   final String id;
   final String title;
   final String description;
+  final StageType type;
   final String packId;
   final String? theoryPackId;
   final List<String>? boosterTheoryPackIds;
@@ -38,6 +40,7 @@ class LearningPathStageModel {
     this.order = 0,
     this.isOptional = false,
     this.unlockCondition,
+    this.type = StageType.practice,
   })  : unlocks = unlocks ?? const [],
         unlockAfter = unlockAfter ?? const [],
         tags = tags ?? const [],
@@ -50,6 +53,7 @@ class LearningPathStageModel {
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
       packId: json['packId'] as String? ?? '',
+      type: _parseType(json['type']),
       theoryPackId: json['theoryPackId'] as String?,
       boosterTheoryPackIds: [
         for (final b in (json['boosterTheoryPackIds'] as List? ?? []))
@@ -79,11 +83,23 @@ class LearningPathStageModel {
     );
   }
 
+  static StageType _parseType(dynamic value) {
+    final s = value?.toString();
+    switch (s) {
+      case 'theory':
+        return StageType.theory;
+      case 'booster':
+        return StageType.booster;
+    }
+    return StageType.practice;
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,
         'description': description,
         'packId': packId,
+        'type': type.name,
         if (theoryPackId != null) 'theoryPackId': theoryPackId,
         if (boosterTheoryPackIds != null && boosterTheoryPackIds!.isNotEmpty)
           'boosterTheoryPackIds': boosterTheoryPackIds,
