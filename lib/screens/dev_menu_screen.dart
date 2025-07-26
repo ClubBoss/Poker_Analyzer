@@ -102,6 +102,7 @@ import '../services/starter_learning_path_seeder.dart';
 import '../services/intermediate_learning_path_seeder.dart';
 import '../services/theory_path_stage_seeder.dart';
 import '../services/learning_path_auto_seeder.dart';
+import '../services/theory_stage_auto_seeder.dart';
 import '../services/theory_stage_validator_engine.dart';
 import '../models/pack_library.dart';
 
@@ -269,6 +270,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _seedIcmMultiwayLoading = false;
   bool _seedTheoryStagesLoading = false;
   bool _autoSeedTheoryPathLoading = false;
+  bool _seedTheoryPathFromYamlLoading = false;
   bool _autoTheorySeedLoading = false;
   bool _generateBeginnerPathLoading = false;
   bool _generateIntermediatePathLoading = false;
@@ -2900,6 +2902,26 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (mounted) setState(() => _autoSeedTheoryPathLoading = false);
   }
 
+  Future<void> _seedTheoryPathFromYaml() async {
+    if (_seedTheoryPathFromYamlLoading || !kDebugMode) return;
+    setState(() => _seedTheoryPathFromYamlLoading = true);
+    try {
+      await const TheoryStageAutoSeeder().seed();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Theory path seeded')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seed failed')),
+        );
+      }
+    }
+    if (mounted) setState(() => _seedTheoryPathFromYamlLoading = false);
+  }
+
   Future<void> _seedIcmMultiwayPath() async {
     if (_seedIcmMultiwayLoading || !kDebugMode) return;
     setState(() => _seedIcmMultiwayLoading = true);
@@ -4162,6 +4184,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📚 Seed theory stages'),
                 onTap: _seedTheoryStagesLoading ? null : _seedTheoryStages,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧠 Seed theory path from YAML'),
+                onTap:
+                    _seedTheoryPathFromYamlLoading ? null : _seedTheoryPathFromYaml,
               ),
             if (kDebugMode)
               ListTile(
