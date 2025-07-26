@@ -6,6 +6,7 @@ import '../models/theory_pack_model.dart';
 import '../ui/tools/theory_pack_quick_view.dart';
 import '../theme/app_colors.dart';
 import '../services/theory_pack_review_status_engine.dart';
+import '../services/theory_pack_completion_estimator.dart';
 
 /// Developer screen to browse and preview all bundled theory packs.
 class TheoryPackDebuggerScreen extends StatefulWidget {
@@ -81,6 +82,8 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
               itemBuilder: (_, i) {
                 final pack = _filtered[i];
                 final status = _reviewEngine.getStatus(pack);
+                final completion = const TheoryPackCompletionEstimator()
+                    .estimate(pack);
                 Widget icon;
                 switch (status) {
                   case ReviewStatus.approved:
@@ -95,11 +98,15 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                 }
                 return ListTile(
                   title: Text(pack.title.isNotEmpty ? pack.title : '(no title)'),
-                  subtitle: Text(pack.id),
+                  subtitle: Text(
+                    '${pack.id} • ${completion.wordCount}w • ${completion.estimatedMinutes}m',
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('${pack.sections.length}'),
+                      const SizedBox(width: 8),
+                      Text('${(completion.completionRatio * 100).toStringAsFixed(0)}%'),
                       const SizedBox(width: 8),
                       icon,
                       IconButton(
