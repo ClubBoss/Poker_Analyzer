@@ -46,6 +46,7 @@ import '../services/training_goal_suggestion_engine.dart';
 import '../services/smart_goal_recommender_service.dart';
 import '../services/session_log_service.dart';
 import '../services/tag_mastery_service.dart';
+import '../services/smart_theory_suggestion_engine.dart';
 import '../services/training_pack_generator_v2.dart';
 import '../models/training_attempt.dart';
 import '../services/weakness_cluster_engine_v2.dart';
@@ -211,6 +212,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _tagSuggestLoading = false;
   bool _yamlTagSuggestLoading = false;
   bool _templateTagSuggestLoading = false;
+  bool _theorySuggestionLoading = false;
   bool _bestLoading = false;
   bool _historyLoading = false;
   bool _smartHistoryLoading = false;
@@ -1795,6 +1797,53 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _suggestMissingTheoryStages() async {
+    if (_theorySuggestionLoading || !kDebugMode) return;
+    setState(() => _theorySuggestionLoading = true);
+    final engine = SmartTheorySuggestionEngine(
+      mastery: context.read<TagMasteryService>(),
+    );
+    final list = await engine.suggestMissingTheoryStages();
+    if (!mounted) return;
+    setState(() => _theorySuggestionLoading = false);
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет предложений')));
+      return;
+    }
+    final text = list
+        .map((e) => '${e.tag}: ${e.proposedPackId} - ${e.proposedTitle}')
+        .join('\n');
+    final ctr = TextEditingController(text: text);
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Предложения теории'),
+        content: TextField(
+          controller: ctr,
+          readOnly: true,
+          maxLines: null,
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: ctr.text));
+              Navigator.pop(context);
+            },
+            child: const Text('Copy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -3599,6 +3648,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧠 Suggest Tags for Template'),
                 onTap:
                     _templateTagSuggestLoading ? null : _suggestTemplateTags,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧠 Предложить недостающую теорию'),
+                onTap:
+                    _theorySuggestionLoading ? null : _suggestMissingTheoryStages,
               ),
             if (kDebugMode)
               ListTile(
