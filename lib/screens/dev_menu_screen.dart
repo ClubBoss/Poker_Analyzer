@@ -89,6 +89,7 @@ import 'theory_staging_preview_screen.dart';
 import '../services/theory_pack_promoter.dart';
 import '../services/learning_path_promoter.dart';
 import '../services/learning_path_library.dart';
+import '../services/learning_path_preview_launcher.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -209,6 +210,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _theoryStagingImportLoading = false;
   bool _theoryPromoteLoading = false;
   bool _pathPromoteLoading = false;
+  bool _previewPathLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
@@ -1427,6 +1429,33 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Promoted: $count')),
     );
+  }
+
+  Future<void> _previewStagedPath() async {
+    if (_previewPathLoading || !kDebugMode) return;
+    final ctr = TextEditingController();
+    final id = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Path ID'),
+        content: TextField(controller: ctr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ctr.text.trim()),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || id == null || id.isEmpty) return;
+    setState(() => _previewPathLoading = true);
+    await const LearningPathPreviewLauncher().launch(context, id);
+    if (mounted) setState(() => _previewPathLoading = false);
   }
 
   Future<void> _mergeLibraries() async {
@@ -4187,6 +4216,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⚙️ Load All Learning Paths'),
                 onTap: _loadAllPathsLoading ? null : _loadAllLearningPaths,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🔍 Preview staged path'),
+                onTap: _previewPathLoading ? null : _previewStagedPath,
               ),
             if (kDebugMode)
               ListTile(
