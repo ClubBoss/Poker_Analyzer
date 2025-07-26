@@ -110,6 +110,7 @@ import '../services/booster_pack_changelog_generator.dart';
 import '../services/booster_pack_linter_engine.dart';
 import '../services/booster_quick_tester_engine.dart';
 import '../services/booster_anomaly_detector.dart';
+import '../services/booster_similarity_pruner.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
@@ -217,6 +218,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterArchiveLoading = false;
   bool _boosterChangelogLoading = false;
   bool _boosterLintLoading = false;
+  bool _boosterPruneLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -778,6 +780,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _pruneBoosterDuplicates() async {
+    if (_boosterPruneLoading || !kDebugMode) return;
+    setState(() => _boosterPruneLoading = true);
+    final count = await const BoosterSimilarityPruner().pruneAndSaveAll();
+    if (!mounted) return;
+    setState(() => _boosterPruneLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Обновлено: $count')));
   }
 
   Future<void> _quickTestBoosterYaml() async {
@@ -2466,6 +2478,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🛠 Улучшить booster паки'),
                 onTap: _boosterRefineLoading ? null : _refineBoosters,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧹 Удалить дубликаты в booster паках'),
+                onTap: _boosterPruneLoading ? null : _pruneBoosterDuplicates,
               ),
             if (kDebugMode)
               ListTile(
