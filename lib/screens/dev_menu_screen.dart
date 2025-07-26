@@ -123,6 +123,7 @@ import '../services/booster_thematic_tagger.dart';
 import '../services/booster_theory_pack_batch_generator.dart';
 import '../services/booster_theory_export_engine.dart';
 import '../services/theory_export_validator.dart';
+import '../services/booster_pack_auto_uploader.dart';
 import '../services/booster_thematic_descriptions.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
@@ -190,6 +191,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _yamlMergeLoading = false;
   bool _theoryValidateLoading = false;
   bool _theoryExportValidateLoading = false;
+  bool _theoryStagingImportLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
@@ -1312,6 +1314,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _importTheoryStaging() async {
+    if (_theoryStagingImportLoading || !kDebugMode) return;
+    setState(() => _theoryStagingImportLoading = true);
+    final count = await compute(_importTheoryStagingTask, '');
+    if (!mounted) return;
+    setState(() => _theoryStagingImportLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Imported: $count')),
     );
   }
 
@@ -3144,6 +3157,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('📥 Импортировать теорию в staging'),
+                onTap:
+                    _theoryStagingImportLoading ? null : _importTheoryStaging,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('🧹 Рефакторинг библиотеки'),
                 onTap: _refactorLoading ? null : _refactorLibrary,
               ),
@@ -3970,6 +3989,11 @@ Future<List<(String, String)>> _validateTheoryTask(String _) async {
 
 Future<List<(String, String)>> _validateTheoryExportTask(String _) async {
   return const TheoryExportValidator().validateAll();
+}
+
+Future<int> _importTheoryStagingTask(String _) async {
+  final uploaded = await const BoosterPackAutoUploader().uploadAll();
+  return uploaded.length;
 }
 
 Future<int> _rankTask(String _) async {
