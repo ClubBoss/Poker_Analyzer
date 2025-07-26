@@ -88,6 +88,8 @@ import 'booster_theory_preview_screen.dart';
 import 'theory_staging_preview_screen.dart';
 import '../services/theory_pack_promoter.dart';
 import '../services/learning_path_promoter.dart';
+import '../ui/tools/theory_pack_quick_view.dart';
+import '../models/theory_pack_model.dart';
 import '../services/learning_path_library.dart';
 import '../services/smart_path_preview_launcher.dart';
 import '../services/learning_path_template_validator.dart';
@@ -3688,6 +3690,34 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                       builder: (_) => const TheoryBoosterPreviewScreen(),
                     ),
                   );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📖 Quick Theory Preview'),
+                onTap: () {
+                  final pack = TheoryPackModel(
+                    id: 'demo_theory',
+                    title: 'Demo Theory Pack',
+                    sections: [
+                      TheorySectionModel(
+                        title: 'Введение',
+                        text: 'Краткое введение в модуль.',
+                        type: 'info',
+                      ),
+                      TheorySectionModel(
+                        title: 'Важно',
+                        text: 'Не забывайте про ICM и размеры стеков.',
+                        type: 'warning',
+                      ),
+                      TheorySectionModel(
+                        title: 'Совет',
+                        text: 'Тренируйтесь регулярно для лучшего результата.',
+                        type: 'tip',
+                      ),
+                    ],
+                  );
+                  TheoryPackQuickView.launch(context, pack);
                 },
               ),
             if (kDebugMode)
