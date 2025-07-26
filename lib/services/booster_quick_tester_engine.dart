@@ -1,5 +1,6 @@
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import 'booster_pack_validator_service.dart';
 
 class BoosterTestReport {
   final int totalSpots;
@@ -23,6 +24,8 @@ class BoosterQuickTesterEngine {
   const BoosterQuickTesterEngine();
 
   BoosterTestReport test(TrainingPackTemplateV2 pack) {
+    final validation =
+        const BoosterPackValidatorService().validate(pack);
     final total = pack.spots.length;
     int emptyExp = 0;
     int badPos = 0;
@@ -50,11 +53,13 @@ class BoosterQuickTesterEngine {
 
     final evAvg = evCount > 0 ? evSum / evCount : 0.0;
 
-    final issues = <String>[];
+    final issues = <String>[...validation.errors, ...validation.warnings];
     if (duplicates.isNotEmpty) issues.add('duplicate_ids');
     final emptyPct = total > 0 ? emptyExp / total : 0.0;
     final badPct = total > 0 ? badPos / total : 0.0;
-    final quality = _quality(emptyPct, badPct, duplicates.isNotEmpty);
+    final quality = validation.isValid
+        ? _quality(emptyPct, badPct, duplicates.isNotEmpty)
+        : 'fail';
 
     issues.add('empty_expl: ${(emptyPct * 100).toStringAsFixed(1)}%');
     issues.add('bad_pos: ${(badPct * 100).toStringAsFixed(1)}%');
