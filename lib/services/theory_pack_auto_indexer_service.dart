@@ -5,6 +5,7 @@ import '../models/learning_path_template_v2.dart';
 import 'theory_pack_review_status_engine.dart';
 import 'theory_pack_completion_estimator.dart';
 import 'theory_pack_auto_tagger.dart';
+import 'theory_pack_auto_booster_suggester.dart';
 
 /// Builds YAML index of theory packs with usage metadata.
 class TheoryPackAutoIndexerService {
@@ -35,6 +36,7 @@ class TheoryPackAutoIndexerService {
     const reviewEngine = TheoryPackReviewStatusEngine();
     const estimator = TheoryPackCompletionEstimator();
     const tagger = TheoryPackAutoTagger();
+    const suggester = TheoryPackAutoBoosterSuggester();
 
     final used = <Map<String, dynamic>>[];
     final unused = <Map<String, dynamic>>[];
@@ -50,6 +52,7 @@ class TheoryPackAutoIndexerService {
         'readTimeMinutes': comp.estimatedMinutes,
         'reviewStatus': reviewEngine.getStatus(pack).name,
         'tags': tagger.autoTag(pack).toList(),
+        'boosters': suggester.suggestBoosters(pack, packs),
         'usedInPaths': pathsUsed,
       };
       if (pathsUsed.isNotEmpty) {

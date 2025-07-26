@@ -9,6 +9,7 @@ import '../services/theory_pack_review_status_engine.dart';
 import '../services/theory_pack_completion_estimator.dart';
 import '../services/theory_pack_auto_fix_engine.dart';
 import '../services/theory_pack_auto_tagger.dart';
+import '../services/theory_pack_auto_booster_suggester.dart';
 
 /// Developer screen to browse and preview all bundled theory packs.
 class TheoryPackDebuggerScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
   bool _loading = true;
   final _reviewEngine = const TheoryPackReviewStatusEngine();
   final _tagger = const TheoryPackAutoTagger();
+  final _suggester = const TheoryPackAutoBoosterSuggester();
 
   @override
   void initState() {
@@ -96,6 +98,10 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                 final completion = const TheoryPackCompletionEstimator()
                     .estimate(pack);
                 final tagText = _tagger.autoTag(pack).join(', ');
+                final boosterList =
+                    _suggester.suggestBoosters(pack, _packs).join(', ');
+                final boosters =
+                    boosterList.isNotEmpty ? 'Boosters: $boosterList' : '';
                 Widget icon;
                 switch (status) {
                   case ReviewStatus.approved:
@@ -113,7 +119,7 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                     pack.title.isNotEmpty ? pack.title : '(no title)',
                   ),
                   subtitle: Text(
-                    '${pack.id} • ${completion.wordCount}w • ${completion.estimatedMinutes}m\n$tagText',
+                    '${pack.id} • ${completion.wordCount}w • ${completion.estimatedMinutes}m\n$tagText${boosters.isNotEmpty ? '\n$boosters' : ''}',
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
