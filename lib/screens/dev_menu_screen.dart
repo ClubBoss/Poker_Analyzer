@@ -105,6 +105,7 @@ import '../services/booster_refiner_engine.dart';
 import '../services/booster_pack_auto_tester.dart';
 import '../services/booster_pack_diff_checker.dart';
 import '../services/booster_snapshot_archiver.dart';
+import '../services/booster_pack_changelog_generator.dart';
 import 'pack_library_qa_screen.dart';
 import 'pack_conflict_analysis_screen.dart';
 import 'pack_merge_duplicates_screen.dart';
@@ -207,6 +208,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterYamlTestLoading = false;
   bool _boosterDiffLoading = false;
   bool _boosterArchiveLoading = false;
+  bool _boosterChangelogLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
   bool _seedAdvancedLoading = false;
@@ -729,6 +731,52 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     await const BoosterSnapshotArchiver().archive(pack);
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Booster archived')));
+  }
+
+  Future<void> _showBoosterChangelog() async {
+    if (_boosterChangelogLoading || !kDebugMode) return;
+    setState(() => _boosterChangelogLoading = true);
+    final ctr = TextEditingController();
+    final id = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Booster ID'),
+        content: TextField(controller: ctr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ctr.text),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    String text = 'No changelog';
+    if (id != null && id.trim().isNotEmpty) {
+      text = await const BoosterPackChangelogGenerator()
+          .generateChangelog(id.trim());
+    }
+    if (!mounted) return;
+    setState(() => _boosterChangelogLoading = false);
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _cleanDuplicates() async {
@@ -2272,6 +2320,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('💾 Архивировать booster пак'),
                 onTap: _boosterArchiveLoading ? null : _archiveBoosterPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📜 Booster changelog по id'),
+                onTap:
+                    _boosterChangelogLoading ? null : _showBoosterChangelog,
               ),
             if (kDebugMode)
               ListTile(
