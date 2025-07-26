@@ -6,4 +6,7 @@ class BoosterThematicDescriptions {
   };
 
   static String? get(String tag) => _data[tag];
+
+  /// Returns all known thematic tags.
+  static List<String> get tags => _data.keys.toList();
 }
