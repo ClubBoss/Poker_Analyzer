@@ -169,6 +169,7 @@ import 'goal_insights_screen.dart';
 import 'lesson_path_screen.dart';
 import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
+import 'learning_path_validation_screen.dart';
 import 'path_map_screen.dart';
 import '../services/learning_path_progress_service.dart';
 import '../services/achievement_trigger_engine.dart';
@@ -4207,6 +4208,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('⬆️ Promote staged paths'),
                 onTap: _pathPromoteLoading ? null : _promotePaths,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧪 Validate learning paths'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const LearningPathValidationScreen()),
+                  );
+                },
               ),
             if (kDebugMode)
               ListTile(
