@@ -98,6 +98,8 @@ import '../services/starter_learning_path_seeder.dart';
 import '../services/intermediate_learning_path_seeder.dart';
 import '../services/theory_path_stage_seeder.dart';
 import '../services/learning_path_auto_seeder.dart';
+import '../services/theory_stage_validator_engine.dart';
+import '../models/pack_library.dart';
 
 import '../services/icm_postflop_path_seeder.dart';
 import '../services/live_hud_pack_seeder.dart';
@@ -195,6 +197,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _yamlMergeLoading = false;
   bool _theoryValidateLoading = false;
   bool _theoryExportValidateLoading = false;
+  bool _theoryStageValidateLoading = false;
   bool _theoryStagingImportLoading = false;
   bool _theoryPromoteLoading = false;
   bool _refactorLoading = false;
@@ -1306,6 +1309,39 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       debugPrint('${e.$1}: ${e.$2}');
     }
     final text = errors.map((e) => '${e.$1}: ${e.$2}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _validateTheoryStages() async {
+    if (_theoryStageValidateLoading || !kDebugMode) return;
+    setState(() => _theoryStageValidateLoading = true);
+    await PackLibraryLoaderService.instance.loadLibrary();
+    PackLibrary.main
+      ..clear()
+      ..addAll(PackLibraryLoaderService.instance.library);
+    final errors = const TheoryStageValidatorEngine().validate();
+    if (!mounted) return;
+    setState(() => _theoryStageValidateLoading = false);
+    if (errors.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Ошибок нет')));
+      return;
+    }
+    final text = errors.join('\n');
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -3211,6 +3247,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('✅ Проверка теории (yaml_out/theory)'),
                 onTap:
                     _theoryExportValidateLoading ? null : _validateTheoryExport,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧪 Проверка стадий теории'),
+                onTap:
+                    _theoryStageValidateLoading ? null : _validateTheoryStages,
               ),
             if (kDebugMode)
               ListTile(
