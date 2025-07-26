@@ -91,6 +91,7 @@ import '../services/learning_path_promoter.dart';
 import '../services/learning_path_library.dart';
 import '../services/learning_path_preview_launcher.dart';
 import '../services/learning_path_template_validator.dart';
+import '../services/learning_path_library_validator.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -213,6 +214,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _pathPromoteLoading = false;
   bool _previewPathLoading = false;
   bool _singlePathValidateLoading = false;
+  bool _validateAllPathsLoading = false;
   bool _refactorLoading = false;
   bool _ratingLoading = false;
   bool _tagHealthLoading = false;
@@ -1500,6 +1502,46 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF121212),
         content: Text(text, style: const TextStyle(color: Colors.white)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _validateAllPaths() async {
+    if (_validateAllPathsLoading || !kDebugMode) return;
+    setState(() => _validateAllPathsLoading = true);
+    final items = const LearningPathLibraryValidator()
+        .validateAll(LearningPathLibrary.staging);
+    if (!mounted) return;
+    setState(() => _validateAllPathsLoading = false);
+    if (items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No issues found')),
+      );
+      return;
+    }
+    final pathSet = <String>{for (final i in items) i.$1};
+    final lines = [
+      for (final i in items)
+        '• ${i.$1} → ' +
+            (i.$2.contains(':')
+                ? '${i.$2.split(':')[1]} ' + i.$2.split(':')[0].replaceAll('_', ' ')
+                : i.$2.replaceAll('_', ' ')),
+    ];
+    final text =
+        '${items.length} issues in ${pathSet.length} paths:\n${lines.join('\n')}';
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -4279,6 +4321,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧪 Validate single path'),
                 onTap:
                     _singlePathValidateLoading ? null : _validateSinglePath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧪 Validate all staged paths'),
+                onTap:
+                    _validateAllPathsLoading ? null : _validateAllPaths,
               ),
             if (kDebugMode)
               ListTile(
