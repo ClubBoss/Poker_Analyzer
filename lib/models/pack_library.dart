@@ -28,6 +28,11 @@ class PackLibrary {
     }
   }
 
+  /// Removes a template with the given [id] from the library.
+  void remove(String id) {
+    final tpl = _index.remove(id);
+    if (tpl != null) _packs.remove(tpl);
+  }
+
   TrainingPackTemplateV2? getById(String id) => _index[id];
 }
-
