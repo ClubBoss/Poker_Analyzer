@@ -52,6 +52,7 @@ import '../services/training_pack_generator_v2.dart';
 import '../models/training_attempt.dart';
 import '../services/weakness_cluster_engine_v2.dart';
 import '../services/goal_completion_engine.dart';
+import '../services/smart_theory_pack_generator.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
@@ -233,6 +234,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _jsonLibraryLoading = false;
   bool _smartValidateLoading = false;
   bool _weaknessYamlLoading = false;
+  bool _smartTheoryPackLoading = false;
   bool _templateStorageTestLoading = false;
   bool _packSearchLoading = false;
   bool _reminderLoading = false;
@@ -1592,6 +1594,42 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     if (!mounted) return;
     setState(() => _weaknessYamlLoading = false);
     await showTrainingPackYamlPreviewer(context, pack);
+  }
+
+  Future<void> _generateSmartTheoryYamlPack() async {
+    if (_smartTheoryPackLoading || !kDebugMode) return;
+    setState(() => _smartTheoryPackLoading = true);
+    final ctr = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('🧠 Generate theory YAML pack'),
+        content: TextField(
+          controller: ctr,
+          decoration: const InputDecoration(labelText: 'Tag'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && ctr.text.trim().isNotEmpty) {
+      final generator = const SmartTheoryPackGenerator();
+      final pack = await generator.generateTheoryPack(ctr.text.trim());
+      if (!mounted) return;
+      setState(() => _smartTheoryPackLoading = false);
+      await showTrainingPackYamlPreviewer(context, pack);
+    } else {
+      if (mounted) setState(() => _smartTheoryPackLoading = false);
+    }
   }
 
   Future<void> _checkTagHealth() async {
@@ -3213,6 +3251,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🔧 Generate weakness-based YAML pack'),
                 onTap:
                     _weaknessYamlLoading ? null : _generateWeaknessYamlPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧠 Generate theory YAML pack'),
+                onTap:
+                    _smartTheoryPackLoading ? null : _generateSmartTheoryYamlPack,
               ),
             if (kDebugMode)
               ListTile(
