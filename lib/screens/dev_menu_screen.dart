@@ -121,6 +121,7 @@ import '../services/booster_smart_selector.dart';
 import '../services/booster_pack_similarity_reporter.dart';
 import '../services/booster_thematic_tagger.dart';
 import '../services/booster_theory_pack_batch_generator.dart';
+import '../services/booster_theory_export_engine.dart';
 import '../services/booster_thematic_descriptions.dart';
 import '../models/booster_anomaly_report.dart';
 import 'pack_library_qa_screen.dart';
@@ -607,16 +608,13 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   Future<void> _exportTheoryTags() async {
     if (_tagTheoryExportLoading || !kDebugMode) return;
     setState(() => _tagTheoryExportLoading = true);
-    int count = 0;
-    const service = TheoryPackGeneratorService();
-    for (final tag in TheoryPackGeneratorService.tags) {
-      await service.exportYamlForTag(tag);
-      count++;
-    }
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final library = PackLibraryLoaderService.instance.library;
+    final paths = await const BoosterTheoryExportEngine().export(library);
     if (!mounted) return;
     setState(() => _tagTheoryExportLoading = false);
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
+        .showSnackBar(SnackBar(content: Text('Экспортировано: ${paths.length}')));
   }
 
   Future<void> _exportBoosterClusters() async {
