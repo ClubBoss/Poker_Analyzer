@@ -8,6 +8,7 @@ import '../theme/app_colors.dart';
 import '../services/theory_pack_review_status_engine.dart';
 import '../services/theory_pack_completion_estimator.dart';
 import '../services/theory_pack_auto_fix_engine.dart';
+import '../services/theory_pack_auto_tagger.dart';
 
 /// Developer screen to browse and preview all bundled theory packs.
 class TheoryPackDebuggerScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
   List<TheoryPackModel> _packs = [];
   bool _loading = true;
   final _reviewEngine = const TheoryPackReviewStatusEngine();
+  final _tagger = const TheoryPackAutoTagger();
 
   @override
   void initState() {
@@ -52,7 +54,7 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
       for (final p in _packs)
         if (p.id.toLowerCase().contains(query) ||
             p.title.toLowerCase().contains(query))
-          p
+          p,
     ];
   }
 
@@ -73,8 +75,9 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
             padding: const EdgeInsets.all(8),
             child: TextField(
               controller: _searchController,
-              decoration:
-                  const InputDecoration(hintText: 'Search by ID or title'),
+              decoration: const InputDecoration(
+                hintText: 'Search by ID or title',
+              ),
               onChanged: (_) => setState(() {}),
             ),
           ),
@@ -90,8 +93,9 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
               itemBuilder: (_, i) {
                 final pack = _filtered[i];
                 final status = _reviewEngine.getStatus(pack);
-                final completion =
-                    const TheoryPackCompletionEstimator().estimate(pack);
+                final completion = const TheoryPackCompletionEstimator()
+                    .estimate(pack);
+                final tagText = _tagger.autoTag(pack).join(', ');
                 Widget icon;
                 switch (status) {
                   case ReviewStatus.approved:
@@ -105,10 +109,11 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                     break;
                 }
                 return ListTile(
-                  title:
-                      Text(pack.title.isNotEmpty ? pack.title : '(no title)'),
+                  title: Text(
+                    pack.title.isNotEmpty ? pack.title : '(no title)',
+                  ),
                   subtitle: Text(
-                    '${pack.id} • ${completion.wordCount}w • ${completion.estimatedMinutes}m',
+                    '${pack.id} • ${completion.wordCount}w • ${completion.estimatedMinutes}m\n$tagText',
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -116,7 +121,8 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                       Text('${pack.sections.length}'),
                       const SizedBox(width: 8),
                       Text(
-                          '${(completion.completionRatio * 100).toStringAsFixed(0)}%'),
+                        '${(completion.completionRatio * 100).toStringAsFixed(0)}%',
+                      ),
                       const SizedBox(width: 8),
                       icon,
                       IconButton(
