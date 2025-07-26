@@ -8,7 +8,7 @@ class LearningPathLibrary {
   static final LearningPathLibrary staging = LearningPathLibrary._();
 
   /// Main library for promoted paths.
-  static final LearningPathLibrary main = LearningPathLibrary._();
+  static LearningPathLibrary main = LearningPathLibrary._();
 
   final List<LearningPathTemplateV2> _paths = [];
   final Map<String, LearningPathTemplateV2> _index = {};

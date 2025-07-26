@@ -87,7 +87,8 @@ import 'theory_booster_preview_screen.dart';
 import 'booster_theory_preview_screen.dart';
 import 'theory_staging_preview_screen.dart';
 import '../services/theory_pack_promoter.dart';
-import '../services/staged_path_promoter.dart';
+import '../services/learning_path_promoter.dart';
+import '../services/learning_path_library.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -1416,28 +1417,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
 
   Future<void> _promotePaths() async {
     if (_pathPromoteLoading || !kDebugMode) return;
-    final ctr = TextEditingController();
-    final prefix = await showDialog<String>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF121212),
-        title: const Text('Path prefix (optional)'),
-        content: TextField(controller: ctr),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, ctr.text.trim()),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    if (!mounted) return;
     setState(() => _pathPromoteLoading = true);
-    final count = const StagedPathPromoter().promoteAll(prefix: prefix?.isEmpty == true ? null : prefix);
+    final count = const LearningPathPromoter().promoteStaged(
+      staged: LearningPathLibrary.staging,
+      target: LearningPathLibrary.main,
+    );
     if (!mounted) return;
     setState(() => _pathPromoteLoading = false);
     ScaffoldMessenger.of(context).showSnackBar(
