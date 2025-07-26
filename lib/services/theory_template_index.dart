@@ -3,10 +3,14 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../models/v2/training_pack_template_v2.dart';
+import 'theory_pack_generator_service.dart';
 
 /// Generates a JSON index for theory YAML packs in `yaml_out/`.
 class TheoryTemplateIndex {
   const TheoryTemplateIndex();
+
+  /// List of all known theory tags.
+  static List<String> get tags => TheoryPackGeneratorService.tags;
 
   /// Scans [dir] for theory YAML packs and writes `theory_index.json`.
   /// Returns the number of indexed files.

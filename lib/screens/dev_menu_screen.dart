@@ -53,6 +53,7 @@ import '../models/training_attempt.dart';
 import '../services/weakness_cluster_engine_v2.dart';
 import '../services/goal_completion_engine.dart';
 import '../services/smart_theory_pack_generator.dart';
+import '../services/smart_theory_batch_generator.dart';
 import '../services/pack_library_review_engine.dart';
 import '../services/yaml_pack_auto_fix_engine.dart';
 import '../services/pack_library_smart_validator.dart';
@@ -235,6 +236,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _smartValidateLoading = false;
   bool _weaknessYamlLoading = false;
   bool _smartTheoryPackLoading = false;
+  bool _smartTheoryBatchLoading = false;
   bool _templateStorageTestLoading = false;
   bool _packSearchLoading = false;
   bool _reminderLoading = false;
@@ -1629,6 +1631,25 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
       await showTrainingPackYamlPreviewer(context, pack);
     } else {
       if (mounted) setState(() => _smartTheoryPackLoading = false);
+    }
+  }
+
+  Future<void> _batchGenerateSmartTheoryPacks() async {
+    if (_smartTheoryBatchLoading || !kDebugMode) return;
+    setState(() => _smartTheoryBatchLoading = true);
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final tags = TheoryTemplateIndex.tags;
+    const batch = SmartTheoryBatchGenerator();
+    final packs = await batch.generateMissing(tags: tags);
+    if (mounted) setState(() => _smartTheoryBatchLoading = false);
+    if (packs.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Новых паков нет')));
+      return;
+    }
+    for (final pack in packs) {
+      await showTrainingPackYamlPreviewer(context, pack);
     }
   }
 
@@ -3257,6 +3278,13 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 title: const Text('🧠 Generate theory YAML pack'),
                 onTap:
                     _smartTheoryPackLoading ? null : _generateSmartTheoryYamlPack,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🧠 Batch-generate theory packs (missing only)'),
+                onTap: _smartTheoryBatchLoading
+                    ? null
+                    : _batchGenerateSmartTheoryPacks,
               ),
             if (kDebugMode)
               ListTile(
