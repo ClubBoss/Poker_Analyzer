@@ -1,6 +1,7 @@
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'booster_pack_validator_service.dart';
+import 'booster_anomaly_detector.dart';
 
 class BoosterTestReport {
   final int totalSpots;
@@ -23,7 +24,8 @@ class BoosterTestReport {
 class BoosterQuickTesterEngine {
   const BoosterQuickTesterEngine();
 
-  BoosterTestReport test(TrainingPackTemplateV2 pack) {
+  BoosterTestReport test(TrainingPackTemplateV2 pack,
+      {bool detectAnomalies = false}) {
     final validation =
         const BoosterPackValidatorService().validate(pack);
     final total = pack.spots.length;
@@ -55,6 +57,21 @@ class BoosterQuickTesterEngine {
 
     final issues = <String>[...validation.errors, ...validation.warnings];
     if (duplicates.isNotEmpty) issues.add('duplicate_ids');
+    if (detectAnomalies) {
+      final anomaly = const BoosterAnomalyDetector().analyze([pack]);
+      if (anomaly.duplicatedHands.isNotEmpty) {
+        issues.add('dup_hands:${anomaly.duplicatedHands.length}');
+      }
+      if (anomaly.repeatedBoards.isNotEmpty) {
+        issues.add('dup_boards:${anomaly.repeatedBoards.length}');
+      }
+      if (anomaly.evOutliers.isNotEmpty) {
+        issues.add('ev_outliers:${anomaly.evOutliers.join(',')}');
+      }
+      if (anomaly.weakExplanations.isNotEmpty) {
+        issues.add('weak_expl:${anomaly.weakExplanations.length}');
+      }
+    }
     final emptyPct = total > 0 ? emptyExp / total : 0.0;
     final badPct = total > 0 ? badPos / total : 0.0;
     final quality = validation.isValid
