@@ -106,6 +106,7 @@ import '../services/booster_tag_coverage_stats.dart';
 import '../services/booster_refiner_engine.dart';
 import '../services/booster_pack_auto_tester.dart';
 import '../services/booster_pack_diff_checker.dart';
+import '../services/booster_pack_diff_reporter.dart';
 import '../services/booster_snapshot_archiver.dart';
 import '../services/booster_pack_changelog_generator.dart';
 import '../services/booster_pack_linter_engine.dart';
@@ -218,6 +219,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterQuickTestLoading = false;
   bool _boosterAnomalyLoading = false;
   bool _boosterDiffLoading = false;
+  bool _boosterDiffReportLoading = false;
   bool _boosterArchiveLoading = false;
   bool _boosterChangelogLoading = false;
   bool _boosterLintLoading = false;
@@ -715,6 +717,80 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
             style: const TextStyle(color: Colors.white),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showBoosterDiffReport() async {
+    if (_boosterDiffReportLoading || !kDebugMode) return;
+    setState(() => _boosterDiffReportLoading = true);
+    final oldCtr = TextEditingController();
+    final newCtr = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Booster diff report'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: oldCtr,
+                maxLines: 6,
+                decoration: const InputDecoration(labelText: 'Old YAML'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: newCtr,
+                maxLines: 6,
+                decoration: const InputDecoration(labelText: 'New YAML'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    TrainingPackTemplateV2? oldPack;
+    TrainingPackTemplateV2? newPack;
+    if (confirmed == true) {
+      try {
+        oldPack = TrainingPackTemplateV2.fromYamlAuto(oldCtr.text);
+        newPack = TrainingPackTemplateV2.fromYamlAuto(newCtr.text);
+      } catch (_) {}
+    }
+    if (!mounted) return;
+    setState(() => _boosterDiffReportLoading = false);
+    if (oldPack == null || newPack == null) return;
+    final report = const BoosterPackDiffReporter().compare(oldPack, newPack);
+    final buffer = StringBuffer()
+      ..writeln('Unchanged: ${report.unchangedCount}')
+      ..writeln('Added: ${report.addedCount}')
+      ..writeln('Removed: ${report.removedCount}')
+      ..writeln('Variations: ${report.variationCount}')
+      ..writeln('Unique hands: ${report.uniqueHandCount}')
+      ..writeln('Unique boards: ${report.uniqueBoardCount}');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: Text(buffer.toString()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -2638,6 +2714,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🔍 Diff booster паков'),
                 onTap: _boosterDiffLoading ? null : _diffBoosterPacks,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Booster diff report'),
+                onTap:
+                    _boosterDiffReportLoading ? null : _showBoosterDiffReport,
               ),
             if (kDebugMode)
               ListTile(
