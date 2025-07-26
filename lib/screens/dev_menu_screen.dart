@@ -38,6 +38,7 @@ import '../services/smart_suggestion_engine.dart';
 import '../services/yaml_pack_balance_analyzer.dart';
 import '../services/theory_pack_generator_service.dart';
 import '../services/theory_validation_engine.dart';
+import '../services/theory_pack_generator.dart';
 import '../services/theory_template_index.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/pack_dependency_map.dart';
@@ -190,6 +191,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _normalizeYamlLoading = false;
   bool _tagIndexLoading = false;
   bool _theoryIndexLoading = false;
+  bool _theoryPackGenerateLoading = false;
   bool _tagSuggestLoading = false;
   bool _yamlTagSuggestLoading = false;
   bool _templateTagSuggestLoading = false;
@@ -1497,6 +1499,54 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Indexed: $count')));
+  }
+
+  Future<void> _generateTheoryPackByTag() async {
+    if (_theoryPackGenerateLoading || !kDebugMode) return;
+    setState(() => _theoryPackGenerateLoading = true);
+    final tagCtr = TextEditingController();
+    final prefixCtr = TextEditingController(text: 'dev');
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        title: const Text('Generate theory pack'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: tagCtr,
+              decoration: const InputDecoration(labelText: 'Tag'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: prefixCtr,
+              decoration: const InputDecoration(labelText: 'ID Prefix'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && tagCtr.text.trim().isNotEmpty) {
+      final generator = const TheoryPackGenerator();
+      final pack = generator.generate(tagCtr.text.trim(), prefixCtr.text.trim());
+      if (mounted) {
+        setState(() => _theoryPackGenerateLoading = false);
+        await showTrainingPackYamlPreviewer(context, pack);
+      }
+    } else {
+      if (mounted) setState(() => _theoryPackGenerateLoading = false);
+    }
   }
 
   Future<void> _suggestTags() async {
@@ -2990,6 +3040,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📤 Экспортировать теорию по тегам'),
                 onTap: _tagTheoryExportLoading ? null : _exportTheoryTags,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📘 Сгенерировать теоретический пак по тегу'),
+                onTap: _theoryPackGenerateLoading ? null : _generateTheoryPackByTag,
               ),
             if (kDebugMode)
               ListTile(
