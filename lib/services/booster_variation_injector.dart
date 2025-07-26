@@ -10,9 +10,16 @@ class BoosterVariationInjector {
   final BoosterSimilarityEngine _engine;
   final double _similarityThreshold;
 
-  const BoosterVariationInjector({BoosterSimilarityEngine? engine, double similarityThreshold = 0.8})
-      : _engine = engine ?? const BoosterSimilarityEngine(),
-        _similarityThreshold = similarityThreshold;
+  /// How many variation spots should be added for each original spot.
+  final int _variationsPerSpot;
+
+  const BoosterVariationInjector({
+    BoosterSimilarityEngine? engine,
+    double similarityThreshold = 0.8,
+    int variationsPerSpot = 1,
+  })  : _engine = engine ?? const BoosterSimilarityEngine(),
+        _similarityThreshold = similarityThreshold,
+        _variationsPerSpot = variationsPerSpot;
 
   /// Returns a copy of [pack] with additional variation spots added.
   TrainingPackTemplateV2 injectVariations(
@@ -31,7 +38,7 @@ class BoosterVariationInjector {
       if (originals.length <= 1) continue;
       for (final orig in originals) {
         var counter = 1;
-        TrainingPackSpot? variant;
+        var added = 0;
         for (final cand in cluster.spots) {
           if (cand.id == orig.id) continue;
           // Ensure difference in key attributes.
@@ -44,21 +51,21 @@ class BoosterVariationInjector {
           final res = _engine.analyzeSpots([orig, cand], threshold: -1);
           final sim = res.isNotEmpty ? res.first.similarity : 1.0;
           if (sim >= _similarityThreshold) continue;
-          variant = cand;
-          break;
-        }
-        if (variant == null) continue;
-        var newId = '${orig.id}_var$counter';
-        while (idSet.contains(newId) || newSpots.any((s) => s.id == newId)) {
+          var newId = '${orig.id}_var$counter';
+          while (idSet.contains(newId) || newSpots.any((s) => s.id == newId)) {
+            counter++;
+            newId = '${orig.id}_var$counter';
+          }
+          final copy = cand.copyWith(id: newId, isGenerated: true, meta: {
+            ...cand.meta,
+            'variation': true,
+          });
+          newSpots.add(copy);
+          idSet.add(newId);
+          added++;
           counter++;
-          newId = '${orig.id}_var$counter';
+          if (added >= _variationsPerSpot) break;
         }
-        final copy = variant.copyWith(id: newId, isGenerated: true, meta: {
-          ...variant.meta,
-          'variation': true,
-        });
-        newSpots.add(copy);
-        idSet.add(newId);
       }
     }
 
