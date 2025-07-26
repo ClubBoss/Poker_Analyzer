@@ -110,6 +110,7 @@ import '../services/booster_pack_diff_reporter.dart';
 import '../services/booster_snapshot_archiver.dart';
 import '../services/booster_pack_changelog_generator.dart';
 import '../services/booster_pack_linter_engine.dart';
+import '../services/booster_pack_cluster_exporter.dart';
 import '../services/booster_quick_tester_engine.dart';
 import '../services/booster_anomaly_detector.dart';
 import '../services/booster_similarity_pruner.dart';
@@ -230,6 +231,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _boosterClusterLoading = false;
   bool _boosterVariationLoading = false;
   bool _boosterSmartSelectLoading = false;
+  bool _boosterClusterExportLoading = false;
   bool _thematicTagLoading = false;
   bool _seedBeginnerLoading = false;
   bool _seedIntermediateLoading = false;
@@ -603,6 +605,16 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     }
     if (!mounted) return;
     setState(() => _tagTheoryExportLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
+  }
+
+  Future<void> _exportBoosterClusters() async {
+    if (_boosterClusterExportLoading || !kDebugMode) return;
+    setState(() => _boosterClusterExportLoading = true);
+    final count = await const BoosterPackClusterExporter().export();
+    if (!mounted) return;
+    setState(() => _boosterClusterExportLoading = false);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Экспортировано: $count')));
   }
@@ -2906,6 +2918,12 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📤 Экспортировать теорию по тегам'),
                 onTap: _tagTheoryExportLoading ? null : _exportTheoryTags,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📦 Экспортировать по тематикам'),
+                onTap:
+                    _boosterClusterExportLoading ? null : _exportBoosterClusters,
               ),
             if (kDebugMode)
               ListTile(
