@@ -410,6 +410,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'Quick preview launched automatically for faster start.';
 
   @override
+  String plannerBadge(Object count) {
+    return '$count left';
+  }
+
+  @override
   String get unfinishedSession => 'You have an unfinished session';
 
   @override
