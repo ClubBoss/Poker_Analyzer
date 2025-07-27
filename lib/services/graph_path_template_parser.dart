@@ -67,6 +67,7 @@ class GraphPathTemplateParser {
         final nextIds = <String>[for (final v in (m['next'] as List? ?? [])) v.toString()];
         final node = TheoryLessonNode(
           id: id,
+          refId: m['refId']?.toString(),
           title: m['title']?.toString() ?? '',
           content: m['content']?.toString() ?? '',
           nextIds: nextIds,

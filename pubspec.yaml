@@ -108,6 +108,7 @@ flutter:
     - assets/packs/v2/library_index.json
     - assets/built_in_packs.yaml
     - assets/theory_packs/
+    - assets/theory_blocks/
     - assets/lessons/
     - assets/lesson_tracks/
       - assets/pack_matrix.json

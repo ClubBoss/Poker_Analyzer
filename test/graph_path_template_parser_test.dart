@@ -41,6 +41,7 @@ nodes:
 nodes:
   - type: theory
     id: t1
+    refId: welcome
     title: Intro
     content: Welcome
     next: [s1]
@@ -55,6 +56,7 @@ nodes:
     final nodes = await parser.parseFromYaml(yaml);
     expect(nodes.first, isA<TheoryLessonNode>());
     final theory = nodes.first as TheoryLessonNode;
+    expect(theory.refId, 'welcome');
     expect(theory.title, 'Intro');
     expect(theory.nextIds, ['s1']);
   });

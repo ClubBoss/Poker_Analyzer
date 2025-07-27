@@ -33,7 +33,7 @@ void main() {
 
   test('validator handles theory nodes', () {
     const nodes = [
-      TheoryLessonNode(id: 't1', title: 'T', content: 'C', nextIds: ['end']),
+      TheoryLessonNode(id: 't1', refId: 'welcome', title: 'T', content: 'C', nextIds: ['end']),
       TrainingStageNode(id: 'end'),
     ];
     final errors = LearningPathValidator.validate(nodes);
