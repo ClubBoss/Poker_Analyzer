@@ -10,6 +10,7 @@ import '../services/pack_library_service.dart';
 import '../services/theory_pack_library_service.dart';
 import '../services/learning_path_planner_engine.dart';
 import '../services/weekly_planner_booster_feed.dart';
+import '../services/session_storage_service.dart';
 import '../widgets/learning_path_stage_progress_card.dart';
 import '../widgets/tag_badge.dart';
 import 'learning_path_stage_preview_screen.dart';
@@ -66,7 +67,23 @@ class _LearningPathWeekPlannerScreenState
   }
 
   Future<void> _loadBadge() async {
+    final storage = SessionStorageService.instance;
+    final cached = await storage.getInt('planner_remaining');
+    final time = await storage.getTimestamp('planner_remaining');
+    final now = DateTime.now();
+    if (cached != null &&
+        time != null &&
+        now.difference(time) < const Duration(minutes: 5)) {
+      if (!mounted) return;
+      setState(() {
+        _remaining = cached;
+        _badgeLoading = false;
+      });
+      return;
+    }
+
     final ids = await LearningPathPlannerEngine.instance.getPlannedStageIds();
+    await storage.setInt('planner_remaining', ids.length);
     if (!mounted) return;
     setState(() {
       _remaining = ids.length;
