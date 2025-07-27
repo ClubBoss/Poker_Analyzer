@@ -101,6 +101,7 @@ import '../services/learning_path_library_validator.dart';
 import '../services/graph_path_template_validator.dart';
 import '../services/graph_path_template_parser.dart';
 import 'graph_template_library_screen.dart';
+import 'graph_path_authoring_wizard_screen.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -259,6 +260,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _smartValidateLoading = false;
   bool _graphValidateLoading = false;
   bool _graphTemplateLoading = false;
+  bool _graphWizardLoading = false;
   bool _weaknessYamlLoading = false;
   bool _smartTheoryPackLoading = false;
   bool _smartTheoryBatchLoading = false;
@@ -2369,6 +2371,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     setState(() => _graphTemplateLoading = false);
   }
 
+  Future<void> _openGraphWizard() async {
+    if (_graphWizardLoading || !kDebugMode) return;
+    setState(() => _graphWizardLoading = true);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const GraphPathAuthoringWizardScreen()),
+    );
+    if (!mounted) return;
+    setState(() => _graphWizardLoading = false);
+  }
+
   Future<void> _reviewYamlPack() async {
     if (_reviewLoading || !kDebugMode) return;
     setState(() => _reviewLoading = true);
@@ -3973,6 +3986,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('📈 Graph Templates'),
                 onTap: _graphTemplateLoading ? null : _openGraphTemplateLibrary,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('🛠 Graph Path Wizard'),
+                onTap: _graphWizardLoading ? null : _openGraphWizard,
               ),
             if (kDebugMode)
               ListTile(
