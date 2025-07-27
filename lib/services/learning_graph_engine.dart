@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'session_log_service.dart';
 import 'training_session_service.dart';
 import 'learning_path_graph_orchestrator.dart';
@@ -11,6 +15,7 @@ class LearningPathEngine {
   final LearningPathGraphOrchestrator orchestrator;
   final TrainingPathProgressServiceV2 progress;
   PathMapEngine? _engine;
+  static const _sessionKey = 'learning_path_session';
 
   LearningPathEngine({
     LearningPathGraphOrchestrator? orchestrator,
@@ -28,6 +33,7 @@ class LearningPathEngine {
     final nodes = await orchestrator.loadGraph();
     _engine = PathMapEngine(progress: progress);
     await _engine!.loadNodes(nodes);
+    await restoreSession();
   }
 
   /// Returns the node currently in focus.
@@ -54,5 +60,29 @@ class LearningPathEngine {
     if (_engine != null) {
       await _engine!.restoreState(state);
     }
+  }
+
+  /// Saves current session state to [SharedPreferences].
+  Future<void> saveSession() async {
+    if (_engine == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final json = jsonEncode(_engine!.getState().toJson());
+    await prefs.setString(_sessionKey, json);
+  }
+
+  /// Restores session state from [SharedPreferences] if available.
+  Future<void> restoreSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_sessionKey);
+    if (raw == null || raw.isEmpty) return;
+    final map = jsonDecode(raw);
+    final state = LearningPathSessionState.fromJson(map);
+    await restoreState(state);
+  }
+
+  /// Removes any persisted session state.
+  Future<void> clearSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_sessionKey);
   }
 }
