@@ -55,6 +55,15 @@ class PathMapEngine {
   PathMapEngine({required this.progress, LearningPathRegistryService? registry})
     : registry = registry ?? LearningPathRegistryService.instance;
 
+  /// Loads [nodes] directly and positions the engine at the first node.
+  Future<void> loadNodes(List<LearningPathNode> nodes) async {
+    _nodes
+      ..clear()
+      ..addEntries(nodes.map((n) => MapEntry(n.id, n)));
+    _currentId = nodes.isNotEmpty ? nodes.first.id : null;
+    await _advancePastCompleted();
+  }
+
   /// Loads [pathId] and positions the engine at the first available node.
   Future<void> loadPath(String pathId) async {
     final templates = await registry.loadAll();
