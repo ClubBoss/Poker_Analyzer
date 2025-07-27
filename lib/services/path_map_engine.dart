@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import '../models/learning_branch_node.dart';
 import '../models/learning_path_node.dart';
 import '../models/stage_type.dart';
+import '../models/learning_path_session_state.dart';
 import 'learning_path_registry_service.dart';
 import 'training_path_progress_service_v2.dart';
 
@@ -51,6 +52,8 @@ class PathMapEngine {
 
   final Map<String, LearningPathNode> _nodes = {};
   String? _currentId;
+  final Map<String, String> _branchChoices = {};
+  final Set<String> _completed = {};
 
   PathMapEngine({required this.progress, LearningPathRegistryService? registry})
     : registry = registry ?? LearningPathRegistryService.instance;
@@ -60,6 +63,13 @@ class PathMapEngine {
     _nodes
       ..clear()
       ..addEntries(nodes.map((n) => MapEntry(n.id, n)));
+    _branchChoices.clear();
+    _completed
+      ..clear()
+      ..addAll([
+        for (final n in nodes)
+          if (n is StageNode && progress.getStageCompletion(n.id)) n.id
+      ]);
     _currentId = nodes.isNotEmpty ? nodes.first.id : null;
     await _advancePastCompleted();
   }
@@ -70,6 +80,8 @@ class PathMapEngine {
     final tpl = templates.firstWhereOrNull((e) => e.id == pathId);
     _nodes.clear();
     _currentId = null;
+    _branchChoices.clear();
+    _completed.clear();
     if (tpl == null) return;
 
     await progress.loadProgress(pathId);
@@ -87,6 +99,9 @@ class PathMapEngine {
               dependsOn: s.unlockAfter,
             );
       _nodes[node.id] = node;
+      if (progress.getStageCompletion(node.id)) {
+        _completed.add(node.id);
+      }
     }
 
     for (final entry in tpl.entryStages) {
@@ -112,6 +127,7 @@ class PathMapEngine {
     if (targetId == null) return;
     final target = _nodes[targetId];
     if (target == null) return;
+    _branchChoices[node.id] = label;
     _currentId = target.id;
     await _advancePastCompleted();
   }
@@ -119,6 +135,7 @@ class PathMapEngine {
   /// Marks [nodeId] as completed and moves forward if applicable.
   Future<void> markCompleted(String nodeId) async {
     await progress.markStageCompleted(nodeId, double.nan);
+    _completed.add(nodeId);
     if (_currentId == nodeId) {
       await _advanceToNext();
     }
@@ -140,9 +157,31 @@ class PathMapEngine {
     return null;
   }
 
+  /// Returns a serializable snapshot of the current session.
+  LearningPathSessionState getState() => LearningPathSessionState(
+        currentNodeId: _currentId ?? '',
+        branchChoices: Map.from(_branchChoices),
+        completedStageIds: Set.from(_completed),
+      );
+
+  /// Restores the engine from a previously saved [state].
+  Future<void> restoreState(LearningPathSessionState state) async {
+    _currentId = state.currentNodeId.isEmpty ? null : state.currentNodeId;
+    _branchChoices
+      ..clear()
+      ..addAll(state.branchChoices);
+    _completed
+      ..clear()
+      ..addAll(state.completedStageIds);
+    for (final id in state.completedStageIds) {
+      await progress.markStageCompleted(id, double.nan);
+    }
+    await _advancePastCompleted();
+  }
+
   bool _isCompleted(LearningPathNode node) {
     if (node is StageNode) {
-      return progress.getStageCompletion(node.id);
+      return _completed.contains(node.id);
     }
     return false;
   }
