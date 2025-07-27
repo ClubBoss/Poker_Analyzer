@@ -896,7 +896,7 @@
     "spotCount": 2,
     "positions": ["bb", "btn"],
     "tags": ["advanced", "icm", "multiway", "tournament"]
-  }
+  },
   {
     "id": "river_bluffcatch_overbet",
     "name": "River Bluffcatch vs Overbet",
@@ -952,6 +952,18 @@
     "spotCount": 22,
     "positions": ["sb"],
     "tags": ["sb", "btn", "vsOpen", "3betPush", "callVsOpen", "foldVsOpen", "20bb", "mtt"],
+    "meta": {"audience": "Advanced", "icon": "north"}
+  },
+  {
+    "id": "bb_vs_btn_25bb_call_push_fold",
+    "name": "BB vs BTN — 25bb (Call / Push / Fold)",
+    "description": "",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 24,
+    "positions": ["bb"],
+    "tags": ["bb", "btn", "vsOpen", "3betPush", "callVsOpen", "foldVsOpen", "25bb", "mtt"],
     "meta": {"audience": "Advanced", "icon": "north"}
   }
 ]
