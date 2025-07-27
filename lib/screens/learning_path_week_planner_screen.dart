@@ -11,6 +11,7 @@ import '../services/theory_pack_library_service.dart';
 import '../services/learning_path_planner_engine.dart';
 import '../services/weekly_planner_booster_feed.dart';
 import '../services/session_storage_service.dart';
+import '../services/learning_path_progress_tracker.dart';
 import '../widgets/learning_path_stage_progress_card.dart';
 import '../widgets/tag_badge.dart';
 import 'learning_path_stage_preview_screen.dart';
@@ -32,6 +33,7 @@ class _LearningPathWeekPlannerScreenState
   bool _badgeLoading = true;
   int _remaining = 0;
   final WeeklyPlannerBoosterFeed _boosterFeed = WeeklyPlannerBoosterFeed();
+  final ValueNotifier<double> _overallProgress = ValueNotifier<double>(0.0);
 
   @override
   void initState() {
@@ -39,6 +41,7 @@ class _LearningPathWeekPlannerScreenState
     _load();
     _loadBadge();
     _boosterFeed.refresh();
+    _loadOverallProgress();
   }
 
   Future<void> _load() async {
@@ -91,6 +94,12 @@ class _LearningPathWeekPlannerScreenState
     });
   }
 
+  Future<void> _loadOverallProgress() async {
+    final tracker = LearningPathProgressTracker();
+    final value = await tracker.getOverallProgress();
+    if (mounted) _overallProgress.value = value;
+  }
+
   Future<void> _open(LearningPathStageModel stage) async {
     final path = _path;
     if (path == null) return;
@@ -100,6 +109,9 @@ class _LearningPathWeekPlannerScreenState
         builder: (_) => LearningPathStagePreviewScreen(path: path, stage: stage),
       ),
     );
+    await _load();
+    await _loadBadge();
+    await _loadOverallProgress();
   }
 
   Future<void> _openBooster(String packId) async {
@@ -139,6 +151,39 @@ class _LearningPathWeekPlannerScreenState
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                ValueListenableBuilder<double>(
+                  valueListenable: _overallProgress,
+                  builder: (context, value, _) {
+                    final accent = Theme.of(context).colorScheme.secondary;
+                    final pct = (value.clamp(0.0, 1.0) * 100).round();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0, end: value.clamp(0.0, 1.0)),
+                          duration: const Duration(milliseconds: 300),
+                          builder: (context, val, __) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: val,
+                                backgroundColor: Colors.white24,
+                                valueColor: AlwaysStoppedAnimation<Color>(accent),
+                                minHeight: 6,
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$pct% завершено',
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  },
+                ),
                 const Text(
                   'План на неделю',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
