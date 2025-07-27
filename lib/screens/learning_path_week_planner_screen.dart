@@ -9,8 +9,11 @@ import '../services/training_progress_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/theory_pack_library_service.dart';
 import '../services/learning_path_planner_engine.dart';
+import '../services/weekly_planner_booster_feed.dart';
 import '../widgets/learning_path_stage_progress_card.dart';
+import '../widgets/tag_badge.dart';
 import 'learning_path_stage_preview_screen.dart';
+import 'training_pack_preview_screen.dart';
 
 class LearningPathWeekPlannerScreen extends StatefulWidget {
   const LearningPathWeekPlannerScreen({super.key});
@@ -27,12 +30,14 @@ class _LearningPathWeekPlannerScreenState
   final List<_StageInfo> _stages = [];
   bool _badgeLoading = true;
   int _remaining = 0;
+  final WeeklyPlannerBoosterFeed _boosterFeed = WeeklyPlannerBoosterFeed();
 
   @override
   void initState() {
     super.initState();
     _load();
     _loadBadge();
+    _boosterFeed.refresh();
   }
 
   Future<void> _load() async {
@@ -76,6 +81,17 @@ class _LearningPathWeekPlannerScreenState
       context,
       MaterialPageRoute(
         builder: (_) => LearningPathStagePreviewScreen(path: path, stage: stage),
+      ),
+    );
+  }
+
+  Future<void> _openBooster(String packId) async {
+    final tpl = await PackLibraryService.instance.getById(packId);
+    if (tpl == null || !mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackPreviewScreen(template: tpl),
       ),
     );
   }
@@ -124,12 +140,35 @@ class _LearningPathWeekPlannerScreenState
                 for (final info in _stages)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: LearningPathStageProgressCard(
-                      stage: info.stage,
-                      progress: info.progress,
-                      pack: info.pack,
-                      theoryPack: info.theoryPack,
-                      onTap: () => _open(info.stage),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LearningPathStageProgressCard(
+                          stage: info.stage,
+                          progress: info.progress,
+                          pack: info.pack,
+                          theoryPack: info.theoryPack,
+                          onTap: () => _open(info.stage),
+                        ),
+                        ValueListenableBuilder<Map<String, List<BoosterSuggestion>>>(
+                          valueListenable: _boosterFeed.boosters,
+                          builder: (_, map, __) {
+                            final list = map[info.stage.id] ?? const [];
+                            if (list.isEmpty) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Wrap(
+                                spacing: 4,
+                                runSpacing: -4,
+                                children: [
+                                  for (final b in list)
+                                    TagBadge(b.tag, onTap: () => _openBooster(b.packId)),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
               ],
