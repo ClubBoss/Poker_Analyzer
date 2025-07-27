@@ -1,11 +1,13 @@
 import 'package:collection/collection.dart';
 
 import '../models/learning_path_stage_model.dart';
+import '../models/stage_type.dart';
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'tag_mastery_service.dart';
 import 'weakness_cluster_engine_v2.dart';
 import 'training_pack_generator_v2.dart';
+import 'theory_stage_progress_tracker.dart';
 
 /// Engine driving adaptive learning path stages.
 class LearningPathEngine {
@@ -15,12 +17,15 @@ class LearningPathEngine {
   final WeaknessClusterEngine clusterEngine;
   final TagMasteryService masteryService;
   final TrainingPackGeneratorV2 generator;
+  final TheoryStageProgressTracker theoryTracker;
 
   LearningPathEngine({
     this.clusterEngine = const WeaknessClusterEngine(),
     required this.masteryService,
     TrainingPackGeneratorV2? generator,
-  }) : generator = generator ?? const TrainingPackGeneratorV2();
+    TheoryStageProgressTracker? theoryTracker,
+  })  : generator = generator ?? const TrainingPackGeneratorV2(),
+        theoryTracker = theoryTracker ?? TheoryStageProgressTracker.instance;
 
   /// Returns the next training pack for [stage].
   ///
@@ -34,6 +39,17 @@ class LearningPathEngine {
   }) async {
     final defaultPack =
         allPacks.firstWhereOrNull((p) => p.id == stage.packId);
+
+    if (stage.type == StageType.theory) {
+      return defaultPack;
+    }
+
+    if (stage.type != StageType.theory && stage.theoryPackId != null) {
+      final done = await theoryTracker.isCompleted(stage.id);
+      if (!done) {
+        return allPacks.firstWhereOrNull((p) => p.id == stage.theoryPackId);
+      }
+    }
     if (!smartRecoveryEnabled) return defaultPack;
 
     final masteryMap = await masteryService.computeMastery();
