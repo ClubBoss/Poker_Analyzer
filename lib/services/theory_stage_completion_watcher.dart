@@ -22,6 +22,7 @@ class TheoryStageCompletionWatcher {
   Timer? _timer;
   ScrollController? _controller;
   VoidCallback? _listener;
+  VoidCallback? _onCompleted;
   String? _stageId;
   bool _completed = false;
 
@@ -32,10 +33,12 @@ class TheoryStageCompletionWatcher {
     String stageId,
     ScrollController controller, {
     BuildContext? context,
+    VoidCallback? onCompleted,
   }) {
     dispose();
     _stageId = stageId;
     _controller = controller;
+    _onCompleted = onCompleted;
     _listener = () => _onScroll(context);
     controller.addListener(_listener!);
     _timer = Timer(autoCompleteDelay, () => _markCompleted(context));
@@ -58,6 +61,7 @@ class TheoryStageCompletionWatcher {
     if (id == null) return;
     _completed = true;
     tracker.markCompleted(id);
+    _onCompleted?.call();
     if (context != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('✓ Completed')),
@@ -74,6 +78,7 @@ class TheoryStageCompletionWatcher {
     }
     _controller = null;
     _listener = null;
+    _onCompleted = null;
     _stageId = null;
     _completed = false;
   }
