@@ -100,6 +100,7 @@ import '../services/learning_path_template_validator.dart';
 import '../services/learning_path_library_validator.dart';
 import '../services/graph_path_template_validator.dart';
 import '../services/graph_path_template_parser.dart';
+import '../services/graph_path_template_generator.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -257,6 +258,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _jsonLibraryLoading = false;
   bool _smartValidateLoading = false;
   bool _graphValidateLoading = false;
+  bool _graphTemplateLoading = false;
   bool _weaknessYamlLoading = false;
   bool _smartTheoryPackLoading = false;
   bool _smartTheoryBatchLoading = false;
@@ -2356,6 +2358,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _generateSampleGraph() async {
+    if (_graphTemplateLoading || !kDebugMode) return;
+    setState(() => _graphTemplateLoading = true);
+    const generator = GraphPathTemplateGenerator();
+    final yaml = generator.generateCashVsMttTemplate();
+    await Clipboard.setData(ClipboardData(text: yaml));
+    if (!mounted) return;
+    setState(() => _graphTemplateLoading = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Graph YAML copied')));
+  }
+
   Future<void> _reviewYamlPack() async {
     if (_reviewLoading || !kDebugMode) return;
     setState(() => _reviewLoading = true);
@@ -3955,6 +3969,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ListTile(
                 title: const Text('🧩 Graph Validator'),
                 onTap: _graphValidateLoading ? null : _validateGraphPath,
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📈 Generate Sample Graph'),
+                onTap: _graphTemplateLoading ? null : _generateSampleGraph,
               ),
             if (kDebugMode)
               ListTile(
