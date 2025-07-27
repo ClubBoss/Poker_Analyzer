@@ -33,4 +33,14 @@ class LearningPathPlannerEngine {
     _cacheTime = now;
     return result;
   }
+
+  /// Marks [stageId] as completed and updates the planner state.
+  Future<void> markStageCompleted(String stageId) async {
+    await TrainingProgressService.instance.markCompleted(stageId);
+    _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
+    final cached = _cache;
+    if (cached != null) {
+      cached.remove(stageId);
+    }
+  }
 }
