@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 
 /// Displays the full contents of a theory pack.
 class TheoryPackReaderScreen extends StatefulWidget {
+  static const route = '/theory_reader';
   final TheoryPackModel pack;
   final String stageId;
   const TheoryPackReaderScreen({
