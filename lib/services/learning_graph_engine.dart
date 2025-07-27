@@ -4,6 +4,7 @@ import 'learning_path_graph_orchestrator.dart';
 import 'path_map_engine.dart';
 import 'training_path_progress_service_v2.dart';
 import '../models/learning_path_node.dart';
+import '../models/learning_path_session_state.dart';
 
 /// Coordinates loading and traversal of the adaptive learning path graph.
 class LearningPathEngine {
@@ -44,4 +45,14 @@ class LearningPathEngine {
 
   /// Returns the next node that should be presented to the user.
   LearningPathNode? getNextNode() => _engine?.getNextNode();
+
+  /// Returns a snapshot of the current session state.
+  LearningPathSessionState? getSessionState() => _engine?.getState();
+
+  /// Restores engine state from [state].
+  Future<void> restoreState(LearningPathSessionState state) async {
+    if (_engine != null) {
+      await _engine!.restoreState(state);
+    }
+  }
 }
