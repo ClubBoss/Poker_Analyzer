@@ -181,6 +181,7 @@ import 'learning_path_screen.dart';
 import 'learning_path_intro_screen.dart';
 import 'learning_path_validation_screen.dart';
 import 'path_map_screen.dart';
+import 'learning_path_graph_debug_screen.dart';
 import '../services/learning_path_progress_service.dart';
 import '../services/achievement_trigger_engine.dart';
 import 'achievement_dashboard_screen.dart';
@@ -4227,6 +4228,17 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const PathMapScreen()),
+                );
+              },
+            ),
+          if (kDebugMode)
+            ListTile(
+              title: const Text('🗺 Path Map Visualizer'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const LearningPathGraphDebugScreen()),
                 );
               },
             ),
