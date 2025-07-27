@@ -7,6 +7,7 @@ import 'training_session_service.dart';
 import 'learning_path_graph_orchestrator.dart';
 import 'path_map_engine.dart';
 import 'training_path_progress_service_v2.dart';
+import 'learning_path_node_history.dart';
 import '../models/learning_path_node.dart';
 import '../models/learning_path_session_state.dart';
 
@@ -30,10 +31,15 @@ class LearningPathEngine {
 
   /// Loads the active profile graph and prepares for traversal.
   Future<void> initialize() async {
+    await LearningPathNodeHistory.instance.load();
     final nodes = await orchestrator.loadGraph();
     _engine = PathMapEngine(progress: progress);
     await _engine!.loadNodes(nodes);
     await restoreSession();
+    final current = getCurrentNode();
+    if (current != null) {
+      await LearningPathNodeHistory.instance.markVisited(current.id);
+    }
   }
 
   /// Returns the node currently in focus.
@@ -42,15 +48,28 @@ class LearningPathEngine {
   /// Advances through branch [label] from the current node.
   Future<void> applyBranchChoice(String label) async {
     await _engine?.applyChoice(label);
+    final node = getCurrentNode();
+    if (node != null) {
+      await LearningPathNodeHistory.instance.markVisited(node.id);
+    }
   }
 
   /// Marks [nodeId] as completed and moves forward if applicable.
   Future<void> markStageCompleted(String nodeId) async {
+    await LearningPathNodeHistory.instance.markCompleted(nodeId);
     await _engine?.markCompleted(nodeId);
+    final node = getCurrentNode();
+    if (node != null) {
+      await LearningPathNodeHistory.instance.markVisited(node.id);
+    }
   }
 
   /// Returns the next node that should be presented to the user.
   LearningPathNode? getNextNode() => _engine?.getNextNode();
+
+  /// Returns whether the given [nodeId] was completed at least once.
+  bool isCompleted(String nodeId) =>
+      LearningPathNodeHistory.instance.isCompleted(nodeId);
 
   /// Returns a snapshot of the current session state.
   LearningPathSessionState? getSessionState() => _engine?.getState();
@@ -59,6 +78,10 @@ class LearningPathEngine {
   Future<void> restoreState(LearningPathSessionState state) async {
     if (_engine != null) {
       await _engine!.restoreState(state);
+      final node = getCurrentNode();
+      if (node != null) {
+        await LearningPathNodeHistory.instance.markVisited(node.id);
+      }
     }
   }
 
