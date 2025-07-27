@@ -10,6 +10,7 @@ import '../services/graph_template_library.dart';
 import '../services/graph_template_exporter.dart';
 import '../services/graph_path_template_parser.dart';
 import '../models/learning_path_node.dart';
+import '../services/learning_path_validator.dart';
 import '../theme/app_colors.dart';
 import '../ui/tools/path_map_visualizer.dart';
 
@@ -26,6 +27,7 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
   String? _templateId;
   final List<Map<String, dynamic>> _rawNodes = [];
   final List<LearningPathNode> _nodes = [];
+  final List<String> _validationErrors = [];
   String _yaml = '';
   final _parser = GraphPathTemplateParser();
 
@@ -74,11 +76,15 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
   Future<void> _rebuild() async {
     final yaml = const YamlEncoder().convert({'nodes': _rawNodes});
     final nodes = await _parser.parseFromYaml(yaml);
+    final errors = LearningPathValidator.validate(nodes);
     setState(() {
       _yaml = yaml;
       _nodes
         ..clear()
         ..addAll(nodes);
+      _validationErrors
+        ..clear()
+        ..addAll(errors);
     });
   }
 
@@ -270,6 +276,43 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
     await const GraphTemplateExporter().exportTemplate(id);
   }
 
+  Widget _validationStatus() {
+    if (_validationErrors.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.green.shade800,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle, color: Colors.greenAccent),
+            SizedBox(width: 8),
+            Text('Graph is valid ✅'),
+          ],
+        ),
+      );
+    }
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.red.shade900,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Validation Errors',
+              style: TextStyle(color: Colors.white)),
+          const SizedBox(height: 4),
+          for (final e in _validationErrors)
+            Text('- $e', style: const TextStyle(color: Colors.white)),
+        ],
+      ),
+    );
+  }
+
   Widget _templateStep() {
     final templates = GraphTemplateLibrary.instance.listTemplates();
     return ListView(
@@ -336,6 +379,8 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
             },
           ),
         ),
+        const SizedBox(height: 12),
+        _validationStatus(),
       ],
     );
   }
