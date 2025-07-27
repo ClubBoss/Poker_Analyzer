@@ -59,27 +59,3 @@ nodes:
     expect(theory.nextIds, ['s1']);
   });
 }
-
-  test('parseFromYaml handles theory nodes', () async {
-    const yaml = '''
-nodes:
-  - type: theory
-    id: t1
-    title: Intro
-    content: Welcome
-    next: [s1]
-  - type: stage
-    id: s1
-  - type: branch
-    id: end
-    branches:
-      A: s1
-''';
-    final parser = GraphPathTemplateParser();
-    final nodes = await parser.parseFromYaml(yaml);
-    expect(nodes.first, isA<TheoryLessonNode>());
-    final theory = nodes.first as TheoryLessonNode;
-    expect(theory.title, 'Intro');
-    expect(theory.nextIds, ['s1']);
-  });
-}
