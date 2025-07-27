@@ -98,6 +98,8 @@ import '../services/theory_pack_auto_indexer_service.dart';
 import '../services/smart_path_preview_launcher.dart';
 import '../services/learning_path_template_validator.dart';
 import '../services/learning_path_library_validator.dart';
+import '../services/graph_path_template_validator.dart';
+import '../services/graph_path_template_parser.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -254,6 +256,7 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
   bool _recommendPacksLoading = false;
   bool _jsonLibraryLoading = false;
   bool _smartValidateLoading = false;
+  bool _graphValidateLoading = false;
   bool _weaknessYamlLoading = false;
   bool _smartTheoryPackLoading = false;
   bool _smartTheoryBatchLoading = false;
@@ -2316,6 +2319,43 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
+  Future<void> _validateGraphPath() async {
+    if (_graphValidateLoading || !kDebugMode) return;
+    setState(() => _graphValidateLoading = true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['yaml', 'yml'],
+    );
+    List<ValidationIssue> items = [];
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null) {
+        final data = await compute(_graphValidateTask, path);
+        items = [for (final j in data) ValidationIssue.fromJson(j)];
+      }
+    }
+    if (!mounted) return;
+    setState(() => _graphValidateLoading = false);
+    final text = items.isEmpty
+        ? 'OK'
+        : items.map((e) => '${e.type}: ${e.message}').join('\n');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF121212),
+        content: SingleChildScrollView(
+          child: Text(text, style: const TextStyle(color: Colors.white)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _reviewYamlPack() async {
     if (_reviewLoading || !kDebugMode) return;
     setState(() => _reviewLoading = true);
@@ -3913,6 +3953,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
+                title: const Text('🧩 Graph Validator'),
+                onTap: _graphValidateLoading ? null : _validateGraphPath,
+              ),
+            if (kDebugMode)
+              ListTile(
                 title: const Text('📝 Редактор YAML пака'),
                 onTap: () {
                   Navigator.push(
@@ -4780,4 +4825,14 @@ Future<Map<String, dynamic>> _smartValidateTask(String path) async {
 
 Future<List<(String, String)>> _validateLibraryTask(String audience) async {
   return const PackLibraryValidatorService().validateAll(audience: audience);
+}
+
+Future<List<Map<String, dynamic>>> _graphValidateTask(String path) async {
+  final file = File(path);
+  if (!file.existsSync()) return [];
+  final yaml = await file.readAsString();
+  final parser = GraphPathTemplateParser();
+  final nodes = await parser.parseFromYaml(yaml);
+  final issues = const GraphPathTemplateValidator().validate(nodes);
+  return [for (final i in issues) i.toJson()];
 }
