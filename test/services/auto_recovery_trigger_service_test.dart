@@ -45,6 +45,8 @@ class _FakeLibrary implements PackLibraryService {
       byTag.values.firstWhereOrNull((p) => p.id == id);
   @override
   Future<TrainingPackTemplateV2?> findByTag(String tag) async => byTag[tag];
+  @override
+  Future<List<String>> findBoosterCandidates(String tag) async => const [];
 }
 
 TrainingPackTemplateV2 _tpl(String id, String tag) {

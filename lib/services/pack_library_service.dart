@@ -28,4 +28,22 @@ class PackLibraryService {
     final list = TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
     return list.firstWhereOrNull((p) => p.tags.contains(tag));
   }
+
+  /// Returns ids of booster packs matching [tag].
+  Future<List<String>> findBoosterCandidates(String tag) async {
+    await TrainingPackLibraryV2.instance.loadFromFolder();
+    final lc = tag.toLowerCase();
+    final list = TrainingPackLibraryV2.instance.filterBy(
+      type: TrainingType.pushFold,
+    );
+    final ids = <String>[];
+    for (final p in list) {
+      final meta = p.meta;
+      if (meta['type']?.toString().toLowerCase() == 'booster' &&
+          meta['tag']?.toString().toLowerCase() == lc) {
+        ids.add(p.id);
+      }
+    }
+    return ids;
+  }
 }

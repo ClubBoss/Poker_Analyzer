@@ -35,6 +35,8 @@ class _FakeLibrary implements PackLibraryService {
       .firstWhere((p) => p.id == id, orElse: () => byTag.values.first);
   @override
   Future<TrainingPackTemplateV2?> findByTag(String tag) async => byTag[tag];
+  @override
+  Future<List<String>> findBoosterCandidates(String tag) async => const [];
 }
 
 class _FakeReviews implements TagReviewHistoryService {
