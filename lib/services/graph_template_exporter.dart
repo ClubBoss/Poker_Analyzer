@@ -85,6 +85,7 @@ class GraphTemplateExporter {
       return {
         'type': 'theory',
         'id': node.id,
+        if (node.refId != null) 'refId': node.refId,
         'title': node.title,
         'content': node.content,
         if (node.nextIds.isNotEmpty) 'next': node.nextIds,

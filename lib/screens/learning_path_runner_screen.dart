@@ -4,6 +4,7 @@ import '../models/learning_branch_node.dart';
 import '../models/theory_lesson_node.dart';
 import '../services/learning_graph_engine.dart';
 import '../services/path_map_engine.dart';
+import '../services/theory_content_service.dart';
 
 /// Simple UI that walks through a learning path graph interactively.
 class LearningPathRunnerScreen extends StatefulWidget {
@@ -81,19 +82,24 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
   }
 
   Widget _buildTheory(TheoryLessonNode node) {
+    final block = node.refId == null
+        ? null
+        : TheoryContentService.instance.get(node.refId!);
+    final title = block?.title.isNotEmpty == true ? block!.title : node.title;
+    final content = block?.content.isNotEmpty == true ? block!.content : node.content;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            node.title,
+            title,
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           Expanded(
             child: SingleChildScrollView(
-              child: Text(node.content),
+              child: Text(content),
             ),
           ),
           const SizedBox(height: 16),

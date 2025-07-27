@@ -1,0 +1,60 @@
+import 'package:flutter/services.dart' show rootBundle;
+
+import '../asset_manifest.dart';
+import '../core/training/generation/yaml_reader.dart';
+import '../models/theory_content_block.dart';
+
+class TheoryContentService {
+  TheoryContentService._();
+  static final TheoryContentService instance = TheoryContentService._();
+
+  static const String _dir = 'assets/theory_blocks/';
+
+  final Map<String, TheoryContentBlock> _index = {};
+  final List<TheoryContentBlock> _blocks = [];
+
+  List<TheoryContentBlock> get all => List.unmodifiable(_blocks);
+
+  TheoryContentBlock? get(String id) => _index[id];
+
+  Future<void> loadAll() async {
+    if (_blocks.isNotEmpty) return;
+    await reload();
+  }
+
+  Future<void> reload() async {
+    _blocks.clear();
+    _index.clear();
+    final manifest = await AssetManifest.instance;
+    final paths = manifest.keys
+        .where((p) => p.startsWith(_dir) && p.endsWith('.yaml'))
+        .toList();
+    for (final path in paths) {
+      try {
+        final raw = await rootBundle.loadString(path);
+        final map = const YamlReader().read(raw);
+        final block = TheoryContentBlock.fromYaml(
+          Map<String, dynamic>.from(map),
+        );
+        if (block.id.isEmpty) continue;
+        _blocks.add(block);
+        _index[block.id] = block;
+      } catch (_) {}
+    }
+  }
+
+  Future<void> addOrUpdate(TheoryContentBlock block) async {
+    final idx = _blocks.indexWhere((b) => b.id == block.id);
+    if (idx >= 0) {
+      _blocks[idx] = block;
+    } else {
+      _blocks.add(block);
+    }
+    _index[block.id] = block;
+  }
+
+  Future<void> delete(String id) async {
+    _blocks.removeWhere((b) => b.id == id);
+    _index.remove(id);
+  }
+}

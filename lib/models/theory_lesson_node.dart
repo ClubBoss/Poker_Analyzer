@@ -5,6 +5,9 @@ class TheoryLessonNode implements LearningPathNode {
   @override
   final String id;
 
+  /// Optional reference id of shared theory content.
+  final String? refId;
+
   /// Display title of the lesson.
   final String title;
 
@@ -16,6 +19,7 @@ class TheoryLessonNode implements LearningPathNode {
 
   const TheoryLessonNode({
     required this.id,
+    this.refId,
     required this.title,
     required this.content,
     List<String>? nextIds,
