@@ -2,12 +2,14 @@ class TheoryPackModel {
   final String id;
   final String title;
   final List<TheorySectionModel> sections;
+  final List<String> tags;
 
   TheoryPackModel({
     required this.id,
     required this.title,
     required this.sections,
-  });
+    List<String>? tags,
+  }) : tags = tags ?? const [];
 
   factory TheoryPackModel.fromYaml(Map yaml) {
     final id = yaml['id']?.toString() ?? '';
@@ -23,7 +25,15 @@ class TheoryPackModel {
         }
       }
     }
-    return TheoryPackModel(id: id, title: title, sections: sections);
+    final tagYaml = yaml['tags'];
+    final tags = <String>[];
+    if (tagYaml is List) {
+      for (final t in tagYaml) {
+        tags.add(t.toString());
+      }
+    }
+    return TheoryPackModel(
+        id: id, title: title, sections: sections, tags: tags);
   }
 }
 
