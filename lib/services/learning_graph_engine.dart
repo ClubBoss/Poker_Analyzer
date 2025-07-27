@@ -18,6 +18,9 @@ class LearningPathEngine {
   PathMapEngine? _engine;
   static const _sessionKey = 'learning_path_session';
 
+  /// Exposes the underlying [PathMapEngine] instance for advanced operations.
+  PathMapEngine? get engine => _engine;
+
   LearningPathEngine({
     LearningPathGraphOrchestrator? orchestrator,
     TrainingPathProgressServiceV2? progress,
