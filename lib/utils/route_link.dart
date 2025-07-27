@@ -4,13 +4,30 @@ class RouteLink {
 
   const RouteLink({required this.pathId, this.stageId});
 
-  /// Parses [uri] and returns a [RouteLink] if it matches `/learn`.
-  /// Expected format: `/learn?path=VALUE&stage=VALUE`.
+  /// Parses [uri] and returns a [RouteLink] if it matches one of the supported
+  /// formats:
+  ///
+  /// - `/learn?path=VALUE&stage=VALUE`
+  /// - `/path/{pathId}/stage/{stageId}`
   static RouteLink? tryParse(Uri uri) {
-    if (uri.path != '/learn') return null;
-    final path = uri.queryParameters['path'];
-    if (path == null || path.isEmpty) return null;
-    final stage = uri.queryParameters['stage'];
-    return RouteLink(pathId: path, stageId: stage);
+    // Legacy query parameter based format.
+    if (uri.path == '/learn') {
+      final path = uri.queryParameters['path'];
+      if (path == null || path.isEmpty) return null;
+      final stage = uri.queryParameters['stage'];
+      return RouteLink(pathId: path, stageId: stage);
+    }
+
+    // New deep link format with path segments.
+    final segments = uri.pathSegments;
+    if (segments.length >= 4 &&
+        segments[0] == 'path' &&
+        segments[2] == 'stage') {
+      final pathId = segments[1];
+      final stageId = segments[3];
+      if (pathId.isEmpty) return null;
+      return RouteLink(pathId: pathId, stageId: stageId);
+    }
+    return null;
   }
 }

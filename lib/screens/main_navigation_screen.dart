@@ -55,6 +55,8 @@ import '../utils/route_link.dart';
 import '../services/learning_path_registry_service.dart';
 import '../services/learning_path_orchestrator.dart';
 import '../services/theory_pack_library_service.dart';
+import 'learning_path_stage_preview_screen.dart';
+import 'package:collection/collection.dart';
 import 'learning_path_screen_v2.dart';
 import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
@@ -135,6 +137,27 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     await LearningPathRegistryService.instance.loadAll();
     final template = LearningPathRegistryService.instance.findById(link.pathId);
     if (template == null) return;
+    // New deep link to a specific stage preview.
+    final segments = Uri.base.pathSegments;
+    if (segments.length >= 4 &&
+        segments.first == 'path' &&
+        segments[2] == 'stage' &&
+        link.stageId != null) {
+      await TheoryPackLibraryService.instance.loadAll();
+      final stage =
+          template.stages.firstWhereOrNull((s) => s.id == link.stageId);
+      if (stage == null || !mounted) return;
+      await UserActionLogger.instance.log('deeplink_stage_preview');
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              LearningPathStagePreviewScreen(path: template, stage: stage),
+        ),
+      );
+      return;
+    }
+
     if (!mounted) return;
     await Navigator.push(
       context,
