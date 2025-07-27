@@ -63,7 +63,15 @@ class TheoryPackLibraryService {
             }
           }
         }
-        final pack = TheoryPackModel(id: id, title: title, sections: sections);
+        final tagYaml = map['tags'];
+        final tags = <String>[];
+        if (tagYaml is List) {
+          for (final t in tagYaml) {
+            tags.add(t.toString());
+          }
+        }
+        final pack = TheoryPackModel(
+            id: id, title: title, sections: sections, tags: tags);
         _packs.add(pack);
         _index[id] = pack;
       } catch (_) {}
