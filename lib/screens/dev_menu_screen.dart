@@ -100,7 +100,7 @@ import '../services/learning_path_template_validator.dart';
 import '../services/learning_path_library_validator.dart';
 import '../services/graph_path_template_validator.dart';
 import '../services/graph_path_template_parser.dart';
-import '../services/graph_path_template_generator.dart';
+import 'graph_template_library_screen.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
@@ -2358,16 +2358,15 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     );
   }
 
-  Future<void> _generateSampleGraph() async {
+  Future<void> _openGraphTemplateLibrary() async {
     if (_graphTemplateLoading || !kDebugMode) return;
     setState(() => _graphTemplateLoading = true);
-    const generator = GraphPathTemplateGenerator();
-    final yaml = generator.generateCashVsMttTemplate();
-    await Clipboard.setData(ClipboardData(text: yaml));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const GraphTemplateLibraryScreen()),
+    );
     if (!mounted) return;
     setState(() => _graphTemplateLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Graph YAML copied')));
   }
 
   Future<void> _reviewYamlPack() async {
@@ -3972,8 +3971,8 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
               ),
             if (kDebugMode)
               ListTile(
-                title: const Text('📈 Generate Sample Graph'),
-                onTap: _graphTemplateLoading ? null : _generateSampleGraph,
+                title: const Text('📈 Graph Templates'),
+                onTap: _graphTemplateLoading ? null : _openGraphTemplateLibrary,
               ),
             if (kDebugMode)
               ListTile(
