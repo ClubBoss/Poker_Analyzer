@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'learning_path_orchestrator.dart';
+import 'pack_library_loader_service.dart';
 
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -25,6 +26,8 @@ class TrainingProgressService {
 
   /// Cached progress values for stage -> subStage pairs.
   final Map<String, Map<String, double>> subStageProgress = {};
+  Map<String, double>? _tagCache;
+  DateTime _tagCacheTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   Future<double> getProgress(String templateId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,6 +52,39 @@ class TrainingProgressService {
     final byStage = subStageProgress.putIfAbsent(stageId, () => {});
     byStage[subStageId] = prog;
     return prog;
+  }
+
+  /// Computes average progress for all packs containing [tag].
+  Future<double> getTagProgress(String tag) async {
+    final now = DateTime.now();
+    final lc = tag.trim().toLowerCase();
+    if (_tagCache != null &&
+        now.difference(_tagCacheTime) < const Duration(minutes: 5) &&
+        _tagCache!.containsKey(lc)) {
+      return _tagCache![lc]!;
+    }
+
+    await PackLibraryLoaderService.instance.loadLibrary();
+    final packs = PackLibraryLoaderService.instance.library;
+
+    var sum = 0.0;
+    var count = 0;
+
+    for (final p in packs) {
+      final tags = <String>{
+        ...p.tags.map((e) => e.trim().toLowerCase()),
+        for (final s in p.spots) ...s.tags.map((e) => e.trim().toLowerCase()),
+      }..removeWhere((e) => e.isEmpty);
+      if (!tags.contains(lc)) continue;
+      sum += await getProgress(p.id);
+      count++;
+    }
+
+    final value = count == 0 ? 0.0 : sum / count;
+    final cache = _tagCache ??= {};
+    cache[lc] = value;
+    _tagCacheTime = now;
+    return value;
   }
 
   /// Computes high-level training stats from [attempts] and [allPacks].
