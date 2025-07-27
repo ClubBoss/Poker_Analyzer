@@ -1,3 +1,10 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+
+import '../main.dart';
+import '../screens/graph_path_authoring_wizard_screen.dart';
 import 'graph_path_template_generator.dart';
 
 /// Central registry of reusable graph templates.
@@ -19,4 +26,38 @@ class GraphTemplateLibrary {
 
   /// Returns YAML template with [id] or empty string if not found.
   String getTemplate(String id) => _templates[id] ?? '';
+
+  /// Imports a YAML graph from file and opens it in the authoring wizard.
+  Future<void> importFromFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['yaml', 'yml'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    try {
+      final yaml = await File(path).readAsString();
+      const id = 'imported_graph';
+      _templates[id] = yaml;
+      final ctx = navigatorKey.currentContext;
+      if (ctx != null) {
+        await Navigator.push(
+          ctx,
+          MaterialPageRoute(
+            builder: (_) => const GraphPathAuthoringWizardScreen(
+              initialTemplateId: id,
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      final ctx = navigatorKey.currentContext;
+      if (ctx != null) {
+        ScaffoldMessenger.of(ctx).showSnackBar(
+          const SnackBar(content: Text('Failed to import YAML file')),
+        );
+      }
+    }
+  }
 }
