@@ -941,5 +941,17 @@
     "positions": ["btn"],
     "tags": ["btn", "co", "vsOpen", "3betPush", "callVsOpen", "foldVsOpen", "20bb", "mtt"],
     "meta": {"audience": "Advanced", "icon": "north"}
+  },
+  {
+    "id": "sb_vs_btn_20bb_call_push_fold",
+    "name": "SB vs BTN — 20bb (Call / Push / Fold)",
+    "description": "",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 22,
+    "positions": ["sb"],
+    "tags": ["sb", "btn", "vsOpen", "3betPush", "callVsOpen", "foldVsOpen", "20bb", "mtt"],
+    "meta": {"audience": "Advanced", "icon": "north"}
   }
 ]
