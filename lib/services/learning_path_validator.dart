@@ -1,6 +1,7 @@
 import '../models/learning_branch_node.dart';
 import '../models/learning_path_node.dart';
 import 'path_map_engine.dart';
+import '../models/theory_lesson_node.dart';
 
 /// Utility to validate learning path graphs.
 class LearningPathValidator {
@@ -35,8 +36,9 @@ class LearningPathValidator {
             incoming[target] = (incoming[target] ?? 0) + 1;
           }
         }
-      } else if (node is StageNode) {
-        for (final next in node.nextIds) {
+      } else if (node is StageNode || node is TheoryLessonNode) {
+        final nextIds = node is StageNode ? node.nextIds : (node as TheoryLessonNode).nextIds;
+        for (final next in nextIds) {
           outgoing[node.id]!.add(next);
           if (!byId.containsKey(next)) {
             errors.add('Node ${node.id} references missing node $next');

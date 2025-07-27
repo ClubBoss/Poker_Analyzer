@@ -5,6 +5,7 @@ import 'package:yaml/yaml.dart';
 import '../models/learning_branch_node.dart';
 import '../models/learning_path_node.dart';
 import '../models/stage_type.dart';
+import '../models/theory_lesson_node.dart';
 import 'path_map_engine.dart';
 
 class GraphPathTemplateParser {
@@ -62,6 +63,16 @@ class GraphPathTemplateParser {
             : TrainingStageNode(id: stageId, nextIds: nextIds, dependsOn: dependsOn);
         nodes.add(node);
         byId[id] = node;
+      } else if (type == 'theory') {
+        final nextIds = <String>[for (final v in (m['next'] as List? ?? [])) v.toString()];
+        final node = TheoryLessonNode(
+          id: id,
+          title: m['title']?.toString() ?? '',
+          content: m['content']?.toString() ?? '',
+          nextIds: nextIds,
+        );
+        nodes.add(node);
+        byId[id] = node;
       }
     }
 
@@ -72,15 +83,18 @@ class GraphPathTemplateParser {
             warnings.add('Unknown node id $target referenced from branch ${node.id}');
           }
         }
-      } else if (node is StageNode) {
-        for (final n in node.nextIds) {
-          if (!ids.contains(n)) {
-            warnings.add('Unknown node id $n referenced from nextIds of ${node.id}');
+      } else if (node is StageNode || node is TheoryLessonNode) {
+        final nextIds = (node is StageNode) ? node.nextIds : (node as TheoryLessonNode).nextIds;
+        if (node is StageNode) {
+          for (final d in node.dependsOn) {
+            if (!ids.contains(d)) {
+              warnings.add('Unknown node id $d referenced from dependsOn of ${node.id}');
+            }
           }
         }
-        for (final d in node.dependsOn) {
-          if (!ids.contains(d)) {
-            warnings.add('Unknown node id $d referenced from dependsOn of ${node.id}');
+        for (final n in nextIds) {
+          if (!ids.contains(n)) {
+            warnings.add('Unknown node id $n referenced from nextIds of ${node.id}');
           }
         }
       }
@@ -96,6 +110,8 @@ class GraphPathTemplateParser {
         if (node is LearningBranchNode) {
           queue.addAll(node.branches.values);
         } else if (node is StageNode) {
+          queue.addAll(node.nextIds);
+        } else if (node is TheoryLessonNode) {
           queue.addAll(node.nextIds);
         }
       }
