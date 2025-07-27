@@ -18,6 +18,8 @@ class _FakeLibrary implements PackLibraryService {
   Future<TrainingPackTemplateV2?> getById(String id) async => packs[id];
   @override
   Future<TrainingPackTemplateV2?> findByTag(String tag) async => null;
+  @override
+  Future<List<String>> findBoosterCandidates(String tag) async => const [];
 }
 
 class _FakeLauncher extends TrainingSessionLauncher {

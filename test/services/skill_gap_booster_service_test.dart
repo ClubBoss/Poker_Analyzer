@@ -18,6 +18,8 @@ class _FakeLibrary implements PackLibraryService {
   @override
   Future<TrainingPackTemplateV2?> findByTag(String tag) async =>
       packs.firstWhereOrNull((p) => p.tags.contains(tag));
+  @override
+  Future<List<String>> findBoosterCandidates(String tag) async => const [];
 }
 
 TrainingPackTemplateV2 tpl(String id, List<String> tags, int count) {
