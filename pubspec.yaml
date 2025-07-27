@@ -109,6 +109,7 @@ flutter:
     - assets/built_in_packs.yaml
     - assets/theory_packs/
     - assets/theory_blocks/
+    - assets/theory_tracks/
     - assets/lessons/
     - assets/lesson_tracks/
       - assets/pack_matrix.json
