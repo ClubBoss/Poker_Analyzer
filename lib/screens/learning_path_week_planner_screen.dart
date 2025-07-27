@@ -34,6 +34,7 @@ class _LearningPathWeekPlannerScreenState
   int _remaining = 0;
   final WeeklyPlannerBoosterFeed _boosterFeed = WeeklyPlannerBoosterFeed();
   final ValueNotifier<double> _overallProgress = ValueNotifier<double>(0.0);
+  Map<String, Map<String, double>>? _tagProgress;
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _LearningPathWeekPlannerScreenState
     _loadBadge();
     _boosterFeed.refresh();
     _loadOverallProgress();
+    _loadTagProgress();
   }
 
   Future<void> _load() async {
@@ -100,6 +102,13 @@ class _LearningPathWeekPlannerScreenState
     if (mounted) _overallProgress.value = value;
   }
 
+  Future<void> _loadTagProgress() async {
+    final tracker = LearningPathProgressTracker();
+    final map = await tracker.getTagProgressPerStage();
+    if (!mounted) return;
+    setState(() => _tagProgress = map);
+  }
+
   Future<void> _open(LearningPathStageModel stage) async {
     final path = _path;
     if (path == null) return;
@@ -112,6 +121,7 @@ class _LearningPathWeekPlannerScreenState
     await _load();
     await _loadBadge();
     await _loadOverallProgress();
+    await _loadTagProgress();
   }
 
   Future<void> _openBooster(String packId) async {
@@ -210,6 +220,7 @@ class _LearningPathWeekPlannerScreenState
                           progress: info.progress,
                           pack: info.pack,
                           theoryPack: info.theoryPack,
+                          tagProgress: _tagProgress?[info.stage.id],
                           onTap: () => _open(info.stage),
                         ),
                         ValueListenableBuilder<Map<String, List<BoosterSuggestion>>>(

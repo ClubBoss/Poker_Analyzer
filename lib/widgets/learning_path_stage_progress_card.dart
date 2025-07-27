@@ -5,6 +5,7 @@ import '../models/theory_pack_model.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import 'tag_badge.dart';
+import 'tag_progress_chip.dart';
 
 /// Compact card showing progress for a single learning path stage.
 class LearningPathStageProgressCard extends StatelessWidget {
@@ -26,6 +27,9 @@ class LearningPathStageProgressCard extends StatelessWidget {
   /// Whether to use a compact layout with max height of 140.
   final bool compact;
 
+  /// Per-tag progress values for this stage.
+  final Map<String, double>? tagProgress;
+
   const LearningPathStageProgressCard({
     super.key,
     required this.stage,
@@ -34,6 +38,7 @@ class LearningPathStageProgressCard extends StatelessWidget {
     this.theoryPack,
     this.onTap,
     this.compact = false,
+    this.tagProgress,
   });
 
   String _infoLabel() {
@@ -101,7 +106,19 @@ class LearningPathStageProgressCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (stage.tags.isNotEmpty)
+            if (tagProgress != null && tagProgress!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: -4,
+                  children: [
+                    for (final e in tagProgress!.entries.take(6))
+                      TagProgressChip(tag: e.key, progress: e.value),
+                  ],
+                ),
+              )
+            else if (stage.tags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Wrap(
