@@ -70,6 +70,8 @@ where the complete UI and logic are not required.
   one step with confirmation dialogs.
 - Opponent folds animate their cards sliding down with a fade-out. The hero's
   cards disappear instantly without animation for clarity.
+- Inline graph editor lets admins build learning paths with theory lessons and
+  branching practice stages.
 
 
 ## Converter plug-ins
