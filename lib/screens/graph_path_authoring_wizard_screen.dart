@@ -13,7 +13,8 @@ import '../theme/app_colors.dart';
 import '../ui/tools/path_map_visualizer.dart';
 
 class GraphPathAuthoringWizardScreen extends StatefulWidget {
-  const GraphPathAuthoringWizardScreen({super.key});
+  final String? initialTemplateId;
+  const GraphPathAuthoringWizardScreen({super.key, this.initialTemplateId});
 
   @override
   State<GraphPathAuthoringWizardScreen> createState() => _GraphPathAuthoringWizardScreenState();
@@ -26,6 +27,20 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
   final List<LearningPathNode> _nodes = [];
   String _yaml = '';
   final _parser = GraphPathTemplateParser();
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.initialTemplateId;
+    if (id != null) {
+      Future.microtask(() async {
+        await _loadTemplate(id);
+        if (mounted) {
+          setState(() => _step = 1);
+        }
+      });
+    }
+  }
 
   void _next() {
     if (_step < 2) {
@@ -229,6 +244,10 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
     _rebuild();
   }
 
+  Future<void> _importFromFile() async {
+    await GraphTemplateLibrary.instance.importFromFile();
+  }
+
   Future<void> _saveYaml() async {
     final path = await FilePicker.platform.saveFile(
       dialogTitle: 'Save YAML',
@@ -248,6 +267,11 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
     final templates = GraphTemplateLibrary.instance.listTemplates();
     return ListView(
       children: [
+        ElevatedButton(
+          onPressed: _importFromFile,
+          child: const Text('📂 Import YAML from file'),
+        ),
+        const SizedBox(height: 12),
         for (final t in templates)
           RadioListTile<String>(
             value: t,
