@@ -8,6 +8,7 @@ import '../services/learning_path_stage_launcher.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/theory_pack_model.dart';
 import '../screens/theory_pack_reader_screen.dart';
+import '../widgets/stage_share_button.dart';
 
 /// Simple preview page for a learning path stage.
 class LearningPathStagePreviewScreen extends StatefulWidget {
@@ -79,7 +80,10 @@ class _LearningPathStagePreviewScreenState
     final estMinutes = pack == null ? null : (pack.spotCount / 2).ceil();
     final progressPct = (_progress.clamp(0.0, 1.0) * 100).round();
     return Scaffold(
-      appBar: AppBar(title: Text(widget.stage.title)),
+      appBar: AppBar(
+        title: Text(widget.stage.title),
+        actions: [StageShareButton(path: widget.path, stage: widget.stage)],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
