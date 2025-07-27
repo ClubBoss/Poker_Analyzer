@@ -14,7 +14,7 @@ import '../services/learning_path_progress_tracker_service.dart';
 import '../services/skill_gap_booster_service.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/learning_stage_tile.dart';
-import 'learning_path_stage_preview_screen.dart';
+import 'learning_path_stage_detailed_screen.dart';
 
 /// Displays stages of a learning path with progress indicators.
 class LearningPathStageListScreen extends StatefulWidget {
@@ -102,7 +102,7 @@ class _LearningPathStageListScreenState
       context,
       MaterialPageRoute(
         builder: (_) =>
-            LearningPathStagePreviewScreen(path: widget.path, stage: stage),
+            LearningPathStageDetailedScreen(path: widget.path, stage: stage),
       ),
     );
     if (mounted) _load();
