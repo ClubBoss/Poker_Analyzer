@@ -1,4 +1,5 @@
 import 'learning_path_node.dart';
+import '../services/theory_content_service.dart';
 
 /// Node representing an inline theory lesson within the learning path graph.
 class TheoryLessonNode implements LearningPathNode {
@@ -24,4 +25,20 @@ class TheoryLessonNode implements LearningPathNode {
     required this.content,
     List<String>? nextIds,
   }) : nextIds = nextIds ?? const [];
+
+  /// Returns [title] or the referenced block's title when empty.
+  String get resolvedTitle {
+    if (title.isNotEmpty) return title;
+    if (refId == null) return title;
+    final block = TheoryContentService.instance.get(refId!);
+    return block?.title ?? title;
+  }
+
+  /// Returns [content] or the referenced block's content when empty.
+  String get resolvedContent {
+    if (content.isNotEmpty) return content;
+    if (refId == null) return content;
+    final block = TheoryContentService.instance.get(refId!);
+    return block?.content ?? content;
+  }
 }
