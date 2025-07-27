@@ -18,8 +18,8 @@ import 'learning_path_stage_list_screen.dart';
 /// Dashboard summarizing progress in a learning path and suggesting
 /// the next stage to continue.
 class LearningPathDashboard extends StatefulWidget {
-  final LearningPathTemplateV2 path;
-  const LearningPathDashboard({super.key, required this.path});
+  final Future<LearningPathTemplateV2> pathFuture;
+  const LearningPathDashboard({super.key, required this.pathFuture});
 
   @override
   State<LearningPathDashboard> createState() => _LearningPathDashboardState();
@@ -31,6 +31,7 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
   late LearningPathGatekeeperService _gatekeeper;
   late LearningTrackProgressService _service;
   LearningTrackProgressModel? _model;
+  LearningPathTemplateV2? _path;
   StreakData? _streak;
   bool _loading = true;
   bool _initialized = false;
@@ -49,15 +50,21 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
         progress: _progress,
         gatekeeper: _gatekeeper,
       );
-      _load();
+      widget.pathFuture.then((p) {
+        if (!mounted) return;
+        _path = p;
+        _load();
+      });
       _initialized = true;
     }
   }
 
   Future<void> _load() async {
+    final path = _path;
+    if (path == null) return;
     setState(() => _loading = true);
     await _logs.load();
-    final model = await _service.build(widget.path.id);
+    final model = await _service.build(path.id);
     final streak = await StreakProgressService.instance.getStreak();
     if (!mounted) return;
     setState(() {
@@ -80,7 +87,7 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
         .firstWhereOrNull((s) => s.status == StageStatus.unlocked)
         ?.stageId;
     if (nextId == null) return null;
-    return widget.path.stages.firstWhereOrNull((s) => s.id == nextId);
+    return _path?.stages.firstWhereOrNull((s) => s.id == nextId);
   }
 
   List<LearningPathStageModel> _previewStages() {
@@ -91,7 +98,7 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
     ];
     final list = <LearningPathStageModel>[];
     for (final id in ids) {
-      final stage = widget.path.stages.firstWhereOrNull((s) => s.id == id);
+      final stage = _path?.stages.firstWhereOrNull((s) => s.id == id);
       if (stage != null) list.add(stage);
       if (list.length >= 3) break;
     }
@@ -122,6 +129,7 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
         ? '🔥 ${streak.currentStreak}-day streak'
         : null;
     final preview = _previewStages();
+    final path = _path!;
     return Scaffold(
       appBar: AppBar(title: const Text('Learning Path')),
       floatingActionButton: FloatingActionButton(
@@ -130,8 +138,8 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
             context,
             MaterialPageRoute(
               builder: (_) => LearningPathStageListScreen(
-                stages: widget.path.stages,
-                sections: widget.path.sections,
+                stages: path.stages,
+                sections: path.sections,
               ),
             ),
           );
