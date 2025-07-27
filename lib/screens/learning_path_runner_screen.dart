@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/learning_branch_node.dart';
+import '../models/theory_lesson_node.dart';
 import '../services/learning_graph_engine.dart';
 import '../services/path_map_engine.dart';
 
@@ -48,6 +49,9 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
     if (node is LearningBranchNode) {
       return _buildBranch(node);
     }
+    if (node is TheoryLessonNode) {
+      return _buildTheory(node);
+    }
     if (node is StageNode) {
       return _buildStage(node);
     }
@@ -69,6 +73,38 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
             child: ElevatedButton(
               onPressed: () => _completeStage(node),
               child: const Text('Complete'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTheory(TheoryLessonNode node) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            node.title,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Text(node.content),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () async {
+                await LearningPathEngine.instance.markStageCompleted(node.id);
+                _refresh();
+              },
+              child: const Text('Продолжить'),
             ),
           ),
         ],
