@@ -82,11 +82,8 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
   }
 
   Widget _buildTheory(TheoryLessonNode node) {
-    final block = node.refId == null
-        ? null
-        : TheoryContentService.instance.get(node.refId!);
-    final title = block?.title.isNotEmpty == true ? block!.title : node.title;
-    final content = block?.content.isNotEmpty == true ? block!.content : node.content;
+    final title = node.resolvedTitle;
+    final content = node.resolvedContent;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
