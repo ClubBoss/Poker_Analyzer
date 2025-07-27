@@ -7,6 +7,7 @@ import 'package:yaml/yaml.dart';
 
 import '../core/training/generation/yaml_reader.dart';
 import '../services/graph_template_library.dart';
+import '../services/graph_template_exporter.dart';
 import '../services/graph_path_template_parser.dart';
 import '../models/learning_path_node.dart';
 import '../theme/app_colors.dart';
@@ -251,7 +252,7 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
   Future<void> _saveYaml() async {
     final path = await FilePicker.platform.saveFile(
       dialogTitle: 'Save YAML',
-      fileName: '${_templateId ?? 'path'}.yaml',
+      fileName: '\${_templateId ?? 'path'}.yaml',
       type: FileType.custom,
       allowedExtensions: ['yaml'],
     );
@@ -261,6 +262,12 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Saved')));
+  }
+
+  Future<void> _exportTemplate() async {
+    final id = _templateId;
+    if (id == null) return;
+    await const GraphTemplateExporter().exportTemplate(id);
   }
 
   Widget _templateStep() {
@@ -354,6 +361,11 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
             ),
             const SizedBox(width: 12),
             ElevatedButton(onPressed: _saveYaml, child: const Text('Save to File')),
+            const SizedBox(width: 12),
+            ElevatedButton(
+              onPressed: _templateId == null ? null : _exportTemplate,
+              child: const Text('💾 Export to file'),
+            ),
           ],
         ),
       ],
