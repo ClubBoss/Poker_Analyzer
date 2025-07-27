@@ -56,6 +56,10 @@ class PathMapEngine {
   final Map<String, String> _branchChoices = {};
   final Set<String> _completed = {};
 
+  /// Returns an immutable snapshot of the current graph nodes.
+  List<LearningPathNode> get allNodes =>
+      List<LearningPathNode>.unmodifiable(_nodes.values);
+
   PathMapEngine({required this.progress, LearningPathRegistryService? registry})
     : registry = registry ?? LearningPathRegistryService.instance;
 
