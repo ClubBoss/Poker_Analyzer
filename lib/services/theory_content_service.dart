@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../asset_manifest.dart';
@@ -10,12 +12,20 @@ class TheoryContentService {
 
   static const String _dir = 'assets/theory_blocks/';
 
-  final Map<String, TheoryContentBlock> _index = {};
+  final Map<String, Map<String, TheoryContentBlock>> _localized = {};
   final List<TheoryContentBlock> _blocks = [];
 
   List<TheoryContentBlock> get all => List.unmodifiable(_blocks);
 
-  TheoryContentBlock? get(String id) => _index[id];
+  TheoryContentBlock? get(String id, {String? locale}) {
+    locale ??= PlatformDispatcher.instance.locale.languageCode;
+    final byId = _localized[id];
+    if (byId == null) return null;
+    if (locale != null && byId.containsKey(locale)) {
+      return byId[locale];
+    }
+    return byId[''];
+  }
 
   Future<void> loadAll() async {
     if (_blocks.isNotEmpty) return;
@@ -24,7 +34,7 @@ class TheoryContentService {
 
   Future<void> reload() async {
     _blocks.clear();
-    _index.clear();
+    _localized.clear();
     final manifest = await AssetManifest.instance;
     final paths = manifest.keys
         .where((p) => p.startsWith(_dir) && p.endsWith('.yaml'))
@@ -38,7 +48,9 @@ class TheoryContentService {
         );
         if (block.id.isEmpty) continue;
         _blocks.add(block);
-        _index[block.id] = block;
+        final locale = _extractLocale(path);
+        final mapByLocale = _localized.putIfAbsent(block.id, () => {});
+        mapByLocale.putIfAbsent(locale, () => block);
       } catch (_) {}
     }
   }
@@ -50,11 +62,22 @@ class TheoryContentService {
     } else {
       _blocks.add(block);
     }
-    _index[block.id] = block;
+    final locale = PlatformDispatcher.instance.locale.languageCode;
+    final mapByLocale = _localized.putIfAbsent(block.id, () => {});
+    mapByLocale[locale ?? ''] = block;
   }
 
   Future<void> delete(String id) async {
     _blocks.removeWhere((b) => b.id == id);
-    _index.remove(id);
+    _localized.remove(id);
+  }
+
+  String _extractLocale(String path) {
+    final name = path.split('/').last;
+    final m = RegExp(r'^(.+)_([a-z]{2})\\.yaml\$').firstMatch(name);
+    if (m != null) {
+      return m.group(2)!;
+    }
+    return '';
   }
 }
