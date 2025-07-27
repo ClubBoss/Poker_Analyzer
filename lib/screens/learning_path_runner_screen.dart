@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../models/learning_branch_node.dart';
 import '../models/theory_lesson_node.dart';
@@ -95,8 +96,9 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: SingleChildScrollView(
-              child: Text(content),
+            child: Markdown(
+              data: content,
+              styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)),
             ),
           ),
           const SizedBox(height: 16),
