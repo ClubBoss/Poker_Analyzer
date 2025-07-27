@@ -965,5 +965,17 @@
     "positions": ["bb"],
     "tags": ["bb", "btn", "vsOpen", "3betPush", "callVsOpen", "foldVsOpen", "25bb", "mtt"],
     "meta": {"audience": "Advanced", "icon": "north"}
+  },
+  {
+    "id": "bb_vs_sb_25bb_call_push_fold",
+    "name": "BB vs SB — 25bb (Call / Push / Fold)",
+    "description": "",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 25,
+    "spotCount": 22,
+    "positions": ["bb"],
+    "tags": ["bb", "sb", "vsOpen", "3betPush", "callVsOpen", "foldVsOpen", "25bb", "mtt"],
+    "meta": {"audience": "Advanced", "icon": "north"}
   }
 ]
