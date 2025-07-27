@@ -45,13 +45,16 @@ import 'progress_dashboard_screen.dart';
 import 'track_progress_dashboard_screen.dart';
 import 'position_tag_analytics_screen.dart';
 import 'weakness_overview_screen.dart';
-import 'learning_dashboard_screen.dart';
+import 'learning_path_dashboard.dart';
+import '../models/learning_path_template_v2.dart';
 import 'notification_settings_screen.dart';
 import 'dev_menu_screen.dart';
 import 'shop_screen.dart';
 import 'package:provider/provider.dart';
 import '../utils/route_link.dart';
 import '../services/learning_path_registry_service.dart';
+import '../services/learning_path_orchestrator.dart';
+import '../services/theory_pack_library_service.dart';
 import 'learning_path_screen_v2.dart';
 import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
@@ -71,6 +74,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   int _currentIndex = 0;
   bool _simpleNavigation = false;
   bool _tutorialCompleted = false;
+  late final Future<LearningPathTemplateV2> _pathFuture;
 
   @override
   void initState() {
@@ -79,6 +83,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     final prefs = UserPreferences.instance;
     _simpleNavigation = prefs.simpleNavigation;
     _tutorialCompleted = prefs.tutorialCompleted;
+    _pathFuture = _loadLearningPath();
     _loadIndex();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeShowOnboarding();
@@ -140,6 +145,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         ),
       ),
     );
+  }
+
+  Future<LearningPathTemplateV2> _loadLearningPath() async {
+    await TheoryPackLibraryService.instance.loadAll();
+    return LearningPathOrchestrator.instance.resolve();
   }
 
   Future<void> _setDailyGoal() async {
@@ -266,7 +276,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             const SpotOfTheDayScreen(),
             const SettingsPlaceholderScreen(),
             const WeaknessOverviewScreen(),
-            const LearningDashboardScreen(),
+            LearningPathDashboard(pathFuture: _pathFuture),
           ]
         : [
             _home(),
@@ -276,7 +286,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             const PackOverviewScreen(),
             const InsightsScreen(),
             const SettingsPlaceholderScreen(),
-            const LearningDashboardScreen(),
+            LearningPathDashboard(pathFuture: _pathFuture),
           ];
     return Scaffold(
       appBar: AppBar(
