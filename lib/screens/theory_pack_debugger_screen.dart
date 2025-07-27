@@ -8,6 +8,7 @@ import '../theme/app_colors.dart';
 import '../services/theory_pack_review_status_engine.dart';
 import '../services/theory_pack_completion_estimator.dart';
 import '../services/theory_pack_auto_fix_engine.dart';
+import '../services/booster_pack_auto_fix_engine.dart';
 import '../services/theory_pack_auto_tagger.dart';
 import '../services/theory_pack_auto_booster_suggester.dart';
 
@@ -62,6 +63,11 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
 
   void _autoFix(TheoryPackModel pack) {
     final fixed = const TheoryPackAutoFixEngine().autoFix(pack);
+    TheoryPackQuickView.launch(context, fixed);
+  }
+
+  void _autoFixBooster(TheoryPackModel pack) {
+    final fixed = const BoosterPackAutoFixEngine().autoFix(pack);
     TheoryPackQuickView.launch(context, fixed);
   }
 
@@ -134,6 +140,10 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
                       IconButton(
                         icon: const Icon(Icons.build),
                         onPressed: () => _autoFix(pack),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.flash_on),
+                        onPressed: () => _autoFixBooster(pack),
                       ),
                       IconButton(
                         icon: const Icon(Icons.visibility),
