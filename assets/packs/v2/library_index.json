@@ -929,5 +929,17 @@
     "spotCount": 2,
     "positions": ["btn", "bb"],
     "tags": ["bluffcatch", "hero-call", "advanced", "tournament"]
+  },
+  {
+    "id": "btn_vs_co_20bb_call_push_fold",
+    "name": "BTN vs CO — 20bb (Call / Push / Fold)",
+    "description": "",
+    "type": "mtt",
+    "gameType": "tournament",
+    "bb": 20,
+    "spotCount": 20,
+    "positions": ["btn"],
+    "tags": ["btn", "co", "vsOpen", "3betPush", "callVsOpen", "foldVsOpen", "20bb", "mtt"],
+    "meta": {"audience": "Advanced", "icon": "north"}
   }
 ]
