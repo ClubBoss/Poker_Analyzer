@@ -1,5 +1,6 @@
 import 'learning_path_orchestrator.dart';
 import 'training_progress_service.dart';
+import 'session_storage_service.dart';
 
 /// Computes which learning path stages should be presented in the weekly planner.
 class LearningPathPlannerEngine {
@@ -42,5 +43,6 @@ class LearningPathPlannerEngine {
     if (cached != null) {
       cached.remove(stageId);
     }
+    await SessionStorageService.instance.remove('planner_remaining');
   }
 }
