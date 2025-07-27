@@ -12,4 +12,12 @@ void main() {
     expect(pack, isNotNull);
     expect(pack!.sections.length, 2);
   });
+
+  test('loadDefaultPacks adds starter content', () async {
+    final service = TheoryPackLibraryService.instance;
+    await service.reload();
+    final initialCount = service.all.length;
+    await service.loadDefaultPacks();
+    expect(service.all.length, greaterThan(initialCount));
+  });
 }
