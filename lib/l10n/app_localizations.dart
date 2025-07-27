@@ -838,6 +838,12 @@ abstract class AppLocalizations {
   /// **'Quick preview launched automatically for faster start.'**
   String get autoSampleToast;
 
+  /// No description provided for @plannerBadge.
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} осталось'**
+  String plannerBadge(Object count);
+
   /// No description provided for @unfinishedSession.
   ///
   /// In ru, this message translates to:

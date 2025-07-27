@@ -409,6 +409,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Quick preview launched automatically for faster start.';
 
   @override
+  String plannerBadge(Object count) {
+    return '$count осталось';
+  }
+
+  @override
   String get unfinishedSession => 'У вас есть незавершённая сессия';
 
   @override

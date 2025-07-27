@@ -8,6 +8,7 @@ import '../services/learning_path_orchestrator.dart';
 import '../services/training_progress_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/theory_pack_library_service.dart';
+import '../services/learning_path_planner_engine.dart';
 import '../widgets/learning_path_stage_progress_card.dart';
 import 'learning_path_stage_preview_screen.dart';
 
@@ -24,11 +25,14 @@ class _LearningPathWeekPlannerScreenState
   bool _loading = true;
   LearningPathTemplateV2? _path;
   final List<_StageInfo> _stages = [];
+  bool _badgeLoading = true;
+  int _remaining = 0;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadBadge();
   }
 
   Future<void> _load() async {
@@ -56,6 +60,15 @@ class _LearningPathWeekPlannerScreenState
     });
   }
 
+  Future<void> _loadBadge() async {
+    final ids = await LearningPathPlannerEngine.instance.getPlannedStageIds();
+    if (!mounted) return;
+    setState(() {
+      _remaining = ids.length;
+      _badgeLoading = false;
+    });
+  }
+
   Future<void> _open(LearningPathStageModel stage) async {
     final path = _path;
     if (path == null) return;
@@ -70,7 +83,24 @@ class _LearningPathWeekPlannerScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('План на неделю')),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            const Text('План на неделю'),
+            const SizedBox(width: 8),
+            if (!_badgeLoading && _remaining > 0)
+              Chip(
+                label: Text(
+                  Localizations.localeOf(context).languageCode == 'ru'
+                      ? '$_remaining осталось'
+                      : '$_remaining left',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
+          ],
+        ),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(

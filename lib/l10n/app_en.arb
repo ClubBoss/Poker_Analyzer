@@ -122,6 +122,7 @@
   ,"samplePreviewPrompt": "This pack is large. Preview a quick sample first?"
   ,"previewSample": "Preview Sample"
   ,"autoSampleToast": "Quick preview launched automatically for faster start."
+  ,"plannerBadge": "{count} left"
   ,"unfinishedSession": "You have an unfinished session"
   ,"resume": "Resume"
 }
