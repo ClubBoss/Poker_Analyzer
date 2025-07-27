@@ -169,6 +169,61 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
     };
   }
 
+  Future<Map<String, dynamic>?> _theoryDialog([Map<String, dynamic>? node]) async {
+    final idCtr = TextEditingController(text: node?['id'] ?? '');
+    final titleCtr = TextEditingController(text: node?['title'] ?? '');
+    final contentCtr = TextEditingController(text: node?['content'] ?? '');
+    final nextCtr = TextEditingController(
+        text: (node?['next'] as List?)?.join(', ') ?? '');
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        title: Text(node == null ? 'Add Theory' : 'Edit Theory'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: idCtr,
+                decoration: const InputDecoration(labelText: 'id'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: titleCtr,
+                decoration: const InputDecoration(labelText: 'title'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: contentCtr,
+                decoration: const InputDecoration(labelText: 'content'),
+                maxLines: null,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: nextCtr,
+                decoration:
+                    const InputDecoration(labelText: 'next (comma separated)'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (ok != true) return null;
+    return {
+      'type': 'theory',
+      'id': idCtr.text.trim(),
+      'title': titleCtr.text.trim(),
+      'content': contentCtr.text.trim(),
+      if (nextCtr.text.trim().isNotEmpty) 'next': _splitList(nextCtr.text),
+    };
+  }
+
   Future<Map<String, dynamic>?> _branchDialog([Map<String, dynamic>? node]) async {
     final idCtr = TextEditingController(text: node?['id'] ?? '');
     final promptCtr = TextEditingController(text: node?['prompt'] ?? '');
@@ -229,6 +284,13 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
     await _rebuild();
   }
 
+  Future<void> _addTheory() async {
+    final node = await _theoryDialog();
+    if (node == null) return;
+    setState(() => _rawNodes.add(node));
+    await _rebuild();
+  }
+
   Future<void> _addBranch() async {
     final node = await _branchDialog();
     if (node == null) return;
@@ -238,9 +300,12 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
 
   Future<void> _editNode(int index) async {
     final n = _rawNodes[index];
-    final node = n['type'] == 'branch'
+    final type = n['type'];
+    final node = type == 'branch'
         ? await _branchDialog(n)
-        : await _stageDialog(n);
+        : type == 'theory'
+            ? await _theoryDialog(n)
+            : await _stageDialog(n);
     if (node == null) return;
     setState(() => _rawNodes[index] = node);
     await _rebuild();
@@ -350,6 +415,8 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
         Row(
           children: [
             ElevatedButton(onPressed: _addStage, child: const Text('Add Stage')),
+            const SizedBox(width: 12),
+            ElevatedButton(onPressed: _addTheory, child: const Text('Add Theory')),
             const SizedBox(width: 12),
             ElevatedButton(onPressed: _addBranch, child: const Text('Add Branch')),
           ],

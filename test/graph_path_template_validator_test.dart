@@ -46,4 +46,19 @@ nodes:
     final issues = await const GraphPathTemplateValidator().validateYaml(goodYaml);
     expect(issues, isEmpty);
   });
+
+  test('validator accepts theory nodes', () async {
+    const yaml = '''
+nodes:
+  - type: theory
+    id: t1
+    title: Intro
+    content: Text
+    next: [end]
+  - type: stage
+    id: end
+''';
+    final issues = await const GraphPathTemplateValidator().validateYaml(yaml);
+    expect(issues, isEmpty);
+  });
 }

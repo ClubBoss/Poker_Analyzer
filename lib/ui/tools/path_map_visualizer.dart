@@ -3,6 +3,7 @@ import 'package:graphview/GraphView.dart';
 
 import '../../models/learning_branch_node.dart';
 import '../../models/learning_path_node.dart';
+import '../../models/theory_lesson_node.dart';
 
 /// Displays a graph of [LearningPathNode]s with the current node highlighted.
 class PathMapVisualizer extends StatelessWidget {
@@ -42,6 +43,11 @@ class PathMapVisualizer extends StatelessWidget {
           final to = map[id];
           if (to != null) graph.addEdge(from, to);
         }
+      } else if (n is TheoryLessonNode) {
+        for (final id in n.nextIds) {
+          final to = map[id];
+          if (to != null) graph.addEdge(from, to);
+        }
       } else if (n is LearningBranchNode) {
         for (final id in n.branches.values) {
           final to = map[id];
@@ -70,7 +76,14 @@ class PathMapVisualizer extends StatelessWidget {
   }
 
   Widget _buildNode(BuildContext context, LearningPathNode node, bool current) {
-    final color = node is LearningBranchNode ? Colors.orange : Colors.blue;
+    Color color;
+    if (node is LearningBranchNode) {
+      color = Colors.orange;
+    } else if (node is TheoryLessonNode) {
+      color = Colors.purple;
+    } else {
+      color = Colors.blue;
+    }
     final border = current
         ? Border.all(color: Colors.red, width: 3)
         : Border.all(color: color);

@@ -3,6 +3,7 @@ import '../models/learning_path_node.dart';
 import '../models/validation_issue.dart';
 import 'graph_path_template_parser.dart';
 import 'path_map_engine.dart';
+import '../models/theory_lesson_node.dart';
 
 /// Validates graph-based learning path YAML files.
 class GraphPathTemplateValidator {
@@ -56,17 +57,18 @@ class GraphPathTemplateValidator {
                 type: 'error', message: 'unknown_target:${node.id}:$target'));
           }
         }
-      } else if (node is StageNode) {
-        for (final n in node.nextIds) {
-          if (!byId.containsKey(n)) {
-            issues.add(
-                ValidationIssue(type: 'error', message: 'unknown_next:${node.id}:$n'));
+      } else if (node is StageNode || node is TheoryLessonNode) {
+        final nextIds = node is StageNode ? node.nextIds : (node as TheoryLessonNode).nextIds;
+        if (node is StageNode) {
+          for (final d in node.dependsOn) {
+            if (!byId.containsKey(d)) {
+              issues.add(ValidationIssue(type: 'error', message: 'unknown_dep:${node.id}:$d'));
+            }
           }
         }
-        for (final d in node.dependsOn) {
-          if (!byId.containsKey(d)) {
-            issues.add(
-                ValidationIssue(type: 'error', message: 'unknown_dep:${node.id}:$d'));
+        for (final n in nextIds) {
+          if (!byId.containsKey(n)) {
+            issues.add(ValidationIssue(type: 'error', message: 'unknown_next:${node.id}:$n'));
           }
         }
       }
@@ -82,6 +84,8 @@ class GraphPathTemplateValidator {
         if (node is LearningBranchNode) {
           queue.addAll(node.branches.values);
         } else if (node is StageNode) {
+          queue.addAll(node.nextIds);
+        } else if (node is TheoryLessonNode) {
           queue.addAll(node.nextIds);
         }
       }
@@ -108,6 +112,8 @@ class GraphPathTemplateValidator {
       if (node is LearningBranchNode) {
         next = node.branches.values;
       } else if (node is StageNode) {
+        next = node.nextIds;
+      } else if (node is TheoryLessonNode) {
         next = node.nextIds;
       }
       for (final n in next) {
