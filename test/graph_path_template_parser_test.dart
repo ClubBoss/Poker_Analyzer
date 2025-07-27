@@ -60,4 +60,18 @@ nodes:
     expect(theory.title, 'Intro');
     expect(theory.nextIds, ['s1']);
   });
+
+  test('parseFromYaml expands include_track directive', () async {
+    const yaml = '''
+nodes:
+  - include_track: pushfold_basics
+''';
+    final parser = GraphPathTemplateParser();
+    final nodes = await parser.parseFromYaml(yaml);
+    expect(nodes.length, 4);
+    expect(nodes.first, isA<TheoryLessonNode>());
+    final first = nodes.first as TheoryLessonNode;
+    expect(first.id.isNotEmpty, isTrue);
+    expect(first.nextIds, isNotEmpty);
+  });
 }
