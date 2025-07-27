@@ -7,6 +7,7 @@ import '../models/learning_path_node.dart';
 import '../models/stage_type.dart';
 import '../models/theory_lesson_node.dart';
 import 'path_map_engine.dart';
+import 'theory_track_engine.dart';
 
 class GraphPathTemplateParser {
   final List<String> warnings = [];
@@ -18,17 +19,48 @@ class GraphPathTemplateParser {
         : <String, dynamic>{};
     final nodesRaw = map['nodes'] as List? ?? [];
 
+    await TheoryTrackEngine.instance.loadAll();
+
     final ids = <String>{};
     final rawItems = <Map<String, dynamic>>[];
     for (final n in nodesRaw) {
       if (n is Map) {
         final m = <String, dynamic>{};
         n.forEach((key, value) => m[key.toString()] = value);
-        final id = m['id']?.toString() ?? '';
-        if (id.isNotEmpty) {
-          ids.add(id);
+
+        if (m.containsKey('include_track')) {
+          final trackId = m['include_track'].toString();
+          final track = TheoryTrackEngine.instance.get(trackId);
+          if (track != null) {
+            final generatedIds = <String>[];
+            for (final b in track.blockIds) {
+              var candidate = b;
+              if (ids.contains(candidate)) {
+                var i = 1;
+                while (ids.contains('${candidate}#$i')) {
+                  i++;
+                }
+                candidate = '${candidate}#$i';
+              }
+              generatedIds.add(candidate);
+              ids.add(candidate);
+            }
+            for (var i = 0; i < track.blockIds.length; i++) {
+              rawItems.add({
+                'type': 'theory',
+                'id': generatedIds[i],
+                'refId': track.blockIds[i],
+                if (i < generatedIds.length - 1) 'next': [generatedIds[i + 1]],
+              });
+            }
+          }
+        } else {
+          final id = m['id']?.toString() ?? '';
+          if (id.isNotEmpty) {
+            ids.add(id);
+          }
+          rawItems.add(m);
         }
-        rawItems.add(m);
       }
     }
 
