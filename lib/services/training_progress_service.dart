@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'learning_path_orchestrator.dart';
 
 import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -160,5 +161,21 @@ class TrainingProgressService {
       mostImprovedTags: improved,
       streakDays: streak,
     );
+  }
+
+  /// Returns average progress for the stage with [stageId]. If the stage
+  /// contains sub-stages the progress is averaged across them.
+  Future<double> getStageProgress(String stageId) async {
+    final path = await LearningPathOrchestrator.instance.resolve();
+    final stage = path.stages.firstWhereOrNull((s) => s.id == stageId);
+    if (stage == null) return 0.0;
+    if (stage.subStages.isEmpty) {
+      return getProgress(stage.packId);
+    }
+    double sum = 0.0;
+    for (final sub in stage.subStages) {
+      sum += await getSubStageProgress(stage.id, sub.packId);
+    }
+    return sum / stage.subStages.length;
   }
 }
