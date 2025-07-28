@@ -5,6 +5,7 @@ import '../models/learning_path_node.dart';
 import '../models/stage_type.dart';
 import '../models/learning_path_session_state.dart';
 import '../models/theory_lesson_node.dart';
+import '../models/theory_mini_lesson_node.dart';
 import 'learning_path_registry_service.dart';
 import 'training_path_progress_service_v2.dart';
 
@@ -165,6 +166,13 @@ class PathMapEngine {
           return next;
         }
       }
+    } else if (node is TheoryMiniLessonNode) {
+      for (final id in node.nextIds) {
+        final next = _nodes[id];
+        if (next != null && _isUnlocked(next) && !_isCompleted(next)) {
+          return next;
+        }
+      }
     }
     return null;
   }
@@ -192,7 +200,7 @@ class PathMapEngine {
   }
 
   bool _isCompleted(LearningPathNode node) {
-    if (node is StageNode || node is TheoryLessonNode) {
+    if (node is StageNode || node is TheoryLessonNode || node is TheoryMiniLessonNode) {
       return _completed.contains(node.id);
     }
     return false;
@@ -209,7 +217,7 @@ class PathMapEngine {
   Future<void> _advancePastCompleted() async {
     while (true) {
       final node = getCurrentNode();
-      if (node is! StageNode && node is! TheoryLessonNode) break;
+      if (node is! StageNode && node is! TheoryLessonNode && node is! TheoryMiniLessonNode) break;
       if (!_isCompleted(node)) break;
       await _advanceToNext();
       if (_currentId == null) break;
@@ -227,6 +235,14 @@ class PathMapEngine {
         }
       }
     } else if (current is TheoryLessonNode) {
+      for (final id in current.nextIds) {
+        final next = _nodes[id];
+        if (next != null && _isUnlocked(next)) {
+          _currentId = id;
+          return;
+        }
+      }
+    } else if (current is TheoryMiniLessonNode) {
       for (final id in current.nextIds) {
         final next = _nodes[id];
         if (next != null && _isUnlocked(next)) {

@@ -6,6 +6,7 @@ import '../models/learning_branch_node.dart';
 import '../models/learning_path_node.dart';
 import '../models/stage_type.dart';
 import '../models/theory_lesson_node.dart';
+import '../models/theory_mini_lesson_node.dart';
 import 'path_map_engine.dart';
 import 'theory_track_engine.dart';
 
@@ -106,6 +107,19 @@ class GraphPathTemplateParser {
         );
         nodes.add(node);
         byId[id] = node;
+      } else if (type == 'mini') {
+        final nextIds = <String>[for (final v in (m['next'] as List? ?? [])) v.toString()];
+        final tags = <String>[for (final t in (m['tags'] as List? ?? [])) t.toString()];
+        final node = TheoryMiniLessonNode(
+          id: id,
+          refId: m['refId']?.toString(),
+          title: m['title']?.toString() ?? '',
+          content: m['content']?.toString() ?? '',
+          tags: tags,
+          nextIds: nextIds,
+        );
+        nodes.add(node);
+        byId[id] = node;
       }
     }
 
@@ -116,8 +130,14 @@ class GraphPathTemplateParser {
             warnings.add('Unknown node id $target referenced from branch ${node.id}');
           }
         }
-      } else if (node is StageNode || node is TheoryLessonNode) {
-        final nextIds = (node is StageNode) ? node.nextIds : (node as TheoryLessonNode).nextIds;
+      } else if (node is StageNode ||
+          node is TheoryLessonNode ||
+          node is TheoryMiniLessonNode) {
+        final nextIds = node is StageNode
+            ? node.nextIds
+            : (node is TheoryLessonNode
+                ? node.nextIds
+                : (node as TheoryMiniLessonNode).nextIds);
         if (node is StageNode) {
           for (final d in node.dependsOn) {
             if (!ids.contains(d)) {
@@ -145,6 +165,8 @@ class GraphPathTemplateParser {
         } else if (node is StageNode) {
           queue.addAll(node.nextIds);
         } else if (node is TheoryLessonNode) {
+          queue.addAll(node.nextIds);
+        } else if (node is TheoryMiniLessonNode) {
           queue.addAll(node.nextIds);
         }
       }

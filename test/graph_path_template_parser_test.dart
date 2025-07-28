@@ -3,6 +3,7 @@ import 'package:poker_analyzer/services/graph_path_template_parser.dart';
 import 'package:poker_analyzer/services/path_map_engine.dart';
 import 'package:poker_analyzer/models/learning_branch_node.dart';
 import 'package:poker_analyzer/models/theory_lesson_node.dart';
+import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -59,6 +60,26 @@ nodes:
     expect(theory.refId, 'welcome');
     expect(theory.title, 'Intro');
     expect(theory.nextIds, ['s1']);
+  });
+
+  test('parseFromYaml handles mini lesson nodes', () async {
+    const yaml = '''
+nodes:
+  - type: mini
+    id: m1
+    title: Mini
+    content: Tip
+    tags: [bubble]
+    next: [s1]
+  - type: stage
+    id: s1
+''';
+    final parser = GraphPathTemplateParser();
+    final nodes = await parser.parseFromYaml(yaml);
+    expect(nodes.first, isA<TheoryMiniLessonNode>());
+    final mini = nodes.first as TheoryMiniLessonNode;
+    expect(mini.tags, ['bubble']);
+    expect(mini.nextIds, ['s1']);
   });
 
   test('parseFromYaml expands include_track directive', () async {

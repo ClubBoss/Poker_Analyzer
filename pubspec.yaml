@@ -110,6 +110,7 @@ flutter:
     - assets/theory_packs/
     - assets/theory_blocks/
     - assets/theory_tracks/
+    - assets/mini_lessons/
     - assets/lessons/
     - assets/lesson_tracks/
       - assets/pack_matrix.json
