@@ -11,6 +11,7 @@ import '../services/theory_pack_auto_fix_engine.dart';
 import '../services/booster_pack_auto_fix_engine.dart';
 import '../services/theory_pack_auto_tagger.dart';
 import '../services/theory_pack_auto_booster_suggester.dart';
+import '../widgets/theory_streak_badge.dart';
 
 /// Developer screen to browse and preview all bundled theory packs.
 class TheoryPackDebuggerScreen extends StatefulWidget {
@@ -77,6 +78,7 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('📘 Theory Pack Debugger'),
+        actions: const [Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: StreakBadge())],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Padding(
