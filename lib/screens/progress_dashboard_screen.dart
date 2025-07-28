@@ -16,6 +16,7 @@ import '../services/daily_target_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
+import '../widgets/theory_streak_badge.dart';
 import '../services/png_exporter.dart';
 import '../helpers/date_utils.dart';
 import '../utils/responsive.dart';
@@ -145,6 +146,10 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         title: const Text('Progress Dashboard'),
         centerTitle: true,
         actions: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: StreakBadge(),
+          ),
           IconButton(onPressed: _share, icon: const Icon(Icons.share)),
           IconButton(onPressed: _exportCsv, icon: const Icon(Icons.download)),
           IconButton(onPressed: _exportPdf, icon: const Icon(Icons.picture_as_pdf)),
