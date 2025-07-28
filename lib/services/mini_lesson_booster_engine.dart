@@ -17,12 +17,13 @@ class MiniLessonBoosterEngine {
   })  : _engine = engine ?? LearningPathEngine.instance,
         _library = library ?? MiniLessonLibraryService.instance;
 
-  /// Inserts matching mini lessons before [targetNodeId].
-  Future<void> injectBefore(String targetNodeId, List<String> tags) async {
+  /// Inserts up to [max] mini lessons tagged by [tagList] before [targetNodeId].
+  Future<void> injectBefore(String targetNodeId, List<String> tagList,
+      {int max = 2}) async {
     final mapEngine = _engine.engine;
-    if (mapEngine == null || tags.isEmpty) return;
+    if (mapEngine == null || tagList.isEmpty || max <= 0) return;
     await _library.loadAll();
-    final lessons = _library.findByTags(tags);
+    final lessons = _library.findByTags(tagList);
     if (lessons.isEmpty) return;
 
     final nodes = mapEngine.allNodes;
@@ -30,15 +31,10 @@ class MiniLessonBoosterEngine {
     if (!byId.containsKey(targetNodeId)) return;
 
     final inject = <TheoryMiniLessonNode>[];
-    for (final l in lessons.take(2)) {
-      var id = l.id;
-      if (byId.containsKey(id)) {
-        var i = 1;
-        while (byId.containsKey('$id#$i')) {
-          i++;
-        }
-        id = '$id#$i';
-      }
+    for (final l in lessons) {
+      if (inject.length >= max) break;
+      final id = l.id;
+      if (byId.containsKey(id)) continue; // avoid duplicates
       inject.add(TheoryMiniLessonNode(
         id: id,
         refId: l.refId,

@@ -61,6 +61,10 @@ class _FakeLibrary implements MiniLessonLibraryService {
     }
     return result;
   }
+
+  @override
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
 
 void main() {
@@ -90,5 +94,38 @@ void main() {
     expect(nodes.any((n) => n is TheoryMiniLessonNode && n.id == 'm1'), isTrue);
     final startNode = nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
     expect(startNode.nextIds.first, 'm1');
+  });
+
+  test('injectBefore respects max parameter', () async {
+    final start = TrainingStageNode(id: 'start', nextIds: ['end']);
+    final end = TrainingStageNode(id: 'end');
+
+    final orch = _FakeOrchestrator([start, end]);
+    final progress = _FakeProgress({'start'});
+    final engine = LearningPathEngine(orchestrator: orch, progress: progress);
+    final mini1 = TheoryMiniLessonNode(
+      id: 'm1',
+      title: 'Mini1',
+      content: '',
+      tags: const ['tag'],
+      nextIds: const [],
+    );
+    final mini2 = TheoryMiniLessonNode(
+      id: 'm2',
+      title: 'Mini2',
+      content: '',
+      tags: const ['tag'],
+      nextIds: const [],
+    );
+    final library = _FakeLibrary([mini1, mini2]);
+    final booster = MiniLessonBoosterEngine(engine: engine, library: library);
+
+    await engine.initialize();
+    await booster.injectBefore('end', ['tag'], max: 1);
+
+    final minis =
+        engine.engine!.allNodes.whereType<TheoryMiniLessonNode>().toList();
+    expect(minis.length, 1);
+    expect(minis.first.id, 'm1');
   });
 }
