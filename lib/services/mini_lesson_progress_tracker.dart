@@ -61,6 +61,12 @@ class MiniLessonProgressTracker {
     return data.lastViewed;
   }
 
+  /// Current view count for [id].
+  Future<int> viewCount(String id) async {
+    final data = await _load(id);
+    return data.viewCount;
+  }
+
   /// Returns the id with the lowest view count from [ids].
   Future<String?> getLeastViewed(List<String> ids) async {
     if (ids.isEmpty) return null;
