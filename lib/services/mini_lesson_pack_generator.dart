@@ -58,7 +58,16 @@ class MiniLessonPackGenerator {
                 final tag = (l['tags'] as List?)?.first ?? key;
                 final title = l['title']?.toString() ?? '';
                 final content = l['content']?.toString() ?? '';
-                existing.add(MiniLessonEntry(tag: tag, title: title, content: content));
+                final examples = (l['examples'] as List?)
+                        ?.map((e) => e.toString())
+                        .toList() ??
+                    const <String>[];
+                existing.add(MiniLessonEntry(
+                  tag: tag,
+                  title: title,
+                  content: content,
+                  examples: examples,
+                ));
               }
             }
           }

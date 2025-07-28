@@ -9,12 +9,28 @@ class MiniLessonEntry {
   final String tag;
   final String title;
   final String content;
+  final List<String> examples;
 
   const MiniLessonEntry({
     required this.tag,
     required this.title,
     required this.content,
+    this.examples = const [],
   });
+
+  MiniLessonEntry copyWith({
+    String? tag,
+    String? title,
+    String? content,
+    List<String>? examples,
+  }) {
+    return MiniLessonEntry(
+      tag: tag ?? this.tag,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      examples: examples ?? this.examples,
+    );
+  }
 }
 
 /// Generates YAML libraries of mini lessons from basic text snippets.
@@ -45,6 +61,7 @@ class MiniLessonLibraryBuilder {
         title: e.title,
         content: e.content,
         priority: autoPriority ? prio++ : null,
+        examples: e.examples.isEmpty ? null : e.examples,
       ));
     }
     return list;
