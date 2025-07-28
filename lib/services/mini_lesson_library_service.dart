@@ -62,4 +62,8 @@ class MiniLessonLibraryService {
     }
     return result;
   }
+
+  /// Returns lessons matching any of [tags]. Convenience for Set input.
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
