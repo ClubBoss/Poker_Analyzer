@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/services/auto_theory_review_engine.dart';
 import 'package:poker_analyzer/services/learning_graph_engine.dart';
@@ -118,6 +120,14 @@ void main() {
     final startNode =
         nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
     expect(startNode.nextIds.first, 't1');
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('theory_reinforcement_logs')!;
+    final list = jsonDecode(raw) as List;
+    expect(list.length, 1);
+    final data = list.first as Map<String, dynamic>;
+    expect(data['id'], 't1');
+    expect(data['type'], 'standard');
+    expect(data['source'], 'auto');
   });
 
   test('runAutoReviewIfNeeded injects mini lessons', () async {
@@ -179,5 +189,13 @@ void main() {
     final startNode =
         nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
     expect(startNode.nextIds.first, 'm1');
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('theory_reinforcement_logs')!;
+    final list = jsonDecode(raw) as List;
+    expect(list.length, 1);
+    final data = list.first as Map<String, dynamic>;
+    expect(data['id'], 'm1');
+    expect(data['type'], 'mini');
+    expect(data['source'], 'auto');
   });
 }

@@ -4,6 +4,7 @@ import '../models/theory_lesson_node.dart';
 import 'learning_graph_engine.dart';
 import 'learning_path_graph_orchestrator.dart';
 import 'path_map_engine.dart';
+import 'theory_reinforcement_log_service.dart';
 
 /// Injects review theory nodes into the active learning path graph.
 class TheoryBoosterInjector {
@@ -122,6 +123,10 @@ class TheoryBoosterInjector {
     final state = mapEngine.getState();
     await mapEngine.loadNodes(updated);
     await mapEngine.restoreState(state);
+    for (final n in inject) {
+      await TheoryReinforcementLogService.instance
+          .logInjection(n.id, 'standard', 'auto');
+    }
   }
 
   LearningPathNode _clone(LearningPathNode node) {
