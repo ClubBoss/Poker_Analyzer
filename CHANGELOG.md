@@ -10,3 +10,4 @@
 - Add hand analysis history with EV/ICM stats and filters.
 - Introduce XPLevelEngine for computing user level progression.
 - Add TheoryPackPreviewScreen for theory-only training packs.
+- Track consecutive days of theory reinforcement via TheoryStreakService.
