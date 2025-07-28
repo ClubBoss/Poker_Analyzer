@@ -8,6 +8,7 @@ import 'smart_mini_booster_planner.dart';
 import 'mini_lesson_booster_engine.dart';
 import 'mini_lesson_library_service.dart';
 import 'mini_lesson_scheduler.dart';
+import 'theory_reinforcement_log_service.dart';
 
 /// Background service that injects weak theory lessons before the next node.
 class AutoTheoryReviewEngine {
@@ -49,7 +50,21 @@ class AutoTheoryReviewEngine {
       final miniIds = await miniPlanner.getRelevantMiniLessons();
       if (candidates.isEmpty && miniIds.isEmpty) return;
       if (candidates.isNotEmpty) {
-        await injector.injectBefore(current.id, candidates.take(max).toList());
+        final nodes = engine.engine?.allNodes ?? [];
+        final byId = {for (final n in nodes) n.id: n};
+        final toInject = <String>[];
+        for (final id in candidates.take(max)) {
+          if (!byId.containsKey(id)) {
+            toInject.add(id);
+          }
+        }
+        if (toInject.isNotEmpty) {
+          await injector.injectBefore(current.id, toInject);
+          for (final id in toInject) {
+            await TheoryReinforcementLogService.instance
+                .logInjection(id, 'standard', 'auto');
+          }
+        }
       }
       if (miniIds.isNotEmpty) {
         final exclude = [for (final n in engine.engine?.allNodes ?? []) n.id];
@@ -60,7 +75,11 @@ class AutoTheoryReviewEngine {
         for (final id in scheduled) {
           final mini = MiniLessonLibraryService.instance.getById(id);
           if (mini == null) continue;
+          final nodes = engine.engine?.allNodes ?? [];
+          if (nodes.any((n) => n.id == id)) continue;
           await miniInjector.injectBefore(current.id, mini.tags, max: 1);
+          await TheoryReinforcementLogService.instance
+              .logInjection(id, 'mini', 'auto');
         }
       }
     } catch (e) {
