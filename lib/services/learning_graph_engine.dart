@@ -11,6 +11,9 @@ import 'learning_path_node_history.dart';
 import 'auto_theory_review_engine.dart';
 import '../models/learning_path_node.dart';
 import '../models/learning_path_session_state.dart';
+import '../models/learning_branch_node.dart';
+import '../models/theory_lesson_node.dart';
+import '../models/theory_mini_lesson_node.dart';
 
 /// Coordinates loading and traversal of the adaptive learning path graph.
 class LearningPathEngine {
@@ -112,5 +115,96 @@ class LearningPathEngine {
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
+  }
+
+  /// Removes [nodeId] from the active graph if present.
+  Future<void> removeNode(String nodeId) async {
+    final mapEngine = _engine;
+    if (mapEngine == null) return;
+
+    final nodes = mapEngine.allNodes;
+    final byId = {for (final n in nodes) n.id: n};
+    final target = byId[nodeId];
+    if (target == null) return;
+
+    String? replacement;
+    if (target is StageNode) {
+      replacement = target.nextIds.isNotEmpty ? target.nextIds.first : null;
+    } else if (target is TheoryLessonNode) {
+      replacement = target.nextIds.isNotEmpty ? target.nextIds.first : null;
+    } else if (target is TheoryMiniLessonNode) {
+      replacement = target.nextIds.isNotEmpty ? target.nextIds.first : null;
+    }
+
+    LearningPathNode _clone(LearningPathNode node) {
+      if (node is LearningBranchNode) {
+        final branches = Map<String, String>.from(node.branches);
+        branches.updateAll((key, value) => value == nodeId ? (replacement ?? value) : value);
+        branches.removeWhere((key, value) => value.isEmpty);
+        return LearningBranchNode(id: node.id, prompt: node.prompt, branches: branches);
+      } else if (node is TrainingStageNode) {
+        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        if (replacement != null) {
+          for (var i = 0; i < node.nextIds.length; i++) {
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+          }
+        }
+        return TrainingStageNode(id: node.id, nextIds: next, dependsOn: List<String>.from(node.dependsOn));
+      } else if (node is TheoryStageNode) {
+        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        if (replacement != null) {
+          for (var i = 0; i < node.nextIds.length; i++) {
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+          }
+        }
+        return TheoryStageNode(id: node.id, nextIds: next, dependsOn: List<String>.from(node.dependsOn));
+      } else if (node is TheoryLessonNode) {
+        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        if (replacement != null) {
+          for (var i = 0; i < node.nextIds.length; i++) {
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+          }
+        }
+        return TheoryLessonNode(
+          id: node.id,
+          refId: node.refId,
+          title: node.title,
+          content: node.content,
+          nextIds: next,
+        );
+      } else if (node is TheoryMiniLessonNode) {
+        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        if (replacement != null) {
+          for (var i = 0; i < node.nextIds.length; i++) {
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+          }
+        }
+        return TheoryMiniLessonNode(
+          id: node.id,
+          refId: node.refId,
+          title: node.title,
+          content: node.content,
+          tags: List<String>.from(node.tags),
+          nextIds: next,
+        );
+      }
+      return node;
+    }
+
+    final updated = <LearningPathNode>[for (final n in nodes) if (n.id != nodeId) _clone(n)];
+
+    final state = mapEngine.getState();
+    final branchChoices = Map<String, String>.from(state.branchChoices)
+      ..remove(nodeId);
+    final completed = Set<String>.from(state.completedStageIds)..remove(nodeId);
+    final current = state.currentNodeId == nodeId ? (replacement ?? '') : state.currentNodeId;
+    final newState = LearningPathSessionState(
+      currentNodeId: current,
+      branchChoices: branchChoices,
+      completedStageIds: completed,
+    );
+
+    await mapEngine.loadNodes(updated);
+    await mapEngine.restoreState(newState);
   }
 }
