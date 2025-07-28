@@ -8,6 +8,7 @@ import 'learning_path_graph_orchestrator.dart';
 import 'path_map_engine.dart';
 import 'training_path_progress_service_v2.dart';
 import 'learning_path_node_history.dart';
+import 'auto_theory_review_engine.dart';
 import '../models/learning_path_node.dart';
 import '../models/learning_path_session_state.dart';
 
@@ -43,6 +44,7 @@ class LearningPathEngine {
     if (current != null) {
       await LearningPathNodeHistory.instance.markVisited(current.id);
     }
+    await AutoTheoryReviewEngine.instance.runAutoReviewIfNeeded();
   }
 
   /// Returns the node currently in focus.
