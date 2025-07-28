@@ -7,6 +7,7 @@ import 'theory_booster_injector.dart';
 import 'smart_mini_booster_planner.dart';
 import 'mini_lesson_booster_engine.dart';
 import 'mini_lesson_library_service.dart';
+import 'mini_lesson_scheduler.dart';
 
 /// Background service that injects weak theory lessons before the next node.
 class AutoTheoryReviewEngine {
@@ -15,6 +16,7 @@ class AutoTheoryReviewEngine {
   final TheoryBoosterInjector injector;
   final SmartMiniBoosterPlanner miniPlanner;
   final MiniLessonBoosterEngine miniInjector;
+  final MiniLessonScheduler scheduler;
 
   AutoTheoryReviewEngine({
     LearningPathEngine? engine,
@@ -22,11 +24,13 @@ class AutoTheoryReviewEngine {
     TheoryBoosterInjector? injector,
     SmartMiniBoosterPlanner? miniPlanner,
     MiniLessonBoosterEngine? miniInjector,
+    MiniLessonScheduler? scheduler,
   })  : engine = engine ?? LearningPathEngine.instance,
         planner = planner ?? SmartWeakReviewPlanner.instance,
         injector = injector ?? TheoryBoosterInjector.instance,
         miniPlanner = miniPlanner ?? SmartMiniBoosterPlanner.instance,
-        miniInjector = miniInjector ?? const MiniLessonBoosterEngine();
+        miniInjector = miniInjector ?? const MiniLessonBoosterEngine(),
+        scheduler = scheduler ?? const MiniLessonScheduler();
 
   static final AutoTheoryReviewEngine instance = AutoTheoryReviewEngine();
 
@@ -45,23 +49,18 @@ class AutoTheoryReviewEngine {
       final miniIds = await miniPlanner.getRelevantMiniLessons();
       if (candidates.isEmpty && miniIds.isEmpty) return;
       if (candidates.isNotEmpty) {
-        await injector.injectBefore(
-          current.id,
-          candidates.take(max).toList(),
-        );
+        await injector.injectBefore(current.id, candidates.take(max).toList());
       }
       if (miniIds.isNotEmpty) {
-        var inserted = 0;
-        for (final id in miniIds) {
-          if (inserted >= 2) break;
+        final exclude = [for (final n in engine.engine?.allNodes ?? []) n.id];
+        final scheduled = await scheduler.schedule(
+          miniIds,
+          excludeIds: exclude,
+        );
+        for (final id in scheduled) {
           final mini = MiniLessonLibraryService.instance.getById(id);
           if (mini == null) continue;
-          await miniInjector.injectBefore(
-            current.id,
-            mini.tags,
-            max: 1,
-          );
-          inserted++;
+          await miniInjector.injectBefore(current.id, mini.tags, max: 1);
         }
       }
     } catch (e) {
