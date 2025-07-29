@@ -7,6 +7,7 @@ import '../models/theory_mini_lesson_node.dart';
 import '../theme/app_colors.dart';
 import '../widgets/theory_lesson_context_overlay.dart';
 import '../widgets/theory_path_map_toggle_button.dart';
+import '../widgets/theory_lesson_feedback_bar.dart';
 
 /// Inline markdown syntax for ==highlight== spans.
 class _HighlightSyntax extends md.InlineSyntax {
@@ -118,6 +119,7 @@ class TheoryLessonViewerScreen extends StatelessWidget {
               ),
             ),
           ),
+          TheoryLessonFeedbackBar(lessonId: lesson.id),
           SafeArea(
             child: Container(
               color: AppColors.cardBackground,
