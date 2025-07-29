@@ -1,20 +1,57 @@
+import 'mini_lesson_library_service.dart';
 import '../models/theory_lesson_cluster.dart';
 import '../models/theory_mini_lesson_node.dart';
 
-/// Provides forward and backward navigation helpers within a cluster of theory
-/// lessons.
+/// Enables forward, backward and sibling navigation between theory lessons.
 class TheoryLessonNavigatorService {
-  final TheoryLessonCluster cluster;
+  final MiniLessonLibraryService library;
+  final TheoryLessonCluster? cluster;
+  final Set<String> tagFilter;
 
   final Map<String, TheoryMiniLessonNode> _byId = {};
+  final Map<String, List<String>> _prev = {};
 
-  TheoryLessonNavigatorService(this.cluster) {
-    for (final l in cluster.lessons) {
+  bool _initialized = false;
+
+  TheoryLessonNavigatorService({
+    MiniLessonLibraryService? library,
+    this.cluster,
+    Set<String>? tagFilter,
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       tagFilter = tagFilter ?? const {};
+
+  /// Loads lessons and builds navigation indexes.
+  Future<void> initialize() async {
+    if (_initialized) return;
+    await library.loadAll();
+    _buildIndexes();
+    _initialized = true;
+  }
+
+  void _buildIndexes() {
+    _byId.clear();
+    _prev.clear();
+
+    final lessons = cluster?.lessons ?? library.all;
+    for (final l in lessons) {
+      if (tagFilter.isNotEmpty && !l.tags.any((t) => tagFilter.contains(t))) {
+        continue;
+      }
       _byId[l.id] = l;
+    }
+
+    for (final l in _byId.values) {
+      for (final next in l.nextIds) {
+        if (_byId.containsKey(next)) {
+          _prev.putIfAbsent(next, () => []).add(l.id);
+        }
+      }
     }
   }
 
-  /// Returns the first reachable next lesson from [id] or null when none.
+  TheoryMiniLessonNode? _byIdOrNull(String id) => _byId[id];
+
+  /// Returns the next lesson following [id] or null.
   TheoryMiniLessonNode? getNext(String id) {
     final node = _byId[id];
     if (node == null) return null;
@@ -22,33 +59,57 @@ class TheoryLessonNavigatorService {
       final candidate = _byId[next];
       if (candidate != null) return candidate;
     }
+    if (cluster != null) {
+      final idx = cluster!.lessons.indexWhere((e) => e.id == id);
+      if (idx >= 0 && idx < cluster!.lessons.length - 1) {
+        final fallback = cluster!.lessons[idx + 1];
+        return _byIdOrNull(fallback.id);
+      }
+    }
     return null;
   }
 
-  /// Returns the previous lesson linking to [id] or null when none.
+  /// Returns the previous lesson leading to [id] or null.
   TheoryMiniLessonNode? getPrevious(String id) {
-    for (final l in cluster.lessons) {
-      if (l.nextIds.contains(id)) return _byId[l.id];
+    final list = _prev[id];
+    if (list != null && list.isNotEmpty) {
+      for (final prev in list) {
+        final node = _byId[prev];
+        if (node != null) return node;
+      }
+    }
+    if (cluster != null) {
+      final idx = cluster!.lessons.indexWhere((e) => e.id == id);
+      if (idx > 0) {
+        final fallback = cluster!.lessons[idx - 1];
+        return _byIdOrNull(fallback.id);
+      }
     }
     return null;
   }
 
-  /// Returns all reachable next lesson ids from [id] limited to this cluster.
-  List<String> getAllNextIds(String id) {
+  /// Returns lessons related to [id] by cluster membership or shared tags.
+  List<TheoryMiniLessonNode> getSiblings(String id) {
     final node = _byId[id];
-    if (node == null) return [];
-    return [
-      for (final n in node.nextIds)
-        if (_byId.containsKey(n)) n
-    ];
-  }
+    if (node == null) return const [];
+    final result = <TheoryMiniLessonNode>{};
 
-  /// Returns all lessons that link to [id] within this cluster.
-  List<String> getAllPreviousIds(String id) {
-    final result = <String>[];
-    for (final l in cluster.lessons) {
-      if (l.nextIds.contains(id)) result.add(l.id);
+    if (cluster != null) {
+      for (final l in cluster!.lessons) {
+        if (l.id != id && _byId.containsKey(l.id)) {
+          result.add(_byId[l.id]!);
+        }
+      }
     }
-    return result;
+
+    for (final tag in node.tags) {
+      for (final other in _byId.values) {
+        if (other.id == id) continue;
+        if (other.tags.contains(tag)) result.add(other);
+      }
+    }
+
+    return result.toList();
   }
 }
+
