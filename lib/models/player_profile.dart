@@ -8,6 +8,9 @@ class PlayerProfile {
   SkillLevel skillLevel;
   Set<String> completedLessonIds;
   Map<String, double> tagAccuracy;
+  Map<String, int> boosterCompletions;
+  DateTime? lastBoosterDate;
+  int boosterStreak;
 
   PlayerProfile({
     this.xp = 0,
@@ -16,7 +19,11 @@ class PlayerProfile {
     this.skillLevel = SkillLevel.beginner,
     Set<String>? completedLessonIds,
     Map<String, double>? tagAccuracy,
+    Map<String, int>? boosterCompletions,
+    this.lastBoosterDate,
+    this.boosterStreak = 0,
   })  : tags = tags ?? <String>{},
         completedLessonIds = completedLessonIds ?? <String>{},
-        tagAccuracy = tagAccuracy ?? <String, double>{};
+        tagAccuracy = tagAccuracy ?? <String, double>{},
+        boosterCompletions = boosterCompletions ?? <String, int>{};
 }
