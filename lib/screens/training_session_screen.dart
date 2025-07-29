@@ -39,6 +39,7 @@ import '../services/pack_library_loader_service.dart';
 import '../services/smart_stage_unlock_engine.dart';
 import '../services/training_milestone_engine.dart';
 import '../widgets/confetti_overlay.dart';
+import '../widgets/booster_progress_overlay.dart';
 import 'package:collection/collection.dart';
 import 'dart:math';
 import '../services/mistake_tag_history_service.dart';
@@ -570,6 +571,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           final categoryName = tag.isNotEmpty ? tag.substring(4) : null;
           final showCategory = service.template?.id == 'suggested_weekly' &&
               categoryName != null;
+          final tpl = service.template;
+          final isBooster = tpl?.meta['type']?.toString().toLowerCase() == 'booster';
           return Scaffold(
             appBar: AppBar(
               title: const Text('Training'),
@@ -588,6 +591,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             backgroundColor: const Color(0xFF1B1C1E),
             body: Stack(
               children: [
+                if (isBooster && tpl != null)
+                  BoosterProgressOverlay(
+                    booster: tpl,
+                    clusters: const [],
+                  ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
