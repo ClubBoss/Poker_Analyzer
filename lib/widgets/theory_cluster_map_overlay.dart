@@ -12,13 +12,22 @@ class TheoryClusterMapOverlay extends StatelessWidget {
   final MiniMapGraph graph;
   final PlayerProfile profile;
   final ValueChanged<MiniMapNode>? onTap;
+  final Set<String> tagsFilter;
 
   const TheoryClusterMapOverlay({
     super.key,
     required this.graph,
     required this.profile,
     this.onTap,
+    this.tagsFilter = const {},
   });
+
+  bool _lessonMatchesTags(String id, Set<String> tags) {
+    final lesson = MiniLessonLibraryService.instance.getById(id);
+    if (lesson == null) return false;
+    final lessonTags = lesson.tags.map((e) => e.trim().toLowerCase());
+    return tags.every((t) => lessonTags.contains(t.toLowerCase()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +40,8 @@ class TheoryClusterMapOverlay extends StatelessWidget {
           runSpacing: 8,
           children: [
             for (final n in graph.nodes)
+              if (tagsFilter.isEmpty ||
+                  _lessonMatchesTags(n.id, tagsFilter))
               GestureDetector(
                 onTap: () async {
                   if (onTap != null) onTap!(n);

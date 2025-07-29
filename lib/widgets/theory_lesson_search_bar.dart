@@ -10,7 +10,9 @@ import '../screens/theory_lesson_preview_screen.dart';
 
 /// Search bar widget for quick theory lesson lookup.
 class TheoryLessonSearchBar extends StatefulWidget {
-  const TheoryLessonSearchBar({super.key});
+  final Set<String> tagsFilter;
+
+  const TheoryLessonSearchBar({super.key, this.tagsFilter = const {}});
 
   @override
   State<TheoryLessonSearchBar> createState() => _TheoryLessonSearchBarState();
@@ -42,7 +44,19 @@ class _TheoryLessonSearchBarState extends State<TheoryLessonSearchBar> {
   }
 
   void _search(String q) {
-    setState(() => _results = _engine.search(q, limit: 10));
+    final found = _engine.search(q, limit: 10);
+    if (widget.tagsFilter.isEmpty) {
+      setState(() => _results = found);
+      return;
+    }
+    final tags = widget.tagsFilter.map((e) => e.toLowerCase()).toSet();
+    final filtered = [
+      for (final l in found)
+        if (tags.every((t) =>
+            l.tags.map((e) => e.toLowerCase()).contains(t)))
+          l
+    ];
+    setState(() => _results = filtered);
   }
 
   @override
