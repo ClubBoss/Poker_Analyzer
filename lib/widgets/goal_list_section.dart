@@ -9,7 +9,14 @@ class GoalListSection extends StatefulWidget {
   /// Optional callback when a goal is tapped.
   final void Function(TheoryGoal goal)? onTap;
 
-  const GoalListSection({super.key, this.onTap});
+  /// Message displayed when no goals are available.
+  final String emptyMessage;
+
+  const GoalListSection({
+    super.key,
+    this.onTap,
+    this.emptyMessage = 'Нет целей',
+  });
 
   @override
   State<GoalListSection> createState() => _GoalListSectionState();
@@ -34,10 +41,10 @@ class _GoalListSectionState extends State<GoalListSection> {
         }
         final goals = snapshot.data ?? const <TheoryGoal>[];
         if (goals.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('\u041D\u0435\u0442 \u0446\u0435\u043B\u0435\u0439',
-                style: TextStyle(color: Colors.white70)),
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(widget.emptyMessage,
+                style: const TextStyle(color: Colors.white70)),
           );
         }
         return ListView.separated(
