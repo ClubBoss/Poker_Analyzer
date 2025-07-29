@@ -59,6 +59,7 @@ import 'services/app_init_service.dart';
 import 'services/suggested_pack_push_service.dart';
 import 'services/lesson_path_reminder_scheduler.dart';
 import 'services/decay_reminder_scheduler.dart';
+import 'services/theory_lesson_notification_scheduler.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -233,6 +234,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
       sessions: context.read<TrainingSessionService>(),
     ));
     unawaited(context.read<SkillLossOverlayPromptService>().run(context));
+    unawaited(
+      TheoryLessonNotificationScheduler.instance.scheduleReminderIfNeeded(),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeStartPinnedTraining();
       _maybeResumeTraining();
