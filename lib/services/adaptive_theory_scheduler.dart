@@ -1,89 +1,122 @@
 import '../models/player_profile.dart';
-import '../models/theory_cluster_summary.dart';
+import '../models/theory_goal.dart';
 import '../models/theory_mini_lesson_node.dart';
+import '../models/theory_lesson_cluster.dart';
+import '../services/mini_lesson_library_service.dart';
+import '../services/theory_goal_engine.dart';
+import '../services/theory_lesson_progress_tracker.dart';
+import '../services/theory_lesson_tag_clusterer.dart';
+import '../services/theory_cluster_summary_service.dart';
+import '../services/weak_theory_zone_highlighter.dart';
 
-/// Recommended lesson result with optional explanation.
-class TheoryScheduleResult {
-  final String lessonId;
-  final String reason;
-
-  const TheoryScheduleResult({required this.lessonId, required this.reason});
-}
-
-/// Selects the next best theory lesson based on completed lessons and tags.
+/// Service selecting the best next theory lesson based on goals and weaknesses.
 class AdaptiveTheoryScheduler {
-  const AdaptiveTheoryScheduler();
+  final TheoryGoalEngine goalEngine;
+  final WeakTheoryZoneHighlighter weakZone;
+  final TheoryLessonProgressTracker progress;
+  final MiniLessonLibraryService library;
+  final TheoryLessonTagClusterer clusterer;
+  final TheoryClusterSummaryService summaryService;
 
-  /// Picks an unlocked lesson prioritized by cluster relevance and tag overlap.
-  TheoryScheduleResult? recommendNextLesson({
-    required PlayerProfile profile,
-    required List<TheoryClusterSummary> clusters,
-    required Map<String, TheoryMiniLessonNode> lessons,
-  }) {
-    if (lessons.isEmpty) return null;
-    final completed = profile.completedLessonIds;
+  const AdaptiveTheoryScheduler({
+    TheoryGoalEngine? goalEngine,
+    WeakTheoryZoneHighlighter? weakZone,
+    TheoryLessonProgressTracker? progress,
+    MiniLessonLibraryService? library,
+    TheoryLessonTagClusterer? clusterer,
+    TheoryClusterSummaryService? summaryService,
+  })  : goalEngine = goalEngine ?? TheoryGoalEngine.instance,
+        weakZone = weakZone ?? const WeakTheoryZoneHighlighter(),
+        progress = progress ?? const TheoryLessonProgressTracker(),
+        library = library ?? MiniLessonLibraryService.instance,
+        clusterer = clusterer ?? TheoryLessonTagClusterer(),
+        summaryService = summaryService ?? TheoryClusterSummaryService();
 
-    // Build incoming edge map to determine unlocked nodes.
-    final incoming = <String, Set<String>>{
-      for (final id in lessons.keys) id: <String>{}
-    };
-    lessons.forEach((id, node) {
-      for (final next in node.nextIds) {
-        if (lessons.containsKey(next)) {
-          incoming[next]!.add(id);
-        }
-      }
-    });
+  /// Returns the next recommended lesson for [profile], or null if none found.
+  Future<TheoryMiniLessonNode?> getNextRecommendedLesson(
+    PlayerProfile profile,
+  ) async {
+    await library.loadAll();
+    final lessonsById = {for (final l in library.all) l.id: l};
 
-    final clusterScores = <TheoryClusterSummary, double>{};
-    for (final c in clusters) {
-      clusterScores[c] = _scoreCluster(c, profile);
+    // Collect goal tags.
+    final goals = await goalEngine.getActiveGoals();
+    final goalTags = <String>{};
+    for (final g in goals) {
+      final parts = g.tagOrCluster
+          .split(',')
+          .map((e) => e.trim().toLowerCase());
+      goalTags.addAll(parts.where((e) => e.isNotEmpty));
     }
 
-    TheoryScheduleResult? best;
+    // Detect weak tags.
+    final weakTags = weakZone
+        .detectWeakTags(profile: profile, lessons: lessonsById)
+        .map((e) => e.tag)
+        .toList();
+
+    // Build clusters and compute progress per cluster.
+    final lessonClusters = await clusterer.clusterLessons();
+    final progressByLesson = <String, double>{};
+    for (final c in lessonClusters) {
+      final p = await progress.progressForLessons(c.lessons);
+      for (final l in c.lessons) {
+        progressByLesson[l.id] = p;
+      }
+    }
+
+    // Build incoming edge map to verify unlocks.
+    final incoming = <String, Set<String>>{
+      for (final l in library.all) l.id: <String>{}
+    };
+    for (final l in library.all) {
+      for (final next in l.nextIds) {
+        if (incoming.containsKey(next)) incoming[next]!.add(l.id);
+      }
+    }
+
+    TheoryMiniLessonNode? best;
     double bestScore = double.negativeInfinity;
 
-    for (final entry in lessons.entries) {
-      final id = entry.key;
-      final node = entry.value;
-      if (completed.contains(id)) continue;
-      final preds = incoming[id] ?? const <String>{};
-      if (preds.isNotEmpty && !preds.every(completed.contains)) continue;
+    for (final lesson in library.all) {
+      final id = lesson.id;
+      if (profile.completedLessonIds.contains(id)) continue;
+      final preds = incoming[id]!;
+      if (preds.isNotEmpty && !preds.every(profile.completedLessonIds.contains)) {
+        continue; // Locked
+      }
 
-      final tags = {for (final t in node.tags) t.trim().toLowerCase()}
-        ..removeWhere((e) => e.isEmpty);
+      final tags = lesson.tags
+          .map((t) => t.trim().toLowerCase())
+          .where((t) => t.isNotEmpty)
+          .toSet();
+      if (tags.isEmpty) continue;
+
       double score = 0;
 
-      for (final c in clusters) {
-        if (c.entryPointIds.contains(id) ||
-            tags.intersection(c.sharedTags).isNotEmpty) {
-          score += clusterScores[c] ?? 0;
-          break;
+      // Goal alignment.
+      final goalMatches = tags.intersection(goalTags);
+      score += goalMatches.length * 5;
+
+      // Weak tag overlap.
+      for (var i = 0; i < weakTags.length; i++) {
+        if (tags.contains(weakTags[i])) {
+          score += (weakTags.length - i).toDouble();
         }
       }
 
-      final overlap = tags.intersection(profile.tags);
-      score += overlap.length * 2;
-      if ((incoming[id]?.isEmpty ?? true)) score += 0.5;
+      // Cluster progress.
+      final prog = progressByLesson[id] ?? 0.0;
+      score += (1 - prog) * 2;
+
+      if (preds.isEmpty) score += 0.5;
 
       if (score > bestScore) {
         bestScore = score;
-        final reason = overlap.isNotEmpty
-            ? 'weak topic match'
-            : (incoming[id]?.isEmpty ?? true)
-                ? 'new cluster'
-                : 'unlocked';
-        best = TheoryScheduleResult(lessonId: id, reason: reason);
+        best = lesson;
       }
     }
 
     return best;
-  }
-
-  double _scoreCluster(TheoryClusterSummary c, PlayerProfile profile) {
-    final match = c.sharedTags.where(profile.tags.contains).length;
-    final gap = c.sharedTags.difference(profile.tags).length;
-    final base = match * 2 + gap;
-    return base / (c.size == 0 ? 1 : c.size);
   }
 }
