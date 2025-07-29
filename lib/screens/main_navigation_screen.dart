@@ -56,6 +56,9 @@ import '../services/learning_path_registry_service.dart';
 import '../services/learning_path_orchestrator.dart';
 import '../services/theory_pack_library_service.dart';
 import 'learning_path_stage_preview_screen.dart';
+import '../services/theory_lesson_tag_clusterer.dart';
+import '../services/theory_cluster_summary_service.dart';
+import 'theory_cluster_detail_screen.dart';
 import 'package:collection/collection.dart';
 import 'learning_path_screen_v2.dart';
 import '../widgets/sync_status_widget.dart';
@@ -132,7 +135,50 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   Future<void> _handleDeepLink() async {
-    final link = RouteLink.tryParse(Uri.base);
+    final uri = Uri.base;
+    // Handle direct link to a theory cluster detail.
+    if (uri.path == '/theory/cluster') {
+      final clusterId = uri.queryParameters['clusterId'];
+      if (clusterId != null && clusterId.isNotEmpty) {
+        final clusterer = TheoryLessonTagClusterer();
+        final clusters = await clusterer.clusterLessons();
+        final summaryService = TheoryClusterSummaryService();
+        TheoryLessonCluster? matched;
+        for (final c in clusters) {
+          final summary = summaryService.generateSummary(c);
+          if (summary.entryPointIds.contains(clusterId)) {
+            matched = c;
+            break;
+          }
+        }
+        if (!mounted) return;
+        if (matched != null) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TheoryClusterDetailScreen(cluster: matched!),
+            ),
+          );
+        } else {
+          await showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Cluster not found'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+      return;
+    }
+
+    final link = RouteLink.tryParse(uri);
     if (link == null) return;
     await LearningPathRegistryService.instance.loadAll();
     final template = LearningPathRegistryService.instance.findById(link.pathId);
