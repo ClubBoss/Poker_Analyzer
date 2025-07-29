@@ -5,6 +5,7 @@ import 'package:markdown/markdown.dart' as md;
 
 import '../models/theory_mini_lesson_node.dart';
 import '../theme/app_colors.dart';
+import '../widgets/theory_lesson_context_overlay.dart';
 
 /// Inline markdown syntax for ==highlight== spans.
 class _HighlightSyntax extends md.InlineSyntax {
@@ -78,8 +79,10 @@ class TheoryLessonViewerScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
+      body: Stack(
         children: [
+          Column(
+            children: [
           StickyHeader(
             header: Container(
               color: AppColors.cardBackground,
@@ -148,6 +151,7 @@ class TheoryLessonViewerScreen extends StatelessWidget {
               ),
             ),
           ),
+          TheoryLessonContextOverlay(lessonId: lesson.id),
         ],
       ),
     );
