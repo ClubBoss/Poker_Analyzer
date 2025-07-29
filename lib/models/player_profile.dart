@@ -7,6 +7,7 @@ class PlayerProfile {
   GameType gameType;
   SkillLevel skillLevel;
   Set<String> completedLessonIds;
+  Map<String, double> tagAccuracy;
 
   PlayerProfile({
     this.xp = 0,
@@ -14,6 +15,8 @@ class PlayerProfile {
     this.gameType = GameType.tournament,
     this.skillLevel = SkillLevel.beginner,
     Set<String>? completedLessonIds,
+    Map<String, double>? tagAccuracy,
   })  : tags = tags ?? <String>{},
-        completedLessonIds = completedLessonIds ?? <String>{};
+        completedLessonIds = completedLessonIds ?? <String>{},
+        tagAccuracy = tagAccuracy ?? <String, double>{};
 }
