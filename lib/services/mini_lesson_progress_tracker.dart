@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,11 @@ class MiniLessonProgressTracker {
   static const String _prefix = 'mini_lesson_progress_';
 
   final Map<String, _MiniProgress> _cache = {};
+  final StreamController<String> _completedController =
+      StreamController<String>.broadcast();
+
+  /// Stream of lesson ids that were marked as completed.
+  Stream<String> get onLessonCompleted => _completedController.stream;
 
   Future<_MiniProgress> _load(String id) async {
     final cached = _cache[id];
@@ -47,6 +53,7 @@ class MiniLessonProgressTracker {
     data.completed = true;
     data.lastViewed = DateTime.now();
     await _save(id);
+    _completedController.add(id);
   }
 
   /// Returns true if [id] was completed.

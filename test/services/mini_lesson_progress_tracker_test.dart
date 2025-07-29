@@ -33,4 +33,14 @@ void main() {
     final id = await tracker.getLeastViewed(['a', 'b']);
     expect(id, 'a');
   });
+
+  test('onLessonCompleted emits lesson id when completed', () async {
+    final tracker = MiniLessonProgressTracker.instance;
+    final events = <String>[];
+    final sub = tracker.onLessonCompleted.listen(events.add);
+    await tracker.markCompleted('x1');
+    await Future.delayed(Duration.zero);
+    expect(events, contains('x1'));
+    await sub.cancel();
+  });
 }
