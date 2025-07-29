@@ -28,6 +28,7 @@ import '../services/training_history_service_v2.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
+import 'booster_recap_screen.dart';
 import '../services/training_gap_notification_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/user_goal_engine.dart';
@@ -45,6 +46,7 @@ import 'dart:math';
 import '../services/mistake_tag_history_service.dart';
 import '../services/auto_mistake_tagger_engine.dart';
 import '../models/training_spot_attempt.dart';
+import '../models/training_pack.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -400,6 +402,22 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         final tags = const AutoMistakeTaggerEngine().tag(attempt);
         unawaited(MistakeTagHistoryService.logTags(tpl.id, attempt, tags));
       }
+      Map<String, double> deltas = {};
+      TrainingPackTemplateV2? boosterTpl;
+      if (isBooster) {
+        deltas = await context.read<TagMasteryService>().updateWithSession(
+          template: tpl,
+          results: service.session?.results ?? const {},
+          dryRun: true,
+        );
+        final tmp = TrainingPackTemplateV2.fromTemplate(
+          tpl,
+          type: TrainingType.pushFold,
+        );
+        final type = const TrainingTypeEngine().detectTrainingType(tmp);
+        boosterTpl = TrainingPackTemplateV2.fromTemplate(tpl, type: type);
+      }
+
       if (service.totalCount < 3) {
         Map<String, int>? counts;
         if (tpl.id == 'suggested_weekly') {
@@ -411,23 +429,43 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         }
         await service.complete(
           context,
-          resultBuilder: (_) => PackStatsScreen(
-            templateId: tpl.id,
-            correct: correct,
-            total: total,
-            completedAt: DateTime.now(),
-            categoryCounts: counts,
-          ),
+          resultBuilder: (_) => isBooster
+              ? BoosterRecapScreen(
+                  result: TrainingSessionResult(
+                    date: DateTime.now(),
+                    total: total,
+                    correct: correct,
+                  ),
+                  booster: boosterTpl!,
+                  tagDeltas: deltas,
+                )
+              : PackStatsScreen(
+                  templateId: tpl.id,
+                  correct: correct,
+                  total: total,
+                  completedAt: DateTime.now(),
+                  categoryCounts: counts,
+                ),
         );
       } else {
         await service.complete(
           context,
-          resultBuilder: (_) => TrainingRecapScreen(
-            templateId: tpl.id,
-            correct: correct,
-            total: total,
-            elapsed: elapsed,
-          ),
+          resultBuilder: (_) => isBooster
+              ? BoosterRecapScreen(
+                  result: TrainingSessionResult(
+                    date: DateTime.now(),
+                    total: total,
+                    correct: correct,
+                  ),
+                  booster: boosterTpl!,
+                  tagDeltas: deltas,
+                )
+              : TrainingRecapScreen(
+                  templateId: tpl.id,
+                  correct: correct,
+                  total: total,
+                  elapsed: elapsed,
+                ),
         );
       }
 
