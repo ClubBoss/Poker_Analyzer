@@ -14,6 +14,7 @@ import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
 import 'basic_achievements_screen.dart';
 import 'booster_library_screen.dart';
+import 'booster_archive_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -283,6 +284,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             },
             child: const Text('Booster Library'),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BoosterArchiveScreen()),
+              );
+            },
+            child: const Text('Booster Archive'),
           ),
           const SizedBox(height: 16),
           Consumer<AuthService>(
