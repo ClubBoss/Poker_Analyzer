@@ -7,7 +7,7 @@ import '../models/booster_backlink.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/booster_pack_launcher.dart';
-import '../screens/mini_lesson_screen.dart';
+import '../screens/theory_lesson_viewer_screen.dart';
 import '../screens/theory_recap_screen.dart';
 
 /// Handles navigation after completing a [TheoryMiniLessonNode].
@@ -30,7 +30,13 @@ class TheoryExitHandler {
       if (next != null) {
         await Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: next)),
+          MaterialPageRoute(
+            builder: (_) => TheoryLessonViewerScreen(
+              lesson: next,
+              currentIndex: 1,
+              totalCount: 1,
+            ),
+          ),
         );
         return;
       }
