@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/theory_lesson_tag_clusterer.dart';
 import '../services/theory_cluster_progress_service.dart';
 import '../widgets/theory_cluster_summary_card.dart';
-import '../screens/theory_lesson_preview_screen.dart';
+import 'theory_cluster_detail_screen.dart';
 
 /// Dashboard listing all theory clusters with progress.
 class TheoryClusterDashboardScreen extends StatefulWidget {
@@ -38,12 +38,13 @@ class _TheoryClusterDashboardScreenState
   }
 
   Future<void> _openCluster(ClusterProgress c) async {
-    if (c.cluster.lessons.isEmpty) return;
-    final lesson = c.cluster.lessons.first;
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TheoryLessonPreviewScreen(lessonId: lesson.id),
+        builder: (_) => TheoryClusterDetailScreen(
+          cluster: c.cluster,
+          progress: c,
+        ),
       ),
     );
   }
