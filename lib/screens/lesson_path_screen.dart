@@ -12,6 +12,7 @@ import '../services/learning_track_engine.dart';
 import 'lesson_step_screen.dart';
 import 'lesson_step_recap_screen.dart';
 import 'track_selector_screen.dart';
+import 'theory_cluster_dashboard_screen.dart';
 
 class LessonPathScreen extends StatefulWidget {
   const LessonPathScreen({super.key});
@@ -24,11 +25,20 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
   late Future<List<dynamic>> _future;
   LessonTrack? _track;
   Map<String, bool> _stepProgress = {};
+  bool _showDashboardBanner = false;
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _checkDashboardBanner();
+  }
+
+  Future<void> _checkDashboardBanner() async {
+    final progress = await LessonPathProgressService.instance.computeProgress();
+    if (progress.completed >= 3 && mounted) {
+      setState(() => _showDashboardBanner = true);
+    }
   }
 
   Future<List<dynamic>> _load() async {
@@ -70,6 +80,16 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
         return Scaffold(
           appBar: AppBar(title: const Text('Учебный путь')),
           backgroundColor: const Color(0xFF121212),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const TheoryClusterDashboardScreen(),
+              ),
+            ),
+            icon: const Text('🧠', style: TextStyle(fontSize: 20)),
+            label: const Text('Кластеры теории'),
+          ),
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : (steps == null || steps.isEmpty)
@@ -81,6 +101,29 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                     )
                   : Column(
                       children: [
+                        if (_showDashboardBanner)
+                          MaterialBanner(
+                            leading: const Text('🧠', style: TextStyle(fontSize: 24)),
+                            content: const Text('Откройте обзор теории по кластерам'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const TheoryClusterDashboardScreen(),
+                                    ),
+                                  );
+                                  setState(() => _showDashboardBanner = false);
+                                },
+                                child: const Text('Открыть'),
+                              ),
+                              TextButton(
+                                onPressed: () => setState(() => _showDashboardBanner = false),
+                                child: const Text('Закрыть'),
+                              ),
+                            ],
+                          ),
                         FutureBuilder<LessonPathProgress>(
                           future: LessonPathProgressService.instance
                               .computeProgress(),
