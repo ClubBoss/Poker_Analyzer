@@ -630,10 +630,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             body: Stack(
               children: [
                 if (isBooster && tpl != null)
-                  BoosterProgressOverlay(
-                    booster: tpl,
-                    clusters: const [],
-                  ),
+                  const BoosterProgressOverlay(),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(

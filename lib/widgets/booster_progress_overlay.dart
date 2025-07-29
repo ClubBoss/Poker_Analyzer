@@ -1,113 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-import '../models/booster_backlink.dart';
-import '../models/weak_cluster_info.dart';
-import '../models/v2/training_pack_template.dart';
-import '../models/v2/training_pack_template_v2.dart';
-import '../core/training/engine/training_type_engine.dart';
-import '../services/booster_mistake_backlink_engine.dart';
+import '../services/training_session_service.dart';
 
-/// Persistent banner shown at the top of a booster session.
+/// Lightweight HUD displayed during booster drills.
 ///
-/// Displays current tags in focus, the originating weak cluster and
-/// optional generation date. Can be collapsed by tapping or swiping.
-class BoosterProgressOverlay extends StatefulWidget {
-  final TrainingPackTemplate booster;
-  final List<WeakClusterInfo> clusters;
-
-  const BoosterProgressOverlay({
-    super.key,
-    required this.booster,
-    this.clusters = const [],
-  });
-
-  @override
-  State<BoosterProgressOverlay> createState() => _BoosterProgressOverlayState();
-}
-
-class _BoosterProgressOverlayState extends State<BoosterProgressOverlay> {
-  late final BoosterBacklink _link;
-  bool _collapsed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final tmp = TrainingPackTemplateV2.fromTemplate(
-      widget.booster,
-      type: TrainingType.pushFold,
-    );
-    final type = const TrainingTypeEngine().detectTrainingType(tmp);
-    final tplV2 = TrainingPackTemplateV2.fromTemplate(
-      widget.booster,
-      type: type,
-    );
-    _link = const BoosterMistakeBacklinkEngine().link(tplV2, widget.clusters);
-  }
-
-  void _toggle() => setState(() => _collapsed = !_collapsed);
+/// Shows the focused tag, current progress and a motivational message.
+class BoosterProgressOverlay extends StatelessWidget {
+  const BoosterProgressOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor =
-        isDark ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.8);
-    final textColor = isDark ? Colors.white : Colors.black;
+    return Consumer<TrainingSessionService>(
+      builder: (context, service, _) {
+        final tpl = service.template;
+        final isBooster =
+            tpl?.meta['type']?.toString().toLowerCase() == 'booster';
+        final session = service.session;
+        if (!isBooster || session == null || service.isPaused) {
+          return const SizedBox.shrink();
+        }
+        if (session.completedAt != null) return const SizedBox.shrink();
 
-    final tags = widget.booster.tags.map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
-    final tagText = tags.isNotEmpty
-        ? 'Current tags in focus: [${tags.join(', ')}]'
-        : null;
+        final spot = service.currentSpot;
+        if (spot == null) return const SizedBox.shrink();
 
-    final cluster = _link.sourceCluster;
-    final originText = cluster != null
-        ? 'Origin: Weak cluster'
-        : null;
+        final tags = spot.tags;
+        final tag = tags.isNotEmpty
+            ? tags.firstWhere(
+                (t) => !t.startsWith('cat:'),
+                orElse: () => tags.first,
+              )
+            : '';
+        final total = tpl?.spots.length ?? 0;
+        final index = session.index;
+        final progress = total > 0 ? (index + 1) / total : 0.0;
+        final accent = Theme.of(context).colorScheme.secondary;
+        final textStyle = const TextStyle(color: Colors.white);
+        final motivator =
+            progress >= 0.75 ? '💪 Almost there!' : '🔥 Keep going!';
 
-    final created = widget.booster.createdAt;
-    String? genText;
-    if (created != null) {
-      final date = DateFormat('MMM d', Intl.getCurrentLocale()).format(created);
-      genText = 'Generated on $date';
-    }
-
-    final content = <Widget>[
-      if (tagText != null) Text(tagText),
-      if (originText != null) Text(originText),
-      if (genText != null) Text(genText, style: TextStyle(fontSize: 12)),
-    ];
-
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: SafeArea(
-        child: GestureDetector(
-          onTap: _toggle,
-          onVerticalDragEnd: (_) => _toggle(),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: _collapsed
-                ? Center(
-                    child: Icon(Icons.expand_more, color: textColor),
-                  )
-                : DefaultTextStyle(
-                    style: TextStyle(color: textColor),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: content,
+        return Positioned(
+          top: 8,
+          left: 8,
+          right: 8,
+          child: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (tag.isNotEmpty)
+                    Text('Practicing: $tag', style: textStyle),
+                  const SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: Colors.white24,
+                      valueColor: AlwaysStoppedAnimation<Color>(accent),
+                      minHeight: 6,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${index + 1} / $total • $motivator',
+                    style: textStyle.copyWith(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
