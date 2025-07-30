@@ -14,6 +14,7 @@ import '../services/weak_theory_review_launcher.dart';
 import '../services/theory_boost_recap_linker.dart';
 import '../services/theory_recap_review_tracker.dart';
 import '../models/theory_recap_review_entry.dart';
+import '../services/theory_prompt_dismiss_tracker.dart';
 import 'package:collection/collection.dart';
 
 /// Banner suggesting theory recap or booster after a session.
@@ -92,6 +93,16 @@ class _TheoryProgressRecoveryBannerState
       _lesson ??=
           MiniLessonLibraryService.instance.findByTags([tag.name]).firstOrNull;
       if (_lesson != null) {
+        if (await TheoryPromptDismissTracker.instance
+            .isRecentlyDismissed(_lesson!.id)) {
+          if (mounted) {
+            setState(() {
+              _loading = false;
+              _visible = false;
+            });
+          }
+          return;
+        }
         final bridge = SmartTheoryBoosterBridge();
         final recs = await bridge.recommend([_lesson!]);
         if (recs.isNotEmpty) {
@@ -153,6 +164,10 @@ class _TheoryProgressRecoveryBannerState
         tags: [tag.name],
         dismissed: true,
       );
+      if (_lesson != null) {
+        TheoryPromptDismissTracker.instance
+            .logDismiss(_lesson!.id, 'recoveryBanner');
+      }
     }
     setState(() => _visible = false);
   }

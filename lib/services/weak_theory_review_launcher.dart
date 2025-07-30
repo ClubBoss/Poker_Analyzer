@@ -8,6 +8,7 @@ import '../models/theory_recap_review_entry.dart';
 import 'mistake_tag_history_service.dart';
 import 'theory_replay_cooldown_manager.dart';
 import 'theory_boost_recap_linker.dart';
+import 'theory_prompt_dismiss_tracker.dart';
 
 /// Launches theory recap when repeated weaknesses are detected.
 class WeakTheoryReviewLauncher {
@@ -68,12 +69,21 @@ class WeakTheoryReviewLauncher {
         continue;
       }
       final lessonId = const TheoryBoostRecapLinker().getLinkedLesson(tag.name);
-      await showTheoryRecapDialog(
+      if (lessonId != null &&
+          await TheoryPromptDismissTracker.instance
+              .isRecentlyDismissed(lessonId)) {
+        continue;
+      }
+      final result = await showTheoryRecapDialog(
         context,
         lessonId: lessonId,
         tags: lessonId == null ? [tag.name] : null,
         trigger: 'weakness',
       );
+      if (result != true && lessonId != null) {
+        await TheoryPromptDismissTracker.instance
+            .logDismiss(lessonId, 'weakness');
+      }
       await TheoryRecapReviewTracker.instance.log(
         TheoryRecapReviewEntry(
           lessonId: lessonId ?? '',
