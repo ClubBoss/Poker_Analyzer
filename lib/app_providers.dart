@@ -121,6 +121,7 @@ import 'services/daily_app_check_service.dart';
 import 'services/skill_loss_overlay_prompt_service.dart';
 import 'services/gift_drop_service.dart';
 import 'services/session_streak_overlay_prompt_service.dart';
+import 'services/smart_recap_auto_injector.dart';
 import 'services/adaptive_next_step_engine.dart';
 import 'services/suggested_next_step_engine.dart';
 
@@ -571,6 +572,9 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) => RecapOpportunityDetector(
         retention: context.read<TagRetentionTracker>(),
       )..start(),
+    ),
+    Provider(
+      create: (_) => SmartRecapAutoInjector()..start(),
     ),
   ];
 }
