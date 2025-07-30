@@ -36,6 +36,7 @@ import 'session_log_service.dart';
 import 'smart_spot_injector.dart';
 import 'gift_drop_service.dart';
 import 'session_streak_tracker_service.dart';
+import 'smart_recap_banner_controller.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -621,6 +622,11 @@ class TrainingSessionService extends ChangeNotifier {
       }
       _timer?.cancel();
       unawaited(RecapOpportunityDetector.instance.notifyDrillCompleted());
+      final ctx = navigatorKey.currentContext;
+      if (ctx != null) {
+        unawaited(
+            ctx.read<SmartRecapBannerController>().triggerBannerIfNeeded());
+      }
       unawaited(_clearIndex());
     }
     if (_box != null) _box!.put(_session!.id, _session!.toJson());

@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/recap_opportunity_detector.dart';
-import '../services/smart_theory_recap_engine.dart';
-import '../services/training_session_service.dart';
+import '../services/smart_recap_banner_controller.dart';
 import '../widgets/theory_recap_dialog.dart';
 import '../models/theory_mini_lesson_node.dart';
 
@@ -23,6 +21,7 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
   TheoryMiniLessonNode? _lesson;
   late AnimationController _anim;
   Timer? _timer;
+  late SmartRecapBannerController _controller;
 
   @override
   void initState() {
@@ -31,42 +30,46 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _setup());
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _controller.removeListener(_onChanged);
     _anim.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    final sessions = context.read<TrainingSessionService>();
-    final busy = sessions.currentSession != null && !sessions.isCompleted;
-    if (busy) {
-      setState(() => _loading = false);
-      return;
-    }
-    final detector = RecapOpportunityDetector.instance;
-    final good = await detector.isGoodRecapMoment();
-    if (!good) {
-      setState(() => _loading = false);
-      return;
-    }
-    final lesson = await SmartTheoryRecapEngine.instance.getNextRecap();
-    if (lesson != null) {
-      _lesson = lesson;
-      _visible = true;
-      _anim.forward();
-      _timer = Timer(const Duration(seconds: 20), _dismiss);
-    }
-    if (mounted) setState(() => _loading = false);
+  Future<void> _setup() async {
+    _controller = context.read<SmartRecapBannerController>();
+    _controller.addListener(_onChanged);
+    _onChanged();
+    _loading = false;
   }
 
-  Future<void> _dismiss() async {
+  void _onChanged() {
+    final shouldShow = _controller.shouldShowBanner();
+    final lesson = _controller.getPendingLesson();
+    if (shouldShow && lesson != null) {
+      _lesson = lesson;
+      if (!_visible) {
+        _visible = true;
+        _anim.forward();
+        _timer?.cancel();
+        _timer = Timer(const Duration(seconds: 20),
+            () => _controller.dismiss(recordDismissal: true));
+      }
+    } else if (_visible) {
+      _dismiss(false);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _dismiss([bool record = true]) async {
     if (!_visible) return;
     await _anim.reverse();
+    await _controller.dismiss(recordDismissal: record);
     if (mounted) setState(() => _visible = false);
   }
 
@@ -78,7 +81,7 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
       lessonId: lesson.id,
       trigger: 'smartBanner',
     );
-    _dismiss();
+    _dismiss(false);
   }
 
   @override
