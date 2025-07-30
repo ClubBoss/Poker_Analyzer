@@ -98,6 +98,15 @@ class SmartRecapBannerController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Shows the banner for a specific [lesson] without running selection logic.
+  Future<void> showManually(TheoryMiniLessonNode lesson) async {
+    if (_visible && _lesson?.id == lesson.id) return;
+    _lesson = lesson;
+    _visible = true;
+    await _markShown();
+    notifyListeners();
+  }
+
   /// Hides the banner and optionally registers a dismissal.
   Future<void> dismiss({bool recordDismissal = false}) async {
     if (!_visible) return;
