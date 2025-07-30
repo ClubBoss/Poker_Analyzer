@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/booster_backlink.dart';
@@ -9,6 +10,7 @@ import 'theory_boost_recap_linker.dart';
 import 'theory_recap_review_tracker.dart';
 import '../models/theory_recap_review_entry.dart';
 import 'theory_recap_suppression_engine.dart';
+import 'theory_booster_recap_delay_manager.dart';
 
 /// Listens to booster and drill results and triggers theory recap when needed.
 class BoosterRecapHook {
@@ -69,6 +71,18 @@ class BoosterRecapHook {
     lessonId ??= tags != null && tags.isNotEmpty
         ? const TheoryBoostRecapLinker().getLinkedLesson(tags.first)
         : null;
+    final keys = <String>[];
+    if (lessonId != null) {
+      keys.add('lesson:$lessonId');
+    } else if (tags != null) {
+      keys.addAll(tags.map((t) => 'tag:$t'));
+    }
+    for (final k in keys) {
+      if (await TheoryBoosterRecapDelayManager.isUnderCooldown(
+          k, const Duration(hours: 24))) {
+        return;
+      }
+    }
     if (lessonId != null &&
         await suppression.shouldSuppress(
           lessonId: lessonId,
@@ -77,6 +91,9 @@ class BoosterRecapHook {
       return;
     }
     await engine.maybePrompt(lessonId: lessonId, tags: tags);
+    for (final k in keys) {
+      unawaited(TheoryBoosterRecapDelayManager.markPrompted(k));
+    }
     await TheoryRecapReviewTracker.instance.log(
       TheoryRecapReviewEntry(
         lessonId: lessonId ?? '',
