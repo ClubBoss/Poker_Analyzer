@@ -84,6 +84,14 @@ class GoalProgressPersistenceService {
     ];
   }
 
+  /// Returns a copy of all stored goal completion logs sorted by time.
+  Future<List<GoalCompletionLog>> getAllLogs() async {
+    await _load();
+    final list = List<GoalCompletionLog>.from(_logs)
+      ..sort((a, b) => a.completedAt.compareTo(b.completedAt));
+    return list;
+  }
+
   /// Returns total XP earned from goal completions during the current week.
   /// [xpPerGoal] allows overriding the XP value granted per goal.
   Future<int> getWeeklyXP({int xpPerGoal = 25}) async {
