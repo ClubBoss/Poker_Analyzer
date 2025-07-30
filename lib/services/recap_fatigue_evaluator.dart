@@ -6,7 +6,7 @@ import 'recap_history_tracker.dart';
 class RecapFatigueEvaluator {
   final RecapHistoryTracker tracker;
   RecapFatigueEvaluator({RecapHistoryTracker? tracker})
-      : tracker = tracker ?? RecapHistoryTracker.instance;
+    : tracker = tracker ?? RecapHistoryTracker.instance;
 
   static final RecapFatigueEvaluator instance = RecapFatigueEvaluator();
 
@@ -34,8 +34,9 @@ class RecapFatigueEvaluator {
     if (await _isActive(_globalKey)) return true;
     final history = await tracker.getHistory();
     final now = DateTime.now();
-    final recent24 =
-        history.where((e) => now.difference(e.timestamp) < const Duration(hours: 24));
+    final recent24 = history.where(
+      (e) => now.difference(e.timestamp) < const Duration(hours: 24),
+    );
     final dismisses = recent24.where((e) => e.eventType == 'dismissed').length;
     if (dismisses >= 2) {
       await _set(_globalKey, const Duration(hours: 24));
@@ -56,8 +57,9 @@ class RecapFatigueEvaluator {
     if (await _isActive(key)) return true;
     final history = await tracker.getHistory(lessonId: lessonId);
     final now = DateTime.now();
-    final recent48 =
-        history.where((e) => now.difference(e.timestamp) < const Duration(hours: 48));
+    final recent48 = history.where(
+      (e) => now.difference(e.timestamp) < const Duration(hours: 48),
+    );
     final dismisses = recent48.where((e) => e.eventType == 'dismissed').length;
     if (dismisses >= 3) {
       await _set(key, const Duration(days: 3));
@@ -86,5 +88,49 @@ class RecapFatigueEvaluator {
     if (until == null) return Duration.zero;
     final diff = until.difference(DateTime.now());
     return diff.isNegative ? Duration.zero : diff;
+  }
+
+  /// Light fatigue check based purely on recent interaction history.
+  ///
+  /// Returns true if recap prompts should be temporarily suppressed for
+  /// [lessonId] based on the following rules:
+  ///   * 3 or more dismissals of any recap in the last 24 hours
+  ///   * the same lesson was shown less than 6 hours ago
+  ///   * the lesson was completed at any time today
+  Future<bool> isFatigued(String lessonId) async {
+    final history = await tracker.getHistory();
+    final now = DateTime.now();
+
+    // Count dismissals globally in the last 24h
+    final dismiss24 = history.where((e) {
+      return e.eventType == 'dismissed' &&
+          now.difference(e.timestamp) < const Duration(hours: 24);
+    }).length;
+    if (dismiss24 >= 3) return true;
+
+    // Events filtered for the specific lesson
+    final lessonEvents = history
+        .where((e) => e.lessonId == lessonId)
+        .toList(growable: false);
+
+    // Last time the lesson banner was shown
+    for (final e in lessonEvents) {
+      if (e.eventType == 'shown') {
+        if (now.difference(e.timestamp) < const Duration(hours: 6)) {
+          return true;
+        }
+        break; // events are ordered newest first
+      }
+    }
+
+    // Completion logged for the lesson today
+    final today = DateTime(now.year, now.month, now.day);
+    for (final e in lessonEvents) {
+      if (e.eventType == 'completed' && e.timestamp.isAfter(today)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

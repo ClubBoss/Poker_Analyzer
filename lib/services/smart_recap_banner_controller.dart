@@ -9,6 +9,7 @@ import 'recap_opportunity_detector.dart';
 import 'smart_theory_recap_engine.dart';
 import 'theory_recap_suppression_engine.dart';
 import 'smart_theory_recap_dismissal_memory.dart';
+import 'recap_fatigue_evaluator.dart';
 import 'training_session_service.dart';
 
 /// Controls when the [SmartRecapSuggestionBanner] should be visible.
@@ -17,6 +18,7 @@ class SmartRecapBannerController extends ChangeNotifier {
   final SmartTheoryRecapEngine engine;
   final TheoryRecapSuppressionEngine suppression;
   final SmartTheoryRecapDismissalMemory dismissal;
+  final RecapFatigueEvaluator fatigue;
   final TrainingSessionService sessions;
 
   SmartRecapBannerController({
@@ -24,11 +26,13 @@ class SmartRecapBannerController extends ChangeNotifier {
     SmartTheoryRecapEngine? engine,
     TheoryRecapSuppressionEngine? suppression,
     SmartTheoryRecapDismissalMemory? dismissal,
+    RecapFatigueEvaluator? fatigue,
     required this.sessions,
-  })  : detector = detector ?? RecapOpportunityDetector.instance,
-        engine = engine ?? SmartTheoryRecapEngine.instance,
-        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-        dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
+  }) : detector = detector ?? RecapOpportunityDetector.instance,
+       engine = engine ?? SmartTheoryRecapEngine.instance,
+       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+       dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance,
+       fatigue = fatigue ?? RecapFatigueEvaluator.instance;
 
   static const _lastKey = 'smart_recap_banner_last';
   TheoryMiniLessonNode? _lesson;
@@ -80,6 +84,7 @@ class SmartRecapBannerController extends ChangeNotifier {
     }
     final lesson = await engine.getNextRecap();
     if (lesson == null) return;
+    if (await fatigue.isFatigued(lesson.id)) return;
     if (await suppression.shouldSuppress(
       lessonId: lesson.id,
       trigger: 'banner',
@@ -104,4 +109,3 @@ class SmartRecapBannerController extends ChangeNotifier {
     notifyListeners();
   }
 }
-
