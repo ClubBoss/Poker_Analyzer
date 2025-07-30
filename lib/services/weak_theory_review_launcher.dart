@@ -9,6 +9,7 @@ import 'mistake_tag_history_service.dart';
 import 'theory_replay_cooldown_manager.dart';
 import 'theory_boost_recap_linker.dart';
 import 'theory_prompt_dismiss_tracker.dart';
+import 'theory_recap_suppression_engine.dart';
 
 /// Launches theory recap when repeated weaknesses are detected.
 class WeakTheoryReviewLauncher {
@@ -18,10 +19,13 @@ class WeakTheoryReviewLauncher {
   /// Number of recent packs to analyze for repeated mistakes.
   final int sessionLimit;
 
+  final TheoryRecapSuppressionEngine suppression;
+
   const WeakTheoryReviewLauncher({
     this.threshold = 3,
     this.sessionLimit = 5,
-  });
+    TheoryRecapSuppressionEngine? suppression,
+  }) : suppression = suppression ?? TheoryRecapSuppressionEngine.instance;
 
   /// Checks recent mistakes and opens a [TheoryRecapDialog] if thresholds are exceeded.
   Future<void> maybeLaunch(BuildContext context) async {
@@ -72,6 +76,13 @@ class WeakTheoryReviewLauncher {
       if (lessonId != null &&
           await TheoryPromptDismissTracker.instance
               .isRecentlyDismissed(lessonId)) {
+        continue;
+      }
+      if (lessonId != null &&
+          await suppression.shouldSuppress(
+            lessonId: lessonId,
+            trigger: 'weakness',
+          )) {
         continue;
       }
       final result = await showTheoryRecapDialog(
