@@ -28,6 +28,7 @@ import '../models/v2/training_session.dart';
 import '../models/v2/training_action.dart';
 import '../models/v2/focus_goal.dart';
 import '../models/category_progress.dart';
+import 'recap_opportunity_detector.dart';
 import 'daily_reminder_scheduler.dart';
 import 'training_reminder_push_service.dart';
 import 'tag_mastery_service.dart';
@@ -619,6 +620,7 @@ class TrainingSessionService extends ChangeNotifier {
         _resumedAt = null;
       }
       _timer?.cancel();
+      unawaited(RecapOpportunityDetector.instance.notifyDrillCompleted());
       unawaited(_clearIndex());
     }
     if (_box != null) _box!.put(_session!.id, _session!.toJson());

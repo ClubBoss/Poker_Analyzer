@@ -31,6 +31,7 @@ import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 import '../widgets/streak_widget.dart';
+import '../services/app_usage_tracker.dart';
 import '../widgets/resume_training_card.dart';
 import '../services/ab_test_engine.dart';
 import '../services/daily_training_reminder_service.dart';
@@ -271,6 +272,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      AppUsageTracker.instance.markActive();
       _maybeShowTrainingReminder();
       _maybeLaunchScheduledTraining();
     }

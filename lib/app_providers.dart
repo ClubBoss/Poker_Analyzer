@@ -101,6 +101,7 @@ import 'services/tag_retention_tracker.dart';
 import 'services/goal_suggestion_engine.dart';
 import 'services/goal_sync_service.dart';
 import 'services/tag_coverage_service.dart';
+import 'services/recap_opportunity_detector.dart';
 import 'services/tag_mastery_history_service.dart';
 import 'services/tag_insight_reminder_engine.dart';
 import 'services/learning_path_prefs.dart';
@@ -566,6 +567,11 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     Provider(create: (_) => GiftDropService()),
     Provider(create: (_) => SessionStreakOverlayPromptService()),
+    Provider(
+      create: (context) => RecapOpportunityDetector(
+        retention: context.read<TagRetentionTracker>(),
+      )..start(),
+    ),
   ];
 }
 

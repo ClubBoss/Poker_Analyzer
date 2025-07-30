@@ -31,6 +31,7 @@ import 'services/user_action_logger.dart';
 import 'services/mistake_hint_service.dart';
 import 'services/remote_config_service.dart';
 import 'services/theme_service.dart';
+import 'services/app_usage_tracker.dart';
 import 'services/ab_test_engine.dart';
 import 'services/suggestion_banner_ab_test_service.dart';
 import 'services/asset_sync_service.dart';
@@ -214,6 +215,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     super.initState();
     _sync = AppBootstrap.sync!;
     context.read<UserActionLogger>().log('opened_app');
+    AppUsageTracker.instance.markActive();
     unawaited(NotificationService.scheduleDailyReminder(context));
     unawaited(() async {
       final t = await DailyChallengeNotificationService.getScheduledTime();
