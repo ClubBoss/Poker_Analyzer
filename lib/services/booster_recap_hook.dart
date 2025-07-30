@@ -8,12 +8,15 @@ import 'smart_theory_recap_engine.dart';
 import 'theory_boost_recap_linker.dart';
 import 'theory_recap_review_tracker.dart';
 import '../models/theory_recap_review_entry.dart';
+import 'theory_recap_suppression_engine.dart';
 
 /// Listens to booster and drill results and triggers theory recap when needed.
 class BoosterRecapHook {
   final SmartTheoryRecapEngine engine;
-  BoosterRecapHook({SmartTheoryRecapEngine? engine})
-      : engine = engine ?? SmartTheoryRecapEngine.instance;
+  final TheoryRecapSuppressionEngine suppression;
+  BoosterRecapHook({SmartTheoryRecapEngine? engine, TheoryRecapSuppressionEngine? suppression})
+      : engine = engine ?? SmartTheoryRecapEngine.instance,
+        suppression = suppression ?? TheoryRecapSuppressionEngine.instance;
 
   static final BoosterRecapHook instance = BoosterRecapHook();
 
@@ -66,6 +69,13 @@ class BoosterRecapHook {
     lessonId ??= tags != null && tags.isNotEmpty
         ? const TheoryBoostRecapLinker().getLinkedLesson(tags.first)
         : null;
+    if (lessonId != null &&
+        await suppression.shouldSuppress(
+          lessonId: lessonId,
+          trigger: 'boosterFailure',
+        )) {
+      return;
+    }
     await engine.maybePrompt(lessonId: lessonId, tags: tags);
     await TheoryRecapReviewTracker.instance.log(
       TheoryRecapReviewEntry(
