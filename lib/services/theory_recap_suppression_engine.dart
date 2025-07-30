@@ -99,4 +99,29 @@ class TheoryRecapSuppressionEngine {
 
     return suppressed;
   }
+
+  /// Returns suppression reason if any without updating state.
+  /// Possible reasons: 'globalCooldown', 'lessonCooldown', 'triggerCooldown',
+  /// 'lowAcceptance', 'ignoredStreak', 'mostDismissed'.
+  Future<String?> getSuppressionReason({
+    required String lessonId,
+    required String trigger,
+  }) async {
+    if (await _isSuppressed('global')) return 'globalCooldown';
+    if (await _isSuppressed('lesson:$lessonId')) return 'lessonCooldown';
+    if (await _isSuppressed('trigger:$trigger')) return 'triggerCooldown';
+
+    final RecapAnalyticsSummary summary = await summarizer.summarize();
+
+    final rate = summary.acceptanceRatesByTrigger[trigger] ?? 100;
+    if (rate < 20) return 'lowAcceptance';
+
+    if (summary.ignoredStreakCount >= 3) return 'ignoredStreak';
+
+    if (summary.mostDismissedLessonIds.take(3).contains(lessonId)) {
+      return 'mostDismissed';
+    }
+
+    return null;
+  }
 }
