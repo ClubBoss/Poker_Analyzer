@@ -8,6 +8,7 @@ import 'booster_fatigue_guard.dart';
 import 'theory_recap_analytics_reporter.dart';
 import 'smart_booster_dropoff_detector.dart';
 import 'smart_theory_recap_dismissal_memory.dart';
+import 'smart_theory_recap_score_weighting.dart';
 import '../screens/theory_cluster_detail_screen.dart';
 import '../services/theory_cluster_summary_service.dart';
 import '../services/theory_lesson_tag_clusterer.dart';
@@ -18,14 +19,17 @@ class SmartTheoryRecapEngine {
   final SmartTheoryBoosterLinker linker;
   final SmartBoosterDropoffDetector dropoff;
   final SmartTheoryRecapDismissalMemory dismissalMemory;
+  final SmartTheoryRecapScoreWeighting weighting;
 
   SmartTheoryRecapEngine({
     this.linker = const SmartTheoryBoosterLinker(),
     SmartBoosterDropoffDetector? dropoff,
     SmartTheoryRecapDismissalMemory? dismissalMemory,
+    SmartTheoryRecapScoreWeighting? weighting,
   })  : dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
         dismissalMemory =
-            dismissalMemory ?? SmartTheoryRecapDismissalMemory.instance;
+            dismissalMemory ?? SmartTheoryRecapDismissalMemory.instance,
+        weighting = weighting ?? SmartTheoryRecapScoreWeighting.instance;
 
   static const _dismissKey = 'smart_theory_recap_dismissed';
   static final SmartTheoryRecapEngine instance = SmartTheoryRecapEngine();
@@ -52,6 +56,14 @@ class SmartTheoryRecapEngine {
     String? link;
     if (lessonId != null) {
       link = await linker.linkForLesson(lessonId);
+    }
+    if (link == null && tags != null && tags.isNotEmpty) {
+      final scores = await weighting
+          .computeScores([for (final t in tags) 'tag:$t']);
+      final sorted = [...tags]
+        ..sort((a, b) =>
+            (scores['tag:$b'] ?? 0).compareTo(scores['tag:$a'] ?? 0));
+      link = await linker.linkForTags(sorted);
     }
     link ??= await linker.linkForTags(tags ?? const []);
     return link;
