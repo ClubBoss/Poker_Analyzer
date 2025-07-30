@@ -11,14 +11,17 @@ import 'theory_recap_review_tracker.dart';
 import '../models/theory_recap_review_entry.dart';
 import 'theory_recap_suppression_engine.dart';
 import 'theory_booster_recap_delay_manager.dart';
+import 'booster_fatigue_guard.dart';
 
 /// Listens to booster and drill results and triggers theory recap when needed.
 class BoosterRecapHook {
   final SmartTheoryRecapEngine engine;
   final TheoryRecapSuppressionEngine suppression;
-  BoosterRecapHook({SmartTheoryRecapEngine? engine, TheoryRecapSuppressionEngine? suppression})
-      : engine = engine ?? SmartTheoryRecapEngine.instance,
-        suppression = suppression ?? TheoryRecapSuppressionEngine.instance;
+  BoosterRecapHook({
+    SmartTheoryRecapEngine? engine,
+    TheoryRecapSuppressionEngine? suppression,
+  }) : engine = engine ?? SmartTheoryRecapEngine.instance,
+       suppression = suppression ?? TheoryRecapSuppressionEngine.instance;
 
   static final BoosterRecapHook instance = BoosterRecapHook();
 
@@ -36,16 +39,24 @@ class BoosterRecapHook {
   }
 
   /// Call when a hand review screen is opened.
-  Future<void> onReviewOpened({required String handId, List<String>? tags}) async {
+  Future<void> onReviewOpened({
+    required String handId,
+    List<String>? tags,
+  }) async {
     final count = await _incrementReview(handId);
     if (count > 1) {
+      if (await BoosterFatigueGuard.instance.isFatigued()) return;
       await engine.maybePrompt(tags: tags);
     }
   }
 
   /// Call when a drill result screen is shown.
-  Future<void> onDrillResult({required int mistakes, List<String>? tags}) async {
+  Future<void> onDrillResult({
+    required int mistakes,
+    List<String>? tags,
+  }) async {
     if (mistakes >= 2) {
+      if (await BoosterFatigueGuard.instance.isFatigued()) return;
       await engine.maybePrompt(tags: tags);
     }
   }
@@ -60,6 +71,7 @@ class BoosterRecapHook {
     final correct = result.correct;
     final failed = total > 0 && correct / total < 0.5;
     if (!failed) return;
+    if (await BoosterFatigueGuard.instance.isFatigued()) return;
     String? lessonId;
     List<String>? tags = booster.tags;
     if (backlink != null) {
@@ -79,7 +91,9 @@ class BoosterRecapHook {
     }
     for (final k in keys) {
       if (await TheoryBoosterRecapDelayManager.isUnderCooldown(
-          k, const Duration(hours: 24))) {
+        k,
+        const Duration(hours: 24),
+      )) {
         return;
       }
     }
@@ -103,4 +117,3 @@ class BoosterRecapHook {
     );
   }
 }
-
