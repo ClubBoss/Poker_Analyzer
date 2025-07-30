@@ -14,6 +14,12 @@ class RecapHistoryTracker {
   final List<RecapEvent> _events = [];
   bool _loaded = false;
 
+  /// Clears cached data for testing purposes.
+  void resetForTest() {
+    _loaded = false;
+    _events.clear();
+  }
+
   Future<void> _load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();
