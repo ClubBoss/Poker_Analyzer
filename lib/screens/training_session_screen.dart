@@ -38,6 +38,7 @@ import '../services/daily_learning_goal_service.dart';
 import '../services/pack_dependency_map.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/smart_stage_unlock_engine.dart';
+import '../services/theory_completion_event_dispatcher.dart';
 import '../services/training_milestone_engine.dart';
 import '../widgets/confetti_overlay.dart';
 import '../widgets/booster_progress_overlay.dart';
@@ -496,6 +497,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(milestone.message)));
       }
+      TheoryCompletionEventDispatcher.instance.dispatch(
+        TheoryCompletionEvent(
+          lessonId: tpl.id,
+          wasSuccessful: total == 0 ? true : correct / total >= 0.5,
+        ),
+      );
     }
   }
 
