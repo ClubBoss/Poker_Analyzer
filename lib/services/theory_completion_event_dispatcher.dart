@@ -3,6 +3,7 @@ import 'dart:async';
 import 'recall_analytics_service.dart';
 import 'theory_reinforcement_scheduler.dart';
 import 'theory_replay_cooldown_manager.dart';
+import 'theory_reinforcement_queue_service.dart';
 
 class TheoryCompletionEvent {
   final String lessonId;
@@ -23,11 +24,20 @@ class TheoryCompletionEventDispatcher {
     });
     addListener((event) {
       if (event.wasSuccessful) {
-        unawaited(
-            TheoryReinforcementScheduler.instance.registerSuccess(event.lessonId));
+        unawaited(TheoryReinforcementScheduler.instance
+            .registerSuccess(event.lessonId));
       } else {
-        unawaited(
-            TheoryReinforcementScheduler.instance.registerFailure(event.lessonId));
+        unawaited(TheoryReinforcementScheduler.instance
+            .registerFailure(event.lessonId));
+      }
+    });
+    addListener((event) {
+      if (event.wasSuccessful) {
+        unawaited(TheoryReinforcementQueueService.instance
+            .registerSuccess(event.lessonId));
+      } else {
+        unawaited(TheoryReinforcementQueueService.instance
+            .registerFailure(event.lessonId));
       }
     });
     addListener((event) {
@@ -53,7 +63,8 @@ class TheoryCompletionEventDispatcher {
   }
 
   void dispatch(TheoryCompletionEvent event) {
-    for (final l in List<void Function(TheoryCompletionEvent)>.from(_listeners)) {
+    for (final l
+        in List<void Function(TheoryCompletionEvent)>.from(_listeners)) {
       try {
         l(event);
       } catch (_) {}
