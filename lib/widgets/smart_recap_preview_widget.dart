@@ -57,7 +57,12 @@ class _SmartRecapPreviewWidgetState extends State<SmartRecapPreviewWidget>
     if (lesson == null) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+      MaterialPageRoute(
+        builder: (_) => MiniLessonScreen(
+          lesson: lesson,
+          recapTag: 'recap',
+        ),
+      ),
     );
   }
 
