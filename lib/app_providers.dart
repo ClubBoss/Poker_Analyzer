@@ -123,6 +123,7 @@ import 'services/gift_drop_service.dart';
 import 'services/session_streak_overlay_prompt_service.dart';
 import 'services/smart_recap_auto_injector.dart';
 import 'services/smart_recap_banner_controller.dart';
+import 'services/theory_inbox_banner_controller.dart';
 import 'services/smart_recap_banner_reinjection_service.dart';
 import 'services/recap_to_drill_launcher.dart';
 import 'services/adaptive_next_step_engine.dart';
@@ -578,6 +579,9 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) => SkillLossOverlayPromptService(
         logs: context.read<SessionLogService>(),
       ),
+    ),
+    ChangeNotifierProvider(
+      create: (_) => TheoryInboxBannerController()..start(),
     ),
     Provider(create: (_) => GiftDropService()),
     Provider(create: (_) => SessionStreakOverlayPromptService()),
