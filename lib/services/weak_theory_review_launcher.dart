@@ -4,7 +4,7 @@ import '../models/mistake_tag.dart';
 import '../models/mistake_tag_history_entry.dart';
 import '../widgets/theory_recap_dialog.dart';
 import 'mistake_tag_history_service.dart';
-import 'suggestion_cooldown_manager.dart';
+import 'theory_replay_cooldown_manager.dart';
 
 /// Launches theory recap when repeated weaknesses are detected.
 class WeakTheoryReviewLauncher {
@@ -58,10 +58,10 @@ class WeakTheoryReviewLauncher {
       final packCount = tagPacks[tag]?.length ?? 0;
       if (count < threshold || packCount < 2) continue;
       final key = 'weak_theory_${tag.name.toLowerCase()}';
-      if (await SuggestionCooldownManager.isUnderCooldown(
-          key,
-          cooldown: const Duration(days: 1),
-        )) {
+      if (await TheoryReplayCooldownManager.isUnderCooldown(
+        key,
+        cooldown: const Duration(days: 1),
+      )) {
         continue;
       }
       await showTheoryRecapDialog(
@@ -69,7 +69,7 @@ class WeakTheoryReviewLauncher {
         tags: [tag.name],
         trigger: 'weakness',
       );
-      await SuggestionCooldownManager.markSuggested(key);
+      await TheoryReplayCooldownManager.markSuggested(key);
       break;
     }
   }

@@ -6,6 +6,7 @@ import 'booster_library_service.dart';
 import 'theory_lesson_tag_clusterer.dart';
 import 'theory_cluster_summary_service.dart';
 import 'theory_booster_recommender.dart';
+import 'theory_replay_cooldown_manager.dart';
 
 /// Links weak theory lessons to relevant booster packs.
 class SmartTheoryBoosterBridge {
@@ -77,6 +78,9 @@ class SmartTheoryBoosterBridge {
       }
 
       if (best != null && bestTag != null) {
+        if (await TheoryReplayCooldownManager.isUnderCooldown(bestTag!)) {
+          continue;
+        }
         results.add(
           BoosterRecommendationResult(
             boosterId: best!.id,
