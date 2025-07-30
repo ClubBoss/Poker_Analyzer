@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../services/smart_recap_banner_controller.dart';
 import '../services/recap_to_drill_launcher.dart';
 import '../models/theory_mini_lesson_node.dart';
+import '../screens/mini_lesson_screen.dart';
 
 class SmartRecapSuggestionBanner extends StatefulWidget {
   const SmartRecapSuggestionBanner({super.key});
@@ -19,6 +20,7 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
   bool _loading = true;
   bool _visible = false;
   TheoryMiniLessonNode? _lesson;
+  List<TheoryMiniLessonNode> _boosters = [];
   late AnimationController _anim;
   Timer? _timer;
   late SmartRecapBannerController _controller;
@@ -51,14 +53,18 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
   void _onChanged() {
     final shouldShow = _controller.shouldShowBanner();
     final lesson = _controller.getPendingLesson();
-    if (shouldShow && lesson != null) {
+    final boosters = _controller.getBoosterLessons();
+    if (shouldShow && (lesson != null || boosters.isNotEmpty)) {
       _lesson = lesson;
+      _boosters = boosters;
       if (!_visible) {
         _visible = true;
         _anim.forward();
         _timer?.cancel();
-        _timer = Timer(const Duration(seconds: 20),
-            () => _controller.dismiss(recordDismissal: true));
+        _timer = Timer(
+          const Duration(seconds: 20),
+          () => _controller.dismiss(recordDismissal: true),
+        );
       }
     } else if (_visible) {
       _dismiss(false);
@@ -80,9 +86,17 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
     await launcher.launch(lesson);
   }
 
+  Future<void> _openBooster(TheoryMiniLessonNode lesson) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+    );
+    await _controller.dismiss(recordDismissal: false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_loading || !_visible || _lesson == null) {
+    if (_loading || !_visible) {
       return const SizedBox.shrink();
     }
     final accent = Theme.of(context).colorScheme.secondary;
@@ -100,10 +114,12 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    '💡 Подтверди знание?',
-                    style: TextStyle(
+                    _lesson != null
+                        ? '💡 Подтверди знание?'
+                        : '📌 Need Review?',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -117,19 +133,38 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Быстрый повтор урока по твоей недавней ошибке',
-              style: TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: _open,
-                style: ElevatedButton.styleFrom(backgroundColor: accent),
-                child: const Text('Повторить сейчас'),
+            if (_lesson != null) ...[
+              const Text(
+                'Быстрый повтор урока по твоей недавней ошибке',
+                style: TextStyle(color: Colors.white70),
               ),
-            ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: _open,
+                  style: ElevatedButton.styleFrom(backgroundColor: accent),
+                  child: const Text('Повторить сейчас'),
+                ),
+              ),
+            ] else ...[
+              for (var i = 0; i < _boosters.length; i++) ...[
+                Text(
+                  _boosters[i].resolvedTitle,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => _openBooster(_boosters[i]),
+                    style: TextButton.styleFrom(foregroundColor: accent),
+                    child: const Text('Open'),
+                  ),
+                ),
+                if (i != _boosters.length - 1) const SizedBox(height: 8),
+              ],
+            ],
           ],
         ),
       ),
