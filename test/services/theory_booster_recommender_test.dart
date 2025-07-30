@@ -73,6 +73,7 @@ void main() {
     expect(rec!.boosterId, 'b1');
     expect(rec.reasonTag, 'btn overfold');
     expect(rec.priority, greaterThan(0));
+    expect(rec.origin, 'lesson');
   });
 
   test('returns null when no booster matches', () async {

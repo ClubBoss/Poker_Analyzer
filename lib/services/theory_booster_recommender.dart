@@ -8,11 +8,13 @@ class BoosterRecommendationResult {
   final String boosterId;
   final String reasonTag;
   final double priority;
+  final String origin;
 
   const BoosterRecommendationResult({
     required this.boosterId,
     required this.reasonTag,
     required this.priority,
+    this.origin = '',
   });
 }
 
@@ -65,6 +67,7 @@ class TheoryBoosterRecommender {
       boosterId: best!.id,
       reasonTag: bestTag ?? '',
       priority: bestScore,
+      origin: 'lesson',
     );
   }
 }

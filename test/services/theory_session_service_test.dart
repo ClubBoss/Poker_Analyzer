@@ -24,6 +24,7 @@ void main() {
       boosterId: 'b',
       reasonTag: 'tag',
       priority: 1.0,
+      origin: 'lesson',
     );
     final service = TheorySessionService(
       recommender: const _FakeRecommender(rec),
@@ -37,6 +38,7 @@ void main() {
     final res = await service.onComplete(lesson);
     expect(res, isNotNull);
     expect(res!.boosterId, 'b');
+    expect(res.origin, 'lesson');
     final completed = await service.progress.isCompleted('l1');
     expect(completed, true);
   });
