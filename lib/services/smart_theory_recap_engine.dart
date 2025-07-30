@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import 'smart_theory_booster_linker.dart';
 import 'booster_fatigue_guard.dart';
+import 'theory_recap_analytics_reporter.dart';
 import '../screens/theory_cluster_detail_screen.dart';
 import '../services/theory_cluster_summary_service.dart';
 import '../services/theory_lesson_tag_clusterer.dart';
@@ -74,9 +75,24 @@ class SmartTheoryRecapEngine {
   }
 
   /// Attempts to show a recap prompt if a relevant link is available.
-  Future<void> maybePrompt({String? lessonId, List<String>? tags}) async {
-    if (await BoosterFatigueGuard.instance.isFatigued()) return;
-    if (await _recentlyDismissed()) return;
+  Future<void> maybePrompt({
+    String? lessonId,
+    List<String>? tags,
+    String trigger = '',
+  }) async {
+    if (await BoosterFatigueGuard.instance
+        .isFatigued(lessonId: lessonId ?? '', trigger: trigger)) {
+      return;
+    }
+    if (await _recentlyDismissed()) {
+      await TheoryRecapAnalyticsReporter.instance.logEvent(
+        lessonId: lessonId ?? '',
+        trigger: trigger,
+        outcome: 'cooldown',
+        delay: null,
+      );
+      return;
+    }
     final link = await getLink(lessonId: lessonId, tags: tags);
     if (link == null) return;
     final ctx = navigatorKey.currentContext;
@@ -101,5 +117,11 @@ class SmartTheoryRecapEngine {
     if (open == true) {
       await _openLink(ctx, link);
     }
+    await TheoryRecapAnalyticsReporter.instance.logEvent(
+      lessonId: lessonId ?? '',
+      trigger: trigger,
+      outcome: 'shown',
+      delay: null,
+    );
   }
 }

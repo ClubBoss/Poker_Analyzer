@@ -12,21 +12,36 @@ import '../models/theory_recap_review_entry.dart';
 import 'theory_recap_suppression_engine.dart';
 import 'theory_booster_recap_delay_manager.dart';
 import 'booster_fatigue_guard.dart';
+import 'theory_recap_analytics_reporter.dart';
 
 /// Listens to booster and drill results and triggers theory recap when needed.
 class BoosterRecapHook {
   final SmartTheoryRecapEngine engine;
   final TheoryRecapSuppressionEngine suppression;
+  final TheoryRecapAnalyticsReporter analytics;
   BoosterRecapHook({
     SmartTheoryRecapEngine? engine,
     TheoryRecapSuppressionEngine? suppression,
+    TheoryRecapAnalyticsReporter? analytics,
   }) : engine = engine ?? SmartTheoryRecapEngine.instance,
-       suppression = suppression ?? TheoryRecapSuppressionEngine.instance;
+       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+       analytics = analytics ?? TheoryRecapAnalyticsReporter.instance;
 
   static final BoosterRecapHook instance = BoosterRecapHook();
 
   static const _reviewPrefix = 'review_count_';
   final Map<String, int> _reviewCache = {};
+
+  Future<Duration?> _delayForKeys(List<String> keys) async {
+    DateTime? last;
+    for (final k in keys) {
+      final ts = await TheoryBoosterRecapDelayManager.lastPromptTime(k);
+      if (ts != null && (last == null || ts.isAfter(last!))) {
+        last = ts;
+      }
+    }
+    return last == null ? null : DateTime.now().difference(last!);
+  }
 
   Future<int> _incrementReview(String id) async {
     if (id.isEmpty) return 0;
@@ -45,8 +60,18 @@ class BoosterRecapHook {
   }) async {
     final count = await _incrementReview(handId);
     if (count > 1) {
-      if (await BoosterFatigueGuard.instance.isFatigued()) return;
-      await engine.maybePrompt(tags: tags);
+      const trigger = 'review';
+      if (await BoosterFatigueGuard.instance
+          .isFatigued(lessonId: '', trigger: trigger)) {
+        await analytics.logEvent(
+          lessonId: '',
+          trigger: trigger,
+          outcome: 'fatigued',
+          delay: null,
+        );
+        return;
+      }
+      await engine.maybePrompt(tags: tags, trigger: trigger);
     }
   }
 
@@ -56,8 +81,18 @@ class BoosterRecapHook {
     List<String>? tags,
   }) async {
     if (mistakes >= 2) {
-      if (await BoosterFatigueGuard.instance.isFatigued()) return;
-      await engine.maybePrompt(tags: tags);
+      const trigger = 'drillResult';
+      if (await BoosterFatigueGuard.instance
+          .isFatigued(lessonId: '', trigger: trigger)) {
+        await analytics.logEvent(
+          lessonId: '',
+          trigger: trigger,
+          outcome: 'fatigued',
+          delay: null,
+        );
+        return;
+      }
+      await engine.maybePrompt(tags: tags, trigger: trigger);
     }
   }
 
@@ -71,7 +106,17 @@ class BoosterRecapHook {
     final correct = result.correct;
     final failed = total > 0 && correct / total < 0.5;
     if (!failed) return;
-    if (await BoosterFatigueGuard.instance.isFatigued()) return;
+    const trigger = 'boosterFailure';
+    if (await BoosterFatigueGuard.instance
+        .isFatigued(lessonId: '', trigger: trigger)) {
+      await analytics.logEvent(
+        lessonId: '',
+        trigger: trigger,
+        outcome: 'fatigued',
+        delay: null,
+      );
+      return;
+    }
     String? lessonId;
     List<String>? tags = booster.tags;
     if (backlink != null) {
@@ -102,12 +147,28 @@ class BoosterRecapHook {
           lessonId: lessonId,
           trigger: 'boosterFailure',
         )) {
+      await analytics.logEvent(
+        lessonId: lessonId,
+        trigger: trigger,
+        outcome: 'suppressed',
+        delay: await _delayForKeys(keys),
+      );
       return;
     }
-    await engine.maybePrompt(lessonId: lessonId, tags: tags);
+    await engine.maybePrompt(
+      lessonId: lessonId,
+      tags: tags,
+      trigger: trigger,
+    );
     for (final k in keys) {
       unawaited(TheoryBoosterRecapDelayManager.markPrompted(k));
     }
+    await analytics.logEvent(
+      lessonId: lessonId ?? '',
+      trigger: trigger,
+      outcome: 'shown',
+      delay: await _delayForKeys(keys),
+    );
     await TheoryRecapReviewTracker.instance.log(
       TheoryRecapReviewEntry(
         lessonId: lessonId ?? '',
