@@ -1,0 +1,57 @@
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Manages cooldowns for booster-triggered theory recaps.
+class TheoryBoosterRecapDelayManager {
+  static const String _prefsKey = 'theory_booster_recap_delay';
+
+  static Map<String, DateTime>? _cache;
+
+  static Future<Map<String, DateTime>> _load() async {
+    if (_cache != null) return _cache!;
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_prefsKey);
+    if (raw != null) {
+      try {
+        final data = jsonDecode(raw);
+        if (data is Map) {
+          _cache = {
+            for (final e in data.entries)
+              if (e.value is String && DateTime.tryParse(e.value as String) != null)
+                e.key.toString(): DateTime.parse(e.value as String),
+          };
+          return _cache!;
+        }
+      } catch (_) {}
+    }
+    _cache = <String, DateTime>{};
+    return _cache!;
+  }
+
+  static Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    final map = _cache ?? <String, DateTime>{};
+    await prefs.setString(
+      _prefsKey,
+      jsonEncode({for (final e in map.entries) e.key: e.value.toIso8601String()}),
+    );
+  }
+
+  /// Returns true if [key] is still under [cooldown].
+  static Future<bool> isUnderCooldown(String key, Duration cooldown) async {
+    final map = await _load();
+    final ts = map[key];
+    if (ts == null) return false;
+    return DateTime.now().difference(ts) < cooldown;
+  }
+
+  /// Marks [key] as prompted and prunes stale entries.
+  static Future<void> markPrompted(String key) async {
+    final map = await _load();
+    map[key] = DateTime.now();
+    final cutoff = DateTime.now().subtract(const Duration(days: 60));
+    map.removeWhere((_, ts) => ts.isBefore(cutoff));
+    await _save();
+  }
+}
