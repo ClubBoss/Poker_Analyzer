@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 import '../models/recap_completion_log.dart';
 
@@ -13,6 +14,12 @@ class RecapCompletionTracker {
 
   final List<RecapCompletionLog> _logs = [];
   bool _loaded = false;
+
+  final StreamController<RecapCompletionLog> _ctrl =
+      StreamController<RecapCompletionLog>.broadcast();
+
+  /// Stream of newly logged recap completions.
+  Stream<RecapCompletionLog> get onCompletion => _ctrl.stream;
 
   /// Clears cached data for testing.
   void resetForTest() {
@@ -53,17 +60,16 @@ class RecapCompletionTracker {
     DateTime? timestamp,
   }) async {
     await _load();
-    _logs.insert(
-      0,
-      RecapCompletionLog(
-        lessonId: lessonId,
-        tag: tag,
-        timestamp: timestamp ?? DateTime.now(),
-        duration: duration,
-      ),
+    final log = RecapCompletionLog(
+      lessonId: lessonId,
+      tag: tag,
+      timestamp: timestamp ?? DateTime.now(),
+      duration: duration,
     );
+    _logs.insert(0, log);
     if (_logs.length > 200) _logs.removeRange(200, _logs.length);
     await _save();
+    _ctrl.add(log);
   }
 
   /// Returns completions within [window] sorted newest first.
