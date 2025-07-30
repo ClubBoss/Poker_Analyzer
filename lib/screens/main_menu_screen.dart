@@ -57,6 +57,7 @@ import '../widgets/lesson_suggestion_banner.dart';
 import '../widgets/recovery_prompt_banner.dart';
 import '../widgets/goal_reengagement_banner.dart';
 import '../widgets/smart_recap_suggestion_banner.dart';
+import '../widgets/recap_banner_widget.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -822,7 +823,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     const LessonSuggestionBanner(),
                     const GoalReengagementBannerWidget(),
                     const RecoveryPromptBanner(),
-                    const SmartRecapSuggestionBanner(),
+                    const RecapBannerWidget(),
                     _buildSuggestedBanner(context),
                     _buildStreakCard(context),
                     _buildDailyGoalCard(context),
