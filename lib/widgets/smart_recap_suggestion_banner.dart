@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/smart_recap_banner_controller.dart';
-import '../widgets/theory_recap_dialog.dart';
+import '../services/recap_to_drill_launcher.dart';
 import '../models/theory_mini_lesson_node.dart';
 
 class SmartRecapSuggestionBanner extends StatefulWidget {
@@ -76,12 +76,8 @@ class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
   Future<void> _open() async {
     final lesson = _lesson;
     if (lesson == null) return;
-    await showTheoryRecapDialog(
-      context,
-      lessonId: lesson.id,
-      trigger: 'smartBanner',
-    );
-    _dismiss(false);
+    final launcher = context.read<RecapToDrillLauncher>();
+    await launcher.launch(lesson);
   }
 
   @override

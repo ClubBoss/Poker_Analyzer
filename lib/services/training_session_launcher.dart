@@ -7,6 +7,10 @@ import '../screens/training_session_screen.dart';
 import '../screens/theory_pack_preview_screen.dart';
 import 'achievements_engine.dart';
 import 'dart:async';
+import '../models/theory_mini_lesson_node.dart';
+import 'smart_recap_booster_launcher.dart';
+import 'smart_recap_booster_linker.dart';
+import 'training_pack_template_storage_service.dart';
 
 /// Helper to start a training session from a pack template.
 class TrainingSessionLauncher {
@@ -40,5 +44,15 @@ class TrainingSessionLauncher {
       ),
     );
     unawaited(AchievementsEngine.instance.checkAll());
+  }
+
+  /// Finds and launches a booster drill relevant to [lesson].
+  Future<void> launchForMiniLesson(TheoryMiniLessonNode lesson) async {
+    final service = SmartRecapBoosterLauncher(
+      linker: SmartRecapBoosterLinker(
+        storage: TrainingPackTemplateStorageService(),
+      ),
+    );
+    await service.launchBoosterForLesson(lesson);
   }
 }
