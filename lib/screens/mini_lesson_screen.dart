@@ -5,6 +5,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import '../services/recap_completion_tracker.dart';
+import '../services/theory_streak_service.dart';
 
 /// Simple viewer for a [TheoryMiniLessonNode].
 class MiniLessonScreen extends StatefulWidget {
@@ -34,6 +35,7 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
         RecapCompletionTracker.instance
             .logCompletion(widget.lesson.id, tag, duration),
       );
+      unawaited(TheoryStreakService.instance.recordToday());
     }
     super.dispose();
   }

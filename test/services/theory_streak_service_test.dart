@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/services/theory_streak_service.dart';
@@ -11,58 +9,29 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('current streak computed from logs', () async {
-    final now = DateTime.now();
-    final logs = [
-      {
-        'id': 'a',
-        'type': 'standard',
-        'source': 'auto',
-        'timestamp': now.toIso8601String(),
-      },
-      {
-        'id': 'b',
-        'type': 'mini',
-        'source': 'auto',
-        'timestamp': now.subtract(const Duration(days: 1)).toIso8601String(),
-      },
-      {
-        'id': 'c',
-        'type': 'standard',
-        'source': 'auto',
-        'timestamp': now.subtract(const Duration(days: 2)).toIso8601String(),
-      },
-    ];
+  test('recordToday increments consecutive streak', () async {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
     SharedPreferences.setMockInitialValues({
-      'theory_reinforcement_logs': jsonEncode(logs),
+      'theory_streak_last': yesterday.toIso8601String(),
+      'theory_streak_count': 2,
+      'theory_streak_best': 4,
     });
-    final streak = await TheoryStreakService.instance.getCurrentStreak();
-    expect(streak, 3);
+    await TheoryStreakService.instance.recordToday();
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getInt('theory_streak_count'), 3);
-    expect(prefs.getInt('theory_streak_best'), 3);
+    expect(prefs.getInt('theory_streak_best'), 4);
   });
 
-  test('streak resets when a day is missed', () async {
-    final now = DateTime.now();
-    final logs = [
-      {
-        'id': 'a',
-        'type': 'standard',
-        'source': 'auto',
-        'timestamp': now.toIso8601String(),
-      },
-      {
-        'id': 'b',
-        'type': 'mini',
-        'source': 'auto',
-        'timestamp': now.subtract(const Duration(days: 2)).toIso8601String(),
-      },
-    ];
+  test('recordToday resets streak when day missed', () async {
+    final twoDaysAgo = DateTime.now().subtract(const Duration(days: 2));
     SharedPreferences.setMockInitialValues({
-      'theory_reinforcement_logs': jsonEncode(logs),
+      'theory_streak_last': twoDaysAgo.toIso8601String(),
+      'theory_streak_count': 5,
+      'theory_streak_best': 5,
     });
-    final streak = await TheoryStreakService.instance.getCurrentStreak();
-    expect(streak, 1);
+    await TheoryStreakService.instance.recordToday();
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getInt('theory_streak_count'), 1);
+    expect(prefs.getInt('theory_streak_best'), 5);
   });
 }
