@@ -49,8 +49,9 @@ class RecapHistoryTracker {
   Future<void> logRecapEvent(
     String lessonId,
     String trigger,
-    String eventType,
-  ) async {
+    String eventType, {
+    DateTime? timestamp,
+  }) async {
     await _load();
     _events.insert(
       0,
@@ -58,7 +59,7 @@ class RecapHistoryTracker {
         lessonId: lessonId,
         trigger: trigger,
         eventType: eventType,
-        timestamp: DateTime.now(),
+        timestamp: timestamp ?? DateTime.now(),
       ),
     );
     if (_events.length > 200) _events.removeRange(200, _events.length);
