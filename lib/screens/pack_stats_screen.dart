@@ -9,6 +9,7 @@ import 'training_session_screen.dart';
 import 'pack_history_screen.dart';
 import '../widgets/next_pack_recommendation_banner.dart';
 import '../widgets/skill_mastery_chart_widget.dart';
+import '../widgets/theory_progress_recovery_banner.dart';
 
 class PackStatsScreen extends StatelessWidget {
   final String templateId;
@@ -127,6 +128,7 @@ class PackStatsScreen extends StatelessWidget {
               ),
               const SkillMasteryChartWidget(),
               NextPackRecommendationBanner(currentPackId: templateId),
+              const TheoryProgressRecoveryBanner(),
             ],
           ),
         ),

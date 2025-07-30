@@ -6,6 +6,7 @@ import '../services/training_session_service.dart';
 import '../services/training_pack_template_service.dart';
 import '../widgets/skill_mastery_chart_widget.dart';
 import '../widgets/next_pack_recommendation_banner.dart';
+import '../widgets/theory_progress_recovery_banner.dart';
 import '../services/user_action_logger.dart';
 import 'training_session_screen.dart';
 
@@ -113,6 +114,7 @@ class _TrainingRecapScreenState extends State<TrainingRecapScreen> {
               const SizedBox(height: 16),
               const SkillMasteryChartWidget(),
               NextPackRecommendationBanner(currentPackId: widget.templateId),
+              const TheoryProgressRecoveryBanner(),
               const SizedBox(height: 16),
               SizedBox(
                 width: 200,
