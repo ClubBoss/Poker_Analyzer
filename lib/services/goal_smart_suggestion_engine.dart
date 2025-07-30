@@ -6,6 +6,7 @@ import 'booster_path_history_service.dart';
 import 'inbox_booster_tuner_service.dart';
 import 'mini_lesson_library_service.dart';
 import 'mistake_tag_insights_service.dart';
+import 'goal_progress_persistence_service.dart';
 
 /// Suggests XP goals targeting weak tags using mini boosters.
 class GoalSmartSuggestionEngine {
@@ -67,8 +68,11 @@ class GoalSmartSuggestionEngine {
           label: c.lesson.resolvedTitle,
           xp: 25,
           source: 'smart',
-          onComplete: () =>
-              BoosterPathHistoryService.instance.markCompleted(c.tag),
+          onComplete: () {
+            BoosterPathHistoryService.instance.markCompleted(c.tag);
+            GoalProgressPersistenceService.instance
+                .markCompleted(c.lesson.id, DateTime.now());
+          },
         ),
       );
     }
