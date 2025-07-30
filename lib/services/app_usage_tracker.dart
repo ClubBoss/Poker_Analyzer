@@ -1,0 +1,41 @@
+import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Tracks last active timestamp to estimate user idle duration.
+class AppUsageTracker with WidgetsBindingObserver {
+  AppUsageTracker._();
+  static final AppUsageTracker instance = AppUsageTracker._();
+
+  static const String _prefsKey = 'app_usage_last_active';
+
+  Future<void> init() async {
+    WidgetsBinding.instance.addObserver(this);
+    await markActive();
+  }
+
+  Future<void> dispose() async {
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      markActive();
+    }
+  }
+
+  /// Records current time as last active moment.
+  Future<void> markActive() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsKey, DateTime.now().toIso8601String());
+  }
+
+  /// Returns duration since the app was last active.
+  Future<Duration> idleDuration() async {
+    final prefs = await SharedPreferences.getInstance();
+    final str = prefs.getString(_prefsKey);
+    final last = str != null ? DateTime.tryParse(str) : null;
+    if (last == null) return Duration.zero;
+    return DateTime.now().difference(last);
+  }
+}
