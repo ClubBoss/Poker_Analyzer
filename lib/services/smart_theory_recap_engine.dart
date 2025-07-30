@@ -5,6 +5,7 @@ import '../main.dart';
 import 'smart_theory_booster_linker.dart';
 import 'booster_fatigue_guard.dart';
 import 'theory_recap_analytics_reporter.dart';
+import 'smart_booster_dropoff_detector.dart';
 import '../screens/theory_cluster_detail_screen.dart';
 import '../services/theory_cluster_summary_service.dart';
 import '../services/theory_lesson_tag_clusterer.dart';
@@ -13,10 +14,12 @@ import '../models/theory_lesson_cluster.dart';
 /// Engine that suggests theory recap links at vulnerable moments.
 class SmartTheoryRecapEngine {
   final SmartTheoryBoosterLinker linker;
+  final SmartBoosterDropoffDetector dropoff;
 
-  const SmartTheoryRecapEngine({
+  SmartTheoryRecapEngine({
     this.linker = const SmartTheoryBoosterLinker(),
-  });
+    SmartBoosterDropoffDetector? dropoff,
+  }) : dropoff = dropoff ?? SmartBoosterDropoffDetector.instance;
 
   static const _dismissKey = 'smart_theory_recap_dismissed';
   static final SmartTheoryRecapEngine instance = SmartTheoryRecapEngine();
@@ -80,6 +83,15 @@ class SmartTheoryRecapEngine {
     List<String>? tags,
     String trigger = '',
   }) async {
+    if (await dropoff.isInDropoffState()) {
+      await TheoryRecapAnalyticsReporter.instance.logEvent(
+        lessonId: lessonId ?? '',
+        trigger: trigger,
+        outcome: 'dropoff',
+        delay: null,
+      );
+      return;
+    }
     if (await BoosterFatigueGuard.instance
         .isFatigued(lessonId: lessonId ?? '', trigger: trigger)) {
       return;
