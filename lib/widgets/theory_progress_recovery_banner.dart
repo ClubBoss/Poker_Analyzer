@@ -12,6 +12,8 @@ import '../services/recall_analytics_service.dart';
 import '../widgets/theory_recap_dialog.dart';
 import '../services/weak_theory_review_launcher.dart';
 import '../services/theory_boost_recap_linker.dart';
+import '../services/theory_recap_review_tracker.dart';
+import '../models/theory_recap_review_entry.dart';
 import 'package:collection/collection.dart';
 
 /// Banner suggesting theory recap or booster after a session.
@@ -125,6 +127,13 @@ class _TheoryProgressRecoveryBannerState
       lessonId: _lesson?.id,
       tags: _lesson == null ? [tag.name] : null,
       trigger: 'recoveryBanner',
+    );
+    await TheoryRecapReviewTracker.instance.log(
+      TheoryRecapReviewEntry(
+        lessonId: _lesson?.id ?? '',
+        trigger: 'recoveryBanner',
+        timestamp: DateTime.now(),
+      ),
     );
     RecallAnalyticsService.instance.logPrompt(
       trigger: 'recoveryBanner',

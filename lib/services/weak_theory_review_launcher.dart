@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/mistake_tag.dart';
 import '../models/mistake_tag_history_entry.dart';
 import '../widgets/theory_recap_dialog.dart';
+import 'theory_recap_review_tracker.dart';
+import '../models/theory_recap_review_entry.dart';
 import 'mistake_tag_history_service.dart';
 import 'theory_replay_cooldown_manager.dart';
 import 'theory_boost_recap_linker.dart';
@@ -71,6 +73,13 @@ class WeakTheoryReviewLauncher {
         lessonId: lessonId,
         tags: lessonId == null ? [tag.name] : null,
         trigger: 'weakness',
+      );
+      await TheoryRecapReviewTracker.instance.log(
+        TheoryRecapReviewEntry(
+          lessonId: lessonId ?? '',
+          trigger: 'weakness',
+          timestamp: DateTime.now(),
+        ),
       );
       await TheoryReplayCooldownManager.markSuggested(key);
       break;
