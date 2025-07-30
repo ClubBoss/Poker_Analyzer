@@ -7,6 +7,7 @@ import '../models/booster_backlink.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/booster_pack_launcher.dart';
+import '../services/theory_session_service.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 import '../screens/theory_recap_screen.dart';
 
@@ -23,6 +24,8 @@ class TheoryExitHandler {
     dynamic skillMapStatus,
     BoosterBacklink? backlink,
   }) async {
+    final session = TheorySessionService();
+    final boosterRec = await session.onComplete(node);
     final nextId = node.nextIds.isNotEmpty ? node.nextIds.first : null;
     if (nextId != null) {
       await MiniLessonLibraryService.instance.loadAll();
@@ -54,6 +57,7 @@ class TheoryExitHandler {
         builder: (_) => TheoryRecapScreen(
           lesson: node,
           cluster: cluster,
+          boosterRecommendation: boosterRec,
         ),
       ),
     );

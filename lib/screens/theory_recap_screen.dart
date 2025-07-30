@@ -5,9 +5,11 @@ import '../models/theory_cluster_summary.dart';
 import '../services/theory_lesson_navigator_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../widgets/tag_badge.dart';
+import '../widgets/booster_recommendation_banner.dart';
+import '../services/theory_booster_recommender.dart';
 
 /// Displays a recap after completing a [TheoryMiniLessonNode].
-class TheoryRecapScreen extends StatelessWidget {
+class TheoryRecapScreen extends StatefulWidget {
   final TheoryMiniLessonNode lesson;
   final TheoryClusterSummary? cluster;
   final TheoryLessonNavigatorService? navigator;
@@ -25,14 +27,24 @@ class TheoryRecapScreen extends StatelessWidget {
     this.onContinue,
     this.onReviewAgain,
     this.onGoToPath,
+    this.boosterRecommendation,
   });
+
+  final BoosterRecommendationResult? boosterRecommendation;
+
+  @override
+  State<TheoryRecapScreen> createState() => _TheoryRecapScreenState();
+}
+
+class _TheoryRecapScreenState extends State<TheoryRecapScreen> {
+  bool _showBooster = true;
 
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
-    final next = navigator?.getNext(lesson.id);
-    final clusterLabel = cluster != null && cluster!.sharedTags.isNotEmpty
-        ? cluster!.sharedTags.join(', ')
+    final next = widget.navigator?.getNext(widget.lesson.id);
+    final clusterLabel = widget.cluster != null && widget.cluster!.sharedTags.isNotEmpty
+        ? widget.cluster!.sharedTags.join(', ')
         : null;
     return Scaffold(
       appBar: AppBar(title: const Text('Theory Recap')),
@@ -43,19 +55,19 @@ class TheoryRecapScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${lesson.resolvedTitle} \u2014 \u2713',
+              '${widget.lesson.resolvedTitle} \u2014 \u2713',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            if (lesson.tags.isNotEmpty) ...[
+            if (widget.lesson.tags.isNotEmpty) ...[
               const SizedBox(height: 8),
               Wrap(
                 spacing: 4,
                 runSpacing: -4,
-                children: [for (final t in lesson.tags) TagBadge(t)],
+                children: [for (final t in widget.lesson.tags) TagBadge(t)],
               ),
             ],
             if (clusterLabel != null) ...[
@@ -63,6 +75,14 @@ class TheoryRecapScreen extends StatelessWidget {
               Text(
                 'Cluster: $clusterLabel',
                 style: const TextStyle(color: Colors.white70),
+              ),
+            ],
+            if (_showBooster && widget.boosterRecommendation != null) ...[
+              const SizedBox(height: 12),
+              BoosterRecommendationBanner(
+                recommendation: widget.boosterRecommendation!,
+                onStarted: () => setState(() => _showBooster = false),
+                onDismissed: () => setState(() => _showBooster = false),
               ),
             ],
             const Spacer(),
@@ -77,7 +97,8 @@ class TheoryRecapScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: onContinue ?? () => Navigator.pop(context),
+                    onPressed:
+                        widget.onContinue ?? () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(backgroundColor: accent),
                     child: Text(next != null ? 'Continue' : 'Done'),
                   ),
@@ -85,7 +106,8 @@ class TheoryRecapScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: onReviewAgain ?? () => Navigator.pop(context),
+                    onPressed:
+                        widget.onReviewAgain ?? () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: accent,
                       side: BorderSide(color: accent),
@@ -95,12 +117,12 @@ class TheoryRecapScreen extends StatelessWidget {
                 ),
               ],
             ),
-            if (onGoToPath != null) ...[
+            if (widget.onGoToPath != null) ...[
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: onGoToPath,
+                  onPressed: widget.onGoToPath,
                   child: const Text('Go to path'),
                 ),
               ),
