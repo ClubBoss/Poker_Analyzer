@@ -7,7 +7,7 @@ import '../services/mini_lesson_library_service.dart';
 import '../services/smart_theory_booster_bridge.dart';
 import '../services/booster_library_service.dart';
 import '../services/training_session_launcher.dart';
-import '../services/suggestion_cooldown_manager.dart';
+import '../services/theory_replay_cooldown_manager.dart';
 import '../services/recall_analytics_service.dart';
 import '../widgets/theory_recap_dialog.dart';
 import '../services/weak_theory_review_launcher.dart';
@@ -67,12 +67,12 @@ class _TheoryProgressRecoveryBannerState
       final packCount = tagPacks[tag]?.length ?? 0;
       if (count < launcher.threshold || packCount < 2) continue;
       final key = 'weak_theory_${tag.name.toLowerCase()}';
-      final under = await SuggestionCooldownManager.isUnderCooldown(
+      final under = await TheoryReplayCooldownManager.isUnderCooldown(
         key,
         cooldown: const Duration(days: 1),
       );
       if (under) continue;
-      await SuggestionCooldownManager.markSuggested(key);
+      await TheoryReplayCooldownManager.markSuggested(key);
       return tag;
     }
     return null;
