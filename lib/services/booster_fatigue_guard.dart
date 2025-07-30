@@ -1,5 +1,6 @@
 import '../models/theory_recap_prompt_event.dart';
 import 'theory_recap_trigger_logger.dart';
+import 'theory_recap_analytics_reporter.dart';
 
 /// Detects repeated dismissal of recap prompts to avoid overprompting.
 class BoosterFatigueGuard {
@@ -12,7 +13,7 @@ class BoosterFatigueGuard {
   static final BoosterFatigueGuard instance = BoosterFatigueGuard();
 
   /// Returns true if the user recently dismissed multiple recap prompts.
-  Future<bool> isFatigued() async {
+  Future<bool> isFatigued({String lessonId = '', String trigger = ''}) async {
     final events = await _loader(limit: 10);
     int dismisses = 0;
     int streak = 0;
@@ -21,11 +22,28 @@ class BoosterFatigueGuard {
       if (dismissed) {
         dismisses++;
         streak++;
-        if (streak >= 2) return true;
+        if (streak >= 2) {
+          await TheoryRecapAnalyticsReporter.instance.logEvent(
+            lessonId: lessonId,
+            trigger: trigger,
+            outcome: 'fatigued',
+            delay: null,
+          );
+          return true;
+        }
       } else {
         streak = 0;
       }
     }
-    return dismisses >= 3;
+    if (dismisses >= 3) {
+      await TheoryRecapAnalyticsReporter.instance.logEvent(
+        lessonId: lessonId,
+        trigger: trigger,
+        outcome: 'fatigued',
+        delay: null,
+      );
+      return true;
+    }
+    return false;
   }
 }

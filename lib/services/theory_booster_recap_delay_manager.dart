@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'theory_recap_analytics_reporter.dart';
 
 /// Manages cooldowns for booster-triggered theory recaps.
 class TheoryBoosterRecapDelayManager {
@@ -43,7 +44,16 @@ class TheoryBoosterRecapDelayManager {
     final map = await _load();
     final ts = map[key];
     if (ts == null) return false;
-    return DateTime.now().difference(ts) < cooldown;
+    final under = DateTime.now().difference(ts) < cooldown;
+    if (under) {
+      await TheoryRecapAnalyticsReporter.instance.logEvent(
+        lessonId: key.startsWith('lesson:') ? key.substring(7) : '',
+        trigger: key,
+        outcome: 'cooldown',
+        delay: DateTime.now().difference(ts),
+      );
+    }
+    return under;
   }
 
   /// Marks [key] as prompted and prunes stale entries.
@@ -53,5 +63,11 @@ class TheoryBoosterRecapDelayManager {
     final cutoff = DateTime.now().subtract(const Duration(days: 60));
     map.removeWhere((_, ts) => ts.isBefore(cutoff));
     await _save();
+  }
+
+  /// Returns the last time [key] was prompted if any.
+  static Future<DateTime?> lastPromptTime(String key) async {
+    final map = await _load();
+    return map[key];
   }
 }
