@@ -14,6 +14,7 @@ import 'theory_booster_recap_delay_manager.dart';
 import 'booster_fatigue_guard.dart';
 import 'theory_recap_analytics_reporter.dart';
 import 'smart_booster_dropoff_detector.dart';
+import 'smart_theory_recap_dismissal_memory.dart';
 
 /// Listens to booster and drill results and triggers theory recap when needed.
 class BoosterRecapHook {
@@ -21,15 +22,18 @@ class BoosterRecapHook {
   final TheoryRecapSuppressionEngine suppression;
   final TheoryRecapAnalyticsReporter analytics;
   final SmartBoosterDropoffDetector dropoff;
+  final SmartTheoryRecapDismissalMemory memory;
   BoosterRecapHook({
     SmartTheoryRecapEngine? engine,
     TheoryRecapSuppressionEngine? suppression,
     TheoryRecapAnalyticsReporter? analytics,
     SmartBoosterDropoffDetector? dropoff,
+    SmartTheoryRecapDismissalMemory? memory,
   })  : engine = engine ?? SmartTheoryRecapEngine.instance,
         suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
         analytics = analytics ?? TheoryRecapAnalyticsReporter.instance,
-        dropoff = dropoff ?? SmartBoosterDropoffDetector.instance;
+        dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
+        memory = memory ?? SmartTheoryRecapDismissalMemory.instance;
 
   static final BoosterRecapHook instance = BoosterRecapHook();
 
@@ -75,6 +79,19 @@ class BoosterRecapHook {
         );
         return;
       }
+      if (tags != null) {
+        for (final t in tags) {
+          if (await memory.shouldThrottle('tag:$t')) {
+            await analytics.logEvent(
+              lessonId: '',
+              trigger: trigger,
+              outcome: 'cooldown',
+              delay: null,
+            );
+            return;
+          }
+        }
+      }
       await engine.maybePrompt(tags: tags, trigger: trigger);
     }
   }
@@ -95,6 +112,19 @@ class BoosterRecapHook {
           delay: null,
         );
         return;
+      }
+      if (tags != null) {
+        for (final t in tags) {
+          if (await memory.shouldThrottle('tag:$t')) {
+            await analytics.logEvent(
+              lessonId: '',
+              trigger: trigger,
+              outcome: 'cooldown',
+              delay: null,
+            );
+            return;
+          }
+        }
       }
       await engine.maybePrompt(tags: tags, trigger: trigger);
     }
@@ -138,6 +168,17 @@ class BoosterRecapHook {
       keys.add('lesson:$lessonId');
     } else if (tags != null) {
       keys.addAll(tags.map((t) => 'tag:$t'));
+    }
+    for (final k in keys) {
+      if (await memory.shouldThrottle(k)) {
+        await analytics.logEvent(
+          lessonId: lessonId ?? '',
+          trigger: trigger,
+          outcome: 'cooldown',
+          delay: await _delayForKeys(keys),
+        );
+        return;
+      }
     }
     for (final k in keys) {
       if (await TheoryBoosterRecapDelayManager.isUnderCooldown(

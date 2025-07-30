@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -6,6 +7,7 @@ import 'smart_theory_booster_linker.dart';
 import 'booster_fatigue_guard.dart';
 import 'theory_recap_analytics_reporter.dart';
 import 'smart_booster_dropoff_detector.dart';
+import 'smart_theory_recap_dismissal_memory.dart';
 import '../screens/theory_cluster_detail_screen.dart';
 import '../services/theory_cluster_summary_service.dart';
 import '../services/theory_lesson_tag_clusterer.dart';
@@ -15,11 +17,15 @@ import '../models/theory_lesson_cluster.dart';
 class SmartTheoryRecapEngine {
   final SmartTheoryBoosterLinker linker;
   final SmartBoosterDropoffDetector dropoff;
+  final SmartTheoryRecapDismissalMemory dismissalMemory;
 
   SmartTheoryRecapEngine({
     this.linker = const SmartTheoryBoosterLinker(),
     SmartBoosterDropoffDetector? dropoff,
-  }) : dropoff = dropoff ?? SmartBoosterDropoffDetector.instance;
+    SmartTheoryRecapDismissalMemory? dismissalMemory,
+  })  : dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
+        dismissalMemory =
+            dismissalMemory ?? SmartTheoryRecapDismissalMemory.instance;
 
   static const _dismissKey = 'smart_theory_recap_dismissed';
   static final SmartTheoryRecapEngine instance = SmartTheoryRecapEngine();
@@ -96,6 +102,23 @@ class SmartTheoryRecapEngine {
         .isFatigued(lessonId: lessonId ?? '', trigger: trigger)) {
       return;
     }
+    final keys = <String>[];
+    if (lessonId != null && lessonId.isNotEmpty) {
+      keys.add('lesson:$lessonId');
+    } else if (tags != null) {
+      keys.addAll(tags.map((t) => 'tag:$t'));
+    }
+    for (final k in keys) {
+      if (await dismissalMemory.shouldThrottle(k)) {
+        await TheoryRecapAnalyticsReporter.instance.logEvent(
+          lessonId: lessonId ?? '',
+          trigger: trigger,
+          outcome: 'cooldown',
+          delay: null,
+        );
+        return;
+      }
+    }
     if (await _recentlyDismissed()) {
       await TheoryRecapAnalyticsReporter.instance.logEvent(
         lessonId: lessonId ?? '',
@@ -128,6 +151,10 @@ class SmartTheoryRecapEngine {
     await _markDismissed();
     if (open == true) {
       await _openLink(ctx, link);
+    } else {
+      for (final k in keys) {
+        unawaited(dismissalMemory.registerDismissal(k));
+      }
     }
     await TheoryRecapAnalyticsReporter.instance.logEvent(
       lessonId: lessonId ?? '',
