@@ -36,6 +36,7 @@ class SmartRecapBannerController extends ChangeNotifier {
 
   static const _lastKey = 'smart_recap_banner_last';
   TheoryMiniLessonNode? _lesson;
+  TheoryMiniLessonNode? _queued;
   bool _visible = false;
   Timer? _timer;
 
@@ -82,7 +83,7 @@ class SmartRecapBannerController extends ChangeNotifier {
         DateTime.now().difference(last) < const Duration(hours: 6)) {
       return;
     }
-    final l = lesson ?? await engine.getNextRecap();
+    final l = lesson ?? _queued ?? await engine.getNextRecap();
     if (l == null) return;
     if (await fatigue.isFatigued(l.id)) return;
     if (await suppression.shouldSuppress(
@@ -93,9 +94,16 @@ class SmartRecapBannerController extends ChangeNotifier {
     }
     if (await dismissal.shouldThrottle('lesson:${l.id}')) return;
     _lesson = l;
+    _queued = null;
     _visible = true;
     await _markShown();
     notifyListeners();
+  }
+
+  /// Queues [lesson] to be shown later when [triggerBannerIfNeeded] runs.
+  Future<void> queueBannerFor(TheoryMiniLessonNode lesson) async {
+    if (_lesson?.id == lesson.id) return;
+    _queued = lesson;
   }
 
   /// Shows the banner for a specific [lesson] without running selection logic.
