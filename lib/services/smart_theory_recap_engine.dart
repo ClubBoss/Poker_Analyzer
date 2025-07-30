@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import 'smart_theory_booster_linker.dart';
+import 'booster_fatigue_guard.dart';
 import '../screens/theory_cluster_detail_screen.dart';
 import '../services/theory_cluster_summary_service.dart';
 import '../services/theory_lesson_tag_clusterer.dart';
@@ -12,12 +13,16 @@ import '../models/theory_lesson_cluster.dart';
 class SmartTheoryRecapEngine {
   final SmartTheoryBoosterLinker linker;
 
-  const SmartTheoryRecapEngine({this.linker = const SmartTheoryBoosterLinker()});
+  const SmartTheoryRecapEngine({
+    this.linker = const SmartTheoryBoosterLinker(),
+  });
 
   static const _dismissKey = 'smart_theory_recap_dismissed';
   static final SmartTheoryRecapEngine instance = SmartTheoryRecapEngine();
 
-  Future<bool> _recentlyDismissed([Duration threshold = const Duration(hours: 12)]) async {
+  Future<bool> _recentlyDismissed([
+    Duration threshold = const Duration(hours: 12),
+  ]) async {
     final prefs = await SharedPreferences.getInstance();
     final str = prefs.getString(_dismissKey);
     if (str == null) return false;
@@ -70,6 +75,7 @@ class SmartTheoryRecapEngine {
 
   /// Attempts to show a recap prompt if a relevant link is available.
   Future<void> maybePrompt({String? lessonId, List<String>? tags}) async {
+    if (await BoosterFatigueGuard.instance.isFatigued()) return;
     if (await _recentlyDismissed()) return;
     final link = await getLink(lessonId: lessonId, tags: tags);
     if (link == null) return;
@@ -97,4 +103,3 @@ class SmartTheoryRecapEngine {
     }
   }
 }
-
