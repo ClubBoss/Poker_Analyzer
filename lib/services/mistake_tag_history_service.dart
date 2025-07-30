@@ -131,4 +131,10 @@ class MistakeTagHistoryService {
     if (slope < -eps) return TagTrend.falling;
     return TagTrend.flat;
   }
+
+  /// Returns the most recent mistake history entries.
+  static Future<List<MistakeTagHistoryEntry>> getRecentHistory({int limit = 20}) async {
+    final list = await _history();
+    return list.take(limit).toList();
+  }
 }
