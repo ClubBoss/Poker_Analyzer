@@ -3,14 +3,18 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/lesson_failure.dart';
+
 /// Tracks view and completion stats for theory mini lessons.
 class MiniLessonProgressTracker {
   MiniLessonProgressTracker._();
   static final MiniLessonProgressTracker instance = MiniLessonProgressTracker._();
 
   static const String _prefix = 'mini_lesson_progress_';
+  static const String _failurePrefix = 'mini_lesson_failure_';
 
   final Map<String, _MiniProgress> _cache = {};
+  final Map<String, List<LessonFailure>> _failureCache = {};
   final StreamController<String> _completedController =
       StreamController<String>.broadcast();
 
@@ -88,6 +92,50 @@ class MiniLessonProgressTracker {
       }
     }
     return bestId;
+  }
+
+  Future<List<LessonFailure>> _loadFailures(String id) async {
+    final cached = _failureCache[id];
+    if (cached != null) return cached;
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('$_failurePrefix$id');
+    if (raw != null) {
+      try {
+        final data = jsonDecode(raw);
+        if (data is List) {
+          final list = <LessonFailure>[];
+          for (final e in data) {
+            if (e is Map) {
+              list.add(LessonFailure.fromJson(Map<String, dynamic>.from(e)));
+            }
+          }
+          return _failureCache[id] = list;
+        }
+      } catch (_) {}
+    }
+    return _failureCache[id] = <LessonFailure>[];
+  }
+
+  Future<void> _saveFailures(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = _failureCache[id] ?? <LessonFailure>[];
+    await prefs.setString('$_failurePrefix$id',
+        jsonEncode([for (final f in list) f.toJson()]));
+  }
+
+  /// Records a failure for [id] with optional [evLoss].
+  Future<void> markFailure(String id, {double evLoss = 0}) async {
+    final list = await _loadFailures(id);
+    list.insert(0,
+        LessonFailure(timestamp: DateTime.now(), evLoss: evLoss));
+    if (list.length > 50) list.removeRange(50, list.length);
+    await _saveFailures(id);
+  }
+
+  /// Returns recorded failures for [id]. Most recent first.
+  Future<List<LessonFailure>> failures(String id) async {
+    final list = await _loadFailures(id);
+    return List<LessonFailure>.unmodifiable(list);
   }
 }
 
