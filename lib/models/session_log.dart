@@ -7,6 +7,7 @@ class SessionLog {
   final int correctCount;
   final int mistakeCount;
   final Map<String, int> categories;
+  final List<String> tags;
 
   SessionLog({
     required this.sessionId,
@@ -16,7 +17,9 @@ class SessionLog {
     required this.correctCount,
     required this.mistakeCount,
     Map<String, int>? categories,
-  }) : categories = categories ?? const {};
+    List<String>? tags,
+  })  : categories = categories ?? const {},
+        tags = tags ?? const [];
 
   factory SessionLog.fromJson(Map<String, dynamic> j) => SessionLog(
         sessionId: j['sessionId'] as String? ?? '',
@@ -26,11 +29,12 @@ class SessionLog {
         completedAt:
             DateTime.tryParse(j['completedAt'] as String? ?? '') ?? DateTime.now(),
         correctCount: j['correct'] as int? ?? 0,
-        mistakeCount: j['mistakes'] as int? ?? 0,
-        categories: {
-          for (final e in (j['categories'] as Map? ?? {}).entries)
-            e.key as String: (e.value as num).toInt()
+      mistakeCount: j['mistakes'] as int? ?? 0,
+      categories: {
+        for (final e in (j['categories'] as Map? ?? {}).entries)
+          e.key as String: (e.value as num).toInt()
         },
+        tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
       );
 
   Map<String, dynamic> toJson() => {
@@ -41,5 +45,6 @@ class SessionLog {
       'correct': correctCount,
       'mistakes': mistakeCount,
         if (categories.isNotEmpty) 'categories': categories,
+        if (tags.isNotEmpty) 'tags': tags,
       };
 }

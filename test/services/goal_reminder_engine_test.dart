@@ -75,7 +75,7 @@ void main() {
   test('getStaleGoals returns goals inactive for more than 3 days', () async {
     final now = DateTime.now();
     final logs = _FakeLogService([
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'cbet_ip',
         startedAt: now.subtract(const Duration(days: 5)),
@@ -83,7 +83,7 @@ void main() {
         correctCount: 1,
         mistakeCount: 0,
       ),
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '2',
         templateId: 'open_fold_lj_mtt',
         startedAt: now.subtract(const Duration(days: 1)),

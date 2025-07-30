@@ -26,7 +26,7 @@ void main() {
   test('pickReengagementGoal returns stale goal', () async {
     final now = DateTime.now();
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'cbet_ip',
         startedAt: now.subtract(const Duration(days: 10)),
@@ -34,7 +34,7 @@ void main() {
         correctCount: 1,
         mistakeCount: 0,
       ),
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '2',
         templateId: 'open_fold_lj_mtt',
         startedAt: now.subtract(const Duration(days: 1)),
@@ -54,7 +54,7 @@ void main() {
   test('dismissed goal is skipped after 3 times', () async {
     final now = DateTime.now();
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'cbet_ip',
         startedAt: now.subtract(const Duration(days: 10)),

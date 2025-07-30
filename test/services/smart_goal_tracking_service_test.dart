@@ -22,7 +22,7 @@ void main() {
   test('compute progress from logs', () async {
     SharedPreferences.setMockInitialValues({});
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'cbet_ip',
         startedAt: DateTime.now(),

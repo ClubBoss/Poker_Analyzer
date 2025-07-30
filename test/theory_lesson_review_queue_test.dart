@@ -53,7 +53,7 @@ void main() {
     ];
 
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: 's1',
         templateId: 'p1',
         startedAt: now,

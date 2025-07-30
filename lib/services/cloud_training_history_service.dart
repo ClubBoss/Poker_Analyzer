@@ -63,6 +63,7 @@ class CloudTrainingHistoryService {
         completedAt: s.date,
         correctCount: s.correct,
         mistakeCount: s.mistakes,
+        tags: const [],
       );
       await logs.addLog(log);
     }

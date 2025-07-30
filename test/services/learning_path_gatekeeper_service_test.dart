@@ -36,7 +36,7 @@ void main() {
 
   test('stage unlock respects mastery threshold', () async {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -62,7 +62,7 @@ void main() {
 
   test('sequential unlock by section', () async {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -92,7 +92,7 @@ void main() {
 
   test('fallback to stage unlocking when no sections', () async {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -120,7 +120,7 @@ void main() {
 
   test('ignores stage prerequisites within unlocked sections', () async {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -150,7 +150,7 @@ void main() {
 
   test('unlockAfter enforces intra-section order', () async {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),

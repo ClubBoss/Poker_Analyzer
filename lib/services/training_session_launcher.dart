@@ -18,7 +18,8 @@ class TrainingSessionLauncher {
 
   /// Launches a training session for [template]. If the pack only contains
   /// theory spots, shows [TheoryPackPreviewScreen] first.
-  Future<void> launch(TrainingPackTemplateV2 template, {int startIndex = 0}) async {
+  Future<void> launch(TrainingPackTemplateV2 template,
+      {int startIndex = 0, List<String>? sessionTags}) async {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
 
@@ -47,12 +48,13 @@ class TrainingSessionLauncher {
   }
 
   /// Finds and launches a booster drill relevant to [lesson].
-  Future<void> launchForMiniLesson(TheoryMiniLessonNode lesson) async {
+  Future<void> launchForMiniLesson(TheoryMiniLessonNode lesson,
+      {List<String>? sessionTags}) async {
     final service = SmartRecapBoosterLauncher(
       linker: SmartRecapBoosterLinker(
         storage: TrainingPackTemplateStorageService(),
       ),
     );
-    await service.launchBoosterForLesson(lesson);
+    await service.launchBoosterForLesson(lesson, sessionTags: sessionTags);
   }
 }

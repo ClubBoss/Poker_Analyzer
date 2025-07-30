@@ -22,6 +22,7 @@ class LearningPathProgressTrackerService {
               : log.completedAt,
           correctCount: existing.correctCount + log.correctCount,
           mistakeCount: existing.mistakeCount + log.mistakeCount,
+          tags: {...existing.tags, ...log.tags}.toList(),
         );
       } else {
         result[log.templateId] = SessionLog(
@@ -31,6 +32,7 @@ class LearningPathProgressTrackerService {
           completedAt: log.completedAt,
           correctCount: log.correctCount,
           mistakeCount: log.mistakeCount,
+          tags: List<String>.from(log.tags),
         );
       }
     }

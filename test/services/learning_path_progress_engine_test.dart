@@ -27,7 +27,7 @@ void main() {
 
   test('computes path and track progress', () async {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -35,7 +35,7 @@ void main() {
         correctCount: 10,
         mistakeCount: 0,
       ),
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '2',
         templateId: 'pack2',
         startedAt: DateTime.now(),
