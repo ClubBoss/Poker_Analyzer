@@ -5,6 +5,7 @@ import '../models/xp_guided_goal.dart';
 import 'booster_suggestion_engine.dart';
 import 'inbox_booster_tracker_service.dart';
 import 'recap_effectiveness_analyzer.dart';
+import 'goal_progress_persistence_service.dart';
 
 class TheoryInboxGoalEngine {
   final BoosterSuggestionEngine booster;
@@ -55,7 +56,11 @@ class TheoryInboxGoalEngine {
           label: l.resolvedTitle,
           xp: 25,
           source: 'booster',
-          onComplete: () => tracker.markClicked(l.id),
+          onComplete: () {
+            tracker.markClicked(l.id);
+            GoalProgressPersistenceService.instance
+                .markCompleted(l.id, DateTime.now());
+          },
         ),
       );
     }
