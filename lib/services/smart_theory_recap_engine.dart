@@ -13,6 +13,13 @@ import '../screens/theory_cluster_detail_screen.dart';
 import '../services/theory_cluster_summary_service.dart';
 import '../services/theory_lesson_tag_clusterer.dart';
 import '../models/theory_lesson_cluster.dart';
+import '../services/tag_retention_tracker.dart';
+import '../services/tag_mastery_service.dart';
+import '../services/session_log_service.dart';
+import '../services/training_session_service.dart';
+import '../services/theory_boost_recap_linker.dart';
+import '../services/mini_lesson_library_service.dart';
+import 'package:collection/collection.dart';
 
 /// Engine that suggests theory recap links at vulnerable moments.
 class SmartTheoryRecapEngine {
@@ -67,6 +74,23 @@ class SmartTheoryRecapEngine {
     }
     link ??= await linker.linkForTags(tags ?? const []);
     return link;
+  }
+
+  /// Returns the next lesson that should be shown for recap.
+  Future<TheoryMiniLessonNode?> getNextRecap() async {
+    final retention = TagRetentionTracker(
+      mastery: TagMasteryService(
+        logs: SessionLogService(sessions: TrainingSessionService()),
+      ),
+    );
+    final tags = await retention.getDecayedTags();
+    if (tags.isEmpty) return null;
+    final tag = tags.first;
+    TheoryMiniLessonNode? lesson =
+        await const TheoryBoostRecapLinker().fetchLesson(tag);
+    if (lesson != null) return lesson;
+    await MiniLessonLibraryService.instance.loadAll();
+    return MiniLessonLibraryService.instance.findByTags([tag]).firstOrNull;
   }
 
   Future<void> _openLink(BuildContext context, String link) async {
