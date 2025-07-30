@@ -3,8 +3,8 @@ import '../models/xp_guided_goal.dart';
 import '../services/goal_inbox_delivery_controller.dart';
 import '../services/goal_slot_allocator.dart';
 import '../services/booster_path_history_service.dart';
+import '../services/goal_to_training_launcher.dart';
 import '../services/mini_lesson_library_service.dart';
-import '../services/training_session_launcher.dart';
 
 class SmartGoalSummaryScreen extends StatefulWidget {
   const SmartGoalSummaryScreen({super.key});
@@ -57,11 +57,7 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
   }
 
   Future<void> _start(_GoalItem item) async {
-    item.goal.onComplete();
-    final lesson = MiniLessonLibraryService.instance.getById(item.goal.id);
-    if (lesson != null) {
-      await const TrainingSessionLauncher().launchForMiniLesson(lesson);
-    }
+    await const GoalToTrainingLauncher().launchFromGoal(item.goal);
     if (!mounted) return;
     await _load();
   }
