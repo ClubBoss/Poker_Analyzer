@@ -9,7 +9,7 @@ void main() {
       expect(engine.getLevel(0), 1);
       expect(engine.getLevel(99), 1);
       expect(engine.getLevel(100), 2);
-      expect(engine.getLevel(399), 2);
+      expect(engine.getLevel(399), 3);
       expect(engine.getLevel(400), 3);
     });
 
@@ -17,8 +17,15 @@ void main() {
       expect(engine.getProgressToNextLevel(0), 0.0);
       expect(engine.getProgressToNextLevel(50), closeTo(0.5, 0.001));
       expect(engine.getProgressToNextLevel(100), 0.0);
-      final pct = (250 - 100) / (400 - 100);
+      final pct = (250 - 100) / (283 - 100);
       expect(engine.getProgressToNextLevel(250), closeTo(pct, 0.001));
+    });
+
+    test('computeFromTotalXP returns info', () {
+      final info = XPLevelEngine.computeFromTotalXP(250);
+      expect(info.level, 2);
+      expect(info.currentXP, 150);
+      expect(info.xpToNext, engine.xpForLevel(3) - 250);
     });
   });
 }
