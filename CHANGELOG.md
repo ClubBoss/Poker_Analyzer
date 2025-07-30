@@ -13,3 +13,4 @@
 - Track consecutive days of theory reinforcement via TheoryStreakService.
 - Expose recordToday method on TheoryStreakService and update MiniLessonScreen.
 - Introduce TheoryBoosterSuggestionEngine for recommending lessons when recap tags underperform.
+- Add TheoryReinforcementBannerController for soft theory reminders after recap failures.
