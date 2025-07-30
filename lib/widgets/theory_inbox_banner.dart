@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import '../services/theory_inbox_banner_controller.dart';
+import '../services/inbox_booster_tracker_service.dart';
 import '../screens/mini_lesson_screen.dart';
 
 /// Simple banner showing a booster lesson suggestion from inbox engine.
@@ -16,6 +17,7 @@ class TheoryInboxBanner extends StatefulWidget {
 class _TheoryInboxBannerState extends State<TheoryInboxBanner> {
   TheoryMiniLessonNode? _lesson;
   late TheoryInboxBannerController _controller;
+  bool _recorded = false;
 
   @override
   void initState() {
@@ -37,12 +39,14 @@ class _TheoryInboxBannerState extends State<TheoryInboxBanner> {
 
   void _update() {
     _lesson = _controller.getLesson();
+    _recorded = false;
     if (mounted) setState(() {});
   }
 
   Future<void> _open() async {
     final lesson = _lesson;
     if (lesson == null) return;
+    await InboxBoosterTrackerService.instance.markClicked(lesson.id);
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
@@ -54,6 +58,10 @@ class _TheoryInboxBannerState extends State<TheoryInboxBanner> {
     final lesson = _lesson;
     if (!_controller.shouldShowInboxBanner() || lesson == null) {
       return const SizedBox.shrink();
+    }
+    if (!_recorded) {
+      InboxBoosterTrackerService.instance.markShown(lesson.id);
+      _recorded = true;
     }
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
