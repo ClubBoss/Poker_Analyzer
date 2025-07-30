@@ -11,4 +11,5 @@
 - Introduce XPLevelEngine for computing user level progression.
 - Add TheoryPackPreviewScreen for theory-only training packs.
 - Track consecutive days of theory reinforcement via TheoryStreakService.
+- Expose recordToday method on TheoryStreakService and update MiniLessonScreen.
 - Introduce TheoryBoosterSuggestionEngine for recommending lessons when recap tags underperform.
