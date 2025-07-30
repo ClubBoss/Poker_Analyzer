@@ -18,6 +18,7 @@ import '../helpers/training_pack_storage.dart';
 import '../services/goals_service.dart';
 import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/booster_recap_hook.dart';
 import '../helpers/mistake_advice.dart';
 import '../widgets/sync_status_widget.dart';
 import 'saved_hand_editor_screen.dart';
@@ -85,6 +86,12 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       service.updateMistakeReviewStreak(isMistake, context: context);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BoosterRecapHook.instance.onReviewOpened(
+        handId: _hand.spotId ?? _hand.name,
+        tags: _hand.tags,
+      );
     });
   }
 

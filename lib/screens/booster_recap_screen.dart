@@ -6,10 +6,11 @@ import '../models/weak_cluster_info.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/training_pack.dart';
 import '../services/training_session_service.dart';
+import '../services/booster_recap_hook.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
 
-class BoosterRecapScreen extends StatelessWidget {
+class BoosterRecapScreen extends StatefulWidget {
   final TrainingSessionResult result;
   final TrainingPackTemplateV2 booster;
   final BoosterBacklink? backlink;
@@ -25,12 +26,29 @@ class BoosterRecapScreen extends StatelessWidget {
     this.tagDeltas = const {},
   });
 
+  @override
+  State<BoosterRecapScreen> createState() => _BoosterRecapScreenState();
+}
+
+class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BoosterRecapHook.instance.onBoosterResult(
+        result: widget.result,
+        booster: widget.booster,
+        backlink: widget.backlink,
+      );
+    });
+  }
+
   List<Widget> _improvementWidgets() {
-    final entries = booster.tags
+    final entries = widget.booster.tags
         .map((t) => t.trim())
         .where((t) => t.isNotEmpty)
         .map((t) {
-      final delta = tagDeltas[t.toLowerCase()] ?? 0.0;
+      final delta = widget.tagDeltas[t.toLowerCase()] ?? 0.0;
       final sign = delta >= 0 ? '+' : '';
       final pct = (delta * 100).toStringAsFixed(1);
       return '$t: $sign$pct%';
@@ -49,7 +67,7 @@ class BoosterRecapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
     final improvements = _improvementWidgets();
-    final clusterTags = backlink?.matchingTags.join(', ');
+    final clusterTags = widget.backlink?.matchingTags.join(', ');
     return Scaffold(
       appBar: AppBar(title: const Text('Booster Recap')),
       backgroundColor: AppColors.background,
@@ -61,7 +79,7 @@ class BoosterRecapScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                booster.name,
+                widget.booster.name,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -70,7 +88,7 @@ class BoosterRecapScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${result.correct} / ${result.total}',
+                '${widget.result.correct} / ${widget.result.total}',
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 8),
@@ -98,7 +116,7 @@ class BoosterRecapScreen extends StatelessWidget {
                       onPressed: () async {
                         await context
                             .read<TrainingSessionService>()
-                            .startSession(booster);
+                            .startSession(widget.booster);
                         if (!context.mounted) return;
                         Navigator.pushReplacement(
                           context,
