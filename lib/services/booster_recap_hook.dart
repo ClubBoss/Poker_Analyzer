@@ -13,19 +13,23 @@ import 'theory_recap_suppression_engine.dart';
 import 'theory_booster_recap_delay_manager.dart';
 import 'booster_fatigue_guard.dart';
 import 'theory_recap_analytics_reporter.dart';
+import 'smart_booster_dropoff_detector.dart';
 
 /// Listens to booster and drill results and triggers theory recap when needed.
 class BoosterRecapHook {
   final SmartTheoryRecapEngine engine;
   final TheoryRecapSuppressionEngine suppression;
   final TheoryRecapAnalyticsReporter analytics;
+  final SmartBoosterDropoffDetector dropoff;
   BoosterRecapHook({
     SmartTheoryRecapEngine? engine,
     TheoryRecapSuppressionEngine? suppression,
     TheoryRecapAnalyticsReporter? analytics,
-  }) : engine = engine ?? SmartTheoryRecapEngine.instance,
-       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-       analytics = analytics ?? TheoryRecapAnalyticsReporter.instance;
+    SmartBoosterDropoffDetector? dropoff,
+  })  : engine = engine ?? SmartTheoryRecapEngine.instance,
+        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+        analytics = analytics ?? TheoryRecapAnalyticsReporter.instance,
+        dropoff = dropoff ?? SmartBoosterDropoffDetector.instance;
 
   static final BoosterRecapHook instance = BoosterRecapHook();
 
@@ -105,6 +109,7 @@ class BoosterRecapHook {
     final total = result.total;
     final correct = result.correct;
     final failed = total > 0 && correct / total < 0.5;
+    await dropoff.recordOutcome(failed ? 'failed' : 'completed');
     if (!failed) return;
     const trigger = 'boosterFailure';
     if (await BoosterFatigueGuard.instance
@@ -141,6 +146,15 @@ class BoosterRecapHook {
       )) {
         return;
       }
+    }
+    if (await dropoff.isInDropoffState()) {
+      await analytics.logEvent(
+        lessonId: lessonId ?? '',
+        trigger: trigger,
+        outcome: 'dropoff',
+        delay: await _delayForKeys(keys),
+      );
+      return;
     }
     if (lessonId != null &&
         await suppression.shouldSuppress(

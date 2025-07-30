@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'theory_recap_analytics_reporter.dart';
+import 'smart_booster_dropoff_detector.dart';
 
 /// Manages cooldowns for booster-triggered theory recaps.
 class TheoryBoosterRecapDelayManager {
   static const String _prefsKey = 'theory_booster_recap_delay';
+  static SmartBoosterDropoffDetector dropoff =
+      SmartBoosterDropoffDetector.instance;
 
   static Map<String, DateTime>? _cache;
 
@@ -19,7 +22,8 @@ class TheoryBoosterRecapDelayManager {
         if (data is Map) {
           _cache = {
             for (final e in data.entries)
-              if (e.value is String && DateTime.tryParse(e.value as String) != null)
+              if (e.value is String &&
+                  DateTime.tryParse(e.value as String) != null)
                 e.key.toString(): DateTime.parse(e.value as String),
           };
           return _cache!;
@@ -35,12 +39,16 @@ class TheoryBoosterRecapDelayManager {
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,
-      jsonEncode({for (final e in map.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode(
+          {for (final e in map.entries) e.key: e.value.toIso8601String()}),
     );
   }
 
   /// Returns true if [key] is still under [cooldown].
   static Future<bool> isUnderCooldown(String key, Duration cooldown) async {
+    if (await dropoff.isInDropoffState()) {
+      return true;
+    }
     final map = await _load();
     final ts = map[key];
     if (ts == null) return false;
