@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +8,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/training_pack.dart';
 import '../services/training_session_service.dart';
 import '../services/booster_recap_hook.dart';
+import '../services/booster_mistake_recorder.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
 
@@ -40,6 +42,11 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
         booster: widget.booster,
         backlink: widget.backlink,
       );
+      unawaited(BoosterMistakeRecorder.instance.recordSession(
+        booster: widget.booster,
+        actions: context.read<TrainingSessionService>().actionLog,
+        spots: context.read<TrainingSessionService>().spots,
+      ));
     });
   }
 
