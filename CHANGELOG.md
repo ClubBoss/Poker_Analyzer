@@ -8,6 +8,7 @@
 - Add Import Starter Packs button to Template Library.
 - Suggest next built-in pack from the same category when one is completed.
 - Add hand analysis history with EV/ICM stats and filters.
+- Track XP goal streaks via new GoalStreakTrackerService.
 - Introduce XPLevelEngine for computing user level progression.
 - Add TheoryPackPreviewScreen for theory-only training packs.
 - Track consecutive days of theory reinforcement via TheoryStreakService.
