@@ -40,8 +40,9 @@ class TheoryPromptDismissTracker {
     );
   }
 
-  /// Logs a dismissed prompt.
-  Future<void> logDismiss(String lessonId, String trigger) async {
+  /// Marks [lessonId] as dismissed so it won't be suggested again within the
+  /// cooldown period.
+  Future<void> markDismissed(String lessonId, {String trigger = ''}) async {
     await _load();
     _history.insert(
       0,
@@ -57,9 +58,14 @@ class TheoryPromptDismissTracker {
     await _save();
   }
 
+  /// Deprecated: use [markDismissed] instead.
+  @Deprecated('Use markDismissed')
+  Future<void> logDismiss(String lessonId, String trigger) =>
+      markDismissed(lessonId, trigger: trigger);
+
   /// Returns true if [lessonId] was dismissed within [cooldown].
   Future<bool> isRecentlyDismissed(String lessonId,
-      {Duration cooldown = const Duration(days: 2)}) async {
+      {Duration cooldown = const Duration(hours: 12)}) async {
     await _load();
     for (final e in _history) {
       if (e.lessonId == lessonId &&

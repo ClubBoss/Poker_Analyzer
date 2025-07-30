@@ -82,7 +82,7 @@ class WeakTheoryReviewLauncher {
       );
       if (result != true && lessonId != null) {
         await TheoryPromptDismissTracker.instance
-            .logDismiss(lessonId, 'weakness');
+            .markDismissed(lessonId, trigger: 'weakness');
       }
       await TheoryRecapReviewTracker.instance.log(
         TheoryRecapReviewEntry(

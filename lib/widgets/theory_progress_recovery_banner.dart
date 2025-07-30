@@ -166,7 +166,7 @@ class _TheoryProgressRecoveryBannerState
       );
       if (_lesson != null) {
         TheoryPromptDismissTracker.instance
-            .logDismiss(_lesson!.id, 'recoveryBanner');
+            .markDismissed(_lesson!.id, trigger: 'recoveryBanner');
       }
     }
     setState(() => _visible = false);
