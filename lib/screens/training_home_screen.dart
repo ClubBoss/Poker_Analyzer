@@ -16,6 +16,7 @@ import '../services/weak_spot_recommendation_service.dart';
 import '../services/daily_spotlight_service.dart';
 
 import '../widgets/booster_suggestion_block.dart';
+import '../widgets/theory_booster_suggestion_block.dart';
 
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/spot_of_the_day_card.dart';
@@ -125,9 +126,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const BoosterLibraryScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const BoosterLibraryScreen()),
               );
             },
           ),
@@ -136,9 +135,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const BoosterArchiveScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const BoosterArchiveScreen()),
               );
             },
           ),
@@ -168,6 +165,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const RecommendedDrillTile(),
           const TagProgressHistoryCard(),
           const BoosterSuggestionBlock(),
+          const TheoryBoosterSuggestionBlock(),
           if (!tablet) const DailySpotlightCard(),
           if (narrow) ...[
             const QuickContinueCard(),
@@ -256,8 +254,9 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
     final service = context.read<AdaptiveTrainingService>();
     await service.refresh();
     final list = service.recommended.toList();
-    final weak =
-        await context.read<WeakSpotRecommendationService>().buildPack();
+    final weak = await context
+        .read<WeakSpotRecommendationService>()
+        .buildPack();
     if (weak != null) list.insert(0, weak);
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
@@ -266,7 +265,8 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
     final delta = <String, double?>{};
     final adjusted = <TrainingPackTemplate>[];
     for (final t in list) {
-      stats[t.id] = service.statFor(t.id) ??
+      stats[t.id] =
+          service.statFor(t.id) ??
           await TrainingPackStatsService.getStats(t.id);
       final hist = await TrainingPackStatsService.history(t.id);
       if (hist.length >= 2) {
@@ -407,14 +407,14 @@ class _PackCard extends StatelessWidget {
     final label = completed
         ? 'Пройдено'
         : progress > 0
-            ? 'Продолжить'
-            : 'Начать';
+        ? 'Продолжить'
+        : 'Начать';
     final color = completed ? Colors.green : Colors.orange;
     final spotlight =
         context.watch<DailySpotlightService>().template?.id == template.id;
     final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(
-          template.id,
-        );
+      template.id,
+    );
     final ev = stat?.postEvPct ?? 0;
     final icm = stat?.postIcmPct ?? 0;
     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
@@ -432,8 +432,10 @@ class _PackCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (spotlight)
-            const Text('🎯 Пак дня',
-                style: TextStyle(color: Colors.amber, fontSize: 12)),
+            const Text(
+              '🎯 Пак дня',
+              style: TextStyle(color: Colors.amber, fontSize: 12),
+            ),
           Icon(hasMistakes ? Icons.error : Icons.shield, color: color),
           const Spacer(),
           Text(template.name, maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -500,8 +502,8 @@ class _PackCard extends StatelessWidget {
                 ? null
                 : () async {
                     await context.read<TrainingSessionService>().startSession(
-                          template,
-                        );
+                      template,
+                    );
                     if (context.mounted) {
                       await Navigator.push(
                         context,
@@ -527,8 +529,8 @@ class _PackCard extends StatelessWidget {
                     .review(context, template.id);
                 if (review != null && context.mounted) {
                   await context.read<TrainingSessionService>().startSession(
-                        review,
-                      );
+                    review,
+                  );
                   if (context.mounted) {
                     await Navigator.push(
                       context,

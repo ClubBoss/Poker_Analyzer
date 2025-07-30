@@ -11,6 +11,7 @@ import 'theory_recap_suppression_engine.dart';
 import 'smart_theory_recap_dismissal_memory.dart';
 import 'recap_fatigue_evaluator.dart';
 import 'training_session_service.dart';
+import 'theory_booster_suggestion_engine.dart';
 
 /// Controls when the [SmartRecapSuggestionBanner] should be visible.
 class SmartRecapBannerController extends ChangeNotifier {
@@ -19,6 +20,7 @@ class SmartRecapBannerController extends ChangeNotifier {
   final TheoryRecapSuppressionEngine suppression;
   final SmartTheoryRecapDismissalMemory dismissal;
   final RecapFatigueEvaluator fatigue;
+  final TheoryBoosterSuggestionEngine boosterEngine;
   final TrainingSessionService sessions;
 
   SmartRecapBannerController({
@@ -27,16 +29,19 @@ class SmartRecapBannerController extends ChangeNotifier {
     TheoryRecapSuppressionEngine? suppression,
     SmartTheoryRecapDismissalMemory? dismissal,
     RecapFatigueEvaluator? fatigue,
+    TheoryBoosterSuggestionEngine? boosterEngine,
     required this.sessions,
   }) : detector = detector ?? RecapOpportunityDetector.instance,
        engine = engine ?? SmartTheoryRecapEngine.instance,
        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
        dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance,
-       fatigue = fatigue ?? RecapFatigueEvaluator.instance;
+       fatigue = fatigue ?? RecapFatigueEvaluator.instance,
+       boosterEngine = boosterEngine ?? TheoryBoosterSuggestionEngine.instance;
 
   static const _lastKey = 'smart_recap_banner_last';
   TheoryMiniLessonNode? _lesson;
   TheoryMiniLessonNode? _queued;
+  List<TheoryMiniLessonNode> _boosters = [];
   bool _visible = false;
   Timer? _timer;
 
@@ -52,9 +57,11 @@ class SmartRecapBannerController extends ChangeNotifier {
     super.dispose();
   }
 
-  bool shouldShowBanner() => _visible && _lesson != null;
+  bool shouldShowBanner() =>
+      _visible && (_lesson != null || _boosters.isNotEmpty);
 
   TheoryMiniLessonNode? getPendingLesson() => _lesson;
+  List<TheoryMiniLessonNode> getBoosterLessons() => _boosters;
 
   Future<DateTime?> _lastShown() async {
     final prefs = await SharedPreferences.getInstance();
@@ -84,16 +91,33 @@ class SmartRecapBannerController extends ChangeNotifier {
       return;
     }
     final l = lesson ?? _queued ?? await engine.getNextRecap();
-    if (l == null) return;
-    if (await fatigue.isFatigued(l.id)) return;
-    if (await suppression.shouldSuppress(
+    bool useBoosters = false;
+    if (l == null) {
+      useBoosters = true;
+    } else if (await fatigue.isFatigued(l.id)) {
+      useBoosters = true;
+    } else if (await suppression.shouldSuppress(
       lessonId: l.id,
       trigger: 'banner',
     )) {
+      useBoosters = true;
+    }
+
+    if (useBoosters) {
+      final list = await boosterEngine.suggestBoosters(maxCount: 2);
+      if (list.isEmpty) return;
+      _boosters = list;
+      _lesson = null;
+      _queued = null;
+      _visible = true;
+      await _markShown();
+      notifyListeners();
       return;
     }
-    if (await dismissal.shouldThrottle('lesson:${l.id}')) return;
+
+    if (await dismissal.shouldThrottle('lesson:${l!.id}')) return;
     _lesson = l;
+    _boosters = [];
     _queued = null;
     _visible = true;
     await _markShown();
@@ -122,6 +146,7 @@ class SmartRecapBannerController extends ChangeNotifier {
       await dismissal.registerDismissal('lesson:${_lesson!.id}');
     }
     _lesson = null;
+    _boosters = [];
     _visible = false;
     notifyListeners();
   }
