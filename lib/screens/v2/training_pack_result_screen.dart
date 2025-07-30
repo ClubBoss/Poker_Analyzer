@@ -22,6 +22,7 @@ import '../../services/smart_review_service.dart';
 import '../../widgets/common/animated_line_chart.dart';
 import '../../services/weak_spot_recommendation_service.dart';
 import '../training_session_screen.dart';
+import '../../services/booster_recap_hook.dart';
 import '../../services/training_session_service.dart';
 import '../../services/pack_library_completion_service.dart';
 
@@ -309,6 +310,17 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowPackTip());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final tagSet = <String>{};
+      for (final s in _mistakeSpots) {
+        for (final t in s.tags) {
+          final tag = t.trim();
+          if (tag.isNotEmpty) tagSet.add(tag);
+        }
+      }
+      BoosterRecapHook.instance
+          .onDrillResult(mistakes: _mistakeSpots.length, tags: tagSet.toList());
+    });
   }
 
   @override
