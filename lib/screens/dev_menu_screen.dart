@@ -126,6 +126,7 @@ import '../services/live_hud_pack_seeder.dart';
 import '../services/cash_path_seeder.dart';
 import '../services/learning_path_config_loader.dart';
 import 'pack_filter_debug_screen.dart';
+import 'theory_recap_history_viewer_screen.dart';
 import 'pack_library_conflicts_screen.dart';
 import 'pack_suggestion_preview_screen.dart';
 import 'yaml_coverage_stats_screen.dart';
@@ -4225,6 +4226,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const PackFilterDebugScreen(),
+                    ),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📜 Recap History Viewer'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TheoryRecapHistoryViewerScreen(),
                     ),
                   );
                 },
