@@ -104,6 +104,10 @@ class SessionLogService extends ChangeNotifier {
       final miss = e.value.played - e.value.correct;
       if (miss > 0) cats[e.key] = miss;
     }
+    final tags = <String>{
+      ...?_sessions.template?.tags,
+      ..._sessions.sessionTags,
+    };
     final log = SessionLog(
       sessionId: s.id,
       templateId: s.templateId,
@@ -112,6 +116,7 @@ class SessionLogService extends ChangeNotifier {
       correctCount: correct,
       mistakeCount: s.results.length - correct,
       categories: cats,
+      tags: tags.toList(),
     );
     _logged.add(s.id);
     unawaited(_save(log));

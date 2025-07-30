@@ -60,6 +60,7 @@ class TrainingSessionService extends ChangeNotifier {
   final Map<String, CategoryProgress> _categoryStats = {};
   double _evAverageAll = 0;
   double _icmAverageAll = 0;
+  final List<String> _sessionTags = [];
 
   double get preEvPct => _preEvPct;
   double get preIcmPct => _preIcmPct;
@@ -72,6 +73,7 @@ class TrainingSessionService extends ChangeNotifier {
   Map<String, int> get handGoalCount => Map.unmodifiable(_handGoalCount);
   Map<String, CategoryProgress> getCategoryStats() =>
       Map.unmodifiable(_categoryStats);
+  List<String> get sessionTags => List.unmodifiable(_sessionTags);
 
   TrainingSession? get currentSession => _session;
   bool get isCompleted => _session?.completedAt != null;
@@ -197,6 +199,11 @@ class TrainingSessionService extends ChangeNotifier {
               for (final t in (data['focusHandTypes'] as List? ?? []))
                 FocusGoal.fromJson(t)
             ]);
+          _sessionTags
+            ..clear()
+            ..addAll([
+              for (final t in (data['tags'] as List? ?? [])) t.toString()
+            ]);
           _preEvPct = (data['preEvPct'] as num?)?.toDouble() ?? 0;
           _preIcmPct = (data['preIcmPct'] as num?)?.toDouble() ?? 0;
           _evAverageAll = (data['evAverageAll'] as num?)?.toDouble() ?? 0;
@@ -267,6 +274,7 @@ class TrainingSessionService extends ChangeNotifier {
     _spots.clear();
     _actions.clear();
     _focusHandTypes.clear();
+    _sessionTags.clear();
     _handGoalTotal.clear();
     _handGoalCount.clear();
     _categoryStats.clear();
@@ -299,7 +307,8 @@ class TrainingSessionService extends ChangeNotifier {
         'preEvPct': _preEvPct,
         'preIcmPct': _preIcmPct,
         'evAverageAll': _evAverageAll,
-        'icmAverageAll': _icmAverageAll
+        'icmAverageAll': _icmAverageAll,
+        if (_sessionTags.isNotEmpty) 'tags': _sessionTags
       });
     }
   }
@@ -343,6 +352,7 @@ class TrainingSessionService extends ChangeNotifier {
     TrainingPackTemplate template, {
     bool persist = true,
     int startIndex = 0,
+    List<String>? sessionTags,
   }) async {
     if (persist) await _openBox();
     unawaited(DailyReminderScheduler.instance.cancelAll());
@@ -351,6 +361,9 @@ class TrainingSessionService extends ChangeNotifier {
       unawaited(LearningPathProgressService.instance.markCustomPathStarted());
     }
     _template = template;
+    _sessionTags
+      ..clear()
+      ..addAll(sessionTags ?? []);
     final total = template.totalWeight;
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
     _preIcmPct = total == 0 ? 0 : template.icmCovered * 100 / total;

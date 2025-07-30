@@ -41,7 +41,7 @@ void main() {
   );
 
   final logs = [
-    SessionLog(
+    SessionLog(tags: const [], 
       sessionId: '1',
       templateId: 'p1',
       startedAt: DateTime.now(),
@@ -49,7 +49,7 @@ void main() {
       correctCount: 4,
       mistakeCount: 1,
     ),
-    SessionLog(
+    SessionLog(tags: const [], 
       sessionId: '2',
       templateId: 'p2',
       startedAt: DateTime.now(),

@@ -26,7 +26,7 @@ void main() {
 
   test('summary computes progress for sample path', () async {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),

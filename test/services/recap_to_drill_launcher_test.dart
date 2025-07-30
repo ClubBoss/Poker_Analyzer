@@ -12,10 +12,13 @@ import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 
 class _FakeLauncher extends TrainingSessionLauncher {
   int count = 0;
+  List<String>? tags;
   const _FakeLauncher();
   @override
-  Future<void> launchForMiniLesson(TheoryMiniLessonNode lesson) async {
+  Future<void> launchForMiniLesson(TheoryMiniLessonNode lesson,
+      {List<String>? sessionTags}) async {
     count++;
+    tags = sessionTags;
   }
 }
 
@@ -42,6 +45,7 @@ void main() {
     await service.launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
 
     expect(launcher.count, 1);
+    expect(launcher.tags, ['recap', 'reinforcement']);
     expect(controller.shouldShowBanner(), isFalse);
     final events = await RecapHistoryTracker.instance.getHistory();
     expect(events.first.eventType, 'drillLaunch');
@@ -69,6 +73,7 @@ void main() {
     await service.launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
 
     expect(launcher.count, 0);
+    expect(launcher.tags, isNull);
     expect(controller.shouldShowBanner(), isTrue);
     final events = await RecapHistoryTracker.instance.getHistory();
     expect(events, isEmpty);

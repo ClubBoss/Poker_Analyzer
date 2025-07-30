@@ -53,6 +53,7 @@ class _RemoteSessionsScreenState extends State<RemoteSessionsScreen> {
       completedAt: s.date,
       correctCount: s.correct,
       mistakeCount: s.mistakes,
+      tags: const [],
     );
     await context.read<SessionLogService>().addLog(log);
     _load();

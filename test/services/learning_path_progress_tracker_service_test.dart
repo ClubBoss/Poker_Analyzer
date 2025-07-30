@@ -34,7 +34,7 @@ void main() {
       );
 
   List<SessionLog> logs0() => [
-        SessionLog(
+        SessionLog(tags: const [], 
           sessionId: 'l1',
           templateId: 'pack1',
           startedAt: DateTime.now(),
@@ -42,7 +42,7 @@ void main() {
           correctCount: 8,
           mistakeCount: 2,
         ),
-        SessionLog(
+        SessionLog(tags: const [], 
           sessionId: 'l2',
           templateId: 'pack2',
           startedAt: DateTime.now(),
@@ -54,7 +54,7 @@ void main() {
 
   test('aggregateLogsByPack sums counts', () {
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: 'a',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -62,7 +62,7 @@ void main() {
         correctCount: 3,
         mistakeCount: 1,
       ),
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: 'b',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -94,7 +94,7 @@ void main() {
   test('isPathCompleted false when requirements not met', () {
     final path = path0();
     final logs = [
-      SessionLog(
+      SessionLog(tags: const [], 
         sessionId: 'l1',
         templateId: 'pack1',
         startedAt: DateTime.now(),

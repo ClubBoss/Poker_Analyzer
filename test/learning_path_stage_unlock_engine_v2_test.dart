@@ -42,7 +42,7 @@ void main() {
     ],
   );
 
-  SessionLog log(String id, int correct, int mistakes) => SessionLog(
+  SessionLog log(String id, int correct, int mistakes) => SessionLog(tags: const [], 
     sessionId: '1',
     templateId: id,
     startedAt: DateTime.now(),
