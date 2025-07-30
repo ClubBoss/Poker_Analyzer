@@ -66,6 +66,11 @@ class RecapHistoryTracker {
     await _save();
   }
 
+  /// Records that a drill was launched for [lessonId].
+  Future<void> registerDrillLaunch(String lessonId) async {
+    await logRecapEvent(lessonId, 'banner', 'drillLaunch');
+  }
+
   /// Returns history filtered by [lessonId] and [trigger] if provided.
   Future<List<RecapEvent>> getHistory({
     String? lessonId,
