@@ -74,7 +74,7 @@ class SmartRecapBannerController extends ChangeNotifier {
   bool _notInSession() =>
       sessions.currentSession == null || sessions.isCompleted;
 
-  Future<void> triggerBannerIfNeeded() async {
+  Future<void> triggerBannerIfNeeded([TheoryMiniLessonNode? lesson]) async {
     if (!_appInForeground() || !_noActiveDialog() || !_notInSession()) return;
     if (!await detector.isGoodRecapMoment()) return;
     final last = await _lastShown();
@@ -82,17 +82,17 @@ class SmartRecapBannerController extends ChangeNotifier {
         DateTime.now().difference(last) < const Duration(hours: 6)) {
       return;
     }
-    final lesson = await engine.getNextRecap();
-    if (lesson == null) return;
-    if (await fatigue.isFatigued(lesson.id)) return;
+    final l = lesson ?? await engine.getNextRecap();
+    if (l == null) return;
+    if (await fatigue.isFatigued(l.id)) return;
     if (await suppression.shouldSuppress(
-      lessonId: lesson.id,
+      lessonId: l.id,
       trigger: 'banner',
     )) {
       return;
     }
-    if (await dismissal.shouldThrottle('lesson:${lesson.id}')) return;
-    _lesson = lesson;
+    if (await dismissal.shouldThrottle('lesson:${l.id}')) return;
+    _lesson = l;
     _visible = true;
     await _markShown();
     notifyListeners();
