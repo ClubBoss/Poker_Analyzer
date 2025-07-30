@@ -496,6 +496,16 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(create: (_) => TagCoverageService()),
     Provider(create: (_) => TagMasteryHistoryService()),
     Provider(
+      create: (context) => SkillTagDecayTracker(
+        logs: context.read<SessionLogService>(),
+        history: context.read<TagMasteryHistoryService>(),
+      ),
+    ),
+    Provider(
+      create: (context) =>
+          RecapTagAnalyticsService(logs: context.read<SessionLogService>()),
+    ),
+    Provider(
       create: (context) => TagInsightReminderEngine(
         history: context.read<TagMasteryHistoryService>(),
       ),
@@ -579,6 +589,13 @@ List<SingleChildWidget> buildTrainingProviders() {
     ChangeNotifierProvider(
       create: (context) => SmartRecapBannerController(
         sessions: context.read<TrainingSessionService>(),
+      )..start(),
+    ),
+    Provider(
+      create: (context) => SmartRecapScheduler(
+        decay: context.read<SkillTagDecayTracker>(),
+        analytics: context.read<RecapTagAnalyticsService>(),
+        controller: context.read<SmartRecapBannerController>(),
       )..start(),
     ),
     Provider(
