@@ -15,6 +15,10 @@ import 'training_pack_stats_service_v2.dart';
 import 'training_history_service_v2.dart';
 import 'theory_pack_generator_service.dart';
 import 'theory_yaml_importer.dart';
+import 'mini_lesson_library_service.dart';
+import 'recap_effectiveness_analyzer.dart';
+import 'theory_replay_cooldown_manager.dart';
+import '../models/theory_mini_lesson_node.dart';
 
 class BoosterSuggestionEngine {
   const BoosterSuggestionEngine();
@@ -30,8 +34,8 @@ class BoosterSuggestionEngine {
     DateTime? now,
   }) async {
     final current = now ?? DateTime.now();
-    final improvementMap = improvement ??
-        await TrainingPackStatsServiceV2.improvementByTag();
+    final improvementMap =
+        improvement ?? await TrainingPackStatsServiceV2.improvementByTag();
     insights ??= await const MistakeTagInsightsService()
         .buildInsights(sortByEvLoss: true);
     history ??= await TrainingHistoryServiceV2.getHistory(limit: 50);
@@ -85,6 +89,32 @@ class BoosterSuggestionEngine {
     }
 
     return null;
+  }
+
+  /// Returns mini lessons worth replaying based on recap history.
+  Future<List<TheoryMiniLessonNode>> getRecommendedBoosters({
+    int maxCount = 3,
+  }) async {
+    if (maxCount <= 0) return [];
+    await RecapEffectivenessAnalyzer.instance.refresh();
+    await MiniLessonLibraryService.instance.loadAll();
+
+    final tags = RecapEffectivenessAnalyzer.instance.suppressedTags();
+    if (tags.isEmpty) return [];
+
+    final lessons = <TheoryMiniLessonNode>[];
+    for (final tag in tags) {
+      if (lessons.length >= maxCount) break;
+      final key = tag.trim().toLowerCase();
+      if (key.isEmpty) continue;
+      if (await TheoryReplayCooldownManager.isUnderCooldown('boost:$key')) {
+        continue;
+      }
+      final nodes = MiniLessonLibraryService.instance.findByTags([key]);
+      if (nodes.isEmpty) continue;
+      lessons.add(nodes.first);
+    }
+    return lessons;
   }
 
   /// Generates a simple YAML booster for the first tag in [mistake] if no
