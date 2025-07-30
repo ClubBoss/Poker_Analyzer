@@ -18,18 +18,27 @@ class TheoryMiniLessonNode implements LearningPathNode {
   /// Tags associated with this mini lesson.
   final List<String> tags;
 
+  /// Optional stage identifier like `level2`.
+  final String? stage;
+
   /// IDs of nodes unlocked after reading this lesson.
   final List<String> nextIds;
+
+  /// Ids of training packs linked to this lesson.
+  List<String> linkedPackIds;
 
   const TheoryMiniLessonNode({
     required this.id,
     this.refId,
     required this.title,
     required this.content,
+    this.stage,
     List<String>? tags,
     List<String>? nextIds,
+    List<String>? linkedPackIds,
   })  : tags = tags ?? const [],
-        nextIds = nextIds ?? const [];
+        nextIds = nextIds ?? const [],
+        linkedPackIds = linkedPackIds ?? const [];
 
   /// Returns [title] or the referenced block's title when empty.
   String get resolvedTitle {
@@ -56,13 +65,16 @@ class TheoryMiniLessonNode implements LearningPathNode {
       }
     }
     final nextIds = <String>[for (final v in (yaml['next'] as List? ?? [])) v.toString()];
+    final linked = <String>[for (final v in (yaml['linkedPackIds'] as List? ?? [])) v.toString()];
     return TheoryMiniLessonNode(
       id: yaml['id']?.toString() ?? '',
       refId: yaml['refId']?.toString(),
       title: yaml['title']?.toString() ?? '',
       content: yaml['content']?.toString() ?? '',
       tags: tags,
+      stage: yaml['stage']?.toString(),
       nextIds: nextIds,
+      linkedPackIds: linked,
     );
   }
 }
