@@ -19,6 +19,7 @@ class TrainingPackSpot {
   /// Ephemeral flag — used only in RAM to highlight freshly imported spots.
   /// Never written to / read from JSON.
   bool isNew = false;
+
   /// Ephemeral flag – marks automatically generated variations.
   /// Never written to / read from JSON.
   bool isGenerated = false;
@@ -200,7 +201,9 @@ class TrainingPackSpot {
 
     map['type'] = yaml['type']?.toString() ?? 'quiz';
 
-    final board = <String>[for (final c in (yaml['board'] as List? ?? [])) c.toString()];
+    final board = <String>[
+      for (final c in (yaml['board'] as List? ?? [])) c.toString()
+    ];
     if (board.length >= 3 && board.length <= 5) map['board'] = board;
 
     final street = (yaml['street'] as num?)?.toInt() ?? 0;
@@ -211,7 +214,9 @@ class TrainingPackSpot {
       map['villainAction'] = villain;
     }
 
-    final heroOptions = <String>[for (final o in (yaml['heroOptions'] as List? ?? [])) o.toString()];
+    final heroOptions = <String>[
+      for (final o in (yaml['heroOptions'] as List? ?? [])) o.toString()
+    ];
     if (heroOptions.isNotEmpty) map['heroOptions'] = heroOptions;
 
     if (yaml['meta'] is Map) {
@@ -265,7 +270,7 @@ class TrainingPackSpot {
           const DeepCollectionEquality().equals(meta, other.meta);
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
         id,
         type,
         title,
@@ -287,7 +292,7 @@ class TrainingPackSpot {
         villainAction,
         const ListEquality().hash(heroOptions),
         const DeepCollectionEquality().hash(meta),
-      );
+      ]);
 }
 
 extension TrainingPackSpotStreet on TrainingPackSpot {
