@@ -11,6 +11,8 @@ import '../services/theory_replay_cooldown_manager.dart';
 import '../services/recall_analytics_service.dart';
 import '../widgets/theory_recap_dialog.dart';
 import '../services/weak_theory_review_launcher.dart';
+import '../services/theory_boost_recap_linker.dart';
+import 'package:collection/collection.dart';
 
 /// Banner suggesting theory recap or booster after a session.
 class TheoryProgressRecoveryBanner extends StatefulWidget {
@@ -83,10 +85,11 @@ class _TheoryProgressRecoveryBannerState
     if (tag != null) {
       _tag = tag;
       await MiniLessonLibraryService.instance.loadAll();
-      final lessons =
-          MiniLessonLibraryService.instance.findByTags([tag.name]);
-      if (lessons.isNotEmpty) {
-        _lesson = lessons.first;
+      final linker = const TheoryBoostRecapLinker();
+      _lesson = await linker.fetchLesson(tag.name);
+      _lesson ??=
+          MiniLessonLibraryService.instance.findByTags([tag.name]).firstOrNull;
+      if (_lesson != null) {
         final bridge = SmartTheoryBoosterBridge();
         final recs = await bridge.recommend([_lesson!]);
         if (recs.isNotEmpty) {

@@ -5,6 +5,7 @@ import '../models/training_pack.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/drill_result.dart';
 import 'smart_theory_recap_engine.dart';
+import 'theory_boost_recap_linker.dart';
 
 /// Listens to booster and drill results and triggers theory recap when needed.
 class BoosterRecapHook {
@@ -60,6 +61,9 @@ class BoosterRecapHook {
         lessonId = backlink.relatedLessonIds.first;
       }
     }
+    lessonId ??= tags != null && tags.isNotEmpty
+        ? const TheoryBoostRecapLinker().getLinkedLesson(tags.first)
+        : null;
     await engine.maybePrompt(lessonId: lessonId, tags: tags);
   }
 }
