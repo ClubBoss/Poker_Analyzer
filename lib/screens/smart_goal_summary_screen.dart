@@ -36,7 +36,7 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
     final goals = await controller.getInboxGoals(maxGoals: 10);
     final assignments = await GoalSlotAllocator.instance.allocate(goals);
     await MiniLessonLibraryService.instance.loadAll();
-    final history = await BoosterPathHistoryService.instance.getHistory();
+    final history = await BoosterPathHistoryService.instance.getTagStats();
     final map = <String, List<_GoalItem>>{};
     for (final a in assignments) {
       final lesson = MiniLessonLibraryService.instance.getById(a.goal.id);
