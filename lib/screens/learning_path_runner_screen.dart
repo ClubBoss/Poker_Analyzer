@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
+import '../models/learning_path_block.dart';
+import '../widgets/injected_theory_block_renderer.dart';
+import '../services/injection_block_assembler.dart';
+import '../services/smart_theory_injection_engine.dart';
+
 import '../models/learning_branch_node.dart';
 import '../models/theory_lesson_node.dart';
 import '../services/learning_graph_engine.dart';
@@ -18,18 +23,30 @@ class LearningPathRunnerScreen extends StatefulWidget {
 class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
   late Future<void> _initFuture;
   LearningPathNode? _current;
+  LearningPathBlock? _injectedBlock;
+  final Set<String> _shownStages = <String>{};
 
   @override
   void initState() {
     super.initState();
     _initFuture = LearningPathEngine.instance.initialize().then((_) {
       _current = LearningPathEngine.instance.getCurrentNode();
+      final node = _current;
+      if (node is StageNode) {
+        _prepareInjection(node);
+      }
     });
   }
 
   void _refresh() {
+    final node = LearningPathEngine.instance.getCurrentNode();
+    if (node is StageNode) {
+      _prepareInjection(node);
+    } else {
+      _injectedBlock = null;
+    }
     setState(() {
-      _current = LearningPathEngine.instance.getCurrentNode();
+      _current = node;
     });
   }
 
@@ -41,6 +58,17 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
   Future<void> _chooseBranch(LearningBranchNode node, String label) async {
     await LearningPathEngine.instance.applyBranchChoice(label);
     _refresh();
+  }
+
+  Future<void> _prepareInjection(StageNode node) async {
+    if (_shownStages.contains(node.id)) return;
+    _shownStages.add(node.id);
+    final candidate =
+        await const SmartTheoryInjectionEngine().getInjectionCandidate(node.id);
+    if (candidate == null) return;
+    final block = const InjectionBlockAssembler().build(candidate, node.id);
+    if (!mounted) return;
+    setState(() => _injectedBlock = block);
   }
 
   Widget _buildCurrent() {
@@ -68,6 +96,9 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
         children: [
           Text(node.id, style: const TextStyle(fontSize: 20)),
           const SizedBox(height: 16),
+          if (_injectedBlock != null)
+            InjectedTheoryBlockRenderer(block: _injectedBlock!),
+          if (_injectedBlock != null) const SizedBox(height: 16),
           const Text('Stage content placeholder'),
           const Spacer(),
           Align(
