@@ -24,8 +24,7 @@ class TheoryPromptDismissTracker {
         final data = jsonDecode(raw);
         if (data is List) {
           _history.addAll(data.whereType<Map>().map((e) =>
-              TheoryPromptDismissEntry.fromJson(
-                  Map<String, dynamic>.from(e))));
+              TheoryPromptDismissEntry.fromJson(Map<String, dynamic>.from(e))));
         }
       } catch (_) {}
     }
@@ -42,14 +41,18 @@ class TheoryPromptDismissTracker {
 
   /// Marks [lessonId] as dismissed so it won't be suggested again within the
   /// cooldown period.
-  Future<void> markDismissed(String lessonId, {String trigger = ''}) async {
+  Future<void> markDismissed(
+    String lessonId, {
+    String trigger = '',
+    DateTime? timestamp,
+  }) async {
     await _load();
     _history.insert(
       0,
       TheoryPromptDismissEntry(
         lessonId: lessonId,
         trigger: trigger,
-        timestamp: DateTime.now(),
+        timestamp: timestamp ?? DateTime.now(),
       ),
     );
     if (_history.length > 50) {
@@ -74,5 +77,22 @@ class TheoryPromptDismissTracker {
       }
     }
     return false;
+  }
+
+  /// Returns dismissal history optionally filtered by [before]. Most recent
+  /// first.
+  Future<List<TheoryPromptDismissEntry>> getHistory({DateTime? before}) async {
+    await _load();
+    Iterable<TheoryPromptDismissEntry> list = _history;
+    if (before != null) {
+      list = list.where((e) => e.timestamp.isBefore(before));
+    }
+    return List<TheoryPromptDismissEntry>.unmodifiable(list);
+  }
+
+  /// Clears cached data for testing purposes.
+  void resetForTest() {
+    _loaded = false;
+    _history.clear();
   }
 }
