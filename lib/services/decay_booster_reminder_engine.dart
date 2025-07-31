@@ -47,4 +47,16 @@ class DecayBoosterReminderEngine {
     await logger.log('decay_reminder_shown');
     return true;
   }
+
+  /// Returns the tag with the highest decay score above [decayThreshold].
+  Future<String?> getTopDecayTag({DateTime? now}) async {
+    final current = now ?? DateTime.now();
+    final scores = await decay.computeDecayScores(now: current);
+    final entries = scores.entries
+        .where((e) => e.value > decayThreshold)
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    if (entries.isEmpty) return null;
+    return entries.first.key;
+  }
 }
