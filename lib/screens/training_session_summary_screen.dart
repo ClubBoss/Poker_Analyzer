@@ -43,6 +43,7 @@ import '../services/streak_tracker_service.dart';
 import '../services/streak_milestone_queue_service.dart';
 import '../widgets/confetti_overlay.dart';
 import '../services/overlay_booster_manager.dart';
+import '../widgets/decay_recall_stats_card.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
@@ -326,6 +327,11 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                   '🔥 Бонус за стрик: +${((widget.streakMultiplier - 1) * 100).round()}% XP',
                   style: const TextStyle(color: Colors.orange),
                 ),
+              ),
+            if (widget.template.tags.contains('decayBooster'))
+              DecayRecallStatsCard(
+                tagDeltas: widget.tagDeltas,
+                spotCount: widget.session.results.length,
               ),
             const SizedBox(height: 16),
             if (widget.tagDeltas.isNotEmpty) ...[
