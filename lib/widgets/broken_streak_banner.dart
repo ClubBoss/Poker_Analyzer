@@ -10,7 +10,8 @@ import '../helpers/date_utils.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class BrokenStreakBanner extends StatefulWidget {
-  const BrokenStreakBanner({super.key});
+  final String? packId;
+  const BrokenStreakBanner({super.key, this.packId});
 
   @override
   State<BrokenStreakBanner> createState() => _BrokenStreakBannerState();
@@ -27,7 +28,13 @@ class _BrokenStreakBannerState extends State<BrokenStreakBanner> {
 
   Future<List<_StreakInfo>> _load() async {
     const evaluator = ReviewStreakEvaluatorService();
-    final ids = await evaluator.packsWithBrokenStreaks();
+    List<String> ids;
+    if (widget.packId != null) {
+      final broken = await evaluator.streakBreakDate(widget.packId!);
+      ids = broken != null ? [widget.packId!] : <String>[];
+    } else {
+      ids = await evaluator.packsWithBrokenStreaks();
+    }
     final storage = context.read<TrainingPackTemplateStorageService>();
     final stats = PackRecallStatsService.instance;
     await TrainingPackLibraryV2.instance.loadFromFolder();
@@ -42,7 +49,8 @@ class _BrokenStreakBannerState extends State<BrokenStreakBanner> {
       result.add(_StreakInfo(tpl, breakDate, last));
     }
     result.sort((a, b) => a.breakDate.compareTo(b.breakDate));
-    return result.take(2).toList();
+    final limit = widget.packId != null ? 1 : 2;
+    return result.take(limit).toList();
   }
 
   Future<void> _start(TrainingPackTemplateV2 tpl) async {
@@ -52,7 +60,7 @@ class _BrokenStreakBannerState extends State<BrokenStreakBanner> {
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
-    return FutureBuilder<List<_StreakInfo>>( 
+    return FutureBuilder<List<_StreakInfo>>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
@@ -97,8 +105,7 @@ class _BrokenStreakBannerState extends State<BrokenStreakBanner> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(info.tpl.name,
-                  style: const TextStyle(color: Colors.white)),
+              Text(info.tpl.name, style: const TextStyle(color: Colors.white)),
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
