@@ -3,6 +3,7 @@ import 'booster_inventory_service.dart';
 import 'tag_mastery_service.dart';
 import 'skill_gap_detector_service.dart';
 import 'smart_booster_recall_engine.dart';
+import 'booster_recall_scheduler.dart';
 import 'learning_path_stage_library.dart';
 import 'path_map_engine.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -13,6 +14,7 @@ class BoosterInjectionOrchestrator {
   final BoosterInventoryService inventory;
   final SkillGapDetectorService gaps;
   final SmartBoosterRecallEngine recall;
+  final BoosterRecallScheduler recallScheduler;
 
   final Set<String> _shown = <String>{};
 
@@ -21,8 +23,10 @@ class BoosterInjectionOrchestrator {
     required this.inventory,
     SkillGapDetectorService? gaps,
     SmartBoosterRecallEngine? recall,
+    BoosterRecallScheduler? recallScheduler,
   })  : gaps = gaps ?? SkillGapDetectorService(),
-        recall = recall ?? SmartBoosterRecallEngine.instance;
+        recall = recall ?? SmartBoosterRecallEngine.instance,
+        recallScheduler = recallScheduler ?? BoosterRecallScheduler.instance;
 
   /// Returns booster blocks relevant to [stage].
   Future<List<LearningPathBlock>> getInjectableBoosters(StageNode stage) async {
@@ -56,6 +60,17 @@ class BoosterInjectionOrchestrator {
     for (final tag in targetTags) {
       candidates.addAll(inventory.findByTag(tag));
     }
+
+    final recallIds = await recallScheduler.getDueBoosters(stage.id);
+    final recallBoosters = <TrainingPackTemplateV2>[];
+    for (final id in recallIds) {
+      final b = inventory.getById(id);
+      if (b != null && b.tags.any(stageTags.contains)) {
+        recallBoosters.add(b);
+      }
+    }
+
+    candidates.insertAll(0, recallBoosters);
 
     if (candidates.isEmpty) return [];
 
