@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +13,7 @@ import 'app_usage_tracker.dart';
 import 'mini_lesson_library_service.dart';
 import 'mini_lesson_progress_tracker.dart';
 import 'theory_tag_decay_tracker.dart';
+import 'decay_topic_suppressor_service.dart';
 
 /// Schedules weekly push notifications for highly decayed theory tags.
 class DecayBoosterNotificationService with WidgetsBindingObserver {
@@ -117,6 +120,9 @@ class DecayBoosterNotificationService with WidgetsBindingObserver {
     int idIndex = 0;
     for (final entry in candidates) {
       final tag = entry.key;
+      if (await DecayTopicSuppressorService.instance.shouldSuppress(tag)) {
+        continue;
+      }
       final list = lessons.findByTags([tag]);
       for (final l in list) {
         final ts = await progress.lastViewed(l.id);
@@ -139,6 +145,8 @@ class DecayBoosterNotificationService with WidgetsBindingObserver {
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );
+        unawaited(
+            DecayTopicSuppressorService.instance.recordIgnored(tag));
         sent++;
         idIndex = (idIndex + 1) % _ids.length;
         break;
