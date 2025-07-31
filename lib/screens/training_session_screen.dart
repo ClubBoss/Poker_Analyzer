@@ -97,6 +97,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   Timer? _timer;
   bool _continue = false;
   bool _summaryShown = false;
+  bool _boosterRecapShown = false;
 
   void _restart() {
     final pack = widget.pack;
@@ -111,6 +112,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       _correct = null;
       _continue = false;
       _summaryShown = false;
+      _boosterRecapShown = false;
     });
   }
 
@@ -308,6 +310,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final tpl = service.template;
     if (tpl != null) {
       final isBooster = tpl.meta['type']?.toString().toLowerCase() == 'booster';
+      if (isBooster && _boosterRecapShown) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Booster recap already shown')),
+          );
+        }
+        return;
+      }
       double? accBefore;
       String? boosterTag;
       if (isBooster) {
@@ -462,6 +472,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   categoryCounts: counts,
                 ),
         );
+        if (isBooster) _boosterRecapShown = true;
       } else {
         await service.complete(
           context,
@@ -482,6 +493,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   elapsed: elapsed,
                 ),
         );
+        if (isBooster) _boosterRecapShown = true;
       }
 
       if (isBooster && boosterTag != null) {
