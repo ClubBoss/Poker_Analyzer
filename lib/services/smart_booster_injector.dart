@@ -41,8 +41,7 @@ class SmartBoosterInjector {
         await recapQueue.add(lesson.id);
         break;
       } else if (slot == BoosterSlot.inbox) {
-        // No dedicated queue yet; use tracker as placeholder
-        await inboxTracker.markShown(lesson.id);
+        await inboxTracker.addToInbox(lesson.id);
         break;
       } else if (slot == BoosterSlot.goal) {
         goalQueue.push(lesson);

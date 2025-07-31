@@ -10,9 +10,12 @@ class InboxBoosterTrackerService {
       InboxBoosterTrackerService._();
 
   static const _prefsKey = 'inbox_booster_interactions';
+  static const _queueKey = 'inbox_booster_queue';
 
   final Map<String, _BoosterStats> _cache = {};
   bool _loaded = false;
+  List<String> _queue = [];
+  bool _queueLoaded = false;
 
   /// Clears cache for testing purposes.
   void resetForTest() {
@@ -48,9 +51,22 @@ class InboxBoosterTrackerService {
     );
   }
 
+  Future<void> _loadQueue() async {
+    if (_queueLoaded) return;
+    final prefs = await SharedPreferences.getInstance();
+    _queue = prefs.getStringList(_queueKey) ?? [];
+    _queueLoaded = true;
+  }
+
+  Future<void> _saveQueue() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_queueKey, _queue);
+  }
+
   /// Marks [lessonId] as shown now.
   Future<void> markShown(String lessonId) async {
     await _load();
+    await _loadQueue();
     final stats = _cache[lessonId] ?? const _BoosterStats();
     final updated = stats.copyWith(
       shows: stats.shows + 1,
@@ -58,6 +74,10 @@ class InboxBoosterTrackerService {
     );
     _cache[lessonId] = updated;
     await _save();
+    if (!_queue.contains(lessonId)) {
+      _queue.add(lessonId);
+      await _saveQueue();
+    }
     await UserActionLogger.instance.logEvent({
       'event': 'inbox_booster.shown',
       'lesson': lessonId,
@@ -67,6 +87,7 @@ class InboxBoosterTrackerService {
   /// Marks [lessonId] as clicked now.
   Future<void> markClicked(String lessonId) async {
     await _load();
+    await _loadQueue();
     final stats = _cache[lessonId] ?? const _BoosterStats();
     final updated = stats.copyWith(
       clicks: stats.clicks + 1,
@@ -74,10 +95,44 @@ class InboxBoosterTrackerService {
     );
     _cache[lessonId] = updated;
     await _save();
+    _queue.remove(lessonId);
+    await _saveQueue();
     await UserActionLogger.instance.logEvent({
       'event': 'inbox_booster.clicked',
       'lesson': lessonId,
     });
+  }
+
+  /// Adds [lessonId] to the inbox queue if not already present.
+  Future<void> addToInbox(String lessonId) async {
+    await _loadQueue();
+    if (!_queue.contains(lessonId)) {
+      _queue.add(lessonId);
+      await _saveQueue();
+    }
+  }
+
+  /// Returns current inbox booster lesson ids.
+  Future<List<String>> getInbox() async {
+    await _loadQueue();
+    return List.unmodifiable(_queue);
+  }
+
+  /// Clears all queued inbox boosters.
+  Future<void> clearInbox() async {
+    await _loadQueue();
+    if (_queue.isNotEmpty) {
+      _queue.clear();
+      await _saveQueue();
+    }
+  }
+
+  /// Removes [lessonId] from the inbox queue.
+  Future<void> removeFromInbox(String lessonId) async {
+    await _loadQueue();
+    if (_queue.remove(lessonId)) {
+      await _saveQueue();
+    }
   }
 
   /// Whether [lessonId] was shown within [window].
