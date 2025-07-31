@@ -9,6 +9,7 @@ import '../services/pack_unlocking_rules_engine.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/tag_progress_sparkline.dart';
 import '../widgets/tag_training_heatmap.dart';
+import '../widgets/decay_recall_insight_panel.dart';
 import '../widgets/training_pack_template_card.dart';
 import '../screens/training_session_screen.dart';
 import '../services/training_session_service.dart';
@@ -166,13 +167,7 @@ class _TagSkillDetailScreenState extends State<TagSkillDetailScreen> {
   }
 
   Widget _buildRecent() {
-    return const Padding(
-      padding: EdgeInsets.all(16),
-      child: Text(
-        'Недавняя активность пока недоступна',
-        style: TextStyle(color: Colors.white54),
-      ),
-    );
+    return DecayRecallInsightPanel(tag: widget.tag);
   }
 
   @override
