@@ -9,6 +9,8 @@ import 'package:poker_analyzer/services/smart_booster_recall_engine.dart';
 import 'package:poker_analyzer/services/learning_path_stage_library.dart';
 import 'package:poker_analyzer/services/session_log_service.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/booster_completion_tracker.dart';
 import 'package:poker_analyzer/models/learning_path_stage_model.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/models/game_type.dart';
@@ -76,6 +78,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    BoosterCompletionTracker.instance.resetForTest();
     LearningPathStageLibrary.instance.clear();
     LearningPathStageLibrary.instance.add(
       const LearningPathStageModel(
@@ -133,5 +137,19 @@ void main() {
     final second = await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
     expect(first.length, 1);
     expect(second, isEmpty);
+  });
+
+  test('skips completed boosters', () async {
+    final orch = BoosterInjectionOrchestrator(
+      mastery: _FakeMastery({'push': 0.4}),
+      inventory: _FakeInventory([
+        _pack('b1', 'push'),
+      ]),
+      gaps: _FakeGapDetector([]),
+      recall: _FakeRecall([]),
+    );
+    await BoosterCompletionTracker.instance.markBoosterCompleted('b1');
+    final blocks = await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    expect(blocks, isEmpty);
   });
 }
