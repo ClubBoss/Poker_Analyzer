@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ import '../services/streak_milestone_queue_service.dart';
 import '../widgets/confetti_overlay.dart';
 import '../services/overlay_booster_manager.dart';
 import '../widgets/decay_recall_stats_card.dart';
+import '../services/decay_session_tag_impact_recorder.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
@@ -145,6 +147,11 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
       await StreakMilestoneQueueService.instance
           .showNextMilestoneCelebrationIfAny(context);
       await context.read<OverlayBoosterManager>().onAfterXpScreen();
+      if (widget.template.tags.contains('decayBooster') &&
+          widget.tagDeltas.isNotEmpty) {
+        unawaited(DecaySessionTagImpactRecorder.instance
+            .recordSession(widget.tagDeltas, DateTime.now()));
+      }
     });
     _loadWeakPack();
   }
