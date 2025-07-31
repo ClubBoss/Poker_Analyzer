@@ -128,6 +128,7 @@ import 'services/smart_recap_banner_reinjection_service.dart';
 import 'services/recap_to_drill_launcher.dart';
 import 'services/smart_booster_unlock_scheduler.dart';
 import 'services/overlay_booster_manager.dart';
+import 'services/theory_recall_overlay_scheduler.dart';
 import 'services/adaptive_next_step_engine.dart';
 import 'services/suggested_next_step_engine.dart';
 
@@ -625,6 +626,9 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     Provider(
       create: (_) => OverlayBoosterManager()..start(),
+    ),
+    Provider(
+      create: (_) => TheoryRecallOverlayScheduler()..start(),
     ),
   ];
 }
