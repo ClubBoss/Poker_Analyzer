@@ -50,6 +50,7 @@ import '../models/training_spot_attempt.dart';
 import '../models/training_pack.dart';
 import '../services/booster_completion_tracker.dart';
 import '../services/user_action_logger.dart';
+import '../services/booster_auto_retry_suggester.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -417,6 +418,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       }
       Map<String, double> deltas = {};
       TrainingPackTemplateV2? boosterTpl;
+      double? boosterAccuracy;
       if (isBooster) {
         deltas = await context.read<TagMasteryService>().updateWithSession(
           template: tpl,
@@ -430,6 +432,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         final type = const TrainingTypeEngine().detectTrainingType(tmp);
         boosterTpl = TrainingPackTemplateV2.fromTemplate(tpl, type: type);
         final accuracy = total == 0 ? 0.0 : correct * 100 / total;
+        boosterAccuracy = accuracy;
         final required = (tpl.meta['requiredAccuracy'] as num?)?.toDouble() ??
             80.0;
         if (accuracy >= required) {
@@ -472,7 +475,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   categoryCounts: counts,
                 ),
         );
-        if (isBooster) _boosterRecapShown = true;
+        if (isBooster) {
+          _boosterRecapShown = true;
+          if (boosterAccuracy != null && boosterTpl != null) {
+            await BoosterAutoRetrySuggester.instance
+                .maybeSuggestRetry(boosterTpl!, boosterAccuracy!);
+          }
+        }
       } else {
         await service.complete(
           context,
@@ -493,7 +502,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   elapsed: elapsed,
                 ),
         );
-        if (isBooster) _boosterRecapShown = true;
+        if (isBooster) {
+          _boosterRecapShown = true;
+          if (boosterAccuracy != null && boosterTpl != null) {
+            await BoosterAutoRetrySuggester.instance
+                .maybeSuggestRetry(boosterTpl!, boosterAccuracy!);
+          }
+        }
       }
 
       if (isBooster && boosterTag != null) {
