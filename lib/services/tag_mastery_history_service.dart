@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:collection';
+import 'dart:math' as math;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -91,5 +92,29 @@ class TagMasteryHistoryService {
       result[e.key] = now.difference(last) <= dormant;
     }
     return result;
+  }
+
+  /// Returns a normalized cumulative mastery timeline for [tag].
+  Future<List<MapEntry<DateTime, double>>> getMasteryTimeline(String tag) async {
+    final hist = await getHistory();
+    final list = hist[tag.toLowerCase()] ?? <TagXpHistoryEntry>[];
+    if (list.isEmpty) return <MapEntry<DateTime, double>>[];
+    final timeline = <MapEntry<DateTime, double>>[];
+    double total = 0;
+    for (final e in list) {
+      total += e.xp.toDouble();
+      timeline.add(MapEntry(e.date, total));
+    }
+    final values = [for (final e in timeline) e.value];
+    final minVal = values.reduce(math.min);
+    final maxVal = values.reduce(math.max);
+    if (maxVal > minVal) {
+      return [
+        for (final e in timeline)
+          MapEntry(e.key, (e.value - minVal) / (maxVal - minVal))
+      ];
+    } else {
+      return [for (final e in timeline) MapEntry(e.key, 1.0)];
+    }
   }
 }
