@@ -12,6 +12,7 @@ import '../services/booster_mistake_recorder.dart';
 import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
 import '../widgets/theory_progress_recovery_banner.dart';
+import '../widgets/booster_recall_banner.dart';
 
 class BoosterRecapScreen extends StatefulWidget {
   final TrainingSessionResult result;
@@ -109,6 +110,7 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
                     style: const TextStyle(color: Colors.white70)),
                 const SizedBox(height: 8),
               ],
+              const BoosterRecallBanner(),
               const TheoryProgressRecoveryBanner(),
               Row(
                 children: [

@@ -131,6 +131,7 @@ import 'services/overlay_booster_manager.dart';
 import 'services/booster_exhaustion_overlay_manager.dart';
 import 'services/theory_recall_overlay_scheduler.dart';
 import 'services/theory_recall_inbox_reinjection_service.dart';
+import 'services/booster_recall_banner_engine.dart';
 import 'services/adaptive_next_step_engine.dart';
 import 'services/suggested_next_step_engine.dart';
 
@@ -490,6 +491,7 @@ List<SingleChildWidget> buildTrainingProviders() {
         logs: context.read<SessionLogService>(),
       ),
     ),
+    Provider(create: (_) => BoosterRecallBannerEngine()),
     Provider(
       create: (context) =>
           TagMasteryService(logs: context.read<SessionLogService>()),
