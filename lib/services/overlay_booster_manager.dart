@@ -1,0 +1,88 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import '../main.dart';
+import '../widgets/skill_gap_overlay_banner.dart';
+import 'smart_skill_gap_booster_engine.dart';
+import '../screens/mini_lesson_screen.dart';
+
+/// Schedules and displays [SkillGapOverlayBanner] when major theory gaps exist.
+class OverlayBoosterManager with WidgetsBindingObserver {
+  final SmartSkillGapBoosterEngine engine;
+  final Duration cooldown;
+
+  OverlayBoosterManager({
+    SmartSkillGapBoosterEngine? engine,
+    this.cooldown = const Duration(hours: 6),
+  }) : engine = engine ?? const SmartSkillGapBoosterEngine();
+
+  OverlayEntry? _entry;
+  DateTime _lastShown = DateTime.fromMillisecondsSinceEpoch(0);
+  bool _checking = false;
+
+  /// Start observing app lifecycle.
+  Future<void> start() async {
+    WidgetsBinding.instance.addObserver(this);
+    await _check();
+  }
+
+  /// Stop observing.
+  Future<void> dispose() async {
+    WidgetsBinding.instance.removeObserver(this);
+    _remove();
+  }
+
+  /// Check for boosters after XP screen.
+  Future<void> onAfterXpScreen() async {
+    await _check();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _check();
+    }
+  }
+
+  bool _anotherOverlayActive() =>
+      _entry != null || (navigatorKey.currentState?.canPop() ?? false);
+
+  Future<void> _check() async {
+    if (_checking || _anotherOverlayActive()) return;
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+    if (DateTime.now().difference(_lastShown) < cooldown) return;
+    _checking = true;
+    try {
+      final lessons = await engine.recommend(max: 1);
+      if (lessons.isEmpty) return;
+      final lesson = lessons.first;
+      final overlay = Overlay.of(ctx);
+      if (overlay == null) return;
+      void dismiss() => _remove();
+      Future<void> open() async {
+        _remove();
+        await Navigator.push(
+          ctx,
+          MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+        );
+      }
+      _entry = OverlayEntry(
+        builder: (_) => SkillGapOverlayBanner(
+          tags: lesson.tags,
+          onDismiss: dismiss,
+          onOpen: open,
+        ),
+      );
+      overlay.insert(_entry!);
+      _lastShown = DateTime.now();
+    } finally {
+      _checking = false;
+    }
+  }
+
+  void _remove() {
+    _entry?.remove();
+    _entry = null;
+  }
+}
