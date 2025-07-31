@@ -1,95 +1,93 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import '../main.dart';
-import '../widgets/skill_gap_overlay_banner.dart';
-import 'smart_skill_gap_booster_engine.dart';
-import '../screens/mini_lesson_screen.dart';
-import 'theory_booster_recall_engine.dart';
-import 'user_action_logger.dart';
+import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
-/// Schedules and displays [SkillGapOverlayBanner] when major theory gaps exist.
-class OverlayBoosterManager with WidgetsBindingObserver {
-  final SmartSkillGapBoosterEngine engine;
+import '../main.dart';
+import '../models/theory_mini_lesson_node.dart';
+import '../screens/mini_lesson_screen.dart';
+import '../widgets/theory_recall_overlay_banner.dart';
+import 'overlay_booster_manager.dart';
+import 'theory_booster_recall_engine.dart';
+
+/// Shows gentle overlay reminders for unlaunched theory boosters.
+class TheoryRecallOverlayScheduler with WidgetsBindingObserver {
+  final TheoryBoosterRecallEngine recall;
   final Duration cooldown;
 
-  OverlayBoosterManager({
-    SmartSkillGapBoosterEngine? engine,
-    this.cooldown = const Duration(hours: 6),
-  }) : engine = engine ?? const SmartSkillGapBoosterEngine();
+  TheoryRecallOverlayScheduler({
+    TheoryBoosterRecallEngine? recall,
+    this.cooldown = const Duration(hours: 12),
+  }) : recall = recall ?? TheoryBoosterRecallEngine.instance;
 
   OverlayEntry? _entry;
   DateTime _lastShown = DateTime.fromMillisecondsSinceEpoch(0);
+  bool _shownThisSession = false;
   bool _checking = false;
 
-  /// Returns true if an overlay banner is currently visible.
-  bool get isShowing => _entry != null;
-
-  /// Start observing app lifecycle.
   Future<void> start() async {
     WidgetsBinding.instance.addObserver(this);
     await _check();
   }
 
-  /// Stop observing.
   Future<void> dispose() async {
     WidgetsBinding.instance.removeObserver(this);
     _remove();
   }
 
-  /// Check for boosters after XP screen.
-  Future<void> onAfterXpScreen() async {
-    await _check();
-  }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      _shownThisSession = false;
       _check();
     }
   }
 
-  bool _anotherOverlayActive() =>
-      _entry != null || (navigatorKey.currentState?.canPop() ?? false);
+  bool _anotherOverlayActive(BuildContext context) {
+    final booster = context.read<OverlayBoosterManager>();
+    return booster.isShowing || (navigatorKey.currentState?.canPop() ?? false);
+  }
 
   Future<void> _check() async {
-    if (_checking || _anotherOverlayActive()) return;
+    if (_checking || _shownThisSession) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
+    if (_anotherOverlayActive(ctx)) return;
     if (DateTime.now().difference(_lastShown) < cooldown) return;
     _checking = true;
     try {
-      final lessons = await engine.recommend(max: 1);
+      final lessons = await recall.recallUnlaunched();
       if (lessons.isEmpty) return;
-      final lesson = lessons.first;
+      final lesson = _oldest(lessons);
       final overlay = Overlay.of(ctx);
       if (overlay == null) return;
       void dismiss() => _remove();
       Future<void> open() async {
         _remove();
         await TheoryBoosterRecallEngine.instance.recordLaunch(lesson.id);
-        await UserActionLogger.instance
-            .logEvent({'event': 'skill_gap_overlay.open', 'lesson': lesson.id});
         await Navigator.push(
           ctx,
           MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
         );
       }
       _entry = OverlayEntry(
-        builder: (_) => SkillGapOverlayBanner(
-          tags: lesson.tags,
+        builder: (_) => TheoryRecallOverlayBanner(
+          title: lesson.resolvedTitle,
           onDismiss: dismiss,
           onOpen: open,
         ),
       );
       overlay.insert(_entry!);
-      await TheoryBoosterRecallEngine.instance.recordSuggestion(lesson.id);
-      await UserActionLogger.instance
-          .logEvent({'event': 'skill_gap_overlay.shown', 'lesson': lesson.id});
       _lastShown = DateTime.now();
+      _shownThisSession = true;
     } finally {
       _checking = false;
     }
+  }
+
+  TheoryMiniLessonNode _oldest(List<TheoryMiniLessonNode> lessons) {
+    lessons.sort((a, b) => a.id.compareTo(b.id));
+    return lessons.first;
   }
 
   void _remove() {
