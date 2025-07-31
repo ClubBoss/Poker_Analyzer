@@ -34,4 +34,19 @@ class DecayTagRetentionTrackerService {
     final str = prefs.getString('$_boosterPrefix${tag.toLowerCase()}');
     return str != null ? DateTime.tryParse(str) : null;
   }
+
+  /// Returns days since last review or booster completion for [tag].
+  Future<double> getDecayScore(String tag, {DateTime? now}) async {
+    final review = await getLastTheoryReview(tag);
+    final booster = await getLastBoosterCompletion(tag);
+    DateTime? last;
+    if (review != null && booster != null) {
+      last = review.isAfter(booster) ? review : booster;
+    } else {
+      last = review ?? booster;
+    }
+    if (last == null) return 9999.0;
+    final current = now ?? DateTime.now();
+    return current.difference(last).inDays.toDouble();
+  }
 }
