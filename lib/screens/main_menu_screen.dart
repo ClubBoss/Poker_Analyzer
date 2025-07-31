@@ -41,6 +41,7 @@ import 'progress_screen.dart';
 import 'progress_overview_screen.dart';
 import 'progress_history_screen.dart';
 import 'drill_history_screen.dart';
+import 'memory_insights_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_overview_screen.dart';
 import 'mistake_repeat_screen.dart';
@@ -658,6 +659,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             context,
             MaterialPageRoute(builder: (_) => const ProgressHistoryScreen()),
           );
+        },
+      ),
+      _MenuItem(
+        icon: Icons.calendar_today,
+        label: 'Memory Insights',
+        onTap: () {
+          Navigator.pushNamed(context, MemoryInsightsScreen.route);
         },
       ),
       _MenuItem(

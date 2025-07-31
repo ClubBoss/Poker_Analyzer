@@ -11,6 +11,7 @@ import 'screens/master_mode_screen.dart';
 import 'screens/goal_center_screen.dart';
 import 'screens/achievements_dashboard_screen.dart';
 import 'screens/goal_insights_screen.dart';
+import 'screens/memory_insights_screen.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
@@ -352,6 +353,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
               AchievementsDashboardScreen.route: (_) =>
                   const AchievementsDashboardScreen(),
               GoalInsightsScreen.route: (_) => const GoalInsightsScreen(),
+              MemoryInsightsScreen.route: (_) => const MemoryInsightsScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');

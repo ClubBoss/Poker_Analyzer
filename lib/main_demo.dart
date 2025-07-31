@@ -26,6 +26,7 @@ import 'screens/weakness_overview_screen.dart';
 import 'screens/master_mode_screen.dart';
 import 'screens/goal_center_screen.dart';
 import 'screens/goal_insights_screen.dart';
+import 'screens/memory_insights_screen.dart';
 
 final GlobalKey analyzerKey = GlobalKey();
 
@@ -176,6 +177,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                   MasterModeScreen.route: (_) => const MasterModeScreen(),
                   GoalCenterScreen.route: (_) => const GoalCenterScreen(),
                   GoalInsightsScreen.route: (_) => const GoalInsightsScreen(),
+                  MemoryInsightsScreen.route: (_) => const MemoryInsightsScreen(),
                 },
                 builder: (context, child) {
                   return Stack(
