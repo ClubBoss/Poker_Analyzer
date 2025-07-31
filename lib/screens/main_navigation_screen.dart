@@ -282,8 +282,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       AppUsageTracker.instance.markActive();
       _maybeShowTrainingReminder();
       _maybeLaunchScheduledTraining();
-      unawaited(
-          context.read<OverlayDecayBoosterOrchestrator>().maybeShowIfIdle(context));
+      unawaited(context
+          .read<OverlayDecayBoosterOrchestrator>()
+          .maybeShowIfIdle(context));
     }
   }
 
@@ -310,15 +311,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             ),
           ],
         ),
-        const DecayBoosterReminderBanner(),
         const DecayBoosterDashboardBanner(),
         const DecayBoostedBanner(),
+        const DecayBoosterReminderBanner(),
         const GoalReminderBanner(),
         const SmartGoalBanner(),
         const NextBestStepBanner(),
         const SpotOfTheDayCard(),
         const PackSuggestionBanner(),
-        const BrokenStreakBanner(),
         const StreakChart(),
         const TodayProgressBanner(),
         const StreakMiniCard(),

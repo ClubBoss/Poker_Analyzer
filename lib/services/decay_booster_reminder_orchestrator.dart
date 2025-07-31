@@ -28,15 +28,13 @@ class DecayBoosterReminderOrchestrator {
   }
 
   /// Whether to show a broken streak banner.
-  Future<bool> shouldShowBrokenStreakBanner() async {
-    final ids = await streak.packsWithBrokenStreaks();
-    return ids.isNotEmpty;
+  Future<List<String>> brokenStreakPacks() async {
+    return streak.packsWithBrokenStreaks();
   }
 
   /// Whether to show upcoming review banner.
-  Future<bool> shouldShowUpcomingReviewBanner() async {
-    final ids = await recall.upcomingReviewPacks();
-    return ids.isNotEmpty;
+  Future<List<String>> upcomingReviewPacks() async {
+    return recall.upcomingReviewPacks();
   }
 
   /// Returns ranked memory reminders.
@@ -48,14 +46,20 @@ class DecayBoosterReminderOrchestrator {
           type: MemoryReminderType.decayBooster, priority: 3));
     }
 
-    if (await shouldShowBrokenStreakBanner()) {
-      list.add(const MemoryReminder(
-          type: MemoryReminderType.brokenStreak, priority: 2));
+    final broken = await brokenStreakPacks();
+    if (broken.isNotEmpty) {
+      list.add(MemoryReminder(
+          type: MemoryReminderType.brokenStreak,
+          priority: 2,
+          packId: broken.first));
     }
 
-    if (await shouldShowUpcomingReviewBanner()) {
-      list.add(const MemoryReminder(
-          type: MemoryReminderType.upcomingReview, priority: 1));
+    final upcoming = await upcomingReviewPacks();
+    if (upcoming.isNotEmpty) {
+      list.add(MemoryReminder(
+          type: MemoryReminderType.upcomingReview,
+          priority: 1,
+          packId: upcoming.first));
     }
 
     list.sort((a, b) => b.priority.compareTo(a.priority));
