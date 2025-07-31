@@ -48,6 +48,8 @@ import '../services/mistake_tag_history_service.dart';
 import '../services/auto_mistake_tagger_engine.dart';
 import '../models/training_spot_attempt.dart';
 import '../models/training_pack.dart';
+import '../services/booster_completion_tracker.dart';
+import '../services/user_action_logger.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -417,6 +419,18 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         );
         final type = const TrainingTypeEngine().detectTrainingType(tmp);
         boosterTpl = TrainingPackTemplateV2.fromTemplate(tpl, type: type);
+        final accuracy = total == 0 ? 0.0 : correct * 100 / total;
+        final required = (tpl.meta['requiredAccuracy'] as num?)?.toDouble() ??
+            80.0;
+        if (accuracy >= required) {
+          await BoosterCompletionTracker.instance.markBoosterCompleted(tpl.id);
+          unawaited(UserActionLogger.instance.logEvent({
+            'event': 'booster_completed',
+            'id': tpl.id,
+            if (boosterTag != null) 'tag': boosterTag,
+            'accuracy': accuracy,
+          }));
+        }
       }
 
       if (service.totalCount < 3) {
