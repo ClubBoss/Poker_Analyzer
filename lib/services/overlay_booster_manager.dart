@@ -7,6 +7,7 @@ import 'smart_skill_gap_booster_engine.dart';
 import '../screens/mini_lesson_screen.dart';
 import 'theory_booster_recall_engine.dart';
 import 'user_action_logger.dart';
+import 'booster_queue_pressure_monitor.dart';
 
 /// Schedules and displays [SkillGapOverlayBanner] when major theory gaps exist.
 class OverlayBoosterManager with WidgetsBindingObserver {
@@ -54,6 +55,7 @@ class OverlayBoosterManager with WidgetsBindingObserver {
 
   Future<void> _check() async {
     if (_checking || _anotherOverlayActive()) return;
+    if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
     if (DateTime.now().difference(_lastShown) < cooldown) return;
