@@ -6,6 +6,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../services/recap_completion_tracker.dart';
 import '../services/theory_streak_service.dart';
+import '../services/mini_lesson_progress_tracker.dart';
 
 /// Simple viewer for a [TheoryMiniLessonNode].
 class MiniLessonScreen extends StatefulWidget {
@@ -28,6 +29,9 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
 
   @override
   void dispose() {
+    unawaited(
+      MiniLessonProgressTracker.instance.markCompleted(widget.lesson.id),
+    );
     final tag = widget.recapTag;
     if (tag != null) {
       final duration = DateTime.now().difference(_started);
