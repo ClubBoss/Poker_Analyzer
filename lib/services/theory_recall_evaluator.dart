@@ -2,6 +2,12 @@ import '../models/theory_mini_lesson_node.dart';
 import '../models/v2/training_spot_v2.dart';
 import 'booster_cooldown_service.dart';
 import 'mini_lesson_progress_tracker.dart';
+import 'booster_completion_tracker.dart';
+import 'mini_lesson_library_service.dart';
+import 'pack_library_loader_service.dart';
+import 'training_pack_stats_service.dart';
+import 'package:collection/collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Scores theory lessons for recall based on relevance and recency.
 class TheoryRecallEvaluator {
@@ -81,10 +87,95 @@ class TheoryRecallEvaluator {
     entries.sort((a, b) => b.score.compareTo(a.score));
     return [for (final e in entries) e.lesson];
   }
+
+  /// Returns theory lessons to recall based on recent low-accuracy boosters.
+  Future<List<TheoryMiniLessonNode>> recallSuggestions({
+    int limit = 3,
+    double accuracyThreshold = 70.0,
+    int days = 7,
+    List<TrainingPackTemplateV2>? boosterLibrary,
+    MiniLessonLibraryService? library,
+  }) async {
+    if (limit <= 0) return [];
+    final packs = boosterLibrary ?? await PackLibraryLoaderService.instance.loadLibrary();
+    final lessons = library ?? MiniLessonLibraryService.instance;
+    await lessons.loadAll();
+    final prefs = await SharedPreferences.getInstance();
+    final cutoff = DateTime.now().subtract(Duration(days: days));
+
+    final completed = await BoosterCompletionTracker.instance.getAllCompletedBoosters();
+    final tagScores = <String, double>{};
+    for (final pack in packs) {
+      if (!completed.contains(pack.id)) continue;
+      if ((pack.meta['type']?.toString().toLowerCase() ?? '') != 'booster') {
+        continue;
+      }
+      final lastStr = prefs.getString('completed_at_tpl_${pack.id}');
+      if (lastStr == null) continue;
+      final last = DateTime.tryParse(lastStr);
+      if (last == null || last.isBefore(cutoff)) continue;
+      final acc = prefs.getDouble('last_accuracy_tpl_${pack.id}_0') ??
+          prefs.getDouble('last_accuracy_tpl_${pack.id}') ??
+          100.0;
+      if (acc >= accuracyThreshold) continue;
+      final tags = <String>{
+        ...pack.tags.map((e) => e.toLowerCase()),
+      };
+      final metaTags = pack.meta['tags'];
+      if (metaTags is List) {
+        tags.addAll(metaTags.map((e) => e.toString().toLowerCase()));
+      }
+      for (final t in tags) {
+        if (t.isEmpty) continue;
+        final score = 100 - acc;
+        tagScores.update(t, (v) => v + score, ifAbsent: () => score);
+      }
+    }
+
+    if (tagScores.isEmpty) return [];
+
+    final now = DateTime.now();
+    final tagEntries = <_TagEntry>[];
+    for (final entry in tagScores.entries) {
+      final tag = entry.key;
+      final lessonList = lessons.findByTags([tag]);
+      if (lessonList.isEmpty) continue;
+      DateTime? last;
+      for (final l in lessonList) {
+        final ts = await progress.lastViewed(l.id);
+        if (ts != null && (last == null || ts.isAfter(last))) {
+          last = ts;
+        }
+      }
+      final since = last == null ? days.toDouble() : now.difference(last).inDays.toDouble();
+      final score = entry.value * (1 + since / days);
+      tagEntries.add(_TagEntry(tag, score));
+    }
+
+    tagEntries.sort((a, b) => b.score.compareTo(a.score));
+
+    final result = <TheoryMiniLessonNode>[];
+    final seen = <String>{};
+    for (final entry in tagEntries) {
+      for (final lesson in lessons.findByTags([entry.tag])) {
+        if (seen.add(lesson.id)) {
+          result.add(lesson);
+          if (result.length >= limit) return result;
+        }
+      }
+    }
+    return result;
+  }
 }
 
 class _Entry {
   final TheoryMiniLessonNode lesson;
   final double score;
   _Entry(this.lesson, this.score);
+}
+
+class _TagEntry {
+  final String tag;
+  final double score;
+  _TagEntry(this.tag, this.score);
 }
