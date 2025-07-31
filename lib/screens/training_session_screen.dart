@@ -38,6 +38,7 @@ import '../services/daily_learning_goal_service.dart';
 import '../services/pack_dependency_map.dart';
 import '../services/pack_library_loader_service.dart';
 import '../services/smart_stage_unlock_engine.dart';
+import '../models/decay_tag_reinforcement_event.dart';
 import '../services/theory_completion_event_dispatcher.dart';
 import '../services/training_milestone_engine.dart';
 import '../widgets/confetti_overlay.dart';
@@ -446,6 +447,15 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         }
       }
 
+      final reinforcements = [
+        for (final e in deltas.entries)
+          DecayTagReinforcementEvent(
+            tag: e.key,
+            delta: e.value,
+            timestamp: DateTime.now(),
+          )
+      ];
+
       if (service.totalCount < 3) {
         Map<String, int>? counts;
         if (tpl.id == 'suggested_weekly') {
@@ -466,6 +476,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   ),
                   booster: boosterTpl!,
                   tagDeltas: deltas,
+                  reinforcements: reinforcements,
                 )
               : PackStatsScreen(
                   templateId: tpl.id,
@@ -494,6 +505,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   ),
                   booster: boosterTpl!,
                   tagDeltas: deltas,
+                  reinforcements: reinforcements,
                 )
               : TrainingRecapScreen(
                   templateId: tpl.id,
