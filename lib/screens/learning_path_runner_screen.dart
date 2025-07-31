@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-import '../models/learning_path_block.dart';
-import '../widgets/injected_theory_block_renderer.dart';
-import '../services/injection_block_assembler.dart';
-import '../services/smart_theory_injection_engine.dart';
+import '../services/stage_flow_injection_runner.dart';
 
 import '../models/learning_branch_node.dart';
 import '../models/theory_lesson_node.dart';
@@ -23,7 +20,7 @@ class LearningPathRunnerScreen extends StatefulWidget {
 class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
   late Future<void> _initFuture;
   LearningPathNode? _current;
-  LearningPathBlock? _injectedBlock;
+  List<Widget>? _injectedBlocks;
   final Set<String> _shownStages = <String>{};
 
   @override
@@ -43,7 +40,7 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
     if (node is StageNode) {
       _prepareInjection(node);
     } else {
-      _injectedBlock = null;
+      _injectedBlocks = null;
     }
     setState(() {
       _current = node;
@@ -63,12 +60,10 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
   Future<void> _prepareInjection(StageNode node) async {
     if (_shownStages.contains(node.id)) return;
     _shownStages.add(node.id);
-    final candidate =
-        await const SmartTheoryInjectionEngine().getInjectionCandidate(node.id);
-    if (candidate == null) return;
-    final block = const InjectionBlockAssembler().build(candidate, node.id);
+    final widgets =
+        await StageFlowInjectionRunner().injectBlocks(node);
     if (!mounted) return;
-    setState(() => _injectedBlock = block);
+    setState(() => _injectedBlocks = widgets);
   }
 
   Widget _buildCurrent() {
@@ -96,9 +91,12 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
         children: [
           Text(node.id, style: const TextStyle(fontSize: 20)),
           const SizedBox(height: 16),
-          if (_injectedBlock != null)
-            InjectedTheoryBlockRenderer(block: _injectedBlock!),
-          if (_injectedBlock != null) const SizedBox(height: 16),
+          if (_injectedBlocks != null) ...[
+            for (final w in _injectedBlocks!) ...[
+              w,
+              const SizedBox(height: 16),
+            ],
+          ],
           const Text('Stage content placeholder'),
           const Spacer(),
           Align(
