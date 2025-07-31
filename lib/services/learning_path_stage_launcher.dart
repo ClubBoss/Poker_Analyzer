@@ -9,6 +9,8 @@ import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
 import '../screens/theory_pack_reader_screen.dart';
 import 'user_action_logger.dart';
+import 'overlay_decay_booster_orchestrator.dart';
+import 'dart:async';
 
 /// Helper to open a learning path stage.
 class LearningPathStageLauncher {
@@ -32,6 +34,8 @@ class LearningPathStageLauncher {
       if (stage.tags.isNotEmpty) 'tags': stage.tags,
       'timestamp': DateTime.now().toIso8601String(),
     });
+
+    unawaited(OverlayDecayBoosterOrchestrator.instance.maybeShow(context));
 
     switch (stage.type) {
       case StageType.theory:

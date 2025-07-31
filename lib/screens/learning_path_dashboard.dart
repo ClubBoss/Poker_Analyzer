@@ -14,6 +14,8 @@ import '../services/streak_progress_service.dart';
 import '../services/learning_path_stage_launcher.dart';
 import '../widgets/learning_path_stage_tile.dart';
 import 'learning_path_stage_list_screen.dart';
+import '../services/overlay_decay_booster_orchestrator.dart';
+import 'dart:async';
 
 /// Dashboard summarizing progress in a learning path and suggesting
 /// the next stage to continue.
@@ -72,6 +74,8 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
       _streak = streak;
       _loading = false;
     });
+    unawaited(
+        OverlayDecayBoosterOrchestrator.instance.maybeShow(context));
   }
 
   Future<void> _continueTraining() async {

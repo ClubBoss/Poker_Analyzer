@@ -66,6 +66,8 @@ import '../widgets/sync_status_widget.dart';
 import '../user_preferences.dart';
 import '../services/gift_drop_service.dart';
 import '../services/session_streak_overlay_prompt_service.dart';
+import '../services/overlay_decay_booster_orchestrator.dart';
+import 'dart:async';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -275,6 +277,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       AppUsageTracker.instance.markActive();
       _maybeShowTrainingReminder();
       _maybeLaunchScheduledTraining();
+      unawaited(
+          context.read<OverlayDecayBoosterOrchestrator>().maybeShowIfIdle(context));
     }
   }
 
