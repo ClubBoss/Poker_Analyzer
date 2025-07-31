@@ -7,6 +7,7 @@ import '../services/decay_booster_reminder_orchestrator.dart';
 import '../services/decay_booster_training_launcher.dart';
 import '../services/theory_booster_injection_service.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../services/decay_tag_retention_tracker_service.dart';
 import 'broken_streak_banner.dart';
 import 'theory_modal_viewer.dart';
 
@@ -26,6 +27,7 @@ class _DecayBoosterReminderBannerState
   TheoryMiniLessonNode? _lesson;
   bool _loading = true;
   bool _hidden = false;
+  final TheoryBoosterInjectionService _injection = TheoryBoosterInjectionService();
 
   @override
   void initState() {
@@ -45,7 +47,7 @@ class _DecayBoosterReminderBannerState
       title = tpl?.name;
     }
     if (r?.type == MemoryReminderType.decayBooster) {
-      lesson = await TheoryBoosterInjectionService().getLesson();
+      lesson = await _injection.getLesson();
     }
     if (!mounted) return;
     setState(() {
@@ -64,6 +66,12 @@ class _DecayBoosterReminderBannerState
   void _openLesson() {
     final lesson = _lesson;
     if (lesson == null) return;
+    final tag = _injection.currentTag;
+    if (tag != null) {
+      context
+          .read<DecayTagRetentionTrackerService>()
+          .markTheoryReviewed(tag);
+    }
     TheoryModalViewer.show(context, lesson);
   }
 
