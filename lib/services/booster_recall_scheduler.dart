@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'booster_completion_tracker.dart';
+
 /// Schedules skipped boosters to be re-surfaced in future stages.
 class BoosterRecallScheduler {
   BoosterRecallScheduler._();
@@ -91,6 +93,9 @@ class BoosterRecallScheduler {
     for (final e in entries) {
       if (result.length >= limit) break;
       if (shown.contains(e.key)) continue;
+      if (await BoosterCompletionTracker.instance.isBoosterCompleted(e.key)) {
+        continue;
+      }
       result.add(e.key);
       shown.add(e.key);
     }

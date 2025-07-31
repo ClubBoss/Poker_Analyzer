@@ -4,6 +4,7 @@ import 'tag_mastery_service.dart';
 import 'skill_gap_detector_service.dart';
 import 'smart_booster_recall_engine.dart';
 import 'booster_recall_scheduler.dart';
+import 'booster_completion_tracker.dart';
 import 'learning_path_stage_library.dart';
 import 'path_map_engine.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -15,6 +16,7 @@ class BoosterInjectionOrchestrator {
   final SkillGapDetectorService gaps;
   final SmartBoosterRecallEngine recall;
   final BoosterRecallScheduler recallScheduler;
+  final BoosterCompletionTracker completion;
 
   final Set<String> _shown = <String>{};
 
@@ -24,9 +26,11 @@ class BoosterInjectionOrchestrator {
     SkillGapDetectorService? gaps,
     SmartBoosterRecallEngine? recall,
     BoosterRecallScheduler? recallScheduler,
+    BoosterCompletionTracker? completion,
   })  : gaps = gaps ?? SkillGapDetectorService(),
         recall = recall ?? SmartBoosterRecallEngine.instance,
-        recallScheduler = recallScheduler ?? BoosterRecallScheduler.instance;
+        recallScheduler = recallScheduler ?? BoosterRecallScheduler.instance,
+        completion = completion ?? BoosterCompletionTracker.instance;
 
   /// Returns booster blocks relevant to [stage].
   Future<List<LearningPathBlock>> getInjectableBoosters(StageNode stage) async {
@@ -79,6 +83,7 @@ class BoosterInjectionOrchestrator {
     for (final b in candidates) {
       if (unique.length >= 2) break;
       if (seen.contains(b.id) || _shown.contains(b.id)) continue;
+      if (await completion.isBoosterCompleted(b.id)) continue;
       unique.add(b);
       seen.add(b.id);
       _shown.add(b.id);
