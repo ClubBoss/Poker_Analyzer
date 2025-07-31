@@ -15,6 +15,9 @@ abstract class StageNode implements LearningPathNode {
   @override
   final String id;
 
+  @override
+  final bool recoveredFromMistake;
+
   /// IDs of nodes unlocked after completing this one.
   final List<String> nextIds;
 
@@ -25,6 +28,7 @@ abstract class StageNode implements LearningPathNode {
     required this.id,
     List<String>? nextIds,
     List<String>? dependsOn,
+    this.recoveredFromMistake = false,
   }) : nextIds = nextIds ?? const [],
        dependsOn = dependsOn ?? const [];
 }
@@ -35,7 +39,12 @@ class TrainingStageNode extends StageNode {
     required super.id,
     List<String>? nextIds,
     List<String>? dependsOn,
-  }) : super(nextIds: nextIds, dependsOn: dependsOn);
+    bool recoveredFromMistake = false,
+  }) : super(
+          nextIds: nextIds,
+          dependsOn: dependsOn,
+          recoveredFromMistake: recoveredFromMistake,
+        );
 }
 
 /// Node representing a theory stage.
@@ -44,7 +53,12 @@ class TheoryStageNode extends StageNode {
     required super.id,
     List<String>? nextIds,
     List<String>? dependsOn,
-  }) : super(nextIds: nextIds, dependsOn: dependsOn);
+    bool recoveredFromMistake = false,
+  }) : super(
+          nextIds: nextIds,
+          dependsOn: dependsOn,
+          recoveredFromMistake: recoveredFromMistake,
+        );
 }
 
 /// Service for traversing learning paths defined as graphs.

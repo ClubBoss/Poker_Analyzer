@@ -6,6 +6,9 @@ class TheoryMiniLessonNode implements LearningPathNode {
   @override
   final String id;
 
+  @override
+  final bool recoveredFromMistake;
+
   /// Optional reference id of shared theory content.
   final String? refId;
 
@@ -36,6 +39,7 @@ class TheoryMiniLessonNode implements LearningPathNode {
     List<String>? tags,
     List<String>? nextIds,
     List<String>? linkedPackIds,
+    this.recoveredFromMistake = false,
   })  : tags = tags ?? const [],
         nextIds = nextIds ?? const [],
         linkedPackIds = linkedPackIds ?? const [];
@@ -75,6 +79,7 @@ class TheoryMiniLessonNode implements LearningPathNode {
       stage: yaml['stage']?.toString(),
       nextIds: nextIds,
       linkedPackIds: linked,
+      recoveredFromMistake: yaml['recoveredFromMistake'] as bool? ?? false,
     );
   }
 }

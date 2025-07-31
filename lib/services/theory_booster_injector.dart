@@ -42,6 +42,7 @@ class TheoryBoosterInjector {
           title: n.title,
           content: n.content,
           nextIds: const [],
+          recoveredFromMistake: n.recoveredFromMistake,
         ));
         byId[id] = n; // reserve id
       }
@@ -68,8 +69,18 @@ class TheoryBoosterInjector {
         }
         if (changed) {
           updated[i] = n is TheoryStageNode
-              ? TheoryStageNode(id: n.id, nextIds: next, dependsOn: n.dependsOn)
-              : TrainingStageNode(id: n.id, nextIds: next, dependsOn: n.dependsOn);
+              ? TheoryStageNode(
+                  id: n.id,
+                  nextIds: next,
+                  dependsOn: n.dependsOn,
+                  recoveredFromMistake: n.recoveredFromMistake,
+                )
+              : TrainingStageNode(
+                  id: n.id,
+                  nextIds: next,
+                  dependsOn: n.dependsOn,
+                  recoveredFromMistake: n.recoveredFromMistake,
+                );
         }
       } else if (n is TheoryLessonNode) {
         final next = List<String>.from(n.nextIds);
@@ -87,6 +98,7 @@ class TheoryBoosterInjector {
             title: n.title,
             content: n.content,
             nextIds: next,
+            recoveredFromMistake: n.recoveredFromMistake,
           );
         }
       } else if (n is LearningBranchNode) {
@@ -103,6 +115,7 @@ class TheoryBoosterInjector {
             id: n.id,
             prompt: n.prompt,
             branches: branches,
+            recoveredFromMistake: n.recoveredFromMistake,
           );
         }
       }
@@ -135,18 +148,21 @@ class TheoryBoosterInjector {
         id: node.id,
         prompt: node.prompt,
         branches: Map<String, String>.from(node.branches),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TrainingStageNode) {
       return TrainingStageNode(
         id: node.id,
         nextIds: List<String>.from(node.nextIds),
         dependsOn: List<String>.from(node.dependsOn),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryStageNode) {
       return TheoryStageNode(
         id: node.id,
         nextIds: List<String>.from(node.nextIds),
         dependsOn: List<String>.from(node.dependsOn),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryLessonNode) {
       return TheoryLessonNode(
@@ -155,6 +171,7 @@ class TheoryBoosterInjector {
         title: node.title,
         content: node.content,
         nextIds: List<String>.from(node.nextIds),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     }
     return node;

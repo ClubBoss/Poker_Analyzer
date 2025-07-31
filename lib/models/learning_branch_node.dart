@@ -5,6 +5,9 @@ class LearningBranchNode implements LearningPathNode {
   @override
   final String id;
 
+  @override
+  final bool recoveredFromMistake;
+
   /// Question shown to the user when choosing a branch.
   final String prompt;
 
@@ -15,6 +18,7 @@ class LearningBranchNode implements LearningPathNode {
     required this.id,
     required this.prompt,
     Map<String, String>? branches,
+    this.recoveredFromMistake = false,
   }) : branches = branches ?? const {};
 
   /// Returns the target node id for [choice] or `null` if not found.
@@ -32,6 +36,7 @@ class LearningBranchNode implements LearningPathNode {
       id: json['id']?.toString() ?? '',
       prompt: json['prompt']?.toString() ?? '',
       branches: map,
+      recoveredFromMistake: json['recoveredFromMistake'] as bool? ?? false,
     );
   }
 
@@ -39,6 +44,7 @@ class LearningBranchNode implements LearningPathNode {
         'id': id,
         'prompt': prompt,
         if (branches.isNotEmpty) 'branches': branches,
+        if (recoveredFromMistake) 'recoveredFromMistake': true,
       };
 
   factory LearningBranchNode.fromYaml(Map yaml) {
