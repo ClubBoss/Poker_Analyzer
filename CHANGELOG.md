@@ -15,3 +15,4 @@
 - Expose recordToday method on TheoryStreakService and update MiniLessonScreen.
 - Introduce TheoryBoosterSuggestionEngine for recommending lessons when recap tags underperform.
 - Add TheoryReinforcementBannerController for soft theory reminders after recap failures.
+- Persist full decay reinforcement history and expose TagDecayForecastService for spaced repetition analytics.
