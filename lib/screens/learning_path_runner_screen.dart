@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../services/stage_flow_injection_runner.dart';
+import '../services/learning_path_block_tap_handler.dart';
+import '../widgets/injected_theory_block_renderer.dart';
+import '../widgets/drill_preview_block.dart';
+import '../models/learning_path_block.dart';
 
 import '../models/learning_branch_node.dart';
 import '../models/theory_lesson_node.dart';
@@ -60,10 +64,33 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
   Future<void> _prepareInjection(StageNode node) async {
     if (_shownStages.contains(node.id)) return;
     _shownStages.add(node.id);
-    final widgets =
-        await StageFlowInjectionRunner().injectBlocks(node);
+    final widgets = await StageFlowInjectionRunner().injectBlocks(node);
     if (!mounted) return;
-    setState(() => _injectedBlocks = widgets);
+    final interactive = <Widget>[];
+    for (final w in widgets) {
+      LearningPathBlock? block;
+      if (w is InjectedTheoryBlockRenderer) {
+        block = w.block;
+      } else if (w is DrillPreviewBlock) {
+        block = w.block;
+      }
+      if (block != null) {
+        interactive.add(
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () =>
+                  LearningPathBlockTapHandler().handleTap(context, block!),
+              child: w,
+            ),
+          ),
+        );
+      } else {
+        interactive.add(w);
+      }
+    }
+    setState(() => _injectedBlocks = interactive);
   }
 
   Widget _buildCurrent() {
