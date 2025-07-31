@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'mini_lesson_library_service.dart';
 import '../models/theory_mini_lesson_node.dart';
+import 'theory_prompt_dismiss_tracker.dart';
 
 /// Re-prompts skipped theory boosters after a cooldown period.
 class TheoryBoosterRecallEngine {
@@ -12,8 +13,7 @@ class TheoryBoosterRecallEngine {
   TheoryBoosterRecallEngine({MiniLessonLibraryService? library})
       : library = library ?? MiniLessonLibraryService.instance;
 
-  static final TheoryBoosterRecallEngine instance =
-      TheoryBoosterRecallEngine();
+  static final TheoryBoosterRecallEngine instance = TheoryBoosterRecallEngine();
 
   static const String _prefsKey = 'booster_recall_history';
 
@@ -48,7 +48,8 @@ class TheoryBoosterRecallEngine {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      jsonEncode({for (final e in _cache.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode(
+          {for (final e in _cache.entries) e.key: e.value.toIso8601String()}),
     );
   }
 
@@ -79,6 +80,27 @@ class TheoryBoosterRecallEngine {
     for (final entry in _cache.entries) {
       if (entry.value.isBefore(cutoff)) {
         final lesson = library.getById(entry.key);
+        if (lesson != null) result.add(lesson);
+      }
+    }
+    return result;
+  }
+
+  /// Returns lessons that were dismissed without launching and are older than
+  /// [since].
+  Future<List<TheoryMiniLessonNode>> recallDismissedUnlaunched({
+    Duration since = const Duration(days: 3),
+  }) async {
+    await _load();
+    await library.loadAll();
+    final cutoff = DateTime.now().subtract(since);
+    final dismisses =
+        await TheoryPromptDismissTracker.instance.getHistory(before: cutoff);
+    final result = <TheoryMiniLessonNode>[];
+    for (final d in dismisses) {
+      final ts = _cache[d.lessonId];
+      if (ts != null && ts.isBefore(cutoff)) {
+        final lesson = library.getById(d.lessonId);
         if (lesson != null) result.add(lesson);
       }
     }
