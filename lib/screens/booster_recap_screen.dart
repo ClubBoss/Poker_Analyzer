@@ -13,6 +13,8 @@ import '../theme/app_colors.dart';
 import 'training_session_screen.dart';
 import '../widgets/theory_progress_recovery_banner.dart';
 import '../widgets/booster_recall_banner.dart';
+import '../widgets/decay_booster_summary_stats_panel.dart';
+import '../models/decay_tag_reinforcement_event.dart';
 
 class BoosterRecapScreen extends StatefulWidget {
   final TrainingSessionResult result;
@@ -20,6 +22,7 @@ class BoosterRecapScreen extends StatefulWidget {
   final BoosterBacklink? backlink;
   final WeakClusterInfo? cluster;
   final Map<String, double> tagDeltas;
+  final List<DecayTagReinforcementEvent> reinforcements;
 
   const BoosterRecapScreen({
     super.key,
@@ -28,6 +31,7 @@ class BoosterRecapScreen extends StatefulWidget {
     this.backlink,
     this.cluster,
     this.tagDeltas = const {},
+    this.reinforcements = const [],
   });
 
   @override
@@ -112,6 +116,7 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
               ],
               const BoosterRecallBanner(),
               const TheoryProgressRecoveryBanner(),
+              DecayBoosterSummaryStatsPanel(events: widget.reinforcements),
               Row(
                 children: [
                   Expanded(
