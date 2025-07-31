@@ -32,6 +32,7 @@ class DecayBoosterTrainingLauncher {
 
     await launcher.launch(tpl);
     queue.clear();
+    await queue.markUsed();
     await UserActionLogger.instance
         .logEvent({'event': 'decay_booster_completed'});
   }
