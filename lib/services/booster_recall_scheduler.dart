@@ -66,6 +66,13 @@ class BoosterRecallScheduler {
     }
   }
 
+  /// Applies decay to stored records and persists changes.
+  Future<void> applyDecay() async {
+    await _load();
+    _applyDecay();
+    await _save();
+  }
+
   /// Records that [boosterId] was skipped.
   Future<void> markBoosterSkipped(String boosterId) async {
     if (boosterId.isEmpty) return;
