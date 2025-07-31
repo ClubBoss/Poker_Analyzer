@@ -9,6 +9,7 @@ import 'theory_booster_recall_engine.dart';
 import 'user_action_logger.dart';
 import 'booster_queue_pressure_monitor.dart';
 import 'theory_injection_horizon_service.dart';
+import 'booster_cooldown_blocker_service.dart';
 
 /// Schedules and displays [SkillGapOverlayBanner] when major theory gaps exist.
 class OverlayBoosterManager with WidgetsBindingObserver {
@@ -59,6 +60,9 @@ class OverlayBoosterManager with WidgetsBindingObserver {
     if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
+    if (await BoosterCooldownBlockerService.instance.isCoolingDown('skill_gap')) {
+      return;
+    }
     if (!await TheoryInjectionHorizonService.instance.canInject(
       'skill_gap',
       minGap: cooldown,
@@ -72,10 +76,14 @@ class OverlayBoosterManager with WidgetsBindingObserver {
       final lesson = lessons.first;
       final overlay = Overlay.of(ctx);
       if (overlay == null) return;
-      void dismiss() => _remove();
+      void dismiss() {
+        _remove();
+        BoosterCooldownBlockerService.instance.markDismissed('skill_gap');
+      }
       Future<void> open() async {
         _remove();
         await TheoryBoosterRecallEngine.instance.recordLaunch(lesson.id);
+        await BoosterCooldownBlockerService.instance.markCompleted('skill_gap');
         await UserActionLogger.instance.logEvent({
           'event': 'skill_gap_overlay.open',
           'lesson': lesson.id,

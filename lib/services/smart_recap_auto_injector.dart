@@ -10,6 +10,7 @@ import 'smart_theory_recap_dismissal_memory.dart';
 import 'theory_injection_horizon_service.dart';
 import 'theory_priority_gatekeeper_service.dart';
 import 'booster_queue_pressure_monitor.dart';
+import 'booster_cooldown_blocker_service.dart';
 
 /// Automatically shows recap dialogs at ideal moments without user interaction.
 class SmartRecapAutoInjector {
@@ -55,6 +56,9 @@ class SmartRecapAutoInjector {
     if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     if (!await detector.isGoodRecapMoment()) return;
     if (await _recentlyDismissed()) return;
+    if (await BoosterCooldownBlockerService.instance.isCoolingDown('recap')) {
+      return;
+    }
     if (!await TheoryInjectionHorizonService.instance.canInject('recap')) {
       return;
     }
@@ -72,11 +76,16 @@ class SmartRecapAutoInjector {
     if (await dismissal.shouldThrottle('lesson:${lesson.id}')) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
-    await showTheoryRecapDialog(
+    final result = await showTheoryRecapDialog(
       ctx,
       lessonId: lesson.id,
       trigger: 'autoInject',
     );
+    if (result == true) {
+      await BoosterCooldownBlockerService.instance.markCompleted('recap');
+    } else if (result == false) {
+      await BoosterCooldownBlockerService.instance.markDismissed('recap');
+    }
     await TheoryInjectionHorizonService.instance.markInjected('recap');
   }
 }

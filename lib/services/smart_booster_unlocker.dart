@@ -8,6 +8,7 @@ import 'goal_queue.dart';
 import 'theory_priority_gatekeeper_service.dart';
 import 'booster_queue_pressure_monitor.dart';
 import 'theory_injection_horizon_service.dart';
+import 'booster_cooldown_blocker_service.dart';
 
 /// Schedules theory boosters based on recent mistakes and weak tags.
 class SmartBoosterUnlocker {
@@ -74,9 +75,15 @@ class SmartBoosterUnlocker {
           continue;
         }
         if (urgent) {
-          await recapQueue.add(lesson.id);
+          if (!await BoosterCooldownBlockerService.instance
+              .isCoolingDown('recap')) {
+            await recapQueue.add(lesson.id);
+          }
         } else {
-          goalQueue.push(lesson);
+          if (!await BoosterCooldownBlockerService.instance
+              .isCoolingDown('goal')) {
+            goalQueue.push(lesson);
+          }
         }
         injected = true;
         added++;
