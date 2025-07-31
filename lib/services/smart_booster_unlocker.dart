@@ -5,6 +5,7 @@ import 'mini_lesson_library_service.dart';
 import 'tag_mastery_service.dart';
 import 'recap_booster_queue.dart';
 import 'goal_queue.dart';
+import 'theory_priority_gatekeeper_service.dart';
 
 /// Schedules theory boosters based on recent mistakes and weak tags.
 class SmartBoosterUnlocker {
@@ -60,6 +61,10 @@ class SmartBoosterUnlocker {
       int added = 0;
       for (final lesson in lessonList) {
         if (!used.add(lesson.id)) continue;
+        if (await TheoryPriorityGatekeeperService.instance
+            .isBlocked(lesson.id)) {
+          continue;
+        }
         if (urgent) {
           await recapQueue.add(lesson.id);
         } else {
