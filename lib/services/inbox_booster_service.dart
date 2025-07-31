@@ -14,4 +14,9 @@ class InboxBoosterService {
   Future<void> inject(TheoryMiniLessonNode lesson) async {
     await tracker.addToInbox(lesson.id);
   }
+
+  /// Adds [lessonId] to the inbox queue as a reminder.
+  Future<void> addReminder(String lessonId) async {
+    await tracker.addToInbox(lessonId);
+  }
 }
