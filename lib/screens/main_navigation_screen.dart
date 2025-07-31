@@ -18,6 +18,7 @@ import '../widgets/feedback_banner.dart';
 import '../widgets/recent_unlocks_banner.dart';
 import '../widgets/today_progress_banner.dart';
 import '../widgets/pack_suggestion_banner.dart';
+import '../widgets/broken_streak_banner.dart';
 import '../widgets/smart_goal_banner.dart';
 import '../widgets/goal_reminder_banner.dart';
 import '../widgets/ev_goal_banner.dart';
@@ -317,6 +318,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         const NextBestStepBanner(),
         const SpotOfTheDayCard(),
         const PackSuggestionBanner(),
+        const BrokenStreakBanner(),
         const StreakChart(),
         const TodayProgressBanner(),
         const StreakMiniCard(),
