@@ -43,7 +43,7 @@ class BoosterSlotAllocator {
   ) async {
     if (lessons.isEmpty) return [];
 
-    final histMap = await history.getHistory();
+    final histMap = await history.getTagStats();
     final scoreMap = await tuner.computeTagBoostScores();
     await recap.refresh();
 
@@ -74,7 +74,7 @@ class BoosterSlotAllocator {
       if (stats != null && urgency > 1.8) {
         slot = 'recap';
       } else if ((hist == null ||
-              hist.shownCount + hist.startedCount + hist.completedCount < 2) &&
+              hist.shownCount + hist.completedCount < 2) &&
           score > 1.5) {
         slot = 'goal';
       } else {

@@ -38,8 +38,9 @@ void main() {
 
   test('determines repeated status', () async {
     final lesson = const TheoryMiniLessonNode(id: 'l3', title: '', content: '', tags: ['call']);
-    await BoosterPathHistoryService.instance.markCompleted('call');
-    await BoosterPathHistoryService.instance.markCompleted('call');
+    await BoosterPathHistoryService.instance.markShown('l3', 'call');
+    await BoosterPathHistoryService.instance.markCompleted('l3', 'call');
+    await BoosterPathHistoryService.instance.markCompleted('l3', 'call');
     final service = BoosterLessonStatusService(
       tracker: InboxBoosterTrackerService.instance,
       history: BoosterPathHistoryService.instance,

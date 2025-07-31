@@ -38,7 +38,7 @@ class GoalSlotAllocator {
     final topWeak = <String>{
       for (final i in weak.take(3)) i.tag.label.toLowerCase(),
     };
-    final hist = await history.getHistory();
+    final hist = await history.getTagStats();
 
     final result = <GoalSlotAssignment>[];
     for (final g in goals) {

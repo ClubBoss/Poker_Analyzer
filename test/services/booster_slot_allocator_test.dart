@@ -92,9 +92,8 @@ void main() {
   });
 
   test('defaults to inbox for medium tags', () async {
-    await BoosterPathHistoryService.instance.markShown('call');
-    await BoosterPathHistoryService.instance.markStarted('call');
-    await BoosterPathHistoryService.instance.markCompleted('call');
+    await BoosterPathHistoryService.instance.markShown('l3a', 'call');
+    await BoosterPathHistoryService.instance.markCompleted('l3a', 'call');
 
     final recap = _FakeRecap({
       'call': TagEffectiveness(

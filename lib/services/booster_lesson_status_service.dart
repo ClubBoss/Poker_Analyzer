@@ -2,6 +2,7 @@ import '../models/theory_mini_lesson_node.dart';
 import '../models/booster_lesson_status.dart';
 import 'inbox_booster_tracker_service.dart';
 import 'booster_path_history_service.dart';
+import '../models/booster_path_log_entry.dart';
 
 /// Resolves [BoosterLessonStatus] for theory mini lessons.
 class BoosterLessonStatusService {
@@ -28,10 +29,9 @@ class BoosterLessonStatusService {
       tag = lesson.tags.first.trim().toLowerCase();
       if (tag.isEmpty) tag = null;
     }
-    final histMap = await history.getHistory();
-    final hist = tag != null ? histMap[tag] : null;
-    final started = hist?.startedCount ?? 0;
-    final completed = hist?.completedCount ?? 0;
+    final logs = tag != null ? await history.getHistory(tag: tag) : <BoosterPathLogEntry>[];
+    final completed = logs.where((e) => e.completedAt != null).length;
+    final hasProgress = logs.isNotEmpty;
 
     if (shows >= 5 && clicks == 0 && completed == 0) {
       return BoosterLessonStatus.skipped;
@@ -39,7 +39,7 @@ class BoosterLessonStatusService {
     if (completed >= 2) {
       return BoosterLessonStatus.repeated;
     }
-    if ((shows > 0 || started > 0 || clicks > 0) && completed == 0) {
+    if ((shows > 0 || hasProgress || clicks > 0) && completed == 0) {
       return BoosterLessonStatus.inProgress;
     }
     return BoosterLessonStatus.newLesson;

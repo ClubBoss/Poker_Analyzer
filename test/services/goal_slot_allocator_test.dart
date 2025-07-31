@@ -85,7 +85,8 @@ void main() {
   });
 
   test('assigns postrecap slot when tag completed recently', () async {
-    await BoosterPathHistoryService.instance.markCompleted('btn overfold');
+    await BoosterPathHistoryService.instance
+        .markCompleted('l2', 'btn overfold');
     final lesson = const TheoryMiniLessonNode(
       id: 'l2',
       title: 'B',
