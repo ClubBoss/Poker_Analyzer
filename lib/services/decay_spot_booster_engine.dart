@@ -48,4 +48,25 @@ class DecaySpotBoosterEngine {
       await queue.addSpots(spots);
     }
   }
+
+  /// Queues practice spots related to a single [tag].
+  Future<void> enqueueForTag(String tag) async {
+    final lc = tag.trim().toLowerCase();
+    if (lc.isEmpty) return;
+    if (await suppressor.shouldSuppress(lc)) return;
+    final list = await library.indexByTag(lc);
+    if (list.isEmpty) return;
+    final spots = <TrainingSpotV2>[];
+    final seen = <String>{};
+    for (final spot in list) {
+      final key = '${spot.hand.position}_${spot.hand.stacks['0']}';
+      if (seen.add(key)) {
+        spots.add(spot);
+      }
+      if (seen.length >= 3) break;
+    }
+    if (spots.isNotEmpty) {
+      await queue.addSpots(spots);
+    }
+  }
 }
