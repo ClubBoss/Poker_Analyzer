@@ -121,6 +121,7 @@ import 'services/daily_app_check_service.dart';
 import 'services/skill_loss_overlay_prompt_service.dart';
 import 'services/gift_drop_service.dart';
 import 'services/session_streak_overlay_prompt_service.dart';
+import 'services/overlay_decay_booster_orchestrator.dart';
 import 'services/smart_recap_auto_injector.dart';
 import 'services/smart_recap_banner_controller.dart';
 import 'services/theory_inbox_banner_controller.dart';
@@ -592,6 +593,7 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
     Provider(create: (_) => GiftDropService()),
     Provider(create: (_) => SessionStreakOverlayPromptService()),
+    Provider(create: (_) => OverlayDecayBoosterOrchestrator()),
     Provider(
       create: (context) => RecapOpportunityDetector(
         retention: context.read<TagRetentionTracker>(),
