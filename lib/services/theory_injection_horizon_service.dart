@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Enforces minimum delay between theory booster injections.
@@ -9,6 +10,11 @@ class TheoryInjectionHorizonService {
   static const String _prefsPrefix = 'theory_inject_last_';
 
   final Map<String, DateTime?> _cache = {};
+  final StreamController<String> _injectController =
+      StreamController<String>.broadcast();
+
+  /// Stream of booster types that were marked as injected.
+  Stream<String> get injections => _injectController.stream;
 
   Future<DateTime?> _getLast(String type) async {
     if (_cache.containsKey(type)) return _cache[type];
@@ -35,5 +41,6 @@ class TheoryInjectionHorizonService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('$_prefsPrefix$type', now.toIso8601String());
     _cache[type] = now;
+    _injectController.add(type);
   }
 }
