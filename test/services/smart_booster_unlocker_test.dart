@@ -7,6 +7,7 @@ import 'package:poker_analyzer/services/recap_booster_queue.dart';
 import 'package:poker_analyzer/services/smart_booster_unlocker.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/tag_mastery_service.dart';
+import 'package:poker_analyzer/services/theory_tag_decay_tracker.dart';
 import 'package:poker_analyzer/services/session_log_service.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';
 
@@ -58,6 +59,16 @@ class _FakeMastery extends TagMasteryService {
       if (e.value < threshold) result.add(e.key);
     }
     return result;
+  }
+}
+
+class _FakeDecay extends TheoryTagDecayTracker {
+  final Map<String, double> scores;
+  _FakeDecay(this.scores) : super();
+
+  @override
+  Future<Map<String, double>> computeDecayScores({DateTime? now}) async {
+    return scores;
   }
 }
 
@@ -119,5 +130,28 @@ void main() {
 
     expect(RecapBoosterQueue.instance.getQueue(), ['l1']);
     expect(GoalQueue.instance.getQueue().map((e) => e.id).toList(), ['l2']);
+  });
+
+  test('prioritizes decayed tags when no recent mistakes', () async {
+    final lessons = [
+      const TheoryMiniLessonNode(
+        id: 'd1',
+        title: 'Old Theory',
+        content: '',
+        tags: ['decayed'],
+      ),
+    ];
+    final mastery = _FakeMastery({'decayed': 0.6});
+    final unlocker = SmartBoosterUnlocker(
+      mastery: mastery,
+      lessons: _FakeLibrary(lessons),
+      historyLoader: ({int limit = 10}) async => [],
+      decayTracker: _FakeDecay({'decayed': 50}),
+    );
+
+    await unlocker.schedule();
+
+    expect(RecapBoosterQueue.instance.getQueue(), isEmpty);
+    expect(GoalQueue.instance.getQueue().map((e) => e.id).toList(), ['d1']);
   });
 }

@@ -9,6 +9,7 @@ import 'theory_priority_gatekeeper_service.dart';
 import 'booster_queue_pressure_monitor.dart';
 import 'theory_injection_horizon_service.dart';
 import 'booster_cooldown_blocker_service.dart';
+import 'theory_tag_decay_tracker.dart';
 
 /// Schedules theory boosters based on recent mistakes and weak tags.
 class SmartBoosterUnlocker {
@@ -16,6 +17,8 @@ class SmartBoosterUnlocker {
   final MiniLessonLibraryService lessons;
   final RecapBoosterQueue recapQueue;
   final GoalQueue goalQueue;
+  final TheoryTagDecayTracker decayTracker;
+  final double decayThreshold;
   final int mistakeLimit;
   final int lessonsPerTag;
   final Future<List<MistakeTagHistoryEntry>> Function({int limit}) _history;
@@ -25,13 +28,16 @@ class SmartBoosterUnlocker {
     MiniLessonLibraryService? lessons,
     RecapBoosterQueue? recapQueue,
     GoalQueue? goalQueue,
+    TheoryTagDecayTracker? decayTracker,
     Future<List<MistakeTagHistoryEntry>> Function({int limit})? historyLoader,
     this.mistakeLimit = 10,
     this.lessonsPerTag = 2,
-  }) : lessons = lessons ?? MiniLessonLibraryService.instance,
-       recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-       goalQueue = goalQueue ?? GoalQueue.instance,
-       _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
+    this.decayThreshold = 30.0,
+  })  : lessons = lessons ?? MiniLessonLibraryService.instance,
+        recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+        goalQueue = goalQueue ?? GoalQueue.instance,
+        decayTracker = decayTracker ?? TheoryTagDecayTracker(),
+        _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
 
   /// Analyzes recent mistakes and mastery to enqueue targeted boosters.
   Future<void> schedule() async {
@@ -41,10 +47,9 @@ class SmartBoosterUnlocker {
     }
     await lessons.loadAll();
     final recent = await _history(limit: mistakeLimit);
-    if (recent.isEmpty) return;
 
     final weak = await mastery.findWeakTags(threshold: 0.7);
-    if (weak.isEmpty) return;
+    if (weak.isEmpty && recent.isEmpty) return;
 
     final counts = <String, int>{};
     for (final entry in recent) {
@@ -55,10 +60,21 @@ class SmartBoosterUnlocker {
         }
       }
     }
-    if (counts.isEmpty) return;
 
-    final tags = counts.keys.toList()
-      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+    final decayScores = await decayTracker.computeDecayScores();
+    final priorities = <String, double>{};
+    for (final entry in decayScores.entries) {
+      if (entry.value > decayThreshold) {
+        counts.putIfAbsent(entry.key, () => 0);
+        priorities[entry.key] = (counts[entry.key]?.toDouble() ?? 0) + entry.value;
+      }
+    }
+    for (final entry in counts.entries) {
+      priorities.putIfAbsent(entry.key, () => entry.value.toDouble());
+    }
+    if (priorities.isEmpty) return;
+    final tags = priorities.keys.toList()
+      ..sort((a, b) => priorities[b]!.compareTo(priorities[a]!));
 
     final used = <String>{};
     bool injected = false;
