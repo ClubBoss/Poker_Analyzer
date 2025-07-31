@@ -61,6 +61,7 @@ import 'services/app_init_service.dart';
 import 'services/suggested_pack_push_service.dart';
 import 'services/lesson_path_reminder_scheduler.dart';
 import 'services/decay_reminder_scheduler.dart';
+import 'services/decay_booster_notification_service.dart';
 import 'services/theory_lesson_notification_scheduler.dart';
 import 'services/booster_recall_decay_cleaner.dart';
 
@@ -115,6 +116,7 @@ Future<void> main() async {
   tagCache = TagCacheService();
   await tagCache.load();
   unawaited(SuggestedPackPushService.instance.schedulePushReminder());
+  unawaited(DecayBoosterNotificationService.instance.init());
   unawaited(DecayReminderScheduler.instance.register());
   await BoosterRecallDecayCleaner.instance.init();
   await AppInitService.instance.init();
