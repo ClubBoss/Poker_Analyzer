@@ -27,6 +27,7 @@ import '../widgets/streak_mini_card.dart';
 import '../widgets/streak_chart.dart';
 import '../widgets/continue_training_button.dart';
 import '../widgets/spot_of_the_day_card.dart';
+import '../widgets/decay_booster_dashboard_banner.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
@@ -296,6 +297,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),
         const ContinueTrainingButton(),
+        const DecayBoosterDashboardBanner(),
         const GoalReminderBanner(),
         const SmartGoalBanner(),
         const NextBestStepBanner(),
