@@ -7,6 +7,7 @@ import 'recap_booster_queue.dart';
 import 'goal_queue.dart';
 import 'theory_priority_gatekeeper_service.dart';
 import 'booster_queue_pressure_monitor.dart';
+import 'theory_injection_horizon_service.dart';
 
 /// Schedules theory boosters based on recent mistakes and weak tags.
 class SmartBoosterUnlocker {
@@ -26,14 +27,17 @@ class SmartBoosterUnlocker {
     Future<List<MistakeTagHistoryEntry>> Function({int limit})? historyLoader,
     this.mistakeLimit = 10,
     this.lessonsPerTag = 2,
-  })  : lessons = lessons ?? MiniLessonLibraryService.instance,
-        recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-        goalQueue = goalQueue ?? GoalQueue.instance,
-        _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
+  }) : lessons = lessons ?? MiniLessonLibraryService.instance,
+       recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+       goalQueue = goalQueue ?? GoalQueue.instance,
+       _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
 
   /// Analyzes recent mistakes and mastery to enqueue targeted boosters.
   Future<void> schedule() async {
     if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
+    if (!await TheoryInjectionHorizonService.instance.canInject('mistake')) {
+      return;
+    }
     await lessons.loadAll();
     final recent = await _history(limit: mistakeLimit);
     if (recent.isEmpty) return;
@@ -56,6 +60,7 @@ class SmartBoosterUnlocker {
       ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
 
     final used = <String>{};
+    bool injected = false;
     for (final tag in tags) {
       final lessonList = lessons.findByTags([tag]);
       if (lessonList.isEmpty) continue;
@@ -63,8 +68,9 @@ class SmartBoosterUnlocker {
       int added = 0;
       for (final lesson in lessonList) {
         if (!used.add(lesson.id)) continue;
-        if (await TheoryPriorityGatekeeperService.instance
-            .isBlocked(lesson.id)) {
+        if (await TheoryPriorityGatekeeperService.instance.isBlocked(
+          lesson.id,
+        )) {
           continue;
         }
         if (urgent) {
@@ -72,9 +78,13 @@ class SmartBoosterUnlocker {
         } else {
           goalQueue.push(lesson);
         }
+        injected = true;
         added++;
         if (added >= lessonsPerTag) break;
       }
+    }
+    if (injected) {
+      await TheoryInjectionHorizonService.instance.markInjected('mistake');
     }
   }
 }

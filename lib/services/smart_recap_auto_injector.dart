@@ -7,6 +7,7 @@ import 'recap_opportunity_detector.dart';
 import 'smart_theory_recap_engine.dart';
 import 'theory_recap_suppression_engine.dart';
 import 'smart_theory_recap_dismissal_memory.dart';
+import 'theory_injection_horizon_service.dart';
 import 'theory_priority_gatekeeper_service.dart';
 import 'booster_queue_pressure_monitor.dart';
 
@@ -22,14 +23,13 @@ class SmartRecapAutoInjector {
     SmartTheoryRecapEngine? engine,
     TheoryRecapSuppressionEngine? suppression,
     SmartTheoryRecapDismissalMemory? dismissal,
-  })  : detector = detector ?? RecapOpportunityDetector.instance,
-        engine = engine ?? SmartTheoryRecapEngine.instance,
-        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-        dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
+  }) : detector = detector ?? RecapOpportunityDetector.instance,
+       engine = engine ?? SmartTheoryRecapEngine.instance,
+       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+       dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
 
   static final SmartRecapAutoInjector instance = SmartRecapAutoInjector();
 
-  static const _lastKey = 'smart_recap_auto_last';
   Timer? _timer;
 
   Future<void> start({Duration interval = const Duration(minutes: 5)}) async {
@@ -39,17 +39,6 @@ class SmartRecapAutoInjector {
 
   Future<void> dispose() async {
     _timer?.cancel();
-  }
-
-  Future<DateTime?> _lastInjected() async {
-    final prefs = await SharedPreferences.getInstance();
-    final str = prefs.getString(_lastKey);
-    return str == null ? null : DateTime.tryParse(str);
-  }
-
-  Future<void> _markInjected() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_lastKey, DateTime.now().toIso8601String());
   }
 
   Future<bool> _recentlyDismissed() async {
@@ -66,15 +55,12 @@ class SmartRecapAutoInjector {
     if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     if (!await detector.isGoodRecapMoment()) return;
     if (await _recentlyDismissed()) return;
-    final last = await _lastInjected();
-    if (last != null &&
-        DateTime.now().difference(last) < const Duration(hours: 6)) {
+    if (!await TheoryInjectionHorizonService.instance.canInject('recap')) {
       return;
     }
     final lesson = await engine.getNextRecap();
     if (lesson == null) return;
-    if (await TheoryPriorityGatekeeperService.instance
-        .isBlocked(lesson.id)) {
+    if (await TheoryPriorityGatekeeperService.instance.isBlocked(lesson.id)) {
       return;
     }
     if (await suppression.shouldSuppress(
@@ -91,6 +77,6 @@ class SmartRecapAutoInjector {
       lessonId: lesson.id,
       trigger: 'autoInject',
     );
-    await _markInjected();
+    await TheoryInjectionHorizonService.instance.markInjected('recap');
   }
 }
