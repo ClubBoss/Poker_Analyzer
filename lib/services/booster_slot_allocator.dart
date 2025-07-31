@@ -1,8 +1,13 @@
 import '../models/theory_mini_lesson_node.dart';
+import '../models/v2/training_spot_v2.dart';
+import '../models/evaluation_result.dart';
 import 'booster_path_history_service.dart';
 import 'inbox_booster_tracker_service.dart';
 import 'inbox_booster_tuner_service.dart';
 import 'recap_effectiveness_analyzer.dart';
+
+/// Delivery slots for booster lessons.
+enum BoosterSlot { recap, inbox, goal, none }
 
 /// Decision describing where a booster lesson should appear.
 class BoosterSlotDecision {
@@ -87,5 +92,45 @@ class BoosterSlotAllocator {
     }
 
     return result;
+  }
+
+  /// Determines the best slot for [lesson] given training [spot].
+  Future<BoosterSlot> decideSlot(
+    TheoryMiniLessonNode lesson,
+    TrainingSpotV2 spot,
+  ) async {
+    if (await tracker.wasRecentlyShown(lesson.id)) {
+      return BoosterSlot.none;
+    }
+
+    final lessonTags = {
+      for (final t in lesson.tags) t.trim().toLowerCase()
+    }..removeWhere((e) => e.isEmpty);
+    final spotTags = {
+      for (final t in spot.tags) t.trim().toLowerCase()
+    }..removeWhere((e) => e.isEmpty);
+    if (lessonTags.intersection(spotTags).isEmpty) {
+      return BoosterSlot.none;
+    }
+
+    final eval = spot.evalResult;
+    final mistake = eval != null && !eval.correct;
+    if (mistake) {
+      final loss = _evLoss(eval);
+      final critical = spot.priority <= 1 || loss > 1.0;
+      return critical ? BoosterSlot.recap : BoosterSlot.inbox;
+    }
+
+    if (spot.priority <= 2) {
+      return BoosterSlot.goal;
+    }
+
+    return BoosterSlot.none;
+  }
+
+  double _evLoss(EvaluationResult eval) {
+    if (eval.ev != null) return eval.ev!.abs();
+    if (eval.icmEv != null) return eval.icmEv!.abs();
+    return (eval.expectedEquity - eval.userEquity).abs();
   }
 }
