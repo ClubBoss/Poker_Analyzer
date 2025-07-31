@@ -42,6 +42,7 @@ import '../widgets/mistake_review_button.dart';
 import '../services/streak_tracker_service.dart';
 import '../services/streak_milestone_queue_service.dart';
 import '../widgets/confetti_overlay.dart';
+import '../services/overlay_booster_manager.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
@@ -142,6 +143,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
       await NextStepSuggestionDialog.show(context);
       await StreakMilestoneQueueService.instance
           .showNextMilestoneCelebrationIfAny(context);
+      await context.read<OverlayBoosterManager>().onAfterXpScreen();
     });
     _loadWeakPack();
   }

@@ -54,6 +54,7 @@ import 'services/training_pack_stats_service.dart';
 import 'services/learning_path_summary_cache.dart';
 import 'services/daily_app_check_service.dart';
 import 'services/skill_loss_overlay_prompt_service.dart';
+import 'services/overlay_booster_manager.dart';
 import 'screens/training_session_screen.dart';
 import 'screens/empty_training_screen.dart';
 import 'services/app_init_service.dart';
@@ -236,6 +237,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
       sessions: context.read<TrainingSessionService>(),
     ));
     unawaited(context.read<SkillLossOverlayPromptService>().run(context));
+    unawaited(context.read<OverlayBoosterManager>().onAfterXpScreen());
     unawaited(
       TheoryLessonNotificationScheduler.instance.scheduleReminderIfNeeded(),
     );
