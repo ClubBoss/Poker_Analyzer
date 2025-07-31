@@ -29,6 +29,7 @@ import '../widgets/continue_training_button.dart';
 import '../widgets/spot_of_the_day_card.dart';
 import '../widgets/decay_booster_dashboard_banner.dart';
 import '../widgets/decay_booster_reminder_banner.dart';
+import '../widgets/decay_booster_queue_indicator.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
@@ -297,7 +298,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         ab.isVariant('resume_card', 'B')
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),
-        const ContinueTrainingButton(),
+        Stack(
+          children: const [
+            ContinueTrainingButton(),
+            Positioned(
+              right: 24,
+              top: 8,
+              child: DecayBoosterQueueIndicator(),
+            ),
+          ],
+        ),
         const DecayBoosterReminderBanner(),
         const DecayBoosterDashboardBanner(),
         const GoalReminderBanner(),

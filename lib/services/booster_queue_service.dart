@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Stores training spots scheduled as boosters.
 
+import 'package:flutter/foundation.dart';
+
 class BoosterQueueService {
   BoosterQueueService._();
   static final BoosterQueueService instance = BoosterQueueService._();
@@ -10,6 +12,7 @@ class BoosterQueueService {
   static const _lastKey = 'booster_queue_last_used';
 
   final List<TrainingSpotV2> _queue = [];
+  final ValueNotifier<int> queueLength = ValueNotifier(0);
   DateTime? _lastUsedAt;
 
   /// Adds [spots] to the queue if not already present by id.
@@ -19,12 +22,16 @@ class BoosterQueueService {
         _queue.add(s);
       }
     }
+    queueLength.value = _queue.length;
   }
 
   /// Returns queued spots.
   List<TrainingSpotV2> getQueue() => List.unmodifiable(_queue);
 
-  void clear() => _queue.clear();
+  void clear() {
+    _queue.clear();
+    queueLength.value = 0;
+  }
 
   Future<DateTime?> lastUsed() async {
     if (_lastUsedAt != null) return _lastUsedAt;
