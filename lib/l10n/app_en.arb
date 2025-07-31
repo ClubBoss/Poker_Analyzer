@@ -125,4 +125,6 @@
   ,"plannerBadge": "{count} left"
   ,"unfinishedSession": "You have an unfinished session"
   ,"resume": "Resume"
+  ,"mistakeBoosterReinforced": "Reinforced: {count} tags"
+  ,"mistakeBoosterRecovered": "Recovered: {count} tags"
 }
