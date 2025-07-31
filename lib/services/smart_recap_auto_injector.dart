@@ -7,6 +7,7 @@ import 'recap_opportunity_detector.dart';
 import 'smart_theory_recap_engine.dart';
 import 'theory_recap_suppression_engine.dart';
 import 'smart_theory_recap_dismissal_memory.dart';
+import 'theory_priority_gatekeeper_service.dart';
 
 /// Automatically shows recap dialogs at ideal moments without user interaction.
 class SmartRecapAutoInjector {
@@ -70,6 +71,10 @@ class SmartRecapAutoInjector {
     }
     final lesson = await engine.getNextRecap();
     if (lesson == null) return;
+    if (await TheoryPriorityGatekeeperService.instance
+        .isBlocked(lesson.id)) {
+      return;
+    }
     if (await suppression.shouldSuppress(
       lessonId: lesson.id,
       trigger: 'autoInject',
