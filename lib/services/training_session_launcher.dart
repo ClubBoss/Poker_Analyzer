@@ -11,6 +11,7 @@ import '../models/theory_mini_lesson_node.dart';
 import 'smart_recap_booster_launcher.dart';
 import 'smart_recap_booster_linker.dart';
 import 'training_pack_template_storage_service.dart';
+import 'pack_recall_stats_service.dart';
 
 /// Helper to start a training session from a pack template.
 class TrainingSessionLauncher {
@@ -22,6 +23,13 @@ class TrainingSessionLauncher {
       {int startIndex = 0, List<String>? sessionTags}) async {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
+
+    unawaited(
+      PackRecallStatsService.instance.recordReview(
+        template.id,
+        DateTime.now(),
+      ),
+    );
 
     if (template.spots.every((s) => s.type == 'theory')) {
       await Navigator.push(
