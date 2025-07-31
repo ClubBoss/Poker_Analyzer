@@ -107,12 +107,14 @@ class MiniLessonPathInjector {
         id: node.id,
         nextIds: next,
         dependsOn: List<String>.from(node.dependsOn),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryStageNode) {
       return TheoryStageNode(
         id: node.id,
         nextIds: next,
         dependsOn: List<String>.from(node.dependsOn),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryLessonNode) {
       return TheoryLessonNode(
@@ -121,6 +123,7 @@ class MiniLessonPathInjector {
         title: node.title,
         content: node.content,
         nextIds: next,
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryMiniLessonNode) {
       return TheoryMiniLessonNode(
@@ -130,6 +133,7 @@ class MiniLessonPathInjector {
         content: node.content,
         tags: List<String>.from(node.tags),
         nextIds: next,
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     }
     return node;

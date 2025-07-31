@@ -83,6 +83,7 @@ class GraphPathTemplateParser {
           id: id,
           prompt: m['prompt']?.toString() ?? '',
           branches: branches,
+          recoveredFromMistake: m['recoveredFromMistake'] as bool? ?? false,
         );
         nodes.add(node);
         byId[id] = node;
@@ -91,9 +92,20 @@ class GraphPathTemplateParser {
         final nextIds = <String>[for (final v in (m['next'] as List? ?? [])) v.toString()];
         final dependsOn = <String>[for (final v in (m['dependsOn'] as List? ?? [])) v.toString()];
         final stageType = _parseStageType(m['stageType']);
+        final recovered = m['recoveredFromMistake'] as bool? ?? false;
         final StageNode node = stageType == StageType.theory
-            ? TheoryStageNode(id: stageId, nextIds: nextIds, dependsOn: dependsOn)
-            : TrainingStageNode(id: stageId, nextIds: nextIds, dependsOn: dependsOn);
+            ? TheoryStageNode(
+                id: stageId,
+                nextIds: nextIds,
+                dependsOn: dependsOn,
+                recoveredFromMistake: recovered,
+              )
+            : TrainingStageNode(
+                id: stageId,
+                nextIds: nextIds,
+                dependsOn: dependsOn,
+                recoveredFromMistake: recovered,
+              );
         nodes.add(node);
         byId[id] = node;
       } else if (type == 'theory') {
@@ -104,6 +116,7 @@ class GraphPathTemplateParser {
           title: m['title']?.toString() ?? '',
           content: m['content']?.toString() ?? '',
           nextIds: nextIds,
+          recoveredFromMistake: m['recoveredFromMistake'] as bool? ?? false,
         );
         nodes.add(node);
         byId[id] = node;
@@ -117,6 +130,7 @@ class GraphPathTemplateParser {
           content: m['content']?.toString() ?? '',
           tags: tags,
           nextIds: nextIds,
+          recoveredFromMistake: m['recoveredFromMistake'] as bool? ?? false,
         );
         nodes.add(node);
         byId[id] = node;

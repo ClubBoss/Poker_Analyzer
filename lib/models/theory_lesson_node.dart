@@ -6,6 +6,9 @@ class TheoryLessonNode implements LearningPathNode {
   @override
   final String id;
 
+  @override
+  final bool recoveredFromMistake;
+
   /// Optional reference id of shared theory content.
   final String? refId;
 
@@ -24,6 +27,7 @@ class TheoryLessonNode implements LearningPathNode {
     required this.title,
     required this.content,
     List<String>? nextIds,
+    this.recoveredFromMistake = false,
   }) : nextIds = nextIds ?? const [];
 
   /// Returns [title] or the referenced block's title when empty.

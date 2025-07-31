@@ -42,6 +42,7 @@ class MiniLessonBoosterEngine {
         content: l.content,
         tags: l.tags,
         nextIds: const [],
+        recoveredFromMistake: l.recoveredFromMistake,
       ));
       byId[id] = inject.last;
     }
@@ -105,6 +106,7 @@ class MiniLessonBoosterEngine {
             content: n.content,
             tags: List<String>.from(n.tags),
             nextIds: next,
+            recoveredFromMistake: n.recoveredFromMistake,
           );
         }
       } else if (n is LearningBranchNode) {
@@ -135,6 +137,7 @@ class MiniLessonBoosterEngine {
         content: inject[i].content,
         tags: inject[i].tags,
         nextIds: [next],
+        recoveredFromMistake: inject[i].recoveredFromMistake,
       );
       updated.add(inject[i]);
     }
@@ -156,12 +159,14 @@ class MiniLessonBoosterEngine {
         id: node.id,
         nextIds: List<String>.from(node.nextIds),
         dependsOn: List<String>.from(node.dependsOn),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryStageNode) {
       return TheoryStageNode(
         id: node.id,
         nextIds: List<String>.from(node.nextIds),
         dependsOn: List<String>.from(node.dependsOn),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryLessonNode) {
       return TheoryLessonNode(
@@ -170,6 +175,7 @@ class MiniLessonBoosterEngine {
         title: node.title,
         content: node.content,
         nextIds: List<String>.from(node.nextIds),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     } else if (node is TheoryMiniLessonNode) {
       return TheoryMiniLessonNode(
@@ -179,6 +185,7 @@ class MiniLessonBoosterEngine {
         content: node.content,
         tags: List<String>.from(node.tags),
         nextIds: List<String>.from(node.nextIds),
+        recoveredFromMistake: node.recoveredFromMistake,
       );
     }
     return node;

@@ -141,7 +141,12 @@ class LearningPathEngine {
         final branches = Map<String, String>.from(node.branches);
         branches.updateAll((key, value) => value == nodeId ? (replacement ?? value) : value);
         branches.removeWhere((key, value) => value.isEmpty);
-        return LearningBranchNode(id: node.id, prompt: node.prompt, branches: branches);
+        return LearningBranchNode(
+          id: node.id,
+          prompt: node.prompt,
+          branches: branches,
+          recoveredFromMistake: node.recoveredFromMistake,
+        );
       } else if (node is TrainingStageNode) {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
         if (replacement != null) {
@@ -149,7 +154,12 @@ class LearningPathEngine {
             if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
           }
         }
-        return TrainingStageNode(id: node.id, nextIds: next, dependsOn: List<String>.from(node.dependsOn));
+        return TrainingStageNode(
+          id: node.id,
+          nextIds: next,
+          dependsOn: List<String>.from(node.dependsOn),
+          recoveredFromMistake: node.recoveredFromMistake,
+        );
       } else if (node is TheoryStageNode) {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
         if (replacement != null) {
@@ -157,7 +167,12 @@ class LearningPathEngine {
             if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
           }
         }
-        return TheoryStageNode(id: node.id, nextIds: next, dependsOn: List<String>.from(node.dependsOn));
+        return TheoryStageNode(
+          id: node.id,
+          nextIds: next,
+          dependsOn: List<String>.from(node.dependsOn),
+          recoveredFromMistake: node.recoveredFromMistake,
+        );
       } else if (node is TheoryLessonNode) {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
         if (replacement != null) {
@@ -171,6 +186,7 @@ class LearningPathEngine {
           title: node.title,
           content: node.content,
           nextIds: next,
+          recoveredFromMistake: node.recoveredFromMistake,
         );
       } else if (node is TheoryMiniLessonNode) {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
@@ -186,6 +202,7 @@ class LearningPathEngine {
           content: node.content,
           tags: List<String>.from(node.tags),
           nextIds: next,
+          recoveredFromMistake: node.recoveredFromMistake,
         );
       }
       return node;
