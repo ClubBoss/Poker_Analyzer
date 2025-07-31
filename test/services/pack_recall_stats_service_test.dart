@@ -22,4 +22,18 @@ void main() {
     final avg = await service.averageReviewInterval('p1');
     expect(avg, const Duration(days: 2));
   });
+
+  test('detects upcoming review packs', () async {
+    final service = PackRecallStatsService.instance;
+    final now = DateTime.now();
+    await service.recordReview('p2', now.subtract(const Duration(days: 6)));
+    await service.recordReview('p2', now.subtract(const Duration(days: 2)));
+
+    await service.recordReview('p3', now.subtract(const Duration(days: 4)));
+    await service.recordReview('p3', now);
+
+    final upcoming = await service.upcomingReviewPacks();
+    expect(upcoming, contains('p2'));
+    expect(upcoming, isNot(contains('p3')));
+  });
 }

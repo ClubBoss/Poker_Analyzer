@@ -45,4 +45,27 @@ class PackRecallStatsService {
     }
     return total ~/ (history.length - 1);
   }
+
+  /// Returns pack ids with a review coming up within [leadTime].
+  Future<List<String>> upcomingReviewPacks({
+    Duration leadTime = const Duration(days: 3),
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final ids = <String>[];
+    const prefix = '$_prefix.';
+    for (final key in prefs.getKeys()) {
+      if (!key.startsWith(prefix)) continue;
+      final id = key.substring(prefix.length);
+      final history = await getReviewHistory(id);
+      if (history.length < 2) continue;
+      final avg = await averageReviewInterval(id);
+      if (avg == null) continue;
+      final next = history.last.add(avg);
+      if (next.isAfter(now) && next.difference(now) <= leadTime) {
+        ids.add(id);
+      }
+    }
+    return ids;
+  }
 }
