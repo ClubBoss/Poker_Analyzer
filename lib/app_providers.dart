@@ -126,6 +126,7 @@ import 'services/smart_recap_banner_controller.dart';
 import 'services/theory_inbox_banner_controller.dart';
 import 'services/smart_recap_banner_reinjection_service.dart';
 import 'services/recap_to_drill_launcher.dart';
+import 'services/smart_booster_unlock_scheduler.dart';
 import 'services/adaptive_next_step_engine.dart';
 import 'services/suggested_next_step_engine.dart';
 
@@ -608,6 +609,11 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(
       create: (context) => SmartRecapBannerReinjectionService(
         controller: context.read<SmartRecapBannerController>(),
+      )..start(),
+    ),
+    Provider(
+      create: (context) => SmartBoosterUnlockScheduler(
+        sessions: context.read<TrainingSessionService>(),
       )..start(),
     ),
     Provider(
