@@ -14,6 +14,17 @@ class MistakeTagRecoveryStatus {
   });
 }
 
+/// Aggregated summary of overall booster recovery progress.
+class MistakeRecoverySummary {
+  final int reinforced;
+  final int recovered;
+
+  const MistakeRecoverySummary({
+    required this.reinforced,
+    required this.recovered,
+  });
+}
+
 /// Tracks booster repetition progress for mistake-related tags.
 class MistakeBoosterProgressTracker {
   MistakeBoosterProgressTracker._();
@@ -63,6 +74,29 @@ class MistakeBoosterProgressTracker {
       }
     }
     return result;
+  }
+
+  /// Returns counts of reinforced and fully recovered tags.
+  Future<MistakeRecoverySummary> getRecoveryStatus({
+    int repeatThreshold = 3,
+    double deltaThreshold = 0.1,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    int reinforced = 0;
+    int recovered = 0;
+    for (final key in prefs.getKeys()) {
+      if (!key.startsWith(_countPrefix)) continue;
+      final tag = key.substring(_countPrefix.length);
+      final count = prefs.getInt(key) ?? 0;
+      final delta = prefs.getDouble('$_deltaPrefix$tag') ?? 0.0;
+      if (count > 0) {
+        reinforced++;
+        if (count >= repeatThreshold && delta >= deltaThreshold) {
+          recovered++;
+        }
+      }
+    }
+    return MistakeRecoverySummary(reinforced: reinforced, recovered: recovered);
   }
 
   /// Clears all stored progress (used by tests).

@@ -418,4 +418,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resume => 'Resume';
+
+  @override
+  String mistakeBoosterReinforced(Object count) {
+    return 'Reinforced: $count tags';
+  }
+
+  @override
+  String mistakeBoosterRecovered(Object count) {
+    return 'Recovered: $count tags';
+  }
 }

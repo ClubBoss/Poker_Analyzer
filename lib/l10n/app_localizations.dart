@@ -855,6 +855,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Продолжить'**
   String get resume;
+
+  /// No description provided for @mistakeBoosterReinforced.
+  ///
+  /// In ru, this message translates to:
+  /// **'Укреплено тегов: {count}'**
+  String mistakeBoosterReinforced(Object count);
+
+  /// No description provided for @mistakeBoosterRecovered.
+  ///
+  /// In ru, this message translates to:
+  /// **'Исправлено тегов: {count}'**
+  String mistakeBoosterRecovered(Object count);
 }
 
 class _AppLocalizationsDelegate

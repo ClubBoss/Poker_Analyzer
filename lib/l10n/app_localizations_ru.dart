@@ -418,4 +418,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get resume => 'Продолжить';
+
+  @override
+  String mistakeBoosterReinforced(Object count) {
+    return 'Укреплено тегов: $count';
+  }
+
+  @override
+  String mistakeBoosterRecovered(Object count) {
+    return 'Исправлено тегов: $count';
+  }
 }
