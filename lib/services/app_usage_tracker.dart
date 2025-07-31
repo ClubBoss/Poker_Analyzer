@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'decay_booster_injector_scheduler.dart';
 
 /// Tracks last active timestamp to estimate user idle duration.
 class AppUsageTracker with WidgetsBindingObserver {
@@ -28,6 +30,7 @@ class AppUsageTracker with WidgetsBindingObserver {
   Future<void> markActive() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefsKey, DateTime.now().toIso8601String());
+    unawaited(DecayBoosterInjectorScheduler.instance.maybeInject());
   }
 
   /// Returns duration since the app was last active.
