@@ -10,6 +10,10 @@ class GoalQueue {
     _items.add(lesson);
   }
 
+  void remove(String lessonId) {
+    _items.removeWhere((e) => e.id == lessonId);
+  }
+
   List<TheoryMiniLessonNode> getQueue() => List.unmodifiable(_items);
 
   void clear() => _items.clear();
