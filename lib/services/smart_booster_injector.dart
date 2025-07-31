@@ -5,6 +5,7 @@ import 'booster_slot_allocator.dart';
 import 'recap_booster_queue.dart';
 import 'inbox_booster_tracker_service.dart';
 import 'goal_queue.dart';
+import 'booster_queue_pressure_monitor.dart';
 
 /// Injects theory boosters into recap, inbox, or goal queues after training spots.
 class SmartBoosterInjector {
@@ -33,6 +34,7 @@ class SmartBoosterInjector {
     TrainingSpotV2 completedSpot,
     List<TheoryMiniLessonNode> candidateBoosters,
   ) async {
+    if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     if (candidateBoosters.isEmpty) return;
     final ranked = await recall.rank(candidateBoosters, completedSpot);
     for (final lesson in ranked) {

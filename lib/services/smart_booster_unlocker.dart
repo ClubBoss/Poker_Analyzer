@@ -6,6 +6,7 @@ import 'tag_mastery_service.dart';
 import 'recap_booster_queue.dart';
 import 'goal_queue.dart';
 import 'theory_priority_gatekeeper_service.dart';
+import 'booster_queue_pressure_monitor.dart';
 
 /// Schedules theory boosters based on recent mistakes and weak tags.
 class SmartBoosterUnlocker {
@@ -32,6 +33,7 @@ class SmartBoosterUnlocker {
 
   /// Analyzes recent mistakes and mastery to enqueue targeted boosters.
   Future<void> schedule() async {
+    if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     await lessons.loadAll();
     final recent = await _history(limit: mistakeLimit);
     if (recent.isEmpty) return;

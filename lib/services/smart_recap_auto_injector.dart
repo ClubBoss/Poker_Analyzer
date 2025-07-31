@@ -8,6 +8,7 @@ import 'smart_theory_recap_engine.dart';
 import 'theory_recap_suppression_engine.dart';
 import 'smart_theory_recap_dismissal_memory.dart';
 import 'theory_priority_gatekeeper_service.dart';
+import 'booster_queue_pressure_monitor.dart';
 
 /// Automatically shows recap dialogs at ideal moments without user interaction.
 class SmartRecapAutoInjector {
@@ -62,6 +63,7 @@ class SmartRecapAutoInjector {
 
   /// Checks for recap opportunity and shows dialog if suitable.
   Future<void> maybeInject() async {
+    if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     if (!await detector.isGoodRecapMoment()) return;
     if (await _recentlyDismissed()) return;
     final last = await _lastInjected();
