@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import '../services/booster_slot_allocator.dart';
+import '../theme/app_colors.dart';
 import 'tag_badge.dart';
 
 /// Universal card widget displaying a theory booster suggestion.
@@ -12,18 +13,22 @@ class BoosterTheoryWidget extends StatelessWidget {
   /// Delivery context for this booster.
   final BoosterSlot slot;
 
-  /// Callback when the primary action is tapped.
-  final VoidCallback? onStart;
+  /// Callback when the card is tapped.
+  final VoidCallback? onTap;
 
-  /// Callback when the reminder action is tapped.
-  final VoidCallback? onLater;
+  /// Callback when the action button is pressed.
+  final VoidCallback? onActionTap;
+
+  /// Label for the action button.
+  final String actionLabel;
 
   const BoosterTheoryWidget({
     super.key,
     required this.lesson,
     required this.slot,
-    this.onStart,
-    this.onLater,
+    this.onTap,
+    this.onActionTap,
+    this.actionLabel = 'Пройти',
   });
 
   String _shortPreview(String text, {int max = 80}) {
@@ -45,6 +50,19 @@ class BoosterTheoryWidget extends StatelessWidget {
     }
   }
 
+  String _slotLabel() {
+    switch (slot) {
+      case BoosterSlot.inbox:
+        return 'Inbox';
+      case BoosterSlot.recap:
+        return 'Recap';
+      case BoosterSlot.goal:
+        return 'Goal';
+      case BoosterSlot.none:
+        return '';
+    }
+  }
+
   Color _accent(BuildContext context) {
     switch (slot) {
       case BoosterSlot.recap:
@@ -58,45 +76,69 @@ class BoosterTheoryWidget extends StatelessWidget {
     }
   }
 
+  Color _cardColor(BuildContext context) {
+    final base = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.darkCard
+        : AppColors.lightCard;
+    switch (slot) {
+      case BoosterSlot.recap:
+        return Colors.amber.withOpacity(0.15);
+      default:
+        return base;
+    }
+  }
+
+  Border? _cardBorder() {
+    switch (slot) {
+      case BoosterSlot.inbox:
+        return Border.all(color: Colors.blueAccent, width: 2);
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = _accent(context);
     final icon = _icon();
+    final slotLabel = _slotLabel();
     final tag = lesson.tags.isNotEmpty ? lesson.tags.first : null;
     final preview = _shortPreview(lesson.resolvedContent);
     final width = MediaQuery.of(context).size.width;
     final vertical = width < 350;
 
     final actions = [
-      if (onLater != null)
-        OutlinedButton(
-          onPressed: onLater,
-          style: OutlinedButton.styleFrom(foregroundColor: accent),
-          child: const Text('Напомнить позже'),
-        ),
-      if (onStart != null)
+      if (onActionTap != null)
         ElevatedButton(
-          onPressed: onStart,
+          onPressed: onActionTap,
           style: ElevatedButton.styleFrom(backgroundColor: accent),
-          child: const Text('Пройти сейчас'),
+          child: Text(actionLabel),
         ),
     ];
 
-    return Container(
+    return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
+      elevation: 2,
+      color: _cardColor(context),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
+        side: _cardBorder() ?? BorderSide.none,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (icon.isNotEmpty) Text(icon),
-              if (icon.isNotEmpty) const SizedBox(width: 4),
+              if (slot != BoosterSlot.none)
+                Text('$icon $slotLabel',
+                    style: TextStyle(color: accent, fontWeight: FontWeight.bold)),
+              if (slot != BoosterSlot.none) const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   lesson.resolvedTitle,
@@ -140,6 +182,8 @@ class BoosterTheoryWidget extends StatelessWidget {
                   ],
                 ),
         ],
+          ),
+        ),
       ),
     );
   }
