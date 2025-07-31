@@ -3,6 +3,7 @@ import 'dart:async';
 import 'mini_lesson_progress_tracker.dart';
 import '../models/xp_guided_goal.dart';
 import 'xp_goal_panel_controller.dart';
+import 'booster_cooldown_blocker_service.dart';
 
 /// Listens for mini lesson completions and marks matching XP goals complete.
 class TheoryBoosterGoalCompletionHandler {
@@ -31,6 +32,7 @@ class TheoryBoosterGoalCompletionHandler {
     for (final g in goals) {
       if (g.id == lessonId) {
         g.onComplete();
+        BoosterCooldownBlockerService.instance.markCompleted('goal');
         panel.removeGoal(g.id);
       }
     }
