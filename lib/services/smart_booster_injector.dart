@@ -1,0 +1,53 @@
+import '../models/theory_mini_lesson_node.dart';
+import '../models/v2/training_spot_v2.dart';
+import 'theory_recall_evaluator.dart';
+import 'booster_slot_allocator.dart';
+import 'recap_booster_queue.dart';
+import 'inbox_booster_tracker_service.dart';
+import 'goal_queue.dart';
+
+/// Injects theory boosters into recap, inbox, or goal queues after training spots.
+class SmartBoosterInjector {
+  final TheoryRecallEvaluator recall;
+  final BoosterSlotAllocator allocator;
+  final RecapBoosterQueue recapQueue;
+  final InboxBoosterTrackerService inboxTracker;
+  final GoalQueue goalQueue;
+
+  SmartBoosterInjector({
+    TheoryRecallEvaluator? recall,
+    BoosterSlotAllocator? allocator,
+    RecapBoosterQueue? recapQueue,
+    InboxBoosterTrackerService? inboxTracker,
+    GoalQueue? goalQueue,
+  })  : recall = recall ?? const TheoryRecallEvaluator(),
+        allocator = allocator ?? BoosterSlotAllocator.instance,
+        recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+        inboxTracker = inboxTracker ?? InboxBoosterTrackerService.instance,
+        goalQueue = goalQueue ?? GoalQueue.instance;
+
+  static final SmartBoosterInjector instance = SmartBoosterInjector();
+
+  /// Evaluates [candidateBoosters] for [completedSpot] and enqueues the best one.
+  Future<void> injectBooster(
+    TrainingSpotV2 completedSpot,
+    List<TheoryMiniLessonNode> candidateBoosters,
+  ) async {
+    if (candidateBoosters.isEmpty) return;
+    final ranked = await recall.rank(candidateBoosters, completedSpot);
+    for (final lesson in ranked) {
+      final slot = await allocator.decideSlot(lesson, completedSpot);
+      if (slot == BoosterSlot.recap) {
+        await recapQueue.add(lesson.id);
+        break;
+      } else if (slot == BoosterSlot.inbox) {
+        // No dedicated queue yet; use tracker as placeholder
+        await inboxTracker.markShown(lesson.id);
+        break;
+      } else if (slot == BoosterSlot.goal) {
+        goalQueue.push(lesson);
+        break;
+      }
+    }
+  }
+}
