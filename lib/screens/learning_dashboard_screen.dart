@@ -19,6 +19,7 @@ import '../widgets/next_up_banner.dart';
 import '../widgets/learning_path_planner_banner.dart';
 import '../widgets/skill_loss_banner_v2.dart';
 import '../widgets/tag_insight_reminder_card.dart';
+import '../widgets/skill_decay_dashboard_tile.dart';
 import '../widgets/review_path_card.dart';
 import '../widgets/smart_recovery_banner.dart';
 import '../widgets/streak_recovery_block.dart';
@@ -257,6 +258,8 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
               _improvements(data.improvements),
               const SizedBox(height: 12),
               const TagInsightReminderCard(),
+              const SizedBox(height: 12),
+              const SkillDecayDashboardTile(),
               const SizedBox(height: 12),
               const SkillLossBannerV2(),
             ],
