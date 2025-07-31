@@ -8,6 +8,7 @@ import '../repositories/training_pack_template_repository.dart';
 import 'training_pack_cloud_sync_service.dart';
 import 'goal_progress_cloud_service.dart';
 import '../models/v2/training_pack_template.dart' as v2;
+import '../core/training/library/training_pack_library_v2.dart';
 
 class TrainingPackTemplateStorageService extends ChangeNotifier {
   static const _key = 'training_pack_templates';
@@ -123,5 +124,15 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
       await rootBundle.loadString('assets/training_packs/$id.json'),
     ) as Map<String, dynamic>;
     return v2.TrainingPackTemplate.fromJson(data);
+}
+  Future<v2.TrainingPackTemplate?> loadById(String id) async {
+    await TrainingPackLibraryV2.instance.loadFromFolder();
+    final builtIn = TrainingPackLibraryV2.instance.getById(id);
+    if (builtIn != null) return builtIn;
+    try {
+      return await loadBuiltinTemplate(id);
+    } catch (_) {
+      return null;
+    }
   }
 }
