@@ -52,6 +52,7 @@ import '../models/training_pack.dart';
 import '../services/booster_completion_tracker.dart';
 import '../services/user_action_logger.dart';
 import '../services/booster_auto_retry_suggester.dart';
+import '../services/mistake_booster_progress_tracker.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -105,9 +106,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final pack = widget.pack;
     if (pack == null) return;
     final tpl = _fromPack(pack);
-    context
-        .read<TrainingSessionService>()
-        .startSession(tpl, persist: false, startIndex: 0);
+    context.read<TrainingSessionService>().startSession(
+      tpl,
+      persist: false,
+      startIndex: 0,
+    );
     if (widget.onSessionEnd != null) _endlessStats.reset();
     setState(() {
       _selected = null;
@@ -119,29 +122,33 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   }
 
   TrainingPackTemplate _fromPack(TrainingPackV2 p) => TrainingPackTemplate(
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        gameType: p.gameType,
-        spots: List<TrainingPackSpot>.from(p.spots),
-        tags: List<String>.from(p.tags),
-        heroBbStack: p.bb,
-        heroPos: p.positions.isNotEmpty
-            ? parseHeroPosition(p.positions.first)
-            : HeroPosition.sb,
-        spotCount: p.spotCount,
-        meta: Map<String, dynamic>.from(p.meta),
-        isBuiltIn: true,
-      );
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    gameType: p.gameType,
+    spots: List<TrainingPackSpot>.from(p.spots),
+    tags: List<String>.from(p.tags),
+    heroBbStack: p.bb,
+    heroPos: p.positions.isNotEmpty
+        ? parseHeroPosition(p.positions.first)
+        : HeroPosition.sb,
+    spotCount: p.spotCount,
+    meta: Map<String, dynamic>.from(p.meta),
+    isBuiltIn: true,
+  );
 
   @override
   void initState() {
     super.initState();
     if (widget.pack != null) {
       final tpl = _fromPack(widget.pack!);
-      Future.microtask(() => context
-          .read<TrainingSessionService>()
-          .startSession(tpl, persist: false, startIndex: widget.startIndex));
+      Future.microtask(
+        () => context.read<TrainingSessionService>().startSession(
+          tpl,
+          persist: false,
+          startIndex: widget.startIndex,
+        ),
+      );
     }
     if (widget.onSessionEnd != null &&
         _endlessStats.total == 0 &&
@@ -197,7 +204,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   }
 
   double? _calcEvDiff(
-      double? heroEv, double? bestEv, String user, String correct) {
+    double? heroEv,
+    double? bestEv,
+    String user,
+    String correct,
+  ) {
     if (heroEv == null || bestEv == null) return null;
     final c = correct.toLowerCase();
     if (c == 'push' || c == 'call' || c == 'raise') {
@@ -229,16 +240,23 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         await prefs.remove('progress_tpl_${tpl.id}');
         await prefs.setBool('completed_tpl_${tpl.id}', true);
         await prefs.setString(
-            'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
-        unawaited(TrainingHistoryServiceV2.logCompletion(
+          'completed_at_tpl_${tpl.id}',
+          DateTime.now().toIso8601String(),
+        );
+        unawaited(
+          TrainingHistoryServiceV2.logCompletion(
             TrainingPackTemplateV2.fromTemplate(
-          tpl,
-          type: TrainingType.pushFold,
-        )));
+              tpl,
+              type: TrainingType.pushFold,
+            ),
+          ),
+        );
         unawaited(context.read<DailyLearningGoalService>().markCompleted());
       } else {
         await prefs.setInt(
-            'progress_tpl_${tpl.id}', service.session?.index ?? 0);
+          'progress_tpl_${tpl.id}',
+          service.session?.index ?? 0,
+        );
       }
     }
     if (!mounted) return;
@@ -259,24 +277,24 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               content: Text('[${suggestion.name}] – слабая зона'),
               actions: [
                 TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Закрыть')),
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Закрыть'),
+                ),
                 TextButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Начать следующую тренировку')),
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Начать следующую тренировку'),
+                ),
               ],
             ),
           );
           if (start == true) {
-            await context
-                .read<TrainingSessionService>()
-                .startSession(suggestion);
+            await context.read<TrainingSessionService>().startSession(
+              suggestion,
+            );
             if (!context.mounted) return;
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (_) => const TrainingSessionScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
             );
             return;
           }
@@ -323,7 +341,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       double? accBefore;
       String? boosterTag;
       if (isBooster) {
-        boosterTag = tpl.meta['tag']?.toString() ??
+        boosterTag =
+            tpl.meta['tag']?.toString() ??
             (tpl.tags.isNotEmpty ? tpl.tags.first : null);
         if (boosterTag != null) {
           final mastery = context.read<TagMasteryService>();
@@ -335,28 +354,37 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final total = service.totalCount;
       final totalSpots = tpl.totalWeight;
       final evAfter = totalSpots == 0 ? 0.0 : tpl.evCovered * 100 / totalSpots;
-      final icmAfter =
-          totalSpots == 0 ? 0.0 : tpl.icmCovered * 100 / totalSpots;
-      unawaited(TrainingPackStatsService.recordSession(
-        tpl.id,
-        correct,
-        total,
-        preEvPct: service.preEvPct,
-        preIcmPct: service.preIcmPct,
-        postEvPct: evAfter,
-        postIcmPct: icmAfter,
-        evSum: 0,
-        icmSum: 0,
-      ));
-      unawaited(SmartReviewService.instance.registerCompletion(
-        total == 0 ? 0.0 : correct / total,
-        evAfter / 100,
-        icmAfter / 100,
-        context: context,
-      ));
+      final icmAfter = totalSpots == 0
+          ? 0.0
+          : tpl.icmCovered * 100 / totalSpots;
+      unawaited(
+        TrainingPackStatsService.recordSession(
+          tpl.id,
+          correct,
+          total,
+          preEvPct: service.preEvPct,
+          preIcmPct: service.preIcmPct,
+          postEvPct: evAfter,
+          postIcmPct: icmAfter,
+          evSum: 0,
+          icmSum: 0,
+        ),
+      );
+      unawaited(
+        SmartReviewService.instance.registerCompletion(
+          total == 0 ? 0.0 : correct / total,
+          evAfter / 100,
+          icmAfter / 100,
+          context: context,
+        ),
+      );
       for (final tag in tpl.tags) {
-        unawaited(TagReviewHistoryService.instance
-            .logReview(tag, total == 0 ? 0.0 : correct / total));
+        unawaited(
+          TagReviewHistoryService.instance.logReview(
+            tag,
+            total == 0 ? 0.0 : correct / total,
+          ),
+        );
       }
       final prefs = await SharedPreferences.getInstance();
       final acc = total == 0 ? 0.0 : correct * 100 / total;
@@ -371,17 +399,23 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           if (pack != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                  content: Text(
-                      '\uD83D\uDD13 Новый пак разблокирован: ${pack.name}')),
+                content: Text(
+                  '\uD83D\uDD13 Новый пак разблокирован: ${pack.name}',
+                ),
+              ),
             );
           }
         }
       }
       await prefs.setString(
-          'completed_at_tpl_${tpl.id}', DateTime.now().toIso8601String());
+        'completed_at_tpl_${tpl.id}',
+        DateTime.now().toIso8601String(),
+      );
       unawaited(context.read<DailyLearningGoalService>().markCompleted());
       await prefs.setString(
-          'last_trained_tpl_${tpl.id}', DateTime.now().toIso8601String());
+        'last_trained_tpl_${tpl.id}',
+        DateTime.now().toIso8601String(),
+      );
       await prefs.setDouble('last_accuracy_tpl_${tpl.id}', acc);
       for (var i = 2; i > 0; i--) {
         final prev = prefs.getDouble('last_accuracy_tpl_${tpl.id}_${i - 1}');
@@ -395,14 +429,18 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
       }
       final elapsed = service.elapsedTime;
-      unawaited(PackLibraryCompletionService.instance.registerCompletion(
-        tpl.id,
-        correct: correct,
-        total: total,
-        elapsed: elapsed,
-      ));
+      unawaited(
+        PackLibraryCompletionService.instance.registerCompletion(
+          tpl.id,
+          correct: correct,
+          total: total,
+          elapsed: elapsed,
+        ),
+      );
       for (final action in service.actionLog.where((a) => !a.isCorrect)) {
-        final spot = service.spots.firstWhereOrNull((s) => s.id == action.spotId);
+        final spot = service.spots.firstWhereOrNull(
+          (s) => s.id == action.spotId,
+        );
         if (spot == null) continue;
         final exp = _expectedAction(spot) ?? spot.correctAction ?? '';
         final heroEv = _actionEv(spot, action.chosenAction);
@@ -434,16 +472,18 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         boosterTpl = TrainingPackTemplateV2.fromTemplate(tpl, type: type);
         final accuracy = total == 0 ? 0.0 : correct * 100 / total;
         boosterAccuracy = accuracy;
-        final required = (tpl.meta['requiredAccuracy'] as num?)?.toDouble() ??
-            80.0;
+        final required =
+            (tpl.meta['requiredAccuracy'] as num?)?.toDouble() ?? 80.0;
         if (accuracy >= required) {
           await BoosterCompletionTracker.instance.markBoosterCompleted(tpl.id);
-          unawaited(UserActionLogger.instance.logEvent({
-            'event': 'booster_completed',
-            'id': tpl.id,
-            if (boosterTag != null) 'tag': boosterTag,
-            'accuracy': accuracy,
-          }));
+          unawaited(
+            UserActionLogger.instance.logEvent({
+              'event': 'booster_completed',
+              'id': tpl.id,
+              if (boosterTag != null) 'tag': boosterTag,
+              'accuracy': accuracy,
+            }),
+          );
         }
       }
 
@@ -453,7 +493,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             tag: e.key,
             delta: e.value,
             timestamp: DateTime.now(),
-          )
+          ),
       ];
 
       if (service.totalCount < 3) {
@@ -489,8 +529,10 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         if (isBooster) {
           _boosterRecapShown = true;
           if (boosterAccuracy != null && boosterTpl != null) {
-            await BoosterAutoRetrySuggester.instance
-                .maybeSuggestRetry(boosterTpl!, boosterAccuracy!);
+            await BoosterAutoRetrySuggester.instance.maybeSuggestRetry(
+              boosterTpl!,
+              boosterAccuracy!,
+            );
           }
         }
       } else {
@@ -517,8 +559,10 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         if (isBooster) {
           _boosterRecapShown = true;
           if (boosterAccuracy != null && boosterTpl != null) {
-            await BoosterAutoRetrySuggester.instance
-                .maybeSuggestRetry(boosterTpl!, boosterAccuracy!);
+            await BoosterAutoRetrySuggester.instance.maybeSuggestRetry(
+              boosterTpl!,
+              boosterAccuracy!,
+            );
           }
         }
       }
@@ -537,18 +581,22 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             handsPlayed: service.totalCount,
           ),
         );
+        unawaited(
+          MistakeBoosterProgressTracker.instance.recordProgress(deltas),
+        );
       }
       AchievementService.instance.checkAll();
       await AchievementTriggerEngine.instance.checkAndTriggerAchievements();
       await _checkGoalProgress();
-      final stats =
-          await TrainingPackStatsService.getGlobalStats(force: true);
-      final milestone = await TrainingMilestoneEngine.instance
-          .checkAndTrigger(completedPacks: stats.packsCompleted);
+      final stats = await TrainingPackStatsService.getGlobalStats(force: true);
+      final milestone = await TrainingMilestoneEngine.instance.checkAndTrigger(
+        completedPacks: stats.packsCompleted,
+      );
       if (milestone.triggered && mounted) {
         showConfettiOverlay(context);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(milestone.message)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(milestone.message)));
       }
       TheoryCompletionEventDispatcher.instance.dispatch(
         TheoryCompletionEvent(
@@ -587,8 +635,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         final current = (mastery[g.tag] ?? 0.0) * 100;
         final base = g.base.toDouble();
         final target = g.targetAccuracy!;
-        pct =
-            target <= base ? 100.0 : ((current - base) / (target - base)) * 100;
+        pct = target <= base
+            ? 100.0
+            : ((current - base) / (target - base)) * 100;
       } else {
         final prog = engine.progress(g);
         pct = g.target > 0 ? prog * 100 / g.target : 0.0;
@@ -606,16 +655,28 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final remaining = (total - index).clamp(0, total);
     final segments = <Widget>[];
     if (correct > 0) {
-      segments.add(Expanded(
-          flex: correct, child: Container(height: 4, color: Colors.green)));
+      segments.add(
+        Expanded(
+          flex: correct,
+          child: Container(height: 4, color: Colors.green),
+        ),
+      );
     }
     if (incorrect > 0) {
-      segments.add(Expanded(
-          flex: incorrect, child: Container(height: 4, color: Colors.red)));
+      segments.add(
+        Expanded(
+          flex: incorrect,
+          child: Container(height: 4, color: Colors.red),
+        ),
+      );
     }
     if (remaining > 0) {
-      segments.add(Expanded(
-          flex: remaining, child: Container(height: 4, color: Colors.grey)));
+      segments.add(
+        Expanded(
+          flex: remaining,
+          child: Container(height: 4, color: Colors.grey),
+        ),
+      );
     }
     return Row(children: segments);
   }
@@ -651,8 +712,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               service.template != null &&
               service.session!.index >= service.template!.spots.length) {
             _summaryShown = true;
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) => _showSummary(service));
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _showSummary(service),
+            );
           }
           final spot = service.currentSpot;
           if (spot == null) {
@@ -667,10 +729,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             orElse: () => '',
           );
           final categoryName = tag.isNotEmpty ? tag.substring(4) : null;
-          final showCategory = service.template?.id == 'suggested_weekly' &&
+          final showCategory =
+              service.template?.id == 'suggested_weekly' &&
               categoryName != null;
           final tpl = service.template;
-          final isBooster = tpl?.meta['type']?.toString().toLowerCase() == 'booster';
+          final isBooster =
+              tpl?.meta['type']?.toString().toLowerCase() == 'booster';
           return Scaffold(
             appBar: AppBar(
               title: const Text('Training'),
@@ -683,14 +747,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                 IconButton(
                   onPressed: service.isPaused ? service.resume : service.pause,
                   icon: Icon(service.isPaused ? Icons.play_arrow : Icons.pause),
-                )
+                ),
               ],
             ),
             backgroundColor: const Color(0xFF1B1C1E),
             body: Stack(
               children: [
-                if (isBooster && tpl != null)
-                  const BoosterProgressOverlay(),
+                if (isBooster && tpl != null) const BoosterProgressOverlay(),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -706,7 +769,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                           Container(
                             margin: const EdgeInsets.only(top: 4),
                             padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
+                              vertical: 4,
+                              horizontal: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.orange.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(4),
@@ -745,10 +810,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         const SizedBox(height: 4),
                         if (spot.tags.isNotEmpty)
                           ActiveTagGoalBanner(
-                              tagId: spot.tags.firstWhere(
-                            (t) => !t.startsWith('cat:'),
-                            orElse: () => spot.tags.first,
-                          )),
+                            tagId: spot.tags.firstWhere(
+                              (t) => !t.startsWith('cat:'),
+                              orElse: () => spot.tags.first,
+                            ),
+                          ),
                       ],
                       Text(
                         'Elapsed: ${_format(service.elapsedTime)}',
@@ -772,20 +838,22 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                                     children: [
                                       Expanded(
                                         child: LinearProgressIndicator(
-                                          value: service.handGoalTotal[
-                                                          g.label] !=
+                                          value:
+                                              service.handGoalTotal[g.label] !=
                                                       null &&
-                                                  service.handGoalTotal[
-                                                          g.label]! >
+                                                  service.handGoalTotal[g
+                                                          .label]! >
                                                       0
                                               ? (service.handGoalCount[g.label]
-                                                          ?.clamp(
+                                                            ?.clamp(
                                                               0,
-                                                              service.handGoalTotal[
-                                                                  g.label]!) ??
-                                                      0) /
-                                                  service
-                                                      .handGoalTotal[g.label]!
+                                                              service
+                                                                  .handGoalTotal[g
+                                                                  .label]!,
+                                                            ) ??
+                                                        0) /
+                                                    service.handGoalTotal[g
+                                                        .label]!
                                               : 0,
                                           color: Colors.purpleAccent,
                                           backgroundColor: Colors.purpleAccent
@@ -796,7 +864,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                                       Text(
                                         '${g.label} ${service.handGoalCount[g.label] ?? 0}/${service.handGoalTotal[g.label] ?? 0}',
                                         style: const TextStyle(
-                                            color: Colors.white70),
+                                          color: Colors.white70,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -806,12 +875,16 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         ),
                       if (service.isPaused) ...[
                         const SizedBox(height: 16),
-                        const Text('Сессия на паузе',
-                            style: TextStyle(color: Colors.white54)),
+                        const Text(
+                          'Сессия на паузе',
+                          style: TextStyle(color: Colors.white54),
+                        ),
                       ] else if (_selected == null) ...[
                         const SizedBox(height: 16),
-                        const Text('Ваше действие?',
-                            style: TextStyle(color: Colors.white70)),
+                        const Text(
+                          'Ваше действие?',
+                          style: TextStyle(color: Colors.white70),
+                        ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
@@ -822,7 +895,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                               'call',
                               'raise',
                               'check',
-                              'bet'
+                              'bet',
                             ])
                               ElevatedButton(
                                 onPressed: () => _choose(a, service, spot),
