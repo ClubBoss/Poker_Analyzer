@@ -6,6 +6,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../services/recap_completion_tracker.dart';
 import '../services/theory_streak_service.dart';
+import '../services/theory_booster_recall_engine.dart';
 
 /// Simple viewer for a [TheoryMiniLessonNode].
 class MiniLessonScreen extends StatefulWidget {
@@ -24,6 +25,9 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
   void initState() {
     super.initState();
     _started = DateTime.now();
+    unawaited(
+      TheoryBoosterRecallEngine.instance.recordLaunch(widget.lesson.id),
+    );
   }
 
   @override

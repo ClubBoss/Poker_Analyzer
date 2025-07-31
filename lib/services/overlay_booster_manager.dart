@@ -5,6 +5,8 @@ import '../main.dart';
 import '../widgets/skill_gap_overlay_banner.dart';
 import 'smart_skill_gap_booster_engine.dart';
 import '../screens/mini_lesson_screen.dart';
+import 'theory_booster_recall_engine.dart';
+import 'user_action_logger.dart';
 
 /// Schedules and displays [SkillGapOverlayBanner] when major theory gaps exist.
 class OverlayBoosterManager with WidgetsBindingObserver {
@@ -62,6 +64,9 @@ class OverlayBoosterManager with WidgetsBindingObserver {
       void dismiss() => _remove();
       Future<void> open() async {
         _remove();
+        await TheoryBoosterRecallEngine.instance.recordLaunch(lesson.id);
+        await UserActionLogger.instance
+            .logEvent({'event': 'skill_gap_overlay.open', 'lesson': lesson.id});
         await Navigator.push(
           ctx,
           MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
@@ -75,6 +80,9 @@ class OverlayBoosterManager with WidgetsBindingObserver {
         ),
       );
       overlay.insert(_entry!);
+      await TheoryBoosterRecallEngine.instance.recordSuggestion(lesson.id);
+      await UserActionLogger.instance
+          .logEvent({'event': 'skill_gap_overlay.shown', 'lesson': lesson.id});
       _lastShown = DateTime.now();
     } finally {
       _checking = false;
