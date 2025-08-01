@@ -5,6 +5,9 @@ import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_node_progress_tracker.dart';
 import '../services/skill_tree_unlock_evaluator.dart';
+import '../services/skill_tree_stage_gate_evaluator.dart';
+import '../services/skill_tree_stage_completion_evaluator.dart';
+import '../services/skill_tree_stage_unlock_overlay_builder.dart';
 import '../screens/skill_tree_node_detail_view.dart';
 
 class SkillTreeScreen extends StatefulWidget {
@@ -19,7 +22,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
   SkillTree? _tree;
   Set<String> _unlocked = {};
   Set<String> _completed = {};
+  Set<int> _unlockedStages = {};
+  Set<int> _completedStages = {};
   bool _loading = true;
+  final _overlayBuilder = const SkillTreeStageUnlockOverlayBuilder();
 
   @override
   void initState() {
@@ -40,10 +46,20 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final completed = tracker.completedNodeIds.value;
     final evaluator = SkillTreeUnlockEvaluator(progress: tracker);
     final unlocked = evaluator.getUnlockedNodes(tree).map((n) => n.id).toSet();
+
+    const gateEval = SkillTreeStageGateEvaluator();
+    const compEval = SkillTreeStageCompletionEvaluator();
+    final unlockedStages =
+        gateEval.getUnlockedStages(tree, completed).toSet();
+    final completedStages =
+        compEval.getCompletedStages(tree, completed).toSet();
+
     setState(() {
       _tree = tree;
       _unlocked = unlocked;
       _completed = completed;
+      _unlockedStages = unlockedStages;
+      _completedStages = completedStages;
       _loading = false;
     });
   }
@@ -82,11 +98,27 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final children = <Widget>[];
     final sortedLevels = levels.keys.toList()..sort();
     for (final lvl in sortedLevels) {
+      final stageOverlay = _overlayBuilder.buildOverlay(
+        level: lvl,
+        isUnlocked: _unlockedStages.contains(lvl),
+        isCompleted: _completedStages.contains(lvl),
+      );
       children.add(
         Padding(
           padding: const EdgeInsets.all(8),
-          child: Text('Level $lvl',
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+          child: SizedBox(
+            height: 24,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Level $lvl',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                stageOverlay,
+              ],
+            ),
+          ),
         ),
       );
       for (final n in levels[lvl]!) {
