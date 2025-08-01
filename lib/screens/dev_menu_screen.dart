@@ -105,6 +105,7 @@ import 'graph_path_authoring_wizard_screen.dart';
 import 'booster_preview_screen.dart';
 import 'booster_yaml_previewer_screen.dart';
 import 'booster_variation_editor_screen.dart';
+import 'decay_analytics_screen.dart';
 import 'yaml_pack_editor_screen.dart';
 import 'pack_library_health_screen.dart';
 import 'pack_library_stats_screen.dart';
@@ -4697,6 +4698,18 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (_) => const ClusterMistakeDashboardScreen()),
+                  );
+                },
+              ),
+            if (kDebugMode)
+              ListTile(
+                title: const Text('📊 Decay Analytics'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DecayAnalyticsScreen(),
+                    ),
                   );
                 },
               ),
