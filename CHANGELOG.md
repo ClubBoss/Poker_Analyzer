@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Add DecayHeatmapUISurface widget for visualizing memory decay.
 - Fix training resume dialog to load packs before showing confirmation.
 - Remove unused spot storage field from app state.
 - Add "Select All" toggle in the My Packs selection toolbar.
