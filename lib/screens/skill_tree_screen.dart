@@ -9,7 +9,7 @@ import '../services/skill_tree_stage_gate_evaluator.dart';
 import '../services/skill_tree_stage_completion_evaluator.dart';
 import '../services/skill_tree_stage_unlock_overlay_builder.dart';
 import '../widgets/skill_tree_stage_header_builder.dart';
-import '../screens/skill_tree_node_detail_view.dart';
+import '../screens/skill_tree_node_detail_screen.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   final String category;
@@ -71,7 +71,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SkillTreeNodeDetailView(node: node),
+        builder: (_) => SkillTreeNodeDetailScreen(node: node),
       ),
     );
     await _load();
