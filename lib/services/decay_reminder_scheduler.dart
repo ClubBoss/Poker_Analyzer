@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
+import 'decay_streak_tracker_service.dart';
+import 'decay_streak_badge_notifier.dart';
+
 import 'app_settings_service.dart';
 import 'tag_insight_reminder_engine.dart';
 import 'skill_loss_feed_engine.dart';
@@ -19,6 +22,8 @@ class DecayReminderScheduler {
   static const String _tagKey = 'decay_reminder_last_tag';
   static const String _timeKey = 'decay_reminder_last_time';
   static const int _notificationId = 223;
+  static const int _streakNotificationId = 224;
+  static const String _runKey = 'decay_reminder_last_run';
 
   final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
   bool _initialized = false;
@@ -54,6 +59,20 @@ class DecayReminderScheduler {
     );
   }
 
+  /// Runs the scheduler if it hasn't executed today.
+  Future<void> runIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastStr = prefs.getString(_runKey);
+    final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (last != null &&
+        today.difference(DateTime(last.year, last.month, last.day)).inDays == 0) {
+      return;
+    }
+    await _run();
+  }
+
   static void _callbackDispatcher() {
     Workmanager().executeTask((task, _) async {
       if (task == _task) {
@@ -65,27 +84,52 @@ class DecayReminderScheduler {
 
   Future<void> _run() async {
     await _init();
-    await AppSettingsService.instance.load();
-    if (!AppSettingsService.instance.notificationsEnabled) return;
-
-    final reminder = TagInsightReminderEngine(history: TagMasteryHistoryService());
-    final losses = await reminder.loadLosses();
-    final feed =
-        await const SkillLossFeedEngine().buildFeed(losses, maxItems: losses.length);
-    if (feed.isEmpty) return;
-    final item = feed.firstWhere(
-      (e) => e.urgencyScore >= 1.0,
-      orElse: () => feed.first,
-    );
-    if (item.urgencyScore < 1.0) return;
-
     final prefs = await SharedPreferences.getInstance();
-    final lastTag = prefs.getString(_tagKey);
-    final lastTimeStr = prefs.getString(_timeKey);
-    final lastTime = lastTimeStr != null ? DateTime.tryParse(lastTimeStr) : null;
-    if (lastTag == item.tag && lastTime != null && DateTime.now().difference(lastTime).inDays < 1) {
-      return;
-    }
+
+    // Update decay streak and check for new badge.
+    final tracker = const DecayStreakTrackerService();
+    final notifier = DecayStreakBadgeNotifier(tracker: tracker);
+    await tracker.evaluateToday();
+    final badge = await notifier.checkForBadge();
+
+    await prefs.setString(_runKey, DateTime.now().toIso8601String());
+
+    await AppSettingsService.instance.load();
+
+    if (AppSettingsService.instance.notificationsEnabled) {
+      if (badge != null) {
+        await _plugin.show(
+          _streakNotificationId,
+          '🔥 ${badge.milestone}-day decay streak!',
+          'Keep up the momentum!',
+          const NotificationDetails(
+            android: AndroidNotificationDetails('decay_streak', 'Decay Streak'),
+            iOS: DarwinNotificationDetails(),
+          ),
+        );
+      }
+
+      final reminder =
+          TagInsightReminderEngine(history: TagMasteryHistoryService());
+      final losses = await reminder.loadLosses();
+      final feed = await const SkillLossFeedEngine()
+          .buildFeed(losses, maxItems: losses.length);
+      if (feed.isEmpty) return;
+      final item = feed.firstWhere(
+        (e) => e.urgencyScore >= 1.0,
+        orElse: () => feed.first,
+      );
+      if (item.urgencyScore < 1.0) return;
+
+      final lastTag = prefs.getString(_tagKey);
+      final lastTimeStr = prefs.getString(_timeKey);
+      final lastTime =
+          lastTimeStr != null ? DateTime.tryParse(lastTimeStr) : null;
+      if (lastTag == item.tag &&
+          lastTime != null &&
+          DateTime.now().difference(lastTime).inDays < 1) {
+        return;
+      }
 
     await _plugin.show(
       _notificationId,

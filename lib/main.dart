@@ -122,6 +122,7 @@ Future<void> main() async {
   unawaited(SuggestedPackPushService.instance.schedulePushReminder());
   unawaited(DecayBoosterNotificationService.instance.init());
   unawaited(DecayReminderScheduler.instance.register());
+  unawaited(DecayReminderScheduler.instance.runIfNeeded());
   unawaited(DecayBoosterCronJob.instance.start());
   await BoosterRecallDecayCleaner.instance.init();
   await AppInitService.instance.init();
