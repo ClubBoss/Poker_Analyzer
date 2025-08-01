@@ -1,118 +1,167 @@
 import 'package:flutter/material.dart';
-import '../services/skill_tree_learning_map_layout_service.dart';
-import '../services/skill_tree_track_progress_service.dart';
-import 'skill_tree_screen.dart';
-import '../utils/responsive.dart';
+import 'package:graphview/GraphView.dart';
 
-/// Displays all skill tree tracks in a scrollable grid layout.
+import '../models/skill_tree.dart';
+import '../models/skill_tree_node_model.dart';
+import '../services/skill_tree_library_service.dart';
+import '../services/skill_tree_node_progress_tracker.dart';
+import '../services/skill_tree_unlock_evaluator.dart';
+import 'skill_tree_node_detail_view.dart';
+
+/// Visual map of all nodes in a skill tree track.
 class SkillTreeLearningMapScreen extends StatefulWidget {
-  static const route = '/learning-map';
-  const SkillTreeLearningMapScreen({super.key});
+  static const route = '/skill-tree/learning-map';
+  final String trackId;
+
+  const SkillTreeLearningMapScreen({super.key, required this.trackId});
 
   @override
-  State<SkillTreeLearningMapScreen> createState() => _SkillTreeLearningMapScreenState();
+  State<SkillTreeLearningMapScreen> createState() =>
+      _SkillTreeLearningMapScreenState();
 }
 
-class _SkillTreeLearningMapScreenState extends State<SkillTreeLearningMapScreen> {
-  late Future<List<List<TrackProgressEntry>>> _future;
-  late int _columns;
+class _SkillTreeLearningMapScreenState
+    extends State<SkillTreeLearningMapScreen> {
+  SkillTree? _track;
+  Set<String> _unlocked = {};
+  Set<String> _completed = {};
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    // columns computed later in didChangeDependencies
+    _load();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _columns = isLandscape(context)
-        ? (isCompactWidth(context) ? 2 : 3)
-        : (isCompactWidth(context) ? 1 : 2);
-    _future = SkillTreeLearningMapLayoutService().buildLayout(columns: _columns);
+  Future<void> _load() async {
+    await SkillTreeLibraryService.instance.reload();
+    final res = SkillTreeLibraryService.instance.getTrack(widget.trackId);
+    final tree = res?.tree;
+    if (tree == null) {
+      setState(() => _loading = false);
+      return;
+    }
+    final progress = SkillTreeNodeProgressTracker.instance;
+    await progress.isCompleted('');
+    final evaluator = SkillTreeUnlockEvaluator(progress: progress);
+    final unlocked = evaluator.getUnlockedNodes(tree).map((n) => n.id).toSet();
+    final completed = progress.completedNodeIds.value.where(tree.nodes.containsKey).toSet();
+    setState(() {
+      _track = tree;
+      _unlocked = unlocked..addAll(completed);
+      _completed = completed;
+      _loading = false;
+    });
   }
 
-  void _openTrack(TrackProgressEntry entry) {
-    final category = entry.tree.nodes.values.first.category;
-    Navigator.push(
+  Future<void> _openNode(SkillTreeNodeModel node) async {
+    await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => SkillTreeScreen(category: category)),
+      MaterialPageRoute(
+        builder: (_) => SkillTreeNodeDetailView(
+          node: node,
+          unlocked: _unlocked.contains(node.id),
+        ),
+      ),
+    );
+    await _load();
+  }
+
+  Widget _buildNode(SkillTreeNodeModel node) {
+    final completed = _completed.contains(node.id);
+    final unlocked = _unlocked.contains(node.id);
+    IconData icon;
+    Color color;
+    if (completed) {
+      icon = Icons.check_circle;
+      color = Colors.green;
+    } else if (unlocked) {
+      icon = Icons.auto_awesome;
+      color = Colors.amber;
+    } else {
+      icon = Icons.lock;
+      color = Colors.grey;
+    }
+    return GestureDetector(
+      onTap: unlocked ? () => _openNode(node) : null,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          border: Border.all(color: color),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              node.title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12),
+            ),
+            const SizedBox(height: 4),
+            Icon(icon, size: 16, color: color),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final accent = Theme.of(context).colorScheme.secondary;
-    return FutureBuilder<List<List<TrackProgressEntry>>>(
-      future: _future,
-      builder: (context, snapshot) {
-        final grid = snapshot.data ?? const <List<TrackProgressEntry>>[];
-        final list = [for (final row in grid) ...row];
-        return Scaffold(
-          appBar: AppBar(title: const Text('Карта обучения')),
-          body: snapshot.connectionState != ConnectionState.done
-              ? const Center(child: CircularProgressIndicator())
-              : list.isEmpty
-                  ? const Center(child: Text('Нет треков'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: _columns,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 1.1,
-                      ),
-                      itemCount: list.length,
-                      itemBuilder: (context, index) {
-                        final entry = list[index];
-                        final title = entry.tree.roots.isNotEmpty
-                            ? entry.tree.roots.first.title
-                            : entry.tree.nodes.values.first.title;
-                        final pct = entry.completionRate.clamp(0.0, 1.0);
-                        return GestureDetector(
-                          onTap: () => _openTrack(entry),
-                          child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    title,
-                                    style: const TextStyle(
-                                        fontSize: 14, fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(4),
-                                    child: LinearProgressIndicator(
-                                      value: pct,
-                                      backgroundColor: Colors.white24,
-                                      valueColor: AlwaysStoppedAnimation<Color>(accent),
-                                      minHeight: 6,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Text('${(pct * 100).round()}%',
-                                          style: const TextStyle(fontSize: 12)),
-                                      if (entry.isCompleted)
-                                        const Padding(
-                                          padding: EdgeInsets.only(left: 4),
-                                          child: Icon(Icons.check, color: Colors.green, size: 16),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-        );
-      },
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    final tree = _track;
+    if (tree == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(widget.trackId)),
+        body: const Center(child: Text('Track not found')),
+      );
+    }
+
+    final graph = Graph();
+    final map = <String, Node>{};
+    for (final n in tree.nodes.values) {
+      final node = Node(_buildNode(n));
+      map[n.id] = node;
+      graph.addNode(node);
+    }
+    for (final n in tree.nodes.values) {
+      for (final id in n.unlockedNodeIds) {
+        final from = map[n.id];
+        final to = map[id];
+        if (from != null && to != null) {
+          graph.addEdge(from, to);
+        }
+      }
+    }
+
+    final builder = BuchheimWalkerAlgorithm(
+      BuchheimWalkerConfiguration()
+        ..siblingSeparation = 20
+        ..levelSeparation = 40
+        ..subtreeSeparation = 20,
+    );
+
+    final title = tree.roots.isNotEmpty
+        ? tree.roots.first.title
+        : widget.trackId;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: InteractiveViewer(
+        constrained: false,
+        boundaryMargin: const EdgeInsets.all(100),
+        minScale: 0.1,
+        maxScale: 2.0,
+        child: GraphView(
+          graph: graph,
+          algorithm: builder,
+        ),
+      ),
     );
   }
 }
