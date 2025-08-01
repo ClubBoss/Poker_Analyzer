@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'decay_reward_fatigue_limiter.dart';
+
 import '../main.dart';
 import '../widgets/confetti_overlay.dart';
 import 'coins_service.dart';
@@ -44,6 +46,10 @@ class DecayRewardDropEngine {
     final chance = minChance + _random.nextDouble() * (maxChance - minChance);
     if (_random.nextDouble() > chance) return;
 
+    if (!await DecayRewardFatigueLimiter.instance.canTriggerRewardNow()) {
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_countKey, (prefs.getInt(_countKey) ?? 0) + 1);
     await prefs.setString(_lastKey, DateTime.now().toIso8601String());
@@ -81,5 +87,7 @@ class DecayRewardDropEngine {
         await DecayRewardAnalyticsService.instance.logReward(t, rewardLabel);
       }
     }
+
+    await DecayRewardFatigueLimiter.instance.registerRewardDrop();
   }
 }
