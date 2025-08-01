@@ -63,6 +63,8 @@ import 'services/overlay_decay_booster_orchestrator.dart';
 import 'services/decay_streak_overlay_prompt_service.dart';
 import 'screens/training_session_screen.dart';
 import 'screens/empty_training_screen.dart';
+import 'models/v2/training_pack_v2.dart';
+import 'models/v2/training_pack_template_v2.dart';
 import 'services/app_init_service.dart';
 import 'services/suggested_pack_push_service.dart';
 import 'services/lesson_path_reminder_scheduler.dart';
@@ -317,6 +319,23 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     );
   }
 
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    if (settings.name == TrainingSessionScreen.route) {
+      final arg = settings.arguments;
+      if (arg is TrainingPackV2) {
+        return MaterialPageRoute(
+          builder: (_) => TrainingSessionScreen(pack: arg),
+        );
+      } else if (arg is TrainingPackTemplateV2) {
+        final pack = TrainingPackV2.fromTemplate(arg, arg.id);
+        return MaterialPageRoute(
+          builder: (_) => TrainingSessionScreen(pack: pack),
+        );
+      }
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     AppBootstrap.dispose();
@@ -353,6 +372,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
               Locale('pt'),
               Locale('de'),
             ],
+            onGenerateRoute: _onGenerateRoute,
             routes: {
               WeaknessOverviewScreen.route: (_) =>
                   const WeaknessOverviewScreen(),
