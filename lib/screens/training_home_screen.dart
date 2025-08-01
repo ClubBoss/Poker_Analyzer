@@ -62,6 +62,7 @@ import '../widgets/achievements_card.dart';
 import '../widgets/daily_spotlight_card.dart';
 import '../widgets/streak_banner_widget.dart';
 import '../widgets/streak_analytics_card.dart';
+import '../widgets/decay_memory_health_banner.dart';
 import 'booster_library_screen.dart';
 import 'booster_archive_screen.dart';
 import 'training_progress_analytics_screen.dart';
@@ -157,6 +158,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const AdaptiveTheoryReminderBanner(),
           const NextLearningStepCard(),
           const ResumeLessonCard(),
+          const DecayMemoryHealthBanner(),
           const StreakBannerWidget(),
           if (tablet) const DailySpotlightCard(),
           _RecommendedCarousel(
