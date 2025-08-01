@@ -68,6 +68,7 @@ import '../widgets/recap_banner_widget.dart';
 import '../widgets/goal_suggestion_row.dart';
 import '../services/smart_goal_aggregator_service.dart';
 import '../models/goal_recommendation.dart';
+import '../widgets/skill_tree_main_menu_entry.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -893,6 +894,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     const FocusOfTheWeekCard(),
                     _buildProgressCard(context),
                     _buildSpotOfDaySection(context),
+                    const SkillTreeMainMenuEntry(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: ElevatedButton.icon(
