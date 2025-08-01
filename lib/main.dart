@@ -16,6 +16,7 @@ import 'screens/decay_dashboard_screen.dart';
 import 'screens/decay_heatmap_screen.dart';
 import 'screens/decay_stats_dashboard_screen.dart';
 import 'screens/decay_analytics_screen.dart';
+import 'screens/decay_adaptation_insight_screen.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
@@ -388,6 +389,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
               DecayStatsDashboardScreen.route: (_) =>
                   const DecayStatsDashboardScreen(),
               DecayAnalyticsScreen.route: (_) => const DecayAnalyticsScreen(),
+              DecayAdaptationInsightScreen.route: (_) =>
+                  const DecayAdaptationInsightScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');
