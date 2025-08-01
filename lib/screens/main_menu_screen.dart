@@ -59,6 +59,7 @@ import 'weakness_overview_screen.dart';
 import 'training_home_screen.dart';
 import 'ready_to_train_screen.dart';
 import '../widgets/lesson_suggestion_banner.dart';
+import '../widgets/smart_decay_goal_banner.dart';
 import '../widgets/recovery_prompt_banner.dart';
 import '../widgets/goal_reengagement_banner.dart';
 import '../widgets/smart_recap_suggestion_banner.dart';
@@ -861,6 +862,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const LessonSuggestionBanner(),
+                    const SmartDecayGoalBanner(),
                     const GoalReengagementBannerWidget(),
                     const RecoveryPromptBanner(),
                     const RecapBannerWidget(),
