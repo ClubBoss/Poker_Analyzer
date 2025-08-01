@@ -57,7 +57,7 @@ void main() {
     final svc = SkillTreeTrackProgressService(
       library: lib,
       progress: tracker,
-      detector: const SkillTreeFinalNodeCompletionDetector(progress: tracker),
+      detector: SkillTreeFinalNodeCompletionDetector(progress: tracker),
     );
 
     final all = await svc.getAllTrackProgress();
@@ -83,7 +83,7 @@ void main() {
     final svc = SkillTreeTrackProgressService(
       library: lib,
       progress: tracker,
-      detector: const SkillTreeFinalNodeCompletionDetector(progress: tracker),
+      detector: SkillTreeFinalNodeCompletionDetector(progress: tracker),
     );
 
     var current = await svc.getCurrentTrack();

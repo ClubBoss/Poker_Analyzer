@@ -5,7 +5,7 @@ import 'skill_tree_node_progress_tracker.dart';
 class SkillTreeFinalNodeCompletionDetector {
   final SkillTreeNodeProgressTracker progress;
 
-  const SkillTreeFinalNodeCompletionDetector({SkillTreeNodeProgressTracker? progress})
+  SkillTreeFinalNodeCompletionDetector({SkillTreeNodeProgressTracker? progress})
       : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns `true` if all non-optional nodes in [tree] are completed.

@@ -19,7 +19,7 @@ class SkillTreeProgressStats {
 /// Computes progress analytics for a [SkillTree].
 class SkillTreeProgressAnalyticsService {
   final SkillTreeNodeProgressTracker progress;
-  const SkillTreeProgressAnalyticsService({SkillTreeNodeProgressTracker? progress})
+  SkillTreeProgressAnalyticsService({SkillTreeNodeProgressTracker? progress})
       : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns completion statistics for [tree].

@@ -21,7 +21,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const builder = SkillTreeBuilderService();
-  const detector = SkillTreeFinalNodeCompletionDetector();
+  final detector = SkillTreeFinalNodeCompletionDetector();
 
   SkillTreeNodeModel node(String id, {List<String>? prereqs}) => SkillTreeNodeModel(
         id: id,
