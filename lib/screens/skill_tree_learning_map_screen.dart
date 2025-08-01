@@ -6,7 +6,7 @@ import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_node_progress_tracker.dart';
 import '../services/skill_tree_unlock_evaluator.dart';
-import 'skill_tree_node_detail_view.dart';
+import 'skill_tree_node_detail_screen.dart';
 
 /// Visual map of all nodes in a skill tree track.
 class SkillTreeLearningMapScreen extends StatefulWidget {
@@ -58,7 +58,7 @@ class _SkillTreeLearningMapScreenState
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SkillTreeNodeDetailView(
+        builder: (_) => SkillTreeNodeDetailScreen(
           node: node,
           unlocked: _unlocked.contains(node.id),
         ),

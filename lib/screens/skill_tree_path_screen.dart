@@ -5,7 +5,7 @@ import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_track_progress_service.dart';
 import '../widgets/skill_tree_stage_list_builder.dart';
-import 'skill_tree_node_detail_view.dart';
+import 'skill_tree_node_detail_screen.dart';
 
 /// Renders the full learning path for a skill track.
 class SkillTreePathScreen extends StatefulWidget {
@@ -54,7 +54,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SkillTreeNodeDetailView(
+        builder: (_) => SkillTreeNodeDetailScreen(
           node: node,
           unlocked: _unlocked.contains(node.id),
         ),
