@@ -57,7 +57,13 @@ class SmartMistakeGoalGenerator {
 
       final reason =
           '${data.mistakeCount} mistakes, EV loss ${data.evLoss.toStringAsFixed(1)}';
-      recommendations.add(GoalRecommendation(tag: data.tag, reason: reason));
+      recommendations.add(
+        GoalRecommendation(
+          tag: data.tag,
+          reason: reason,
+          type: GoalRecommendationType.mistake,
+        ),
+      );
     }
 
     return recommendations;

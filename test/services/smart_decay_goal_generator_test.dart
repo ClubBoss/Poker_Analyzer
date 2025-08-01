@@ -67,6 +67,7 @@ void main() {
     final List<GoalRecommendation> list =
         await service.recommendDecayRecoveryGoals();
     expect(list.length, 2);
+    expect(list.first.type, GoalRecommendationType.decay);
     expect(list.first.tag, 'a');
     expect(list.last.tag, 'b');
   });
@@ -98,6 +99,7 @@ void main() {
 
     final list = await service.recommendDecayRecoveryGoals();
     expect(list.length, 1);
+    expect(list.first.type, GoalRecommendationType.decay);
     expect(list.first.tag, 'b');
   });
 }
