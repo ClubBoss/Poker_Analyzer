@@ -53,7 +53,8 @@ class NotificationService {
     return TimeOfDay(hour: m ~/ 60, minute: m % 60);
   }
 
-  static Future<void> updateReminderTime(BuildContext context, TimeOfDay t) async {
+  static Future<void> updateReminderTime(
+      BuildContext context, TimeOfDay t) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_timeKey, t.hour * 60 + t.minute);
     await cancel(101);
@@ -85,14 +86,16 @@ class NotificationService {
         iOS: DarwinNotificationDetails(),
       ),
       androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
   static Future<void> scheduleDailyProgress(BuildContext context) async {
     final stats = context.read<TrainingStatsService>();
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     final sessions = stats.sessionsDaily(1);
     if (sessions.isNotEmpty && sessions.first.value > 0) return;
     final rec = context.read<PersonalRecommendationService>();
@@ -120,7 +123,31 @@ class NotificationService {
       ),
       payload: 'progress',
       androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
+  /// Schedules a simple notification [body] at the given [when].
+  static Future<void> schedule({
+    required int id,
+    required DateTime when,
+    required String body,
+    String title = 'Poker Analyzer',
+  }) async {
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tz.TZDateTime.from(when, tz.local),
+      const NotificationDetails(
+        android: AndroidNotificationDetails('generic', 'Generic'),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
@@ -146,5 +173,6 @@ class NotificationService {
     });
   }
 
-  static String _fmt(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  static String _fmt(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }
