@@ -5,10 +5,7 @@ import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_node_progress_tracker.dart';
 import '../services/skill_tree_unlock_evaluator.dart';
-import '../services/mini_lesson_library_service.dart';
-import '../screens/mini_lesson_screen.dart';
-import '../screens/training_pack_preview_screen.dart';
-import '../services/pack_library_service.dart';
+import '../screens/skill_tree_node_detail_view.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   final String category;
@@ -53,26 +50,13 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
   Future<void> _openNode(SkillTreeNodeModel node) async {
     if (_completed.contains(node.id)) return;
-    if (node.theoryLessonId.isNotEmpty) {
-      await MiniLessonLibraryService.instance.loadAll();
-      final lesson = MiniLessonLibraryService.instance.getById(node.theoryLessonId);
-      if (lesson != null) {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
-        );
-        return;
-      }
-    }
-    if (node.trainingPackId.isNotEmpty) {
-      final pack = await PackLibraryService.instance.getById(node.trainingPackId);
-      if (pack != null) {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => TrainingPackPreviewScreen(template: pack)),
-        );
-      }
-    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SkillTreeNodeDetailView(node: node),
+      ),
+    );
+    await _load();
   }
 
   @override
