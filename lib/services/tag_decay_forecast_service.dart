@@ -2,6 +2,9 @@ import 'dart:math' as math;
 
 import '../models/decay_tag_reinforcement_event.dart';
 import 'decay_session_tag_impact_recorder.dart';
+import 'decay_tag_retention_tracker_service.dart';
+import 'inbox_booster_tuner_service.dart';
+import 'recall_success_logger_service.dart';
 
 class TagDecayStats {
   final String tag;
@@ -22,7 +25,16 @@ class TagDecayStats {
 }
 
 class TagDecayForecastService {
-  const TagDecayForecastService();
+  final DecayTagRetentionTrackerService retention;
+  final RecallSuccessLoggerService logger;
+  final InboxBoosterTunerService tuner;
+
+  const TagDecayForecastService({
+    this.retention = const DecayTagRetentionTrackerService(),
+    RecallSuccessLoggerService? logger,
+    InboxBoosterTunerService? tuner,
+  })  : logger = logger ?? RecallSuccessLoggerService.instance,
+        tuner = tuner ?? InboxBoosterTunerService.instance;
 
   Future<Map<String, TagDecayStats>> summarize({DateTime? now}) async {
     final events = await DecaySessionTagImpactRecorder.instance.loadAllEvents();
@@ -58,6 +70,25 @@ class TagDecayForecastService {
         intervalStd: std,
         nextReview: next,
       );
+    }
+    return result;
+  }
+
+  /// Returns current decay scores for all known tags normalized 0.0-1.0.
+  Future<Map<String, double>> getAllForecasts() async {
+    final successes = await logger.getSuccesses();
+    final fromLogs = successes
+        .map((e) => e.tag.trim().toLowerCase())
+        .where((t) => t.isNotEmpty);
+    final boost = await tuner.computeTagBoostScores();
+    final fromBoost = boost.keys
+        .map((e) => e.trim().toLowerCase())
+        .where((t) => t.isNotEmpty);
+    final tags = {...fromLogs, ...fromBoost};
+    final result = <String, double>{};
+    for (final tag in tags) {
+      final score = await retention.getDecayScore(tag);
+      result[tag] = (score / 100).clamp(0.0, 1.0);
     }
     return result;
   }
