@@ -1,6 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/booster_tag_history.dart';
 import 'pack_recall_stats_service.dart';
+import 'booster_path_history_service.dart';
 
 /// Evaluates review streaks for training packs.
 ///
@@ -75,5 +77,10 @@ class ReviewStreakEvaluatorService {
       }
     }
     return ids;
+  }
+
+  /// Returns booster tag stats from the history service.
+  Future<Map<String, BoosterTagHistory>> getTagStats() async {
+    return BoosterPathHistoryService.instance.getTagStats();
   }
 }

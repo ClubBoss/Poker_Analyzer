@@ -10,7 +10,7 @@ class DailyReviewBoosterLauncher {
 
   /// Builds today's booster pack and opens the training screen.
   Future<void> launch(BuildContext context) async {
-    final plan = await const DecaySmartSchedulerService().generateTodayPlan();
+    final plan = await DecaySmartSchedulerService().generateTodayPlan();
     final tags = plan.tags;
     if (tags.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

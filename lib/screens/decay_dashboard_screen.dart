@@ -27,7 +27,7 @@ class _DecayDashboardScreenState extends State<DecayDashboardScreen> {
 
   Future<void> _load() async {
     final summary = await DecayRetentionSummaryService().getSummary();
-    final plan = await const DecaySmartSchedulerService().generateTodayPlan();
+    final plan = await DecaySmartSchedulerService().generateTodayPlan();
     if (!mounted) return;
     setState(() {
       _summary = summary;
