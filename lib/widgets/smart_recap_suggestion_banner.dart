@@ -1,12 +1,13 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/smart_recap_banner_controller.dart';
-import '../services/recap_to_drill_launcher.dart';
-import '../models/theory_mini_lesson_node.dart';
-import '../screens/mini_lesson_screen.dart';
 
+import '../services/goal_analytics_service.dart';
+import '../services/booster_pack_factory.dart';
+import '../screens/training_session_screen.dart';
+import '../services/user_goal_engine.dart';
+import '../models/user_goal.dart';
+
+/// Banner suggesting a quick recap for a recently completed goal.
 class SmartRecapSuggestionBanner extends StatefulWidget {
   const SmartRecapSuggestionBanner({super.key});
 
@@ -15,158 +16,106 @@ class SmartRecapSuggestionBanner extends StatefulWidget {
       _SmartRecapSuggestionBannerState();
 }
 
-class _SmartRecapSuggestionBannerState extends State<SmartRecapSuggestionBanner>
-    with SingleTickerProviderStateMixin {
+class _SmartRecapSuggestionBannerState
+    extends State<SmartRecapSuggestionBanner> {
+  static const Duration _lookback = Duration(days: 2);
+
   bool _loading = true;
-  bool _visible = false;
-  TheoryMiniLessonNode? _lesson;
-  List<TheoryMiniLessonNode> _boosters = [];
-  late AnimationController _anim;
-  Timer? _timer;
-  late SmartRecapBannerController _controller;
+  UserGoal? _goal;
 
   @override
   void initState() {
     super.initState();
-    _anim = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _setup());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _controller.removeListener(_onChanged);
-    _anim.dispose();
-    super.dispose();
+  Future<void> _load() async {
+    final history = await GoalAnalyticsService.instance.getGoalHistory();
+    final now = DateTime.now();
+    final cutoff = now.subtract(_lookback);
+    Map<String, dynamic>? latest;
+    DateTime latestTs = DateTime.fromMillisecondsSinceEpoch(0);
+    for (final e in history) {
+      if (e['event'] != 'goal_completed') continue;
+      final tsStr = e['timestamp'] as String? ?? e['time'] as String?;
+      final ts = tsStr != null ? DateTime.tryParse(tsStr) : null;
+      if (ts == null || ts.isBefore(cutoff)) continue;
+      if (ts.isAfter(latestTs)) {
+        latestTs = ts;
+        latest = e;
+      }
+    }
+    if (latest != null) {
+      final id = latest['goalId'] as String?;
+      final engine = context.read<UserGoalEngine>();
+      _goal = engine.goals.firstWhere(
+        (g) => g.id == id,
+        orElse: () => UserGoal(
+          id: id ?? '',
+          title: latest!['tag'] ?? '',
+          type: '',
+          target: 0,
+          base: 0,
+          createdAt: DateTime.now(),
+        ),
+      );
+    }
+    if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _setup() async {
-    _controller = context.read<SmartRecapBannerController>();
-    _controller.addListener(_onChanged);
-    _onChanged();
-    _loading = false;
-  }
-
-  void _onChanged() {
-    final shouldShow = _controller.shouldShowBanner();
-    final lesson = _controller.getPendingLesson();
-    final boosters = _controller.getBoosterLessons();
-    if (shouldShow && (lesson != null || boosters.isNotEmpty)) {
-      _lesson = lesson;
-      _boosters = boosters;
-      if (!_visible) {
-        _visible = true;
-        _anim.forward();
-        _timer?.cancel();
-        _timer = Timer(
-          const Duration(seconds: 20),
-          () => _controller.dismiss(recordDismissal: true),
+  Future<void> _startRecap() async {
+    final tag = _goal?.tag ?? _goal?.title;
+    if (tag == null || tag.isEmpty) return;
+    final pack = await BoosterPackFactory.buildFromTags([tag]);
+    if (pack == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет тренировок по тегу')),
         );
       }
-    } else if (_visible) {
-      _dismiss(false);
+      return;
     }
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _dismiss([bool record = true]) async {
-    if (!_visible) return;
-    await _anim.reverse();
-    await _controller.dismiss(recordDismissal: record);
-    if (mounted) setState(() => _visible = false);
-  }
-
-  Future<void> _open() async {
-    final lesson = _lesson;
-    if (lesson == null) return;
-    final launcher = context.read<RecapToDrillLauncher>();
-    await launcher.launch(lesson);
-  }
-
-  Future<void> _openBooster(TheoryMiniLessonNode lesson) async {
-    await Navigator.push(
+    if (!mounted) return;
+    await Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+      TrainingSessionScreen.route,
+      arguments: pack,
     );
-    await _controller.dismiss(recordDismissal: false);
+    if (mounted) setState(() => _goal = null);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading || !_visible) {
-      return const SizedBox.shrink();
-    }
+    if (_loading || _goal == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
-    return FadeTransition(
-      opacity: _anim,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _lesson != null
-                        ? '💡 Подтверди знание?'
-                        : '📌 Need Review?',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white54),
-                  onPressed: _dismiss,
-                ),
-              ],
+    final tag = _goal!.tag ?? _goal!.title;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Text('🎓', style: TextStyle(fontSize: 20)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Повторить цель: #$tag',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 4),
-            if (_lesson != null) ...[
-              const Text(
-                'Быстрый повтор урока по твоей недавней ошибке',
-                style: TextStyle(color: Colors.white70),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: _open,
-                  style: ElevatedButton.styleFrom(backgroundColor: accent),
-                  child: const Text('Повторить сейчас'),
-                ),
-              ),
-            ] else ...[
-              for (var i = 0; i < _boosters.length; i++) ...[
-                Text(
-                  _boosters[i].resolvedTitle,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(height: 4),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => _openBooster(_boosters[i]),
-                    style: TextButton.styleFrom(foregroundColor: accent),
-                    child: const Text('Open'),
-                  ),
-                ),
-                if (i != _boosters.length - 1) const SizedBox(height: 8),
-              ],
-            ],
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: _startRecap,
+            style: ElevatedButton.styleFrom(backgroundColor: accent),
+            child: const Text('Review again'),
+          ),
+        ],
       ),
     );
   }

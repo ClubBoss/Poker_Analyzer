@@ -884,6 +884,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     if (!_loadingSuggestions && _goalSuggestions.isNotEmpty)
                       GoalSuggestionRow(recommendations: _goalSuggestions),
                     const GoalReengagementBanner(),
+                    const SmartRecapSuggestionBanner(),
                     const RecoveryPromptBanner(),
                     const RecapBannerWidget(),
                     _buildSuggestedBanner(context),
