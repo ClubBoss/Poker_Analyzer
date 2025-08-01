@@ -18,3 +18,4 @@
 - Add TheoryReinforcementBannerController for soft theory reminders after recap failures.
 - Persist full decay reinforcement history and expose TagDecayForecastService for spaced repetition analytics.
 - Add DecayForecastEngine to predict future decay levels by tag.
+- Introduce DecayForecastAlertService for upcoming critical decay warnings.
