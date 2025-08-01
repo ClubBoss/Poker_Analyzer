@@ -18,6 +18,7 @@ import 'screens/decay_stats_dashboard_screen.dart';
 import 'screens/decay_analytics_screen.dart';
 import 'screens/decay_adaptation_insight_screen.dart';
 import 'screens/skill_tree_learning_map_screen.dart';
+import 'screens/skill_tree_track_list_screen.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
@@ -394,6 +395,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
                   const DecayAdaptationInsightScreen(),
               SkillTreeLearningMapScreen.route: (_) =>
                   const SkillTreeLearningMapScreen(),
+              SkillTreeTrackListScreen.route: (_) =>
+                  const SkillTreeTrackListScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');

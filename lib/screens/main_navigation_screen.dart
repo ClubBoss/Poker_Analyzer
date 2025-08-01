@@ -49,7 +49,7 @@ import 'onboarding_screen.dart';
 import 'ev_icm_analytics_screen.dart';
 import 'ev_stats_screen.dart';
 import 'progress_dashboard_screen.dart';
-import 'track_progress_dashboard_screen.dart';
+import 'skill_tree_track_list_screen.dart';
 import 'position_tag_analytics_screen.dart';
 import 'weakness_overview_screen.dart';
 import 'learning_path_dashboard.dart';
@@ -452,7 +452,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const TrackProgressDashboardScreen(),
+                      builder: (_) => const SkillTreeTrackListScreen(),
                     ),
                   );
                   break;

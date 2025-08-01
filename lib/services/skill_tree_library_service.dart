@@ -65,6 +65,9 @@ class SkillTreeLibraryService {
   /// This is an alias for [getTree] to allow referencing tracks by id.
   SkillTreeBuildResult? getTrack(String trackId) => getTree(trackId);
 
+  /// Returns all loaded skill tree tracks in no particular order.
+  List<SkillTreeBuildResult> getAllTracks() => List.unmodifiable(_trees.values);
+
   /// Returns all loaded nodes across categories in insertion order.
   List<SkillTreeNodeModel> getAllNodes() => List.unmodifiable(_nodes);
 }
