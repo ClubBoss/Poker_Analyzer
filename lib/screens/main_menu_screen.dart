@@ -62,7 +62,7 @@ import '../widgets/lesson_suggestion_banner.dart';
 import '../widgets/smart_decay_goal_banner.dart';
 import '../widgets/smart_mistake_goal_banner.dart';
 import '../widgets/recovery_prompt_banner.dart';
-import '../widgets/goal_reengagement_banner.dart';
+import '../widgets/user_goal_reengagement_banner.dart';
 import '../widgets/smart_recap_suggestion_banner.dart';
 import '../widgets/recap_banner_widget.dart';
 import '../widgets/goal_suggestion_row.dart';
@@ -883,7 +883,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     const SmartMistakeGoalBanner(),
                     if (!_loadingSuggestions && _goalSuggestions.isNotEmpty)
                       GoalSuggestionRow(recommendations: _goalSuggestions),
-                    const GoalReengagementBannerWidget(),
+                    const GoalReengagementBanner(),
                     const RecoveryPromptBanner(),
                     const RecapBannerWidget(),
                     _buildSuggestedBanner(context),
