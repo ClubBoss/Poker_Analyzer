@@ -6,6 +6,7 @@ import '../main.dart';
 import '../widgets/confetti_overlay.dart';
 import 'coins_service.dart';
 import 'decay_streak_tracker_service.dart';
+import 'decay_booster_streak_multiplier_service.dart';
 import 'decay_reward_analytics_service.dart';
 import 'motivation_service.dart';
 
@@ -13,14 +14,17 @@ import 'motivation_service.dart';
 class DecayRewardDropEngine {
   DecayRewardDropEngine._({
     DecayStreakTrackerService? streaks,
+    DecayBoosterStreakMultiplierService? multiplier,
     Random? random,
-  })  : streaks = streaks ?? const DecayStreakTrackerService(),
-        _random = random ?? Random();
+  }) : streaks = streaks ?? const DecayStreakTrackerService(),
+       multiplier = multiplier ?? const DecayBoosterStreakMultiplierService(),
+       _random = random ?? Random();
 
   /// Singleton instance.
   static final DecayRewardDropEngine instance = DecayRewardDropEngine._();
 
   final DecayStreakTrackerService streaks;
+  final DecayBoosterStreakMultiplierService multiplier;
   final Random _random;
 
   static const double minChance = 0.10;
@@ -54,17 +58,20 @@ class DecayRewardDropEngine {
       case 1:
         final quote = await MotivationService.getDailyQuote();
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('⭐ $quote')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('⭐ $quote')));
         }
         rewardLabel = 'quote';
         break;
       default:
-        const amount = 5;
+        const base = 5;
+        final amount = await multiplier.scaleCoins(base);
         await CoinsService.instance.addCoins(amount);
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('🪙 +5 coins!')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('🪙 +$amount coins!')));
         }
         rewardLabel = 'coins';
     }
