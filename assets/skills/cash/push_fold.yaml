@@ -1,0 +1,15 @@
+- id: pf1
+  title: Push/Fold Basics
+  category: Push/Fold
+  trainingPackId: push_fold_basics
+  theoryLessonId: lesson_pf1
+  level: 0
+  prerequisites: []
+  unlockedNodeIds: [pf2]
+- id: pf2
+  title: Push/Fold Advanced
+  category: Push/Fold
+  trainingPackId: push_fold_adv
+  theoryLessonId: lesson_pf2
+  level: 1
+  prerequisites: [pf1]
