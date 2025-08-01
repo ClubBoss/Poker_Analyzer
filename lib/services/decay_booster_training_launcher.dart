@@ -6,6 +6,8 @@ import 'training_session_launcher.dart';
 import 'booster_queue_service.dart';
 import 'user_action_logger.dart';
 import 'decay_tag_retention_tracker_service.dart';
+import 'decay_reward_drop_engine.dart';
+import '../main.dart';
 
 /// Launches queued decay booster spots as a training session.
 class DecayBoosterTrainingLauncher {
@@ -43,6 +45,10 @@ class DecayBoosterTrainingLauncher {
     await queue.markUsed();
     for (final tag in tags) {
       await retention.markBoosterCompleted(tag);
+    }
+    final ctx = navigatorKey.currentContext;
+    if (ctx != null) {
+      await DecayRewardDropEngine.instance.maybeTriggerReward(ctx);
     }
     await UserActionLogger.instance
         .logEvent({'event': 'decay_booster_completed'});
