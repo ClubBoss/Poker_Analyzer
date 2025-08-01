@@ -121,6 +121,7 @@ import 'services/learning_path_reminder_engine.dart';
 import 'services/daily_app_check_service.dart';
 import 'services/skill_loss_overlay_prompt_service.dart';
 import 'services/gift_drop_service.dart';
+import 'services/decay_badge_banner_controller.dart';
 import 'services/session_streak_overlay_prompt_service.dart';
 import 'services/overlay_decay_booster_orchestrator.dart';
 import 'services/smart_recap_auto_injector.dart';
@@ -594,6 +595,7 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (_) => TheoryInboxBannerController()..start(),
     ),
     Provider(create: (_) => GiftDropService()),
+    Provider(create: (_) => DecayBadgeBannerController()..start()),
     Provider(create: (_) => SessionStreakOverlayPromptService()),
     Provider(create: (_) => OverlayDecayBoosterOrchestrator()),
     Provider(

@@ -72,6 +72,7 @@ import '../user_preferences.dart';
 import '../services/gift_drop_service.dart';
 import '../services/session_streak_overlay_prompt_service.dart';
 import '../services/overlay_decay_booster_orchestrator.dart';
+import '../services/decay_badge_banner_controller.dart';
 import 'dart:async';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -105,6 +106,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       _handleDeepLink();
       context.read<GiftDropService>().checkAndDropGift(context: context);
       context.read<SessionStreakOverlayPromptService>().run(context);
+      context.read<DecayBadgeBannerController>().maybeShowStreakBadgeBanner(context);
     });
   }
 
