@@ -121,6 +121,7 @@ flutter:
     - assets/learning_path_tracks.yaml
     - assets/animations/congrats.json
     - assets/images/
+    - assets/skills/cash/
     - assets/paths/
 
 # Release build configuration for the demo entry point. Run
