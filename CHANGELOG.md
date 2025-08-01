@@ -21,3 +21,5 @@
 - Introduce DecayForecastAlertService for upcoming critical decay warnings.
 - Add DecayDashboardScreen to visualize memory health.
 - Track days without critical decay via DecayStreakTrackerService.
+
+- Celebrate decay streak milestones with DecayMilestoneCelebrationService.
