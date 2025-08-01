@@ -4,6 +4,7 @@ import 'skill_tree_builder_service.dart';
 import 'skill_tree_library_service.dart';
 import 'skill_tree_node_progress_tracker.dart';
 import 'skill_tree_final_node_completion_detector.dart';
+import 'skill_tree_unlock_evaluator.dart';
 
 /// Progress information for a single skill tree track.
 class TrackProgressEntry {
@@ -89,6 +90,25 @@ class SkillTreeTrackProgressService {
       }
     }
     return null;
+  }
+
+  /// Returns ids of nodes unlocked in [trackId].
+  Future<Set<String>> getUnlockedNodeIds(String trackId) async {
+    await _ensureLoaded();
+    final tree = library.getTrack(trackId)?.tree;
+    if (tree == null) return <String>{};
+    final evaluator = SkillTreeUnlockEvaluator(progress: progress);
+    final unlocked = evaluator.getUnlockedNodes(tree);
+    return unlocked.map((n) => n.id).toSet();
+  }
+
+  /// Returns ids of completed nodes in [trackId].
+  Future<Set<String>> getCompletedNodeIds(String trackId) async {
+    await _ensureLoaded();
+    final tree = library.getTrack(trackId)?.tree;
+    if (tree == null) return <String>{};
+    final completed = progress.completedNodeIds.value;
+    return completed.where(tree.nodes.containsKey).toSet();
   }
 }
 

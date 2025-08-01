@@ -25,6 +25,7 @@ class SkillTreeStageBlockBuilder {
     required Set<String> completedNodeIds,
     required bool isStageUnlocked,
     required bool isStageCompleted,
+    void Function(SkillTreeNodeModel node)? onNodeTap,
   }) {
     final header = headerBuilder.buildHeader(
       level: level,
@@ -46,6 +47,7 @@ class SkillTreeStageBlockBuilder {
       nodes: isStageUnlocked ? nodes : const [],
       unlockedNodeIds: unlockedNodeIds,
       completedNodeIds: completedNodeIds,
+      onNodeTap: onNodeTap,
     );
 
     return Column(
