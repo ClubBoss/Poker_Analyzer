@@ -65,6 +65,9 @@ import '../widgets/recovery_prompt_banner.dart';
 import '../widgets/goal_reengagement_banner.dart';
 import '../widgets/smart_recap_suggestion_banner.dart';
 import '../widgets/recap_banner_widget.dart';
+import '../widgets/goal_suggestion_row.dart';
+import '../services/smart_goal_aggregator_service.dart';
+import '../models/goal_recommendation.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -98,6 +101,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   bool _suggestedDismissed = false;
   DateTime? _dismissedDate;
   static const _dismissedKey = 'suggested_weekly_dismissed_date';
+  List<GoalRecommendation> _goalSuggestions = [];
+  bool _loadingSuggestions = true;
 
   Widget _buildStreakIndicator(BuildContext context) {
     final streak = context.watch<StreakService>().count;
@@ -143,6 +148,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     context.read<StreakService>().addListener(_onStreakChanged);
     _loadSpot();
     _loadDismissed();
+    _loadGoalSuggestions();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<StreakService>().updateStreak();
@@ -158,6 +164,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     if (mounted) {
       setState(() => _spotOfDay = spot);
     }
+  }
+
+  Future<void> _loadGoalSuggestions() async {
+    final service = SmartGoalAggregatorService();
+    final list = await service.getRecommendations();
+    if (!mounted) return;
+    setState(() {
+      _goalSuggestions = list;
+      _loadingSuggestions = false;
+    });
   }
 
   Future<void> _loadDismissed() async {
@@ -865,6 +881,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     const LessonSuggestionBanner(),
                     const SmartDecayGoalBanner(),
                     const SmartMistakeGoalBanner(),
+                    if (!_loadingSuggestions && _goalSuggestions.isNotEmpty)
+                      GoalSuggestionRow(recommendations: _goalSuggestions),
                     const GoalReengagementBannerWidget(),
                     const RecoveryPromptBanner(),
                     const RecapBannerWidget(),

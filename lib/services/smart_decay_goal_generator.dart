@@ -56,7 +56,13 @@ class SmartDecayGoalGenerator {
 
       final reason =
           'Decay ${decayPct.round()}%, last review $daysSince days ago';
-      recommendations.add(GoalRecommendation(tag: tag, reason: reason));
+      recommendations.add(
+        GoalRecommendation(
+          tag: tag,
+          reason: reason,
+          type: GoalRecommendationType.decay,
+        ),
+      );
     }
 
     return recommendations;
