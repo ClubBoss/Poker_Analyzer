@@ -1,52 +1,77 @@
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:poker_analyzer/models/booster_tag_history.dart';
+import 'package:poker_analyzer/models/tag_review_task.dart';
+import 'package:poker_analyzer/services/booster_adaptation_tuner.dart';
 import 'package:poker_analyzer/services/decay_smart_scheduler_service.dart';
-import 'package:poker_analyzer/services/tag_decay_forecast_service.dart';
-import 'package:poker_analyzer/services/decay_review_frequency_advisor_service.dart';
-import 'package:poker_analyzer/models/daily_review_plan.dart';
+import 'package:poker_analyzer/services/decay_tag_retention_tracker_service.dart';
+import 'package:poker_analyzer/services/review_streak_evaluator_service.dart';
 
-class _FakeForecast extends TagDecayForecastService {
-  final Map<String, double> map;
-  const _FakeForecast(this.map);
+class _FakeRetention extends DecayTagRetentionTrackerService {
+  final Map<String, double> scores;
+  const _FakeRetention(this.scores);
   @override
-  Future<Map<String, double>> getAllForecasts() async => map;
+  Future<Map<String, double>> getAllDecayScores({DateTime? now}) async => scores;
 }
 
-class _FakeAdvisor extends DecayReviewFrequencyAdvisorService {
-  final List<TagReviewAdvice> list;
-  const _FakeAdvisor(this.list);
+class _FakeTuner extends BoosterAdaptationTuner {
+  final Map<String, BoosterAdaptation> map;
+  const _FakeTuner(this.map);
   @override
-  Future<List<TagReviewAdvice>> getAdvice() async => list;
+  Future<Map<String, BoosterAdaptation>> loadAdaptations() async => map;
+}
+
+class _FakeStreak extends ReviewStreakEvaluatorService {
+  final Map<String, BoosterTagHistory> stats;
+  const _FakeStreak(this.stats);
+  @override
+  Future<Map<String, BoosterTagHistory>> getTagStats() async => stats;
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('combines critical and soon advice', () async {
-    const service = DecaySmartSchedulerService(
-      forecastService: _FakeForecast({'a': 0.9, 'b': 0.85, 'c': 0.75}),
-      advisor: _FakeAdvisor([
-        TagReviewAdvice(tag: 'c', decay: 0.75, recommendedDaysUntilReview: 0),
-        TagReviewAdvice(tag: 'd', decay: 0.65, recommendedDaysUntilReview: 1),
-        TagReviewAdvice(tag: 'a', decay: 0.9, recommendedDaysUntilReview: 0),
-      ]),
+  test('prioritizes tags based on decay, adaptation and recency', () async {
+    final now = DateTime.now();
+    final service = DecaySmartSchedulerService(
+      retention: _FakeRetention({'a': 0.5, 'b': 0.9}),
+      tuner: _FakeTuner({
+        'a': BoosterAdaptation.increase,
+        'b': BoosterAdaptation.reduce,
+      }),
+      streak: _FakeStreak({
+        'a': BoosterTagHistory(
+          tag: 'a',
+          shownCount: 1,
+          startedCount: 0,
+          completedCount: 1,
+          lastInteraction: now.subtract(const Duration(hours: 12)),
+        ),
+        'b': BoosterTagHistory(
+          tag: 'b',
+          shownCount: 1,
+          startedCount: 0,
+          completedCount: 1,
+          lastInteraction: now.subtract(const Duration(days: 5)),
+        ),
+      }),
     );
 
-    final DailyReviewPlan plan = await service.generateTodayPlan();
-    expect(plan.tags, ['a', 'b', 'c', 'd']);
+    final List<TagReviewTask> tasks = await service.generateSchedule();
+    expect(tasks.first.tag, 'a');
+    expect(tasks[1].tag, 'b');
   });
 
-  test('limits to 10 tags', () async {
-    final map = <String, double>{};
+  test('generateTodayPlan limits number of tags', () async {
+    final scores = <String, double>{};
     for (var i = 0; i < 12; i++) {
-      map['t\\$i'] = 0.9 - i * 0.01;
+      scores['t' + i.toString()] = 0.8;
     }
-    const advisor = DecayReviewFrequencyAdvisorService();
     final service = DecaySmartSchedulerService(
-      forecastService: _FakeForecast(map),
-      advisor: advisor,
+      retention: _FakeRetention(scores),
+      tuner: const _FakeTuner({}),
+      streak: const _FakeStreak({}),
     );
-    final plan = await service.generateTodayPlan();
-    expect(plan.tags.length, 10);
+    final plan = await service.generateTodayPlan(maxTags: 5);
+    expect(plan.tags.length, 5);
   });
 }
