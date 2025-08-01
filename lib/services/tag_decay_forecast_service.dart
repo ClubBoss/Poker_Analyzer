@@ -92,4 +92,14 @@ class TagDecayForecastService {
     }
     return result;
   }
+
+  /// Returns tags with normalized decay above [threshold], sorted by severity.
+  Future<List<String>> getCriticalTags({double threshold = 0.8}) async {
+    final forecasts = await getAllForecasts();
+    final entries = forecasts.entries
+        .where((e) => e.value > threshold)
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return [for (final e in entries) e.key];
+  }
 }
