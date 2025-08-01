@@ -58,6 +58,7 @@ import 'services/daily_app_check_service.dart';
 import 'services/skill_loss_overlay_prompt_service.dart';
 import 'services/overlay_booster_manager.dart';
 import 'services/overlay_decay_booster_orchestrator.dart';
+import 'services/decay_streak_overlay_prompt_service.dart';
 import 'screens/training_session_screen.dart';
 import 'screens/empty_training_screen.dart';
 import 'services/app_init_service.dart';
@@ -251,6 +252,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
         .read<OverlayDecayBoosterOrchestrator>()
         .maybeShowIfIdle(context));
     unawaited(context.read<OverlayBoosterManager>().onAfterXpScreen());
+    unawaited(context
+        .read<DecayStreakOverlayPromptService>()
+        .maybeShowOverlayIfStreakAtRisk(context));
     unawaited(
       TheoryLessonNotificationScheduler.instance.scheduleReminderIfNeeded(),
     );
