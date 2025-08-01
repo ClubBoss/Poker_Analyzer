@@ -44,6 +44,7 @@ import 'drill_history_screen.dart';
 import 'memory_insights_screen.dart';
 import 'decay_dashboard_screen.dart';
 import 'decay_heatmap_screen.dart';
+import 'decay_stats_dashboard_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_overview_screen.dart';
 import 'mistake_repeat_screen.dart';
@@ -675,6 +676,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         label: 'Memory Health',
         onTap: () {
           Navigator.pushNamed(context, DecayDashboardScreen.route);
+        },
+      ),
+      _MenuItem(
+        icon: Icons.bar_chart,
+        label: 'Decay Stats',
+        onTap: () {
+          Navigator.pushNamed(context, DecayStatsDashboardScreen.route);
         },
       ),
       _MenuItem(
