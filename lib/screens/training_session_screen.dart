@@ -77,6 +77,7 @@ class _EndlessStats {
 }
 
 class TrainingSessionScreen extends StatefulWidget {
+  static const route = '/training_session';
   final VoidCallback? onSessionEnd;
   final TrainingSession? session;
   final TrainingPackV2? pack;
