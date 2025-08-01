@@ -17,11 +17,11 @@ class SkillTreeCelebrationTriggerService {
     SkillTreeFinalNodeCompletionDetector? detector,
     SkillTreeProgressAnalyticsService? analytics,
     SkillTreeMilestoneOverlayService? overlay,
-  })  : detector = detector ?? const SkillTreeFinalNodeCompletionDetector(),
-        analytics = analytics ?? const SkillTreeProgressAnalyticsService(),
+  })  : detector = detector ?? SkillTreeFinalNodeCompletionDetector(),
+        analytics = analytics ?? SkillTreeProgressAnalyticsService(),
         overlay = overlay ??
             SkillTreeMilestoneOverlayService(
-              engine: const _CompletionMessageEngine(),
+              engine: _CompletionMessageEngine(),
             );
 
   static const _prefix = 'celebration_done_';
@@ -40,7 +40,7 @@ class SkillTreeCelebrationTriggerService {
 }
 
 class _CompletionMessageEngine extends SkillTreeMotivationalHintEngine {
-  const _CompletionMessageEngine();
+  _CompletionMessageEngine();
 
   @override
   Future<String?> getMotivationalMessage(SkillTreeProgressStats stats) async {

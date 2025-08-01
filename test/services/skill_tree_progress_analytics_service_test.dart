@@ -9,7 +9,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const builder = SkillTreeBuilderService();
-  const analytics = SkillTreeProgressAnalyticsService();
+  final analytics = SkillTreeProgressAnalyticsService();
 
   SkillTreeNodeModel node(String id, {List<String>? prereqs, int level = 0}) =>
       SkillTreeNodeModel(id: id, title: id, category: 'Push/Fold', prerequisites: prereqs, level: level);

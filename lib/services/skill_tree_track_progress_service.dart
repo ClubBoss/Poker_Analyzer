@@ -24,13 +24,13 @@ class SkillTreeTrackProgressService {
   final SkillTreeNodeProgressTracker progress;
   final SkillTreeFinalNodeCompletionDetector detector;
 
-  const SkillTreeTrackProgressService({
+  SkillTreeTrackProgressService({
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeFinalNodeCompletionDetector? detector,
   })  : library = library ?? SkillTreeLibraryService.instance,
         progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        detector = detector ?? const SkillTreeFinalNodeCompletionDetector();
+        detector = detector ?? SkillTreeFinalNodeCompletionDetector();
 
   Future<void> _ensureLoaded() async {
     if (library.getAllNodes().isEmpty) {
