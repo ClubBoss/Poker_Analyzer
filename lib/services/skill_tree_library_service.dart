@@ -60,6 +60,11 @@ class SkillTreeLibraryService {
   /// Returns the skill tree for [category], or `null` if not found.
   SkillTreeBuildResult? getTree(String category) => _trees[category];
 
+  /// Returns the skill track for [trackId].
+  ///
+  /// This is an alias for [getTree] to allow referencing tracks by id.
+  SkillTreeBuildResult? getTrack(String trackId) => getTree(trackId);
+
   /// Returns all loaded nodes across categories in insertion order.
   List<SkillTreeNodeModel> getAllNodes() => List.unmodifiable(_nodes);
 }

@@ -16,6 +16,7 @@ class SkillTreeStageListBuilder {
     required List<SkillTreeNodeModel> allNodes,
     required Set<String> unlockedNodeIds,
     required Set<String> completedNodeIds,
+    void Function(SkillTreeNodeModel node)? onNodeTap,
     EdgeInsetsGeometry padding = const EdgeInsets.all(8),
     double spacing = 16,
   }) {
@@ -41,6 +42,7 @@ class SkillTreeStageListBuilder {
         completedNodeIds: completedNodeIds,
         isStageUnlocked: isUnlocked,
         isStageCompleted: isCompleted,
+        onNodeTap: onNodeTap,
       );
 
       children.add(Padding(
