@@ -12,6 +12,7 @@ import 'screens/goal_center_screen.dart';
 import 'screens/achievements_dashboard_screen.dart';
 import 'screens/goal_insights_screen.dart';
 import 'screens/memory_insights_screen.dart';
+import 'screens/decay_dashboard_screen.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/mistake_pack_cloud_service.dart';
@@ -110,8 +111,8 @@ Future<void> main() async {
   await packCloud.syncUpTemplates(templateStorage);
   unawaited(
     AssetSyncService.instance.syncIfNeeded().catchError(
-      (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
-    ),
+          (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
+        ),
   );
   await EvaluationSettingsService.instance.load();
   await MistakeHintService.instance.load();
@@ -245,8 +246,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
       sessions: context.read<TrainingSessionService>(),
     ));
     unawaited(context.read<SkillLossOverlayPromptService>().run(context));
-    unawaited(
-        context.read<OverlayDecayBoosterOrchestrator>().maybeShowIfIdle(context));
+    unawaited(context
+        .read<OverlayDecayBoosterOrchestrator>()
+        .maybeShowIfIdle(context));
     unawaited(context.read<OverlayBoosterManager>().onAfterXpScreen());
     unawaited(
       TheoryLessonNotificationScheduler.instance.scheduleReminderIfNeeded(),
@@ -281,9 +283,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     final stat = await TrainingPackStatsService.getStats(pinned.id);
     final idx = stat?.lastIndex ?? 0;
     if (completed && idx >= pinned.spots.length - 1) {
-      final rec = await ctx
-          .read<PersonalRecommendationService>()
-          .getTopRecommended();
+      final rec =
+          await ctx.read<PersonalRecommendationService>().getTopRecommended();
       if (rec == null) return;
       await ctx.read<TrainingSessionService>().startSession(rec);
     } else {
@@ -354,6 +355,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
                   const AchievementsDashboardScreen(),
               GoalInsightsScreen.route: (_) => const GoalInsightsScreen(),
               MemoryInsightsScreen.route: (_) => const MemoryInsightsScreen(),
+              DecayDashboardScreen.route: (_) => const DecayDashboardScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');

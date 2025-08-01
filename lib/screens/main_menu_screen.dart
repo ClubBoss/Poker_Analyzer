@@ -42,6 +42,7 @@ import 'progress_overview_screen.dart';
 import 'progress_history_screen.dart';
 import 'drill_history_screen.dart';
 import 'memory_insights_screen.dart';
+import 'decay_dashboard_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_overview_screen.dart';
 import 'mistake_repeat_screen.dart';
@@ -666,6 +667,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         label: 'Memory Insights',
         onTap: () {
           Navigator.pushNamed(context, MemoryInsightsScreen.route);
+        },
+      ),
+      _MenuItem(
+        icon: Icons.monitor_heart,
+        label: 'Memory Health',
+        onTap: () {
+          Navigator.pushNamed(context, DecayDashboardScreen.route);
         },
       ),
       _MenuItem(
