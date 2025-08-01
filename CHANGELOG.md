@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Add DecayHeatmapUISurface widget for visualizing memory decay.
+- Remind to resume stale user goals via GoalReengagementBanner on main menu.
 - Add DecayHeatmapScreen to review tag decay as a heatmap.
 - Fix training resume dialog to load packs before showing confirmation.
 - Remove unused spot storage field from app state.
