@@ -8,6 +8,7 @@ import '../services/skill_tree_unlock_evaluator.dart';
 import '../services/skill_tree_stage_gate_evaluator.dart';
 import '../services/skill_tree_stage_completion_evaluator.dart';
 import '../services/skill_tree_stage_unlock_overlay_builder.dart';
+import '../widgets/skill_tree_stage_header_builder.dart';
 import '../screens/skill_tree_node_detail_view.dart';
 
 class SkillTreeScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
   Set<int> _completedStages = {};
   bool _loading = true;
   final _overlayBuilder = const SkillTreeStageUnlockOverlayBuilder();
+  final _headerBuilder = const SkillTreeStageHeaderBuilder();
 
   @override
   void initState() {
@@ -98,27 +100,21 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final children = <Widget>[];
     final sortedLevels = levels.keys.toList()..sort();
     for (final lvl in sortedLevels) {
-      final stageOverlay = _overlayBuilder.buildOverlay(
+      final overlay = _overlayBuilder.buildOverlay(
         level: lvl,
         isUnlocked: _unlockedStages.contains(lvl),
         isCompleted: _completedStages.contains(lvl),
       );
+      final header = _headerBuilder.buildHeader(
+        level: lvl,
+        nodes: levels[lvl]!,
+        completedNodeIds: _completed,
+        overlay: overlay,
+      );
       children.add(
         Padding(
           padding: const EdgeInsets.all(8),
-          child: SizedBox(
-            height: 24,
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Level $lvl',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                ),
-                stageOverlay,
-              ],
-            ),
-          ),
+          child: header,
         ),
       );
       for (final n in levels[lvl]!) {
