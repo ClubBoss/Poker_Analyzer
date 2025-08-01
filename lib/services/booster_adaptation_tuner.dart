@@ -87,4 +87,13 @@ class BoosterAdaptationTuner {
     await _save();
     return result;
   }
+
+  /// Saves [adaptation] for [tag] overriding any cached value.
+  Future<void> saveAdaptation(String tag, BoosterAdaptation adaptation) async {
+    final key = tag.trim().toLowerCase();
+    if (key.isEmpty) return;
+    await _load();
+    _cache[key] = adaptation;
+    await _save();
+  }
 }
