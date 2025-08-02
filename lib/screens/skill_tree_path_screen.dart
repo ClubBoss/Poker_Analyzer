@@ -31,6 +31,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   Set<String> _unlocked = {};
   Set<String> _completed = {};
   final Set<String> _justUnlocked = {};
+  List<String> _newTheoryNodeIds = [];
   bool _loading = true;
 
   @override
@@ -58,9 +59,10 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final completed = await progress.getCompletedNodeIds(widget.trackId);
 
     final newlyUnlocked = unlocked.difference(_unlocked);
-    final hasNewTheory = newlyUnlocked.any(
-      (id) => tree.nodes[id]?.theoryLessonId.isNotEmpty ?? false,
-    );
+    final newTheoryNodeIds = newlyUnlocked
+        .where((id) => tree.nodes[id]?.theoryLessonId.isNotEmpty ?? false)
+        .toList();
+    final hasNewTheory = newTheoryNodeIds.isNotEmpty;
 
     final blocks = _listBuilder.stageMarker.build(nodes);
     for (final block in blocks) {
@@ -73,6 +75,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       _unlocked = unlocked;
       _completed = completed;
       _loading = false;
+      _newTheoryNodeIds = newTheoryNodeIds;
       if (hadPrev) {
         _justUnlocked.addAll(newlyUnlocked);
       }
@@ -115,7 +118,23 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         '📘 New Theory Available!',
         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
       ),
-      actions: const [SizedBox.shrink()],
+      actions: [
+        TextButton(
+          onPressed: () async {
+            messenger.clearMaterialBanners();
+            final nodeId =
+                _newTheoryNodeIds.isNotEmpty ? _newTheoryNodeIds.first : null;
+            final node = nodeId != null ? _track?.nodes[nodeId] : null;
+            if (node != null) {
+              await _openNode(node);
+            }
+          },
+          child: const Text(
+            'View Theory',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
     );
     messenger.showMaterialBanner(banner);
     Future.delayed(const Duration(seconds: 3), () {
