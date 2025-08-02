@@ -105,6 +105,7 @@ class _SkillTreeBlockedSummaryBannerState
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             children: [
+              _LockedCountBadge(count: items.length),
               for (final item in items)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -119,6 +120,38 @@ class _SkillTreeBlockedSummaryBannerState
           ),
         );
       },
+    );
+  }
+}
+
+class _LockedCountBadge extends StatelessWidget {
+  final int count;
+
+  const _LockedCountBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Locked steps',
+      child: SizedBox(
+        width: 40,
+        child: Center(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) =>
+                ScaleTransition(scale: animation, child: child),
+            child: CircleAvatar(
+              key: ValueKey(count),
+              radius: 14,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              child: Text(
+                '$count',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
