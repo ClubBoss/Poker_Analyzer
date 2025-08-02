@@ -32,6 +32,7 @@ class _SkillTreeBlockedSummaryBannerState
   late Future<List<_LockedNodeData>> _dataFuture;
   final _scrollController = ScrollController();
   Set<String> _prevIds = {};
+  Set<String> _newlyAddedIds = {};
   static const double _itemWidth = 208;
 
   @override
@@ -50,6 +51,7 @@ class _SkillTreeBlockedSummaryBannerState
       setState(() {
         _dataFuture = _load();
         _prevIds = newIds;
+        _newlyAddedIds = added;
       });
       if (added.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -110,6 +112,7 @@ class _SkillTreeBlockedSummaryBannerState
                     key: ValueKey(item.node.id),
                     data: item,
                     onTap: () => widget.onShowDetails(item.node),
+                    highlight: _newlyAddedIds.contains(item.node.id),
                   ),
                 ),
             ],
@@ -123,11 +126,13 @@ class _SkillTreeBlockedSummaryBannerState
 class _BlockedNodeCard extends StatefulWidget {
   final _LockedNodeData data;
   final VoidCallback onTap;
+  final bool highlight;
 
   const _BlockedNodeCard({
     super.key,
     required this.data,
     required this.onTap,
+    this.highlight = false,
   });
 
   @override
@@ -135,24 +140,39 @@ class _BlockedNodeCard extends StatefulWidget {
 }
 
 class _BlockedNodeCardState extends State<_BlockedNodeCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+    with TickerProviderStateMixin {
+  late final AnimationController _fadeController;
   late final Animation<double> _opacity;
+  AnimationController? _pulseController;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 350),
     );
-    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _controller.forward();
+    _opacity = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+    _fadeController.forward();
+
+    if (widget.highlight) {
+      _pulseController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 200),
+      );
+      _scale = Tween<double>(begin: 1, end: 1.05)
+          .animate(CurvedAnimation(parent: _pulseController!, curve: Curves.easeOut));
+      _pulseController!.forward().then((_) => _pulseController!.reverse());
+    } else {
+      _scale = const AlwaysStoppedAnimation(1);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _fadeController.dispose();
+    _pulseController?.dispose();
     super.dispose();
   }
 
@@ -161,39 +181,42 @@ class _BlockedNodeCardState extends State<_BlockedNodeCard>
     final data = widget.data;
     return FadeTransition(
       opacity: _opacity,
-      child: SizedBox(
-        width: 200,
-        child: Card(
-          child: InkWell(
-            onTap: widget.onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.lock, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          data.node.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
+      child: ScaleTransition(
+        scale: _scale,
+        child: SizedBox(
+          width: 200,
+          child: Card(
+            child: InkWell(
+              onTap: widget.onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.lock, size: 16, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            data.node.title,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    data.hint.isNotEmpty
-                        ? data.hint
-                        : 'No unlock requirements available',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      data.hint.isNotEmpty
+                          ? data.hint
+                          : 'No unlock requirements available',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
