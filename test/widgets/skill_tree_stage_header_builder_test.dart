@@ -21,7 +21,7 @@ void main() {
     expect(find.byIcon(Icons.hourglass_bottom), findsOneWidget);
   });
 
-  testWidgets('shows verified badge when stage perfect', (tester) async {
+  testWidgets('shows check badge when stage perfect', (tester) async {
     const builder = SkillTreeStageHeaderBuilder();
     final header = builder.buildHeader(
       level: 1,
@@ -30,7 +30,7 @@ void main() {
       completedNodeIds: {'a'},
     );
     await tester.pumpWidget(MaterialApp(home: header));
-    expect(find.byIcon(Icons.verified), findsOneWidget);
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
   });
 
   testWidgets('no badge when overlay provided', (tester) async {
