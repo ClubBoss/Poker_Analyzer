@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../screens/player_stats_screen.dart';
@@ -20,8 +19,6 @@ class TrackRewardUnlockerService {
   /// Singleton instance.
   static TrackRewardUnlockerService instance = TrackRewardUnlockerService();
 
-  static String _prefsKey(String trackId) => 'reward_granted_$trackId';
-
   Future<void> _ensureLoaded() async {
     if (library.getAllTracks().isEmpty) {
       await library.reload();
@@ -29,16 +26,10 @@ class TrackRewardUnlockerService {
     await progress.isTrackCompleted('');
   }
 
-  /// Unlocks reward for [trackId] if the track is completed and not yet granted.
+  /// Displays a reward dialog for [trackId] if it is completed.
   Future<void> unlockReward(String trackId) async {
     await _ensureLoaded();
     if (!await progress.isTrackCompleted(trackId)) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final key = _prefsKey(trackId);
-    if (prefs.getBool(key) ?? false) return;
-    await prefs.setBool(key, true);
-
     final ctx = navigatorKey.currentState?.context;
     if (ctx == null || !ctx.mounted) return;
 
