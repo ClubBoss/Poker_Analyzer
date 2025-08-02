@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_stage_badge_evaluator_service.dart';
+import 'skill_tree_stage_badge_icon.dart';
 
 /// Builds a header widget describing a skill tree stage (level).
 class SkillTreeStageHeaderBuilder {
@@ -45,36 +46,11 @@ class SkillTreeStageHeaderBuilder {
         unlocked: unlockedNodeIds,
         completed: completedNodeIds,
       );
-      IconData? icon;
-      Color? color;
-      String? tooltip;
-      switch (badgeType) {
-        case 'locked':
-          icon = Icons.lock_outline;
-          color = Colors.grey;
-          tooltip = 'Stage locked';
-          break;
-        case 'in_progress':
-          icon = Icons.hourglass_bottom;
-          color = Colors.amber;
-          tooltip = 'In progress';
-          break;
-        case 'perfect':
-          icon = Icons.verified;
-          color = Colors.green;
-          tooltip = 'Perfect';
-          break;
-      }
-      if (icon != null && tooltip != null) {
-        badge = Positioned(
-          right: 0,
-          top: 0,
-          child: Tooltip(
-            message: tooltip,
-            child: Icon(icon, color: color, size: 20),
-          ),
-        );
-      }
+      badge = Positioned(
+        right: 0,
+        top: 0,
+        child: SkillTreeStageBadgeIcon(badge: badgeType),
+      );
     }
 
     return SizedBox(
