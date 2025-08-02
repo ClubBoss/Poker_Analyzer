@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../models/skill_tree_node_model.dart';
 import 'skill_tree_track_node_stage_marker_service.dart';
+import 'stage_auto_highlight_service.dart';
 
 /// Service that scrolls to the first incomplete stage block in a track.
 class StageAutoScrollService {
   final SkillTreeTrackNodeStageMarkerService stageMarker;
+  final StageAutoHighlightService highlighter;
 
   const StageAutoScrollService({
     this.stageMarker = const SkillTreeTrackNodeStageMarkerService(),
+    this.highlighter = const StageAutoHighlightService(),
   });
 
   /// Scrolls to the first stage that is not yet completed.
@@ -37,6 +40,11 @@ class StageAutoScrollService {
             targetContext,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
+          );
+          await highlighter.highlight(
+            stageIndex: block.stageIndex,
+            stageKeys: stageKeys,
+            context: context,
           );
         }
         break;
