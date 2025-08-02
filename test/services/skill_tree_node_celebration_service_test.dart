@@ -28,7 +28,12 @@ void main() {
     final service = SkillTreeNodeCelebrationService(showOverlay: overlay.call);
     final key = GlobalKey();
     await tester.pumpWidget(MaterialApp(key: key, home: const SizedBox()));
-    await service.maybeCelebrate(key.currentContext!, 'A');
+    await service.maybeCelebrate(
+      key.currentContext!,
+      'A',
+      trackId: 't1',
+      stage: 1,
+    );
     expect(overlay.calls, 1);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('skill_node_celebrated_A'), isTrue);
@@ -41,7 +46,12 @@ void main() {
     final service = SkillTreeNodeCelebrationService(showOverlay: overlay.call);
     final key = GlobalKey();
     await tester.pumpWidget(MaterialApp(key: key, home: const SizedBox()));
-    await service.maybeCelebrate(key.currentContext!, 'A');
+    await service.maybeCelebrate(
+      key.currentContext!,
+      'A',
+      trackId: 't1',
+      stage: 1,
+    );
     expect(overlay.calls, 0);
   });
 }

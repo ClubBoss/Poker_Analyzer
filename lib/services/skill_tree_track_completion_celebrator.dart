@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'skill_tree_track_completion_evaluator.dart';
 import '../screens/skill_tree_track_celebration_screen.dart';
+import 'skill_tree_milestone_analytics_logger.dart';
 
 /// Shows a celebration when a skill tree track is fully completed.
 class SkillTreeTrackCompletionCelebrator {
@@ -27,6 +30,8 @@ class SkillTreeTrackCompletionCelebrator {
 
     shown.add(trackId);
     await prefs.setStringList(_prefsKey, shown);
+    unawaited(SkillTreeMilestoneAnalyticsLogger.instance
+        .logTrackCompleted(trackId: trackId));
 
     await Navigator.push(
       context,
