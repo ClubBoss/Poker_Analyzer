@@ -4,6 +4,7 @@ import '../models/skill_tree.dart';
 import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_track_progress_service.dart';
+import '../services/track_completion_celebration_service.dart';
 import '../widgets/skill_tree_stage_list_builder.dart';
 import 'skill_tree_node_detail_screen.dart';
 
@@ -47,6 +48,10 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       _unlocked = unlocked;
       _completed = completed;
       _loading = false;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      TrackCompletionCelebrationService.instance
+          .maybeCelebrate(context, widget.trackId);
     });
   }
 
