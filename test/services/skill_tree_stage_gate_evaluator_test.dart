@@ -39,4 +39,15 @@ void main() {
     final completed = {'n1', 'n2', 'n3'};
     expect(evaluator.isStageUnlocked(tree, 2, completed), isTrue);
   });
+
+  test('getBlockingNodes returns incomplete prior stage nodes', () {
+    final tree = builder.build([
+      node('n1', 0),
+      node('n2', 1),
+      node('n3', 2),
+    ]).tree;
+    final completed = {'n1'};
+    final blocking = evaluator.getBlockingNodes(tree, 2, completed);
+    expect(blocking.map((n) => n.id), ['n2']);
+  });
 }
