@@ -12,6 +12,7 @@ import '../services/skill_tree_stage_gate_celebration_overlay.dart';
 import '../services/skill_tree_unlock_notification_service.dart';
 import '../widgets/skill_tree_stage_header_builder.dart';
 import '../screens/skill_tree_node_detail_screen.dart';
+import '../widgets/skill_tree_node_block_reason_widget.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   final String category;
@@ -91,6 +92,56 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     await _load();
   }
 
+  void _showLockReason(SkillTreeNodeModel node) {
+    final width = MediaQuery.of(context).size.width;
+    final widgetContent = SkillTreeNodeBlockReasonWidget(nodeId: node.id);
+    if (width > 600) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (ctx) => AlertDialog(
+          title: const Text('How to unlock this stage'),
+          content: widgetContent,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (ctx) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'How to unlock this stage',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                widgetContent,
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('Close'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tree = _tree;
@@ -160,7 +211,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
             leading: Icon(icon, color: color),
             title: Text(n.title),
             subtitle: Text(status),
-            onTap: unlocked ? () => _openNode(n) : null,
+            onTap: () =>
+                unlocked ? _openNode(n) : _showLockReason(n),
           ),
         );
       }
