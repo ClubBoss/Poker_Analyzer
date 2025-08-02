@@ -22,6 +22,8 @@ class SkillTreeStageListBuilder {
     void Function(SkillTreeNodeModel node)? onNodeTap,
     EdgeInsetsGeometry padding = const EdgeInsets.all(8),
     double spacing = 16,
+    Map<int, GlobalKey>? stageKeys,
+    ScrollController? controller,
   }) {
     final blocks = stageMarker.build(allNodes);
     final children = <Widget>[];
@@ -44,12 +46,18 @@ class SkillTreeStageListBuilder {
         onNodeTap: onNodeTap,
       );
 
+      final key = stageKeys?[lvl];
       children.add(Padding(
+        key: key,
         padding: EdgeInsets.only(bottom: spacing),
         child: stageWidget,
       ));
     }
 
-    return ListView(padding: padding, children: children);
+    return ListView(
+      controller: controller,
+      padding: padding,
+      children: children,
+    );
   }
 }

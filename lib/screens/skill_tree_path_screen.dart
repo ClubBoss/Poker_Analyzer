@@ -6,6 +6,7 @@ import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_track_progress_service.dart';
 import '../services/skill_tree_track_celebration_service.dart';
 import '../services/track_milestone_unlocker_service.dart';
+import '../services/stage_auto_scroll_service.dart';
 import '../widgets/skill_tree_stage_list_builder.dart';
 import '../widgets/skill_tree_track_overview_header.dart';
 import 'skill_tree_node_detail_screen.dart';
@@ -21,6 +22,9 @@ class SkillTreePathScreen extends StatefulWidget {
 
 class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   final _listBuilder = const SkillTreeStageListBuilder();
+  final _autoScroll = const StageAutoScrollService();
+  final ScrollController _scrollController = ScrollController();
+  final Map<int, GlobalKey> _stageKeys = {};
 
   SkillTree? _track;
   Set<String> _unlocked = {};
@@ -44,9 +48,16 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       setState(() => _loading = false);
       return;
     }
+    final nodes = tree.nodes.values.toList();
     final progress = SkillTreeTrackProgressService();
     final unlocked = await progress.getUnlockedNodeIds(widget.trackId);
     final completed = await progress.getCompletedNodeIds(widget.trackId);
+
+    final blocks = _listBuilder.stageMarker.build(nodes);
+    for (final block in blocks) {
+      _stageKeys.putIfAbsent(block.stageIndex, () => GlobalKey());
+    }
+
     if (!mounted) return;
     setState(() {
       _track = tree;
@@ -58,6 +69,13 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       SkillTreeTrackCelebrationService.instance.maybeCelebrate(
         context,
         widget.trackId,
+      );
+      _autoScroll.scrollToFirstIncompleteStage(
+        context: context,
+        controller: _scrollController,
+        allNodes: nodes,
+        completedNodeIds: _completed,
+        stageKeys: _stageKeys,
       );
     });
   }
@@ -73,6 +91,12 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       ),
     );
     await _load();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -97,6 +121,8 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       padding: const EdgeInsets.all(12),
       spacing: 20,
       onNodeTap: _openNode,
+      stageKeys: _stageKeys,
+      controller: _scrollController,
     );
 
     final title = tree.roots.isNotEmpty
