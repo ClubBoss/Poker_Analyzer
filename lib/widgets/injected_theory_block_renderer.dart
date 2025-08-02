@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../models/learning_path_block.dart';
-import '../services/mini_lesson_library_service.dart';
-import '../screens/mini_lesson_screen.dart';
+import '../models/theory_block_model.dart';
+import '../widgets/theory_block_card_widget.dart';
+import '../services/theory_path_completion_evaluator_service.dart';
+import '../services/user_progress_service.dart';
 
-/// Renders an injected theory [LearningPathBlock] with CTA to open the lesson.
+/// Renders an injected theory [LearningPathBlock] using [TheoryBlockCardWidget].
 class InjectedTheoryBlockRenderer extends StatefulWidget {
   final LearningPathBlock block;
   const InjectedTheoryBlockRenderer({super.key, required this.block});
@@ -37,55 +39,22 @@ class _InjectedTheoryBlockRendererState
     super.dispose();
   }
 
-  Future<void> _openLesson() async {
-    await MiniLessonLibraryService.instance.loadAll();
-    final lesson =
-        MiniLessonLibraryService.instance.getById(widget.block.lessonId);
-    if (lesson == null || !mounted) return;
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final accent = Theme.of(context).colorScheme.secondary;
+    final model = TheoryBlockModel(
+      id: widget.block.id,
+      title: widget.block.header,
+      nodeIds: [widget.block.lessonId],
+      practicePackIds: const [],
+    );
+    final evaluator = TheoryPathCompletionEvaluatorService(
+      userProgress: UserProgressService.instance,
+    );
     return FadeTransition(
       opacity: _anim,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.block.header,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.block.content,
-              style: const TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: _openLesson,
-                style: ElevatedButton.styleFrom(backgroundColor: accent),
-                child: Text(widget.block.ctaLabel),
-              ),
-            ),
-          ],
-        ),
+      child: TheoryBlockCardWidget(
+        block: model,
+        evaluator: evaluator,
       ),
     );
   }
