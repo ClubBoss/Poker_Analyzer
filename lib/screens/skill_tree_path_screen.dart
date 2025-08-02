@@ -32,6 +32,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   Set<String> _completed = {};
   final Set<String> _justUnlocked = {};
   List<String> _newTheoryNodeIds = [];
+  List<String> _newPracticeNodeIds = [];
   bool _loading = true;
 
   @override
@@ -62,7 +63,11 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final newTheoryNodeIds = newlyUnlocked
         .where((id) => tree.nodes[id]?.theoryLessonId.isNotEmpty ?? false)
         .toList();
+    final newPracticeNodeIds = newlyUnlocked
+        .where((id) => tree.nodes[id]?.trainingPackId.isNotEmpty ?? false)
+        .toList();
     final hasNewTheory = newTheoryNodeIds.isNotEmpty;
+    final hasNewPractice = newPracticeNodeIds.isNotEmpty;
 
     final blocks = _listBuilder.stageMarker.build(nodes);
     for (final block in blocks) {
@@ -76,12 +81,16 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       _completed = completed;
       _loading = false;
       _newTheoryNodeIds = newTheoryNodeIds;
+      _newPracticeNodeIds = newPracticeNodeIds;
       if (hadPrev) {
         _justUnlocked.addAll(newlyUnlocked);
       }
     });
     if (hadPrev && hasNewTheory) {
       _showTheoryUnlockBanner();
+    }
+    if (hadPrev && hasNewPractice) {
+      _showPracticeUnlockBanner();
     }
     if (hadPrev) {
       for (final id in newlyUnlocked) {
@@ -131,6 +140,39 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
           },
           child: const Text(
             'View Theory',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+    messenger.showMaterialBanner(banner);
+    Future.delayed(const Duration(seconds: 3), () {
+      messenger.clearMaterialBanners();
+    });
+  }
+
+  void _showPracticeUnlockBanner() {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearMaterialBanners();
+    final banner = MaterialBanner(
+      backgroundColor: Colors.blue,
+      content: const Text(
+        '🎯 New Practice Available!',
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            messenger.clearMaterialBanners();
+            final nodeId =
+                _newPracticeNodeIds.isNotEmpty ? _newPracticeNodeIds.first : null;
+            final node = nodeId != null ? _track?.nodes[nodeId] : null;
+            if (node != null) {
+              await _openNode(node);
+            }
+          },
+          child: const Text(
+            'View Practice',
             style: TextStyle(color: Colors.white),
           ),
         ),
