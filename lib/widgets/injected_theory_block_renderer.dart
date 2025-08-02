@@ -55,6 +55,7 @@ class _InjectedTheoryBlockRendererState
       child: TheoryBlockCardWidget(
         block: model,
         evaluator: evaluator,
+        progress: UserProgressService.instance,
       ),
     );
   }
