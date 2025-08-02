@@ -78,6 +78,7 @@ import 'services/decay_booster_notification_service.dart';
 import 'services/decay_booster_cron_job.dart';
 import 'services/theory_lesson_notification_scheduler.dart';
 import 'services/booster_recall_decay_cleaner.dart';
+import 'route_observer.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -365,6 +366,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
           final theme = context.watch<ThemeService>().mode;
           return MaterialApp(
             navigatorKey: navigatorKey,
+            navigatorObservers: [routeObserver],
             title: 'Poker AI Analyzer',
             debugShowCheckedModeBanner: false,
             themeMode: theme,
