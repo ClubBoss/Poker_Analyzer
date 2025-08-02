@@ -18,8 +18,6 @@ void main() {
       nodes: [node('a')],
       unlockedNodeIds: {},
       completedNodeIds: {},
-      isStageUnlocked: false,
-      isStageCompleted: false,
     );
     await tester.pumpWidget(MaterialApp(home: widget));
     expect(find.byType(SkillTreeNodeCard), findsNothing);
@@ -33,8 +31,6 @@ void main() {
       nodes: [node('a')],
       unlockedNodeIds: {'a'},
       completedNodeIds: {'a'},
-      isStageUnlocked: true,
-      isStageCompleted: true,
     );
     await tester.pumpWidget(MaterialApp(home: widget));
     expect(find.byType(SkillTreeNodeCard), findsOneWidget);

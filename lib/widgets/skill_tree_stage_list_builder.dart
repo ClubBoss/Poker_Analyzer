@@ -30,19 +30,11 @@ class SkillTreeStageListBuilder {
     for (final block in blocks) {
       final nodes = block.nodes;
       final lvl = block.stageIndex;
-      final isUnlocked = nodes.any((n) => unlockedNodeIds.contains(n.id));
-      final isCompleted = nodes.every((n) {
-        final opt = (n as dynamic).isOptional == true;
-        return opt || completedNodeIds.contains(n.id);
-      });
-
       final stageWidget = this.blockBuilder.build(
         level: lvl,
         nodes: nodes,
         unlockedNodeIds: unlockedNodeIds,
         completedNodeIds: completedNodeIds,
-        isStageUnlocked: isUnlocked,
-        isStageCompleted: isCompleted,
         onNodeTap: onNodeTap,
       );
 
