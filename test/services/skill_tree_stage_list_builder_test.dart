@@ -17,6 +17,7 @@ void main() {
       allNodes: [node('a', 0), node('b', 1)],
       unlockedNodeIds: {'a'},
       completedNodeIds: {},
+      justUnlockedNodeIds: const {},
     );
     await tester.pumpWidget(MaterialApp(home: widget));
     expect(find.byType(SkillTreeNodeCard), findsOneWidget);
@@ -29,8 +30,21 @@ void main() {
       allNodes: [node('a', 0)],
       unlockedNodeIds: {'a'},
       completedNodeIds: {'a'},
+      justUnlockedNodeIds: const {},
     );
     await tester.pumpWidget(MaterialApp(home: widget));
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
+  });
+
+  testWidgets('just unlocked node gets highlight', (tester) async {
+    const builder = SkillTreeStageListBuilder();
+    final widget = builder.build(
+      allNodes: [node('a', 0)],
+      unlockedNodeIds: {'a'},
+      completedNodeIds: const {},
+      justUnlockedNodeIds: {'a'},
+    );
+    await tester.pumpWidget(MaterialApp(home: widget));
+    expect(find.byType(TweenAnimationBuilder), findsOneWidget);
   });
 }
