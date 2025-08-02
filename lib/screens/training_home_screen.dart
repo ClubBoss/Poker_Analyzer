@@ -34,6 +34,7 @@ import '../widgets/resume_training_card.dart';
 import '../widgets/resume_lesson_card.dart';
 import '../widgets/next_learning_step_card.dart';
 import '../widgets/pinned_learning_section.dart';
+import '../widgets/pinned_top_pick_card.dart';
 import '../widgets/next_up_banner.dart';
 import '../widgets/smart_recap_preview_widget.dart';
 import '../widgets/theory_inbox_banner.dart';
@@ -159,6 +160,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const RecommendedNextPackCard(),
           const AdaptiveTheoryReminderBanner(),
           const NextLearningStepCard(),
+          const PinnedTopPickCard(),
           const PinnedLearningSection(),
           const ContinueLearningCard(),
           const ResumeLessonCard(),
