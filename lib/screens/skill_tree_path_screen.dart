@@ -5,6 +5,7 @@ import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_track_progress_service.dart';
 import '../services/skill_tree_track_celebration_service.dart';
+import '../services/track_milestone_unlocker_service.dart';
 import '../widgets/skill_tree_stage_list_builder.dart';
 import '../widgets/skill_tree_track_overview_header.dart';
 import 'skill_tree_node_detail_screen.dart';
@@ -33,6 +34,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   }
 
   Future<void> _load() async {
+    await TrackMilestoneUnlockerService.instance.initializeMilestones(
+      widget.trackId,
+    );
     await SkillTreeLibraryService.instance.reload();
     final res = SkillTreeLibraryService.instance.getTrack(widget.trackId);
     final tree = res?.tree;
@@ -51,8 +55,10 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       _loading = false;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      SkillTreeTrackCelebrationService.instance
-          .maybeCelebrate(context, widget.trackId);
+      SkillTreeTrackCelebrationService.instance.maybeCelebrate(
+        context,
+        widget.trackId,
+      );
     });
   }
 
@@ -72,9 +78,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final tree = _track;
     if (tree == null) {
@@ -95,8 +99,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       onNodeTap: _openNode,
     );
 
-    final title =
-        tree.roots.isNotEmpty ? tree.roots.first.title : widget.trackId;
+    final title = tree.roots.isNotEmpty
+        ? tree.roots.first.title
+        : widget.trackId;
 
     final header = Padding(
       padding: const EdgeInsets.all(12),

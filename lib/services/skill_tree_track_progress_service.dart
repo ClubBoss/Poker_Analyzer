@@ -6,6 +6,7 @@ import 'skill_tree_node_progress_tracker.dart';
 import 'skill_tree_final_node_completion_detector.dart';
 import 'skill_tree_unlock_evaluator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'track_milestone_unlocker_service.dart';
 
 /// Progress information for a single skill tree track.
 class TrackProgressEntry {
@@ -30,9 +31,9 @@ class SkillTreeTrackProgressService {
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeFinalNodeCompletionDetector? detector,
-  })  : library = library ?? SkillTreeLibraryService.instance,
-        progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        detector = detector ?? SkillTreeFinalNodeCompletionDetector();
+  }) : library = library ?? SkillTreeLibraryService.instance,
+       progress = progress ?? SkillTreeNodeProgressTracker.instance,
+       detector = detector ?? SkillTreeFinalNodeCompletionDetector();
 
   Future<void> _ensureLoaded() async {
     if (library.getAllNodes().isEmpty) {
@@ -53,7 +54,8 @@ class SkillTreeTrackProgressService {
     final results = <TrackProgressEntry>[];
     final categories = byCategory.keys.toList()..sort();
     for (final cat in categories) {
-      final tree = library.getTree(cat)?.tree ??
+      final tree =
+          library.getTree(cat)?.tree ??
           builder.build(byCategory[cat]!, category: cat).tree;
       final compIds = progress.completedNodeIds.value;
       var total = 0;
@@ -66,11 +68,13 @@ class SkillTreeTrackProgressService {
       }
       final rate = total > 0 ? done / total : 0.0;
       final complete = await detector.isTreeCompleted(tree);
-      results.add(TrackProgressEntry(
-        tree: tree,
-        completionRate: rate,
-        isCompleted: complete,
-      ));
+      results.add(
+        TrackProgressEntry(
+          tree: tree,
+          completionRate: rate,
+          isCompleted: complete,
+        ),
+      );
     }
     return results;
   }
@@ -100,7 +104,12 @@ class SkillTreeTrackProgressService {
     if (tree == null) return <String>{};
     final evaluator = SkillTreeUnlockEvaluator(progress: progress);
     final unlocked = evaluator.getUnlockedNodes(tree);
-    return unlocked.map((n) => n.id).toSet();
+    final highestStage = await TrackMilestoneUnlockerService.instance
+        .getHighestUnlockedStage(trackId);
+    return unlocked
+        .where((n) => n.level <= highestStage)
+        .map((n) => n.id)
+        .toSet();
   }
 
   /// Returns ids of completed nodes in [trackId].
@@ -126,4 +135,3 @@ class SkillTreeTrackProgressService {
     return prefs.getBool(_startedKey(trackId)) ?? false;
   }
 }
-
