@@ -37,6 +37,9 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
       initialScrollOffset: (widget.initialPosition ?? 0).toDouble(),
     );
     unawaited(
+      PinnedLearningService.instance.recordOpen('lesson', widget.lesson.id),
+    );
+    unawaited(
       TheoryBoosterRecallEngine.instance.recordLaunch(widget.lesson.id),
     );
   }

@@ -15,6 +15,14 @@ class PinnedLearningService extends ChangeNotifier {
 
   List<PinnedLearningItem> get items => List.unmodifiable(_items);
 
+  void _sort() {
+    _items.sort((a, b) {
+      final seen = (b.lastSeen ?? 0).compareTo(a.lastSeen ?? 0);
+      if (seen != 0) return seen;
+      return b.openCount.compareTo(a.openCount);
+    });
+  }
+
   PinnedLearningItem? _find(String type, String id) {
     for (final e in _items) {
       if (e.type == type && e.id == id) return e;
@@ -39,6 +47,7 @@ class PinnedLearningService extends ChangeNotifier {
         }
       } catch (_) {}
     }
+    _sort();
     notifyListeners();
   }
 
@@ -58,12 +67,14 @@ class PinnedLearningService extends ChangeNotifier {
     } else {
       _items.add(PinnedLearningItem(type: type, id: id));
     }
+    _sort();
     await _save();
     notifyListeners();
   }
 
   Future<void> unpin(String type, String id) async {
     _items.removeWhere((e) => e.type == type && e.id == id);
+    _sort();
     await _save();
     notifyListeners();
   }
@@ -75,6 +86,24 @@ class PinnedLearningService extends ChangeNotifier {
       final e = _items[i];
       if (e.type == type && e.id == id) {
         _items[i] = e.copyWith(lastPosition: position);
+        _sort();
+        await _save();
+        notifyListeners();
+        break;
+      }
+    }
+  }
+
+  Future<void> recordOpen(String type, String id) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    for (var i = 0; i < _items.length; i++) {
+      final e = _items[i];
+      if (e.type == type && e.id == id) {
+        _items[i] = e.copyWith(
+          lastSeen: now,
+          openCount: e.openCount + 1,
+        );
+        _sort();
         await _save();
         notifyListeners();
         break;
