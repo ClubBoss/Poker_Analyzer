@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
+
 import '../models/skill_tree.dart';
 import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_library_service.dart';
@@ -30,6 +34,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
   Set<String> _completed = {};
   Set<int> _unlockedStages = {};
   Set<int> _completedStages = {};
+  Set<int> _previousUnlockedStages = {};
   bool _loading = true;
   final _overlayBuilder = const SkillTreeStageUnlockOverlayBuilder();
   final _headerBuilder = const SkillTreeStageHeaderBuilder();
@@ -60,8 +65,13 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     const gateEval = SkillTreeStageGateEvaluator();
     const compEval = SkillTreeStageCompletionEvaluator();
     final unlockedStages = gateEval.getUnlockedStages(tree, completed).toSet();
-    final completedStages =
-        compEval.getCompletedStages(tree, completed).toSet();
+    final completedStages = compEval
+        .getCompletedStages(tree, completed)
+        .toSet();
+
+    final hadPrev = _previousUnlockedStages.isNotEmpty;
+    final shouldCelebrate =
+        hadPrev && unlockedStages.length > _previousUnlockedStages.length;
 
     setState(() {
       _tree = tree;
@@ -71,11 +81,48 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
       _completedStages = completedStages;
       _loading = false;
     });
+
+    if (shouldCelebrate) _showStageUnlockConfetti();
+
+    _previousUnlockedStages = unlockedStages;
+
     if (mounted) {
       await _unlockNotify.maybeNotify(context, tree);
       if (!mounted) return;
       await _stageCelebrator.maybeCelebrate(context, tree);
     }
+  }
+
+  void _showStageUnlockConfetti() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final controller = ConfettiController(
+      duration: const Duration(milliseconds: 1500),
+    );
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 100,
+        child: IgnorePointer(
+          child: ConfettiWidget(
+            confettiController: controller,
+            blastDirection: pi / 2,
+            numberOfParticles: 20,
+            gravity: 0.3,
+            shouldLoop: false,
+          ),
+        ),
+      ),
+    );
+    overlay.insert(entry);
+    controller.play();
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      controller.dispose();
+      entry.remove();
+    });
   }
 
   Future<void> _openNode(SkillTreeNodeModel node) async {
@@ -160,8 +207,9 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final unlocked = gateEval.getUnlockedStages(tree, _completed);
     final totalStages = {for (final n in tree.nodes.values) n.level}.length;
     if (unlocked.length >= totalStages) {
-      final remaining =
-          tree.nodes.values.where((n) => !_completed.contains(n.id)).length;
+      final remaining = tree.nodes.values
+          .where((n) => !_completed.contains(n.id))
+          .length;
       if (remaining <= 0) return 'All stages completed';
       return remaining == 1
           ? '1 node to complete all stages'
@@ -292,13 +340,16 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                       duration: const Duration(milliseconds: 300),
                       child: Text.rich(
                         TextSpan(
-                          style:
-                              const TextStyle(fontSize: 12, color: Colors.grey),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
                           children: [
                             TextSpan(
                               text: '$pct%',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const TextSpan(text: ' complete'),
                           ],
