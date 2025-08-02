@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_stage_unlock_overlay_builder.dart';
-import '../services/skill_tree_node_completion_state_service.dart';
+import '../services/skill_tree_stage_state_service.dart';
 import 'skill_tree_grid_block_builder.dart';
 import 'skill_tree_stage_header_builder.dart';
 
@@ -11,13 +11,13 @@ class SkillTreeStageBlockBuilder {
   final SkillTreeGridBlockBuilder gridBuilder;
   final SkillTreeStageHeaderBuilder headerBuilder;
   final SkillTreeStageUnlockOverlayBuilder overlayBuilder;
-  final SkillTreeNodeCompletionStateService stateService;
+  final SkillTreeStageStateService stageStateService;
 
   const SkillTreeStageBlockBuilder({
     this.gridBuilder = const SkillTreeGridBlockBuilder(),
     this.headerBuilder = const SkillTreeStageHeaderBuilder(),
     this.overlayBuilder = const SkillTreeStageUnlockOverlayBuilder(),
-    this.stateService = const SkillTreeNodeCompletionStateService(),
+    this.stageStateService = const SkillTreeStageStateService(),
   });
 
   /// Returns a widget displaying [nodes] for a stage with header and overlay.
@@ -28,19 +28,13 @@ class SkillTreeStageBlockBuilder {
     required Set<String> completedNodeIds,
     void Function(SkillTreeNodeModel node)? onNodeTap,
   }) {
-    final states = nodes
-        .map((n) => stateService.getNodeState(
-              node: n,
-              unlocked: unlockedNodeIds,
-              completed: completedNodeIds,
-            ))
-        .toList();
-    final isStageUnlocked = states.any(
-      (s) => s == SkillTreeNodeState.unlocked || s == SkillTreeNodeState.completed,
+    final stageState = stageStateService.getStageState(
+      nodes: nodes,
+      unlocked: unlockedNodeIds,
+      completed: completedNodeIds,
     );
-    final isStageCompleted = states.every(
-      (s) => s == SkillTreeNodeState.completed || s == SkillTreeNodeState.optional,
-    );
+    final isStageUnlocked = stageState != SkillTreeStageState.locked;
+    final isStageCompleted = stageState == SkillTreeStageState.completed;
     final header = headerBuilder.buildHeader(
       level: level,
       nodes: nodes,

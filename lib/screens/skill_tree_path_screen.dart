@@ -74,6 +74,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         context: context,
         controller: _scrollController,
         allNodes: nodes,
+        unlockedNodeIds: _unlocked,
         completedNodeIds: _completed,
         stageKeys: _stageKeys,
       );
