@@ -28,6 +28,7 @@ import 'screens/goal_center_screen.dart';
 import 'screens/goal_insights_screen.dart';
 import 'screens/memory_insights_screen.dart';
 import 'screens/decay_heatmap_screen.dart';
+import 'screens/reward_gallery_screen.dart';
 
 final GlobalKey analyzerKey = GlobalKey();
 
@@ -180,6 +181,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                   GoalInsightsScreen.route: (_) => const GoalInsightsScreen(),
                   MemoryInsightsScreen.route: (_) => const MemoryInsightsScreen(),
                   DecayHeatmapScreen.route: (_) => const DecayHeatmapScreen(),
+                  RewardGalleryScreen.route: (_) => const RewardGalleryScreen(),
                 },
                 builder: (context, child) {
                   return Stack(
