@@ -73,6 +73,7 @@ import '../tutorial/tutorial_flow.dart';
 import '../widgets/suggestion_card_weak_spots.dart';
 import '../widgets/tag_progress_card.dart';
 import '../widgets/weekly_summary_card.dart';
+import '../widgets/continue_learning_card.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   final TutorialFlow? tutorial;
@@ -157,6 +158,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const RecommendedNextPackCard(),
           const AdaptiveTheoryReminderBanner(),
           const NextLearningStepCard(),
+          const ContinueLearningCard(),
           const ResumeLessonCard(),
           const DecayMemoryHealthBanner(),
           const StreakBannerWidget(),
