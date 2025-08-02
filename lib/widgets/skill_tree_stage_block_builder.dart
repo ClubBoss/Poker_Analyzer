@@ -26,6 +26,7 @@ class SkillTreeStageBlockBuilder {
     required List<SkillTreeNodeModel> nodes,
     required Set<String> unlockedNodeIds,
     required Set<String> completedNodeIds,
+    Set<String> justUnlockedNodeIds = const {},
     void Function(SkillTreeNodeModel node)? onNodeTap,
   }) {
     final stageState = stageStateService.getStageState(
@@ -59,6 +60,7 @@ class SkillTreeStageBlockBuilder {
       nodes: isStageUnlocked ? nodes : const [],
       unlockedNodeIds: unlockedNodeIds,
       completedNodeIds: completedNodeIds,
+      justUnlockedNodeIds: justUnlockedNodeIds,
       onNodeTap: onNodeTap,
     );
 

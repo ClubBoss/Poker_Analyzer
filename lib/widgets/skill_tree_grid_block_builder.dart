@@ -26,6 +26,7 @@ class SkillTreeGridBlockBuilder {
     required List<SkillTreeNodeModel> nodes,
     required Set<String> unlockedNodeIds,
     required Set<String> completedNodeIds,
+    Set<String> justUnlockedNodeIds = const {},
     void Function(SkillTreeNodeModel node)? onNodeTap,
     double nodeWidth = 120,
     double nodeHeight = 80,
@@ -58,6 +59,7 @@ class SkillTreeGridBlockBuilder {
           node: node,
           unlocked: unlockedNodeIds.contains(node.id),
           completed: completedNodeIds.contains(node.id),
+          justUnlocked: justUnlockedNodeIds.contains(node.id),
           onTap: onNodeTap == null ? null : () => onNodeTap(node),
         ),
       ));

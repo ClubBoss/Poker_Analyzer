@@ -30,6 +30,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   SkillTree? _track;
   Set<String> _unlocked = {};
   Set<String> _completed = {};
+  final Set<String> _justUnlocked = {};
   bool _loading = true;
 
   @override
@@ -39,6 +40,8 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   }
 
   Future<void> _load() async {
+    final hadPrev = _unlocked.isNotEmpty;
+
     await TrackMilestoneUnlockerService.instance.initializeMilestones(
       widget.trackId,
     );
@@ -54,6 +57,8 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final unlocked = await progress.getUnlockedNodeIds(widget.trackId);
     final completed = await progress.getCompletedNodeIds(widget.trackId);
 
+    final newlyUnlocked = unlocked.difference(_unlocked);
+
     final blocks = _listBuilder.stageMarker.build(nodes);
     for (final block in blocks) {
       _stageKeys.putIfAbsent(block.stageIndex, () => GlobalKey());
@@ -65,7 +70,20 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       _unlocked = unlocked;
       _completed = completed;
       _loading = false;
+      if (hadPrev) {
+        _justUnlocked.addAll(newlyUnlocked);
+      }
     });
+    if (hadPrev) {
+      for (final id in newlyUnlocked) {
+        Future.delayed(const Duration(seconds: 3), () {
+          if (!mounted) return;
+          setState(() {
+            _justUnlocked.remove(id);
+          });
+        });
+      }
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       SkillTreeTrackCelebrationService.instance.maybeCelebrate(
         context,
@@ -123,6 +141,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       allNodes: nodes,
       unlockedNodeIds: _unlocked,
       completedNodeIds: _completed,
+      justUnlockedNodeIds: _justUnlocked,
       padding: const EdgeInsets.all(12),
       spacing: 20,
       onNodeTap: _openNode,

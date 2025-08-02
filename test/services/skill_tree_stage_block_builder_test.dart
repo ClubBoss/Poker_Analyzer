@@ -18,6 +18,7 @@ void main() {
       nodes: [node('a')],
       unlockedNodeIds: {},
       completedNodeIds: {},
+      justUnlockedNodeIds: const {},
     );
     await tester.pumpWidget(MaterialApp(home: widget));
     expect(find.byType(SkillTreeNodeCard), findsNothing);
@@ -31,6 +32,7 @@ void main() {
       nodes: [node('a')],
       unlockedNodeIds: {'a'},
       completedNodeIds: {'a'},
+      justUnlockedNodeIds: const {},
     );
     await tester.pumpWidget(MaterialApp(home: widget));
     expect(find.byType(SkillTreeNodeCard), findsOneWidget);

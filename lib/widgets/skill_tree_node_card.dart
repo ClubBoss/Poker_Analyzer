@@ -11,6 +11,7 @@ class SkillTreeNodeCard extends StatelessWidget {
   final bool unlocked;
   final bool completed;
   final VoidCallback? onTap;
+  final bool justUnlocked;
 
   const SkillTreeNodeCard({
     super.key,
@@ -18,6 +19,7 @@ class SkillTreeNodeCard extends StatelessWidget {
     required this.unlocked,
     required this.completed,
     this.onTap,
+    this.justUnlocked = false,
   });
 
   @override
@@ -35,28 +37,45 @@ class SkillTreeNodeCard extends StatelessWidget {
       borderColor = Colors.grey;
     }
 
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: borderColor),
-        ),
-        padding: const EdgeInsets.all(8),
-        child: Stack(
-          children: [
-            Center(
-              child: Text(
-                node.title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12),
-              ),
+    Widget card = Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: borderColor),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Stack(
+        children: [
+          Center(
+            child: Text(
+              node.title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12),
             ),
-            Positioned(right: 0, top: 0, child: overlay),
-          ],
-        ),
+          ),
+          Positioned(right: 0, top: 0, child: overlay),
+        ],
       ),
     );
+    if (justUnlocked) {
+      card = TweenAnimationBuilder<double>(
+        tween: Tween(begin: 1, end: 0),
+        duration: const Duration(seconds: 3),
+        builder: (context, value, child) => Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.greenAccent.withOpacity(value),
+                blurRadius: 12 * value,
+                spreadRadius: 2 * value,
+              ),
+            ],
+          ),
+          child: child,
+        ),
+        child: card,
+      );
+    }
+    return InkWell(onTap: onTap, child: card);
   }
 }
