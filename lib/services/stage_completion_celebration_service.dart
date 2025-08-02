@@ -7,6 +7,7 @@ import 'skill_tree_node_progress_tracker.dart';
 import 'skill_tree_stage_completion_evaluator.dart';
 import 'skill_tree_milestone_analytics_logger.dart';
 import 'track_completion_celebration_service.dart';
+import 'track_completion_reward_service.dart';
 import 'track_reward_unlocker_service.dart';
 
 /// Shows a celebratory dialog when a skill tree stage is fully completed.
@@ -87,7 +88,11 @@ class StageCompletionCelebrationService {
 
     await TrackCompletionCelebrationService.instance.maybeCelebrate(trackId);
 
-    await TrackRewardUnlockerService.instance.unlockReward(trackId);
+    final granted =
+        await TrackCompletionRewardService.instance.grantReward(trackId);
+    if (granted) {
+      await TrackRewardUnlockerService.instance.unlockReward(trackId);
+    }
 
     await SkillTreeMilestoneAnalyticsLogger.instance
         .logTrackCompleted(trackId: trackId);
