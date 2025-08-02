@@ -8,6 +8,7 @@ import '../services/skill_tree_unlock_evaluator.dart';
 import '../services/skill_tree_stage_gate_evaluator.dart';
 import '../services/skill_tree_stage_completion_evaluator.dart';
 import '../services/skill_tree_stage_unlock_overlay_builder.dart';
+import '../services/skill_tree_unlock_notification_service.dart';
 import '../widgets/skill_tree_stage_header_builder.dart';
 import '../screens/skill_tree_node_detail_screen.dart';
 
@@ -28,6 +29,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
   bool _loading = true;
   final _overlayBuilder = const SkillTreeStageUnlockOverlayBuilder();
   final _headerBuilder = const SkillTreeStageHeaderBuilder();
+  final _unlockNotify = SkillTreeUnlockNotificationService();
 
   @override
   void initState() {
@@ -64,6 +66,9 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
       _completedStages = completedStages;
       _loading = false;
     });
+    if (mounted) {
+      await _unlockNotify.maybeNotify(context, tree);
+    }
   }
 
   Future<void> _openNode(SkillTreeNodeModel node) async {
