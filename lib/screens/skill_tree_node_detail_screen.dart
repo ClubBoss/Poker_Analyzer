@@ -49,8 +49,8 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
       _progress = await TrainingProgressService.instance
           .getProgress(widget.node.trainingPackId);
     } else {
-      final done =
-          await SkillTreeNodeProgressTracker.instance.isCompleted(widget.node.id);
+      final done = await SkillTreeNodeProgressTracker.instance
+          .isCompleted(widget.node.id);
       if (done) _progress = 1.0;
     }
     if (mounted) setState(() => _loading = false);
@@ -72,16 +72,20 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
         ),
       );
     } else if (widget.node.trainingPackId.isNotEmpty) {
-      final tpl = await PackLibraryService.instance
-          .getById(widget.node.trainingPackId);
+      final tpl =
+          await PackLibraryService.instance.getById(widget.node.trainingPackId);
       if (tpl != null) {
         await const TrainingSessionLauncher().launch(tpl);
       }
     }
     await _load();
     if (mounted && !wasComplete && _progress >= 1.0) {
-      await SkillTreeNodeCelebrationService()
-          .maybeCelebrate(context, widget.node.id);
+      await SkillTreeNodeCelebrationService().maybeCelebrate(
+        context,
+        widget.node.id,
+        trackId: widget.node.category,
+        stage: widget.node.level,
+      );
     }
   }
 
@@ -111,7 +115,8 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(visual.emoji, style: const TextStyle(fontSize: 32)),
+                        Text(visual.emoji,
+                            style: const TextStyle(fontSize: 32)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -161,8 +166,8 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text('$pct%',
-                        style:
-                            const TextStyle(color: Colors.white70, fontSize: 12)),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
                     const Spacer(),
                     Tooltip(
                       message:
@@ -171,7 +176,8 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: widget.unlocked ? _start : null,
-                          style: ElevatedButton.styleFrom(backgroundColor: accent),
+                          style:
+                              ElevatedButton.styleFrom(backgroundColor: accent),
                           child: const Text('Начать'),
                         ),
                       ),
