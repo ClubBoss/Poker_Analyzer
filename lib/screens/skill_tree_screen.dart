@@ -185,6 +185,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     );
     final totalCount = _progressService.getTotalNodeCount(tree);
     final progress = totalCount == 0 ? 0.0 : unlockedCount / totalCount;
+    final pct = (progress * 100).round();
     final children = <Widget>[];
     if (lockedNodes.isNotEmpty) {
       children.add(
@@ -253,11 +254,36 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: progress),
-              duration: const Duration(milliseconds: 300),
-              builder: (context, value, child) =>
-                  LinearProgressIndicator(value: value, minHeight: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: progress),
+                    duration: const Duration(milliseconds: 300),
+                    builder: (context, value, child) =>
+                        LinearProgressIndicator(value: value, minHeight: 4),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text.rich(
+                    TextSpan(
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.grey),
+                      children: [
+                        TextSpan(
+                          text: '$pct%',
+                          style:
+                              const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const TextSpan(text: ' complete'),
+                      ],
+                    ),
+                    key: ValueKey(pct),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(child: ListView(children: children)),
