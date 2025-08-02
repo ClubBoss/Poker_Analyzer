@@ -35,11 +35,23 @@ class _RecordingCelebrationService extends StageCompletionCelebrationService {
     required SkillTreeNodeProgressTracker progress,
   }) : super(library: library, progress: progress);
 
-  int callCount = 0;
+  int stageCalls = 0;
+  int trackCalls = 0;
 
   @override
   Future<void> checkAndCelebrate(String trackId) async {
-    callCount++;
+    stageCalls++;
+  }
+
+  @override
+  Future<void> checkAndCelebrateTrackCompletion(String trackId) async {
+    final tree = library.getTrack(trackId)?.tree;
+    if (tree == null) return;
+    final completed = progress.completedNodeIds.value;
+    final completedStages = evaluator.getCompletedStages(tree, completed);
+    final totalStages = tree.nodes.values.map((n) => n.level).toSet().length;
+    if (completedStages.length < totalStages) return;
+    trackCalls++;
   }
 }
 
@@ -99,7 +111,39 @@ void main() {
 
     await tracker.markCompleted('a');
 
-    expect(recorder.callCount, 1);
+    expect(recorder.stageCalls, 1);
+
+    StageCompletionCelebrationService.instance = originalSvc;
+    SkillTreeTrackResolver.instance = originalResolver;
+  });
+
+  test('triggers track celebration after last node completion', () async {
+    final tracker = SkillTreeNodeProgressTracker.instance;
+    await tracker.resetForTest();
+
+    final nodeA =
+        SkillTreeNodeModel(id: 'a', title: 'A', category: 'T', level: 0);
+    final nodeB =
+        SkillTreeNodeModel(id: 'b', title: 'B', category: 'T', level: 1);
+    const builder = SkillTreeBuilderService();
+    final build = builder.build([nodeA, nodeB]);
+    final lib = _FakeLibraryService({'T': build}, [nodeA, nodeB]);
+
+    final originalResolver = SkillTreeTrackResolver.instance;
+    SkillTreeTrackResolver.instance = SkillTreeTrackResolver(library: lib);
+
+    final originalSvc = StageCompletionCelebrationService.instance;
+    final recorder = _RecordingCelebrationService(
+      library: lib,
+      progress: tracker,
+    );
+    StageCompletionCelebrationService.instance = recorder;
+
+    await tracker.markCompleted('a');
+    expect(recorder.trackCalls, 0);
+
+    await tracker.markCompleted('b');
+    expect(recorder.trackCalls, 1);
 
     StageCompletionCelebrationService.instance = originalSvc;
     SkillTreeTrackResolver.instance = originalResolver;
