@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_track_progress_service.dart';
+import '../services/track_reward_preview_service.dart';
 import 'skill_tree_path_screen.dart';
 
 class SkillTreeTrackIntroScreen extends StatefulWidget {
@@ -17,10 +18,12 @@ class _SkillTreeTrackIntroScreenState extends State<SkillTreeTrackIntroScreen> {
   String _title = '';
   String _description = '';
   bool _loading = true;
+  late final Future<TrackRewardPreviewService> _previewFuture;
 
   @override
   void initState() {
     super.initState();
+    _previewFuture = TrackRewardPreviewService.create();
     _load();
   }
 
@@ -88,6 +91,20 @@ class _SkillTreeTrackIntroScreenState extends State<SkillTreeTrackIntroScreen> {
                 ),
               ),
               const SizedBox(height: 32),
+              FutureBuilder<TrackRewardPreviewService>(
+                future: _previewFuture,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    children: [
+                      snapshot.data!.buildPreviewCard(widget.trackId),
+                      const SizedBox(height: 32),
+                    ],
+                  );
+                },
+              ),
               ElevatedButton(
                 onPressed: _start,
                 child: const Text('Начать'),
