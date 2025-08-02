@@ -1,4 +1,5 @@
 import '../models/skill_tree.dart';
+import '../models/skill_tree_node_model.dart';
 import 'skill_tree_stage_completion_evaluator.dart';
 
 /// Determines whether skill tree stages (levels) are unlocked.
@@ -43,5 +44,24 @@ class SkillTreeStageGateEvaluator {
       }
     }
     return unlocked;
+  }
+
+  /// Returns nodes from earlier stages that block unlocking of [level].
+  List<SkillTreeNodeModel> getBlockingNodes(
+    SkillTree tree,
+    int level,
+    Set<String> completedNodeIds,
+  ) {
+    final blocking = <SkillTreeNodeModel>[];
+    for (final node in tree.nodes.values) {
+      if (node.level >= level) continue;
+      final opt = (node as dynamic).isOptional == true;
+      if (opt) continue;
+      if (!completedNodeIds.contains(node.id)) {
+        blocking.add(node);
+      }
+    }
+    blocking.sort((a, b) => a.level.compareTo(b.level));
+    return blocking;
   }
 }
