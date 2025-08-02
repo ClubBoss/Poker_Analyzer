@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../models/skill_tree_node_model.dart';
@@ -29,11 +30,41 @@ class _SkillTreeBlockedSummaryBannerState
     extends State<SkillTreeBlockedSummaryBanner> {
   final _linkService = SkillTreeDependencyLinkService();
   late Future<List<_LockedNodeData>> _dataFuture;
+  final _scrollController = ScrollController();
+  Set<String> _prevIds = {};
+  static const double _itemWidth = 208;
 
   @override
   void initState() {
     super.initState();
     _dataFuture = _load();
+    _prevIds = widget.nodes.map((e) => e.id).toSet();
+  }
+
+  @override
+  void didUpdateWidget(covariant SkillTreeBlockedSummaryBanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final newIds = widget.nodes.map((e) => e.id).toSet();
+    if (!setEquals(newIds, _prevIds)) {
+      final added = newIds.difference(_prevIds);
+      setState(() {
+        _dataFuture = _load();
+        _prevIds = newIds;
+      });
+      if (added.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Future.delayed(const Duration(milliseconds: 100));
+          final index = widget.nodes.indexWhere((n) => added.contains(n.id));
+          if (_scrollController.hasClients && index >= 0) {
+            _scrollController.animateTo(
+              index * _itemWidth,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
+    }
   }
 
   Future<List<_LockedNodeData>> _load() async {
@@ -51,6 +82,12 @@ class _SkillTreeBlockedSummaryBannerState
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<_LockedNodeData>>(
       future: _dataFuture,
@@ -62,6 +99,7 @@ class _SkillTreeBlockedSummaryBannerState
         return SizedBox(
           height: 90,
           child: ListView(
+            controller: _scrollController,
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             children: [
