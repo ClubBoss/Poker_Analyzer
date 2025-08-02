@@ -1,0 +1,159 @@
+import 'package:flutter/material.dart';
+
+import '../models/skill_tree.dart';
+import '../models/skill_tree_node_model.dart';
+import '../services/skill_tree_library_service.dart';
+import '../services/skill_tree_track_progress_service.dart';
+
+/// Displays current stage and overall progress for a skill tree track.
+class SkillTreeProgressHeader extends StatefulWidget {
+  final String trackId;
+  final SkillTreeLibraryService library;
+  final SkillTreeTrackProgressService progressService;
+
+  const SkillTreeProgressHeader({
+    super.key,
+    required this.trackId,
+    SkillTreeLibraryService? library,
+    SkillTreeTrackProgressService? progressService,
+  })  : library = library ?? SkillTreeLibraryService.instance,
+        progressService = progressService ?? SkillTreeTrackProgressService();
+
+  @override
+  State<SkillTreeProgressHeader> createState() =>
+      _SkillTreeProgressHeaderState();
+}
+
+class _SkillTreeProgressHeaderState extends State<SkillTreeProgressHeader> {
+  SkillTree? _track;
+  Set<String> _completed = {};
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    await widget.library.reload();
+    final res = widget.library.getTrack(widget.trackId);
+    final tree = res?.tree;
+    if (tree == null) {
+      setState(() => _loading = false);
+      return;
+    }
+    final completed =
+        await widget.progressService.getCompletedNodeIds(widget.trackId);
+    if (!mounted) return;
+    setState(() {
+      _track = tree;
+      _completed = completed;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const SizedBox(
+        height: 80,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    final tree = _track;
+    if (tree == null) return const SizedBox.shrink();
+
+    final levels = <int, List<SkillTreeNodeModel>>{};
+    for (final n in tree.nodes.values) {
+      levels.putIfAbsent(n.level, () => []).add(n);
+    }
+    final sorted = levels.keys.toList()..sort();
+    int current = sorted.isNotEmpty ? sorted.first : 0;
+    for (final lvl in sorted) {
+      final nodes =
+          levels[lvl]!.where((n) => (n as dynamic).isOptional != true);
+      final done = nodes.every((n) => _completed.contains(n.id));
+      if (!done) {
+        current = lvl;
+        break;
+      }
+    }
+
+    final stageNodes = levels[current] ?? [];
+    final stageTitle = stageNodes.isNotEmpty ? stageNodes.first.title : '';
+    final totalStage =
+        stageNodes.where((n) => (n as dynamic).isOptional != true).length;
+    final doneStage = stageNodes
+        .where((n) =>
+            (n as dynamic).isOptional != true && _completed.contains(n.id))
+        .length;
+    final stageProgress = totalStage > 0 ? doneStage / totalStage : 0.0;
+
+    final total = tree.nodes.values
+        .where((n) => (n as dynamic).isOptional != true)
+        .length;
+    final done = tree.nodes.values
+        .where((n) =>
+            (n as dynamic).isOptional != true && _completed.contains(n.id))
+        .length;
+    final overallProgress = total > 0 ? done / total : 0.0;
+
+    final accent = Theme.of(context).colorScheme.secondary;
+    final pct = (overallProgress * 100).round();
+    final stagePct = (stageProgress * 100).round();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Этап ${current + 1}: $stageTitle',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: stageProgress,
+              backgroundColor: Colors.white24,
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
+              minHeight: 6,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text('$stagePct%',
+              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: overallProgress,
+              backgroundColor: Colors.white24,
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
+              minHeight: 6,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              Text('$pct%',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              if (overallProgress >= 1.0)
+                const Padding(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Text('🎉', style: TextStyle(fontSize: 16)),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
