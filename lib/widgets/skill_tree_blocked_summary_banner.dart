@@ -7,11 +7,15 @@ import '../services/skill_tree_dependency_link_service.dart';
 class SkillTreeBlockedSummaryBanner extends StatefulWidget {
   final List<SkillTreeNodeModel> nodes;
   final void Function(SkillTreeNodeModel node) onShowDetails;
+  final int unlockedCount;
+  final int totalCount;
 
   const SkillTreeBlockedSummaryBanner({
     super.key,
     required this.nodes,
     required this.onShowDetails,
+    required this.unlockedCount,
+    required this.totalCount,
   });
 
   @override
@@ -98,26 +102,47 @@ class _SkillTreeBlockedSummaryBannerState
           return const SizedBox.shrink();
         }
         final items = snapshot.data!;
-        return SizedBox(
-          height: 90,
-          child: ListView(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            children: [
-              _LockedCountBadge(count: items.length),
-              for (final item in items)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: _BlockedNodeCard(
-                    key: ValueKey(item.node.id),
-                    data: item,
-                    onTap: () => widget.onShowDetails(item.node),
-                    highlight: _newlyAddedIds.contains(item.node.id),
-                  ),
+        final progressText =
+            '${widget.unlockedCount} of ${widget.totalCount} unlocked';
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
+                child: Text(
+                  progressText,
+                  key: ValueKey(progressText),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            SizedBox(
+              height: 90,
+              child: ListView(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                children: [
+                  _LockedCountBadge(count: items.length),
+                  for (final item in items)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: _BlockedNodeCard(
+                        key: ValueKey(item.node.id),
+                        data: item,
+                        onTap: () => widget.onShowDetails(item.node),
+                        highlight: _newlyAddedIds.contains(item.node.id),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );

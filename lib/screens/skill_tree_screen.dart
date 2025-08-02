@@ -14,6 +14,7 @@ import '../widgets/skill_tree_stage_header_builder.dart';
 import '../screens/skill_tree_node_detail_screen.dart';
 import '../widgets/skill_tree_node_block_reason_widget.dart';
 import '../widgets/skill_tree_blocked_summary_banner.dart';
+import '../services/skill_tree_progress_service.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   final String category;
@@ -34,6 +35,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
   final _headerBuilder = const SkillTreeStageHeaderBuilder();
   final _unlockNotify = SkillTreeUnlockNotificationService();
   final _stageCelebrator = SkillTreeStageGateCelebrationOverlay();
+  final _progressService = const SkillTreeProgressService();
 
   @override
   void initState() {
@@ -176,6 +178,12 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
       for (final n in nodes)
         if (!_completed.contains(n.id) && !_unlocked.contains(n.id)) n,
     ];
+    final unlockedCount = _progressService.getUnlockedNodeCount(
+      tree: tree,
+      unlockedNodeIds: _unlocked,
+      completedNodeIds: _completed,
+    );
+    final totalCount = _progressService.getTotalNodeCount(tree);
     final children = <Widget>[];
     if (lockedNodes.isNotEmpty) {
       children.add(
@@ -184,6 +192,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
           child: SkillTreeBlockedSummaryBanner(
             nodes: lockedNodes,
             onShowDetails: _showLockReason,
+            unlockedCount: unlockedCount,
+            totalCount: totalCount,
           ),
         ),
       );
