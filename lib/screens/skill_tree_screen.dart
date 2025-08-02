@@ -184,6 +184,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
       completedNodeIds: _completed,
     );
     final totalCount = _progressService.getTotalNodeCount(tree);
+    final progress = totalCount == 0 ? 0.0 : unlockedCount / totalCount;
     final children = <Widget>[];
     if (lockedNodes.isNotEmpty) {
       children.add(
@@ -248,7 +249,20 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(widget.category)),
-      body: ListView(children: children),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: progress),
+              duration: const Duration(milliseconds: 300),
+              builder: (context, value, child) =>
+                  LinearProgressIndicator(value: value, minHeight: 4),
+            ),
+          ),
+          Expanded(child: ListView(children: children)),
+        ],
+      ),
     );
   }
 }
