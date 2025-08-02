@@ -82,7 +82,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
       _loading = false;
     });
 
-    if (shouldCelebrate) _showStageUnlockConfetti();
+    if (shouldCelebrate) {
+      _showStageUnlockConfetti();
+      _showStageUnlockBanner();
+    }
 
     _previousUnlockedStages = unlockedStages;
 
@@ -122,6 +125,23 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     Future.delayed(const Duration(milliseconds: 1500), () {
       controller.dispose();
       entry.remove();
+    });
+  }
+
+  void _showStageUnlockBanner() {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearMaterialBanners();
+    final banner = MaterialBanner(
+      backgroundColor: Colors.green,
+      content: const Text(
+        '⭐ New Stage Unlocked!',
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+      actions: const [SizedBox.shrink()],
+    );
+    messenger.showMaterialBanner(banner);
+    Future.delayed(const Duration(seconds: 3), () {
+      messenger.clearMaterialBanners();
     });
   }
 
