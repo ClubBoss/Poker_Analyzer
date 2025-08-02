@@ -109,14 +109,19 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final children = <Widget>[];
     final sortedLevels = levels.keys.toList()..sort();
     for (final lvl in sortedLevels) {
-      final overlay = _overlayBuilder.buildOverlay(
-        level: lvl,
-        isUnlocked: _unlockedStages.contains(lvl),
-        isCompleted: _completedStages.contains(lvl),
-      );
+      final isUnlockedStage = _unlockedStages.contains(lvl);
+      Widget? overlay;
+      if (!isUnlockedStage) {
+        overlay = _overlayBuilder.buildOverlay(
+          level: lvl,
+          isUnlocked: isUnlockedStage,
+          isCompleted: _completedStages.contains(lvl),
+        );
+      }
       final header = _headerBuilder.buildHeader(
         level: lvl,
         nodes: levels[lvl]!,
+        unlockedNodeIds: _unlocked,
         completedNodeIds: _completed,
         overlay: overlay,
       );

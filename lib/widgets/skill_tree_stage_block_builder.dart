@@ -34,16 +34,20 @@ class SkillTreeStageBlockBuilder {
       completed: completedNodeIds,
     );
     final isStageUnlocked = stageState != SkillTreeStageState.locked;
-    final isStageCompleted = stageState == SkillTreeStageState.completed;
+    Widget? overlay;
+    if (!isStageUnlocked) {
+      overlay = overlayBuilder.buildOverlay(
+        level: level,
+        isUnlocked: isStageUnlocked,
+        isCompleted: false,
+      );
+    }
     final header = headerBuilder.buildHeader(
       level: level,
       nodes: nodes,
+      unlockedNodeIds: unlockedNodeIds,
       completedNodeIds: completedNodeIds,
-      overlay: overlayBuilder.buildOverlay(
-        level: level,
-        isUnlocked: isStageUnlocked,
-        isCompleted: isStageCompleted,
-      ),
+      overlay: overlay,
     );
 
     final grid = SkillTreeGridBlockBuilder(
@@ -78,6 +82,7 @@ class _EmptyHeaderBuilder extends SkillTreeStageHeaderBuilder {
   Widget buildHeader({
     required int level,
     required List<SkillTreeNodeModel> nodes,
+    required Set<String> unlockedNodeIds,
     required Set<String> completedNodeIds,
     Widget? overlay,
   }) {
