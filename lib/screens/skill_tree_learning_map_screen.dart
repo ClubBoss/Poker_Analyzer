@@ -61,6 +61,9 @@ class _SkillTreeLearningMapScreenState
         builder: (_) => SkillTreeNodeDetailScreen(
           node: node,
           unlocked: _unlocked.contains(node.id),
+          track: _track!,
+          unlockedNodeIds: _unlocked,
+          completedNodeIds: _completed,
         ),
       ),
     );

@@ -80,7 +80,12 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SkillTreeNodeDetailScreen(node: node),
+        builder: (_) => SkillTreeNodeDetailScreen(
+          node: node,
+          track: _tree!,
+          unlockedNodeIds: _unlocked,
+          completedNodeIds: _completed,
+        ),
       ),
     );
     await _load();

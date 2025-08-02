@@ -89,6 +89,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         builder: (_) => SkillTreeNodeDetailScreen(
           node: node,
           unlocked: _unlocked.contains(node.id),
+          track: _track!,
+          unlockedNodeIds: _unlocked,
+          completedNodeIds: _completed,
         ),
       ),
     );
