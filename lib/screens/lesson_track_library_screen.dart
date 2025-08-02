@@ -71,7 +71,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
   }
 
   void _showUnlockHint(String trackId) {
-    showTrackUnlockHintDialog(context, trackId);
+    TrackUnlockHintDialog.show(context, trackId);
   }
 
   Future<void> _select(LessonTrack track, String? currentId) async {
