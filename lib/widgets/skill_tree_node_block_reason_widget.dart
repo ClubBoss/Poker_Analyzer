@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/skill_tree_dependency_link.dart';
 import '../services/skill_tree_dependency_link_service.dart';
@@ -122,7 +123,43 @@ class _DependencyItem extends StatefulWidget {
 }
 
 class _DependencyItemState extends State<_DependencyItem> {
+  static const _prefsHideCompletedKey =
+      'skill_tree_hide_completed_prereqs';
+  static final ValueNotifier<bool> _hideCompletedNotifier =
+      ValueNotifier(false);
+  static bool _prefsInitialized = false;
+
   bool _hideCompleted = false;
+  late VoidCallback _notifierListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _notifierListener =
+        () => setState(() => _hideCompleted = _hideCompletedNotifier.value);
+    _hideCompletedNotifier.addListener(_notifierListener);
+    if (!_prefsInitialized) {
+      SharedPreferences.getInstance().then((prefs) {
+        final value = prefs.getBool(_prefsHideCompletedKey) ?? false;
+        _prefsInitialized = true;
+        _hideCompletedNotifier.value = value;
+      });
+    } else {
+      _hideCompleted = _hideCompletedNotifier.value;
+    }
+  }
+
+  @override
+  void dispose() {
+    _hideCompletedNotifier.removeListener(_notifierListener);
+    super.dispose();
+  }
+
+  Future<void> _toggleHideCompleted(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsHideCompletedKey, value);
+    _hideCompletedNotifier.value = value;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +190,7 @@ class _DependencyItemState extends State<_DependencyItem> {
         if (widget.prereqs.isNotEmpty)
           SwitchListTile(
             value: _hideCompleted,
-            onChanged: (val) => setState(() => _hideCompleted = val),
+            onChanged: _toggleHideCompleted,
             title: const Text(
               'Hide completed prerequisites',
               style: TextStyle(fontSize: 12),
@@ -222,8 +259,9 @@ class _DependencyItemState extends State<_DependencyItem> {
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
     return GestureDetector(
-      onTap:
-          onJumpToNode != null ? () => onJumpToNode!(prereq.id) : null,
+      onTap: widget.onJumpToNode != null
+          ? () => widget.onJumpToNode!(prereq.id)
+          : null,
       child: Tooltip(message: tooltip, child: chip),
     );
   }
