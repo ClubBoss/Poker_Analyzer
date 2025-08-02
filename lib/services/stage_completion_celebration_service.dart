@@ -6,8 +6,7 @@ import 'skill_tree_library_service.dart';
 import 'skill_tree_node_progress_tracker.dart';
 import 'skill_tree_stage_completion_evaluator.dart';
 import 'skill_tree_milestone_analytics_logger.dart';
-import 'track_recommendation_engine.dart';
-import 'skill_tree_navigator.dart';
+import 'track_completion_celebration_service.dart';
 
 /// Shows a celebratory dialog when a skill tree stage is fully completed.
 class StageCompletionCelebrationService {
@@ -85,32 +84,8 @@ class StageCompletionCelebrationService {
     if (await progress.isTrackCompleted(trackId)) return;
     await progress.markTrackCompleted(trackId);
 
-    final ctx = navigatorKey.currentState?.context;
-    if (ctx == null || !ctx.mounted) return;
-
-    final nextTrackId = TrackRecommendationEngine.getNextTrack(trackId);
-
-    await showDialog<void>(
-      context: ctx,
-      builder: (context) => AlertDialog(
-        title: const Text('Трек завершён'),
-        content: const Text('Вы прошли весь трек!'),
-        actions: [
-          if (nextTrackId != null)
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                SkillTreeNavigator.instance.openTrack(nextTrackId);
-              },
-              child: const Text('Следующий трек'),
-            ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    await TrackCompletionCelebrationService.instance
+        .maybeCelebrate(trackId);
 
     await SkillTreeMilestoneAnalyticsLogger.instance
         .logTrackCompleted(trackId: trackId);
