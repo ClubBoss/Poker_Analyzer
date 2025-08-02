@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/skill_tree_node_model.dart';
 import '../services/skill_tree_stage_unlock_overlay_builder.dart';
+import '../services/skill_tree_node_completion_state_service.dart';
 import 'skill_tree_grid_block_builder.dart';
 import 'skill_tree_stage_header_builder.dart';
 
@@ -10,11 +11,13 @@ class SkillTreeStageBlockBuilder {
   final SkillTreeGridBlockBuilder gridBuilder;
   final SkillTreeStageHeaderBuilder headerBuilder;
   final SkillTreeStageUnlockOverlayBuilder overlayBuilder;
+  final SkillTreeNodeCompletionStateService stateService;
 
   const SkillTreeStageBlockBuilder({
     this.gridBuilder = const SkillTreeGridBlockBuilder(),
     this.headerBuilder = const SkillTreeStageHeaderBuilder(),
     this.overlayBuilder = const SkillTreeStageUnlockOverlayBuilder(),
+    this.stateService = const SkillTreeNodeCompletionStateService(),
   });
 
   /// Returns a widget displaying [nodes] for a stage with header and overlay.
@@ -23,10 +26,21 @@ class SkillTreeStageBlockBuilder {
     required List<SkillTreeNodeModel> nodes,
     required Set<String> unlockedNodeIds,
     required Set<String> completedNodeIds,
-    required bool isStageUnlocked,
-    required bool isStageCompleted,
     void Function(SkillTreeNodeModel node)? onNodeTap,
   }) {
+    final states = nodes
+        .map((n) => stateService.getNodeState(
+              node: n,
+              unlocked: unlockedNodeIds,
+              completed: completedNodeIds,
+            ))
+        .toList();
+    final isStageUnlocked = states.any(
+      (s) => s == SkillTreeNodeState.unlocked || s == SkillTreeNodeState.completed,
+    );
+    final isStageCompleted = states.every(
+      (s) => s == SkillTreeNodeState.completed || s == SkillTreeNodeState.optional,
+    );
     final header = headerBuilder.buildHeader(
       level: level,
       nodes: nodes,
