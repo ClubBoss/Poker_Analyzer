@@ -5,6 +5,7 @@ import '../main.dart';
 import 'skill_tree_library_service.dart';
 import 'skill_tree_node_progress_tracker.dart';
 import 'skill_tree_stage_completion_evaluator.dart';
+import 'skill_tree_milestone_analytics_logger.dart';
 
 /// Shows a celebratory dialog when a skill tree stage is fully completed.
 class StageCompletionCelebrationService {
@@ -38,6 +39,7 @@ class StageCompletionCelebrationService {
     final completedStages = evaluator.getCompletedStages(tree, completed);
     if (completedStages.isEmpty) return;
     final stageIndex = completedStages.last;
+    final totalStages = tree.nodes.values.map((n) => n.level).toSet().length;
 
     final prefs = await SharedPreferences.getInstance();
     final key = 'stage_celebrated_${trackId}_$stageIndex';
@@ -59,6 +61,12 @@ class StageCompletionCelebrationService {
           ),
         ],
       ),
+    );
+
+    await SkillTreeMilestoneAnalyticsLogger.instance.logStageCompleted(
+      trackId: trackId,
+      stageIndex: stageIndex,
+      totalStages: totalStages,
     );
   }
 }
