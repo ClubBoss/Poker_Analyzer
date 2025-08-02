@@ -9,6 +9,7 @@ import 'skill_tree_milestone_analytics_logger.dart';
 import 'track_completion_celebration_service.dart';
 import 'track_completion_reward_service.dart';
 import 'track_reward_unlocker_service.dart';
+import 'track_milestone_unlocker_service.dart';
 import '../widgets/track_completion_dialog.dart';
 
 /// Shows a celebratory dialog when a skill tree stage is fully completed.
@@ -21,9 +22,9 @@ class StageCompletionCelebrationService {
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeStageCompletionEvaluator? evaluator,
-  })  : library = library ?? SkillTreeLibraryService.instance,
-        progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        evaluator = evaluator ?? const SkillTreeStageCompletionEvaluator();
+  }) : library = library ?? SkillTreeLibraryService.instance,
+       progress = progress ?? SkillTreeNodeProgressTracker.instance,
+       evaluator = evaluator ?? const SkillTreeStageCompletionEvaluator();
 
   static StageCompletionCelebrationService instance =
       StageCompletionCelebrationService();
@@ -73,6 +74,8 @@ class StageCompletionCelebrationService {
       stageIndex: stageIndex,
       totalStages: totalStages,
     );
+
+    await TrackMilestoneUnlockerService.instance.unlockNextStage(trackId);
   }
 
   /// Celebrates full track completion for [trackId] once.
@@ -89,8 +92,9 @@ class StageCompletionCelebrationService {
 
     await TrackCompletionCelebrationService.instance.maybeCelebrate(trackId);
 
-    final granted =
-        await TrackCompletionRewardService.instance.grantReward(trackId);
+    final granted = await TrackCompletionRewardService.instance.grantReward(
+      trackId,
+    );
     if (granted) {
       await TrackRewardUnlockerService.instance.unlockReward(trackId);
     }
@@ -100,7 +104,8 @@ class StageCompletionCelebrationService {
       await TrackCompletionDialog.show(ctx, trackId);
     }
 
-    await SkillTreeMilestoneAnalyticsLogger.instance
-        .logTrackCompleted(trackId: trackId);
+    await SkillTreeMilestoneAnalyticsLogger.instance.logTrackCompleted(
+      trackId: trackId,
+    );
   }
 }
