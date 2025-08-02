@@ -28,6 +28,10 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   final _autoScroll = const StageAutoScrollService();
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _stageKeys = {};
+  final Map<int, String> _stageTitles = {};
+  final GlobalKey _listKey = GlobalKey();
+  int _currentStage = 0;
+  static const double _stickyHeaderHeight = 36;
 
   SkillTree? _track;
   Set<String> _unlocked = {};
@@ -41,6 +45,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _load();
   }
 
@@ -75,8 +80,13 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final prefs = await SharedPreferences.getInstance();
     final blocks = _listBuilder.stageMarker.build(nodes);
     final folded = <int>{};
+    _stageKeys.clear();
+    _stageTitles.clear();
     for (final block in blocks) {
-      _stageKeys.putIfAbsent(block.stageIndex, () => GlobalKey());
+      _stageKeys[block.stageIndex] = GlobalKey();
+      if (block.nodes.isNotEmpty) {
+        _stageTitles[block.stageIndex] = block.nodes.first.title;
+      }
       final allCompleted = block.nodes.every((n) => completed.contains(n.id));
       if (allCompleted) {
         final key = _foldKey(block.stageIndex);
@@ -129,6 +139,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         completedNodeIds: _completed,
         stageKeys: _stageKeys,
       );
+      _onScroll();
     });
   }
 
@@ -222,8 +233,61 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    final listBox =
+        _listKey.currentContext?.findRenderObject() as RenderBox?;
+    if (listBox == null) return;
+    final listTop = listBox.localToGlobal(Offset.zero).dy;
+    final entries = _stageKeys.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    int current = entries.isNotEmpty ? entries.first.key : 0;
+    for (final e in entries) {
+      final ctx = e.value.currentContext;
+      if (ctx == null) continue;
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box == null) continue;
+      final pos = box.localToGlobal(Offset.zero).dy;
+      if (pos - listTop <= 0) {
+        current = e.key;
+      } else {
+        break;
+      }
+    }
+    if (current != _currentStage) {
+      setState(() => _currentStage = current);
+    }
+  }
+
+  Widget _buildStickyBanner() {
+    final title = _stageTitles[_currentStage];
+    final label = title == null || title.isEmpty
+        ? 'Stage $_currentStage'
+        : 'Stage $_currentStage — $title';
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        key: ValueKey(label),
+        height: _stickyHeaderHeight,
+        color: Colors.black54,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.flag, size: 16, color: Colors.white),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 12, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -241,18 +305,26 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final nodes = tree.nodes.values.toList()
       ..sort((a, b) => a.level.compareTo(b.level));
 
-    final list = _listBuilder.build(
-      allNodes: nodes,
-      unlockedNodeIds: _unlocked,
-      completedNodeIds: _completed,
-      justUnlockedNodeIds: _justUnlocked,
-      padding: const EdgeInsets.all(12),
-      spacing: 20,
-      onNodeTap: _openNode,
-      stageKeys: _stageKeys,
-      controller: _scrollController,
-      foldedStages: _foldedStages,
-      onFoldToggle: _toggleStageFold,
+    final list = KeyedSubtree(
+      key: _listKey,
+      child: _listBuilder.build(
+        allNodes: nodes,
+        unlockedNodeIds: _unlocked,
+        completedNodeIds: _completed,
+        justUnlockedNodeIds: _justUnlocked,
+        padding: EdgeInsets.fromLTRB(
+          12,
+          12 + _stickyHeaderHeight,
+          12,
+          12,
+        ),
+        spacing: 20,
+        onNodeTap: _openNode,
+        stageKeys: _stageKeys,
+        controller: _scrollController,
+        foldedStages: _foldedStages,
+        onFoldToggle: _toggleStageFold,
+      ),
     );
 
     final title = tree.roots.isNotEmpty
@@ -271,7 +343,19 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         children: [
           header,
           const SkillTreeStageBadgeLegendWidget(),
-          Expanded(child: list),
+          Expanded(
+            child: Stack(
+              children: [
+                list,
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: _buildStickyBanner(),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
