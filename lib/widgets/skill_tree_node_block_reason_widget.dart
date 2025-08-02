@@ -104,7 +104,7 @@ class _Prereq {
   _Prereq({required this.id, required this.title, required this.status});
 }
 
-class _DependencyItem extends StatelessWidget {
+class _DependencyItem extends StatefulWidget {
   final String title;
   final List<_Prereq> prereqs;
   final String hint;
@@ -118,19 +118,31 @@ class _DependencyItem extends StatelessWidget {
   });
 
   @override
+  State<_DependencyItem> createState() => _DependencyItemState();
+}
+
+class _DependencyItemState extends State<_DependencyItem> {
+  bool _hideCompleted = false;
+
+  @override
   Widget build(BuildContext context) {
-    final total = prereqs.length;
+    final total = widget.prereqs.length;
     final done =
-        prereqs.where((p) => p.status == _PrereqStatus.completed).length;
+        widget.prereqs.where((p) => p.status == _PrereqStatus.completed).length;
+    final visiblePrereqs = _hideCompleted
+        ? widget.prereqs
+            .where((p) => p.status != _PrereqStatus.completed)
+            .toList()
+        : widget.prereqs;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          title,
+          widget.title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        if (prereqs.isNotEmpty)
+        if (widget.prereqs.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Text(
@@ -138,7 +150,19 @@ class _DependencyItem extends StatelessWidget {
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ),
-        if (prereqs.isNotEmpty)
+        if (widget.prereqs.isNotEmpty)
+          SwitchListTile(
+            value: _hideCompleted,
+            onChanged: (val) => setState(() => _hideCompleted = val),
+            title: const Text(
+              'Hide completed prerequisites',
+              style: TextStyle(fontSize: 12),
+            ),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            visualDensity: VisualDensity.compact,
+          ),
+        if (visiblePrereqs.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Wrap(
@@ -146,20 +170,20 @@ class _DependencyItem extends StatelessWidget {
               spacing: 4,
               runSpacing: 4,
               children: [
-                for (var i = 0; i < prereqs.length; i++) ...[
-                  _buildPrereqChip(context, prereqs[i]),
-                  if (i != prereqs.length - 1)
+                for (var i = 0; i < visiblePrereqs.length; i++) ...[
+                  _buildPrereqChip(context, visiblePrereqs[i]),
+                  if (i != visiblePrereqs.length - 1)
                     const Icon(Icons.arrow_right,
                         size: 14, color: Colors.grey),
                 ],
               ],
             ),
           ),
-        if (hint.isNotEmpty)
+        if (widget.hint.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Text(
-              hint,
+              widget.hint,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ),
