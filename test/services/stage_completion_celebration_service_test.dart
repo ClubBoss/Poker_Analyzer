@@ -97,4 +97,58 @@ void main() {
 
     expect(find.byType(AlertDialog), findsNothing);
   });
+
+  testWidgets('celebrates track completion', (tester) async {
+    final nodes = [node('a', 0), node('b', 1)];
+    final tree = builder.build(nodes).tree;
+    final lib = _FakeLibraryService({
+      'T': SkillTreeBuildResult(tree: tree),
+    }, nodes);
+
+    await tracker.markCompleted('a');
+    await tracker.markCompleted('b');
+
+    final svc = StageCompletionCelebrationService(
+      library: lib,
+      progress: tracker,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(navigatorKey: navigatorKey, home: const SizedBox()),
+    );
+
+    await svc.checkAndCelebrateTrackCompletion('T');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('track_celebrated_T'), isTrue);
+  });
+
+  testWidgets('does not repeat track celebration', (tester) async {
+    SharedPreferences.setMockInitialValues({'track_celebrated_T': true});
+    await tracker.resetForTest();
+    final nodes = [node('a', 0), node('b', 1)];
+    final tree = builder.build(nodes).tree;
+    final lib = _FakeLibraryService({
+      'T': SkillTreeBuildResult(tree: tree),
+    }, nodes);
+
+    await tracker.markCompleted('a');
+    await tracker.markCompleted('b');
+
+    final svc = StageCompletionCelebrationService(
+      library: lib,
+      progress: tracker,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(navigatorKey: navigatorKey, home: const SizedBox()),
+    );
+
+    await svc.checkAndCelebrateTrackCompletion('T');
+    await tester.pump();
+
+    expect(find.byType(AlertDialog), findsNothing);
+  });
 }

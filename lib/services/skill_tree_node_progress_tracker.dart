@@ -50,6 +50,8 @@ class SkillTreeNodeProgressTracker {
         if (trackId != null && trackId.isNotEmpty) {
           await StageCompletionCelebrationService.instance
               .checkAndCelebrate(trackId);
+          await StageCompletionCelebrationService.instance
+              .checkAndCelebrateTrackCompletion(trackId);
         }
       } catch (_) {}
     }
