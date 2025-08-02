@@ -39,9 +39,13 @@ class _SkillTreeBlockedSummaryBannerState
   Future<List<_LockedNodeData>> _load() async {
     final result = <_LockedNodeData>[];
     for (final node in widget.nodes) {
-      final deps = await _linkService.getDependencies(node.id);
-      final hint = deps.isNotEmpty ? deps.first.hint : '';
-      result.add(_LockedNodeData(node: node, hint: hint));
+      try {
+        final deps = await _linkService.getDependencies(node.id);
+        final hint = deps.isNotEmpty ? deps.first.hint : '';
+        result.add(_LockedNodeData(node: node, hint: hint));
+      } catch (_) {
+        result.add(_LockedNodeData(node: node, hint: ''));
+      }
     }
     return result;
   }
