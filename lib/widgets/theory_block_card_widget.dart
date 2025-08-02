@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../models/theory_block_model.dart';
 import '../services/theory_path_completion_evaluator_service.dart';
+import '../services/user_progress_service.dart';
+import '../services/mini_lesson_library_service.dart';
+import '../services/pack_library_service.dart';
+import '../services/training_session_launcher.dart';
+import '../screens/mini_lesson_screen.dart';
 
 /// Card widget displaying a [TheoryBlockModel] with completion progress.
 class TheoryBlockCardWidget extends StatefulWidget {
   final TheoryBlockModel block;
   final TheoryPathCompletionEvaluatorService evaluator;
+  final UserProgressService progress;
 
   const TheoryBlockCardWidget({
     super.key,
     required this.block,
     required this.evaluator,
+    required this.progress,
   });
 
   @override
@@ -64,6 +71,41 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
     }
   }
 
+  Future<void> _handleTap() async {
+    final block = widget.block;
+    await MiniLessonLibraryService.instance.loadAll();
+    for (final id in block.nodeIds) {
+      final done = await widget.progress.isTheoryLessonCompleted(id);
+      if (!done) {
+        final lesson = MiniLessonLibraryService.instance.getById(id);
+        if (lesson != null && mounted) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MiniLessonScreen(lesson: lesson),
+            ),
+          );
+        }
+        return;
+      }
+    }
+    for (final id in block.practicePackIds) {
+      final done = await widget.progress.isPackCompleted(id);
+      if (!done) {
+        final tpl = await PackLibraryService.instance.getById(id);
+        if (tpl != null) {
+          await const TrainingSessionLauncher().launch(tpl);
+        }
+        return;
+      }
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Block Completed')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final percent = _percent;
@@ -87,56 +129,59 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
     final label = _labelFor(status);
     final accent = Theme.of(context).colorScheme.secondary;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: border),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.block.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: _handleTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: border),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.block.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  style: const TextStyle(color: Colors.white70),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircularProgressIndicator(
-                  value: percent.clamp(0.0, 1.0),
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      border == Colors.transparent ? accent : border),
-                  strokeWidth: 4,
-                ),
-                Text(
-                  '${(percent.clamp(0.0, 1.0) * 100).round()}%',
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: percent.clamp(0.0, 1.0),
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        border == Colors.transparent ? accent : border),
+                    strokeWidth: 4,
+                  ),
+                  Text(
+                    '${(percent.clamp(0.0, 1.0) * 100).round()}%',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
