@@ -21,7 +21,8 @@ class StageCompletionCelebrationService {
        progress = progress ?? SkillTreeNodeProgressTracker.instance,
        evaluator = evaluator ?? const SkillTreeStageCompletionEvaluator();
 
-  static final instance = StageCompletionCelebrationService();
+  static StageCompletionCelebrationService instance =
+      StageCompletionCelebrationService();
 
   Future<void> _ensureLoaded() async {
     if (library.getAllNodes().isEmpty) {

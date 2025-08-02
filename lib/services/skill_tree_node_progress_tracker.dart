@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'stage_completion_celebration_service.dart';
+import 'skill_tree_track_resolver.dart';
+
 /// Tracks completion status for skill tree nodes.
 class SkillTreeNodeProgressTracker {
   SkillTreeNodeProgressTracker._();
@@ -41,6 +44,14 @@ class SkillTreeNodeProgressTracker {
     if (set.add(nodeId)) {
       completedNodeIds.value = Set<String>.from(set);
       await _save();
+      try {
+        final trackId =
+            await SkillTreeTrackResolver.instance.getTrackIdForNode(nodeId);
+        if (trackId != null && trackId.isNotEmpty) {
+          await StageCompletionCelebrationService.instance
+              .checkAndCelebrate(trackId);
+        }
+      } catch (_) {}
     }
   }
 

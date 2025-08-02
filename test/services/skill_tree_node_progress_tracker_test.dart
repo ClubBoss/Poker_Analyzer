@@ -1,6 +1,47 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/models/skill_tree_build_result.dart';
+import 'package:poker_analyzer/models/skill_tree_node_model.dart';
+import 'package:poker_analyzer/services/skill_tree_builder_service.dart';
 import 'package:poker_analyzer/services/skill_tree_node_progress_tracker.dart';
+import 'package:poker_analyzer/services/skill_tree_track_resolver.dart';
+import 'package:poker_analyzer/services/stage_completion_celebration_service.dart';
+import 'package:poker_analyzer/services/skill_tree_library_service.dart';
+
+class _FakeLibraryService implements SkillTreeLibraryService {
+  final Map<String, SkillTreeBuildResult> _trees;
+  final List<SkillTreeNodeModel> _nodes;
+  _FakeLibraryService(this._trees, this._nodes);
+
+  @override
+  Future<void> reload() async {}
+
+  @override
+  SkillTreeBuildResult? getTree(String category) => _trees[category];
+
+  @override
+  SkillTreeBuildResult? getTrack(String trackId) => _trees[trackId];
+
+  @override
+  List<SkillTreeBuildResult> getAllTracks() => _trees.values.toList();
+
+  @override
+  List<SkillTreeNodeModel> getAllNodes() => List.unmodifiable(_nodes);
+}
+
+class _RecordingCelebrationService extends StageCompletionCelebrationService {
+  _RecordingCelebrationService({
+    required SkillTreeLibraryService library,
+    required SkillTreeNodeProgressTracker progress,
+  }) : super(library: library, progress: progress);
+
+  int callCount = 0;
+
+  @override
+  Future<void> checkAndCelebrate(String trackId) async {
+    callCount++;
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -32,5 +73,35 @@ void main() {
 
     expect(changes.length, 2);
     expect(changes.last.contains('b'), isTrue);
+  });
+
+  test('triggers stage celebration after node completion', () async {
+    final tracker = SkillTreeNodeProgressTracker.instance;
+    await tracker.resetForTest();
+
+    final nodeA =
+        SkillTreeNodeModel(id: 'a', title: 'A', category: 'T', level: 0);
+    final nodeB =
+        SkillTreeNodeModel(id: 'b', title: 'B', category: 'T', level: 1);
+    const builder = SkillTreeBuilderService();
+    final build = builder.build([nodeA, nodeB]);
+    final lib = _FakeLibraryService({'T': build}, [nodeA, nodeB]);
+
+    final originalResolver = SkillTreeTrackResolver.instance;
+    SkillTreeTrackResolver.instance = SkillTreeTrackResolver(library: lib);
+
+    final originalSvc = StageCompletionCelebrationService.instance;
+    final recorder = _RecordingCelebrationService(
+      library: lib,
+      progress: tracker,
+    );
+    StageCompletionCelebrationService.instance = recorder;
+
+    await tracker.markCompleted('a');
+
+    expect(recorder.callCount, 1);
+
+    StageCompletionCelebrationService.instance = originalSvc;
+    SkillTreeTrackResolver.instance = originalResolver;
   });
 }
