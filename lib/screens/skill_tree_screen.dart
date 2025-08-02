@@ -13,6 +13,7 @@ import '../services/skill_tree_unlock_notification_service.dart';
 import '../widgets/skill_tree_stage_header_builder.dart';
 import '../screens/skill_tree_node_detail_screen.dart';
 import '../widgets/skill_tree_node_block_reason_widget.dart';
+import '../widgets/skill_tree_blocked_summary_banner.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   final String category;
@@ -56,10 +57,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
     const gateEval = SkillTreeStageGateEvaluator();
     const compEval = SkillTreeStageCompletionEvaluator();
-    final unlockedStages =
-        gateEval.getUnlockedStages(tree, completed).toSet();
-    final completedStages =
-        compEval.getCompletedStages(tree, completed).toSet();
+    final unlockedStages = gateEval.getUnlockedStages(tree, completed).toSet();
+    final completedStages = compEval
+        .getCompletedStages(tree, completed)
+        .toSet();
 
     setState(() {
       _tree = tree;
@@ -101,6 +102,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         _openNode(target);
       }
     }
+
     final widgetContent = SkillTreeNodeBlockReasonWidget(
       nodeId: node.id,
       onJumpToNode: handleJump,
@@ -156,9 +158,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
   Widget build(BuildContext context) {
     final tree = _tree;
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (tree == null) {
       return Scaffold(
@@ -172,7 +172,22 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     for (final n in nodes) {
       levels.putIfAbsent(n.level, () => []).add(n);
     }
+    final lockedNodes = [
+      for (final n in nodes)
+        if (!_completed.contains(n.id) && !_unlocked.contains(n.id)) n,
+    ];
     final children = <Widget>[];
+    if (lockedNodes.isNotEmpty) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: SkillTreeBlockedSummaryBanner(
+            nodes: lockedNodes,
+            onShowDetails: _showLockReason,
+          ),
+        ),
+      );
+    }
     final sortedLevels = levels.keys.toList()..sort();
     for (final lvl in sortedLevels) {
       final isUnlockedStage = _unlockedStages.contains(lvl);
@@ -191,12 +206,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         completedNodeIds: _completed,
         overlay: overlay,
       );
-      children.add(
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: header,
-        ),
-      );
+      children.add(Padding(padding: const EdgeInsets.all(8), child: header));
       for (final n in levels[lvl]!) {
         final completed = _completed.contains(n.id);
         final unlocked = _unlocked.contains(n.id) || completed;
@@ -221,8 +231,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
             leading: Icon(icon, color: color),
             title: Text(n.title),
             subtitle: Text(status),
-            onTap: () =>
-                unlocked ? _openNode(n) : _showLockReason(n),
+            onTap: () => unlocked ? _openNode(n) : _showLockReason(n),
           ),
         );
       }
