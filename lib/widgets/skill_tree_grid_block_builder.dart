@@ -70,6 +70,7 @@ class SkillTreeGridBlockBuilder {
     final header = headerBuilder.buildHeader(
       level: level,
       nodes: nodes,
+      unlockedNodeIds: unlockedNodeIds,
       completedNodeIds: completedNodeIds,
     );
 
