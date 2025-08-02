@@ -11,7 +11,12 @@ import '../widgets/theory_block_card_widget.dart';
 /// Displays blocks of a [TheoryTrackModel] respecting progression rules.
 class LearningTrackScreen extends StatefulWidget {
   final TheoryTrackModel track;
-  const LearningTrackScreen({super.key, required this.track});
+  final String? initialBlockId;
+  const LearningTrackScreen({
+    super.key,
+    required this.track,
+    this.initialBlockId,
+  });
 
   @override
   State<LearningTrackScreen> createState() => _LearningTrackScreenState();
@@ -35,8 +40,9 @@ class _LearningTrackScreenState extends State<LearningTrackScreen> {
 
   Future<void> _load() async {
     final unlocked = await _progression.getUnlockedBlocks(widget.track);
-    final last = await TheoryTrackResumeService.instance
-        .getLastVisitedBlock(widget.track.id);
+    final last = widget.initialBlockId ??
+        await TheoryTrackResumeService.instance
+            .getLastVisitedBlock(widget.track.id);
     if (mounted) {
       setState(() => _unlocked = unlocked);
       WidgetsBinding.instance.addPostFrameCallback((_) {
