@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/skill_tree_dependency_link.dart';
 import '../services/skill_tree_dependency_link_service.dart';
 import '../services/skill_tree_library_service.dart';
+import '../services/skill_tree_node_progress_tracker.dart';
+import '../services/skill_tree_unlock_evaluator.dart';
 
 /// Widget that shows why a skill tree node is blocked.
 ///
@@ -13,6 +15,8 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
   final String nodeId;
   final SkillTreeDependencyLinkService _linkService;
   final SkillTreeLibraryService _library;
+  final SkillTreeNodeProgressTracker _progress;
+  final SkillTreeUnlockEvaluator _unlockEval;
   final void Function(String nodeId)? onJumpToNode;
 
   SkillTreeNodeBlockReasonWidget({
@@ -21,8 +25,13 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
     this.onJumpToNode,
     SkillTreeDependencyLinkService? linkService,
     SkillTreeLibraryService? library,
+    SkillTreeNodeProgressTracker? progress,
+    SkillTreeUnlockEvaluator? unlockEvaluator,
   })  : _linkService = linkService ?? SkillTreeDependencyLinkService(),
-        _library = library ?? SkillTreeLibraryService.instance;
+        _library = library ?? SkillTreeLibraryService.instance,
+        _progress = progress ?? SkillTreeNodeProgressTracker.instance,
+        _unlockEval =
+            unlockEvaluator ?? SkillTreeUnlockEvaluator(progress: progress ?? SkillTreeNodeProgressTracker.instance);
 
   String _titleForNode(String id) {
     for (final n in _library.getAllNodes()) {
@@ -40,6 +49,13 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
           return const SizedBox.shrink();
         }
         final deps = snapshot.data!;
+        final completed = _progress.completedNodeIds.value;
+        final unlocked = <String>{};
+        for (final res in _library.getAllTracks()) {
+          unlocked.addAll(
+            _unlockEval.getUnlockedNodes(res.tree).map((n) => n.id),
+          );
+        }
         if (deps.isEmpty) {
           return const Text(
             'No unlock requirements available',
@@ -57,7 +73,15 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
                   title: _titleForNode(link.nodeId),
                   prereqs: [
                     for (final id in link.prerequisites)
-                      _Prereq(id: id, title: _titleForNode(id)),
+                      _Prereq(
+                        id: id,
+                        title: _titleForNode(id),
+                        status: completed.contains(id)
+                            ? _PrereqStatus.completed
+                            : unlocked.contains(id)
+                                ? _PrereqStatus.unlocked
+                                : _PrereqStatus.locked,
+                      ),
                   ],
                   hint: link.hint,
                   onJumpToNode: onJumpToNode,
@@ -70,11 +94,14 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
   }
 }
 
+enum _PrereqStatus { completed, unlocked, locked }
+
 class _Prereq {
   final String id;
   final String title;
+  final _PrereqStatus status;
 
-  _Prereq({required this.id, required this.title});
+  _Prereq({required this.id, required this.title, required this.status});
 }
 
 class _DependencyItem extends StatelessWidget {
@@ -109,19 +136,7 @@ class _DependencyItem extends StatelessWidget {
               runSpacing: 4,
               children: [
                 for (var i = 0; i < prereqs.length; i++) ...[
-                  GestureDetector(
-                    onTap: onJumpToNode != null
-                        ? () => onJumpToNode!(prereqs[i].id)
-                        : null,
-                    child: Chip(
-                      label: Text(
-                        prereqs[i].title,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
+                  _buildPrereqChip(context, prereqs[i]),
                   if (i != prereqs.length - 1)
                     const Icon(Icons.arrow_right,
                         size: 14, color: Colors.grey),
@@ -138,6 +153,43 @@ class _DependencyItem extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildPrereqChip(BuildContext context, _Prereq prereq) {
+    IconData icon;
+    Color color;
+    String tooltip;
+    switch (prereq.status) {
+      case _PrereqStatus.completed:
+        icon = Icons.check;
+        color = Colors.green;
+        tooltip = 'Completed';
+        break;
+      case _PrereqStatus.unlocked:
+        icon = Icons.circle;
+        color = Colors.amber;
+        tooltip = 'Unlocked';
+        break;
+      case _PrereqStatus.locked:
+        icon = Icons.lock;
+        color = Colors.grey;
+        tooltip = 'Locked';
+        break;
+    }
+    final chip = Chip(
+      avatar: Icon(icon, size: 14, color: color),
+      label: Text(
+        prereq.title,
+        style: const TextStyle(fontSize: 12),
+      ),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+    return GestureDetector(
+      onTap:
+          onJumpToNode != null ? () => onJumpToNode!(prereq.id) : null,
+      child: Tooltip(message: tooltip, child: chip),
     );
   }
 }
