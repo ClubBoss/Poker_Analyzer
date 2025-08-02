@@ -30,6 +30,14 @@ class LearningTrackEngine {
 
   List<LessonTrack> getTracks() => List.unmodifiable(_tracks);
 
+  /// Returns the track with the given [id] or `null` if not found.
+  LessonTrack? getTrackById(String id) {
+    for (final t in _tracks) {
+      if (t.id == id) return t;
+    }
+    return null;
+  }
+
   /// Builds the current learning track based on [allPacks] and [stats].
   ///
   /// Returns a [LearningTrack] containing unlocked packs in their original
