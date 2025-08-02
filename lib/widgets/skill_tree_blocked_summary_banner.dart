@@ -69,6 +69,7 @@ class _SkillTreeBlockedSummaryBannerState
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: _BlockedNodeCard(
+                    key: ValueKey(item.node.id),
                     data: item,
                     onTap: () => widget.onShowDetails(item.node),
                   ),
@@ -81,47 +82,81 @@ class _SkillTreeBlockedSummaryBannerState
   }
 }
 
-class _BlockedNodeCard extends StatelessWidget {
+class _BlockedNodeCard extends StatefulWidget {
   final _LockedNodeData data;
   final VoidCallback onTap;
 
-  const _BlockedNodeCard({required this.data, required this.onTap});
+  const _BlockedNodeCard({
+    super.key,
+    required this.data,
+    required this.onTap,
+  });
+
+  @override
+  State<_BlockedNodeCard> createState() => _BlockedNodeCardState();
+}
+
+class _BlockedNodeCardState extends State<_BlockedNodeCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      child: Card(
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.lock, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        data.node.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
+    final data = widget.data;
+    return FadeTransition(
+      opacity: _opacity,
+      child: SizedBox(
+        width: 200,
+        child: Card(
+          child: InkWell(
+            onTap: widget.onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.lock, size: 16, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          data.node.title,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  data.hint.isNotEmpty
-                      ? data.hint
-                      : 'No unlock requirements available',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    data.hint.isNotEmpty
+                        ? data.hint
+                        : 'No unlock requirements available',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
