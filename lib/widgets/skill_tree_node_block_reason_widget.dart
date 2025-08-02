@@ -13,10 +13,12 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
   final String nodeId;
   final SkillTreeDependencyLinkService _linkService;
   final SkillTreeLibraryService _library;
+  final void Function(String nodeId)? onJumpToNode;
 
   SkillTreeNodeBlockReasonWidget({
     super.key,
     required this.nodeId,
+    this.onJumpToNode,
     SkillTreeDependencyLinkService? linkService,
     SkillTreeLibraryService? library,
   })  : _linkService = linkService ?? SkillTreeDependencyLinkService(),
@@ -53,10 +55,12 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: _DependencyItem(
                   title: _titleForNode(link.nodeId),
-                  prereqTitles: [
-                    for (final id in link.prerequisites) _titleForNode(id),
+                  prereqs: [
+                    for (final id in link.prerequisites)
+                      _Prereq(id: id, title: _titleForNode(id)),
                   ],
                   hint: link.hint,
+                  onJumpToNode: onJumpToNode,
                 ),
               ),
           ],
@@ -66,15 +70,24 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
   }
 }
 
+class _Prereq {
+  final String id;
+  final String title;
+
+  _Prereq({required this.id, required this.title});
+}
+
 class _DependencyItem extends StatelessWidget {
   final String title;
-  final List<String> prereqTitles;
+  final List<_Prereq> prereqs;
   final String hint;
+  final void Function(String nodeId)? onJumpToNode;
 
   const _DependencyItem({
     required this.title,
-    required this.prereqTitles,
+    required this.prereqs,
     required this.hint,
+    this.onJumpToNode,
   });
 
   @override
@@ -87,7 +100,7 @@ class _DependencyItem extends StatelessWidget {
           title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        if (prereqTitles.isNotEmpty)
+        if (prereqs.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Wrap(
@@ -95,16 +108,21 @@ class _DependencyItem extends StatelessWidget {
               spacing: 4,
               runSpacing: 4,
               children: [
-                for (var i = 0; i < prereqTitles.length; i++) ...[
-                  Chip(
-                    label: Text(
-                      prereqTitles[i],
-                      style: const TextStyle(fontSize: 12),
+                for (var i = 0; i < prereqs.length; i++) ...[
+                  GestureDetector(
+                    onTap: onJumpToNode != null
+                        ? () => onJumpToNode!(prereqs[i].id)
+                        : null,
+                    child: Chip(
+                      label: Text(
+                        prereqs[i].title,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  if (i != prereqTitles.length - 1)
+                  if (i != prereqs.length - 1)
                     const Icon(Icons.arrow_right,
                         size: 14, color: Colors.grey),
                 ],

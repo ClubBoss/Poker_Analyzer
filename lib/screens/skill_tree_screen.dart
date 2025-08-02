@@ -94,7 +94,17 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
   void _showLockReason(SkillTreeNodeModel node) {
     final width = MediaQuery.of(context).size.width;
-    final widgetContent = SkillTreeNodeBlockReasonWidget(nodeId: node.id);
+    void handleJump(String id) {
+      Navigator.of(context).pop();
+      final target = _tree?.nodes[id];
+      if (target != null) {
+        _openNode(target);
+      }
+    }
+    final widgetContent = SkillTreeNodeBlockReasonWidget(
+      nodeId: node.id,
+      onJumpToNode: handleJump,
+    );
     if (width > 600) {
       showDialog(
         context: context,
