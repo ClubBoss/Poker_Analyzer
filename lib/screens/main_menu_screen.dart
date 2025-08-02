@@ -52,6 +52,7 @@ import 'mistake_repeat_screen.dart';
 import 'quick_hand_analysis_screen.dart';
 import 'hand_analysis_history_screen.dart';
 import 'achievements_screen.dart';
+import 'reward_gallery_screen.dart';
 import '../services/goals_service.dart';
 import '../widgets/focus_of_the_week_card.dart';
 import '../widgets/sync_status_widget.dart';
@@ -717,6 +718,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         label: 'Decay Adaptation',
         onTap: () {
           Navigator.pushNamed(context, DecayAdaptationInsightScreen.route);
+        },
+      ),
+      _MenuItem(
+        icon: Icons.card_giftcard,
+        label: 'Награды',
+        onTap: () {
+          Navigator.pushNamed(context, RewardGalleryScreen.route);
         },
       ),
       _MenuItem(
