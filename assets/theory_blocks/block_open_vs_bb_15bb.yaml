@@ -3,6 +3,8 @@ title: 'BTN vs BB at 15bb'
 nodeIds:
   - theory_open_fold_btn_vs_bb_15bb
   - theory_open_call_bb_vs_btn
+practicePackIds:
+  - theory_pack_open_vs_bb_15bb
 tags:
   - level2
   - btn

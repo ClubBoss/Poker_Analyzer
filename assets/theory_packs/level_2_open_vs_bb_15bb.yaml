@@ -1,0 +1,17 @@
+id: theory_pack_open_vs_bb_15bb
+title: 'Open vs BB 15bb'
+type: theory_drill
+tags:
+  - level2
+  - btn
+  - bb
+  - openfold
+  - preflop
+references:
+  - theory_open_fold_btn_vs_bb_15bb
+  - theory_open_call_bb_vs_btn
+spots:
+  - open_vs_bb_15bb_spot_1
+  - open_vs_bb_15bb_spot_2
+  - open_vs_bb_15bb_spot_3
+  - open_vs_bb_15bb_spot_4
