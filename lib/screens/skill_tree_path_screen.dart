@@ -9,6 +9,7 @@ import '../services/track_milestone_unlocker_service.dart';
 import '../services/stage_auto_scroll_service.dart';
 import '../widgets/skill_tree_stage_list_builder.dart';
 import '../widgets/skill_tree_track_overview_header.dart';
+import '../widgets/skill_tree_stage_badge_legend_widget.dart';
 import 'skill_tree_node_detail_screen.dart';
 
 /// Renders the full learning path for a skill track.
@@ -138,8 +139,10 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           header,
+          const SkillTreeStageBadgeLegendWidget(),
           Expanded(child: list),
         ],
       ),
