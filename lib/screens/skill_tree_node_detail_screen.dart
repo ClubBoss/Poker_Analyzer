@@ -8,6 +8,7 @@ import '../services/training_session_launcher.dart';
 import '../services/skill_tree_category_banner_service.dart';
 import '../services/skill_tree_node_progress_tracker.dart';
 import '../services/training_progress_service.dart';
+import '../services/skill_tree_node_celebration_service.dart';
 import '../widgets/tag_badge.dart';
 import 'theory_lesson_viewer_screen.dart';
 
@@ -56,6 +57,7 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
   }
 
   Future<void> _start() async {
+    final wasComplete = _progress >= 1.0;
     if (widget.node.theoryLessonId.isNotEmpty) {
       final lesson = _lesson;
       if (lesson == null) return;
@@ -75,6 +77,11 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
       if (tpl != null) {
         await const TrainingSessionLauncher().launch(tpl);
       }
+    }
+    await _load();
+    if (mounted && !wasComplete && _progress >= 1.0) {
+      await SkillTreeNodeCelebrationService()
+          .maybeCelebrate(context, widget.node.id);
     }
   }
 
