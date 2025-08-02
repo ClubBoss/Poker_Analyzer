@@ -5,10 +5,13 @@ import '../services/theory_path_completion_evaluator_service.dart';
 import '../services/user_progress_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
+import '../services/pinned_learning_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/theory_track_resume_service.dart';
 import '../screens/mini_lesson_screen.dart';
 import '../screens/training_pack_screen.dart';
+import '../models/theory_mini_lesson_node.dart';
+import '../models/v2/training_pack_template_v2.dart';
 
 /// Card widget displaying a [TheoryBlockModel] with completion progress.
 class TheoryBlockCardWidget extends StatefulWidget {
@@ -118,69 +121,113 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   Future<void> _handleLongPress() async {
     final block = widget.block;
     await MiniLessonLibraryService.instance.loadAll();
-    final tiles = <Widget>[];
+    final service = PinnedLearningService.instance;
+    await service.load();
 
+    final lessons = <_LessonEntry>[];
     for (final id in block.nodeIds) {
       final lesson = MiniLessonLibraryService.instance.getById(id);
       if (lesson == null) continue;
       final done = await widget.progress.isTheoryLessonCompleted(id);
-      tiles.add(
-        ListTile(
-          leading: const Text('📘', style: TextStyle(fontSize: 20)),
-          title: Text(lesson.title),
-          trailing: Icon(
-            done ? Icons.check_circle : Icons.cancel,
-            color: done ? Colors.green : Colors.red,
-          ),
-          onTap: () async {
-            Navigator.pop(context);
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => MiniLessonScreen(lesson: lesson),
-              ),
-            );
-          },
-        ),
-      );
+      lessons.add(_LessonEntry(lesson, done));
     }
 
+    final packs = <_PackEntry>[];
     for (final id in block.practicePackIds) {
       final tpl = await PackLibraryService.instance.getById(id);
       if (tpl == null) continue;
       final done = await widget.progress.isPackCompleted(id);
-      tiles.add(
-        ListTile(
-          leading: const Text('🎯', style: TextStyle(fontSize: 20)),
-          title: Text(tpl.name),
-          trailing: Icon(
-            done ? Icons.check_circle : Icons.cancel,
-            color: done ? Colors.green : Colors.red,
-          ),
-          onTap: () async {
-            Navigator.pop(context);
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => TrainingPackScreen(pack: tpl),
-              ),
-            );
-          },
-        ),
-      );
+      packs.add(_PackEntry(tpl, done));
     }
 
-    if (mounted) {
-      await showModalBottomSheet(
-        context: context,
-        builder: (_) => SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: tiles,
+    if (!mounted) return;
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: StatefulBuilder(
+            builder: (context, setSheetState) {
+              return ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final e in lessons)
+                    ListTile(
+                      leading: const Text('📘', style: TextStyle(fontSize: 20)),
+                      title: Text(e.lesson.title),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            e.done ? Icons.check_circle : Icons.cancel,
+                            color: e.done ? Colors.green : Colors.red,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              service.isPinned('lesson', e.lesson.id)
+                                  ? Icons.push_pin
+                                  : Icons.push_pin_outlined,
+                            ),
+                            onPressed: () async {
+                              await service.toggle('lesson', e.lesson.id);
+                              setSheetState(() {});
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MiniLessonScreen(
+                              lesson: e.lesson,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  for (final e in packs)
+                    ListTile(
+                      leading: const Text('🎯', style: TextStyle(fontSize: 20)),
+                      title: Text(e.pack.name),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            e.done ? Icons.check_circle : Icons.cancel,
+                            color: e.done ? Colors.green : Colors.red,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              service.isPinned('pack', e.pack.id)
+                                  ? Icons.push_pin
+                                  : Icons.push_pin_outlined,
+                            ),
+                            onPressed: () async {
+                              await service.toggle('pack', e.pack.id);
+                              setSheetState(() {});
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TrainingPackScreen(pack: e.pack),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              );
+            },
           ),
-        ),
-      );
-    }
+        );
+      },
+    );
   }
 
   @override
@@ -263,4 +310,16 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
       ),
     );
   }
+}
+
+class _LessonEntry {
+  final TheoryMiniLessonNode lesson;
+  final bool done;
+  _LessonEntry(this.lesson, this.done);
+}
+
+class _PackEntry {
+  final TrainingPackTemplateV2 pack;
+  final bool done;
+  _PackEntry(this.pack, this.done);
 }
