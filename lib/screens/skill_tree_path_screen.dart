@@ -12,6 +12,7 @@ import '../widgets/skill_tree_track_overview_header.dart';
 import '../widgets/skill_tree_stage_badge_legend_widget.dart';
 import 'skill_tree_node_detail_screen.dart';
 import '../services/banner_queue_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Renders the full learning path for a skill track.
 class SkillTreePathScreen extends StatefulWidget {
@@ -35,6 +36,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   List<String> _newTheoryNodeIds = [];
   List<String> _newPracticeNodeIds = [];
   bool _loading = true;
+  final Set<int> _foldedStages = {};
 
   @override
   void initState() {
@@ -70,9 +72,17 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final hasNewTheory = newTheoryNodeIds.isNotEmpty;
     final hasNewPractice = newPracticeNodeIds.isNotEmpty;
 
+    final prefs = await SharedPreferences.getInstance();
     final blocks = _listBuilder.stageMarker.build(nodes);
+    final folded = <int>{};
     for (final block in blocks) {
       _stageKeys.putIfAbsent(block.stageIndex, () => GlobalKey());
+      final allCompleted = block.nodes.every((n) => completed.contains(n.id));
+      if (allCompleted) {
+        final key = _foldKey(block.stageIndex);
+        final isFolded = prefs.getBool(key) ?? true;
+        if (isFolded) folded.add(block.stageIndex);
+      }
     }
 
     if (!mounted) return;
@@ -86,6 +96,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       if (hadPrev) {
         _justUnlocked.addAll(newlyUnlocked);
       }
+      _foldedStages
+        ..clear()
+        ..addAll(folded);
     });
     if (hadPrev && hasNewTheory) {
       _showTheoryUnlockBanner();
@@ -130,8 +143,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         TextButton(
           onPressed: () async {
             BannerQueueService.instance.dismissCurrent();
-            final nodeId =
-                _newTheoryNodeIds.isNotEmpty ? _newTheoryNodeIds.first : null;
+            final nodeId = _newTheoryNodeIds.isNotEmpty
+                ? _newTheoryNodeIds.first
+                : null;
             final node = nodeId != null ? _track?.nodes[nodeId] : null;
             if (node != null) {
               await _openNode(node);
@@ -158,8 +172,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         TextButton(
           onPressed: () async {
             BannerQueueService.instance.dismissCurrent();
-            final nodeId =
-                _newPracticeNodeIds.isNotEmpty ? _newPracticeNodeIds.first : null;
+            final nodeId = _newPracticeNodeIds.isNotEmpty
+                ? _newPracticeNodeIds.first
+                : null;
             final node = nodeId != null ? _track?.nodes[nodeId] : null;
             if (node != null) {
               await _openNode(node);
@@ -189,6 +204,20 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       ),
     );
     await _load();
+  }
+
+  String _foldKey(int stage) => 'stage_fold_${widget.trackId}_$stage';
+
+  Future<void> _toggleStageFold(int stage) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      if (_foldedStages.contains(stage)) {
+        _foldedStages.remove(stage);
+      } else {
+        _foldedStages.add(stage);
+      }
+    });
+    await prefs.setBool(_foldKey(stage), _foldedStages.contains(stage));
   }
 
   @override
@@ -222,6 +251,8 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       onNodeTap: _openNode,
       stageKeys: _stageKeys,
       controller: _scrollController,
+      foldedStages: _foldedStages,
+      onFoldToggle: _toggleStageFold,
     );
 
     final title = tree.roots.isNotEmpty
