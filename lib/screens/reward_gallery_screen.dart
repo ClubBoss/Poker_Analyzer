@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../services/reward_card_renderer_service.dart';
 import '../services/reward_gallery_group_by_track_service.dart';
 
 class RewardGalleryScreen extends StatefulWidget {
@@ -13,12 +14,14 @@ class RewardGalleryScreen extends StatefulWidget {
 
 class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
   late Future<List<TrackRewardGroup>> _future;
+  late final Future<RewardCardRendererService> _rendererFuture;
 
   @override
   void initState() {
     super.initState();
     _future =
         RewardGalleryGroupByTrackService.instance.getGroupedRewards();
+    _rendererFuture = RewardCardRendererService.create();
   }
 
   @override
@@ -45,9 +48,40 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                   title: Text(g.trackTitle),
                   trailing: IconButton(
                     icon: const Icon(Icons.share),
-                    onPressed: () => Share.share(
-                      'Я только что завершил трек «${g.trackTitle}» в Poker Analyzer! 💪 Присоединяйся!',
-                    ),
+                    onPressed: () async {
+                      final renderer = await _rendererFuture;
+                      final nav = Navigator.of(context);
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (_) => const AlertDialog(
+                          content: Text('Генерация изображения…'),
+                        ),
+                      );
+                      try {
+                        final img = await renderer.exportImage(g.trackId);
+                        nav.pop();
+                        if (img.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Не удалось сгенерировать карточку')),
+                          );
+                          return;
+                        }
+                        await Share.shareXFiles(
+                          [XFile.fromData(img, mimeType: 'image/png')],
+                          text:
+                              'Я только что завершил трек «${g.trackTitle}» в Poker Analyzer! 💪 Присоединяйся!',
+                        );
+                      } catch (_) {
+                        nav.pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Не удалось сгенерировать карточку')),
+                        );
+                      }
+                    },
                   ),
                 ),
                 for (final r in g.rewards
