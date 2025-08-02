@@ -119,6 +119,9 @@ class _DependencyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final total = prereqs.length;
+    final done =
+        prereqs.where((p) => p.status == _PrereqStatus.completed).length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -127,6 +130,14 @@ class _DependencyItem extends StatelessWidget {
           title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
+        if (prereqs.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              '✅ $done of $total prerequisites complete',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
         if (prereqs.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
