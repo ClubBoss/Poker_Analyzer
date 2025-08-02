@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../services/skill_tree_settings_service.dart';
 
 import '../models/skill_tree_dependency_link.dart';
 import '../services/skill_tree_dependency_link_service.dart';
@@ -123,42 +123,30 @@ class _DependencyItem extends StatefulWidget {
 }
 
 class _DependencyItemState extends State<_DependencyItem> {
-  static const _prefsHideCompletedKey =
-      'skill_tree_hide_completed_prereqs';
-  static final ValueNotifier<bool> _hideCompletedNotifier =
-      ValueNotifier(false);
-  static bool _prefsInitialized = false;
-
   bool _hideCompleted = false;
   late VoidCallback _notifierListener;
 
   @override
   void initState() {
     super.initState();
+    final service = SkillTreeSettingsService.instance;
+    _hideCompleted = service.hideCompletedPrereqs.value;
     _notifierListener =
-        () => setState(() => _hideCompleted = _hideCompletedNotifier.value);
-    _hideCompletedNotifier.addListener(_notifierListener);
-    if (!_prefsInitialized) {
-      SharedPreferences.getInstance().then((prefs) {
-        final value = prefs.getBool(_prefsHideCompletedKey) ?? false;
-        _prefsInitialized = true;
-        _hideCompletedNotifier.value = value;
-      });
-    } else {
-      _hideCompleted = _hideCompletedNotifier.value;
-    }
+        () => setState(() => _hideCompleted = service.hideCompletedPrereqs.value);
+    service.hideCompletedPrereqs.addListener(_notifierListener);
+    service.load();
   }
 
   @override
   void dispose() {
-    _hideCompletedNotifier.removeListener(_notifierListener);
+    SkillTreeSettingsService.instance.hideCompletedPrereqs
+        .removeListener(_notifierListener);
     super.dispose();
   }
 
   Future<void> _toggleHideCompleted(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsHideCompletedKey, value);
-    _hideCompletedNotifier.value = value;
+    await SkillTreeSettingsService.instance
+        .setHideCompletedPrereqs(value);
   }
 
   @override

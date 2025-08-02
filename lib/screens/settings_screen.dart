@@ -17,6 +17,7 @@ import '../services/remote_config_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'lesson_track_library_screen.dart';
+import '../services/skill_tree_settings_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -32,9 +33,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _showActionHints;
   late bool _coachMode;
   late bool _simpleNavigation;
+  late bool _hideCompletedPrereqs;
   late Color _accentColor;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 20, minute: 0);
   TimeOfDay _challengeTime = const TimeOfDay(hour: 12, minute: 0);
+  late VoidCallback _hideCompletedListener;
 
   @override
   void initState() {
@@ -46,6 +49,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showActionHints = prefs.showActionHints;
     _coachMode = prefs.coachMode;
     _simpleNavigation = prefs.simpleNavigation;
+    final stService = SkillTreeSettingsService.instance;
+    _hideCompletedPrereqs = stService.hideCompletedPrereqs.value;
+    _hideCompletedListener = () => setState(
+        () => _hideCompletedPrereqs = stService.hideCompletedPrereqs.value);
+    stService.hideCompletedPrereqs.addListener(_hideCompletedListener);
+    stService.load();
     _accentColor = prefs.accentColor;
     NotificationService.getReminderTime(context)
         .then((t) => setState(() => _reminderTime = t));
@@ -81,6 +90,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleSimpleNavigation(bool value) async {
     setState(() => _simpleNavigation = value);
     await UserPreferences.instance.setSimpleNavigation(value);
+  }
+
+  Future<void> _toggleHideCompletedPrereqs(bool value) async {
+    await SkillTreeSettingsService.instance.setHideCompletedPrereqs(value);
+  }
+
+  @override
+  void dispose() {
+    SkillTreeSettingsService.instance.hideCompletedPrereqs
+        .removeListener(_hideCompletedListener);
+    super.dispose();
   }
 
   Future<void> _pickReminderTime() async {
@@ -249,6 +269,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _simpleNavigation,
               title: const Text('Простой режим'),
               onChanged: _toggleSimpleNavigation,
+              activeColor: Colors.orange,
+            ),
+            SwitchListTile(
+              value: _hideCompletedPrereqs,
+              title: const Text('Hide completed prerequisites'),
+              subtitle: const Text(
+                  "Only show requirements you haven't finished yet"),
+              onChanged: _toggleHideCompletedPrereqs,
               activeColor: Colors.orange,
             ),
             ListTile(
