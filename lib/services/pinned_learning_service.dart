@@ -15,6 +15,13 @@ class PinnedLearningService extends ChangeNotifier {
 
   List<PinnedLearningItem> get items => List.unmodifiable(_items);
 
+  PinnedLearningItem? _find(String type, String id) {
+    for (final e in _items) {
+      if (e.type == type && e.id == id) return e;
+    }
+    return null;
+  }
+
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
@@ -59,5 +66,19 @@ class PinnedLearningService extends ChangeNotifier {
     _items.removeWhere((e) => e.type == type && e.id == id);
     await _save();
     notifyListeners();
+  }
+
+  int? lastPosition(String type, String id) => _find(type, id)?.lastPosition;
+
+  Future<void> setLastPosition(String type, String id, int position) async {
+    for (var i = 0; i < _items.length; i++) {
+      final e = _items[i];
+      if (e.type == type && e.id == id) {
+        _items[i] = e.copyWith(lastPosition: position);
+        await _save();
+        notifyListeners();
+        break;
+      }
+    }
   }
 }

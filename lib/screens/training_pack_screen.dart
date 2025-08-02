@@ -72,6 +72,7 @@ import '../helpers/color_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/training_pack_cloud_sync_service.dart';
+import '../services/pinned_learning_service.dart';
 
 
 class _SessionSummary {
@@ -106,6 +107,7 @@ class TrainingPackScreen extends StatefulWidget {
   final bool mistakeReviewMode;
   final ValueChanged<bool>? onComplete;
   final bool persistResults;
+  final int? initialPosition;
 
   const TrainingPackScreen({
     super.key,
@@ -114,6 +116,7 @@ class TrainingPackScreen extends StatefulWidget {
     this.mistakeReviewMode = false,
     this.onComplete,
     this.persistResults = true,
+    this.initialPosition,
   });
 
   @override
@@ -185,6 +188,13 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
       });
       return;
     }
+    final initial = widget.initialPosition;
+    if (initial != null) {
+      setState(() {
+        _currentIndex = initial;
+      });
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _currentIndex = prefs.getInt('training_progress_${_pack.name}') ?? 0;
@@ -194,6 +204,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('training_progress_${_pack.name}', _currentIndex);
+    await PinnedLearningService.instance
+        .setLastPosition('pack', _pack.id, _currentIndex);
   }
 
   Future<void> _loadSpots() async {
@@ -2286,6 +2298,7 @@ body { font-family: sans-serif; padding: 16px; }
 
   @override
   void dispose() {
+    unawaited(_saveProgress());
     _tabs.dispose();
     super.dispose();
   }
