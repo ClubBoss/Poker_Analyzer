@@ -63,7 +63,10 @@ class ContinueLearningCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => LearningTrackScreen(track: data.track),
+                        builder: (_) => LearningTrackScreen(
+                          track: data.track,
+                          initialBlockId: data.blockId,
+                        ),
                       ),
                     );
                   },
