@@ -51,7 +51,8 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
       final ok = await LearningPathUnlockEngine.instance.canUnlockTrack(t.id);
       unlocked[t.id] = ok;
       if (!ok) {
-        reasons[t.id] = await TrackUnlockReasonService.instance.getReason(t.id);
+        reasons[t.id] =
+            await TrackUnlockReasonService.instance.getUnlockReason(t.id);
       }
     }
     _unlocked
@@ -183,9 +184,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                     );
                     return TrackLockOverlay(
                       locked: _unlocked[track.id] != true,
-                      reason: _reasons[track.id] == null
-                          ? null
-                          : 'Unlock by ${_reasons[track.id]}',
+                      reason: _reasons[track.id],
                       onTap: () => _showUnlockHint(track.id),
                       child: card,
                     );
