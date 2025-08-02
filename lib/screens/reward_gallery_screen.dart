@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../services/skill_tree_library_service.dart';
 
@@ -70,6 +71,12 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
               return ListTile(
                 leading: const Icon(Icons.card_giftcard, color: Colors.orange),
                 title: Text(r.title),
+                trailing: IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () => Share.share(
+                    'Я только что завершил трек «${r.title}» в Poker Analyzer! 💪 Присоединяйся!',
+                  ),
+                ),
               );
             },
           );
