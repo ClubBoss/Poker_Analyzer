@@ -51,6 +51,7 @@ import '../../services/mistake_tag_cluster_service.dart';
 import '../../core/training/library/training_pack_library_v2.dart';
 import '../../models/v2/training_pack_template_v2.dart';
 import '../../services/training_session_launcher.dart';
+import '../../services/pinned_learning_service.dart';
 
 
 enum PlayOrder { sequential, random, mistakes }
@@ -219,6 +220,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
     }
     unawaited(TrainingPackStatsService.setLastIndex(widget.template.id, _index));
+    await PinnedLearningService.instance
+        .setLastPosition('pack', widget.template.id, _index);
   }
 
   Future<void> _startNew() async {

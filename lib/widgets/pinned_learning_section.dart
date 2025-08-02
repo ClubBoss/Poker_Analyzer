@@ -67,7 +67,12 @@ class _PinnedLearningSectionState extends State<PinnedLearningSection> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+            MaterialPageRoute(
+              builder: (_) => MiniLessonScreen(
+                lesson: lesson,
+                initialPosition: item.lastPosition,
+              ),
+            ),
           );
         },
       );
@@ -87,7 +92,12 @@ class _PinnedLearningSectionState extends State<PinnedLearningSection> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: tpl)),
+                MaterialPageRoute(
+                  builder: (_) => TrainingPackScreen(
+                    pack: tpl,
+                    initialPosition: item.lastPosition,
+                  ),
+                ),
               );
             },
           );
