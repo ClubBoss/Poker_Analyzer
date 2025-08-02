@@ -6,6 +6,7 @@ import '../services/user_progress_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
+import '../services/theory_track_resume_service.dart';
 import '../screens/mini_lesson_screen.dart';
 
 /// Card widget displaying a [TheoryBlockModel] with completion progress.
@@ -13,12 +14,14 @@ class TheoryBlockCardWidget extends StatefulWidget {
   final TheoryBlockModel block;
   final TheoryPathCompletionEvaluatorService evaluator;
   final UserProgressService progress;
+  final String? trackId;
 
   const TheoryBlockCardWidget({
     super.key,
     required this.block,
     required this.evaluator,
     required this.progress,
+    this.trackId,
   });
 
   @override
@@ -73,6 +76,11 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
 
   Future<void> _handleTap() async {
     final block = widget.block;
+    final trackId = widget.trackId;
+    if (trackId != null) {
+      await TheoryTrackResumeService.instance
+          .saveLastVisitedBlock(trackId, block.id);
+    }
     await MiniLessonLibraryService.instance.loadAll();
     for (final id in block.nodeIds) {
       final done = await widget.progress.isTheoryLessonCompleted(id);
