@@ -82,11 +82,8 @@ class StageCompletionCelebrationService {
     final completedStages = evaluator.getCompletedStages(tree, completed);
     final totalStages = tree.nodes.values.map((n) => n.level).toSet().length;
     if (completedStages.length < totalStages) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final key = 'track_celebrated_$trackId';
-    if (prefs.getBool(key) ?? false) return;
-    await prefs.setBool(key, true);
+    if (await progress.isTrackCompleted(trackId)) return;
+    await progress.markTrackCompleted(trackId);
 
     final ctx = navigatorKey.currentState?.context;
     if (ctx == null || !ctx.mounted) return;

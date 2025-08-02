@@ -123,13 +123,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getBool('track_celebrated_T'), isTrue);
+    expect(await tracker.isTrackCompleted('T'), isTrue);
   });
 
   testWidgets('does not repeat track celebration', (tester) async {
-    SharedPreferences.setMockInitialValues({'track_celebrated_T': true});
-    await tracker.resetForTest();
     final nodes = [node('a', 0), node('b', 1)];
     final tree = builder.build(nodes).tree;
     final lib = _FakeLibraryService({
@@ -138,6 +135,7 @@ void main() {
 
     await tracker.markCompleted('a');
     await tracker.markCompleted('b');
+    await tracker.markTrackCompleted('T');
 
     final svc = StageCompletionCelebrationService(
       library: lib,

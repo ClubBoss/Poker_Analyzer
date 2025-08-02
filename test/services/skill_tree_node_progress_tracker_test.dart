@@ -71,6 +71,15 @@ void main() {
     expect(await tracker.isCompleted('n1'), isTrue);
   });
 
+  test('markTrackCompleted persists and reports completion', () async {
+    final tracker = SkillTreeNodeProgressTracker.instance;
+    await tracker.resetForTest();
+
+    expect(await tracker.isTrackCompleted('T1'), isFalse);
+    await tracker.markTrackCompleted('T1');
+    expect(await tracker.isTrackCompleted('T1'), isTrue);
+  });
+
   test('completedNodeIds notifies on updates', () async {
     final tracker = SkillTreeNodeProgressTracker.instance;
     await tracker.resetForTest();
