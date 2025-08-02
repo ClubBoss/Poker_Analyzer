@@ -106,6 +106,69 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
     }
   }
 
+  Future<void> _handleLongPress() async {
+    final block = widget.block;
+    await MiniLessonLibraryService.instance.loadAll();
+    final tiles = <Widget>[];
+
+    for (final id in block.nodeIds) {
+      final lesson = MiniLessonLibraryService.instance.getById(id);
+      if (lesson == null) continue;
+      final done = await widget.progress.isTheoryLessonCompleted(id);
+      tiles.add(
+        ListTile(
+          leading: const Text('📘', style: TextStyle(fontSize: 20)),
+          title: Text(lesson.title),
+          trailing: Icon(
+            done ? Icons.check_circle : Icons.cancel,
+            color: done ? Colors.green : Colors.red,
+          ),
+          onTap: () async {
+            Navigator.pop(context);
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MiniLessonScreen(lesson: lesson),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    for (final id in block.practicePackIds) {
+      final tpl = await PackLibraryService.instance.getById(id);
+      if (tpl == null) continue;
+      final done = await widget.progress.isPackCompleted(id);
+      tiles.add(
+        ListTile(
+          leading: const Text('🎯', style: TextStyle(fontSize: 20)),
+          title: Text(tpl.name),
+          trailing: Icon(
+            done ? Icons.check_circle : Icons.cancel,
+            color: done ? Colors.green : Colors.red,
+          ),
+          onTap: () async {
+            Navigator.pop(context);
+            await const TrainingSessionLauncher().launch(tpl);
+          },
+        ),
+      );
+    }
+
+    if (mounted) {
+      await showModalBottomSheet(
+        context: context,
+        builder: (_) => SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: tiles,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final percent = _percent;
@@ -131,6 +194,7 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
 
     return GestureDetector(
       onTap: _handleTap,
+      onLongPress: _handleLongPress,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(12),
