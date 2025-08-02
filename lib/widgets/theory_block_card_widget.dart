@@ -8,6 +8,7 @@ import '../services/pack_library_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/theory_track_resume_service.dart';
 import '../screens/mini_lesson_screen.dart';
+import '../screens/training_pack_screen.dart';
 
 /// Card widget displaying a [TheoryBlockModel] with completion progress.
 class TheoryBlockCardWidget extends StatefulWidget {
@@ -158,7 +159,12 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
           ),
           onTap: () async {
             Navigator.pop(context);
-            await const TrainingSessionLauncher().launch(tpl);
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TrainingPackScreen(pack: tpl),
+              ),
+            );
           },
         ),
       );
