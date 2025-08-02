@@ -5,6 +5,7 @@ import '../models/theory_track_model.dart';
 import '../services/theory_track_progression_service.dart';
 import '../services/theory_path_completion_evaluator_service.dart';
 import '../services/user_progress_service.dart';
+import '../services/theory_track_resume_service.dart';
 import '../widgets/theory_block_card_widget.dart';
 
 /// Displays blocks of a [TheoryTrackModel] respecting progression rules.
@@ -19,6 +20,7 @@ class LearningTrackScreen extends StatefulWidget {
 class _LearningTrackScreenState extends State<LearningTrackScreen> {
   late final TheoryPathCompletionEvaluatorService _evaluator;
   late final TheoryTrackProgressionService _progression;
+  final Map<String, GlobalKey> _blockKeys = {};
   List<TheoryBlockModel>? _unlocked;
 
   @override
@@ -33,8 +35,26 @@ class _LearningTrackScreenState extends State<LearningTrackScreen> {
 
   Future<void> _load() async {
     final unlocked = await _progression.getUnlockedBlocks(widget.track);
+    final last = await TheoryTrackResumeService.instance
+        .getLastVisitedBlock(widget.track.id);
     if (mounted) {
       setState(() => _unlocked = unlocked);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final targetId =
+            (last != null && unlocked.any((b) => b.id == last))
+                ? last
+                : unlocked.isNotEmpty
+                    ? unlocked.first.id
+                    : null;
+        final key = targetId != null ? _blockKeys[targetId] : null;
+        final context = key?.currentContext;
+        if (context != null) {
+          Scrollable.ensureVisible(
+            context,
+            duration: const Duration(milliseconds: 300),
+          );
+        }
+      });
     }
   }
 
@@ -50,12 +70,16 @@ class _LearningTrackScreenState extends State<LearningTrackScreen> {
               itemCount: widget.track.blocks.length,
               itemBuilder: (context, index) {
                 final block = widget.track.blocks[index];
+                final key =
+                    _blockKeys.putIfAbsent(block.id, () => GlobalKey());
                 final isUnlocked =
                     unlocked.any((b) => b.id == block.id);
                 final card = TheoryBlockCardWidget(
+                  key: key,
                   block: block,
                   evaluator: _evaluator,
                   progress: UserProgressService.instance,
+                  trackId: widget.track.id,
                 );
                 return isUnlocked
                     ? card
