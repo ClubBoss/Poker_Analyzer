@@ -6,7 +6,7 @@ import '../services/skill_tree_library_service.dart';
 import '../services/skill_tree_track_progress_service.dart';
 import '../services/skill_tree_track_celebration_service.dart';
 import '../widgets/skill_tree_stage_list_builder.dart';
-import '../widgets/skill_tree_progress_header.dart';
+import '../widgets/skill_tree_track_overview_header.dart';
 import 'skill_tree_node_detail_screen.dart';
 
 /// Renders the full learning path for a skill track.
@@ -100,7 +100,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
 
     final header = Padding(
       padding: const EdgeInsets.all(12),
-      child: SkillTreeProgressHeader(trackId: widget.trackId),
+      child: SkillTreeTrackOverviewHeader(trackId: widget.trackId),
     );
 
     return Scaffold(
