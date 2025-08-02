@@ -5,6 +5,7 @@ import '../services/skill_tree_track_state_evaluator.dart';
 import '../services/skill_tree_completion_badge_service.dart';
 import '../models/skill_tree_completion_badge.dart';
 import 'skill_tree_track_launcher.dart';
+import '../services/skill_tree_track_completion_celebrator.dart';
 
 class _Entry {
   final TrackStateEntry state;
@@ -82,12 +83,18 @@ class _SkillTreeTrackListScreenState extends State<SkillTreeTrackListScreen> {
     ];
   }
 
-  void _open(String trackId) {
-    Navigator.push(
+  Future<void> _open(String trackId) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => SkillTreeTrackLauncher(trackId: trackId),
       ),
+    );
+    if (!mounted) return;
+    setState(() => _future = _load());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => SkillTreeTrackCompletionCelebrator.instance
+          .maybeCelebrate(context, trackId),
     );
   }
 
