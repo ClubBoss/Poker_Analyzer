@@ -11,6 +11,7 @@ import '../widgets/skill_tree_stage_list_builder.dart';
 import '../widgets/skill_tree_track_overview_header.dart';
 import '../widgets/skill_tree_stage_badge_legend_widget.dart';
 import 'skill_tree_node_detail_screen.dart';
+import '../services/banner_queue_service.dart';
 
 /// Renders the full learning path for a skill track.
 class SkillTreePathScreen extends StatefulWidget {
@@ -119,8 +120,6 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   }
 
   void _showTheoryUnlockBanner() {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearMaterialBanners();
     final banner = MaterialBanner(
       backgroundColor: Colors.blue,
       content: const Text(
@@ -130,7 +129,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       actions: [
         TextButton(
           onPressed: () async {
-            messenger.clearMaterialBanners();
+            BannerQueueService.instance.dismissCurrent();
             final nodeId =
                 _newTheoryNodeIds.isNotEmpty ? _newTheoryNodeIds.first : null;
             final node = nodeId != null ? _track?.nodes[nodeId] : null;
@@ -145,15 +144,10 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         ),
       ],
     );
-    messenger.showMaterialBanner(banner);
-    Future.delayed(const Duration(seconds: 3), () {
-      messenger.clearMaterialBanners();
-    });
+    BannerQueueService.instance.queue(banner);
   }
 
   void _showPracticeUnlockBanner() {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearMaterialBanners();
     final banner = MaterialBanner(
       backgroundColor: Colors.blue,
       content: const Text(
@@ -163,7 +157,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       actions: [
         TextButton(
           onPressed: () async {
-            messenger.clearMaterialBanners();
+            BannerQueueService.instance.dismissCurrent();
             final nodeId =
                 _newPracticeNodeIds.isNotEmpty ? _newPracticeNodeIds.first : null;
             final node = nodeId != null ? _track?.nodes[nodeId] : null;
@@ -178,10 +172,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         ),
       ],
     );
-    messenger.showMaterialBanner(banner);
-    Future.delayed(const Duration(seconds: 3), () {
-      messenger.clearMaterialBanners();
-    });
+    BannerQueueService.instance.queue(banner);
   }
 
   Future<void> _openNode(SkillTreeNodeModel node) async {
