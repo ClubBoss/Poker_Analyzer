@@ -58,6 +58,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final completed = await progress.getCompletedNodeIds(widget.trackId);
 
     final newlyUnlocked = unlocked.difference(_unlocked);
+    final hasNewTheory = newlyUnlocked.any(
+      (id) => tree.nodes[id]?.theoryLessonId.isNotEmpty ?? false,
+    );
 
     final blocks = _listBuilder.stageMarker.build(nodes);
     for (final block in blocks) {
@@ -74,6 +77,9 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         _justUnlocked.addAll(newlyUnlocked);
       }
     });
+    if (hadPrev && hasNewTheory) {
+      _showTheoryUnlockBanner();
+    }
     if (hadPrev) {
       for (final id in newlyUnlocked) {
         Future.delayed(const Duration(seconds: 3), () {
@@ -97,6 +103,23 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         completedNodeIds: _completed,
         stageKeys: _stageKeys,
       );
+    });
+  }
+
+  void _showTheoryUnlockBanner() {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearMaterialBanners();
+    final banner = MaterialBanner(
+      backgroundColor: Colors.blue,
+      content: const Text(
+        '📘 New Theory Available!',
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+      actions: const [SizedBox.shrink()],
+    );
+    messenger.showMaterialBanner(banner);
+    Future.delayed(const Duration(seconds: 3), () {
+      messenger.clearMaterialBanners();
     });
   }
 
