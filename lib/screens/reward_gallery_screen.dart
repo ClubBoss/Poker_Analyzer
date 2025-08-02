@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../services/skill_tree_library_service.dart';
+import '../services/reward_gallery_group_by_track_service.dart';
 
 class RewardGalleryScreen extends StatefulWidget {
   static const route = '/rewards';
@@ -13,82 +12,57 @@ class RewardGalleryScreen extends StatefulWidget {
 }
 
 class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
-  late Future<List<_RewardItem>> _future;
+  late Future<List<TrackRewardGroup>> _future;
 
   @override
   void initState() {
     super.initState();
-    _future = _loadRewards();
-  }
-
-  Future<List<_RewardItem>> _loadRewards() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys();
-    final library = SkillTreeLibraryService.instance;
-    if (library.getAllTracks().isEmpty) {
-      await library.reload();
-    }
-    final rewards = <_RewardItem>[];
-    const prefix = 'reward_granted_';
-    for (final k in keys) {
-      if (k.startsWith(prefix) && (prefs.getBool(k) ?? false)) {
-        final id = k.substring(prefix.length);
-        final title = _resolveTrackTitle(library, id);
-        rewards.add(_RewardItem(id: id, title: title));
-      }
-    }
-    rewards.sort((a, b) => a.title.compareTo(b.title));
-    return rewards;
-  }
-
-  String _resolveTrackTitle(SkillTreeLibraryService library, String trackId) {
-    final track = library.getTrack(trackId)?.tree;
-    if (track == null) return trackId;
-    if (track.roots.isNotEmpty) return track.roots.first.title;
-    if (track.nodes.isNotEmpty) return track.nodes.values.first.title;
-    return trackId;
+    _future =
+        RewardGalleryGroupByTrackService.instance.getGroupedRewards();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Награды')),
-      body: FutureBuilder<List<_RewardItem>>(
+      body: FutureBuilder<List<TrackRewardGroup>>(
         future: _future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final items = snapshot.data!;
-          if (items.isEmpty) {
+          final groups = snapshot.data!;
+          if (groups.isEmpty) {
             return const Center(child: Text('Вы ещё не получили наград'));
           }
-          return ListView.builder(
+          return ListView(
             padding: const EdgeInsets.all(16),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final r = items[index];
-              return ListTile(
-                leading: const Icon(Icons.card_giftcard, color: Colors.orange),
-                title: Text(r.title),
-                trailing: IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () => Share.share(
-                    'Я только что завершил трек «${r.title}» в Poker Analyzer! 💪 Присоединяйся!',
+            children: [
+              for (final g in groups) ...[
+                ListTile(
+                  leading:
+                      const Icon(Icons.card_giftcard, color: Colors.orange),
+                  title: Text(g.trackTitle),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () => Share.share(
+                      'Я только что завершил трек «${g.trackTitle}» в Poker Analyzer! 💪 Присоединяйся!',
+                    ),
                   ),
                 ),
-              );
-            },
+                for (final r in g.rewards
+                    .where((e) => e.stageIndex != null))
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 72, top: 4, bottom: 8),
+                    child: Text('Этап ${r.stageIndex}'),
+                  ),
+              ]
+            ],
           );
         },
       ),
     );
   }
-}
-
-class _RewardItem {
-  final String id;
-  final String title;
-  const _RewardItem({required this.id, required this.title});
 }
 
