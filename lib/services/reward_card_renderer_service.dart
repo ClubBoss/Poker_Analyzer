@@ -4,36 +4,45 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'png_exporter.dart';
+import 'reward_card_style_tuner_service.dart';
 import 'skill_tree_library_service.dart';
 
 /// Renders a shareable reward card for completed tracks.
 class RewardCardRendererService {
   final SkillTreeLibraryService library;
   final SharedPreferences prefs;
+  final RewardCardStyleTunerService styleTuner;
 
-  RewardCardRendererService._({required this.library, required this.prefs});
+  RewardCardRendererService._({
+    required this.library,
+    required this.prefs,
+    required this.styleTuner,
+  });
 
   /// Creates an instance using [library] and [prefs] or default singletons.
   static Future<RewardCardRendererService> create({
     SkillTreeLibraryService? library,
     SharedPreferences? prefs,
+    RewardCardStyleTunerService? styleTuner,
   }) async {
     final p = prefs ?? await SharedPreferences.getInstance();
     final l = library ?? SkillTreeLibraryService.instance;
-    return RewardCardRendererService._(library: l, prefs: p);
+    final t = styleTuner ?? RewardCardStyleTunerService();
+    return RewardCardRendererService._(library: l, prefs: p, styleTuner: t);
   }
 
   /// Builds a styled reward card widget for [trackId].
   Widget buildCard(String trackId) {
     final title = _resolveTrackTitle(trackId);
     final completed = prefs.getBool('reward_granted_$trackId') ?? false;
+    final style = styleTuner.getStyle(trackId);
 
     return Container(
       width: 300,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF512DA8), Color(0xFF303F9F)],
+        gradient: LinearGradient(
+          colors: style.gradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -45,7 +54,7 @@ class RewardCardRendererService {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.emoji_events, size: 48, color: Colors.amber),
+              Icon(style.icon, size: 48, color: Colors.amber),
               const SizedBox(height: 12),
               Text(
                 title,
@@ -70,12 +79,12 @@ class RewardCardRendererService {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade600,
+                  color: style.badgeColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'Завершено!',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                child: Text(
+                  style.badgeText,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
             ),

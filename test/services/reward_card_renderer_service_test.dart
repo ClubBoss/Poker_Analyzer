@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/models/skill_tree_build_result.dart';
 import 'package:poker_analyzer/models/skill_tree_node_model.dart';
 import 'package:poker_analyzer/services/reward_card_renderer_service.dart';
+import 'package:poker_analyzer/services/reward_card_style_tuner_service.dart';
 import 'package:poker_analyzer/services/skill_tree_builder_service.dart';
 import 'package:poker_analyzer/services/skill_tree_library_service.dart';
 
@@ -27,6 +28,18 @@ class _FakeLibraryService implements SkillTreeLibraryService {
 
   @override
   List<SkillTreeNodeModel> getAllNodes() => List.unmodifiable(_nodes);
+}
+
+class _FakeStyleTuner implements RewardCardStyleTunerService {
+  const _FakeStyleTuner();
+
+  @override
+  RewardCardStyle getStyle(String trackId) => const RewardCardStyle(
+        gradient: [Colors.black, Colors.white],
+        icon: Icons.star,
+        badgeText: 'Styled!',
+        badgeColor: Colors.red,
+      );
 }
 
 void main() {
@@ -53,12 +66,14 @@ void main() {
     final svc = await RewardCardRendererService.create(
       library: lib,
       prefs: prefs,
+      styleTuner: const _FakeStyleTuner(),
     );
 
     await tester.pumpWidget(MaterialApp(home: svc.buildCard('T')));
 
     expect(find.text('Test Track'), findsOneWidget);
-    expect(find.text('Завершено!'), findsOneWidget);
+    expect(find.text('Styled!'), findsOneWidget);
+    expect(find.byIcon(Icons.star), findsOneWidget);
 
     final bytes = await svc.exportImage('T');
     expect(bytes, isNotEmpty);
