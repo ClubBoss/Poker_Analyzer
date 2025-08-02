@@ -1,0 +1,24 @@
+id: theory_open_call_bb_vs_btn
+title: 'Defending BB vs BTN Open 15bb'
+tags:
+  - openfold
+  - bb
+  - btn
+  - 15bb
+  - level2
+  - preflop
+  - defense
+parts:
+  - title: 'When to call vs BTN open at 15bb'
+    content: |
+      Despite being out of position, the Big Blind gets excellent pot odds.
+      Call with value hands and playable suited or connected holdings that
+      can realize equity postflop without committing your stack.
+  - title: 'When to reshove'
+    content: |
+      Take advantage of fold equity by 3-bet shoving hands with high-card blockers
+      or poor postflop playability. These shoves punish wide Button opens and
+      deny them the chance to see cheap flops.
+prev:
+  - theory_open_fold_btn_vs_bb_15bb
+type: mini
