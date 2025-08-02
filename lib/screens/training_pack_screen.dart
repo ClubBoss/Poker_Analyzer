@@ -170,6 +170,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
       cloud: context.read<CloudSyncService>(),
     );
     _pack = widget.pack;
+    unawaited(
+      PinnedLearningService.instance.recordOpen('pack', _pack.id),
+    );
     _allHands = widget.hands ?? _pack.hands;
     _sessionHands = List.from(_allHands);
     _allSpots = List.from(_pack.spots);

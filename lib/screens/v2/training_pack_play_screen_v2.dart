@@ -110,6 +110,9 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   @override
   void initState() {
     super.initState();
+    unawaited(
+      PinnedLearningService.instance.recordOpen('pack', widget.template.id),
+    );
     _prepare();
   }
 
