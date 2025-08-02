@@ -60,9 +60,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     const gateEval = SkillTreeStageGateEvaluator();
     const compEval = SkillTreeStageCompletionEvaluator();
     final unlockedStages = gateEval.getUnlockedStages(tree, completed).toSet();
-    final completedStages = compEval
-        .getCompletedStages(tree, completed)
-        .toSet();
+    final completedStages =
+        compEval.getCompletedStages(tree, completed).toSet();
 
     setState(() {
       _tree = tree;
@@ -156,6 +155,26 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     }
   }
 
+  String _buildMilestoneHint(SkillTree tree) {
+    const gateEval = SkillTreeStageGateEvaluator();
+    final unlocked = gateEval.getUnlockedStages(tree, _completed);
+    final totalStages = {for (final n in tree.nodes.values) n.level}.length;
+    if (unlocked.length >= totalStages) {
+      final remaining =
+          tree.nodes.values.where((n) => !_completed.contains(n.id)).length;
+      if (remaining <= 0) return 'All stages completed';
+      return remaining == 1
+          ? '1 node to complete all stages'
+          : '$remaining nodes to complete all stages';
+    }
+    final nextLevel = unlocked.isEmpty ? 0 : unlocked.last + 1;
+    final blocking = gateEval.getBlockingNodes(tree, nextLevel, _completed);
+    final remaining = blocking.length;
+    return remaining == 1
+        ? '1 more step to reveal new lessons'
+        : '$remaining nodes to unlock next stage';
+  }
+
   @override
   Widget build(BuildContext context) {
     final tree = _tree;
@@ -186,6 +205,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final totalCount = _progressService.getTotalNodeCount(tree);
     final progress = totalCount == 0 ? 0.0 : unlockedCount / totalCount;
     final pct = (progress * 100).round();
+    final milestoneHint = _buildMilestoneHint(tree);
     final children = <Widget>[];
     if (lockedNodes.isNotEmpty) {
       children.add(
@@ -254,33 +274,47 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0, end: progress),
-                    duration: const Duration(milliseconds: 300),
-                    builder: (context, value, child) =>
-                        LinearProgressIndicator(value: value, minHeight: 4),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: progress),
+                        duration: const Duration(milliseconds: 300),
+                        builder: (context, value, child) =>
+                            LinearProgressIndicator(value: value, minHeight: 4),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Text.rich(
+                        TextSpan(
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
+                          children: [
+                            TextSpan(
+                              text: '$pct%',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const TextSpan(text: ' complete'),
+                          ],
+                        ),
+                        key: ValueKey(pct),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 4),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  child: Text.rich(
-                    TextSpan(
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.grey),
-                      children: [
-                        TextSpan(
-                          text: '$pct%',
-                          style:
-                              const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const TextSpan(text: ' complete'),
-                      ],
-                    ),
-                    key: ValueKey(pct),
+                  child: Text(
+                    milestoneHint,
+                    key: ValueKey(milestoneHint),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ),
               ],
