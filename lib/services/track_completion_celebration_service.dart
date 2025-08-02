@@ -1,57 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'skill_tree_track_completion_evaluator.dart';
-import 'skill_tree_track_progress_service.dart';
-import '../widgets/track_celebration_dialog.dart';
-import '../screens/skill_tree_track_launcher.dart';
+import '../main.dart';
+import 'skill_tree_node_progress_tracker.dart';
+import 'track_recommendation_engine.dart';
+import 'skill_tree_navigator.dart';
 
-/// Detects when a skill tree track is completed for the first time and
-/// shows a celebration dialog with an option to open the next track.
+/// Shows a celebratory dialog when a track is completed for the first time.
 class TrackCompletionCelebrationService {
-  final SkillTreeTrackCompletionEvaluator evaluator;
-  final SkillTreeTrackProgressService progress;
+  final SkillTreeNodeProgressTracker progress;
 
-  TrackCompletionCelebrationService({
-    SkillTreeTrackCompletionEvaluator? evaluator,
-    SkillTreeTrackProgressService? progress,
-  })  : evaluator = evaluator ?? SkillTreeTrackCompletionEvaluator(),
-        progress = progress ?? SkillTreeTrackProgressService();
+  TrackCompletionCelebrationService({SkillTreeNodeProgressTracker? progress})
+      : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
-  static final instance = TrackCompletionCelebrationService();
+  static TrackCompletionCelebrationService instance =
+      TrackCompletionCelebrationService();
 
-  static const _prefsKey = 'celebrated_track_ids';
+  static const _prefsPrefix = 'track_completion_shown_';
 
-  /// Checks completion of [trackId] and displays celebration once.
-  Future<void> maybeCelebrate(BuildContext context, String trackId) async {
-    if (!await evaluator.isCompleted(trackId)) return;
+  /// Shows a celebration modal if [trackId] has been completed and not yet
+  /// celebrated.
+  Future<void> maybeCelebrate(String trackId) async {
+    if (!await progress.isTrackCompleted(trackId)) return;
 
     final prefs = await SharedPreferences.getInstance();
-    final celebrated = prefs.getStringList(_prefsKey) ?? <String>[];
-    if (celebrated.contains(trackId)) return;
+    final key = '$_prefsPrefix$trackId';
+    if (prefs.getBool(key) ?? false) return;
+    await prefs.setBool(key, true);
 
-    celebrated.add(trackId);
-    await prefs.setStringList(_prefsKey, celebrated);
+    final ctx = navigatorKey.currentState?.context;
+    if (ctx == null || !ctx.mounted) return;
 
-    final next = await progress.getNextTrack();
-    final nextId = next?.tree.nodes.values.isNotEmpty == true
-        ? next!.tree.nodes.values.first.category
-        : null;
+    final nextTrackId = TrackRecommendationEngine.getNextTrack(trackId);
 
-    await showTrackCelebrationDialog(
-      context,
-      trackId,
-      onNext: nextId == null
-          ? null
-          : () {
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SkillTreeTrackLauncher(trackId: nextId),
-                ),
-              );
-            },
+    await showDialog<void>(
+      context: ctx,
+      builder: (context) => AlertDialog(
+        title: const Text('🎉 Трек завершён!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.8, end: 1.2),
+              duration: const Duration(milliseconds: 700),
+              builder: (context, value, child) =>
+                  Transform.scale(scale: value, child: child),
+              child: const Icon(Icons.celebration, size: 48, color: Colors.orange),
+            ),
+            const SizedBox(height: 12),
+            const Text('Вы прошли весь трек!'),
+          ],
+        ),
+        actions: [
+          if (nextTrackId != null)
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                SkillTreeNavigator.instance.openTrack(nextTrackId);
+              },
+              child: const Text('Открыть следующий трек'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Продолжить'),
+          ),
+        ],
+      ),
     );
   }
 }
