@@ -113,10 +113,10 @@ flutter:
     - assets/mini_lessons/
     - assets/lessons/
     - assets/lesson_tracks/
-      - assets/pack_matrix.json
-      - assets/learning_intro.svg
-      - assets/training_paths.yaml
-      - assets/learning_paths/
+    - assets/pack_matrix.json
+    - assets/learning_intro.svg
+    - assets/training_paths.yaml
+    - assets/learning_paths/
     - assets/learning_tracks/
     - assets/learning_path_tracks.yaml
     - assets/animations/congrats.json

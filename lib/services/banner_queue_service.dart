@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
-
 /// Queues [MaterialBanner] widgets to show one at a time.
 class BannerQueueService {
   BannerQueueService._();
@@ -9,6 +7,7 @@ class BannerQueueService {
 
   final List<MaterialBanner> _queue = [];
   bool _isShowing = false;
+  GlobalKey<NavigatorState>? navigatorKey;
 
   /// Adds [banner] to the queue and displays it when possible.
   void queue(MaterialBanner banner) {
@@ -18,7 +17,7 @@ class BannerQueueService {
 
   /// Dismisses the current banner and shows the next one if available.
   void dismissCurrent() {
-    final ctx = navigatorKey.currentContext;
+    final ctx = navigatorKey?.currentContext;
     if (ctx != null) {
       ScaffoldMessenger.of(ctx).clearMaterialBanners();
     }
@@ -28,7 +27,7 @@ class BannerQueueService {
 
   void _processQueue() {
     if (_isShowing || _queue.isEmpty) return;
-    final ctx = navigatorKey.currentContext;
+    final ctx = navigatorKey?.currentContext;
     if (ctx == null || !ctx.mounted) return;
     final messenger = ScaffoldMessenger.of(ctx);
     final banner = _queue.removeAt(0);
