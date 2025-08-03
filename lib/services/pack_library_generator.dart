@@ -5,6 +5,7 @@ import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import 'spot_template_engine.dart';
 import 'yaml_pack_importer_service.dart';
+import '../core/training/generation/pack_utils.dart';
 
 class PackLibraryGenerator {
   final SpotTemplateEngine engine;
@@ -49,10 +50,12 @@ class PackLibraryGenerator {
                   actionType: type,
                   withIcm: icm,
                 );
-                tpl.slug = _uniqueSlug(
-                  _buildSlug(type, hero, vill, r, icm),
+                tpl.slug = uniqueSlug(
+                  buildSlug(type, hero, vill, r, icm),
+                  _slugs,
                 );
-                _autoTagSpots(tpl);
+                autoTagSpots(tpl);
+                tpl.tags = {...tpl.tags, ...autoTags(tpl)}.toList();
                 _packs.add(tpl);
               }
             }
@@ -76,13 +79,18 @@ class PackLibraryGenerator {
         withIcm: t.icm,
         name: t.name,
       );
-      tpl.slug = _uniqueSlug(
-        _buildSlug(t.action, t.hero, t.villain, t.stacks, t.icm),
+      tpl.slug = uniqueSlug(
+        buildSlug(t.action, t.hero, t.villain, t.stacks, t.icm),
+        _slugs,
       );
-      tpl.tags = [for (final tag in t.tags) if (tag.trim().isNotEmpty) tag];
+      tpl.tags = {
+        ...tpl.tags,
+        for (final tag in t.tags) if (tag.trim().isNotEmpty) tag,
+        ...autoTags(tpl),
+      }.toList();
       tpl.trending = t.trending;
       tpl.recommended = t.recommended;
-      _autoTagSpots(tpl);
+      autoTagSpots(tpl);
       _packs.add(tpl);
     }
   }
@@ -96,64 +104,4 @@ class PackLibraryGenerator {
     );
   }
 
-  void _autoTagSpots(TrainingPackTemplate tpl) {
-    for (final spot in tpl.spots) {
-      final posTag = 'pos:${spot.hand.position.name}';
-      final stack = spot.hand.stacks['${spot.hand.heroIndex}'] ?? 0.0;
-      final stackTag = 'bb:${stack.round()}';
-      String? action;
-      final acts = spot.hand.actions[0] ?? [];
-      for (final a in acts) {
-        if (a.playerIndex == spot.hand.heroIndex) {
-          action = a.action;
-          break;
-        }
-      }
-      final catTag = action != null ? 'cat:$action' : null;
-      final set = {...spot.tags, posTag, stackTag};
-      if (catTag != null) set.add(catTag);
-      spot.tags = set.toList()..sort();
-      final cats = [posTag, stackTag];
-      if (catTag != null) cats.add(catTag);
-      spot.categories = cats;
-    }
-  }
-
-  String _buildSlug(
-    String action,
-    HeroPosition hero,
-    HeroPosition villain,
-    List<int> stacks,
-    bool icm,
-  ) {
-    String a;
-    switch (action) {
-      case 'push':
-        a = 'push';
-        break;
-      case 'callPush':
-        a = 'call';
-        break;
-      case 'minraiseFold':
-        a = 'minraise';
-        break;
-      default:
-        a = action;
-    }
-    final avg = stacks.isEmpty
-        ? 0
-        : stacks.reduce((a, b) => a + b) ~/ stacks.length;
-    final prefix = icm ? 'icm-' : '';
-    return '$prefix$a-${hero.name}-${avg}bb-vs-${villain.name}';
-  }
-
-  String _uniqueSlug(String base) {
-    var slug = base;
-    var i = 1;
-    while (_slugs.contains(slug)) {
-      slug = '$base-${i++}';
-    }
-    _slugs.add(slug);
-    return slug;
-  }
 }
