@@ -49,21 +49,14 @@ class TrainingPackController extends ChangeNotifier {
     _applyStackFilter();
     notifyListeners();
   }
-
-  List<T> _filterByStack<T>(Iterable<T> items, bool Function(T item) predicate) {
-    return [for (final item in items) if (predicate(item)) item];
-  }
-
   void _applyStackFilter() {
     final filter = StackRangeFilter(_stackFilter);
-    _sessionHands = _filterByStack(
-      allHands,
-      (h) => filter.matches(h.stackSizes[h.heroIndex] ?? 0),
-    );
-    _spots = _filterByStack(
-      _allSpots,
-      (s) => filter.matches(s.stacks[s.heroIndex]),
-    );
+    _sessionHands = allHands
+        .where((h) => filter.matches(h.stackSizes[h.heroIndex] ?? 0))
+        .toList();
+    _spots = _allSpots
+        .where((s) => filter.matches(s.stacks[s.heroIndex]))
+        .toList();
   }
 
   void _commit() {
