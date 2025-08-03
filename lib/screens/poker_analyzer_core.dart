@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../controllers/poker_analyzer_controller.dart';
+import '../demo_controllable.dart';
+import '../models/training_spot.dart';
 import 'poker_analyzer_action_panel.dart';
 import 'poker_analyzer_board_panel.dart';
 import 'poker_analyzer_overlay.dart';
@@ -11,15 +13,36 @@ import 'poker_analyzer_overlay.dart';
 /// Provides a [PokerAnalyzerController] to the widget subtree and composes the
 /// high level panels responsible for board interaction, action controls and
 /// overlays.
-class PokerAnalyzerScreen extends StatelessWidget {
+class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
 
+  @override
+  PokerAnalyzerScreenState createState() => PokerAnalyzerScreenState();
+}
+
+class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
+    with DemoControllable {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => PokerAnalyzerController(),
       child: const _PokerAnalyzerView(),
     );
+  }
+
+  @override
+  void loadTrainingSpot(TrainingSpot spot) {
+    // TODO: Implement training spot loading logic
+  }
+
+  @override
+  void playAll() {
+    // TODO: Implement playback control logic
+  }
+
+  @override
+  void resolveWinner(Map<int, int> winnings) {
+    // TODO: Implement winner resolution logic
   }
 }
 
