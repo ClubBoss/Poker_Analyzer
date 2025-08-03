@@ -20,8 +20,8 @@ class SmartInboxController {
   final SmartBoosterInboxLimiterService inboxLimiter;
   final SmartBoosterDiversitySchedulerService diversityScheduler;
 
-  /// Returns widgets to display in the smart inbox.
-  Future<List<Widget>> getInboxItems() async {
+  /// Builds booster widgets to display in the smart inbox.
+  Future<List<Widget>> buildBoosterInbox() async {
     final items = <Widget>[];
     final boosters = await boosterProvider.getBoosters();
     if (boosters.isNotEmpty) {
