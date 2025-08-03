@@ -72,6 +72,7 @@ import '../../models/player_model.dart';
 import 'editor/template_preview_widgets.dart';
 import '../../services/training_pack_stats_service.dart';
 import '../../services/saved_hand_manager_service.dart';
+import '../../services/spot_duplicate_finder.dart';
 
 part 'training_pack_template_editor_screen_old.dart';
 part 'spot_list_section.dart';
