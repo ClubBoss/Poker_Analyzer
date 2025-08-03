@@ -26,7 +26,11 @@ class PinnedLearningTile extends StatelessWidget {
           onPressed: () => PinnedLearningService.instance.unpin('lesson', item.id),
         ),
         onTap: () => _openLesson(context, lesson),
-        onLongPress: () => _showMenu(context, () => _openLesson(context, lesson)),
+        onLongPress: () => showPinnedLearningMenu(
+          context,
+          item,
+          () => _openLesson(context, lesson),
+        ),
       );
     }
 
@@ -43,7 +47,11 @@ class PinnedLearningTile extends StatelessWidget {
             onPressed: () => PinnedLearningService.instance.unpin('pack', item.id),
           ),
           onTap: () => _openPack(context, tpl),
-          onLongPress: () => _showMenu(context, () => _openPack(context, tpl)),
+          onLongPress: () => showPinnedLearningMenu(
+            context,
+            item,
+            () => _openPack(context, tpl),
+          ),
         );
       },
     );
@@ -73,47 +81,53 @@ class PinnedLearningTile extends StatelessWidget {
     );
   }
 
-  Future<void> _showMenu(BuildContext context, VoidCallback open) async {
-    final service = PinnedLearningService.instance;
-    final hasMultiple = service.items.length > 1;
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.open_in_new),
-              title: const Text('Open'),
-              onTap: () => Navigator.pop(context, 'open'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.push_pin_outlined),
-              title: const Text('Unpin'),
-              onTap: () => Navigator.pop(context, 'unpin'),
-            ),
-            if (hasMultiple)
-              ListTile(
-                leading: const Icon(Icons.vertical_align_top),
-                title: const Text('Move to Top'),
-                onTap: () => Navigator.pop(context, 'top'),
-              ),
-          ],
-        ),
-      ),
-    );
+}
 
-    switch (result) {
-      case 'open':
-        open();
-        break;
-      case 'unpin':
-        await service.unpin(item.type, item.id);
-        break;
-      case 'top':
-        await service.moveToTop(item.type, item.id);
-        break;
-    }
+Future<void> showPinnedLearningMenu(
+  BuildContext context,
+  PinnedLearningItem item,
+  VoidCallback open,
+) async {
+  final service = PinnedLearningService.instance;
+  final hasMultiple = service.items.length > 1;
+  final result = await showModalBottomSheet<String>(
+    context: context,
+    builder: (context) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.open_in_new),
+            title: const Text('Open'),
+            onTap: () => Navigator.pop(context, 'open'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.push_pin_outlined),
+            title: const Text('Unpin'),
+            onTap: () => Navigator.pop(context, 'unpin'),
+          ),
+          if (hasMultiple)
+            ListTile(
+              leading: const Icon(Icons.vertical_align_top),
+              title: const Text('Move to Top'),
+              onTap: () => Navigator.pop(context, 'top'),
+            ),
+        ],
+      ),
+    ),
+  );
+
+  switch (result) {
+    case 'open':
+      open();
+      break;
+    case 'unpin':
+      await service.unpin(item.type, item.id);
+      break;
+    case 'top':
+      await service.moveToTop(item.type, item.id);
+      break;
   }
 }
+
 
