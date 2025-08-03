@@ -4,5 +4,6 @@ packs:
   - assets/packs/v2/preflop/openfold_btn_vs_utg_cash.yaml
   - assets/packs/v2/preflop/openfold_co_vs_hj_cash.yaml
   - assets/packs/v2/preflop/openfold_hj_vs_utg_cash.yaml
+  - assets/packs/v2/preflop/threebet_btn_vs_co_cash.yaml
   - assets/packs/v2/preflop/open_fold_mid_cash.yaml
   - assets/packs/v2/preflop/threebet_push_late_cash.yaml
