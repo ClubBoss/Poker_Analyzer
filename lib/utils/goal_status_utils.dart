@@ -7,5 +7,5 @@ String getGoalStatus(GoalProgress progress) {
     return '✔ Завершено';
   }
   final accuracy = progress.averageAccuracy.toStringAsFixed(0);
-  return 'Пройдено: ${progress.stagesCompleted}/3 · Точность: $accuracy%';
+  return 'Пройдено: ${progress.stagesCompleted}/${progress.totalStages} · Точность: $accuracy%';
 }
