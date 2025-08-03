@@ -9,4 +9,5 @@ const LearningPathStageModel openFoldCoVsHjCashStageTemplate = LearningPathStage
   requiredAccuracy: 80,
   minHands: 10,
   tags: ['openfold', 'cash', 'preflop', 'level2', 'co', 'vsHj'],
+  unlocks: ['openfold_hj_vs_utg_cash'],
 );

@@ -1,0 +1,84 @@
+id: openfold_hj_vs_utg_cash
+name: HJ vs UTG Open/Fold (Cash)
+
+trainingType: cash
+
+recommended: false
+
+icon: cash
+
+bb: 100
+
+gameType: cash
+
+positions:
+  - hj
+
+tags:
+  - cash
+  - openfold
+  - preflop
+  - level2
+  - hj
+  - utg
+
+spots:
+  - id: of_hj_utg_cash_1
+    title: HJ 98s vs UTG 3bb
+    villainAction: open 3.0
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: 9s 8s
+      position: hj
+      heroIndex: 1
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+  - id: of_hj_utg_cash_2
+    title: HJ KTs vs UTG 3bb
+    villainAction: open 3.0
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: Kc Tc
+      position: hj
+      heroIndex: 1
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+  - id: of_hj_utg_cash_3
+    title: HJ 77 vs UTG 3bb
+    villainAction: open 3.0
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: 7h 7d
+      position: hj
+      heroIndex: 1
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+
+spotCount: 3
+
+meta:
+  schemaVersion: 2.0.0
