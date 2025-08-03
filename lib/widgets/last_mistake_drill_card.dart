@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/shared_prefs_helper.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
+import '../utils/shared_prefs_keys.dart';
+import 'drill_card.dart';
 
 class LastMistakeDrillCard extends StatefulWidget {
   const LastMistakeDrillCard({super.key});
@@ -16,20 +18,18 @@ class LastMistakeDrillCard extends StatefulWidget {
 }
 
 class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
-  static const _key = 'last_mistake_drill_ts';
   int? _ts;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
-      if (mounted) setState(() => _ts = p.getInt(_key));
+    SharedPrefsHelper.getInt(SharedPrefsKeys.lastMistakeDrillTs).then((v) {
+      if (mounted) setState(() => _ts = v);
     });
   }
 
   Future<void> _mark(int ts) async {
-    final p = await SharedPreferences.getInstance();
-    await p.setInt(_key, ts);
+    await SharedPrefsHelper.setInt(SharedPrefsKeys.lastMistakeDrillTs, ts);
     if (mounted) setState(() => _ts = ts);
   }
 
@@ -45,51 +45,32 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
     if (hand == null) return const SizedBox.shrink();
     final ts = hand.savedAt.millisecondsSinceEpoch;
     if (_ts == ts) return const SizedBox.shrink();
-    final accent = Theme.of(context).colorScheme.secondary;
     final cat = hand.category ?? 'Без категории';
     final ev = hand.evLoss?.abs() ?? 0.0;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
+    return DrillCard(
+      icon: Icons.bug_report,
+      title: 'Последняя ошибка',
+      description: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.bug_report, color: accent),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Последняя ошибка',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(cat, style: const TextStyle(color: Colors.white)),
-                const SizedBox(height: 4),
-                Text('-${ev.toStringAsFixed(1)} EV',
-                    style: const TextStyle(color: Colors.white70)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () async {
-              final tpl = TrainingPackService.createDrillFromHand(hand);
-              await context.read<TrainingSessionService>().startSession(tpl);
-              await _mark(ts);
-              if (context.mounted) {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-                );
-              }
-            },
-            child: const Text('Тренировать'),
-          ),
+          Text(cat, style: const TextStyle(color: Colors.white)),
+          const SizedBox(height: 4),
+          Text('-${ev.toStringAsFixed(1)} EV',
+              style: const TextStyle(color: Colors.white70)),
         ],
       ),
+      onPressed: () async {
+        final tpl = TrainingPackService.createDrillFromHand(hand);
+        await context.read<TrainingSessionService>().startSession(tpl);
+        await _mark(ts);
+        if (context.mounted) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const TrainingSessionScreen()),
+          );
+        }
+      },
     );
   }
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/shared_prefs_helper.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../helpers/category_translations.dart';
 import '../screens/training_session_screen.dart';
+import '../utils/shared_prefs_keys.dart';
+import 'drill_card.dart';
 
 class CategoryDrillCard extends StatefulWidget {
   const CategoryDrillCard({super.key});
@@ -15,16 +17,17 @@ class CategoryDrillCard extends StatefulWidget {
 }
 
 class _CategoryDrillCardState extends State<CategoryDrillCard> {
-  static const _key = 'top_mistake_drill_done';
-  static const _tsKey = 'category_drill_last_time';
   bool _done = false;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
-      final done = p.getBool(_key) ?? false;
-      final ts = p.getInt(_tsKey);
+    Future.wait([
+      SharedPrefsHelper.getBool(SharedPrefsKeys.topMistakeDrillDone),
+      SharedPrefsHelper.getInt(SharedPrefsKeys.categoryDrillLastTime),
+    ]).then((values) {
+      final done = values[0] ?? false;
+      final ts = values[1];
       final hide = ts != null &&
           DateTime.now()
                   .difference(DateTime.fromMillisecondsSinceEpoch(ts))
@@ -51,55 +54,30 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
     if (map.isEmpty) return const SizedBox.shrink();
     final entry = map.entries.reduce((a, b) => a.value >= b.value ? a : b);
     if (entry.value < 3) return const SizedBox.shrink();
-    final accent = Theme.of(context).colorScheme.secondary;
     final name = translateCategory(entry.key).isEmpty
         ? 'Без категории'
         : translateCategory(entry.key);
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.flag, color: accent),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Проработка категории',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(name, style: const TextStyle(color: Colors.white)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () async {
-              final tpl = await TrainingPackService.createDrillFromCategory(
-                  context, entry.key);
-              if (tpl == null) return;
-              await context.read<TrainingSessionService>().startSession(tpl);
-              final p = await SharedPreferences.getInstance();
-              await p.setInt(
-                  _tsKey, DateTime.now().millisecondsSinceEpoch);
-              if (mounted) setState(() => _done = false);
-              if (context.mounted) {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
-                );
-              }
-            },
-            child: const Text('Тренировать'),
-          ),
-        ],
-      ),
+    return DrillCard(
+      icon: Icons.flag,
+      title: 'Проработка категории',
+      description: Text(name, style: const TextStyle(color: Colors.white)),
+      onPressed: () async {
+        final tpl = await TrainingPackService.createDrillFromCategory(
+            context, entry.key);
+        if (tpl == null) return;
+        await context.read<TrainingSessionService>().startSession(tpl);
+        await SharedPrefsHelper.setInt(
+            SharedPrefsKeys.categoryDrillLastTime,
+            DateTime.now().millisecondsSinceEpoch);
+        if (mounted) setState(() => _done = false);
+        if (context.mounted) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const TrainingSessionScreen()),
+          );
+        }
+      },
     );
   }
 }

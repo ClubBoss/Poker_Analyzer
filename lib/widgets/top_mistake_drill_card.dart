@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/shared_prefs_helper.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
+import '../utils/shared_prefs_keys.dart';
+import 'drill_card.dart';
 
 class TopMistakeDrillCard extends StatefulWidget {
   const TopMistakeDrillCard({super.key});
@@ -14,20 +16,19 @@ class TopMistakeDrillCard extends StatefulWidget {
 }
 
 class _TopMistakeDrillCardState extends State<TopMistakeDrillCard> {
-  static const _key = 'top_mistake_drill_done';
   bool _done = false;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
-      if (mounted) setState(() => _done = p.getBool(_key) ?? false);
+    SharedPrefsHelper.getBool(SharedPrefsKeys.topMistakeDrillDone).then((v) {
+      if (mounted) setState(() => _done = v ?? false);
     });
   }
 
   Future<void> _mark() async {
-    final p = await SharedPreferences.getInstance();
-    await p.setBool(_key, true);
+    await SharedPrefsHelper.setBool(
+        SharedPrefsKeys.topMistakeDrillDone, true);
     if (mounted) setState(() => _done = true);
   }
 
@@ -45,49 +46,25 @@ class _TopMistakeDrillCardState extends State<TopMistakeDrillCard> {
       map[cat] = (map[cat] ?? 0) + (h.evLoss ?? 0);
     }
     if (_done || map.length < 3) return const SizedBox.shrink();
-    final accent = Theme.of(context).colorScheme.secondary;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.bolt, color: accent),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Топ ошибки',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
-                Text('Восстановите EV',
-                    style: TextStyle(color: Colors.white70)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () async {
-              final tpl = await TrainingPackService.createTopMistakeDrill(context);
-              if (tpl == null) return;
-              await context.read<TrainingSessionService>().startSession(tpl);
-              await _mark();
-              if (context.mounted) {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
-                );
-              }
-            },
-            child: const Text('Начать'),
-          ),
-        ],
-      ),
+    return DrillCard(
+      icon: Icons.bolt,
+      title: 'Топ ошибки',
+      description:
+          const Text('Восстановите EV', style: TextStyle(color: Colors.white70)),
+      buttonText: 'Начать',
+      onPressed: () async {
+        final tpl = await TrainingPackService.createTopMistakeDrill(context);
+        if (tpl == null) return;
+        await context.read<TrainingSessionService>().startSession(tpl);
+        await _mark();
+        if (context.mounted) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const TrainingSessionScreen()),
+          );
+        }
+      },
     );
   }
 }

@@ -36,4 +36,9 @@ class SharedPrefsKeys {
   static const String trainingSearchHistory = 'training_search_history';
   static const String trainingSpotListSort = 'training_spot_list_sort';
   static const String trainingQuickSortOption = 'training_quick_sort_option';
+
+  // Drill card keys
+  static const String topMistakeDrillDone = 'top_mistake_drill_done';
+  static const String lastMistakeDrillTs = 'last_mistake_drill_ts';
+  static const String categoryDrillLastTime = 'category_drill_last_time';
 }
