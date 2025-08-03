@@ -1,3 +1,6 @@
 nodes:
   - type: stage
-    id: start
+    stageId: push_fold_cash
+    next: [openfold_3bb_cash]
+  - type: stage
+    stageId: openfold_3bb_cash

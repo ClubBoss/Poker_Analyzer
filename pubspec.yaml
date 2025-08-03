@@ -115,6 +115,7 @@ flutter:
     - assets/mini_lessons/
     - assets/theory_mini_lessons/
     - assets/theory_lessons/level1/
+    - assets/theory_lessons/level2/
     - assets/mini_lesson_library.yaml
     - assets/lessons/
     - assets/lesson_tracks/
