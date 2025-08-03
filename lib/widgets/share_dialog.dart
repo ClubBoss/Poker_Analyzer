@@ -6,6 +6,13 @@ class ShareDialog extends StatelessWidget {
   final String text;
   const ShareDialog({super.key, required this.text});
 
+  Widget _dialogButton(String label, VoidCallback onPressed) {
+    return TextButton(
+      onPressed: onPressed,
+      child: Text(label),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -17,24 +24,18 @@ class ShareDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () {
+        _dialogButton(
+          'Copy',
+          () {
             Clipboard.setData(ClipboardData(text: text));
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Copied to clipboard')),
             );
           },
-          child: const Text('Copy'),
         ),
-        TextButton(
-          onPressed: () => Share.share(text),
-          child: const Text('Share'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
+        _dialogButton('Share', () => Share.share(text)),
+        _dialogButton('Close', () => Navigator.pop(context)),
       ],
     );
   }
