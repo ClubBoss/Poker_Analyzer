@@ -4,16 +4,23 @@ String? _locale;
 
 String _currentLocale() => _locale ??= Intl.getCurrentLocale();
 
+late final DateFormat _dateTimeFmt =
+    DateFormat('dd.MM.yyyy HH:mm', _currentLocale());
+late final DateFormat _dateFmt =
+    DateFormat('dd.MM.yyyy', _currentLocale());
+late final DateFormat _longDateFmt =
+    DateFormat('d MMMM y', _currentLocale());
+
 String formatDateTime(DateTime date) {
-  return DateFormat('dd.MM.yyyy HH:mm', _currentLocale()).format(date);
+  return _dateTimeFmt.format(date);
 }
 
 String formatDate(DateTime date) {
-  return DateFormat('dd.MM.yyyy', _currentLocale()).format(date);
+  return _dateFmt.format(date);
 }
 
 String formatLongDate(DateTime date) {
-  return DateFormat('d MMMM y', _currentLocale()).format(date);
+  return _longDateFmt.format(date);
 }
 
 String formatDuration(Duration d) {
