@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/intro_seen_tracker.dart';
 import '../services/booster_thematic_descriptions.dart';
 import '../widgets/theory_intro_banner.dart';
+import '../widgets/theory_booster_banner.dart';
 import 'learning_path_celebration_screen.dart';
 import '../widgets/next_steps_modal.dart';
 import '../widgets/stage_progress_chip.dart';
@@ -598,8 +599,26 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     }
                   });
                 }
+                final pendingStage = stages.firstWhereOrNull(
+                  (s) =>
+                      _stageStates[s.id] == LearningStageUIState.active &&
+                      s.theoryPackId != null &&
+                      !(_theoryDone[s.id] ?? false),
+                );
                 return Column(
                   children: [
+                    if (pendingStage != null)
+                      TheoryBoosterBanner(
+                        onOpen: () async {
+                          final start = await showDialog<bool>(
+                            context: context,
+                            builder: (_) => StagePreviewDialog(stage: pendingStage),
+                          );
+                          if (start == true) {
+                            await _handleStageTap(pendingStage);
+                          }
+                        },
+                      ),
                     hud,
                     Expanded(
                       child: ListView(
