@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'theory_reinforcement_entry.dart';
+
 /// Schedules follow-up reviews for theory lessons using spaced repetition.
 class TheoryReinforcementScheduler {
   TheoryReinforcementScheduler._();
@@ -16,28 +18,28 @@ class TheoryReinforcementScheduler {
     Duration(days: 14),
   ];
 
-  Future<Map<String, _Entry>> _load() async {
+  Future<Map<String, TheoryReinforcementEntry>> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
         final data = jsonDecode(raw);
         if (data is Map) {
-          final map = <String, _Entry>{};
+          final map = <String, TheoryReinforcementEntry>{};
           for (final e in data.entries) {
             if (e.value is Map) {
-              map[e.key as String] =
-                  _Entry.fromJson(Map<String, dynamic>.from(e.value as Map));
+              map[e.key as String] = TheoryReinforcementEntry.fromJson(
+                  Map<String, dynamic>.from(e.value as Map));
             }
           }
           return map;
         }
       } catch (_) {}
     }
-    return <String, _Entry>{};
+    return <String, TheoryReinforcementEntry>{};
   }
 
-  Future<void> _save(Map<String, _Entry> map) async {
+  Future<void> _save(Map<String, TheoryReinforcementEntry> map) async {
     final prefs = await SharedPreferences.getInstance();
     final data = {for (final e in map.entries) e.key: e.value.toJson()};
     await prefs.setString(_prefsKey, jsonEncode(data));
@@ -49,7 +51,7 @@ class TheoryReinforcementScheduler {
     var level = entry?.level ?? 0;
     if (level < _intervals.length - 1) level++;
     final next = DateTime.now().add(_intervals[level]);
-    map[lessonId] = _Entry(level: level, next: next);
+    map[lessonId] = TheoryReinforcementEntry(level: level, next: next);
     await _save(map);
   }
 
@@ -59,7 +61,7 @@ class TheoryReinforcementScheduler {
     var level = entry?.level ?? 0;
     if (level > 0) level--;
     final next = DateTime.now().add(_intervals[level]);
-    map[lessonId] = _Entry(level: level, next: next);
+    map[lessonId] = TheoryReinforcementEntry(level: level, next: next);
     await _save(map);
   }
 
@@ -75,21 +77,3 @@ class TheoryReinforcementScheduler {
   }
 }
 
-class _Entry {
-  final int level;
-  final DateTime next;
-
-  const _Entry({required this.level, required this.next});
-
-  Map<String, dynamic> toJson() => {
-        'level': level,
-        'next': next.toIso8601String(),
-      };
-
-  factory _Entry.fromJson(Map<String, dynamic> j) => _Entry(
-        level: j['level'] is int
-            ? j['level'] as int
-            : int.tryParse(j['level']?.toString() ?? '') ?? 0,
-        next: DateTime.tryParse(j['next']?.toString() ?? '') ?? DateTime.now(),
-      );
-}
