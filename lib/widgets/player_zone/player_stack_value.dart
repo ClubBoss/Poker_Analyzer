@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 
 /// Displays the current remaining stack with a chip icon.
 class PlayerStackValue extends StatefulWidget {

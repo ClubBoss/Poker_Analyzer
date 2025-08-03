@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'chip_stack_moving_widget.dart';
+import '../chip_stack_moving_widget.dart';
 
 /// Widget animating a player's bet flying from their position to the pot.
 class BetFlyingChips extends StatelessWidget {

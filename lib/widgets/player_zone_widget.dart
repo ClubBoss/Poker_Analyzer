@@ -20,24 +20,25 @@ import '../user_preferences.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
 import 'chip_stack_widget.dart';
-import 'current_bet_label.dart';
-import 'bet_size_label.dart';
-import 'player_stack_value.dart';
-import 'stack_bar_widget.dart';
-import 'bet_flying_chips.dart';
+import 'player_zone/current_bet_label.dart';
+import 'player_zone/bet_size_label.dart';
+import 'player_zone/player_stack_value.dart';
+import 'player_zone/stack_bar_widget.dart';
+import 'player_zone/bet_flying_chips.dart';
 import 'chip_stack_moving_widget.dart';
-import 'chip_moving_widget.dart';
+import 'player_zone/chip_moving_widget.dart';
 import 'bet_to_center_animation.dart';
 import 'refund_chip_stack_moving_widget.dart';
 import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
 import 'loss_amount_widget.dart';
 import 'gain_amount_widget.dart';
-import 'stack_delta_label.dart';
-import 'winner_flying_chip.dart';
-import 'action_tag_label.dart';
-import 'player_effective_stack_label.dart';
-import 'player_position_label.dart';
+import 'player_zone/stack_delta_label.dart';
+import 'player_zone/winner_flying_chip.dart';
+import 'player_zone/action_tag_label.dart';
+import 'player_zone/player_effective_stack_label.dart';
+import 'player_zone/player_position_label.dart';
+import 'player_zone/player_zone_animations.dart';
 
 class PlayerZoneRegistry {
   final Map<String, _PlayerZoneWidgetState> _states = {};
@@ -121,13 +122,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   final List<OverlayEntry> _winChipEntries = [];
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
-  late final AnimationController _winnerGlowController;
-  late final Animation<double> _winnerGlowOpacity;
-  late final Animation<double> _winnerGlowScale;
-  late final AnimationController _winnerHighlightController;
-  late final Animation<double> _winnerHighlightGlow;
-  late final AnimationController _allInWinGlowController;
-  late final Animation<double> _allInWinGlow;
+  late final PlayerZoneAnimations _animations;
   bool _refundGlow = false;
   Timer? _refundGlowTimer;
   bool _actionGlow = false;
@@ -374,69 +369,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 50,
       ),
     ]).animate(_stackWinController);
-    _winnerGlowController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _winnerGlowOpacity = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 20,
-      ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 20,
-      ),
-    ]).animate(_winnerGlowController);
-    _winnerGlowScale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 1.05)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.05, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 50,
-      ),
-    ]).animate(_winnerGlowController);
-
-    _winnerHighlightController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _winnerHighlightGlow = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 50,
-      ),
-    ]).animate(_winnerHighlightController);
-
-    _allInWinGlowController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-    _allInWinGlow = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 50,
-      ),
-    ]).animate(_allInWinGlowController);
+    _animations = PlayerZoneAnimations(vsync: this);
 
     _bustedController = AnimationController(
       vsync: this,
@@ -749,12 +682,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.isHero) return;
     _highlightTimer?.cancel();
     setState(() => _winnerHighlight = true);
-    _winnerGlowController.forward(from: 0.0);
-    _winnerHighlightController.forward(from: 0.0);
+    _animations.playWinnerGlow();
+    _animations.playWinnerHighlight();
     _startChipWinAnimation();
     _showWinnerLabelAnimated();
     if (_wasAllIn) {
-      _allInWinGlowController.forward(from: 0.0);
+      _animations.playAllInWinGlow();
       _wasAllIn = false;
     }
     _highlightTimer = Timer(const Duration(milliseconds: 1500), () {
@@ -836,8 +769,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void clearWinnerHighlight() {
     _highlightTimer?.cancel();
-    _winnerGlowController.reset();
-    _winnerHighlightController.reset();
+    _animations.resetWinnerGlow();
+    _animations.resetWinnerHighlight();
     if (_winnerHighlight) {
       setState(() => _winnerHighlight = false);
     }
@@ -1596,11 +1529,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _revealEyeController.dispose();
     _heroLabelController.dispose();
     _winnerLabelController.dispose();
-    _winnerGlowController.dispose();
-    _winnerHighlightController.dispose();
+    _animations.dispose();
     _actionGlowController.dispose();
     _actionTagController.dispose();
-    _allInWinGlowController.dispose();
     _chipWinController.dispose();
     _foldChipController.dispose();
     _showdownLossController.dispose();
@@ -1911,9 +1842,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ),
             );
             row = AnimatedBuilder(
-              animation: _winnerHighlightController,
+              animation: _animations.winnerHighlightController,
               builder: (_, child) {
-                final glow = _winnerHighlightGlow.value;
+                final glow = _animations.winnerHighlightGlow.value;
                 return Container(
                   decoration: glow > 0
                       ? BoxDecoration(
@@ -2025,9 +1956,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     );
                   },
                   child: AnimatedBuilder(
-                    animation: _allInWinGlowController,
+                    animation: _animations.allInWinGlowController,
                     builder: (_, child) {
-                      final glow = _allInWinGlow.value;
+                      final glow = _animations.allInWinGlow.value;
                       return Container(
                         decoration: glow > 0
                             ? BoxDecoration(
@@ -2483,10 +2414,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
 
     result = AnimatedBuilder(
-      animation: _winnerGlowController,
+      animation: _animations.winnerGlowController,
       builder: (_, child) {
-        final glow = _winnerGlowOpacity.value;
-        final scale = _winnerGlowScale.value;
+        final glow = _animations.winnerGlowOpacity.value;
+        final scale = _animations.winnerGlowScale.value;
         if (!_winnerHighlight && glow == 0.0) return child!;
         return Transform.scale(
           scale: scale,

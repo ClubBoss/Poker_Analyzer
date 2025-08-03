@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 
 /// Displays player's remaining stack as a thin progress bar.
 class StackBarWidget extends StatelessWidget {

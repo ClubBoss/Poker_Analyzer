@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import 'player_stack_chips.dart';
-import 'player_stack_value.dart';
+import 'player_zone/player_stack_value.dart';
 
 /// Widget that fades out a player's cards and stack after losing.
 class LossFadeWidget extends StatefulWidget {
