@@ -3,6 +3,9 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../models/training_type.dart';
 import '../services/pack_favorite_service.dart';
+import '../core/training/library/training_pack_library_v2.dart';
+import '../services/training_session_launcher.dart';
+import '../services/training_progress_logger.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -32,7 +35,14 @@ class _PackCardState extends State<PackCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: () async {
+        if (widget.template.id == TrainingPackLibraryV2.mvpPackId) {
+          await TrainingProgressLogger.startSession(widget.template.id);
+          await const TrainingSessionLauncher().launch(widget.template);
+        } else {
+          widget.onTap();
+        }
+      },
       child: Stack(
         children: [
           Container(
