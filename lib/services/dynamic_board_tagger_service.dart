@@ -3,6 +3,10 @@ import '../models/card_model.dart';
 class DynamicBoardTaggerService {
   const DynamicBoardTaggerService();
 
+  /// Tags the given [board] based on common board texture heuristics.
+  ///
+  /// This method is the primary entry point and is aliased by [tag] for
+  /// convenience.
   Set<String> tagBoard(List<CardModel> board) {
     final tags = <String>{};
     if (board.isEmpty) return tags;
@@ -36,6 +40,9 @@ class DynamicBoardTaggerService {
 
     return tags;
   }
+
+  /// Shorthand for [tagBoard] to provide a more concise API.
+  Set<String> tag(List<CardModel> board) => tagBoard(board);
 
   bool _isLow(List<CardModel> board) =>
       board.every((c) => _rankValue(c.rank) <= 8);
