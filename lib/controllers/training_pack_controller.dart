@@ -128,4 +128,10 @@ class TrainingPackController extends ChangeNotifier {
     _applyStackFilter();
     notifyListeners();
   }
+
+  @override
+  void dispose() {
+    storage.dispose();
+    super.dispose();
+  }
 }
