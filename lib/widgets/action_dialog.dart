@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import '../models/poker_actions.dart';
 
 /// Dialog allowing to quickly choose an action for a player.
 class ActionDialog extends StatefulWidget {
@@ -20,10 +21,8 @@ class ActionDialog extends StatefulWidget {
   State<ActionDialog> createState() => _ActionDialogState();
 }
 
-enum _Action { fold, check, call, bet, raise }
-
 class _ActionDialogState extends State<ActionDialog> {
-  _Action? _selected;
+  String? _selected;
   double _slider = 0;
 
   @override
@@ -32,17 +31,17 @@ class _ActionDialogState extends State<ActionDialog> {
     _slider = 0;
   }
 
-  void _selectSimple(_Action act) {
+  void _selectSimple(String act) {
     Navigator.pop(
       context,
-      ActionEntry(widget.street, widget.playerIndex, act.name, amount: null),
+      ActionEntry(widget.street, widget.playerIndex, act, amount: null),
     );
   }
 
   void _selectBetAmount(double amount) {
     Navigator.pop(
       context,
-      ActionEntry(widget.street, widget.playerIndex, _selected!.name,
+      ActionEntry(widget.street, widget.playerIndex, _selected!,
           amount: amount.clamp(1, widget.stackSize.toDouble())),
     );
   }
@@ -55,25 +54,28 @@ class _ActionDialogState extends State<ActionDialog> {
     }
   }
 
-  Widget _actionButton(String label, _Action act) {
-    return ElevatedButton(
+  Widget _actionButton(PokerAction action) {
+    return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor:
-            _selected == act ? Colors.blueGrey : Colors.black87,
+            _selected == action.value ? Colors.blueGrey : Colors.black87,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
       onPressed: () {
-        if (act == _Action.fold || act == _Action.check || act == _Action.call) {
-          _selectSimple(act);
+        if (action.value == 'fold' ||
+            action.value == 'check' ||
+            action.value == 'call') {
+          _selectSimple(action.value);
         } else {
           setState(() {
-            _selected = act;
+            _selected = action.value;
             _slider = 0;
           });
         }
       },
-      child: Text(label, style: const TextStyle(fontSize: 20)),
+      icon: Text(action.icon, style: const TextStyle(fontSize: 20)),
+      label: Text(action.label, style: const TextStyle(fontSize: 20)),
     );
   }
 
@@ -120,17 +122,11 @@ class _ActionDialogState extends State<ActionDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _actionButton('Fold', _Action.fold),
-          const SizedBox(height: 8),
-          _actionButton('Check', _Action.check),
-          const SizedBox(height: 8),
-          _actionButton('Call', _Action.call),
-          const SizedBox(height: 8),
-          _actionButton('Bet', _Action.bet),
-          const SizedBox(height: 8),
-          _actionButton('Raise', _Action.raise),
-          if (_selected == _Action.bet || _selected == _Action.raise)
-            _buildBetSizer(),
+          for (int i = 0; i < pokerActions.length; i++) ...[
+            _actionButton(pokerActions[i]),
+            if (i != pokerActions.length - 1) const SizedBox(height: 8),
+          ],
+          if (_selected == 'bet' || _selected == 'raise') _buildBetSizer(),
         ],
       ),
     );
