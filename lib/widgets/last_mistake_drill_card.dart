@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/preference_state.dart';
 
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
@@ -15,22 +15,19 @@ class LastMistakeDrillCard extends StatefulWidget {
   State<LastMistakeDrillCard> createState() => _LastMistakeDrillCardState();
 }
 
-class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
+class _LastMistakeDrillCardState extends State<LastMistakeDrillCard>
+    with PreferenceState<LastMistakeDrillCard> {
   static const _key = 'last_mistake_drill_ts';
   int? _ts;
 
   @override
-  void initState() {
-    super.initState();
-    SharedPreferences.getInstance().then((p) {
-      if (mounted) setState(() => _ts = p.getInt(_key));
-    });
+  void onPrefsLoaded() {
+    setState(() => _ts = prefs.getInt(_key));
   }
 
   Future<void> _mark(int ts) async {
-    final p = await SharedPreferences.getInstance();
-    await p.setInt(_key, ts);
-    if (mounted) setState(() => _ts = ts);
+    await prefs.setInt(_key, ts);
+    setState(() => _ts = ts);
   }
 
   @override

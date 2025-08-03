@@ -16,7 +16,7 @@ import '../models/training_pack_stats.dart';
 import '../models/pack_chart_sort_option.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_review_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/preference_state.dart';
 import '../widgets/pack_next_step_card.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
@@ -229,7 +229,8 @@ class _PackDataSource extends DataTableSource {
 }
 
 
-class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScreen> {
+class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScreen>
+    with PreferenceState<TrainingPackComparisonScreen> {
   int _sortColumn = 0;
   bool _ascending = true;
   bool _forgottenOnly = false;
@@ -244,20 +245,13 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   String _colorFilter = 'All';
   Color _lastColor = Colors.blue;
   static const _lastColorKey = 'pack_last_color';
-  SharedPreferences? _prefs;
 
   @override
-  void initState() {
-    super.initState();
-    SharedPreferences.getInstance().then((p) {
-      if (mounted) {
-        setState(() {
-          _prefs = p;
-          _diffFilter = p.getInt('pack_diff_filter') ?? 0;
-          _colorFilter = p.getString('pack_color_filter') ?? 'All';
-          _lastColor = colorFromHex(p.getString(_lastColorKey) ?? '#2196F3');
-        });
-      }
+  void onPrefsLoaded() {
+    setState(() {
+      _diffFilter = prefs.getInt('pack_diff_filter') ?? 0;
+      _colorFilter = prefs.getString('pack_color_filter') ?? 'All';
+      _lastColor = colorFromHex(prefs.getString(_lastColorKey) ?? '#2196F3');
     });
   }
 
@@ -538,7 +532,6 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 
   Future<void> _setColorTag() async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
     final color = await showColorPickerDialog(
       context,
       initialColor: _lastColor,
@@ -610,9 +603,9 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
 
     TrainingPack? nextPack;
     double nextProgress = 1.0;
-    if (_prefs != null) {
+    if (prefsReady) {
       for (final p in packs) {
-        final idx = _prefs!.getInt('training_progress_${p.name}') ?? 0;
+        final idx = prefs.getInt('training_progress_${p.name}') ?? 0;
         if (p.hands.isEmpty || idx >= p.hands.length) continue;
         final ratio = idx / p.hands.length;
         if (nextPack == null || ratio < nextProgress) {
@@ -670,7 +663,6 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             diffFilter: _diffFilter,
             onDiffChanged: (value) async {
               setState(() => _diffFilter = value);
-              final prefs = _prefs ?? await SharedPreferences.getInstance();
               if (value == 0) {
                 await prefs.remove('pack_diff_filter');
               } else {
@@ -680,7 +672,6 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             colorFilter: _colorFilter,
             onColorChanged: (value) async {
               final val = value ?? 'All';
-              final prefs = _prefs ?? await SharedPreferences.getInstance();
               if (val == 'Custom') {
                 final color = await showColorPickerDialog(
                   context,

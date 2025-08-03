@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/preference_state.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
@@ -14,24 +14,22 @@ class CategoryDrillCard extends StatefulWidget {
   State<CategoryDrillCard> createState() => _CategoryDrillCardState();
 }
 
-class _CategoryDrillCardState extends State<CategoryDrillCard> {
+class _CategoryDrillCardState extends State<CategoryDrillCard>
+    with PreferenceState<CategoryDrillCard> {
   static const _key = 'top_mistake_drill_done';
   static const _tsKey = 'category_drill_last_time';
   bool _done = false;
 
   @override
-  void initState() {
-    super.initState();
-    SharedPreferences.getInstance().then((p) {
-      final done = p.getBool(_key) ?? false;
-      final ts = p.getInt(_tsKey);
-      final hide = ts != null &&
-          DateTime.now()
-                  .difference(DateTime.fromMillisecondsSinceEpoch(ts))
-                  .inDays <
-              7;
-      if (mounted) setState(() => _done = done && !hide);
-    });
+  void onPrefsLoaded() {
+    final done = prefs.getBool(_key) ?? false;
+    final ts = prefs.getInt(_tsKey);
+    final hide = ts != null &&
+        DateTime.now()
+                .difference(DateTime.fromMillisecondsSinceEpoch(ts))
+                .inDays <
+            7;
+    setState(() => _done = done && !hide);
   }
 
   @override
@@ -84,10 +82,9 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
                   context, entry.key);
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
-              final p = await SharedPreferences.getInstance();
-              await p.setInt(
+              await prefs.setInt(
                   _tsKey, DateTime.now().millisecondsSinceEpoch);
-              if (mounted) setState(() => _done = false);
+              setState(() => _done = false);
               if (context.mounted) {
                 await Navigator.push(
                   context,

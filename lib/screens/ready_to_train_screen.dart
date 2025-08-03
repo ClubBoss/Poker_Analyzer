@@ -10,7 +10,7 @@ import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
 import 'pack_history_screen.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/preference_state.dart';
 import '../widgets/training_pack_card.dart';
 import 'empty_training_screen.dart';
 
@@ -21,7 +21,8 @@ class ReadyToTrainScreen extends StatefulWidget {
   State<ReadyToTrainScreen> createState() => _ReadyToTrainScreenState();
 }
 
-class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
+class _ReadyToTrainScreenState extends State<ReadyToTrainScreen>
+    with PreferenceState<ReadyToTrainScreen> {
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = true;
   final Map<String, int> _progress = {};
@@ -42,10 +43,13 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
-      _showCompleted = p.getBool('show_completed_packs') ?? false;
-      if (mounted) _load();
-    });
+    // _load will be triggered in onPrefsLoaded once preferences are ready.
+  }
+
+  @override
+  void onPrefsLoaded() {
+    _showCompleted = prefs.getBool('show_completed_packs') ?? false;
+    _load();
   }
 
   Future<void> _load() async {
@@ -71,7 +75,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     final similar = last != null
         ? await TrainingPackService.createSimilarMistakeDrill(last)
         : null;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = this.prefs;
     final list = [
       ...builtIn.where(
         (t) =>
@@ -133,8 +137,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   }
 
   Future<void> _toggle(bool value) async {
-    final p = await SharedPreferences.getInstance();
-    await p.setBool('show_completed_packs', value);
+    await prefs.setBool('show_completed_packs', value);
     setState(() => _showCompleted = value);
     _load();
   }

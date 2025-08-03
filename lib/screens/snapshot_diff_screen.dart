@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/preference_state.dart';
 
 import '../models/pack_snapshot.dart';
 import '../models/training_pack.dart';
@@ -27,7 +27,7 @@ class _Mod {
 }
 
 class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, PreferenceState<SnapshotDiffScreen> {
   late TrainingPack _pack;
   late List<SavedHand> _added;
   late List<SavedHand> _removed;
@@ -42,8 +42,11 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     super.initState();
     _pack = widget.pack;
     _compute();
-    SharedPreferences.getInstance().then((p) =>
-        p.setString('pack_editor_last_snapshot_diff', widget.snapshot.id));
+  }
+
+  @override
+  void onPrefsLoaded() {
+    prefs.setString('pack_editor_last_snapshot_diff', widget.snapshot.id);
   }
 
   void _compute() {

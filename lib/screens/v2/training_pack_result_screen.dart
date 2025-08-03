@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../utils/preference_state.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../utils/responsive.dart';
@@ -37,7 +37,8 @@ class TrainingPackResultScreen extends StatefulWidget {
   State<TrainingPackResultScreen> createState() => _TrainingPackResultScreenState();
 }
 
-class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
+class _TrainingPackResultScreenState extends State<TrainingPackResultScreen>
+    with PreferenceState<TrainingPackResultScreen> {
   final ScrollController _controller = ScrollController();
   final _firstKey = GlobalKey();
 
@@ -239,9 +240,6 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
         context.read<MistakeReviewPackService>().setProgress(0);
       });
     }
-    final achieved = _correct == _total;
-    SharedPreferences.getInstance()
-        .then((p) => p.setBool('tpl_goal_${widget.original.id}', achieved));
     final storage = context.read<TrainingPackTemplateStorageService>();
     if (widget.original.focusHandTypes.isNotEmpty) {
       for (final g in widget.original.focusHandTypes) {
@@ -301,8 +299,6 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       correct: _correct,
       total: _total,
     ));
-    SharedPreferences.getInstance().then((p) =>
-        p.setString('last_trained_tpl_${widget.original.id}', DateTime.now().toIso8601String()));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _firstKey.currentContext;
       if (ctx != null) {
@@ -321,6 +317,14 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       BoosterRecapHook.instance
           .onDrillResult(mistakes: _mistakeSpots.length, tags: tagSet.toList());
     });
+  }
+
+  @override
+  void onPrefsLoaded() {
+    final achieved = _correct == _total;
+    prefs.setBool('tpl_goal_${widget.original.id}', achieved);
+    prefs.setString('last_trained_tpl_${widget.original.id}',
+        DateTime.now().toIso8601String());
   }
 
   @override
@@ -490,7 +494,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
               onPressed: _mistakes == 0
                   ? null
                   : () async {
-                      final prefs = await SharedPreferences.getInstance();
+                      final prefs = this.prefs;
                       await prefs.remove('tpl_seq_${widget.original.id}');
                       await prefs.remove('tpl_prog_${widget.original.id}');
                       await prefs.remove('tpl_res_${widget.original.id}');
@@ -556,7 +560,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     final tpl = await weak.buildPack();
     final rec = weak.recommendation;
     if (tpl == null || rec == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = this.prefs;
     final key = 'weak_tip_${rec.position.name}';
     final lastStr = prefs.getString(key);
     if (lastStr != null) {
