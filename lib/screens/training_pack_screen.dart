@@ -139,6 +139,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   late List<TrainingSpot> _allSpots;
 
   late TrainingPack _pack;
+  bool _pinned = false;
 
   /// Hands that are currently used in the session. By default it contains
   /// all hands from the training pack, but when the user chooses to repeat
@@ -170,6 +171,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
       cloud: context.read<CloudSyncService>(),
     );
     _pack = widget.pack;
+    _pinned =
+        PinnedLearningService.instance.isPinned('pack', _pack.id);
+    PinnedLearningService.instance.addListener(_updatePinned);
     unawaited(
       PinnedLearningService.instance.recordOpen('pack', _pack.id),
     );
@@ -182,6 +186,22 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
     _loadSpots();
     _loadSavedResults();
     _loadStackFilter();
+  }
+
+  void _updatePinned() {
+    final pinned =
+        PinnedLearningService.instance.isPinned('pack', _pack.id);
+    if (pinned != _pinned) setState(() => _pinned = pinned);
+  }
+
+  Future<void> _togglePinned() async {
+    await PinnedLearningService.instance.toggle('pack', _pack.id);
+    final pinned =
+        PinnedLearningService.instance.isPinned('pack', _pack.id);
+    setState(() => _pinned = pinned);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
+    );
   }
 
   Future<void> _loadProgress() async {
@@ -2188,6 +2208,11 @@ body { font-family: sans-serif; padding: 16px; }
           ),
           centerTitle: true,
           actions: [SyncStatusIcon.of(context),
+            IconButton(
+              icon: Icon(
+                  _pinned ? Icons.push_pin : Icons.push_pin_outlined),
+              onPressed: _togglePinned,
+            ),
             if (_pack.pctComplete > 0 && _pack.pctComplete < 1)
               IconButton(
                 icon: const Icon(Icons.play_arrow),
@@ -2303,6 +2328,7 @@ body { font-family: sans-serif; padding: 16px; }
   void dispose() {
     unawaited(_saveProgress());
     _tabs.dispose();
+    PinnedLearningService.instance.removeListener(_updatePinned);
     super.dispose();
   }
 }
