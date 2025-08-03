@@ -9,6 +9,7 @@ import '../widgets/next_pack_recommendation_banner.dart';
 import '../widgets/theory_progress_recovery_banner.dart';
 import '../services/user_action_logger.dart';
 import 'training_session_screen.dart';
+import '../utils/context_extensions.dart';
 
 class TrainingRecapScreen extends StatefulWidget {
   final String templateId;
@@ -45,23 +46,25 @@ class _TrainingRecapScreenState extends State<TrainingRecapScreen> {
     final tpl = TrainingPackTemplateService.getById(widget.templateId, context);
     if (tpl == null) return;
     await context.read<TrainingSessionService>().startSession(tpl);
-    if (!context.mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-    );
+    await context.ifMounted(() async {
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+      );
+    });
   }
 
   Future<void> _reviewMistakes() async {
     final service = context.read<TrainingSessionService>();
     final session = await service.startFromMistakes();
-    if (!context.mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TrainingSessionScreen(session: session),
-      ),
-    );
+    await context.ifMounted(() async {
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TrainingSessionScreen(session: session),
+        ),
+      );
+    });
   }
 
   void _back() {
