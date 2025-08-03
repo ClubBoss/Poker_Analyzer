@@ -6,6 +6,7 @@ import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../helpers/category_translations.dart';
 import '../screens/training_session_screen.dart';
+import '../utils/context_extensions.dart';
 
 class CategoryDrillCard extends StatefulWidget {
   const CategoryDrillCard({super.key});
@@ -88,13 +89,13 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
               await p.setInt(
                   _tsKey, DateTime.now().millisecondsSinceEpoch);
               if (mounted) setState(() => _done = false);
-              if (context.mounted) {
+              await context.ifMounted(() async {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => const TrainingSessionScreen()),
                 );
-              }
+              });
             },
             child: const Text('Тренировать'),
           ),

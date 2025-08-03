@@ -7,6 +7,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
+import '../utils/context_extensions.dart';
 
 class LastMistakeDrillCard extends StatefulWidget {
   const LastMistakeDrillCard({super.key});
@@ -79,12 +80,12 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
               final tpl = TrainingPackService.createDrillFromHand(hand);
               await context.read<TrainingSessionService>().startSession(tpl);
               await _mark(ts);
-              if (context.mounted) {
+              await context.ifMounted(() async {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
                 );
-              }
+              });
             },
             child: const Text('Тренировать'),
           ),
