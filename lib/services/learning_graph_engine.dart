@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 
 import 'session_log_service.dart';
 import 'training_session_service.dart';
@@ -10,6 +11,7 @@ import 'training_path_progress_service_v2.dart';
 import 'learning_path_node_history.dart';
 import 'auto_theory_review_engine.dart';
 import 'learning_path_level_one_builder_service.dart';
+import 'learning_path_auto_expander.dart';
 import '../models/learning_path_node.dart';
 import '../models/learning_path_session_state.dart';
 import '../models/learning_branch_node.dart';
@@ -21,6 +23,7 @@ class LearningPathEngine {
   final LearningPathGraphOrchestrator orchestrator;
   final TrainingPathProgressServiceV2 progress;
   final LearningPathLevelOneBuilderService levelOneBuilder;
+  final LearningPathAutoExpander autoExpander;
   PathMapEngine? _engine;
   static const _sessionKey = 'learning_path_session';
 
@@ -31,13 +34,15 @@ class LearningPathEngine {
     LearningPathGraphOrchestrator? orchestrator,
     TrainingPathProgressServiceV2? progress,
     LearningPathLevelOneBuilderService? levelOneBuilder,
+    LearningPathAutoExpander? autoExpander,
   })  : orchestrator = orchestrator ?? LearningPathGraphOrchestrator(),
         progress = progress ??
             TrainingPathProgressServiceV2(
               logs: SessionLogService(sessions: TrainingSessionService()),
             ),
         levelOneBuilder =
-            levelOneBuilder ?? const LearningPathLevelOneBuilderService();
+            levelOneBuilder ?? const LearningPathLevelOneBuilderService(),
+        autoExpander = autoExpander ?? const LearningPathAutoExpander();
 
   static final LearningPathEngine instance = LearningPathEngine();
 
@@ -72,6 +77,13 @@ class LearningPathEngine {
 
   /// Marks [nodeId] as completed and moves forward if applicable.
   Future<void> markStageCompleted(String nodeId) async {
+    final mapEngine = _engine;
+    if (mapEngine != null) {
+      final n = mapEngine.allNodes.firstWhereOrNull((e) => e.id == nodeId);
+      if (n is TheoryMiniLessonNode) {
+        await autoExpander.expand(mapEngine, n);
+      }
+    }
     await LearningPathNodeHistory.instance.markCompleted(nodeId);
     await _engine?.markCompleted(nodeId);
     final node = getCurrentNode();
