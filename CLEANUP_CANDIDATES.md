@@ -3,15 +3,6 @@
 This document lists files and directories that appear unused in production code and may be candidates for removal or relocation to a legacy area. They are grouped by category as part of the audit for unused or outdated assets, test data, and developer tools.
 
 ## Images
-- `flutter_02.png` — not referenced anywhere in the repository.
-- `flutter_03.png` — not referenced anywhere in the repository.
-- `flutter_04.png` — not referenced anywhere in the repository.
-- `flutter_05.png` — not referenced anywhere in the repository.
-- `flutter_06.png` — not referenced anywhere in the repository.
-- `flutter_07.png` — not referenced anywhere in the repository.
-- `flutter_08.png` — not referenced anywhere in the repository.
-- `flutter_09.png` — not referenced anywhere in the repository.
-- `flutter_11.png` — not referenced anywhere in the repository.
 - `assets/images/` — empty directory; no referenced images.
 
 ## Mocks / Test Data

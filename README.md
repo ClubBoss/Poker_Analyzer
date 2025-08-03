@@ -93,7 +93,7 @@ while returning `null` allows the export to proceed.
 
 See [USER_GUIDE](docs/plugins/USER_GUIDE.md) for installation and activation.
 
-![screenshot](flutter_01.png)
+![screenshot](docs/images/screenshot.png)
 
 ## Future plans
 
