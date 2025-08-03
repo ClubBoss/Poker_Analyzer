@@ -3,16 +3,20 @@ import '../models/card_model.dart';
 import '../helpers/board_filtering_params_builder.dart';
 import 'board_texture_filter_service.dart';
 import 'card_deck_service.dart';
+import 'board_filtering_service_v2.dart';
 
 class FullBoardGenerator {
   const FullBoardGenerator({
     CardDeckService? deckService,
     BoardTextureFilterService? textureFilter,
+    BoardFilteringServiceV2? boardFilter,
   })  : _deckService = deckService ?? const CardDeckService(),
-        _textureFilter = textureFilter ?? const BoardTextureFilterService();
+        _textureFilter = textureFilter ?? const BoardTextureFilterService(),
+        _boardFilter = boardFilter ?? const BoardFilteringServiceV2();
 
   final CardDeckService _deckService;
   final BoardTextureFilterService _textureFilter;
+  final BoardFilteringServiceV2 _boardFilter;
 
   /// Generates all possible flop-turn-river combinations that satisfy
   /// [constraints].
@@ -51,6 +55,15 @@ class FullBoardGenerator {
     if (requiredRanks.isNotEmpty) filter['requiredRanks'] = requiredRanks;
     if (requiredSuits.isNotEmpty) filter['requiredSuits'] = requiredSuits;
 
+    final requiredTags = <String>{
+      for (final t in (constraints['requiredTags'] as List? ?? []))
+        t.toString(),
+    };
+    final excludedTags = <String>{
+      for (final t in (constraints['excludedTags'] as List? ?? []))
+        t.toString(),
+    };
+
     final deck = _deckService.buildDeck();
     final results = <BoardStages>[];
 
@@ -69,11 +82,16 @@ class FullBoardGenerator {
             for (var r = t + 1; r < remaining.length; r++) {
               final turn = remaining[t];
               final river = remaining[r];
-              results.add(BoardStages(
+              final board = BoardStages(
                 flop: flop.map((c) => c.toString()).toList(),
                 turn: turn.toString(),
                 river: river.toString(),
-              ));
+              );
+              if (!_boardFilter.isMatch(board, requiredTags,
+                  excludedTags: excludedTags)) {
+                continue;
+              }
+              results.add(board);
             }
           }
         }
