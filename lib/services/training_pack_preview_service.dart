@@ -3,12 +3,13 @@ import '../models/v2/training_pack_preview_spot.dart';
 import 'training_spot_generator_service.dart';
 import 'constraint_resolver_engine.dart';
 import 'dart:math';
+import '../helpers/board_filtering_params_builder.dart';
 
 class TrainingPackPreviewService {
   final TrainingSpotGeneratorService _generator;
 
   TrainingPackPreviewService({TrainingSpotGeneratorService? generator})
-      : _generator = generator ?? TrainingSpotGeneratorService();
+    : _generator = generator ?? TrainingSpotGeneratorService();
 
   List<TrainingPackPreviewSpot> getPreviewSpots(
     TrainingPackTemplateV2 tpl, {
@@ -17,31 +18,41 @@ class TrainingPackPreviewService {
     final dyn = tpl.meta['dynamicParams'];
     if (dyn is! Map) return [];
     final m = ConstraintResolverEngine.normalizeParams(
-        Map<String, dynamic>.from(dyn));
+      Map<String, dynamic>.from(dyn),
+    );
+    Map<String, dynamic>? boardFilter;
+    final tags = (m['textureTags'] as List?)?.cast<String>();
+    if (tags != null && tags.isNotEmpty) {
+      boardFilter = BoardFilteringParamsBuilder.build(tags);
+    }
+    if (m['boardFilter'] is Map) {
+      boardFilter = {
+        ...?boardFilter,
+        ...Map<String, dynamic>.from(m['boardFilter']),
+      };
+    }
+    if (boardFilter != null) {
+      m['boardFilter'] = boardFilter;
+    }
     final params = SpotGenerationParams(
       position: m['position']?.toString() ?? 'btn',
       villainAction: m['villainAction']?.toString() ?? '',
       handGroup: [
-        for (final g in (m['handGroup'] as List? ?? [])) g.toString()
+        for (final g in (m['handGroup'] as List? ?? [])) g.toString(),
       ],
       count: min(count, (m['count'] as num?)?.toInt() ?? count),
-      boardFilter: m['boardFilter'] is Map
-          ? Map<String, dynamic>.from(m['boardFilter'])
-          : null,
+      boardFilter: boardFilter,
       targetStreet: m['targetStreet']?.toString() ?? 'flop',
       boardStages: (m['boardStages'] as num?)?.toInt(),
     );
-    final spots =
-        _generator.generate(params, dynamicParams: m);
+    final spots = _generator.generate(params, dynamicParams: m);
     return [
       for (final s in spots)
         TrainingPackPreviewSpot(
-          hand: s.playerCards[s.heroIndex]
-              .map((c) => c.toString())
-              .join(' '),
+          hand: s.playerCards[s.heroIndex].map((c) => c.toString()).join(' '),
           position: s.heroPosition ?? params.position,
           action: params.villainAction,
-        )
+        ),
     ];
   }
 }

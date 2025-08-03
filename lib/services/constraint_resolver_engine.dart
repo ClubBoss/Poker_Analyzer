@@ -14,6 +14,7 @@ class ConstraintResolverEngine {
         case 'streets':
         case 'excludedCombos':
         case 'requiredCombos':
+        case 'textureTags':
           result[key] = _asStringList(value);
           break;
         case 'boardFilter':
@@ -49,7 +50,10 @@ class ConstraintResolverEngine {
     return [v.toString().toLowerCase()];
   }
 
-  static bool isValidSpot(TrainingSpot spot, Map<String, dynamic> dynamicParams) {
+  static bool isValidSpot(
+    TrainingSpot spot,
+    Map<String, dynamic> dynamicParams,
+  ) {
     final params = normalizeParams(dynamicParams);
 
     final positions = params['positions'] as List<String>?;
@@ -91,7 +95,8 @@ class ConstraintResolverEngine {
 
   static String _handToCombo(List<CardModel> cards) {
     if (cards.length < 2) return '';
-    return '${cards[0].rank}${cards[0].suit}${cards[1].rank}${cards[1].suit}'.toLowerCase();
+    return '${cards[0].rank}${cards[0].suit}${cards[1].rank}${cards[1].suit}'
+        .toLowerCase();
   }
 
   static String _streetFromBoard(int len) {
