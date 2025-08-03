@@ -1,16 +1,17 @@
 import 'package:intl/intl.dart';
 
+String? _locale;
+
+String _currentLocale() => _locale ??= Intl.getCurrentLocale();
+
 String formatDateTime(DateTime date) {
-  final locale = Intl.getCurrentLocale();
-  return DateFormat('dd.MM.yyyy HH:mm', locale).format(date);
+  return DateFormat('dd.MM.yyyy HH:mm', _currentLocale()).format(date);
 }
 
 String formatDate(DateTime date) {
-  final locale = Intl.getCurrentLocale();
-  return DateFormat('dd.MM.yyyy', locale).format(date);
+  return DateFormat('dd.MM.yyyy', _currentLocale()).format(date);
 }
 
 String formatLongDate(DateTime date) {
-  final locale = Intl.getCurrentLocale();
-  return DateFormat('d MMMM y', locale).format(date);
+  return DateFormat('d MMMM y', _currentLocale()).format(date);
 }
