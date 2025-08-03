@@ -102,7 +102,9 @@ class _BoosterInjectionTrackerWidgetState
                   ),
                 ),
                 Text(
-                  timeago.format(_logs[i].timestamp, allowFromNow: true),
+                  _logs[i].timestamp != null
+                      ? timeago.format(_logs[i].timestamp!, allowFromNow: true)
+                      : 'unknown',
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],
