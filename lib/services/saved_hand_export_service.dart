@@ -78,7 +78,7 @@ class SavedHandExportService {
   Future<String?> exportAllSessionsMarkdown(Map<int, String> notes) async {
     if (_hands.isEmpty) return null;
 
-    String durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => formatDuration(d);
 
     final grouped = _stats.handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
@@ -121,7 +121,7 @@ class SavedHandExportService {
   Future<String?> exportAllSessionsPdf(Map<int, String> notes) async {
     if (_hands.isEmpty) return null;
 
-    String durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => formatDuration(d);
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -189,7 +189,7 @@ class SavedHandExportService {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => formatDuration(d);
 
     final grouped = _stats.handsBySession();
     final ids = List<int>.from(sessionIds)..sort();
@@ -232,7 +232,7 @@ class SavedHandExportService {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String durToStr(Duration d) => ExportUtils.durationString(d);
+    String durToStr(Duration d) => formatDuration(d);
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -298,7 +298,6 @@ class SavedHandExportService {
   Future<String?> exportAllSessionsCsv(Map<int, String> notes) async {
     if (_hands.isEmpty) return null;
 
-    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = _stats.handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
@@ -333,7 +332,6 @@ class SavedHandExportService {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-    String durToStr(Duration d) => ExportUtils.durationString(d);
 
     final grouped = _stats.handsBySession();
     final ids = List<int>.from(sessionIds)..sort();

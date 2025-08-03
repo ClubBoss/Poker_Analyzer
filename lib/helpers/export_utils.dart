@@ -60,15 +60,6 @@ class ExportUtils {
     return widgets;
   }
 
-  static String durationString(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes.remainder(60);
-    final parts = <String>[];
-    if (h > 0) parts.add('$hч');
-    parts.add('$mм');
-    return parts.join(' ');
-  }
-
   static List<dynamic> csvRow(
     DateTime date,
     Duration duration,
@@ -81,7 +72,7 @@ class ExportUtils {
     final icm = icmAvg != null ? icmAvg.toStringAsFixed(3) : '';
     return [
       formatDateTime(date),
-      durationString(duration),
+      formatDuration(duration),
       count,
       correct,
       ev,
