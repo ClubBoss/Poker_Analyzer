@@ -5,7 +5,6 @@ import '../services/theory_path_completion_evaluator_service.dart';
 import '../services/user_progress_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
-import '../services/pinned_learning_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/theory_track_resume_service.dart';
 import '../screens/mini_lesson_screen.dart';
@@ -121,9 +120,6 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   Future<void> _handleLongPress() async {
     final block = widget.block;
     await MiniLessonLibraryService.instance.loadAll();
-    final service = PinnedLearningService.instance;
-    await service.load();
-
     final lessons = <_LessonEntry>[];
     for (final id in block.nodeIds) {
       final lesson = MiniLessonLibraryService.instance.getById(id);
@@ -146,84 +142,52 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
       context: context,
       builder: (context) {
         return SafeArea(
-          child: StatefulBuilder(
-            builder: (context, setSheetState) {
-              return ListView(
-                shrinkWrap: true,
-                children: [
-                  for (final e in lessons)
-                    ListTile(
-                      leading: const Text('📘', style: TextStyle(fontSize: 20)),
-                      title: Text(e.lesson.title),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            e.done ? Icons.check_circle : Icons.cancel,
-                            color: e.done ? Colors.green : Colors.red,
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              service.isPinned('lesson', e.lesson.id)
-                                  ? Icons.push_pin
-                                  : Icons.push_pin_outlined,
-                            ),
-                            onPressed: () async {
-                              await service.toggle('lesson', e.lesson.id);
-                              setSheetState(() {});
-                            },
-                          ),
-                        ],
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              if (lessons.isNotEmpty)
+                const ListTile(title: Text('Lessons')),
+              for (final e in lessons)
+                ListTile(
+                  leading: const Icon(Icons.menu_book),
+                  title: Text(e.lesson.title),
+                  trailing: Icon(
+                    e.done ? Icons.check_circle : Icons.cancel,
+                    color: e.done ? Colors.green : Colors.red,
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MiniLessonScreen(
+                          lesson: e.lesson,
+                        ),
                       ),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MiniLessonScreen(
-                              lesson: e.lesson,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  for (final e in packs)
-                    ListTile(
-                      leading: const Text('🎯', style: TextStyle(fontSize: 20)),
-                      title: Text(e.pack.name),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            e.done ? Icons.check_circle : Icons.cancel,
-                            color: e.done ? Colors.green : Colors.red,
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              service.isPinned('pack', e.pack.id)
-                                  ? Icons.push_pin
-                                  : Icons.push_pin_outlined,
-                            ),
-                            onPressed: () async {
-                              await service.toggle('pack', e.pack.id);
-                              setSheetState(() {});
-                            },
-                          ),
-                        ],
+                    );
+                  },
+                ),
+              if (packs.isNotEmpty)
+                const ListTile(title: Text('Drill Packs')),
+              for (final e in packs)
+                ListTile(
+                  leading: const Icon(Icons.fitness_center),
+                  title: Text(e.pack.name),
+                  trailing: Icon(
+                    e.done ? Icons.check_circle : Icons.cancel,
+                    color: e.done ? Colors.green : Colors.red,
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TrainingPackScreen(pack: e.pack),
                       ),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => TrainingPackScreen(pack: e.pack),
-                          ),
-                        );
-                      },
-                    ),
-                ],
-              );
-            },
+                    );
+                  },
+                ),
+            ],
           ),
         );
       },
