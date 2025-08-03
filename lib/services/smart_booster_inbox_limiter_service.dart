@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/booster_logger.dart';
+
 /// Limits how often booster inbox banners can be shown per tag and per day.
 class SmartBoosterInboxLimiterService {
   SmartBoosterInboxLimiterService();
@@ -25,15 +27,20 @@ class SmartBoosterInboxLimiterService {
     if (storedDate != dateKey) {
       count = 0;
     }
-    if (count >= maxPerDay) return false;
+    if (count >= maxPerDay) {
+      await BoosterLogger.log('canShow($tag): daily limit reached');
+      return false;
+    }
 
     final lastMillis = prefs.getInt(_tagKey(tag));
     if (lastMillis != null) {
       final last = DateTime.fromMillisecondsSinceEpoch(lastMillis);
       if (now.difference(last) < tagCooldown) {
+        await BoosterLogger.log('canShow($tag): tag cooldown active');
         return false;
       }
     }
+    await BoosterLogger.log('canShow($tag): allowed');
     return true;
   }
 
@@ -52,6 +59,8 @@ class SmartBoosterInboxLimiterService {
     }
     count++;
     await prefs.setInt(_totalCountKey, count);
+
+    await BoosterLogger.log('recordShown($tag): total today=$count');
   }
 
   /// Returns total boosters shown today.

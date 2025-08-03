@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'user_action_logger.dart';
+import '../utils/booster_logger.dart';
 
 /// Records when booster banners are opened or dismissed per tag.
 class BoosterInteractionTrackerService {
@@ -17,10 +17,7 @@ class BoosterInteractionTrackerService {
       '$_openedPrefix$tag',
       DateTime.now().millisecondsSinceEpoch,
     );
-    await UserActionLogger.instance.logEvent({
-      'event': 'booster_banner.opened',
-      'tag': tag,
-    });
+    await BoosterLogger.log('booster_banner.opened:$tag');
   }
 
   Future<void> logDismissed(String tag) async {
@@ -29,10 +26,7 @@ class BoosterInteractionTrackerService {
       '$_dismissedPrefix$tag',
       DateTime.now().millisecondsSinceEpoch,
     );
-    await UserActionLogger.instance.logEvent({
-      'event': 'booster_banner.dismissed',
-      'tag': tag,
-    });
+    await BoosterLogger.log('booster_banner.dismissed:$tag');
   }
 
   Future<DateTime?> getLastOpened(String tag) async {

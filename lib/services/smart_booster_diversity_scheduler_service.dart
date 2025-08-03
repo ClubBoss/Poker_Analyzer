@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../utils/booster_logger.dart';
 import 'booster_interaction_tracker_service.dart';
 import 'smart_pinned_block_booster_provider.dart';
 
@@ -68,7 +69,8 @@ class SmartBoosterDiversitySchedulerService {
       // shuffle tags each round to enhance diversity
       tags.shuffle(rnd);
     }
-
+    await BoosterLogger.log(
+        'schedule: input=${all.length}, output=${result.length}');
     return result;
   }
 }
