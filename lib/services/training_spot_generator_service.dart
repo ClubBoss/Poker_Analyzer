@@ -25,8 +25,7 @@ class SpotGenerationParams {
     this.boardFilter,
     this.targetStreet = 'flop',
     int? boardStages,
-  }) : boardStages =
-            boardStages ?? _streetToStages(targetStreet);
+  }) : boardStages = boardStages ?? _streetToStages(targetStreet);
 
   static int _streetToStages(String street) {
     switch (street.toLowerCase()) {
@@ -44,16 +43,26 @@ class TrainingSpotGeneratorService {
   TrainingSpotGeneratorService({
     Random? random,
     FullBoardGeneratorService? boardGenerator,
-  })  : _random = random ?? Random(),
-        _boardGenerator =
-            boardGenerator ?? FullBoardGeneratorService(random: random ?? Random());
+  }) : _random = random ?? Random(),
+       _boardGenerator =
+           boardGenerator ??
+           FullBoardGeneratorService(random: random ?? Random());
 
   final Random _random;
   final FullBoardGeneratorService _boardGenerator;
-  static const List<String> _positions6max = ['utg', 'hj', 'co', 'btn', 'sb', 'bb'];
+  static const List<String> _positions6max = [
+    'utg',
+    'hj',
+    'co',
+    'btn',
+    'sb',
+    'bb',
+  ];
 
-  List<TrainingSpot> generate(SpotGenerationParams params,
-      {Map<String, dynamic>? dynamicParams}) {
+  List<TrainingSpot> generate(
+    SpotGenerationParams params, {
+    Map<String, dynamic>? dynamicParams,
+  }) {
     final pool = <String>{};
     for (final g in params.handGroup) {
       pool.addAll(HandRangeLibrary.getGroup(g));
@@ -82,10 +91,12 @@ class TrainingSpotGeneratorService {
     playerCards[idx] = _cardsForHand(hand);
 
     final allPlayerCards = playerCards.expand((e) => e).toList();
-    final board = _boardGenerator.generatePartialBoard(
-      stages: params.boardStages,
-      excludedCards: allPlayerCards,
-      boardFilterParams: params.boardFilter,
+    final board = _boardGenerator.generateBoard(
+      FullBoardRequest(
+        stages: params.boardStages,
+        excludedCards: allPlayerCards,
+        boardFilterParams: params.boardFilter,
+      ),
     );
     final boardCards = board.cards;
 
@@ -144,12 +155,14 @@ class TrainingSpotGeneratorService {
     final stages = street == 'river'
         ? 5
         : street == 'turn'
-            ? 4
-            : 3;
-    final board = _boardGenerator.generatePartialBoard(
-      stages: stages,
-      excludedCards: excludedCards,
-      boardFilterParams: boardFilter,
+        ? 4
+        : 3;
+    final board = _boardGenerator.generateBoard(
+      FullBoardRequest(
+        stages: stages,
+        excludedCards: excludedCards,
+        boardFilterParams: boardFilter,
+      ),
     );
     return board.cards;
   }
@@ -157,11 +170,9 @@ class TrainingSpotGeneratorService {
   List<CardModel> generateRandomFlop({
     Map<String, dynamic>? boardFilter,
     List<CardModel> excludedCards = const [],
-  }) =>
-      generateRandomBoard(
-        street: 'flop',
-        boardFilter: boardFilter,
-        excludedCards: excludedCards,
-      );
+  }) => generateRandomBoard(
+    street: 'flop',
+    boardFilter: boardFilter,
+    excludedCards: excludedCards,
+  );
 }
-
