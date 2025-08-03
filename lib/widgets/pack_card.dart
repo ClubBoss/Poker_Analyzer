@@ -13,6 +13,8 @@ import '../services/theory_lesson_completion_logger.dart';
 import '../services/training_progress_tracker_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/training_pack_performance_tracker_service.dart';
+import '../services/mini_lesson_library_service.dart';
+import '../screens/mini_lesson_screen.dart';
 import 'pack_progress_summary_widget.dart';
 
 class PackCard extends StatefulWidget {
@@ -199,9 +201,12 @@ class _PackCardState extends State<PackCard>
     final reqAcc = widget.template.requiredAccuracy;
     final minHands = widget.template.minHands;
     final needsTheory = widget.template.requiresTheoryCompleted;
+    final needsTheoryAction = needsTheory && !_theoryCompleted;
+    final lessonId = needsTheoryAction ? _linkedLessonId() : null;
+    final rootCtx = context;
 
     await showDialog(
-      context: context,
+      context: rootCtx,
       builder: (context) {
         return AlertDialog(
           title: const Text('Условия разблокировки'),
@@ -221,6 +226,25 @@ class _PackCardState extends State<PackCard>
             ],
           ),
           actions: [
+            if (needsTheoryAction && lessonId != null)
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await MiniLessonLibraryService.instance.loadAll();
+                  final lesson =
+                      MiniLessonLibraryService.instance.getById(lessonId);
+                  if (lesson != null) {
+                    await Navigator.of(rootCtx).push(
+                      MaterialPageRoute(
+                        builder: (_) => MiniLessonScreen(lesson: lesson),
+                      ),
+                    );
+                    if (!mounted) return;
+                    await _checkTheory();
+                  }
+                },
+                child: const Text('Пройти теорию'),
+              ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('OK'),
