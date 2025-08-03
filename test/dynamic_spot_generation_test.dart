@@ -56,7 +56,7 @@ meta:
     expect(tpl.spotCount, 3);
   });
 
-  test('dynamicParams boardFilter filters unmatched boards', () {
+  test('dynamicParams boardFilter generates ace high boards', () {
     const yaml3 = '''
 id: gen_pack
 name: Generator Pack
@@ -69,10 +69,13 @@ meta:
     villainAction: "3bet 9.0"
     handGroup: ["pockets"]
     count: 3
-    boardFilter: ["aceHigh"]
+    boardFilter:
+      boardTexture: aceHigh
 ''';
     final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml3);
-    expect(tpl.spots.length, 0);
-    expect(tpl.spotCount, 0);
+    expect(tpl.spots.length, 3);
+    for (final s in tpl.spots) {
+      expect(s.board.any((c) => c.startsWith('A')), true);
+    }
   });
 }

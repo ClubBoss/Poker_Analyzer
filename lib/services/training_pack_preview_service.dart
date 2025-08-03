@@ -23,6 +23,9 @@ class TrainingPackPreviewService {
         for (final g in (m['handGroup'] as List? ?? [])) g.toString()
       ],
       count: min(count, (m['count'] as num?)?.toInt() ?? count),
+      boardFilter: m['boardFilter'] is Map
+          ? Map<String, dynamic>.from(m['boardFilter'])
+          : null,
     );
     final spots = _generator.generate(params);
     return [
