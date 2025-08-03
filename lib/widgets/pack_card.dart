@@ -1,4 +1,7 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../models/training_type.dart';
@@ -18,11 +21,15 @@ class PackCard extends StatefulWidget {
   State<PackCard> createState() => _PackCardState();
 }
 
-class _PackCardState extends State<PackCard> {
+class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin {
   late bool _favorite;
   bool _theoryCompleted = false;
   int _completed = 0;
   late int _total;
+
+  bool _showReward = false;
+  late final AnimationController _rewardController;
+  late final ConfettiController _confettiController;
 
   @override
   void initState() {
@@ -30,6 +37,10 @@ class _PackCardState extends State<PackCard> {
     _favorite = PackFavoriteService.instance.isFavorite(widget.template.id);
     _total =
         widget.template.spots.isNotEmpty ? widget.template.spots.length : widget.template.spotCount;
+    _rewardController =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 2));
     _loadProgress();
     TrainingProgressTrackerService.instance.addListener(_loadProgress);
     _checkTheory();
@@ -38,13 +49,18 @@ class _PackCardState extends State<PackCard> {
   @override
   void dispose() {
     TrainingProgressTrackerService.instance.removeListener(_loadProgress);
+    _rewardController.dispose();
+    _confettiController.dispose();
     super.dispose();
   }
 
   Future<void> _loadProgress() async {
     final ids = await TrainingProgressTrackerService.instance
         .getCompletedSpotIds(widget.template.id);
-    if (mounted) setState(() => _completed = ids.length);
+    if (mounted) {
+      setState(() => _completed = ids.length);
+      _maybeShowReward();
+    }
   }
 
   Future<void> _toggleFavorite() async {
@@ -71,7 +87,29 @@ class _PackCardState extends State<PackCard> {
     if (lessonId == null) return;
     final done =
         await TheoryLessonCompletionLogger.instance.isCompleted(lessonId);
-    if (mounted) setState(() => _theoryCompleted = done);
+    if (mounted) {
+      setState(() => _theoryCompleted = done);
+      _maybeShowReward();
+    }
+  }
+
+  Future<void> _maybeShowReward() async {
+    if (!_theoryCompleted || _total == 0 || _completed < _total || _showReward) {
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('lastRewardedPackId') == widget.template.id) return;
+    await prefs.setString('lastRewardedPackId', widget.template.id);
+    if (!mounted) return;
+    setState(() => _showReward = true);
+    _confettiController.play();
+    _rewardController.forward(from: 0).whenComplete(() {
+      _confettiController.stop();
+      if (mounted) setState(() => _showReward = false);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Пак и урок завершены!')),
+    );
   }
 
   @override
@@ -159,6 +197,25 @@ class _PackCardState extends State<PackCard> {
                 child: Icon(Icons.emoji_events, color: Colors.amber),
               ),
             ),
+          if (_showReward) ...[
+            Positioned.fill(
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+              ),
+            ),
+            Positioned.fill(
+              child: Center(
+                child: ScaleTransition(
+                  scale: CurvedAnimation(
+                      parent: _rewardController, curve: Curves.elasticOut),
+                  child:
+                      const Icon(Icons.emoji_events, size: 64, color: Colors.amber),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
