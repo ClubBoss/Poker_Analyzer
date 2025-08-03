@@ -12,6 +12,7 @@ class HandRangeLibrary {
         return PackGeneratorService.topNHands(70).toList();
       case 'icm':
         return PackGeneratorService.topNHands(10).toList();
+      case 'broadway':
       case 'broadways':
         const ranks = ['A', 'K', 'Q', 'J', 'T'];
         final hands = <String>[];
@@ -78,6 +79,25 @@ class HandRangeLibrary {
           'A9o',
           'ATo',
         ];
+      case 'suitedconnectors':
+        return ['54s', '65s', '76s', '87s', '98s', 'T9s', 'JTs'];
+      case 'lowax':
+        return ['A2s', 'A3s', 'A4s', 'A5s', 'A2o', 'A3o', 'A4o', 'A5o'];
+      case 'kxsuited':
+        const kxKickers = [
+          'Q',
+          'J',
+          'T',
+          '9',
+          '8',
+          '7',
+          '6',
+          '5',
+          '4',
+          '3',
+          '2',
+        ];
+        return [for (final k in kxKickers) 'K${k}s'];
     }
     throw ArgumentError('Range group not found: $name');
   }

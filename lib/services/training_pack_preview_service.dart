@@ -4,12 +4,13 @@ import 'training_spot_generator_service.dart';
 import 'constraint_resolver_engine.dart';
 import 'dart:math';
 import '../helpers/board_filtering_params_builder.dart';
+import 'hand_group_tag_library_service.dart';
 
 class TrainingPackPreviewService {
   final TrainingSpotGeneratorService _generator;
 
   TrainingPackPreviewService({TrainingSpotGeneratorService? generator})
-      : _generator = generator ?? TrainingSpotGeneratorService();
+    : _generator = generator ?? TrainingSpotGeneratorService();
 
   List<TrainingPackPreviewSpot> getPreviewSpots(
     TrainingPackTemplateV2 tpl, {
@@ -20,6 +21,16 @@ class TrainingPackPreviewService {
     final m = ConstraintResolverEngine.normalizeParams(
       Map<String, dynamic>.from(dyn),
     );
+    final tagList = (m['handGroupTags'] as List?)
+        ?.map((e) => e.toString())
+        .toList();
+    if (tagList != null && tagList.isNotEmpty) {
+      final expanded = HandGroupTagLibraryService.expandTags(tagList);
+      final existing = (m['handGroup'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList();
+      m['handGroup'] = [...existing, ...expanded];
+    }
     Map<String, dynamic>? boardFilter;
     final tags = (m['boardTextureTags'] as List? ?? m['textureTags'] as List?)
         ?.cast<String>();
