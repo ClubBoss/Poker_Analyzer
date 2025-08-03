@@ -9,4 +9,5 @@ const LearningPathStageModel openFoldHjVsUtgCashStageTemplate = LearningPathStag
   requiredAccuracy: 80,
   minHands: 10,
   tags: ['openfold', 'cash', 'preflop', 'level2', 'hj', 'vsUtg'],
+  unlocks: ['threebet_btn_vs_co_cash'],
 );
