@@ -18,4 +18,14 @@ class AppColors {
   static const textSecondaryDark = Colors.white70;
   static const textPrimaryLight = Colors.black;
   static const textSecondaryLight = Colors.black54;
+  static const surface = Color(0xFF1E1E1E);
+  static const progressBackground = Colors.white24;
+  static const success = Colors.greenAccent;
+  static const info = Colors.blue;
+  static const warning = Colors.yellow;
+  static const error = Colors.red;
+  static const overlay = Color(0xCC000000);
+  static const shadow = Colors.black45;
+  static const neutral = Colors.grey;
+  static const transparent = Colors.transparent;
 }

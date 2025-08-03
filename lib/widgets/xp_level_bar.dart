@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/theme/app_colors.dart';
 
 class XPLevelBar extends StatelessWidget {
   final int currentXp;
@@ -16,12 +17,12 @@ class XPLevelBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
     final pct = levelXp > 0 ? (currentXp / levelXp).clamp(0.0, 1.0) : 0.0;
-    final barColor = currentXp >= levelXp ? Colors.greenAccent : accent;
+    final barColor = currentXp >= levelXp ? AppColors.success : accent;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -31,10 +32,12 @@ class XPLevelBar extends StatelessWidget {
             children: [
               Text('Level $level',
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+                      color: AppColors.textPrimaryDark,
+                      fontWeight: FontWeight.bold)),
               const Spacer(),
               Text('$currentXp / $levelXp XP',
-                  style: const TextStyle(color: Colors.white70)),
+                  style:
+                      const TextStyle(color: AppColors.textSecondaryDark)),
             ],
           ),
           const SizedBox(height: 4),
@@ -46,7 +49,7 @@ class XPLevelBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: value,
-                  backgroundColor: Colors.white24,
+                  backgroundColor: AppColors.progressBackground,
                   valueColor: AlwaysStoppedAnimation(barColor),
                   minHeight: 6,
                 ),
