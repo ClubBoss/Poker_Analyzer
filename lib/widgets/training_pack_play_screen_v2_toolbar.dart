@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/app_settings_service.dart';
 import '../services/mistake_hint_service.dart';
-import '../user_preferences.dart';
+import '../services/user_preferences_service.dart';
+import 'package:provider/provider.dart';
 
 class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
   final String title;
@@ -22,7 +23,8 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
     this.streetIndex,
   });
 
-  bool get _showHintButton => !UserPreferences.instance.showActionHints;
+  bool _showHintButton(BuildContext context) =>
+      !context.read<UserPreferencesService>().showActionHints;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +72,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                   ],
                 ),
               ),
-              if (_showHintButton)
+              if (_showHintButton(context))
                 IconButton(
                   icon: const Icon(Icons.help_outline),
                   color: iconColor,

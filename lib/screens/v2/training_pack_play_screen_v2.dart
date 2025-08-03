@@ -36,7 +36,8 @@ import '../../widgets/training_pack_play_screen_v2_toolbar.dart';
 import '../../services/app_settings_service.dart';
 import 'package:uuid/uuid.dart';
 import '../../helpers/mistake_advice.dart';
-import '../../user_preferences.dart';
+import '../../services/user_preferences_service.dart';
+import 'package:provider/provider.dart';
 import '../../services/pinned_learning_service.dart';
 
 
@@ -84,7 +85,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
   bool _autoAdvance = false;
   _SpotFeedback? _feedback;
   Timer? _feedbackTimer;
-  bool _showActionHints = UserPreferences.instance.showActionHints;
+  late bool _showActionHints;
   String? _pressedAction;
   int _street = 0;
   bool _streetAnswered = false;
@@ -114,6 +115,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
       PinnedLearningService.instance.recordOpen('pack', widget.template.id),
     );
     _prepare();
+    _showActionHints = context.read<UserPreferencesService>().showActionHints;
   }
 
   Future<void> _prepare() async {
@@ -518,7 +520,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2> {
 
   Future<void> _handleAction(String action) async {
     if (_showActionHints) {
-      await UserPreferences.instance.setShowActionHints(false);
+      await context.read<UserPreferencesService>().setShowActionHints(false);
       if (mounted) setState(() => _showActionHints = false);
     }
     setState(() => _pressedAction = action);

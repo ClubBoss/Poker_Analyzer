@@ -16,7 +16,6 @@ import '../../services/action_sync_service.dart';
 import '../../services/transition_lock_service.dart';
 import '../../services/pot_animation_service.dart';
 import '../../services/pot_sync_service.dart';
-import '../../user_preferences.dart';
 import '../card_selector.dart';
 import '../chip_widget.dart';
 import '../chip_stack_widget.dart';

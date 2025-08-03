@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
+import 'theme_service.dart';
 
 class UserPreferencesService extends ChangeNotifier {
   static const _potAnimationKey = 'show_pot_animation';
@@ -32,8 +33,17 @@ class UserPreferencesService extends ChangeNotifier {
   RangeValues _evRange = const RangeValues(0, 5);
   bool _showTagGoalBanner = true;
   final CloudSyncService? cloud;
+  final ThemeService theme;
 
-  UserPreferencesService({this.cloud});
+  UserPreferencesService({this.cloud, required this.theme}) {
+    theme.addListener(notifyListeners);
+  }
+
+  @override
+  void dispose() {
+    theme.removeListener(notifyListeners);
+    super.dispose();
+  }
 
   bool get showPotAnimation => _showPotAnimation;
   bool get showCardReveal => _showCardReveal;
@@ -47,6 +57,7 @@ class UserPreferencesService extends ChangeNotifier {
   int get weaknessCategoryCount => _weakCatCount;
   RangeValues get evRange => _evRange;
   bool get showTagGoalBanner => _showTagGoalBanner;
+  Color get accentColor => theme.accentColor;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -186,6 +197,8 @@ class UserPreferencesService extends ChangeNotifier {
   Future<void> setShowTagGoalBanner(bool value) =>
       _setBool(_tagGoalBannerKey, _showTagGoalBanner, value,
           (v) => _showTagGoalBanner = v);
+
+  Future<void> setAccentColor(Color value) => theme.setAccentColor(value);
 }
 
 bool _boolPref(SharedPreferences prefs, String key, bool defaultValue) =>

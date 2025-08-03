@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/user_preferences_service.dart';
 import '../../theme/app_colors.dart';
 
 class FoldChipOverlay extends StatelessWidget {
@@ -494,7 +496,7 @@ Future<void> showWinnerSequence(
   Map<String, List<CardModel>>? revealedCardsByPlayer,
   bool showCelebration = true,
 }) async {
-  final prefs = UserPreferences.instance;
+  final prefs = context.read<UserPreferencesService>();
   for (final name in playerNames) {
     // Brief delay before showing the highlight.
     await Future.delayed(const Duration(milliseconds: 500));

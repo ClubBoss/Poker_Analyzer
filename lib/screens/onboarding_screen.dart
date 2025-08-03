@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
-import '../user_preferences.dart';
+import '../services/user_preferences_service.dart';
 import '../services/hand_history_file_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_template_service.dart';
@@ -35,7 +35,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _finish() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('tutorial_completed', true);
-    await UserPreferences.instance.setTutorialCompleted(true);
+    await context.read<UserPreferencesService>().setTutorialCompleted(true);
     if (mounted) Navigator.pop(context);
   }
 

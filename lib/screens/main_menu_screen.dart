@@ -29,7 +29,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/saved_hand_export_service.dart';
 import '../services/training_spot_of_day_service.dart';
 import '../models/training_spot.dart';
-import '../user_preferences.dart';
+import '../services/user_preferences_service.dart';
 import '../main_demo.dart';
 import '../widgets/training_spot_preview.dart';
 import '../tutorial/tutorial_flow.dart';
@@ -146,8 +146,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   @override
   void initState() {
     super.initState();
-    _demoMode = UserPreferences.instance.demoMode;
-    _tutorialCompleted = UserPreferences.instance.tutorialCompleted;
+    final prefs = context.read<UserPreferencesService>();
+    _demoMode = prefs.demoMode;
+    _tutorialCompleted = prefs.tutorialCompleted;
     context.read<StreakService>().addListener(_onStreakChanged);
     _loadSpot();
     _loadDismissed();
@@ -197,7 +198,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   void _maybeShowOnboarding() {
-    if (UserPreferences.instance.tutorialCompleted) return;
+    if (context.read<UserPreferencesService>().tutorialCompleted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       await Navigator.push(
@@ -205,8 +206,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         MaterialPageRoute(builder: (_) => const OnboardingScreen()),
       );
       if (mounted) {
-        setState(() =>
-            _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
+        setState(() => _tutorialCompleted =
+            context.read<UserPreferencesService>().tutorialCompleted);
       }
     });
   }
@@ -557,7 +558,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
   Future<void> _toggleDemoMode(bool value) async {
     setState(() => _demoMode = value);
-    await UserPreferences.instance.setDemoMode(value);
+    await context.read<UserPreferencesService>().setDemoMode(value);
     if (value) {
       Navigator.push(
         context,

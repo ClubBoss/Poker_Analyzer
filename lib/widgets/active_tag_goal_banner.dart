@@ -5,7 +5,7 @@ import '../helpers/color_utils.dart';
 import '../models/tag_goal_progress.dart';
 import '../services/tag_goal_tracker_service.dart';
 import '../services/tag_service.dart';
-import '../user_preferences.dart';
+import '../services/user_preferences_service.dart';
 
 class ActiveTagGoalBanner extends StatefulWidget {
   final String tagId;
@@ -26,7 +26,7 @@ class _ActiveTagGoalBannerState extends State<ActiveTagGoalBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (!UserPreferences.instance.showTagGoalBanner) {
+    if (!context.watch<UserPreferencesService>().showTagGoalBanner) {
       return const SizedBox.shrink();
     }
     final tagService = context.read<TagService>();

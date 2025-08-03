@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../user_preferences.dart';
+import '../services/user_preferences_service.dart';
 import 'tag_management_screen.dart';
 import 'cloud_sync_screen.dart';
 import '../services/achievement_engine.dart';
@@ -42,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    final prefs = UserPreferences.instance;
+    final prefs = context.read<UserPreferencesService>();
     _showPotAnimation = prefs.showPotAnimation;
     _showCardReveal = prefs.showCardReveal;
     _showWinnerCelebration = prefs.showWinnerCelebration;
@@ -64,32 +64,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _togglePotAnimation(bool value) async {
     setState(() => _showPotAnimation = value);
-    await UserPreferences.instance.setShowPotAnimation(value);
+    await context.read<UserPreferencesService>().setShowPotAnimation(value);
   }
 
   Future<void> _toggleCardReveal(bool value) async {
     setState(() => _showCardReveal = value);
-    await UserPreferences.instance.setShowCardReveal(value);
+    await context.read<UserPreferencesService>().setShowCardReveal(value);
   }
 
   Future<void> _toggleWinnerCelebration(bool value) async {
     setState(() => _showWinnerCelebration = value);
-    await UserPreferences.instance.setShowWinnerCelebration(value);
+    await context.read<UserPreferencesService>().setShowWinnerCelebration(value);
   }
 
   Future<void> _toggleActionHints(bool value) async {
     setState(() => _showActionHints = value);
-    await UserPreferences.instance.setShowActionHints(value);
+    await context.read<UserPreferencesService>().setShowActionHints(value);
   }
 
   Future<void> _toggleCoachMode(bool value) async {
     setState(() => _coachMode = value);
-    await UserPreferences.instance.setCoachMode(value);
+    await context.read<UserPreferencesService>().setCoachMode(value);
   }
 
   Future<void> _toggleSimpleNavigation(bool value) async {
     setState(() => _simpleNavigation = value);
-    await UserPreferences.instance.setSimpleNavigation(value);
+    await context.read<UserPreferencesService>().setSimpleNavigation(value);
   }
 
   Future<void> _toggleHideCompletedPrereqs(bool value) async {
@@ -154,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
     if (result != null) {
-      await UserPreferences.instance.setAccentColor(result);
+      await context.read<UserPreferencesService>().setAccentColor(result);
       setState(() => _accentColor = result);
     }
   }
