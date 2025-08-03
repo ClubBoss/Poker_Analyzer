@@ -19,10 +19,9 @@ import '../theme/app_colors.dart';
 import '../widgets/history/accuracy_chart.dart';
 import '../widgets/history/average_accuracy_chart.dart';
 import '../widgets/history/accuracy_trend_chart.dart';
-import '../widgets/common/history_list_item.dart';
 import '../widgets/history/session_accuracy_bar_chart.dart';
 import '../widgets/history/accuracy_distribution_chart.dart';
-import 'training_history/training_history_controller.dart';
+import '../services/training_history_service.dart';
 import 'training_detail_screen.dart';
 
 import '../models/training_result.dart';
@@ -31,9 +30,10 @@ import '../helpers/date_utils.dart';
 import '../helpers/accuracy_utils.dart';
 import '../tutorial/tutorial_flow.dart';
 import '../widgets/sync_status_widget.dart';
-import 'training_history/average_accuracy_summary.dart';
 import 'training_history/filter_summary.dart';
-import 'training_history/streak_summary.dart';
+import 'training_history/filter_panel.dart';
+import 'training_history/history_list.dart';
+import 'training_history/stats_summary.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   final TutorialFlow? tutorial;
@@ -154,13 +154,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     });
   }
 
-  final TrainingHistoryController _controller =
-      TrainingHistoryController.instance;
+  final TrainingHistoryService _service =
+      TrainingHistoryService.instance;
   final TrainingHistoryExportService _exportService =
       TrainingHistoryExportService();
 
   Future<void> _loadHistory() async {
-    final loaded = await _controller.loadHistory();
+    final loaded = await _service.loadHistory();
     setState(() {
       _history
         ..clear()
@@ -169,16 +169,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _clearHistory() async {
-    await _controller.clearHistory();
+    await _service.clearHistory();
     setState(() {
       _history.clear();
     });
   }
 
   Future<void> _saveHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = [for (final r in _history) jsonEncode(r.toJson())];
-    await prefs.setStringList('training_history', list);
+    await _service.saveHistory(_history);
   }
 
   Future<void> _exportHistory() async {
@@ -1787,30 +1785,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await _saveHistory();
   }
 
-  Future<void> _confirmDelete(TrainingResult session) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete Session?'),
-          content: const Text('Are you sure you want to delete this session?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-    if (confirm ?? false) {
-      await _deleteSession(session);
-    }
-  }
 
   Future<void> _setChartsVisible(bool value) async {
     setState(() => _showCharts = value);
@@ -1966,41 +1940,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             )
           : Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      const Text('Show:', style: TextStyle(color: Colors.white)),
-                      const SizedBox(width: 8),
-                      DropdownButton<int>(
-                        value: _filterDays,
-                        dropdownColor: AppColors.cardBackground,
-                        style: const TextStyle(color: Colors.white),
-                        items: const [
-                          DropdownMenuItem(value: 7, child: Text('7 days')),
-                          DropdownMenuItem(value: 30, child: Text('30 days')),
-                          DropdownMenuItem(value: 90, child: Text('90 days')),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _filterDays = value;
-                            });
-                          }
-                        },
-                      ),
-                      const Spacer(),
-                  Builder(builder: (context) {
-                    final filtered = _getFilteredHistory();
-                    final avg = _calculateAverageAccuracy(filtered);
-                    return Text(
-                      'Average Accuracy: ${avg.toStringAsFixed(1)}%',
-                      style: const TextStyle(color: Colors.white),
-                    );
-                  })
-                ],
-              ),
-            ),
+                FilterPanel(
+                  filterDays: _filterDays,
+                  onFilterChanged: (value) {
+                    setState(() {
+                      _filterDays = value;
+                    });
+                  },
+                ),
             if (_showCharts)
               Builder(builder: (context) {
                 final filtered = _getFilteredHistory();
@@ -2557,40 +2504,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Builder(
-                    builder: (context) {
-                      final filtered = _getFilteredHistory();
-                      final totalSessions = filtered.length;
-                      final totalCorrect =
-                          filtered.fold<int>(0, (sum, r) => sum + r.correct);
-                      final avg = _calculateAverageAccuracy(filtered);
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.cardBackground,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text('Сессии: $totalSessions',
-                                style: const TextStyle(color: Colors.white)),
-                            Text('Верно: $totalCorrect',
-                                style: const TextStyle(color: Colors.white)),
-                            Text('Средняя: ${avg.toStringAsFixed(1)}%',
-                                style: const TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                StreakSummary(
-                  show: _history.isNotEmpty,
-                  current: _calculateCurrentStreak(),
-                  best: _calculateBestStreak(),
+                StatsSummary(
+                  sessions: _getFilteredHistory(),
+                  showStreak: _history.isNotEmpty,
+                  currentStreak: _calculateCurrentStreak(),
+                  bestStreak: _calculateBestStreak(),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -2727,65 +2645,18 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ),
                 ],
               ],
-              AverageAccuracySummary(
-                accuracy: _calculateAverageAccuracy(_getFilteredHistory()),
-              ),
               FilterSummary(
                 summary: _getActiveFilterSummary(),
               ),
               Expanded(
-                child: Builder(builder: (context) {
-                    final filtered = _getFilteredHistory();
-                    return ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemBuilder: (context, index) {
-                        final result = filtered[index];
-                        return Dismissible(
-                          key: ValueKey(result.date.toIso8601String()),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            color: Colors.red,
-                            child: const Icon(Icons.delete, color: Colors.white),
-                          ),
-                          confirmDismiss: (_) async {
-                            return await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text('Delete Session?'),
-                                      content: const Text('Are you sure you want to delete this session?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          child: const Text('Delete'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ) ??
-                                false;
-                          },
-                          onDismissed: (_) => _deleteSession(result),
-                          child: HistoryListItem(
-                            result: result,
-                            onLongPress: () => _editSessionDate(result),
-                            onTap: () => _editSessionComment(context, result),
-                            onTagTap: () => _editSessionTags(context, result),
-                            onDelete: () => _confirmDelete(result),
-                          ),
-                        );
-                      },
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemCount: filtered.length,
-                    );
-                  }),
+                child: HistoryList(
+                  sessions: _getFilteredHistory(),
+                  onDelete: _deleteSession,
+                  onLongPress: _editSessionDate,
+                  onTap: (r) => _editSessionComment(context, r),
+                  onTagTap: (r) => _editSessionTags(context, r),
                 ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(

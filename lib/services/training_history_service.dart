@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../models/training_result.dart';
+import '../models/training_result.dart';
 
-class TrainingHistoryController {
-  TrainingHistoryController._();
-  static final instance = TrainingHistoryController._();
+class TrainingHistoryService {
+  TrainingHistoryService._();
+  static final instance = TrainingHistoryService._();
 
   Future<List<TrainingResult>> loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
@@ -25,9 +25,14 @@ class TrainingHistoryController {
     return results;
   }
 
+  Future<void> saveHistory(List<TrainingResult> history) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = [for (final r in history) jsonEncode(r.toJson())];
+    await prefs.setStringList('training_history', list);
+  }
+
   Future<void> clearHistory() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('training_history');
   }
 }
-
