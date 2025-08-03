@@ -86,9 +86,9 @@ import '../widgets/pack_unlock_requirement_badge.dart';
 import '../widgets/library_pack_badge_renderer.dart';
 import '../services/pack_sorting_engine.dart';
 
-part 'template_library/template_library_filter.dart';
+part 'template_library_panel.dart';
 part 'template_library/template_library_item.dart';
-part 'template_library/template_library_toolbar.dart';
+part 'template_library_overlay.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -1669,73 +1669,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
-  Widget _recommendedCategoryCard() {
-    return FutureBuilder<String?>(
-      future: context
-          .read<WeakSpotRecommendationService>()
-          .getRecommendedCategory(),
-      builder: (context, snap) {
-        final cat = snap.data;
-        if (cat == null) return const SizedBox.shrink();
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[850],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.accent),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.folder, color: AppColors.accent),
-                    SizedBox(width: 8),
-                    Text(
-                      '📂 Рекомендуемая категория',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  translateCategory(cat),
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Подтяните навык в этой области',
-                  style: TextStyle(color: Colors.white70),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: () => _setActiveCategory(cat),
-                    child: const Text('Начать'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// Banner prompting the user to train the weakest statistical category.
-  Widget _weakCategoryBanner() {
-    final cat = _weakCategory;
-    final pack = _weakCategoryPack;
-    if (cat == null || pack == null) return const SizedBox.shrink();
-    return TrainingGapPromptBanner(category: cat, pack: pack);
-  }
 
   void _showPackSheet(BuildContext context, TrainingPackTemplate t) {
     UserActionLogger.instance.logThrottled('sheet_open:${t.id}');
@@ -1852,144 +1785,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
-  Future<bool> _maybeAutoSample(v2.TrainingPackTemplate t) async {
-    if (_autoSampled.contains(t.id)) return false;
-    if (t.spots.length <= 30) return false;
-    if (_previewCompleted.contains(t.id)) return false;
-    final stat = await TrainingPackStatsService.getStats(t.id);
-    if (stat != null) return false;
-
-    _autoSampled.add(t.id);
-    const sampler = TrainingPackSampler();
-    final sample = sampler.sample(t);
-    final preview = TrainingPackTemplate.fromJson(sample.toJson());
-    preview.meta['samplePreview'] = true;
-    await context
-        .read<TrainingSessionService>()
-        .startSession(preview, persist: false);
-    if (!context.mounted) return true;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(
-          template: preview,
-          original: preview,
-        ),
-      ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.autoSampleToast)),
-    );
-    return true;
-  }
-
-  Future<void> _onLockedPackTap(TrainingPackTemplate t, String? reason) async {
-    final l = AppLocalizations.of(context)!;
-    final previewRequired =
-        t.spots.length > 30 && !_previewCompleted.contains(t.id);
-    if (previewRequired) {
-      final tplV2 = TrainingPackTemplateV2.fromTemplate(
-        t,
-        type: const TrainingTypeEngine().detectTrainingType(t),
-      );
-      if (await _maybeAutoSample(tplV2)) return;
-    }
-    if (previewRequired) {
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (_) => AlertDialog(
-          content: Text(l.samplePreviewPrompt),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(_, false),
-              child: Text(l.cancel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(_, true),
-              child: Text(l.previewSample),
-            ),
-          ],
-        ),
-      );
-      if (confirm == true && context.mounted) {
-        const sampler = TrainingPackSampler();
-        final tplV2 = TrainingPackTemplateV2.fromTemplate(
-          t,
-          type: const TrainingTypeEngine().detectTrainingType(t),
-        );
-        final sample = sampler.sample(tplV2);
-        final preview = TrainingPackTemplate.fromJson(sample.toJson());
-        preview.meta['samplePreview'] = true;
-        await context
-            .read<TrainingSessionService>()
-            .startSession(preview, persist: false);
-        if (!context.mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TrainingPackPlayScreen(
-              template: preview,
-              original: preview,
-            ),
-          ),
-        );
-        return;
-      }
-    }
-    if (reason != null) _showUnlockHint(reason);
-  }
-
-  Future<void> _onLockedLibraryPackTap(
-      v2.TrainingPackTemplate t, String? reason) async {
-    final l = AppLocalizations.of(context)!;
-    final previewRequired =
-        t.spots.length > 30 && !_previewCompleted.contains(t.id);
-    if (previewRequired && await _maybeAutoSample(t)) return;
-    if (previewRequired) {
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (_) => AlertDialog(
-          content: Text(l.samplePreviewPrompt),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(_, false),
-              child: Text(l.cancel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(_, true),
-              child: Text(l.previewSample),
-            ),
-          ],
-        ),
-      );
-      if (confirm == true && context.mounted) {
-        const sampler = TrainingPackSampler();
-        final sample = sampler.sample(t);
-        final preview = TrainingPackTemplate.fromJson(sample.toJson());
-        preview.meta['samplePreview'] = true;
-        await context
-            .read<TrainingSessionService>()
-            .startSession(preview, persist: false);
-        if (!context.mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TrainingPackPlayScreen(
-              template: preview,
-              original: preview,
-            ),
-          ),
-        );
-        return;
-      }
-    }
-    if (reason != null) _showUnlockHint(reason);
-  }
-
-  Widget _libraryTile(v2.TrainingPackTemplate t) {
-    Widget row(IconData icon, String text) => Padding(
-          padding: const EdgeInsets.only(bottom: 4),
-          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(icon, size: 16, color: Colors.white70),
