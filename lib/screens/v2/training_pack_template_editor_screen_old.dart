@@ -331,7 +331,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       BulkEvaluatorService()
           .generateMissing(widget.template, onProgress: null)
           .then((_) {
-        TemplateCoverageUtils.recountAll(widget.template);
+        TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
         if (mounted) setState(() => _loadingEval = false);
       });
     }
@@ -475,7 +475,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     final ready = validateTrainingPackTemplate(widget.template).isEmpty;
     widget.template.isDraft = !ready;
-    TemplateCoverageUtils.recountAll(widget.template);
+    TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
     TrainingPackStorage.save(widget.templates);
     unawaited(
       BulkEvaluatorService()
@@ -1459,7 +1459,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     if (s.heroEv == null) {
                       await const PushFoldEvService()
                           .evaluate(s, anteBb: widget.template.anteBb);
-                      TemplateCoverageUtils.recountAll(widget.template);
+                      TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
@@ -1527,7 +1527,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     if (s.heroIcmEv == null) {
                       await const PushFoldEvService()
                           .evaluateIcm(s, anteBb: widget.template.anteBb);
-                      TemplateCoverageUtils.recountAll(widget.template);
+                      TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
@@ -1620,7 +1620,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     await BulkEvaluatorService()
         .generateMissingForTemplate(widget.template, onProgress: null)
         .catchError((_) {});
-    TemplateCoverageUtils.recountAll(widget.template);
+    TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
     if (mounted) setState(() => _loadingEval = false);
   }
 
@@ -5755,7 +5755,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       BulkEvaluatorService()
           .generateMissing(widget.template, onProgress: null)
           .then((_) {
-        TemplateCoverageUtils.recountAll(widget.template);
+        TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
         if (mounted) setState(() => _loadingEval = false);
       });
     }
@@ -5898,7 +5898,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     final ready = validateTrainingPackTemplate(widget.template).isEmpty;
     widget.template.isDraft = !ready;
-    TemplateCoverageUtils.recountAll(widget.template);
+    TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
     TrainingPackStorage.save(widget.templates);
     unawaited(
       BulkEvaluatorService()
@@ -6890,7 +6890,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     if (s.heroEv == null) {
                       await const PushFoldEvService()
                           .evaluate(s, anteBb: widget.template.anteBb);
-                      TemplateCoverageUtils.recountAll(widget.template);
+                      TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
@@ -6958,7 +6958,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     if (s.heroIcmEv == null) {
                       await const PushFoldEvService()
                           .evaluateIcm(s, anteBb: widget.template.anteBb);
-                      TemplateCoverageUtils.recountAll(widget.template);
+                      TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
@@ -7051,7 +7051,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     await BulkEvaluatorService()
         .generateMissingForTemplate(widget.template, onProgress: null)
         .catchError((_) {});
-    TemplateCoverageUtils.recountAll(widget.template);
+    TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
     if (mounted) setState(() => _loadingEval = false);
   }
 

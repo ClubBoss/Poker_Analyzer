@@ -42,7 +42,7 @@ class TrainingPackStorage {
     bool changed = false;
     for (final t in templates) {
       if (!t.meta.containsKey('evCovered') || !t.meta.containsKey('icmCovered')) {
-        TemplateCoverageUtils.recountAll(t);
+        TemplateCoverageUtils.recountAll(t).applyTo(t.meta);
         changed = true;
       }
     }
@@ -52,7 +52,7 @@ class TrainingPackStorage {
 
   static Future<void> save(List<TrainingPackTemplate> t) async {
     for (final tpl in t) {
-      TemplateCoverageUtils.recountAll(tpl);
+      TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, jsonEncode([for (final x in t) x.toJson()]));

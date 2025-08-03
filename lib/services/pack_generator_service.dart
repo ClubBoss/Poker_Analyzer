@@ -171,7 +171,7 @@ class PackGeneratorService {
       lastGeneratedAt: DateTime.now(),
       isBuiltIn: true,
     );
-    TemplateCoverageUtils.recountAll(tpl);
+    TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     return tpl;
   }
 
@@ -244,7 +244,7 @@ class PackGeneratorService {
       createdAt: createdAt,
       lastGeneratedAt: DateTime.now(),
     );
-    TemplateCoverageUtils.recountAll(tpl);
+    TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     return tpl;
   }
 
@@ -296,7 +296,7 @@ class PackGeneratorService {
       lastGeneratedAt: DateTime.now(),
       meta: {'maxStack': maxBb},
     );
-    TemplateCoverageUtils.recountAll(tpl);
+    TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     return tpl;
   }
 
@@ -422,7 +422,7 @@ class PackGeneratorService {
       spots: spots,
       createdAt: createdAt,
     );
-    TemplateCoverageUtils.recountAll(tpl);
+    TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     return tpl;
   }
 

@@ -920,7 +920,7 @@ class _TrainingPackTemplateListScreenState
             .generateMissingForTemplate(t, onProgress: null)
             .catchError((_) => 0);
         if (!mounted) return;
-        TemplateCoverageUtils.recountAll(t);
+        TemplateCoverageUtils.recountAll(t).applyTo(t.meta);
         refreshed += n;
       }
       if (refreshed > 0) {
@@ -2595,7 +2595,7 @@ class _TrainingPackTemplateListScreenState
                       if (mounted) setDialog(() {});
                     },
                   );
-                  TemplateCoverageUtils.recountAll(tpl);
+                  TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
                 }
                 await TrainingPackStorage.save(_templates);
                 if (Navigator.canPop(ctx)) Navigator.pop(ctx);

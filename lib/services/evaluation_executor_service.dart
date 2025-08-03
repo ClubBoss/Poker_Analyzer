@@ -559,7 +559,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
         ? '+${(heroPushEv - foldEv).toStringAsFixed(2)} BB vs fold'
         : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
     if (template != null) {
-      TemplateCoverageUtils.recountAll(template);
+      TemplateCoverageUtils.recountAll(template).applyTo(template.meta);
       final changed = prev == null ||
           !const DeepCollectionEquality().equals(
             prev.toJson(),

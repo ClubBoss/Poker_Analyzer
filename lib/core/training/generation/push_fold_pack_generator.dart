@@ -65,7 +65,7 @@ class PushFoldPackGenerator {
       createdAt: now,
       lastGeneratedAt: now,
     );
-    TemplateCoverageUtils.recountAll(tpl);
+    TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     return tpl;
   }
 

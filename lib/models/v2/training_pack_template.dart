@@ -91,7 +91,7 @@ class TrainingPackTemplate {
         playerStacksBb = playerStacksBb ?? const [10, 10],
         meta = meta ?? {},
         createdAt = createdAt ?? DateTime.now() {
-    TemplateCoverageUtils.recountAll(this);
+    TemplateCoverageUtils.recountAll(this).applyTo(this.meta);
   }
 
   TrainingPackTemplate copyWith({
@@ -231,7 +231,7 @@ class TrainingPackTemplate {
     );
     if (!tpl.meta.containsKey('evCovered') ||
         !tpl.meta.containsKey('icmCovered')) {
-      TemplateCoverageUtils.recountAll(tpl);
+      TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     }
     return tpl;
   }
@@ -322,7 +322,7 @@ class TrainingPackTemplate {
   }
 
   void recountCoverage([List<TrainingPackSpot>? all]) {
-    TemplateCoverageUtils.recountAll(this);
+    TemplateCoverageUtils.recountAll(this).applyTo(this.meta);
   }
 
   Future<List<TrainingPackSpot>> generateSpots() async {

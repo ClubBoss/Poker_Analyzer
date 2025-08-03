@@ -1,8 +1,22 @@
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 
+class CoverageSummary {
+  final int ev;
+  final int icm;
+  final int total;
+
+  const CoverageSummary({required this.ev, required this.icm, required this.total});
+
+  void applyTo(Map<String, dynamic> meta) {
+    meta['evCovered'] = ev;
+    meta['icmCovered'] = icm;
+    meta['totalWeight'] = total;
+  }
+}
+
 class TemplateCoverageUtils {
-  static void recountAll(TrainingPackTemplateV2 template) {
+  static CoverageSummary recountAll(TrainingPackTemplateV2 template) {
     final List<TrainingPackSpot> list = template.spots;
     int ev = 0;
     int icm = 0;
@@ -13,8 +27,6 @@ class TemplateCoverageUtils {
       if (!s.dirty && s.heroEv != null) ev += w;
       if (!s.dirty && s.heroIcmEv != null) icm += w;
     }
-    template.meta['evCovered'] = ev;
-    template.meta['icmCovered'] = icm;
-    template.meta['totalWeight'] = total;
+    return CoverageSummary(ev: ev, icm: icm, total: total);
   }
 }

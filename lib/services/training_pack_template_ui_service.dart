@@ -112,7 +112,7 @@ class TrainingPackTemplateUiService {
         );
       },
     );
-    TemplateCoverageUtils.recountAll(template);
+    TemplateCoverageUtils.recountAll(template).applyTo(template.meta);
     template.lastGeneratedAt = DateTime.now();
     return generated;
   }
@@ -224,7 +224,7 @@ class TrainingPackTemplateUiService {
         );
       },
     );
-    TemplateCoverageUtils.recountAll(template);
+    TemplateCoverageUtils.recountAll(template).applyTo(template.meta);
     template.lastGeneratedAt = DateTime.now();
     return generated;
   }

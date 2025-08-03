@@ -413,7 +413,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       s.dirty = false;
     }
     pack.lastTrainedAt = null;
-    TemplateCoverageUtils.recountAll(pack);
+    TemplateCoverageUtils.recountAll(pack).applyTo(pack.meta);
     final list = await TrainingPackStorage.load();
     final idx = list.indexWhere((e) => e.id == pack.id);
     if (idx != -1) list[idx] = pack;
