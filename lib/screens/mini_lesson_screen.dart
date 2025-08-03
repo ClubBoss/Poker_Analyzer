@@ -8,6 +8,7 @@ import '../services/recap_completion_tracker.dart';
 import '../services/theory_streak_service.dart';
 import '../services/theory_booster_recall_engine.dart';
 import '../services/pinned_learning_service.dart';
+import '../services/mini_lesson_completion_tracker_service.dart';
 
 /// Simple viewer for a [TheoryMiniLessonNode].
 class MiniLessonScreen extends StatefulWidget {
@@ -80,6 +81,8 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
         .setLastPosition('lesson', widget.lesson.id, _controller.offset.round());
     _controller.dispose();
     PinnedLearningService.instance.removeListener(_updatePinned);
+    unawaited(MiniLessonCompletionTrackerService.instance
+        .markCompleted(widget.lesson.id));
     super.dispose();
   }
 
