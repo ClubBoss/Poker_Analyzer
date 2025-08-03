@@ -30,132 +30,157 @@ class MainMenuGrid extends StatelessWidget {
 
   List<_MenuItem> _buildMenuItems(BuildContext context) {
     return [
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.sports_esports,
         label: 'Тренировка',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TrainingPacksScreen()),
-          );
-        },
-        key: trainingButtonKey,
+        onTap: _onTrainingTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.add_circle,
         label: 'Новая раздача',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PlayerInputScreen()),
-          );
-        },
-        key: newHandButtonKey,
+        onTap: _onNewHandTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.history,
         label: 'История',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AllSessionsScreen()),
-          );
-        },
-        key: historyButtonKey,
+        onTap: _onHistoryTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.bar_chart,
         label: 'Аналитика',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProgressScreen()),
-          );
-        },
+        onTap: _onAnalyticsTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.show_chart,
         label: 'Прогресс',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProgressOverviewScreen()),
-          );
-        },
+        onTap: _onProgressTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.timeline,
         label: 'История EV/ICM',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProgressHistoryScreen()),
-          );
-        },
+        onTap: _onProgressHistoryTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.calendar_today,
         label: 'Memory Insights',
-        onTap: () {
-          Navigator.pushNamed(context, MemoryInsightsScreen.route);
-        },
+        onTap: _onMemoryInsightsTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.monitor_heart,
         label: 'Memory Health',
-        onTap: () {
-          Navigator.pushNamed(context, DecayDashboardScreen.route);
-        },
+        onTap: _onMemoryHealthTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.bar_chart,
         label: 'Decay Stats',
-        onTap: () {
-          Navigator.pushNamed(context, DecayStatsDashboardScreen.route);
-        },
+        onTap: _onDecayStatsTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.grid_view,
         label: 'Decay Heatmap',
-        onTap: () {
-          Navigator.pushNamed(context, DecayHeatmapScreen.route);
-        },
+        onTap: _onDecayHeatmapTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.tune,
         label: 'Decay Adaptation',
-        onTap: () {
-          Navigator.pushNamed(context, DecayAdaptationInsightScreen.route);
-        },
+        onTap: _onDecayAdaptationTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.card_giftcard,
         label: 'Награды',
-        onTap: () {
-          Navigator.pushNamed(context, RewardGalleryScreen.route);
-        },
+        onTap: _onRewardGalleryTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.folder,
         label: 'Раздачи',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SavedHandsScreen()),
-          );
-        },
+        onTap: _onSavedHandsTap,
       ),
-      _MenuItem(
+      const _MenuItem(
         icon: Icons.settings,
         label: 'Настройки',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SettingsScreen()),
-          );
-        },
+        onTap: _onSettingsTap,
       ),
     ];
+  }
+
+  static void _onTrainingTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingPacksScreen()),
+    );
+  }
+
+  static void _onNewHandTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const PlayerInputScreen()),
+    );
+  }
+
+  static void _onHistoryTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AllSessionsScreen()),
+    );
+  }
+
+  static void _onAnalyticsTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProgressScreen()),
+    );
+  }
+
+  static void _onProgressTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProgressOverviewScreen()),
+    );
+  }
+
+  static void _onProgressHistoryTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProgressHistoryScreen()),
+    );
+  }
+
+  static void _onMemoryInsightsTap(BuildContext context) {
+    Navigator.pushNamed(context, MemoryInsightsScreen.route);
+  }
+
+  static void _onMemoryHealthTap(BuildContext context) {
+    Navigator.pushNamed(context, DecayDashboardScreen.route);
+  }
+
+  static void _onDecayStatsTap(BuildContext context) {
+    Navigator.pushNamed(context, DecayStatsDashboardScreen.route);
+  }
+
+  static void _onDecayHeatmapTap(BuildContext context) {
+    Navigator.pushNamed(context, DecayHeatmapScreen.route);
+  }
+
+  static void _onDecayAdaptationTap(BuildContext context) {
+    Navigator.pushNamed(context, DecayAdaptationInsightScreen.route);
+  }
+
+  static void _onRewardGalleryTap(BuildContext context) {
+    Navigator.pushNamed(context, RewardGalleryScreen.route);
+  }
+
+  static void _onSavedHandsTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SavedHandsScreen()),
+    );
+  }
+
+  static void _onSettingsTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+    );
   }
 
   @override
@@ -178,8 +203,14 @@ class MainMenuGrid extends StatelessWidget {
           itemBuilder: (context, index) {
             final item = items[index];
             return GestureDetector(
-              key: item.key,
-              onTap: item.onTap,
+              key: index == 0
+                  ? trainingButtonKey
+                  : index == 1
+                      ? newHandButtonKey
+                      : index == 2
+                          ? historyButtonKey
+                          : null,
+              onTap: () => item.onTap(context),
               child: Card(
                 color: Colors.grey[850],
                 shape: RoundedRectangleBorder(
@@ -205,14 +236,12 @@ class MainMenuGrid extends StatelessWidget {
 class _MenuItem {
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
-  final Key? key;
+  final void Function(BuildContext context) onTap;
 
-  _MenuItem({
+  const _MenuItem({
     required this.icon,
     required this.label,
     required this.onTap,
-    this.key,
   });
 }
 
