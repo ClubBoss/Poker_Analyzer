@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../models/training_type.dart';
-import '../services/analytics_service.dart';
+import '../services/learning_path_funnel_tracker_service.dart';
 import '../services/pack_favorite_service.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import '../services/training_session_launcher.dart';
@@ -40,7 +40,6 @@ class _PackCardState extends State<PackCard>
   double? _accuracy;
   int _handsCompleted = 0;
   bool _almostUnlocked = false;
-  bool _lockedViewLogged = false;
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -211,52 +210,23 @@ class _PackCardState extends State<PackCard>
 
   Future<void> _logUnlockEventIfNeeded(bool wasLocked) async {
     if (!wasLocked || _locked) return;
-    final prefs = await SharedPreferences.getInstance();
-    final key = 'unlock_logged_${widget.template.id}';
-    if (prefs.getBool(key) == true) return;
-    await prefs.setBool(key, true);
-    unawaited(
-      AnalyticsService.instance.logEvent('locked_pack_unlocked', {
-        'pack_id': widget.template.id,
-        'accuracy': _accuracy,
-        'hands_completed': _handsCompleted,
-        'required_accuracy': widget.template.requiredAccuracy,
-        'min_hands': widget.template.minHands,
-      }),
+    await LearningPathFunnelTrackerService.instance.logUnlock(
+      widget.template.id,
+      accuracy: _accuracy,
+      handsCompleted: _handsCompleted,
+      requiredAccuracy: widget.template.requiredAccuracy,
+      minHands: widget.template.minHands,
     );
-    final ctaKey = 'cta_tapped_${widget.template.id}';
-    if (prefs.getBool(ctaKey) == true) {
-      unawaited(
-        AnalyticsService.instance.logEvent('unlock_funnel_complete', {
-          'pack_id': widget.template.id,
-          'accuracy': _accuracy,
-          'hands_completed': _handsCompleted,
-          'required_accuracy': widget.template.requiredAccuracy,
-          'min_hands': widget.template.minHands,
-        }),
-      );
-      await prefs.remove(ctaKey);
-    }
   }
 
   Future<void> _logLockedViewEventIfNeeded() async {
-    if (!_locked || _lockedViewLogged || kDebugMode) return;
-    final prefs = await SharedPreferences.getInstance();
-    final key = 'locked_pack_viewed_${widget.template.id}';
-    if (prefs.getBool(key) == true) {
-      _lockedViewLogged = true;
-      return;
-    }
-    await prefs.setBool(key, true);
-    _lockedViewLogged = true;
-    unawaited(
-      AnalyticsService.instance.logEvent('locked_pack_view', {
-        'pack_id': widget.template.id,
-        'accuracy': _accuracy,
-        'hands_completed': _handsCompleted,
-        'required_accuracy': widget.template.requiredAccuracy,
-        'min_hands': widget.template.minHands,
-      }),
+    if (!_locked || kDebugMode) return;
+    await LearningPathFunnelTrackerService.instance.logLockedView(
+      widget.template.id,
+      accuracy: _accuracy,
+      handsCompleted: _handsCompleted,
+      requiredAccuracy: widget.template.requiredAccuracy,
+      minHands: widget.template.minHands,
     );
   }
 
@@ -354,18 +324,14 @@ class _PackCardState extends State<PackCard>
 
   Future<void> _handleCta(BuildContext context) async {
     if (_ctaText != null) {
-      unawaited(
-        AnalyticsService.instance.logEvent('locked_pack_cta_tap', {
-          'pack_id': widget.template.id,
-          'cta_type': _ctaText,
-          'accuracy': _accuracy,
-          'hands_completed': _handsCompleted,
-          'required_accuracy': widget.template.requiredAccuracy,
-          'min_hands': widget.template.minHands,
-        }),
+      await LearningPathFunnelTrackerService.instance.logCtaTap(
+        widget.template.id,
+        ctaType: _ctaText,
+        accuracy: _accuracy,
+        handsCompleted: _handsCompleted,
+        requiredAccuracy: widget.template.requiredAccuracy,
+        minHands: widget.template.minHands,
       );
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('cta_tapped_${widget.template.id}', true);
     }
     await Navigator.of(context, rootNavigator: true).maybePop();
     await const TrainingSessionLauncher().launch(widget.template);
