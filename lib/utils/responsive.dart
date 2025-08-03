@@ -6,6 +6,16 @@ double responsiveSize(BuildContext context, double value) => isCompactWidth(cont
 
 EdgeInsets responsiveAll(BuildContext context, double value) => EdgeInsets.all(responsiveSize(context, value));
 
+EdgeInsets responsiveSymmetric(
+  BuildContext context, {
+  double vertical = 0,
+  double horizontal = 0,
+}) =>
+    EdgeInsets.symmetric(
+      vertical: responsiveSize(context, vertical),
+      horizontal: responsiveSize(context, horizontal),
+    );
+
 Orientation currentOrientation(BuildContext context) =>
     MediaQuery.of(context).orientation;
 
