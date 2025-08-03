@@ -1,5 +1,6 @@
 import 'action_model.dart';
 import 'card_model.dart';
+import 'copy_with_mixin.dart';
 
 /// Different types of players at the table.
 enum PlayerType {
@@ -22,7 +23,7 @@ enum PlayerType {
   unknown,
 }
 
-class PlayerModel {
+class PlayerModel with CopyWithMixin<PlayerModel> {
   final String name;
   final List<String> cards;
   /// Cards that this player has revealed. Two slots that may be null.
@@ -47,28 +48,6 @@ class PlayerModel {
           'Turn': [],
           'River': [],
         };
-
-  PlayerModel copyWith({
-    String? name,
-    PlayerType? type,
-    List<CardModel?>? revealedCards,
-    int? stack,
-    int? bet,
-  }) {
-    return PlayerModel(
-      name: name ?? this.name,
-      type: type ?? this.type,
-      stack: stack ?? this.stack,
-      bet: bet ?? this.bet,
-      revealedCards: revealedCards ??
-          List<CardModel?>.from(this.revealedCards),
-    )
-      ..cards.addAll(cards)
-      ..actions.addAll({
-        for (final entry in actions.entries)
-          entry.key: List<PlayerActionModel>.from(entry.value)
-      });
-  }
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -121,4 +100,8 @@ class PlayerModel {
     });
     return model;
   }
+
+  @override
+  PlayerModel Function(Map<String, dynamic> json) get fromJson =>
+      PlayerModel.fromJson;
 }

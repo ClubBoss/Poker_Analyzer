@@ -7,8 +7,9 @@ import 'training_pack_variant.dart';
 import '../../services/pack_generator_service.dart';
 import '../../helpers/poker_position_helper.dart';
 import '../../utils/template_coverage_utils.dart';
+import '../copy_with_mixin.dart';
 
-class TrainingPackTemplate {
+class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
   final String id;
   String slug;
   String name;
@@ -92,85 +93,6 @@ class TrainingPackTemplate {
         meta = meta ?? {},
         createdAt = createdAt ?? DateTime.now() {
     TemplateCoverageUtils.recountAll(this).applyTo(this.meta);
-  }
-
-  TrainingPackTemplate copyWith({
-    String? id,
-    String? slug,
-    String? name,
-    String? description,
-    String? goal,
-    String? category,
-    GameType? gameType,
-    List<TrainingPackSpot>? spots,
-    List<String>? tags,
-    List<String>? focusTags,
-    List<FocusGoal>? focusHandTypes,
-    String? difficulty,
-    int? heroBbStack,
-    List<int>? playerStacksBb,
-    HeroPosition? heroPos,
-    int? spotCount,
-    int? bbCallPct,
-    int? anteBb,
-    double? minEvForCorrect,
-    List<String>? heroRange,
-    DateTime? createdAt,
-    DateTime? lastGeneratedAt,
-    DateTime? lastTrainedAt,
-    Map<String, dynamic>? meta,
-    bool? goalAchieved,
-    int? goalTarget,
-    int? goalProgress,
-    String? targetStreet,
-    int? streetGoal,
-    bool? isDraft,
-    bool? isBuiltIn,
-    String? png,
-    bool? isFavorite,
-    bool? isPinned,
-    bool? trending,
-    bool? recommended,
-  }) {
-    return TrainingPackTemplate(
-      id: id ?? this.id,
-      slug: slug ?? this.slug,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      goal: goal ?? this.goal,
-      category: category ?? this.category,
-      gameType: gameType ?? this.gameType,
-      spots: spots ?? List<TrainingPackSpot>.from(this.spots),
-      tags: tags ?? List<String>.from(this.tags),
-      focusTags: focusTags ?? List<String>.from(this.focusTags),
-      focusHandTypes:
-          focusHandTypes ?? List<FocusGoal>.from(this.focusHandTypes),
-      difficulty: difficulty ?? this.difficulty,
-      heroBbStack: heroBbStack ?? this.heroBbStack,
-      playerStacksBb: playerStacksBb ?? List<int>.from(this.playerStacksBb),
-      heroPos: heroPos ?? this.heroPos,
-      spotCount: spotCount ?? this.spotCount,
-      bbCallPct: bbCallPct ?? this.bbCallPct,
-      anteBb: anteBb ?? this.anteBb,
-      minEvForCorrect: minEvForCorrect ?? this.minEvForCorrect,
-      heroRange: heroRange ?? this.heroRange,
-      createdAt: createdAt ?? this.createdAt,
-      lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
-      lastTrainedAt: lastTrainedAt ?? this.lastTrainedAt,
-      meta: meta ?? Map<String, dynamic>.from(this.meta),
-      goalAchieved: goalAchieved ?? this.goalAchieved,
-      goalTarget: goalTarget ?? this.goalTarget,
-      goalProgress: goalProgress ?? this.goalProgress,
-      targetStreet: targetStreet ?? this.targetStreet,
-      streetGoal: streetGoal ?? this.streetGoal,
-      isDraft: isDraft ?? this.isDraft,
-      isBuiltIn: isBuiltIn ?? this.isBuiltIn,
-      png: png ?? this.png,
-      isFavorite: isFavorite ?? this.isFavorite,
-      isPinned: isPinned ?? this.isPinned,
-      trending: trending ?? this.trending,
-      recommended: recommended ?? this.recommended,
-    );
   }
 
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) {
@@ -277,6 +199,10 @@ class TrainingPackTemplate {
         if (trending) 'trending': true,
         if (recommended) 'recommended': true,
       };
+
+  @override
+  TrainingPackTemplate Function(Map<String, dynamic> json) get fromJson =>
+      TrainingPackTemplate.fromJson;
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
   int get icmCovered => meta['icmCovered'] as int? ?? 0;

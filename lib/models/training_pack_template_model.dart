@@ -1,9 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'copy_with_mixin.dart';
 
 part 'training_pack_template_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class TrainingPackTemplateModel {
+class TrainingPackTemplateModel
+    with CopyWithMixin<TrainingPackTemplateModel> {
   final String id;
   final String name;
   final String description;
@@ -33,37 +35,13 @@ class TrainingPackTemplateModel {
   })  : filters = filters ?? const {},
         createdAt = createdAt ?? DateTime.now();
 
-  TrainingPackTemplateModel copyWith({
-    String? id,
-    String? name,
-    String? description,
-    String? category,
-    int? difficulty,
-    Map<String, dynamic>? filters,
-    bool? isTournament,
-    bool? isFavorite,
-    DateTime? createdAt,
-    DateTime? lastGeneratedAt,
-    double? rating,
-  }) {
-    return TrainingPackTemplateModel(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      category: category ?? this.category,
-      difficulty: difficulty ?? this.difficulty,
-      filters: filters ?? Map<String, dynamic>.from(this.filters),
-      isTournament: isTournament ?? this.isTournament,
-      isFavorite: isFavorite ?? this.isFavorite,
-      createdAt: createdAt ?? this.createdAt,
-      lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
-      rating: rating ?? this.rating,
-    );
-  }
-
   factory TrainingPackTemplateModel.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackTemplateModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$TrainingPackTemplateModelToJson(this);
+
+  @override
+  TrainingPackTemplateModel Function(Map<String, dynamic> json) get fromJson =>
+      TrainingPackTemplateModel.fromJson;
 }
 

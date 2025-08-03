@@ -1,8 +1,8 @@
-import 'package:collection/collection.dart';
 import 'hand_data.dart';
 import '../evaluation_result.dart';
+import '../copy_with_mixin.dart';
 
-class TrainingPackSpot {
+class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   final String id;
   String type;
   String title;
@@ -70,59 +70,6 @@ class TrainingPackSpot {
         editedAt = editedAt ?? DateTime.now(),
         createdAt = createdAt ?? DateTime.now();
 
-  TrainingPackSpot copyWith({
-    String? id,
-    String? type,
-    String? title,
-    String? note,
-    HandData? hand,
-    List<String>? tags,
-    List<String>? categories,
-    DateTime? editedAt,
-    DateTime? createdAt,
-    bool? pinned,
-    bool? dirty,
-    int? priority,
-    bool? isNew,
-    bool? isGenerated,
-    EvaluationResult? evalResult,
-    String? correctAction,
-    String? explanation,
-    String? image,
-    bool? streetMode,
-    List<String>? board,
-    int? street,
-    String? villainAction,
-    List<String>? heroOptions,
-    Map<String, dynamic>? meta,
-  }) =>
-      TrainingPackSpot(
-        id: id ?? this.id,
-        type: type ?? this.type,
-        title: title ?? this.title,
-        note: note ?? this.note,
-        hand: hand ?? this.hand,
-        tags: tags ?? List<String>.from(this.tags),
-        categories: categories ?? List<String>.from(this.categories),
-        editedAt: editedAt ?? this.editedAt,
-        createdAt: createdAt ?? this.createdAt,
-        pinned: pinned ?? this.pinned,
-        dirty: dirty ?? this.dirty,
-        priority: priority ?? this.priority,
-        isNew: isNew ?? this.isNew,
-        isGenerated: isGenerated ?? this.isGenerated,
-        evalResult: evalResult ?? this.evalResult,
-        correctAction: correctAction ?? this.correctAction,
-        explanation: explanation ?? this.explanation,
-        image: image ?? this.image,
-        streetMode: streetMode ?? this.streetMode,
-        board: board ?? List<String>.from(this.board),
-        street: street ?? this.street,
-        villainAction: villainAction ?? this.villainAction,
-        heroOptions: heroOptions ?? List<String>.from(this.heroOptions),
-        meta: meta ?? Map<String, dynamic>.from(this.meta),
-      );
-
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
         id: j['id'] as String? ?? '',
         type: j['type'] as String? ?? 'quiz',
@@ -185,6 +132,10 @@ class TrainingPackSpot {
         if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
         if (meta.isNotEmpty) 'meta': meta,
       };
+
+  @override
+  TrainingPackSpot Function(Map<String, dynamic> json) get fromJson =>
+      TrainingPackSpot.fromJson;
 
   /// Converts this spot to a YAML-compatible map.
   ///

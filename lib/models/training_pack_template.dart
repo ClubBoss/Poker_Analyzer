@@ -1,10 +1,11 @@
 import 'saved_hand.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'copy_with_mixin.dart';
 
 part 'training_pack_template.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class TrainingPackTemplate {
+class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
   final String id;
   final String name;
   final String gameType;
@@ -48,6 +49,10 @@ class TrainingPackTemplate {
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$TrainingPackTemplateToJson(this);
+
+  @override
+  TrainingPackTemplate Function(Map<String, dynamic> json) get fromJson =>
+      TrainingPackTemplate.fromJson;
 
   factory TrainingPackTemplate.fromMap(Map<String, dynamic> map) {
     return TrainingPackTemplate(
