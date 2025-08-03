@@ -38,7 +38,7 @@ class GoalEngine extends ChangeNotifier {
       Goal(
         id: 'daily',
         title: 'Earn 200 XP today',
-        type: 'daily',
+        type: GoalType.daily,
         targetXP: 200,
         currentXP: 0,
         deadline: DateTime(now.year, now.month, now.day).add(const Duration(days: 1)),
@@ -46,7 +46,7 @@ class GoalEngine extends ChangeNotifier {
       Goal(
         id: 'weekly',
         title: 'Reach level 10 this week',
-        type: 'weekly',
+        type: GoalType.weekly,
         targetXP: 1000,
         currentXP: 0,
         deadline: DateTime(now.year, now.month, now.day).add(Duration(days: 8 - now.weekday)),
@@ -54,7 +54,7 @@ class GoalEngine extends ChangeNotifier {
       Goal(
         id: 'progress',
         title: 'Earn 10K XP all-time',
-        type: 'progressive',
+        type: GoalType.progressive,
         targetXP: 10000,
         currentXP: 0,
         deadline: DateTime.now().add(const Duration(days: 3650)),

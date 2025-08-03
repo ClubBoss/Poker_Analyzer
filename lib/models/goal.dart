@@ -1,7 +1,9 @@
+enum GoalType { daily, weekly, progressive }
+
 class Goal {
   final String id;
   final String title;
-  final String type;
+  final GoalType type;
   final int targetXP;
   int currentXP;
   final DateTime deadline;
@@ -22,7 +24,7 @@ class Goal {
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,
-        'type': type,
+        'type': type.name,
         'targetXP': targetXP,
         'currentXP': currentXP,
         'deadline': deadline.toIso8601String(),
@@ -33,7 +35,10 @@ class Goal {
   factory Goal.fromJson(Map<String, dynamic> json) => Goal(
         id: json['id'] as String,
         title: json['title'] as String,
-        type: json['type'] as String,
+        type: GoalType.values.firstWhere(
+          (e) => e.name == json['type'],
+          orElse: () => GoalType.daily,
+        ),
         targetXP: json['targetXP'] as int,
         currentXP: json['currentXP'] as int? ?? 0,
         deadline: DateTime.tryParse(json['deadline'] as String? ?? '') ?? DateTime.now(),
