@@ -28,6 +28,7 @@ class TrainingPackTemplateV2 {
   List<String> positions;
   Map<String, dynamic> meta;
   bool recommended;
+  bool requiresTheoryCompleted;
   String? targetStreet;
   UnlockRules? unlockRules;
 
@@ -57,6 +58,7 @@ class TrainingPackTemplateV2 {
     List<String>? positions,
     Map<String, dynamic>? meta,
     this.recommended = false,
+    this.requiresTheoryCompleted = false,
     this.targetStreet,
     this.unlockRules,
     bool? isGeneratedPack,
@@ -101,9 +103,11 @@ class TrainingPackTemplateV2 {
         for (final p in (j['positions'] as List? ?? [])) p.toString(),
       ],
       meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
-      recommended:
-          j['recommended'] as bool? ??
+      recommended: j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
+      requiresTheoryCompleted: j['meta'] is Map
+          ? j['meta']['requiresTheoryCompleted'] == true
+          : false,
       targetStreet: j['targetStreet'] as String?,
       unlockRules: j['unlockRules'] is Map
           ? UnlockRules.fromJson(Map<String, dynamic>.from(j['unlockRules']))
@@ -139,6 +143,9 @@ class TrainingPackTemplateV2 {
     };
     final metaMap = Map<String, dynamic>.from(meta);
     if (theme != null) metaMap['theme'] = theme;
+    if (requiresTheoryCompleted) {
+      metaMap['requiresTheoryCompleted'] = true;
+    }
     if (metaMap.isNotEmpty) map['meta'] = metaMap;
     return map;
   }
@@ -227,6 +234,8 @@ class TrainingPackTemplateV2 {
     positions: [template.heroPos.name],
     meta: Map<String, dynamic>.from(template.meta),
     recommended: template.recommended,
+    requiresTheoryCompleted:
+        template.meta['requiresTheoryCompleted'] == true,
     targetStreet: template.targetStreet,
   );
 }
