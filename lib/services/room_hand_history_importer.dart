@@ -5,6 +5,7 @@ import '../models/action_entry.dart';
 import '../plugins/converters/pokerstars_hand_history_converter.dart';
 import '../plugins/converters/simple_hand_history_converter.dart';
 import '../plugins/converters/winamax_hand_history_converter.dart';
+import '../helpers/hand_history_parsing.dart';
 
 class RoomHandHistoryImporter {
   RoomHandHistoryImporter();
@@ -88,8 +89,8 @@ class RoomHandHistoryImporter {
       final m = RegExp(r'^Dealt to (.+?) \[(.+?) (.+?)\]').firstMatch(line);
       if (m != null) {
         heroName = m.group(1)!.trim();
-        final c1 = _parseCard(m.group(2)!);
-        final c2 = _parseCard(m.group(3)!);
+        final c1 = parseCard(m.group(2)!);
+        final c2 = parseCard(m.group(3)!);
         if (c1 != null && c2 != null) heroCards = [c1, c2];
         break;
       }
@@ -179,29 +180,5 @@ class RoomHandHistoryImporter {
       comment: tableName,
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
     );
-  }
-
-  CardModel? _parseCard(String token) {
-    if (token.length < 2) return null;
-    final rank = token.substring(0, token.length - 1).toUpperCase();
-    final suitChar = token[token.length - 1].toLowerCase();
-    String suit;
-    switch (suitChar) {
-      case 'h':
-        suit = '♥';
-        break;
-      case 'd':
-        suit = '♦';
-        break;
-      case 'c':
-        suit = '♣';
-        break;
-      case 's':
-        suit = '♠';
-        break;
-      default:
-        return null;
-    }
-    return CardModel(rank: rank, suit: suit);
   }
 }
