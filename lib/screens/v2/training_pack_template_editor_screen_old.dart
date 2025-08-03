@@ -25,18 +25,6 @@ class _CatStat {
   _CatStat({this.acc = 0, this.ev = 0, this.icm = 0});
 }
 
-List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
-  final map = <String, List<int>>{};
-  for (int i = 0; i < spots.length; i++) {
-    final h = spots[i].hand;
-    final hero = h.heroCards.replaceAll(' ', '');
-    final board = h.board.join();
-    final key = '${h.position.name}-$hero-$board';
-    map.putIfAbsent(key, () => []).add(i);
-  }
-  return [for (final g in map.values) if (g.length > 1) g];
-}
-
 double? averageFocusCoverage(
     Map<String, int> counts, Map<String, int> totals) {
   if (counts.isEmpty) return null;
@@ -5493,18 +5481,6 @@ class _Row {
   const _Row.spot(this.spot)
       : kind = _RowKind.spot,
         tag = '';
-}
-
-List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
-  final map = <String, List<int>>{};
-  for (int i = 0; i < spots.length; i++) {
-    final h = spots[i].hand;
-    final hero = h.heroCards.replaceAll(' ', '');
-    final board = h.board.join();
-    final key = '${h.position.name}-$hero-$board';
-    map.putIfAbsent(key, () => []).add(i);
-  }
-  return [for (final g in map.values) if (g.length > 1) g];
 }
 
 TrainingPackSpot? _copiedSpot;
