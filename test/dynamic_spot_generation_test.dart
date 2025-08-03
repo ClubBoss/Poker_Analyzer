@@ -79,6 +79,52 @@ meta:
     }
   });
 
+  test('dynamicParams textureTags generates ace high boards', () {
+    const yamlTags = '''
+id: gen_pack
+name: Generator Pack
+trainingType: mtt
+positions:
+  - hj
+meta:
+  dynamicParams:
+    position: hj
+    villainAction: "3bet 9.0"
+    handGroup: ["pockets"]
+    count: 3
+    textureTags: ['aceHigh']
+''';
+    final tpl = TrainingPackTemplateV2.fromYamlAuto(yamlTags);
+    expect(tpl.spots.length, 3);
+    for (final s in tpl.spots) {
+      expect(s.board.any((c) => c.startsWith('A')), true);
+    }
+  });
+
+  test('boardFilter overrides textureTags when conflicting', () {
+    const yamlOverride = '''
+id: gen_pack
+name: Generator Pack
+trainingType: mtt
+positions:
+  - hj
+meta:
+  dynamicParams:
+    position: hj
+    villainAction: "3bet 9.0"
+    handGroup: ["pockets"]
+    count: 3
+    textureTags: ['aceHigh']
+    boardFilter:
+      boardTexture: low
+''';
+    final tpl = TrainingPackTemplateV2.fromYamlAuto(yamlOverride);
+    expect(tpl.spots.length, 3);
+    for (final s in tpl.spots) {
+      expect(s.board.any((c) => c.startsWith('A')), false);
+    }
+  });
+
   test('dynamicParams boardStages generates full boards', () {
     const yaml4 = '''
 id: gen_pack

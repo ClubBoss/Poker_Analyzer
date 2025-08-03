@@ -13,6 +13,7 @@ import 'hero_position.dart';
 import 'training_pack_template.dart' show TrainingPackTemplate;
 import '../../services/training_spot_generator_service.dart';
 import '../../services/constraint_resolver_engine.dart';
+import '../../helpers/board_filtering_params_builder.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -42,8 +43,7 @@ class TrainingPackTemplateV2 {
   // Legacy fields kept for backwards compatibility.
   double? get requiresAccuracy =>
       (meta['requiresAccuracy'] as num?)?.toDouble();
-  int? get requiresVolume =>
-      (meta['requiresVolume'] as num?)?.toInt();
+  int? get requiresVolume => (meta['requiresVolume'] as num?)?.toInt();
 
   /// Ephemeral flag – marks automatically generated packs. Never
   /// serialized to or from disk.
@@ -96,29 +96,43 @@ class TrainingPackTemplateV2 {
   List<TrainingPackSpot> generateDynamicSpotSamples() {
     if (meta['dynamicParams'] is Map) {
       final m = ConstraintResolverEngine.normalizeParams(
-          Map<String, dynamic>.from(meta['dynamicParams']));
-      final boardFilter = m['boardFilter'] is Map
-          ? Map<String, dynamic>.from(m['boardFilter'])
-          : null;
+        Map<String, dynamic>.from(meta['dynamicParams']),
+      );
+      Map<String, dynamic>? boardFilter;
+      final tags = (m['textureTags'] as List?)?.cast<String>();
+      if (tags != null && tags.isNotEmpty) {
+        boardFilter = BoardFilteringParamsBuilder.build(tags);
+      }
+      if (m['boardFilter'] is Map) {
+        boardFilter = {
+          ...?boardFilter,
+          ...Map<String, dynamic>.from(m['boardFilter']),
+        };
+      }
+      if (boardFilter != null) {
+        m['boardFilter'] = boardFilter;
+      }
       final params = SpotGenerationParams(
         position: m['position']?.toString() ?? 'btn',
         villainAction: m['villainAction']?.toString() ?? '',
         handGroup: [
-          for (final g in (m['handGroup'] as List? ?? [])) g.toString()
+          for (final g in (m['handGroup'] as List? ?? [])) g.toString(),
         ],
         count: (m['count'] as num?)?.toInt() ?? 0,
         boardFilter: boardFilter,
         targetStreet: m['targetStreet']?.toString() ?? 'flop',
         boardStages: (m['boardStages'] as num?)?.toInt(),
       );
-      final gen = TrainingSpotGeneratorService()
-          .generate(params, dynamicParams: m);
+      final gen = TrainingSpotGeneratorService().generate(
+        params,
+        dynamicParams: m,
+      );
       return [
         for (final s in gen)
           TrainingPackSpot.fromTrainingSpot(
             s,
             villainAction: params.villainAction,
-          )
+          ),
       ];
     }
     final list = <TrainingPackSpot>[];
@@ -135,23 +149,37 @@ class TrainingPackTemplateV2 {
   }
 
   factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) {
-    final metaMap = j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {};
+    final metaMap = j['meta'] != null
+        ? Map<String, dynamic>.from(j['meta'])
+        : {};
 
     final dynParams = metaMap['dynamicParams'];
     var dynamicList = <DynamicSpotTemplate>[];
     var spots = <TrainingPackSpot>[];
 
     if (dynParams is Map) {
-      final norm = ConstraintResolverEngine
-          .normalizeParams(Map<String, dynamic>.from(dynParams));
-      final boardFilter = norm['boardFilter'] is Map
-          ? Map<String, dynamic>.from(norm['boardFilter'])
-          : null;
+      final norm = ConstraintResolverEngine.normalizeParams(
+        Map<String, dynamic>.from(dynParams),
+      );
+      Map<String, dynamic>? boardFilter;
+      final tags = (norm['textureTags'] as List?)?.cast<String>();
+      if (tags != null && tags.isNotEmpty) {
+        boardFilter = BoardFilteringParamsBuilder.build(tags);
+      }
+      if (norm['boardFilter'] is Map) {
+        boardFilter = {
+          ...?boardFilter,
+          ...Map<String, dynamic>.from(norm['boardFilter']),
+        };
+      }
+      if (boardFilter != null) {
+        norm['boardFilter'] = boardFilter;
+      }
       final params = SpotGenerationParams(
         position: norm['position']?.toString() ?? 'btn',
         villainAction: norm['villainAction']?.toString() ?? '',
         handGroup: [
-          for (final g in (norm['handGroup'] as List? ?? [])) g.toString()
+          for (final g in (norm['handGroup'] as List? ?? [])) g.toString(),
         ],
         count: (norm['count'] as num?)?.toInt() ?? 0,
         boardFilter: boardFilter,
@@ -159,14 +187,13 @@ class TrainingPackTemplateV2 {
         boardStages: (norm['boardStages'] as num?)?.toInt(),
       );
       final generator = TrainingSpotGeneratorService();
-      final genSpots =
-          generator.generate(params, dynamicParams: norm);
+      final genSpots = generator.generate(params, dynamicParams: norm);
       spots = [
         for (final s in genSpots)
           TrainingPackSpot.fromTrainingSpot(
             s,
             villainAction: params.villainAction,
-          )
+          ),
       ];
     } else {
       dynamicList = <DynamicSpotTemplate>[
@@ -212,7 +239,8 @@ class TrainingPackTemplateV2 {
         for (final p in (j['positions'] as List? ?? [])) p.toString(),
       ],
       meta: metaMap,
-      recommended: j['recommended'] as bool? ??
+      recommended:
+          j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
       requiresTheoryCompleted: j['meta'] is Map
           ? j['meta']['requiresTheoryCompleted'] == true
@@ -224,8 +252,9 @@ class TrainingPackTemplateV2 {
       requiredAccuracy: j['meta'] is Map
           ? (j['meta']['requiredAccuracy'] as num?)?.toDouble()
           : null,
-      minHands:
-          j['meta'] is Map ? (j['meta']['minHands'] as num?)?.toInt() : null,
+      minHands: j['meta'] is Map
+          ? (j['meta']['minHands'] as num?)?.toInt()
+          : null,
       dynamicSpots: dynamicList,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
@@ -323,8 +352,9 @@ class TrainingPackTemplateV2 {
   void addAll(List<SpotTemplate> newSpots) => spots.addAll(newSpots);
 
   /// Primary hero position inferred from [positions].
-  HeroPosition get heroPos =>
-      positions.isNotEmpty ? parseHeroPosition(positions.first) : HeroPosition.unknown;
+  HeroPosition get heroPos => positions.isNotEmpty
+      ? parseHeroPosition(positions.first)
+      : HeroPosition.unknown;
 
   /// Hero stack size in big blinds. Backwards compatible alias for [bb].
   int get heroBbStack => bb;
@@ -358,11 +388,9 @@ class TrainingPackTemplateV2 {
     positions: [template.heroPos.name],
     meta: Map<String, dynamic>.from(template.meta),
     recommended: template.recommended,
-    requiresTheoryCompleted:
-        template.meta['requiresTheoryCompleted'] == true,
+    requiresTheoryCompleted: template.meta['requiresTheoryCompleted'] == true,
     targetStreet: template.targetStreet,
-    requiredAccuracy:
-        (template.meta['requiredAccuracy'] as num?)?.toDouble(),
+    requiredAccuracy: (template.meta['requiredAccuracy'] as num?)?.toDouble(),
     minHands: (template.meta['minHands'] as num?)?.toInt(),
   );
 }
