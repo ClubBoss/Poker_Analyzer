@@ -55,4 +55,24 @@ meta:
     expect(tpl.spots.length, 3);
     expect(tpl.spotCount, 3);
   });
+
+  test('dynamicParams boardFilter filters unmatched boards', () {
+    const yaml3 = '''
+id: gen_pack
+name: Generator Pack
+trainingType: mtt
+positions:
+  - hj
+meta:
+  dynamicParams:
+    position: hj
+    villainAction: "3bet 9.0"
+    handGroup: ["pockets"]
+    count: 3
+    boardFilter: ["aceHigh"]
+''';
+    final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml3);
+    expect(tpl.spots.length, 0);
+    expect(tpl.spotCount, 0);
+  });
 }
