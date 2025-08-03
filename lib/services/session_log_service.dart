@@ -5,6 +5,7 @@ import 'cloud_sync_service.dart';
 import 'learning_path_personalization_service.dart';
 import 'pack_library_loader_service.dart';
 import 'smart_recommender_engine.dart';
+import 'training_progress_logger.dart';
 
 import '../models/training_result.dart';
 
@@ -168,6 +169,8 @@ class SessionLogService extends ChangeNotifier {
       ...?_sessions.template?.tags,
       ..._sessions.sessionTags,
     };
+    final meta =
+        TrainingProgressLogger.consumeMeta(_sessions.template?.id ?? '');
     final log = SessionLog(
       sessionId: s.id,
       templateId: s.templateId,
@@ -175,6 +178,12 @@ class SessionLogService extends ChangeNotifier {
       completedAt: s.completedAt!,
       correctCount: correct,
       mistakeCount: s.results.length - correct,
+      evPercent: meta?.evPercent,
+      accuracyBefore: meta?.accuracyBefore,
+      accuracyAfter: meta?.accuracyAfter,
+      handsBefore: meta?.handsBefore,
+      handsAfter: meta?.handsAfter,
+      unlockGoalReached: meta?.unlockGoalReached,
       categories: cats,
       tags: tags.toList(),
     );

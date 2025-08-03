@@ -465,7 +465,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           ),
       ];
 
-      unawaited(TrainingProgressLogger.completeSession(tpl.id, total));
+      unawaited(TrainingProgressLogger.finishSession(
+        tpl.id,
+        total,
+        evPercent: evAfter,
+        requiredAccuracy: tpl.requiredAccuracy,
+        minHands: tpl.minHands,
+      ));
       await service.complete(
         context,
         resultBuilder: (_) => TrainingSessionCompletionScreen(
