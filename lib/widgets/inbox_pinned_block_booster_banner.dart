@@ -6,6 +6,7 @@ import '../services/theory_block_library_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../screens/v2/training_pack_play_screen.dart';
 import '../screens/mini_lesson_screen.dart';
+import '../services/booster_interaction_tracker_service.dart';
 
 /// Banner that surfaces booster suggestions from pinned theory blocks with
 /// decayed tags.
@@ -86,7 +87,17 @@ class InboxPinnedBlockBoosterBanner extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor: accent,
-                  onPressed: () => _open(context, s),
+                  onPressed: () async {
+                    await BoosterInteractionTrackerService.instance
+                        .logOpened(s.tag);
+                    await _open(context, s);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  color: Colors.white70,
+                  onPressed: () => BoosterInteractionTrackerService.instance
+                      .logDismissed(s.tag),
                 ),
               ],
             ),
