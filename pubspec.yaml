@@ -113,6 +113,7 @@ flutter:
     - assets/theory_blocks/
     - assets/theory_tracks/
     - assets/mini_lessons/
+    - assets/theory_mini_lessons/
     - assets/mini_lesson_library.yaml
     - assets/lessons/
     - assets/lesson_tracks/
