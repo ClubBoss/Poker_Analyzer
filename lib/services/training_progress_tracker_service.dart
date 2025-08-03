@@ -1,28 +1,28 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'training_pack_stats_service.dart';
+import 'training_progress_notifier.dart';
+import 'training_progress_storage_service.dart';
 
-class TrainingProgressTrackerService extends ChangeNotifier {
-  TrainingProgressTrackerService._();
+class TrainingProgressTrackerService {
+  TrainingProgressTrackerService._({
+    TrainingProgressStorageService? storage,
+    TrainingProgressNotifier? notifier,
+  })  : _storage = storage ?? const TrainingProgressStorageService(),
+        notifier = notifier ?? TrainingProgressNotifier();
+
   static final instance = TrainingProgressTrackerService._();
 
-  String _key(String packId) => 'pack_progress_$packId';
+  final TrainingProgressStorageService _storage;
+  final TrainingProgressNotifier notifier;
 
-  Future<Set<String>> getCompletedSpotIds(String packId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_key(packId));
-    return list?.toSet() ?? {};
-  }
+  Future<Set<String>> getCompletedSpotIds(String packId) =>
+      _storage.loadCompletedSpotIds(packId);
 
   Future<void> recordSpotCompleted(String packId, String spotId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = _key(packId);
-    final ids = prefs.getStringList(key)?.toSet() ?? {};
+    final ids = await _storage.loadCompletedSpotIds(packId);
     if (ids.add(spotId)) {
-      await prefs.setStringList(key, ids.toList());
-      notifyListeners();
+      await _storage.saveCompletedSpotIds(packId, ids);
+      notifier.notifyProgressChanged();
     }
   }
 
