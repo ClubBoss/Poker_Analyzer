@@ -4,6 +4,7 @@ import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../models/training_spot.dart';
 import '../services/training_spot_storage_service.dart';
+import '../utils/stack_range_filter.dart';
 
 class TrainingPackController extends ChangeNotifier {
   final TrainingPack pack;
@@ -49,30 +50,15 @@ class TrainingPackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _matchStack(int stack) {
-    final r = _stackFilter;
-    if (r == null) return true;
-    if (r.endsWith('+')) {
-      final min = int.tryParse(r.substring(0, r.length - 1)) ?? 0;
-      return stack >= min;
-    }
-    final parts = r.split('-');
-    if (parts.length == 2) {
-      final min = int.tryParse(parts[0]) ?? 0;
-      final max = int.tryParse(parts[1]) ?? 0;
-      return stack >= min && stack <= max;
-    }
-    return true;
-  }
-
   void _applyStackFilter() {
+    final filter = StackRangeFilter(_stackFilter);
     _sessionHands = [
       for (final h in allHands)
-        if (_matchStack(h.stackSizes[h.heroIndex] ?? 0)) h,
+        if (filter.matches(h.stackSizes[h.heroIndex] ?? 0)) h,
     ];
     _spots = [
       for (final s in _allSpots)
-        if (_matchStack(s.stacks[s.heroIndex])) s,
+        if (filter.matches(s.stacks[s.heroIndex])) s,
     ];
   }
 
@@ -112,8 +98,9 @@ class TrainingPackController extends ChangeNotifier {
     _spots.insert(newIndex, item);
     final baseItem = _allSpots.removeAt(_allSpots.indexOf(item));
     final target = newIndex >= _spots.length ? null : _spots[newIndex];
-    final baseIndex =
-        target == null ? _allSpots.length : _allSpots.indexOf(target);
+    final baseIndex = target == null
+        ? _allSpots.length
+        : _allSpots.indexOf(target);
     _allSpots.insert(baseIndex, baseItem);
     saveSpots();
     notifyListeners();
@@ -125,4 +112,3 @@ class TrainingPackController extends ChangeNotifier {
     notifyListeners();
   }
 }
-
