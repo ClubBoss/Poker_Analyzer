@@ -1,5 +1,10 @@
+import 'package:json_annotation/json_annotation.dart';
+
 import 'card_model.dart';
 
+part 'hand_analysis_record.g.dart';
+
+@JsonSerializable()
 class HandAnalysisRecord {
   final String card1;
   final String card2;
@@ -10,6 +15,7 @@ class HandAnalysisRecord {
   final double icm;
   final String action;
   final String hint;
+  @JsonKey(fromJson: _dateFromJson, toJson: _dateToJson)
   final DateTime date;
 
   HandAnalysisRecord({
@@ -30,29 +36,12 @@ class HandAnalysisRecord {
         CardModel(rank: card2[0], suit: card2.substring(1)),
       ];
 
-  Map<String, dynamic> toJson() => {
-        'card1': card1,
-        'card2': card2,
-        'stack': stack,
-        'playerCount': playerCount,
-        'heroIndex': heroIndex,
-        'ev': ev,
-        'icm': icm,
-        'action': action,
-        'hint': hint,
-        'date': date.toIso8601String(),
-      };
+  factory HandAnalysisRecord.fromJson(Map<String, dynamic> json) =>
+      _$HandAnalysisRecordFromJson(json);
 
-  factory HandAnalysisRecord.fromJson(Map<String, dynamic> j) => HandAnalysisRecord(
-        card1: j['card1'] as String? ?? '',
-        card2: j['card2'] as String? ?? '',
-        stack: j['stack'] as int? ?? 0,
-        playerCount: j['playerCount'] as int? ?? 0,
-        heroIndex: j['heroIndex'] as int? ?? 0,
-        ev: (j['ev'] as num?)?.toDouble() ?? 0,
-        icm: (j['icm'] as num?)?.toDouble() ?? 0,
-        action: j['action'] as String? ?? '',
-        hint: j['hint'] as String? ?? '',
-        date: DateTime.tryParse(j['date'] as String? ?? '') ?? DateTime.now(),
-      );
+  Map<String, dynamic> toJson() => _$HandAnalysisRecordToJson(this);
+
+  static DateTime _dateFromJson(String? date) =>
+      DateTime.tryParse(date ?? '') ?? DateTime.now();
+  static String _dateToJson(DateTime date) => date.toIso8601String();
 }

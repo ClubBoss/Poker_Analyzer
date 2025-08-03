@@ -1,11 +1,17 @@
+import 'package:json_annotation/json_annotation.dart';
 
+part 'drill_result.g.dart';
+
+@JsonSerializable()
 class DrillResult {
   final String templateId;
   final String templateName;
+  @JsonKey(fromJson: _dateFromJson, toJson: _dateToJson)
   final DateTime date;
   final int total;
   final int correct;
   final double evLoss;
+  @JsonKey(defaultValue: [])
   final List<String> wrongSpotIds;
   DrillResult({
     required this.templateId,
@@ -17,23 +23,12 @@ class DrillResult {
     List<String>? wrongSpotIds,
   }) : wrongSpotIds = wrongSpotIds ?? [];
 
-  Map<String, dynamic> toJson() => {
-        'templateId': templateId,
-        'templateName': templateName,
-        'date': date.toIso8601String(),
-        'total': total,
-        'correct': correct,
-        'evLoss': evLoss,
-        if (wrongSpotIds.isNotEmpty) 'wrongSpotIds': wrongSpotIds,
-      };
+  factory DrillResult.fromJson(Map<String, dynamic> json) =>
+      _$DrillResultFromJson(json);
 
-  factory DrillResult.fromJson(Map<String, dynamic> j) => DrillResult(
-        templateId: j['templateId'] as String? ?? '',
-        templateName: j['templateName'] as String? ?? '',
-        date: DateTime.tryParse(j['date'] as String? ?? '') ?? DateTime.now(),
-        total: j['total'] as int? ?? 0,
-        correct: j['correct'] as int? ?? 0,
-        evLoss: (j['evLoss'] as num?)?.toDouble() ?? 0.0,
-        wrongSpotIds: [for (final id in (j['wrongSpotIds'] as List? ?? [])) id as String],
-      );
+  Map<String, dynamic> toJson() => _$DrillResultToJson(this);
+
+  static DateTime _dateFromJson(String? date) =>
+      DateTime.tryParse(date ?? '') ?? DateTime.now();
+  static String _dateToJson(DateTime date) => date.toIso8601String();
 }

@@ -1,7 +1,13 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'reinforcement_log.g.dart';
+
+@JsonSerializable()
 class ReinforcementLog {
   final String id;
   final String type;
   final String source;
+  @JsonKey(fromJson: _dateFromJson, toJson: _dateToJson)
   final DateTime timestamp;
 
   ReinforcementLog({
@@ -11,18 +17,12 @@ class ReinforcementLog {
     required this.timestamp,
   });
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'type': type,
-    'source': source,
-    'timestamp': timestamp.toIso8601String(),
-  };
+  factory ReinforcementLog.fromJson(Map<String, dynamic> json) =>
+      _$ReinforcementLogFromJson(json);
 
-  factory ReinforcementLog.fromJson(Map<String, dynamic> j) => ReinforcementLog(
-    id: j['id'] as String? ?? '',
-    type: j['type'] as String? ?? '',
-    source: j['source'] as String? ?? '',
-    timestamp:
-        DateTime.tryParse(j['timestamp'] as String? ?? '') ?? DateTime.now(),
-  );
+  Map<String, dynamic> toJson() => _$ReinforcementLogToJson(this);
+
+  static DateTime _dateFromJson(String? date) =>
+      DateTime.tryParse(date ?? '') ?? DateTime.now();
+  static String _dateToJson(DateTime date) => date.toIso8601String();
 }
