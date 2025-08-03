@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 
 import '../services/training_streak_tracker_service.dart';
 
@@ -58,7 +59,7 @@ class _TrainingStreakIndicatorState extends State<TrainingStreakIndicator>
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(8),
+      padding: kCardPadding,
       decoration: BoxDecoration(
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(8),

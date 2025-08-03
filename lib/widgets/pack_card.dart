@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -506,7 +507,7 @@ class _PackCardState extends State<PackCard>
                     Container(
                       width: double.infinity,
                       color: Colors.black87,
-                      padding: const EdgeInsets.all(8),
+                      padding: kCardPadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

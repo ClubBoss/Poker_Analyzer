@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 
 import '../models/v3/lesson_track.dart';
 import '../services/learning_path_unlock_engine.dart';
@@ -166,7 +167,7 @@ class _TrackUnlockPreviewCardState extends State<TrackUnlockPreviewCard> {
                     final pct = info.total == 0 ? 0.0 : info.met / info.total;
                     return Container(
                       width: 200,
-                      padding: const EdgeInsets.all(8),
+                      padding: kCardPadding,
                       decoration: BoxDecoration(
                         color: Colors.grey[800],
                         borderRadius: BorderRadius.circular(8),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 
 import 'skill_tree_stage_badge_icon.dart';
 
@@ -9,7 +10,7 @@ class SkillTreeStageBadgeLegendWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.all(8),
+      padding: kCardPadding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

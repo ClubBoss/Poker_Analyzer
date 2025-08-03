@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 
 import '../screens/tag_insight_screen.dart';
 
@@ -25,7 +26,7 @@ class TagSkillTile extends StatelessWidget {
                     builder: (_) => TagInsightScreen(tag: tag)),
               ),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: kCardPadding,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(8),

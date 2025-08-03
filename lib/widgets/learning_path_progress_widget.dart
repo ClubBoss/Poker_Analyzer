@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 
 import '../models/learning_path_template_v2.dart';
 import '../models/learning_path_progress_stats.dart';
@@ -41,7 +42,7 @@ class _LearningPathProgressWidgetState extends State<LearningPathProgressWidget>
     final pct = (section.completionPercent.clamp(0.0, 1.0) * 100).round();
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.all(8),
+      padding: kCardPadding,
       decoration: BoxDecoration(
         color: Colors.grey[800],
         borderRadius: BorderRadius.circular(6),

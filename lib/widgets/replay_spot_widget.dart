@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 
 import '../models/training_spot.dart';
 import '../models/action_entry.dart';
@@ -124,7 +125,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(8),
+      padding: kCardPadding,
       decoration: BoxDecoration(
         color: highlight ? Colors.redAccent.withOpacity(0.2) : Colors.white10,
         borderRadius: BorderRadius.circular(8),
@@ -185,7 +186,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
     final subset = TrainingSpot.fromJson(json);
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: kScreenPadding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
