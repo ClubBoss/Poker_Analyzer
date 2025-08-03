@@ -6,8 +6,9 @@ import 'booster_suggestion_engine.dart';
 import 'inbox_booster_tracker_service.dart';
 import 'recap_effectiveness_analyzer.dart';
 import 'goal_progress_persistence_service.dart';
+import '../utils/singleton_mixin.dart';
 
-class TheoryInboxGoalEngine {
+class TheoryInboxGoalEngine with SingletonMixin<TheoryInboxGoalEngine> {
   final BoosterSuggestionEngine booster;
   final InboxBoosterTrackerService tracker;
   final RecapEffectivenessAnalyzer recap;
@@ -20,7 +21,8 @@ class TheoryInboxGoalEngine {
         tracker = tracker ?? InboxBoosterTrackerService.instance,
         recap = recap ?? RecapEffectivenessAnalyzer.instance;
 
-  static final TheoryInboxGoalEngine instance = TheoryInboxGoalEngine();
+  static TheoryInboxGoalEngine get instance => SingletonMixin
+      .instance<TheoryInboxGoalEngine>(() => TheoryInboxGoalEngine());
 
   Future<List<XPGuidedGoal>> generateGoals({int maxGoals = 2}) async {
     if (maxGoals <= 0) return [];

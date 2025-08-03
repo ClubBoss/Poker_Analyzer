@@ -291,7 +291,7 @@ List<SingleChildWidget> buildTrainingProviders() {
     ChangeNotifierProvider(create: (_) => RewardService()..load()),
     ChangeNotifierProvider(create: (_) => RewardSystemService()..load()),
     ChangeNotifierProvider(create: (_) => CoinsService()..load()),
-    ChangeNotifierProvider(create: (_) => GoalEngine()),
+    ChangeNotifierProvider(create: (_) => GoalEngine.instance),
     ChangeNotifierProvider(create: (_) => DailyChallengeService()),
     ChangeNotifierProvider(
       create: (context) => DailySpotlightService(

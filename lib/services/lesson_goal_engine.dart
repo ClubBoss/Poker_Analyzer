@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'lesson_goal_streak_engine.dart';
+import '../utils/singleton_mixin.dart';
 
 class GoalProgress {
   final int current;
@@ -14,9 +15,11 @@ class GoalProgress {
   });
 }
 
-class LessonGoalEngine {
+class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
   LessonGoalEngine._();
-  static final LessonGoalEngine instance = LessonGoalEngine._();
+
+  static LessonGoalEngine get instance =>
+      SingletonMixin.instance<LessonGoalEngine>(() => LessonGoalEngine._());
 
   static const int _dailyTarget = 5;
   static const int _weeklyTarget = 25;

@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/goal.dart';
+import '../utils/singleton_mixin.dart';
 
-class GoalEngine extends ChangeNotifier {
-  static GoalEngine? _instance;
-  static GoalEngine get instance => _instance!;
-
-  GoalEngine() {
-    _instance = this;
+class GoalEngine extends ChangeNotifier with SingletonMixin<GoalEngine> {
+  GoalEngine._() {
     _init();
   }
+
+  static GoalEngine get instance =>
+      SingletonMixin.instance<GoalEngine>(() => GoalEngine._());
 
   static const _prefsKey = 'xp_goals';
   final List<Goal> _goals = [];
