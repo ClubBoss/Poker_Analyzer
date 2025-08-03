@@ -33,7 +33,8 @@ class YamlReader {
         ? await rootBundle.loadString(path)
         : await File(path).readAsString();
     final map = read(source);
-    if (map['template'] is Map && map['variants'] is List) {
+    if ((map['template'] is Map && map['variants'] is List) ||
+        map['templateSet'] is List) {
       final set = TrainingPackTemplateSet.fromJson(map);
       return const TrainingPackTemplateSetGenerator().generate(set);
     }
