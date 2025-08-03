@@ -1,0 +1,24 @@
+id: lesson_push_fold_btn_cash
+title: 'BTN Cash Push/Fold'
+content: 'Why and how to shove from the Button in cash games.'
+tags:
+  - pushFold
+  - btn
+  - cash
+  - beginner
+linkedPackIds:
+  - push_fold_btn_cash
+parts:
+  - title: 'Button position'
+    content: |
+      In cash games the Button acts last after the flop. This positional edge lets you
+      shove wider, knowing the blinds must act first postflop.
+  - title: 'Leveraging fold equity'
+    content: |
+      Your shove threatens the blinds with losing their entire stack. Many hands
+      fold, allowing you to win the pot immediately and avoid tricky flops.
+  - title: 'Understanding cash blinds'
+    content: |
+      Unlike tournaments, cash blind sizes never increase. Preserving chips matters,
+      so choose shoves that keep a workable stack while exploiting the blinds.
+type: mini
