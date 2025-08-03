@@ -140,42 +140,13 @@ import '../services/skill_tag_decay_tracker.dart';
 import '../services/smart_recap_scheduler.dart';
 import '../utils/loadable_extension.dart';
 import 'provider_globals.dart';
+import 'training_providers_stats.dart';
+import 'training_providers_packs.dart';
 
 /// Providers supporting training features such as history, stats and packs.
 List<SingleChildWidget> buildTrainingProviders() {
   return [
-    Provider(create: (_) => CloudTrainingHistoryService()..init()),
-    ChangeNotifierProvider(
-      create: (context) =>
-          TrainingSpotStorageService(cloud: context.read<CloudSyncService>()),
-    ),
-    ChangeNotifierProvider(
-      create: (context) =>
-          TrainingStatsService(cloud: context.read<CloudSyncService>())..init(),
-    ),
-    ChangeNotifierProvider(
-      create: (context) =>
-          SavedHandStorageService(cloud: context.read<CloudSyncService>())
-            ..init(),
-    ),
-    ChangeNotifierProvider(
-      create: (context) => SavedHandManagerService(
-        storage: context.read<SavedHandStorageService>(),
-        cloud: context.read<CloudSyncService>(),
-        stats: context.read<TrainingStatsService>(),
-      ),
-    ),
-    ChangeNotifierProvider(
-      create: (context) => SavedHandStatsService(
-        manager: context.read<SavedHandManagerService>(),
-      ),
-    ),
-    Provider(
-      create: (context) => SavedHandExportService(
-        manager: context.read<SavedHandManagerService>(),
-        stats: context.read<SavedHandStatsService>(),
-      ),
-    ),
+    ...buildTrainingStatsProviders(),
     ChangeNotifierProvider(
       create: (context) =>
           PlayerProgressService(hands: context.read<SavedHandManagerService>()),
@@ -225,40 +196,7 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) =>
           SessionPinService(cloud: context.read<CloudSyncService>())..init(),
     ),
-    ChangeNotifierProvider<TrainingPackStorageService>.value(
-      value: packStorage,
-    ),
-    Provider<TrainingPackCloudSyncService>.value(value: packCloud),
-    Provider<MistakePackCloudService>.value(value: mistakeCloud),
-    Provider<GoalSyncService>.value(value: goalSync),
-    ChangeNotifierProvider(create: (_) => TemplateStorageService()..init()),
-    ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..init()),
-    Provider(create: (_) => SmartReviewService.instance..init()),
-    ChangeNotifierProvider(
-      create: (context) => AdaptiveTrainingService(
-        templates: context.read<TemplateStorageService>(),
-        mistakes: context.read<MistakeReviewPackService>(),
-        hands: context.read<SavedHandManagerService>(),
-        history: context.read<HandAnalysisHistoryService>(),
-        xp: context.read<XPTrackerService>(),
-        forecast: context.read<ProgressForecastService>(),
-        style: context.read<PlayerStyleService>(),
-        styleForecast: context.read<PlayerStyleForecastService>(),
-      ),
-    ),
-    ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
-      value: templateStorage,
-    ),
-    Provider<FavoritePackService>.value(value: FavoritePackService.instance),
-    Provider<PackFavoriteService>.value(value: PackFavoriteService.instance),
-    Provider<PackRatingService>.value(value: PackRatingService.instance),
-    Provider<PinnedPackService>.value(value: PinnedPackService.instance),
-    ChangeNotifierProvider(
-      create: (context) => CategoryUsageService(
-        templates: context.read<TemplateStorageService>(),
-        packs: context.read<TrainingPackStorageService>(),
-      ),
-    ),
+    ...buildTrainingPackProviders(),
     ChangeNotifierProvider(create: (_) => DailyHandService()..init()),
     ChangeNotifierProvider(create: (_) => DailyTargetService()..init()),
     ChangeNotifierProvider(create: (_) => DailyTipService()..init()),
