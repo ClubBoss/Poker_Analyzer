@@ -49,6 +49,58 @@ class ConstraintSet {
     this.metaMergeMode = MergeMode.add,
     this.theoryLink,
   });
+
+  factory ConstraintSet.fromJson(Map<String, dynamic> json) {
+    final overrides = <String, List<dynamic>>{};
+    if (json['overrides'] is Map) {
+      (json['overrides'] as Map).forEach((key, value) {
+        overrides[key.toString()] = [
+          for (final v in (value as List? ?? [])) v,
+        ];
+      });
+    }
+    return ConstraintSet(
+      boardTags: [
+        for (final t in (json['boardTags'] as List? ?? [])) t.toString(),
+      ],
+      positions: [
+        for (final p in (json['positions'] as List? ?? [])) p.toString(),
+      ],
+      handGroup: [
+        for (final g in (json['handGroup'] as List? ?? [])) g.toString(),
+      ],
+      villainActions: [
+        for (final a in (json['villainActions'] as List? ?? [])) a.toString(),
+      ],
+      targetStreet: json['targetStreet']?.toString(),
+      overrides: overrides,
+      tags: [
+        for (final t in (json['tags'] as List? ?? [])) t.toString(),
+      ],
+      tagMergeMode: json['tagMergeMode'] == 'override'
+          ? MergeMode.override
+          : MergeMode.add,
+      metadata: json['metadata'] is Map
+          ? Map<String, dynamic>.from(json['metadata'])
+          : const {},
+      metaMergeMode: json['metaMergeMode'] == 'override'
+          ? MergeMode.override
+          : MergeMode.add,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (boardTags.isNotEmpty) 'boardTags': boardTags,
+        if (positions.isNotEmpty) 'positions': positions,
+        if (handGroup.isNotEmpty) 'handGroup': handGroup,
+        if (villainActions.isNotEmpty) 'villainActions': villainActions,
+        if (targetStreet != null) 'targetStreet': targetStreet,
+        if (overrides.isNotEmpty) 'overrides': overrides,
+        if (tags.isNotEmpty) 'tags': tags,
+        if (tagMergeMode == MergeMode.override) 'tagMergeMode': 'override',
+        if (metadata.isNotEmpty) 'metadata': metadata,
+        if (metaMergeMode == MergeMode.override) 'metaMergeMode': 'override',
+      };
 }
 
 /// Strategy for merging list/map data when applying a [ConstraintSet].
