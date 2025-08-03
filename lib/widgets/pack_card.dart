@@ -48,9 +48,12 @@ class _PackCardState extends State<PackCard>
         ? widget.template.spots.length
         : widget.template.spotCount;
     _rewardController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 700));
-    _confettiController =
-        ConfettiController(duration: const Duration(seconds: 2));
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
     _loadProgress();
     TrainingProgressTrackerService.instance.addListener(_loadProgress);
     _checkTheory();
@@ -72,8 +75,9 @@ class _PackCardState extends State<PackCard>
       _maybeShowReward();
     }
     final stat = await TrainingPackStatsService.getStats(widget.template.id);
-    final hands =
-        await TrainingPackStatsService.getHandsCompleted(widget.template.id);
+    final hands = await TrainingPackStatsService.getHandsCompleted(
+      widget.template.id,
+    );
     if (mounted) {
       setState(() {
         if (stat != null) _accuracy = stat.accuracy;
@@ -88,7 +92,8 @@ class _PackCardState extends State<PackCard>
         if (minHands != null && minHands > 0) {
           handsRatio = hands / minHands;
         }
-        _almostUnlocked = (accRatio >= 0.5 && accRatio < 1) ||
+        _almostUnlocked =
+            (accRatio >= 0.5 && accRatio < 1) ||
             (handsRatio >= 0.5 && handsRatio < 1);
       });
     }
@@ -126,8 +131,9 @@ class _PackCardState extends State<PackCard>
       await _checkPerformance();
       return;
     }
-    final done =
-        await TheoryLessonCompletionLogger.instance.isCompleted(lessonId);
+    final done = await TheoryLessonCompletionLogger.instance.isCompleted(
+      lessonId,
+    );
     if (mounted) {
       setState(() {
         _theoryCompleted = done;
@@ -145,12 +151,12 @@ class _PackCardState extends State<PackCard>
     final reqAcc = widget.template.requiredAccuracy;
     final minHands = widget.template.minHands;
     if (reqAcc == null && minHands == null) return;
-    final ok =
-        await TrainingPackPerformanceTrackerService.instance.meetsRequirements(
-      widget.template.id,
-      requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
-      minHands: minHands,
-    );
+    final ok = await TrainingPackPerformanceTrackerService.instance
+        .meetsRequirements(
+          widget.template.id,
+          requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
+          minHands: minHands,
+        );
     if (!ok && mounted && !kDebugMode) {
       setState(() {
         _locked = true;
@@ -184,8 +190,44 @@ class _PackCardState extends State<PackCard>
       _confettiController.stop();
       if (mounted) setState(() => _showReward = false);
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Пак и урок завершены!')),
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Пак и урок завершены!')));
+  }
+
+  Future<void> _showLockDetails() async {
+    final reqAcc = widget.template.requiredAccuracy;
+    final minHands = widget.template.minHands;
+    final needsTheory = widget.template.requiresTheoryCompleted;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Условия разблокировки'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (needsTheory)
+                Text(
+                  'Теория: ' + (_theoryCompleted ? 'пройдена' : 'не пройдена'),
+                ),
+              if (reqAcc != null)
+                Text(
+                  'Точность: ${((_accuracy ?? 0) * 100).toStringAsFixed(0)} / ${reqAcc.toStringAsFixed(0)}%',
+                ),
+              if (minHands != null) Text('Руки: $_handsCompleted / $minHands'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -208,6 +250,7 @@ class _PackCardState extends State<PackCard>
           widget.onTap();
         }
       },
+      onLongPress: _locked ? _showLockDetails : null,
       child: Stack(
         children: [
           Container(
@@ -219,13 +262,19 @@ class _PackCardState extends State<PackCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.template.name,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  widget.template.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text(widget.template.trainingType.name,
-                      style: const TextStyle(color: Colors.white70)),
+                  child: Text(
+                    widget.template.trainingType.name,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 ),
                 if ((widget.template.requiredAccuracy ?? 0) > 0 ||
                     (widget.template.minHands ?? 0) > 0)
@@ -238,9 +287,13 @@ class _PackCardState extends State<PackCard>
                 if (widget.template.tags.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text(widget.template.tags.join(', '),
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
+                    child: Text(
+                      widget.template.tags.join(', '),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 if (_total > 0) ...[
                   Padding(
@@ -248,16 +301,19 @@ class _PackCardState extends State<PackCard>
                     child: LinearProgressIndicator(
                       value: _completed / _total,
                       backgroundColor: Colors.white24,
-                      valueColor:
-                          const AlwaysStoppedAnimation<Color>(Colors.green),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.green,
+                      ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       '$_completed / $_total рук$accText',
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -296,9 +352,10 @@ class _PackCardState extends State<PackCard>
                 child: const Text(
                   'Почти разблокировано',
                   style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.black,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -318,8 +375,11 @@ class _PackCardState extends State<PackCard>
                 child: Center(
                   child: Tooltip(
                     message: _lockMsg ?? 'Пак заблокирован',
-                    child:
-                        const Icon(Icons.lock, color: Colors.white70, size: 48),
+                    child: const Icon(
+                      Icons.lock,
+                      color: Colors.white70,
+                      size: 48,
+                    ),
                   ),
                 ),
               ),
@@ -336,9 +396,14 @@ class _PackCardState extends State<PackCard>
               child: Center(
                 child: ScaleTransition(
                   scale: CurvedAnimation(
-                      parent: _rewardController, curve: Curves.elasticOut),
-                  child: const Icon(Icons.emoji_events,
-                      size: 64, color: Colors.amber),
+                    parent: _rewardController,
+                    curve: Curves.elasticOut,
+                  ),
+                  child: const Icon(
+                    Icons.emoji_events,
+                    size: 64,
+                    color: Colors.amber,
+                  ),
                 ),
               ),
             ),
