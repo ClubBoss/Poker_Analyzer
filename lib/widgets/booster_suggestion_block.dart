@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 
 import '../models/mistake_tag.dart';
@@ -8,20 +7,24 @@ import '../models/mistake_tag_cluster.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../services/booster_suggestion_engine.dart';
 import '../core/training/library/training_pack_library_v2.dart';
+import '../services/booster_suggestion_cache.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
 
 class BoosterSuggestionBlock extends StatefulWidget {
-  const BoosterSuggestionBlock({super.key});
+  final BoosterSuggestionCache cache;
+  const BoosterSuggestionBlock({super.key, BoosterSuggestionCache? cache})
+      : cache = cache ?? const BoosterSuggestionCache();
 
   @override
-  State<BoosterSuggestionBlock> createState() => _BoosterSuggestionBlockState();
+  State<BoosterSuggestionBlock> createState() =>
+      _BoosterSuggestionBlockState(cache);
 }
 
 class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
-  static const _cacheKey = 'smart_booster_cache';
-  static const _cacheTimeKey = 'smart_booster_cache_time';
+  final BoosterSuggestionCache cache;
+  _BoosterSuggestionBlockState(this.cache);
 
   bool _loading = true;
   TrainingPackTemplateV2? _pack;
@@ -33,23 +36,14 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cacheTimeStr = prefs.getString(_cacheTimeKey);
-    final cacheId = prefs.getString(_cacheKey);
-    final now = DateTime.now();
-    if (cacheTimeStr != null && cacheId != null) {
-      final ts = DateTime.tryParse(cacheTimeStr);
-      if (ts != null && now.difference(ts) < const Duration(hours: 24)) {
-        await TrainingPackLibraryV2.instance.loadFromFolder();
-        final tpl = TrainingPackLibraryV2.instance.getById(cacheId);
-        if (tpl != null) {
-          setState(() {
-            _pack = tpl;
-            _loading = false;
-          });
-          return;
-        }
-      }
+    final cached = await cache.load();
+    if (cached != null) {
+      if (!mounted) return;
+      setState(() {
+        _pack = cached;
+        _loading = false;
+      });
+      return;
     }
 
     final id = await const BoosterSuggestionEngine().suggestBooster();
@@ -57,8 +51,7 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
       await TrainingPackLibraryV2.instance.loadFromFolder();
       final tpl = TrainingPackLibraryV2.instance.getById(id);
       if (tpl != null) {
-        await prefs.setString(_cacheKey, tpl.id);
-        await prefs.setString(_cacheTimeKey, now.toIso8601String());
+        await cache.save(tpl);
         if (!mounted) return;
         setState(() {
           _pack = tpl;
