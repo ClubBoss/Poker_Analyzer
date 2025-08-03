@@ -7,3 +7,6 @@ nodes:
     next: [openfold_btn_vs_utg_cash]
   - type: stage
     stageId: openfold_btn_vs_utg_cash
+    next: [openfold_co_vs_hj_cash]
+  - type: stage
+    stageId: openfold_co_vs_hj_cash
