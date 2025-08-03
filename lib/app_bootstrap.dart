@@ -15,6 +15,7 @@ import 'services/training_pack_service.dart';
 import 'services/service_registry.dart';
 import 'services/pack_library_loader_service.dart';
 import 'services/xp_goal_panel_booster_injector.dart';
+import 'services/training_session_fingerprint_service.dart';
 import 'helpers/training_pack_storage.dart';
 import 'core/error_logger.dart';
 import 'core/plugin_runtime.dart';
@@ -44,6 +45,8 @@ class AppBootstrap {
       await TrainingPackService.generateDefaultPersonalPack(cloud: cloud);
     }
     registry.registerIfAbsent<EvaluationExecutor>(EvaluationExecutorService());
+    registry.registerIfAbsent<TrainingSessionFingerprintService>(
+        TrainingSessionFingerprintService());
     XpGoalPanelBoosterInjector.instance.inject();
     _registry = registry;
     return registry;

@@ -11,6 +11,8 @@ import '../services/inline_theory_linker.dart';
 import '../services/mistake_tag_classifier.dart';
 import '../models/training_spot_attempt.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../app_bootstrap.dart';
+import '../services/training_session_fingerprint_service.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   const TrainingPlayScreen({super.key});
@@ -23,22 +25,37 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
   EvaluationResult? _result;
   InlineTheoryLink? _theoryLink;
 
+  @override
+  void initState() {
+    super.initState();
+    AppBootstrap.registry
+        .get<TrainingSessionFingerprintService>()
+        .startSession();
+  }
+
   Future<void> _choose(String action) async {
     final controller = context.read<TrainingSessionController>();
     final spot = controller.currentSpot!;
     final res = await controller.evaluateSpot(context, spot, action);
+    final packSpot = TrainingPackSpot.fromTrainingSpot(spot);
+    final attempt = TrainingSpotAttempt(
+      spot: packSpot,
+      userAction: action.toLowerCase(),
+      correctAction: res.expectedAction.toLowerCase(),
+      evDiff: res.userEquity - res.expectedEquity,
+    );
+    List<String> tags;
     InlineTheoryLink? link;
-    if (!res.correct) {
-      final packSpot = TrainingPackSpot.fromTrainingSpot(spot);
-      final attempt = TrainingSpotAttempt(
-        spot: packSpot,
-        userAction: action.toLowerCase(),
-        correctAction: res.expectedAction.toLowerCase(),
-        evDiff: res.userEquity - res.expectedEquity,
-      );
-      final tags = const MistakeTagClassifier().classifyTheory(attempt);
+    if (res.correct) {
+      tags = spot.tags;
+      link = InlineTheoryLinker().getLink(tags);
+    } else {
+      tags = const MistakeTagClassifier().classifyTheory(attempt);
       link = InlineTheoryLinker().getLink(tags);
     }
+    await AppBootstrap.registry
+        .get<TrainingSessionFingerprintService>()
+        .logAttempt(attempt, shownTheoryTags: tags);
     setState(() {
       _result = res;
       _theoryLink = link;
