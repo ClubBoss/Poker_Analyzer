@@ -24,7 +24,8 @@ class PackCard extends StatefulWidget {
   State<PackCard> createState() => _PackCardState();
 }
 
-class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin {
+class _PackCardState extends State<PackCard>
+    with SingleTickerProviderStateMixin {
   late bool _favorite;
   bool _theoryCompleted = false;
   int _completed = 0;
@@ -33,6 +34,7 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   String? _lockMsg;
   double? _accuracy;
   int _handsCompleted = 0;
+  bool _almostUnlocked = false;
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -42,10 +44,11 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _favorite = PackFavoriteService.instance.isFavorite(widget.template.id);
-    _total =
-        widget.template.spots.isNotEmpty ? widget.template.spots.length : widget.template.spotCount;
-    _rewardController =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
+    _total = widget.template.spots.isNotEmpty
+        ? widget.template.spots.length
+        : widget.template.spotCount;
+    _rewardController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 700));
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 2));
     _loadProgress();
@@ -75,6 +78,18 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
       setState(() {
         if (stat != null) _accuracy = stat.accuracy;
         _handsCompleted = hands;
+        final reqAcc = widget.template.requiredAccuracy;
+        final minHands = widget.template.minHands;
+        double accRatio = 0;
+        double handsRatio = 0;
+        if (stat != null && reqAcc != null && reqAcc > 0) {
+          accRatio = (stat.accuracy * 100) / reqAcc;
+        }
+        if (minHands != null && minHands > 0) {
+          handsRatio = hands / minHands;
+        }
+        _almostUnlocked = (accRatio >= 0.5 && accRatio < 1) ||
+            (handsRatio >= 0.5 && handsRatio < 1);
       });
     }
     await _checkPerformance();
@@ -116,7 +131,8 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     if (mounted) {
       setState(() {
         _theoryCompleted = done;
-        _locked = widget.template.requiresTheoryCompleted && !done && !kDebugMode;
+        _locked =
+            widget.template.requiresTheoryCompleted && !done && !kDebugMode;
         _lockMsg = _locked ? 'Сначала пройдите теорию' : null;
       });
       _maybeShowReward();
@@ -129,8 +145,8 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     final reqAcc = widget.template.requiredAccuracy;
     final minHands = widget.template.minHands;
     if (reqAcc == null && minHands == null) return;
-    final ok = await TrainingPackPerformanceTrackerService.instance
-        .meetsRequirements(
+    final ok =
+        await TrainingPackPerformanceTrackerService.instance.meetsRequirements(
       widget.template.id,
       requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
       minHands: minHands,
@@ -152,7 +168,10 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   }
 
   Future<void> _maybeShowReward() async {
-    if (!_theoryCompleted || _total == 0 || _completed < _total || _showReward) {
+    if (!_theoryCompleted ||
+        _total == 0 ||
+        _completed < _total ||
+        _showReward) {
       return;
     }
     final prefs = await SharedPreferences.getInstance();
@@ -264,6 +283,25 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
               onPressed: _toggleFavorite,
             ),
           ),
+          if (_locked && _almostUnlocked)
+            Positioned(
+              top: 0,
+              right: 40,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'Почти разблокировано',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
           if (_total > 0 && _completed >= _total)
             const Positioned(
               bottom: 0,
@@ -280,7 +318,8 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
                 child: Center(
                   child: Tooltip(
                     message: _lockMsg ?? 'Пак заблокирован',
-                    child: const Icon(Icons.lock, color: Colors.white70, size: 48),
+                    child:
+                        const Icon(Icons.lock, color: Colors.white70, size: 48),
                   ),
                 ),
               ),
@@ -298,8 +337,8 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
                 child: ScaleTransition(
                   scale: CurvedAnimation(
                       parent: _rewardController, curve: Curves.elasticOut),
-                  child:
-                      const Icon(Icons.emoji_events, size: 64, color: Colors.amber),
+                  child: const Icon(Icons.emoji_events,
+                      size: 64, color: Colors.amber),
                 ),
               ),
             ),
