@@ -50,16 +50,20 @@ class TrainingPackController extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<T> _filterByStack<T>(Iterable<T> items, bool Function(T item) predicate) {
+    return [for (final item in items) if (predicate(item)) item];
+  }
+
   void _applyStackFilter() {
     final filter = StackRangeFilter(_stackFilter);
-    _sessionHands = [
-      for (final h in allHands)
-        if (filter.matches(h.stackSizes[h.heroIndex] ?? 0)) h,
-    ];
-    _spots = [
-      for (final s in _allSpots)
-        if (filter.matches(s.stacks[s.heroIndex])) s,
-    ];
+    _sessionHands = _filterByStack(
+      allHands,
+      (h) => filter.matches(h.stackSizes[h.heroIndex] ?? 0),
+    );
+    _spots = _filterByStack(
+      _allSpots,
+      (s) => filter.matches(s.stacks[s.heroIndex]),
+    );
   }
 
   void _commit() {
