@@ -12,6 +12,9 @@ import 'smart_recap_booster_launcher.dart';
 import 'smart_recap_booster_linker.dart';
 import 'training_pack_template_storage_service.dart';
 import 'pack_recall_stats_service.dart';
+import '../core/training/library/training_pack_library_v2.dart';
+import 'mini_lesson_library_service.dart';
+import '../screens/mini_lesson_screen.dart';
 
 /// Helper to start a training session from a pack template.
 class TrainingSessionLauncher {
@@ -19,16 +22,29 @@ class TrainingSessionLauncher {
 
   /// Launches a training session for [template]. If the pack only contains
   /// theory spots, shows [TheoryPackPreviewScreen] first.
-  Future<void> launch(TrainingPackTemplateV2 template,
-      {int startIndex = 0, List<String>? sessionTags}) async {
+  Future<void> launch(
+    TrainingPackTemplateV2 template, {
+    int startIndex = 0,
+    List<String>? sessionTags,
+  }) async {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
 
+    if (template.id == TrainingPackLibraryV2.mvpPackId) {
+      await MiniLessonLibraryService.instance.loadAll();
+      final lesson = MiniLessonLibraryService.instance.getById(
+        'lesson_push_fold_intro',
+      );
+      if (lesson != null) {
+        await Navigator.push(
+          ctx,
+          MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+        );
+      }
+    }
+
     unawaited(
-      PackRecallStatsService.instance.recordReview(
-        template.id,
-        DateTime.now(),
-      ),
+      PackRecallStatsService.instance.recordReview(template.id, DateTime.now()),
     );
 
     if (template.spots.every((s) => s.type == 'theory')) {
@@ -46,18 +62,18 @@ class TrainingSessionLauncher {
     await Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (_) => TrainingSessionScreen(
-          pack: pack,
-          startIndex: startIndex,
-        ),
+        builder: (_) =>
+            TrainingSessionScreen(pack: pack, startIndex: startIndex),
       ),
     );
     unawaited(AchievementsEngine.instance.checkAll());
   }
 
   /// Finds and launches a booster drill relevant to [lesson].
-  Future<void> launchForMiniLesson(TheoryMiniLessonNode lesson,
-      {List<String>? sessionTags}) async {
+  Future<void> launchForMiniLesson(
+    TheoryMiniLessonNode lesson, {
+    List<String>? sessionTags,
+  }) async {
     final service = SmartRecapBoosterLauncher(
       linker: SmartRecapBoosterLinker(
         storage: TrainingPackTemplateStorageService(),
