@@ -33,7 +33,10 @@ class PathNodeTile extends StatelessWidget {
       title = lesson?.resolvedTitle ?? node.miniLessonId ?? '';
       icon = const Text('📘', style: TextStyle(fontSize: 24));
     } else {
-      title = pack?.name ?? node.trainingPackTemplateId ?? '';
+      title = pack?.name ??
+          node.trainingPackTemplateId ??
+          node.dynamicPackId ??
+          '';
       icon = const Text('🃏', style: TextStyle(fontSize: 24));
     }
 

@@ -83,7 +83,9 @@ class TrainingPackV2 {
 
   factory TrainingPackV2.fromTemplate(TrainingPackTemplateV2 t, String id) {
     final spotList =
-        t.dynamicSpots.isNotEmpty ? t.generateDynamicSpotSamples() : t.spots;
+        (t.dynamicSpots.isNotEmpty || t.meta['dynamicParams'] is Map)
+            ? t.generateDynamicSpotSamples()
+            : t.spots;
     return TrainingPackV2(
       id: id,
       sourceTemplateId: t.id,
