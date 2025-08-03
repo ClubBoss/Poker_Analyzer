@@ -49,7 +49,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   late TagMasteryService _mastery;
   late LearningPathPrefs _prefs;
   final _gatekeeper = const LearningPathStageGatekeeperService();
-  final _smartUnlock = const SmartStageUnlockService();
+  late SmartStageUnlockService _smartUnlock;
   final _progressTracker = const LearningPathProgressTrackerService();
 
   bool _loading = true;
@@ -96,6 +96,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     _logs = context.read<SessionLogService>();
     _mastery = context.read<TagMasteryService>();
     _prefs = context.read<LearningPathPrefs>();
+    _smartUnlock = SmartStageUnlockService(logs: _logs);
     _load();
   }
 
@@ -130,11 +131,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     }
     final skillMap =
         LearningPathPersonalizationService.instance.getTagSkillMap();
-    final extra = _smartUnlock.getAdditionalUnlockedStageIds(
-      progress: aggregated,
-      skillMap: skillMap,
-      path: widget.template,
-    ).toSet();
+    final extra = _smartUnlock
+        .getAdditionalUnlockedStageIds(
+          skillMap: skillMap,
+          path: widget.template,
+        )
+        .toSet();
     final states = <String, LearningStageUIState>{};
     for (int i = 0; i < widget.template.stages.length; i++) {
       final stage = widget.template.stages[i];
@@ -145,14 +147,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final accuracy = total == 0 ? 0.0 : correct / total * 100;
       final boosterOk = boosterMap[stage.id] == null;
       final theoryOk = boosterOk && (theoryMap[stage.id] ?? true);
-      final done =
-          theoryOk && total >= stage.minHands && accuracy >= stage.requiredAccuracy;
+      final done = theoryOk &&
+          total >= stage.requiredHands &&
+          accuracy >= stage.requiredAccuracy;
       if (done) {
         states[stage.id] = LearningStageUIState.done;
       } else if (_gatekeeper.isStageUnlocked(
           index: i,
           path: widget.template,
-          logs: aggregated,
+          logs: _logs,
           additionalUnlockedStageIds: extra)) {
         states[stage.id] = LearningStageUIState.active;
       } else {
@@ -302,7 +305,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final mistakes = log?.mistakeCount ?? 0;
     final hands = correct + mistakes;
     final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-    if (hands >= stage.minHands && accuracy >= stage.requiredAccuracy) {
+    if (hands >= stage.requiredHands && accuracy >= stage.requiredAccuracy) {
       return true;
     }
     var map = _masteryMap;
@@ -479,6 +482,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final boosterPending = _nextBooster[stage.id] != null;
     final theoryPending =
         stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false);
+    Widget iconWidget = Icon(icon, color: color);
+    if (state == LearningStageUIState.locked) {
+      iconWidget = Tooltip(
+        message:
+            'Нужно ${stage.requiredHands} рук с точностью не менее ${stage.requiredAccuracy.toStringAsFixed(0)}%',
+        child: iconWidget,
+      );
+    }
     if (state == LearningStageUIState.active) {
       if (boosterPending) {
         icon = Icons.menu_book;
@@ -510,7 +521,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           StageProgressChip(
             log: log,
             requiredAccuracy: stage.requiredAccuracy,
-            minHands: stage.minHands,
+            requiredHands: stage.requiredHands,
           ),
         ],
       );
@@ -518,7 +529,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       subtitle = StageProgressChip(
         log: log,
         requiredAccuracy: stage.requiredAccuracy,
-        minHands: stage.minHands,
+        requiredHands: stage.requiredHands,
       );
     }
     final highlight = widget.highlightedStageId == stage.id;
@@ -562,7 +573,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               ),
             if (state == LearningStageUIState.active && !boosterPending && !theoryPending)
               const SizedBox(width: 4),
-            Icon(icon, color: color),
+            iconWidget,
             const SizedBox(width: 4),
             Text(label, style: TextStyle(color: color)),
           ],

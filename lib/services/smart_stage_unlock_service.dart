@@ -1,22 +1,30 @@
 import '../models/learning_path_template_v2.dart';
-import '../models/session_log.dart';
+import '../models/learning_path_stage_model.dart';
 import 'learning_path_stage_gatekeeper_service.dart';
+import 'session_log_service.dart';
 
 /// Computes additional stage unlocks based on player's weakest tags.
 class SmartStageUnlockService {
+  final SessionLogService logs;
   final LearningPathStageGatekeeperService gatekeeper;
   final double weaknessThreshold;
   final int maxPerTag;
 
-  const SmartStageUnlockService({
+  SmartStageUnlockService({
+    required this.logs,
     this.gatekeeper = const LearningPathStageGatekeeperService(),
     this.weaknessThreshold = 0.6,
     this.maxPerTag = 1,
   });
 
+  bool isStageUnlocked(LearningPathStageModel stage) {
+    final stats = logs.getStats(stage.packId);
+    return stats.handsPlayed >= stage.requiredHands &&
+        stats.accuracy >= stage.requiredAccuracy;
+  }
+
   /// Returns IDs of stages that should be unlocked early for reinforcement.
   List<String> getAdditionalUnlockedStageIds({
-    required Map<String, SessionLog> progress,
     required Map<String, double> skillMap,
     required LearningPathTemplateV2 path,
   }) {
@@ -25,15 +33,12 @@ class SmartStageUnlockService {
 
     for (var i = 0; i < path.stages.length; i++) {
       final stage = path.stages[i];
-      final log = progress[stage.packId];
-      final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
-      final accuracy = hands == 0 ? 0.0 : (log!.correctCount / hands) * 100;
-      final done = hands >= stage.minHands && accuracy >= stage.requiredAccuracy;
+      final done = isStageUnlocked(stage);
       if (done) completed.add(stage.id);
       if (gatekeeper.isStageUnlocked(
         index: i,
         path: path,
-        logs: progress,
+        logs: logs,
       )) {
         defaultUnlocked.add(stage.id);
       }

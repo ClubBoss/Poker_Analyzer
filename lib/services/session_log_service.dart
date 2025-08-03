@@ -11,6 +11,12 @@ import '../models/training_result.dart';
 import '../models/session_log.dart';
 import 'training_session_service.dart';
 
+class StageStats {
+  final int handsPlayed;
+  final double accuracy;
+  const StageStats({required this.handsPlayed, required this.accuracy});
+}
+
 class SessionLogService extends ChangeNotifier {
   SessionLogService({required TrainingSessionService sessions, this.cloud})
       : _sessions = sessions {
@@ -27,6 +33,19 @@ class SessionLogService extends ChangeNotifier {
   final Set<String> _logged = {};
 
   List<SessionLog> get logs => List.unmodifiable(_logs);
+
+  StageStats getStats(String templateId) {
+    int hands = 0;
+    int correct = 0;
+    for (final log in _logs) {
+      if (log.templateId == templateId) {
+        hands += log.correctCount + log.mistakeCount;
+        correct += log.correctCount;
+      }
+    }
+    final acc = hands == 0 ? 0.0 : correct / hands * 100;
+    return StageStats(handsPlayed: hands, accuracy: acc);
+  }
 
   Future<void> load() async {
     if (!Hive.isBoxOpen('session_logs')) {

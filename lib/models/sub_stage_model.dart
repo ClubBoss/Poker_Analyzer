@@ -5,7 +5,9 @@ class SubStageModel {
   final String packId;
   final String title;
   final String description;
-  final int minHands;
+  final int requiredHands;
+  @Deprecated('Use requiredHands instead')
+  int get minHands => requiredHands;
   final double requiredAccuracy;
   final List<String> objectives;
   final UnlockCondition? unlockCondition;
@@ -15,11 +17,12 @@ class SubStageModel {
     required this.packId,
     required this.title,
     this.description = '',
-    this.minHands = 0,
+    int? requiredHands,
+    int minHands = 0,
     this.requiredAccuracy = 0,
     this.objectives = const [],
     this.unlockCondition,
-  });
+  }) : requiredHands = requiredHands ?? minHands;
 
   factory SubStageModel.fromJson(Map<String, dynamic> json) {
     return SubStageModel(
@@ -27,7 +30,9 @@ class SubStageModel {
       packId: json['packId'] as String? ?? json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      minHands: (json['minHands'] as num?)?.toInt() ?? 0,
+      requiredHands: (json['requiredHands'] as num?)?.toInt() ??
+          (json['minHands'] as num?)?.toInt() ??
+          0,
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
       objectives: [
         for (final o in (json['objectives'] as List? ?? [])) o.toString()
@@ -44,7 +49,7 @@ class SubStageModel {
         'packId': packId,
         'title': title,
         if (description.isNotEmpty) 'description': description,
-        if (minHands > 0) 'minHands': minHands,
+        if (requiredHands > 0) 'requiredHands': requiredHands,
         if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
         if (objectives.isNotEmpty) 'objectives': objectives,
         if (unlockCondition != null)
