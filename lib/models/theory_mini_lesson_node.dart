@@ -68,7 +68,8 @@ class TheoryMiniLessonNode implements LearningPathNode {
         tags.add(t.toString());
       }
     }
-    final nextIds = <String>[for (final v in (yaml['next'] as List? ?? [])) v.toString()];
+    final rawNext = yaml['nextIds'] ?? yaml['next'];
+    final nextIds = <String>[for (final v in (rawNext as List? ?? [])) v.toString()];
     final linked = <String>[for (final v in (yaml['linkedPackIds'] as List? ?? [])) v.toString()];
     return TheoryMiniLessonNode(
       id: yaml['id']?.toString() ?? '',

@@ -1,0 +1,7 @@
+id: risk_reward_tradeoff
+title: 'Risk-Reward Tradeoff'
+tags: ['pushfold', 'risk', 'reward']
+content: |-
+  Each shove risks your tournament life for the chance to win blinds and antes.
+  Weigh the chips gained against elimination to choose profitable shoves.
+nextIds: ['positional_decisions']

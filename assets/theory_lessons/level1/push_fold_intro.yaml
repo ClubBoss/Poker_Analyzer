@@ -1,0 +1,7 @@
+id: push_fold_intro
+title: 'What is Push/Fold?'
+tags: ['pushfold', 'intro']
+content: |-
+  Push/fold is the short-stack strategy where you either go all-in or fold before the flop.
+  It simplifies decisions and maximizes fold equity when your stack is shallow.
+nextIds: ['basic_range_logic']

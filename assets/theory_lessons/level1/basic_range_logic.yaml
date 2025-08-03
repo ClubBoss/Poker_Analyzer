@@ -1,0 +1,7 @@
+id: basic_range_logic
+title: 'Basic Range Logic'
+tags: ['pushfold', 'range', 'basics']
+content: |-
+  Push ranges tighten or loosen based on stack depth and opponent tendencies.
+  Recognize when to shove wider or narrower to remain profitable.
+nextIds: ['effective_stack_sizes']

@@ -1,0 +1,7 @@
+id: effective_stack_sizes
+title: 'Effective Stack Sizes and BB'
+tags: ['pushfold', 'stack', 'bb']
+content: |-
+  Effective stack size is the smaller of the two stacks in a hand.
+  Expressing stacks in big blinds standardizes decisions across blind levels.
+nextIds: ['risk_reward_tradeoff']
