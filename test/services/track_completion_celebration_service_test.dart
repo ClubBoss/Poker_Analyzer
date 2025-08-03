@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,7 +56,7 @@ void main() {
     await svc.maybeCelebrate('T');
     await tester.pumpAndSettle();
 
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(DarkAlertDialog), findsOneWidget);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('track_completion_shown_T'), isTrue);
   });
@@ -74,21 +75,27 @@ void main() {
     await svc.maybeCelebrate('T');
     await tester.pump();
 
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(DarkAlertDialog), findsNothing);
   });
 
   testWidgets('offers next track navigation', (tester) async {
-    final node1 = SkillTreeNodeModel(id: 'a', title: 'A', category: 'T1', level: 0);
-    final node2 = SkillTreeNodeModel(id: 'b', title: 'B', category: 'T2', level: 0);
+    final node1 =
+        SkillTreeNodeModel(id: 'a', title: 'A', category: 'T1', level: 0);
+    final node2 =
+        SkillTreeNodeModel(id: 'b', title: 'B', category: 'T2', level: 0);
     const builder = SkillTreeBuilderService();
     final tree1 = builder.build([node1]).tree;
     final tree2 = builder.build([node2]).tree;
     final lib = _FakeLibraryService({
       'T1': SkillTreeBuildResult(tree: tree1),
       'T2': SkillTreeBuildResult(tree: tree2),
-    }, [node1, node2]);
+    }, [
+      node1,
+      node2
+    ]);
 
-    TrackRecommendationEngine.instance = TrackRecommendationEngine(library: lib);
+    TrackRecommendationEngine.instance =
+        TrackRecommendationEngine(library: lib);
     String opened = '';
     SkillTreeNavigator.instance = _RecordingSkillTreeNavigator((id) {
       opened = id;

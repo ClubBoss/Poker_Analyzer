@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -22,9 +23,9 @@ class StageCompletionCelebrationService {
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeStageCompletionEvaluator? evaluator,
-  }) : library = library ?? SkillTreeLibraryService.instance,
-       progress = progress ?? SkillTreeNodeProgressTracker.instance,
-       evaluator = evaluator ?? const SkillTreeStageCompletionEvaluator();
+  })  : library = library ?? SkillTreeLibraryService.instance,
+        progress = progress ?? SkillTreeNodeProgressTracker.instance,
+        evaluator = evaluator ?? const SkillTreeStageCompletionEvaluator();
 
   static StageCompletionCelebrationService instance =
       StageCompletionCelebrationService();
@@ -57,7 +58,7 @@ class StageCompletionCelebrationService {
 
     await showDialog<void>(
       context: ctx,
-      builder: (context) => AlertDialog(
+      builder: (context) => DarkAlertDialog(
         title: const Text('Этап завершён'),
         content: Text('Этап $stageIndex успешно завершён!'),
         actions: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dark_alert_dialog.dart';
 
 import 'confetti_overlay.dart';
 
@@ -13,8 +14,7 @@ class TrackCelebrationDialog extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showConfettiOverlay(context);
     });
-    return AlertDialog(
-      backgroundColor: Colors.grey[900],
+    return DarkAlertDialog(
       title: const Text('🎉 Трек завершён!',
           style: TextStyle(color: Colors.white)),
       content: Text(

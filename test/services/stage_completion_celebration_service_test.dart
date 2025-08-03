@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -67,7 +68,7 @@ void main() {
     await svc.checkAndCelebrate('T');
     await tester.pumpAndSettle();
 
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(DarkAlertDialog), findsOneWidget);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('stage_celebrated_T_0'), isTrue);
   });
@@ -95,6 +96,6 @@ void main() {
     await svc.checkAndCelebrate('T');
     await tester.pump();
 
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(DarkAlertDialog), findsNothing);
   });
 }

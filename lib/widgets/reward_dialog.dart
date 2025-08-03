@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dark_alert_dialog.dart';
 import 'confetti_overlay.dart';
 
 class RewardDialog extends StatelessWidget {
@@ -10,9 +11,7 @@ class RewardDialog extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showConfettiOverlay(context);
     });
-    return AlertDialog(
-      backgroundColor: Colors.grey[900],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    return DarkAlertDialog(
       title: const Text('Reward'),
       content: Text('+$reward'),
       actions: [
