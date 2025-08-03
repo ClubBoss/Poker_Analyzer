@@ -19,6 +19,7 @@ import '../widgets/common/session_accuracy_distribution_chart.dart';
 import '../widgets/common/mistake_by_street_chart.dart';
 import '../widgets/common/session_volume_accuracy_chart.dart';
 import '../helpers/poker_street_helper.dart';
+import '../helpers/date_utils.dart';
 import 'saved_hands_screen.dart';
 import 'mistake_overview_screen.dart';
 import 'accuracy_mistake_overview_screen.dart';
@@ -92,15 +93,6 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         .where((h) => _selectedStreets.contains(h.boardStreet.clamp(0, 3)))
         .toList();
     return hands;
-  }
-
-  String _formatDuration(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes.remainder(60);
-    final parts = <String>[];
-    if (h > 0) parts.add('$hч');
-    parts.add('$mм');
-    return parts.join(' ');
   }
 
   List<_WeekData> _weeklyWinrates(Map<int, List<SavedHand>> data) {
@@ -575,7 +567,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       ..writeln('# Статистика сессий')
       ..writeln('- Всего раздач: ${summary.totalHands}')
       ..writeln(
-          '- Средняя длительность: ${_formatDuration(summary.avgDuration)}');
+          '- Средняя длительность: ${formatDuration(summary.avgDuration)}');
     if (summary.overallAccuracy != null) {
       buffer.writeln(
           '- Точность: ${summary.overallAccuracy!.toStringAsFixed(1)}%');
@@ -671,7 +663,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
             pw.Text('Всего раздач: ${summary.totalHands}',
                 style: pw.TextStyle(font: regularFont)),
             pw.Text(
-                'Средняя длительность: ${_formatDuration(summary.avgDuration)}',
+                'Средняя длительность: ${formatDuration(summary.avgDuration)}',
                 style: pw.TextStyle(font: regularFont)),
             if (summary.overallAccuracy != null)
               pw.Text(
@@ -894,8 +886,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
               ),
             ),
           _buildStat('Всего раздач', summary.totalHands.toString(), scale),
-          _buildStat('Сред. длительность', _formatDuration(summary.avgDuration),
-              scale),
+          _buildStat(
+              'Сред. длительность', formatDuration(summary.avgDuration), scale),
           if (summary.overallAccuracy != null)
             _buildStat('Точность',
                 '${summary.overallAccuracy!.toStringAsFixed(1)}%', scale),

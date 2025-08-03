@@ -63,15 +63,6 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     return 'Other';
   }
 
-  String _formatDuration(Duration d) {
-    final hours = d.inHours;
-    final minutes = d.inMinutes.remainder(60);
-    final parts = <String>[];
-    if (hours > 0) parts.add('$hoursч');
-    parts.add('$minutesм');
-    return parts.join(' ');
-  }
-
   PageRouteBuilder _buildSwipeRoute(int targetId, {required bool fromRight}) {
     final begin = fromRight ? const Offset(1, 0) : const Offset(-1, 0);
     return PageRouteBuilder(
@@ -126,7 +117,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                   style: const TextStyle(color: Colors.white)),
               Text('Конец: ${formatDateTime(end)}',
                   style: const TextStyle(color: Colors.white)),
-              Text('Длительность: ${_formatDuration(duration)}',
+              Text('Длительность: ${formatDuration(duration)}',
                   style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 4),
               Text('Верно: $correct • Ошибки: $incorrect',

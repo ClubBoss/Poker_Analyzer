@@ -110,7 +110,7 @@ class _PlaybackControlsSection extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                "Step $playbackIndex / $actionCount${isPlaying ? " - " + _formatDuration(elapsedTime) : ""}",
+                "Step $playbackIndex / $actionCount${isPlaying ? " - " + formatDuration(elapsedTime) : ""}",
                 style: const TextStyle(color: Colors.white),
               ),
             ],
@@ -236,8 +236,4 @@ class PlaybackControls extends StatelessWidget {
     );
   }
 }
-String _formatDuration(Duration d) {
-  final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-  final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-  return '$minutes:$seconds';
-}
+

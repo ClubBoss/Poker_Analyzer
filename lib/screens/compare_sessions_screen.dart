@@ -42,15 +42,6 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
     setState(() {});
   }
 
-  String _formatDuration(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes.remainder(60);
-    final parts = <String>[];
-    if (h > 0) parts.add('$hч');
-    parts.add('$mм');
-    return parts.join(' ');
-  }
-
   Widget _buildRow(String label, String left, String right) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -132,7 +123,7 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
           _buildRow('Споты', _first!.results.length.toString(), _second!.results.length.toString()),
           _buildRow('Верно', firstCorrect.toString(), secondCorrect.toString()),
           _buildRow('Ошибки', firstMistakes.toString(), secondMistakes.toString()),
-          _buildRow('Длительность', _formatDuration(firstDuration), _formatDuration(secondDuration)),
+          _buildRow('Длительность', formatDuration(firstDuration), formatDuration(secondDuration)),
           if (spots.isNotEmpty) ...[
             const SizedBox(height: 16),
             const Text('Совпадающие споты', style: TextStyle(color: Colors.white)),
