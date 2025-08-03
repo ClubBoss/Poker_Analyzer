@@ -5,6 +5,7 @@ class SharedPrefsKeys {
   static String boosterInboxLast(String tag) => 'booster_inbox_last_$tag';
   static const String boosterInboxTotalDate = 'booster_inbox_total_date';
   static const String boosterInboxTotalCount = 'booster_inbox_total_count';
+  static const String boosterExclusionLog = 'booster_exclusion_log';
 
   static const String boosterOpenedPrefix = 'booster_opened_';
   static String boosterOpened(String tag) => '${boosterOpenedPrefix}$tag';
