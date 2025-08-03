@@ -22,22 +22,29 @@ class ConstraintResolverEngine {
     }
 
     if (constraints.handGroup.isNotEmpty &&
-        !candidate.handGroup.any((h) =>
-            constraints.handGroup.map((e) => e.toLowerCase()).contains(h.toLowerCase()))) {
+        !candidate.handGroup.any(
+          (h) => constraints.handGroup
+              .map((e) => e.toLowerCase())
+              .contains(h.toLowerCase()),
+        )) {
       return false;
     }
 
     if (constraints.boardTags.isNotEmpty) {
-      final actualTags = _tagger.tag(candidate.board);
-      if (!constraints.boardTags
-          .every((tag) => actualTags.contains(tag))) {
+      final actualTags =
+          _tagger.tag(candidate.board).map((t) => t.toLowerCase()).toSet();
+      final required =
+          constraints.boardTags.map((t) => t.toLowerCase()).toList();
+      if (!required.every(actualTags.contains)) {
         return false;
       }
     }
 
     if (constraints.villainActions.isNotEmpty &&
         !_actionMatcher.matches(
-            candidate.villainActions, constraints.villainActions)) {
+          candidate.villainActions,
+          constraints.villainActions,
+        )) {
       return false;
     }
 
