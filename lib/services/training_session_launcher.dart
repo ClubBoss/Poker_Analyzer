@@ -16,6 +16,8 @@ import '../core/training/library/training_pack_library_v2.dart';
 import 'mini_lesson_library_service.dart';
 import '../screens/mini_lesson_screen.dart';
 import 'theory_lesson_completion_logger.dart';
+import 'training_pack_stats_service.dart';
+import '../widgets/unlock_progress_dialog.dart';
 
 /// Helper to start a training session from a pack template.
 class TrainingSessionLauncher {
@@ -68,6 +70,9 @@ class TrainingSessionLauncher {
       return;
     }
 
+    final statBefore = await TrainingPackStatsService.getStats(template.id);
+    final handsBefore = await TrainingPackStatsService.getHandsCompleted(template.id);
+
     final pack = TrainingPackV2.fromTemplate(template, template.id);
     await Navigator.push(
       ctx,
@@ -77,6 +82,20 @@ class TrainingSessionLauncher {
       ),
     );
     unawaited(AchievementsEngine.instance.checkAll());
+
+    final statAfter = await TrainingPackStatsService.getStats(template.id);
+    final handsAfter = await TrainingPackStatsService.getHandsCompleted(template.id);
+    if (template.requiredAccuracy != null || template.minHands != null) {
+      await showUnlockProgressDialog(
+        ctx,
+        accuracyBefore: (statBefore?.accuracy ?? 0) * 100,
+        accuracyAfter: (statAfter?.accuracy ?? 0) * 100,
+        handsBefore: handsBefore,
+        handsAfter: handsAfter,
+        requiredAccuracy: template.requiredAccuracy,
+        minHands: template.minHands,
+      );
+    }
   }
 
   /// Finds and launches a booster drill relevant to [lesson].
