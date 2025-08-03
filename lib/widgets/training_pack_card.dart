@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_template_v2.dart';
+import '../core/training/engine/training_type_engine.dart';
 import '../services/pinned_pack_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/mistake_category_translations.dart';
+import 'training_pack_preview_panel.dart';
 import 'coverage_meter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/date_utils.dart';
@@ -33,7 +36,8 @@ class TrainingPackCard extends StatefulWidget {
   State<TrainingPackCard> createState() => _TrainingPackCardState();
 }
 
-class _TrainingPackCardState extends State<TrainingPackCard> {
+class _TrainingPackCardState extends State<TrainingPackCard>
+    with TickerProviderStateMixin {
   late bool _pinned;
   String? _completedAt;
   double? _accuracy;
@@ -288,6 +292,22 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
                             style: const TextStyle(color: Colors.white70),
                           ),
                         ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        child: widget.template.meta['dynamicParams'] != null
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8, bottom: 4),
+                                child: TrainingPackPreviewPanel(
+                                  tpl: TrainingPackTemplateV2.fromTemplate(
+                                    widget.template,
+                                    type: TrainingType.pushFold,
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
