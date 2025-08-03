@@ -1,22 +1,38 @@
-import '../models/line_graph.dart';
-import '../models/spot_seed_format.dart';
+import '../models/line_pattern.dart';
+import '../models/line_graph_result.dart';
 
 class LineGraphEngine {
   const LineGraphEngine();
 
-  LineGraph build(SpotSeedFormat seed) {
-    final street = seed.currentStreet;
-    final actions = seed.villainActions
-        .map(
-          (a) => LineAction(
-            action: _normalize(a),
-            position: 'villain',
-          ),
-        )
-        .toList();
-    final lineStreet = LineStreet(street: street, actions: actions);
-    return LineGraph(heroPosition: seed.position, streets: [lineStreet]);
+  LineGraphResult build(LinePattern pattern) {
+    final Map<String, List<HandActionNode>> streets = {};
+    final List<String> tags = [];
+
+    pattern.streets.forEach((street, actions) {
+      final nodes = <HandActionNode>[];
+      for (final act in actions) {
+        final actor = _inferActor(act);
+        nodes.add(HandActionNode(actor: actor, action: act));
+        tags.add('${street}${_capitalize(act)}');
+      }
+      streets[street] = nodes;
+    });
+
+    return LineGraphResult(
+      heroPosition: pattern.startingPosition ?? 'hero',
+      streets: streets,
+      tags: tags,
+    );
   }
 
-  String _normalize(String action) => action.split(' ').first.toLowerCase();
+  String _inferActor(String action) {
+    final lower = action.toLowerCase();
+    if (lower.contains('villain')) {
+      return 'villain';
+    }
+    return 'hero';
+  }
+
+  String _capitalize(String value) =>
+      value.isEmpty ? value : value[0].toUpperCase() + value.substring(1);
 }
