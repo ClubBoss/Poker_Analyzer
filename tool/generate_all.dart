@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 import 'package:poker_analyzer/helpers/training_pack_validator.dart';
+import 'package:poker_analyzer/utils/yaml_utils.dart';
 
 Future<void> main() async {
   final dir = Directory('tool/example_spots');
@@ -34,7 +34,7 @@ Future<void> main() async {
       final out = File(p.join('assets', 'packs', '$name.yaml'));
       try {
         final doc = loadYaml(out.readAsStringSync());
-        final map = jsonDecode(jsonEncode(doc)) as Map<String, dynamic>;
+        final map = yamlToDart(doc) as Map<String, dynamic>;
         final tpl = TrainingPackTemplate.fromJson(map);
         final issues = validateTrainingPackTemplate(tpl);
         if (issues.isNotEmpty) {

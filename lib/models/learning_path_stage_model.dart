@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'unlock_condition.dart';
 import 'sub_stage_model.dart';
 import 'stage_type.dart';
+import '../utils/yaml_utils.dart';
 
 class LearningPathStageModel {
   final String id;
@@ -124,7 +123,7 @@ class LearningPathStageModel {
       };
 
   factory LearningPathStageModel.fromYaml(Map yaml) {
-    final map = jsonDecode(jsonEncode(yaml)) as Map<String, dynamic>;
+    final map = yamlToDart(yaml) as Map<String, dynamic>;
     return LearningPathStageModel.fromJson(map);
   }
 }

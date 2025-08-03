@@ -6,6 +6,7 @@ import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import '../helpers/training_pack_validator.dart';
 import 'package:collection/collection.dart';
+import '../utils/yaml_utils.dart';
 
 class TrainingPackAssetLoader {
   TrainingPackAssetLoader._();
@@ -65,7 +66,7 @@ class TrainingPackAssetLoader {
         }
         Map<String, dynamic> map;
         if (p.endsWith('.yaml')) {
-          map = jsonDecode(jsonEncode(loadYaml(str))) as Map<String, dynamic>;
+          map = yamlToDart(loadYaml(str)) as Map<String, dynamic>;
         } else {
           final json = jsonDecode(str);
           if (json is! Map<String, dynamic>) continue;
