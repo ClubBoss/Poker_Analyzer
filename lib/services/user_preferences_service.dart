@@ -103,61 +103,43 @@ class UserPreferencesService extends ChangeNotifier {
     }
   }
 
-  Future<void> setShowPotAnimation(bool value) async {
-    if (_showPotAnimation == value) return;
-    _showPotAnimation = value;
-    await _save(_potAnimationKey, value);
+  Future<void> _setBool(
+      String key, bool current, bool value, void Function(bool) assign) async {
+    if (current == value) return;
+    assign(value);
+    await _save(key, value);
     notifyListeners();
   }
 
-  Future<void> setShowCardReveal(bool value) async {
-    if (_showCardReveal == value) return;
-    _showCardReveal = value;
-    await _save(_cardRevealKey, value);
-    notifyListeners();
-  }
+  Future<void> setShowPotAnimation(bool value) =>
+      _setBool(_potAnimationKey, _showPotAnimation, value,
+          (v) => _showPotAnimation = v);
 
-  Future<void> setShowWinnerCelebration(bool value) async {
-    if (_showWinnerCelebration == value) return;
-    _showWinnerCelebration = value;
-    await _save(_winnerCelebrationKey, value);
-    notifyListeners();
-  }
+  Future<void> setShowCardReveal(bool value) =>
+      _setBool(_cardRevealKey, _showCardReveal, value,
+          (v) => _showCardReveal = v);
 
-  Future<void> setShowActionHints(bool value) async {
-    if (_showActionHints == value) return;
-    _showActionHints = value;
-    await _save(_actionHintsKey, value);
-    notifyListeners();
-  }
+  Future<void> setShowWinnerCelebration(bool value) =>
+      _setBool(_winnerCelebrationKey, _showWinnerCelebration, value,
+          (v) => _showWinnerCelebration = v);
 
-  Future<void> setCoachMode(bool value) async {
-    if (_coachMode == value) return;
-    _coachMode = value;
-    await _save(_coachModeKey, value);
-    notifyListeners();
-  }
+  Future<void> setShowActionHints(bool value) =>
+      _setBool(_actionHintsKey, _showActionHints, value,
+          (v) => _showActionHints = v);
 
-  Future<void> setDemoMode(bool value) async {
-    if (_demoMode == value) return;
-    _demoMode = value;
-    await _save(_demoModeKey, value);
-    notifyListeners();
-  }
+  Future<void> setCoachMode(bool value) =>
+      _setBool(_coachModeKey, _coachMode, value, (v) => _coachMode = v);
 
-  Future<void> setSimpleNavigation(bool value) async {
-    if (_simpleNavigation == value) return;
-    _simpleNavigation = value;
-    await _save(_simpleNavKey, value);
-    notifyListeners();
-  }
+  Future<void> setDemoMode(bool value) =>
+      _setBool(_demoModeKey, _demoMode, value, (v) => _demoMode = v);
 
-  Future<void> setTutorialCompleted(bool value) async {
-    if (_tutorialCompleted == value) return;
-    _tutorialCompleted = value;
-    await _save(_tutorialCompletedKey, value);
-    notifyListeners();
-  }
+  Future<void> setSimpleNavigation(bool value) =>
+      _setBool(_simpleNavKey, _simpleNavigation, value,
+          (v) => _simpleNavigation = v);
+
+  Future<void> setTutorialCompleted(bool value) =>
+      _setBool(_tutorialCompletedKey, _tutorialCompleted, value,
+          (v) => _tutorialCompleted = v);
 
   Future<void> setWeaknessRange(DateTimeRange? value) async {
     _weakRange = value;
@@ -202,10 +184,7 @@ class UserPreferencesService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setShowTagGoalBanner(bool value) async {
-    if (_showTagGoalBanner == value) return;
-    _showTagGoalBanner = value;
-    await _save(_tagGoalBannerKey, value);
-    notifyListeners();
-  }
+  Future<void> setShowTagGoalBanner(bool value) =>
+      _setBool(_tagGoalBannerKey, _showTagGoalBanner, value,
+          (v) => _showTagGoalBanner = v);
 }
