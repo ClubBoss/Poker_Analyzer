@@ -16,7 +16,7 @@ import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../widgets/selectable_list_item.dart';
 import '../widgets/bulk_edit_dialog.dart';
-import 'pack_editor_screen.dart';
+import 'pack_editor_core.dart';
 import 'training_pack_screen.dart';
 import '../models/saved_hand.dart';
 import '../models/v2/training_pack_template.dart';
