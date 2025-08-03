@@ -6,8 +6,11 @@ double responsiveSize(BuildContext context, double value) => isCompactWidth(cont
 
 EdgeInsets responsiveAll(BuildContext context, double value) => EdgeInsets.all(responsiveSize(context, value));
 
+Orientation currentOrientation(BuildContext context) =>
+    MediaQuery.of(context).orientation;
+
 bool isPortrait(BuildContext context) =>
-    MediaQuery.of(context).orientation == Orientation.portrait;
+    currentOrientation(context) == Orientation.portrait;
 
 bool isLandscape(BuildContext context) =>
-    MediaQuery.of(context).orientation == Orientation.landscape;
+    currentOrientation(context) == Orientation.landscape;
