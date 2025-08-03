@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/daily_spotlight_service.dart';
 import '../screens/v2/training_pack_play_screen.dart';
+import '../utils/shared_prefs_keys.dart';
 
 class DailySpotlightCard extends StatefulWidget {
   const DailySpotlightCard({super.key});
@@ -19,13 +20,14 @@ class _DailySpotlightCardState extends State<DailySpotlightCard> {
     super.initState();
     SharedPreferences.getInstance().then((p) {
       if (!mounted) return;
-      setState(() => _hidden = p.getBool('hide_today_card') ?? false);
+      setState(() => _hidden =
+          p.getBool(SharedPrefsKeys.hideTodayCard) ?? false);
     });
   }
 
   Future<void> _hide() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hide_today_card', true);
+    await prefs.setBool(SharedPrefsKeys.hideTodayCard, true);
     if (mounted) setState(() => _hidden = true);
   }
 
