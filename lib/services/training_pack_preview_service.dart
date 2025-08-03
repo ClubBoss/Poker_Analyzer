@@ -1,6 +1,7 @@
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_preview_spot.dart';
 import 'training_spot_generator_service.dart';
+import 'constraint_resolver_engine.dart';
 import 'dart:math';
 
 class TrainingPackPreviewService {
@@ -15,7 +16,8 @@ class TrainingPackPreviewService {
   }) {
     final dyn = tpl.meta['dynamicParams'];
     if (dyn is! Map) return [];
-    final m = Map<String, dynamic>.from(dyn);
+    final m = ConstraintResolverEngine.normalizeParams(
+        Map<String, dynamic>.from(dyn));
     final params = SpotGenerationParams(
       position: m['position']?.toString() ?? 'btn',
       villainAction: m['villainAction']?.toString() ?? '',
@@ -29,7 +31,8 @@ class TrainingPackPreviewService {
       targetStreet: m['targetStreet']?.toString() ?? 'flop',
       boardStages: (m['boardStages'] as num?)?.toInt(),
     );
-    final spots = _generator.generate(params);
+    final spots =
+        _generator.generate(params, dynamicParams: m);
     return [
       for (final s in spots)
         TrainingPackPreviewSpot(
