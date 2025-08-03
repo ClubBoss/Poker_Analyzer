@@ -126,10 +126,8 @@ import '../services/demo_playback_controller.dart';
 import 'poker_analyzer/board_controls_widget.dart';
 import 'poker_analyzer/action_editor_widget.dart';
 import 'poker_analyzer/evaluation_panel_widget.dart';
+import 'poker_analyzer/action_controls_widget.dart';
 
-part 'poker_analyzer/board_widgets.dart';
-part 'poker_analyzer/playback_controls_widget.dart';
-part 'poker_analyzer/action_controls.dart';
 part 'poker_analyzer/debug_dialog.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
@@ -5498,133 +5496,6 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               final shortest = constraints.biggest.shortestSide;
               _uiScale = shortest < 600 ? 0.8 : 1.0;
 
-              Widget buildControls() => Column(
-                children: [
-                  _TotalPotTracker(
-                    potSync: _potSync,
-                    currentStreet: currentStreet,
-                    sidePots: _sidePots,
-                  ),
-                  AbsorbPointer(
-                    absorbing: lockService.isLocked,
-                    child: PlaybackProgressBar(
-                      playbackIndex: _playbackManager.playbackIndex,
-                      actionCount: actions.length,
-                      onSeek: (index) {
-                        lockService.safeSetState(this, () {
-                          _playbackManager.seek(index);
-                          _playbackManager.updatePlaybackState();
-                        });
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: AbsorbPointer(
-                      absorbing: lockService.isLocked,
-                      child: StreetActionHistoryPanel(
-                        actions: savedActions,
-                        pots: _potSync.pots,
-                        stackSizes: _stackService.currentStacks,
-                        playerPositions: playerPositions,
-                        onEdit: _editAction,
-                        onDelete: _deleteAction,
-                        onInsert: _insertAction,
-                        onDuplicate: _duplicateAction,
-                        onReorder: _reorderAction,
-                        visibleCount: _playbackManager.playbackIndex,
-                        evaluateActionQuality: _evaluateActionQuality,
-                      ),
-                    ),
-                  ),
-                  AbsorbPointer(
-                    absorbing: lockService.isLocked,
-                    child: ActionHistoryExpansionTile(
-                      actions: visibleActions,
-                      playerPositions: playerPositions,
-                      pots: _potSync.pots,
-                      stackSizes: _stackService.currentStacks,
-                      onEdit: _editAction,
-                      onDelete: _deleteAction,
-                      onInsert: _insertAction,
-                      onDuplicate: _duplicateAction,
-                      onReorder: _reorderAction,
-                      visibleCount: _playbackManager.playbackIndex,
-                      evaluateActionQuality: _evaluateActionQuality,
-                    ),
-                  ),
-                  StreetActionsWidget(
-                    currentStreet: currentStreet,
-                    canGoPrev: _boardManager.canReverseStreet(),
-                    onPrevStreet: lockService.isLocked
-                        ? null
-                        : () => lockService.safeSetState(this, _reverseStreet),
-                    onStreetChanged: (index) {
-                      if (lockService.isLocked) return;
-                      lockService.safeSetState(this, () {
-                        _changeStreet(index);
-                        _undoRedoService.recordSnapshot();
-                      });
-                    },
-                  ),
-                  AbsorbPointer(
-                    absorbing: lockService.isLocked,
-                    child: StreetActionInputWidget(
-                      currentStreet: currentStreet,
-                      numberOfPlayers: numberOfPlayers,
-                      playerPositions: playerPositions,
-                      actionHistory: _actionHistory,
-                      onAdd: handlePlayerAction,
-                      onEdit: _editAction,
-                      onDelete: _deleteAction,
-                    ),
-                  ),
-                  ActionTimelinePanel(
-                    actions: visibleActions,
-                    playbackIndex: _playbackManager.playbackIndex,
-                    onTap: (index) {
-                      lockService.safeSetState(this, () {
-                        _playbackManager.seek(index);
-                        _playbackManager.updatePlaybackState();
-                      });
-                    },
-                    playerPositions: playerPositions,
-                    focusPlayerIndex: _focusOnHero ? heroIndex : null,
-                    controller: _timelineController,
-                    scale: scale,
-                    locked: lockService.isLocked,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: PlaybackControls(
-                      isPlaying: _playbackManager.isPlaying,
-                      playbackIndex: _playbackManager.playbackIndex,
-                      actionCount: actions.length,
-                      elapsedTime: _playbackManager.elapsedTime,
-                      onPlay: _play,
-                      onPause: _pause,
-                      onPlayAll: _playAll,
-                      onStepBackward: _stepBackwardPlayback,
-                      onStepForward: _stepForwardPlayback,
-                      onPlaybackReset: _resetPlayback,
-                      onSeek: _seekPlayback,
-                      onSave: () => saveCurrentHand(),
-                      onLoadLast: loadLastSavedHand,
-                      onLoadByName: () => loadHandByName(),
-                      onExportLast: exportLastSavedHand,
-                      onExportAll: exportAllHands,
-                      onImport: importHandFromClipboard,
-                      onImportAll: importAllHandsFromClipboard,
-                      onReset: _resetHand,
-                      onBack: _cancelHandAnalysis,
-                      focusOnHero: _focusOnHero,
-                      onFocusChanged: (v) => setState(() => _focusOnHero = v),
-                      backDisabled: _showdownActive,
-                      disabled: _transitionHistory.isLocked,
-                    ),
-                  ),
-                ],
-              );
 
               final content = <Widget>[
                 _HandHeaderSection(
@@ -5666,7 +5537,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                 child: const BoardControls(),
                               ),
                             ),
-                            Expanded(child: buildControls()),
+                            const Expanded(child: ActionControls()),
                           ],
                         )
                       : Column(
@@ -5676,7 +5547,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                               alignment: Alignment.topCenter,
                               child: const BoardControls(),
                             ),
-                            Expanded(child: buildControls()),
+                            const Expanded(child: ActionControls()),
                           ],
                         ),
                 ),
@@ -6397,33 +6268,6 @@ class _PlaybackNarrationOverlayState extends State<_PlaybackNarrationOverlay>
 }
 
 
-class _ChipFlightOverlay extends StatelessWidget {
-  final List<ChipFlight> flights;
-  final ValueChanged<Key> onRemove;
-
-  const _ChipFlightOverlay({required this.flights, required this.onRemove});
-
-  @override
-  Widget build(BuildContext context) {
-    if (flights.isEmpty) return const SizedBox.shrink();
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          for (final f in flights)
-            ChipMovingWidget(
-              key: f.key,
-              start: f.start,
-              end: f.end,
-              amount: f.amount,
-              color: f.color,
-              scale: f.scale,
-              onCompleted: () => onRemove(f.key),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 class _ActivePlayerHighlight extends StatefulWidget {
   final Offset position;
