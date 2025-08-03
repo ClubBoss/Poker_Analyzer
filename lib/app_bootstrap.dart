@@ -32,15 +32,19 @@ class AppBootstrap {
   }) async {
     await runtime.initialize();
     final ServiceRegistry registry = runtime.registry.createChild();
-    await TrainingPackAssetLoader.instance.loadAll();
-    await PackLibraryLoaderService.instance.loadLibrary();
-    await TrainingPackLibraryV2.instance.loadFromFolder();
-    await PackFavoriteService.instance.load();
-    await PackRatingService.instance.load();
-    await TrainingPackCommentsService.instance.load();
-    await FavoritePackService.instance.init();
-    await PinnedPackService.instance.init();
-    await UserProfilePreferenceService.instance.load();
+    await Future.wait([
+      // Asset and library loading
+      TrainingPackAssetLoader.instance.loadAll(),
+      PackLibraryLoaderService.instance.loadLibrary(),
+      TrainingPackLibraryV2.instance.loadFromFolder(),
+      // Service initialization
+      PackFavoriteService.instance.load(),
+      PackRatingService.instance.load(),
+      TrainingPackCommentsService.instance.load(),
+      FavoritePackService.instance.init(),
+      PinnedPackService.instance.init(),
+      UserProfilePreferenceService.instance.load(),
+    ]);
     if (cloud != null) {
       await cloud.init();
       await cloud.syncUp();
