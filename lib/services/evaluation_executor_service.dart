@@ -60,6 +60,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
 
   late final EvaluationQueue _queue;
   final EvaluationCache _cache;
+  SharedPreferences? _prefs;
 
   static const _evaluatedKey = 'eval_total_evaluated';
   static const _correctKey = 'eval_total_correct';
@@ -103,13 +104,13 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }
 
   Future<void> _loadStats() async {
-    final prefs = await SharedPreferences.getInstance();
-    _totalEvaluated = prefs.getInt(_evaluatedKey) ?? 0;
-    _totalCorrect = prefs.getInt(_correctKey) ?? 0;
+    _prefs = await SharedPreferences.getInstance();
+    _totalEvaluated = _prefs?.getInt(_evaluatedKey) ?? 0;
+    _totalCorrect = _prefs?.getInt(_correctKey) ?? 0;
   }
 
   Future<void> _saveStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
     await prefs.setInt(_evaluatedKey, _totalEvaluated);
     await prefs.setInt(_correctKey, _totalCorrect);
   }
