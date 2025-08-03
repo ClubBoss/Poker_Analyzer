@@ -6,7 +6,7 @@ import '../services/pack_favorite_service.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import '../services/training_session_launcher.dart';
 import '../services/training_progress_logger.dart';
-import '../services/mini_lesson_completion_tracker_service.dart';
+import '../services/theory_lesson_completion_logger.dart';
 import '../services/training_progress_tracker_service.dart';
 
 class PackCard extends StatefulWidget {
@@ -70,7 +70,7 @@ class _PackCardState extends State<PackCard> {
     final lessonId = _linkedLessonId();
     if (lessonId == null) return;
     final done =
-        await MiniLessonCompletionTrackerService.instance.isCompleted(lessonId);
+        await TheoryLessonCompletionLogger.instance.isCompleted(lessonId);
     if (mounted) setState(() => _theoryCompleted = done);
   }
 
