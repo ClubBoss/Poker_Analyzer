@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../models/poker_actions.dart';
+
 Future<String?> showActionBottomSheet(BuildContext context) {
-  const actions = [
-    {'label': 'Fold', 'value': 'fold', 'icon': '❌'},
-    {'label': 'Call', 'value': 'call', 'icon': '📞'},
-    {'label': 'Check', 'value': 'check', 'icon': '✅'},
-    {'label': 'Bet', 'value': 'bet', 'icon': '💰'},
-    {'label': 'Raise', 'value': 'raise', 'icon': '📈'},
-  ];
   return showModalBottomSheet<String>(
     context: context,
     backgroundColor: Colors.grey[900],
@@ -20,7 +15,7 @@ Future<String?> showActionBottomSheet(BuildContext context) {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (int i = 0; i < actions.length; i++) ...[
+          for (final entry in pokerActions.asMap().entries) ...[
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black87,
@@ -30,11 +25,12 @@ Future<String?> showActionBottomSheet(BuildContext context) {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () => Navigator.pop(ctx, actions[i]['value'] as String),
-              icon: Text(actions[i]['icon'] as String, style: const TextStyle(fontSize: 24)),
-              label: Text(actions[i]['label'] as String, style: const TextStyle(fontSize: 20)),
+              onPressed: () => Navigator.pop(ctx, entry.value.value),
+              icon: Text(entry.value.icon, style: const TextStyle(fontSize: 24)),
+              label:
+                  Text(entry.value.label, style: const TextStyle(fontSize: 20)),
             ),
-            if (i != actions.length - 1) const SizedBox(height: 12),
+            if (entry.key != pokerActions.length - 1) const SizedBox(height: 12),
           ],
         ],
       ),
