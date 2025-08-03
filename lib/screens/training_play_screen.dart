@@ -8,6 +8,9 @@ import '../widgets/replay_spot_widget.dart';
 import '../widgets/sync_status_widget.dart';
 import '../models/training_spot.dart';
 import '../services/inline_theory_linker.dart';
+import '../services/mistake_tag_classifier.dart';
+import '../models/training_spot_attempt.dart';
+import '../models/v2/training_pack_spot.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   const TrainingPlayScreen({super.key});
@@ -24,7 +27,22 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     final controller = context.read<TrainingSessionController>();
     final spot = controller.currentSpot!;
     final res = await controller.evaluateSpot(context, spot, action);
-    setState(() => _result = res);
+    InlineTheoryLink? link;
+    if (!res.correct) {
+      final packSpot = TrainingPackSpot.fromTrainingSpot(spot);
+      final attempt = TrainingSpotAttempt(
+        spot: packSpot,
+        userAction: action.toLowerCase(),
+        correctAction: res.expectedAction.toLowerCase(),
+        evDiff: res.userEquity - res.expectedEquity,
+      );
+      final tags = const MistakeTagClassifier().classifyTheory(attempt);
+      link = InlineTheoryLinker().getLink(tags);
+    }
+    setState(() {
+      _result = res;
+      _theoryLink = link;
+    });
   }
 
   @override
@@ -33,7 +51,9 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     final spot = controller.currentSpot!;
     final correct = _result?.correct ?? false;
     final expected = _result?.expectedAction;
-    _theoryLink ??= InlineTheoryLinker().getLink(spot.tags);
+    if (_result == null && _theoryLink == null) {
+      _theoryLink = InlineTheoryLinker().getLink(spot.tags);
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training'),
@@ -89,7 +109,10 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
               ),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () => setState(() => _result = null),
+                onPressed: () => setState(() {
+                  _result = null;
+                  _theoryLink = null;
+                }),
                 child: const Text('Try Again'),
               ),
               if (_theoryLink != null) ...[
