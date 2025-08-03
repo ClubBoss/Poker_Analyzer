@@ -13,6 +13,7 @@ import '../services/theory_lesson_completion_logger.dart';
 import '../services/training_progress_tracker_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/training_pack_performance_tracker_service.dart';
+import 'pack_progress_summary_widget.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -169,62 +170,6 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     );
   }
 
-  Color _progressColor(double value, double target) {
-    if (value >= target) return Colors.green;
-    if (value >= target * 0.5) return Colors.yellow;
-    return Colors.red;
-  }
-
-  Widget _unlockProgress() {
-    final reqAcc = widget.template.requiredAccuracy;
-    final minHands = widget.template.minHands;
-    final widgets = <Widget>[];
-    if (reqAcc != null) {
-      final accPct = (_accuracy ?? 0) * 100;
-      final target = reqAcc;
-      final color = _progressColor(accPct, target);
-      widgets.add(LinearProgressIndicator(
-        value: target == 0 ? 0 : accPct / target,
-        backgroundColor: Colors.white24,
-        valueColor: AlwaysStoppedAnimation<Color>(color),
-      ));
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 2),
-        child: Text(
-          'Точность: ${accPct.toStringAsFixed(0)}% / ≥${target.toStringAsFixed(0)}%',
-          style: TextStyle(color: color, fontSize: 12),
-        ),
-      ));
-    }
-    if (minHands != null) {
-      final hands = _handsCompleted;
-      final color =
-          _progressColor(hands.toDouble(), minHands.toDouble());
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: LinearProgressIndicator(
-          value: hands / minHands,
-          backgroundColor: Colors.white24,
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-        ),
-      ));
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 2),
-        child: Text(
-          'Руки: $hands / ≥$minHands',
-          style: TextStyle(color: color, fontSize: 12),
-        ),
-      ));
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: widgets,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final accText = _accuracy != null
@@ -263,10 +208,14 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
                   child: Text(widget.template.trainingType.name,
                       style: const TextStyle(color: Colors.white70)),
                 ),
-                if (_locked &&
-                    (widget.template.requiredAccuracy != null ||
-                        widget.template.minHands != null))
-                  _unlockProgress(),
+                if ((widget.template.requiredAccuracy ?? 0) > 0 ||
+                    (widget.template.minHands ?? 0) > 0)
+                  PackProgressSummaryWidget(
+                    accuracy: _accuracy,
+                    handsCompleted: _handsCompleted,
+                    requiredAccuracy: widget.template.requiredAccuracy,
+                    minHands: widget.template.minHands,
+                  ),
                 if (widget.template.tags.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),

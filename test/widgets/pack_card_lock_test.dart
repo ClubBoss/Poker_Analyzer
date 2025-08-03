@@ -34,6 +34,8 @@ void main() {
       find.text('Достигните точности 80% и сыграйте 10 рук, чтобы открыть'),
       findsOneWidget,
     );
+    expect(find.text('Точность: 60% / ≥80%'), findsOneWidget);
+    expect(find.text('Руки: 4 / ≥10'), findsOneWidget);
   });
 }
 
