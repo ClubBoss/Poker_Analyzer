@@ -12,6 +12,7 @@ import '../services/training_pack_cloud_sync_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
+import '../services/smart_inbox_debug_service.dart';
 import 'basic_achievements_screen.dart';
 import 'booster_library_screen.dart';
 import 'booster_archive_screen.dart';
@@ -27,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late int _evaluated;
   late int _correct;
   final List<MapEntry<TrainingPackStat, String>> _stats = [];
+  static const String _appVersion = '1.0.0+1';
 
   void _load() {
     final service = EvaluationExecutorService();
@@ -338,6 +340,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               );
             },
+          ),
+          const Spacer(),
+          GestureDetector(
+            onLongPress: SmartInboxDebugService.instance.toggle,
+            child: Text(
+              'v$_appVersion',
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
+            ),
           ),
         ],
       ),
