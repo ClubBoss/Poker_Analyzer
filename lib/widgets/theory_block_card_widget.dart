@@ -3,14 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/theory_block_model.dart';
 import '../services/theory_path_completion_evaluator_service.dart';
 import '../services/user_progress_service.dart';
-import '../services/mini_lesson_library_service.dart';
-import '../services/pack_library_service.dart';
-import '../screens/mini_lesson_screen.dart';
-import '../screens/training_pack_screen.dart';
-import '../models/theory_mini_lesson_node.dart';
-import '../models/v2/training_pack_template_v2.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/theory_block_launcher.dart';
+import 'theory_block_context_sheet.dart';
 
 /// Card widget displaying a [TheoryBlockModel] with completion progress.
 class TheoryBlockCardWidget extends StatefulWidget {
@@ -108,89 +103,12 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   }
 
   Future<void> _handleLongPress() async {
-    final block = widget.block;
-    await MiniLessonLibraryService.instance.loadAll();
-    final lessons = <_LessonEntry>[];
-    for (final id in block.nodeIds) {
-      final lesson = MiniLessonLibraryService.instance.getById(id);
-      if (lesson == null) continue;
-      final done = await widget.progress.isTheoryLessonCompleted(id);
-      lessons.add(_LessonEntry(lesson, done));
+    await showTheoryBlockContextSheet(context, widget.block);
+    final pinned =
+        PinnedLearningService.instance.isPinned('block', widget.block.id);
+    if (mounted && pinned != _pinned) {
+      setState(() => _pinned = pinned);
     }
-
-    final packs = <_PackEntry>[];
-    for (final id in block.practicePackIds) {
-      final tpl = await PackLibraryService.instance.getById(id);
-      if (tpl == null) continue;
-      final done = await widget.progress.isPackCompleted(id);
-      packs.add(_PackEntry(tpl, done));
-    }
-
-    if (!mounted) return;
-
-    await showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              ListTile(
-                leading: Icon(
-                    _pinned ? Icons.push_pin : Icons.push_pin_outlined),
-                title: Text(_pinned ? 'Unpin Block' : 'Pin Block'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _togglePinned();
-                },
-              ),
-              if (lessons.isNotEmpty)
-                const ListTile(title: Text('Lessons')),
-              for (final e in lessons)
-                ListTile(
-                  leading: const Icon(Icons.menu_book),
-                  title: Text(e.lesson.title),
-                  trailing: Icon(
-                    e.done ? Icons.check_circle : Icons.cancel,
-                    color: e.done ? Colors.green : Colors.red,
-                  ),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => MiniLessonScreen(
-                          lesson: e.lesson,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              if (packs.isNotEmpty)
-                const ListTile(title: Text('Drill Packs')),
-              for (final e in packs)
-                ListTile(
-                  leading: const Icon(Icons.fitness_center),
-                  title: Text(e.pack.name),
-                  trailing: Icon(
-                    e.done ? Icons.check_circle : Icons.cancel,
-                    color: e.done ? Colors.green : Colors.red,
-                  ),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TrainingPackScreen(pack: e.pack),
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   @override
@@ -296,14 +214,3 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   }
 }
 
-class _LessonEntry {
-  final TheoryMiniLessonNode lesson;
-  final bool done;
-  _LessonEntry(this.lesson, this.done);
-}
-
-class _PackEntry {
-  final TrainingPackTemplateV2 pack;
-  final bool done;
-  _PackEntry(this.pack, this.done);
-}
