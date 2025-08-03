@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -6,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../models/training_type.dart';
+import '../services/analytics_service.dart';
 import '../services/pack_favorite_service.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import '../services/training_session_launcher.dart';
@@ -268,6 +271,18 @@ class _PackCardState extends State<PackCard>
   }
 
   Future<void> _handleCta(BuildContext context) async {
+    if (_ctaText != null) {
+      unawaited(
+        AnalyticsService.instance.logEvent('locked_pack_cta_tap', {
+          'pack_id': widget.template.id,
+          'cta_type': _ctaText,
+          'accuracy': _accuracy,
+          'hands_completed': _handsCompleted,
+          'required_accuracy': widget.template.requiredAccuracy,
+          'min_hands': widget.template.minHands,
+        }),
+      );
+    }
     await Navigator.of(context, rootNavigator: true).maybePop();
     await const TrainingSessionLauncher().launch(widget.template);
   }
