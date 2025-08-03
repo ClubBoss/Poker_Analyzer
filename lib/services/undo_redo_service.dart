@@ -19,6 +19,7 @@ import 'transition_history_service.dart';
 
 /// Manages undo/redo snapshots for the full analyzer state.
 class UndoRedoService {
+  static const int maxHistory = 100;
   final ActionSyncService actionSync;
   final BoardManagerService boardManager;
   final PlaybackManagerService playbackManager;
@@ -60,7 +61,9 @@ class UndoRedoService {
     final stackService = playbackManager.stackService;
     final reveal = boardReveal.toJson();
     potSync.updateEffectiveStacks(
-        actionSync.analyzerActions, playerManager.numberOfPlayers);
+      actionSync.analyzerActions,
+      playerManager.numberOfPlayers,
+    );
     final hand = SavedHand(
       name: handContext.currentHandName ?? '',
       heroIndex: playerManager.heroIndex,
@@ -68,20 +71,23 @@ class UndoRedoService {
       numberOfPlayers: playerManager.numberOfPlayers,
       playerCards: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          List<CardModel>.from(playerManager.playerCards[i])
+          List<CardModel>.from(playerManager.playerCards[i]),
       ],
       boardCards: List<CardModel>.from(playerManager.boardCards),
       boardStreet: boardManager.boardStreet,
       revealedCards: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          [for (final c in playerManager.players[i].revealedCards) if (c != null) c]
+          [
+            for (final c in playerManager.players[i].revealedCards)
+              if (c != null) c,
+          ],
       ],
       opponentIndex: playerManager.opponentIndex,
       actions: List<ActionEntry>.from(actionSync.analyzerActions),
       stackSizes: Map<int, int>.from(stackService.initialStacks),
       remainingStacks: {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          i: stackService.getStackForPlayer(i)
+          i: stackService.getStackForPlayer(i),
       },
       playerPositions: Map<int, String>.from(playerManager.playerPositions),
       playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
@@ -105,6 +111,7 @@ class UndoRedoService {
     final currentMap = current.toJson();
     final diff = diffEngine.compute(_lastMap, currentMap);
     _undoDiffs.add(diff);
+    if (_undoDiffs.length > maxHistory) _undoDiffs.removeAt(0);
     _redoDiffs.clear();
     _lastSnapshot = current;
     _lastMap = currentMap;
@@ -146,8 +153,10 @@ class UndoRedoService {
     foldedPlayers.restoreFromHand(snap);
     allInPlayers.restoreFromHand(snap);
     actionHistory.restoreFromCollapsed(snap.collapsedHistoryStreets);
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     boardManager.boardStreet = snap.boardStreet;
     boardManager.currentStreet = snap.boardStreet;
     boardReveal.restoreFromHand(snap);
@@ -160,6 +169,7 @@ class UndoRedoService {
     final map = diffEngine.apply(_lastMap, diff.backward);
     final snap = SavedHand.fromJson(map);
     _redoDiffs.add(diff);
+    if (_redoDiffs.length > maxHistory) _redoDiffs.removeAt(0);
     _lastSnapshot = snap;
     _lastMap = map;
     transitionHistory.undo(() => _applySnapshot(snap));
@@ -171,6 +181,7 @@ class UndoRedoService {
     final map = diffEngine.apply(_lastMap, diff.forward);
     final snap = SavedHand.fromJson(map);
     _undoDiffs.add(diff);
+    if (_undoDiffs.length > maxHistory) _undoDiffs.removeAt(0);
     _lastSnapshot = snap;
     _lastMap = map;
     transitionHistory.redo(() => _applySnapshot(snap));
