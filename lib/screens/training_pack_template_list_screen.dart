@@ -13,6 +13,7 @@ import '../helpers/map_utils.dart';
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/training_spot_storage_service.dart';
+import '../models/training_spot_filter.dart';
 import 'training_pack_template_editor_screen.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -150,7 +151,8 @@ class _TrainingPackTemplateListScreenState
   void _ensureCount(String id, Map<String, dynamic> filters) {
     if (_counts.containsKey(id)) return;
     _counts[id] = null;
-    _spotStorage.evaluateFilterCount(filters).then((value) {
+    final filter = TrainingSpotFilter.fromMap(filters);
+    _spotStorage.evaluateFilterCount(filter).then((value) {
       if (mounted) setState(() => _counts[id] = value);
     });
   }

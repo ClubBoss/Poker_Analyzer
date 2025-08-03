@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/training_spot.dart';
+import '../models/training_spot_filter.dart';
 import 'cloud_sync_service.dart';
 
 class TrainingSpotStorageService extends ChangeNotifier {
@@ -61,12 +62,12 @@ class TrainingSpotStorageService extends ChangeNotifier {
     await save(spots);
   }
 
-  Future<int?> evaluateFilterCount(Map<String, dynamic> filters) async {
+  Future<int?> evaluateFilterCount(TrainingSpotFilter filter) async {
     try {
       final spots = await load();
       int count = 0;
       for (final s in spots) {
-        if (!_matchesFilters(s, filters)) continue;
+        if (!filter.matches(s)) continue;
         count++;
       }
       return count;
@@ -75,12 +76,12 @@ class TrainingSpotStorageService extends ChangeNotifier {
     }
   }
 
-  Future<bool?> filterAllHaveEv(Map<String, dynamic> filters) async {
+  Future<bool?> filterAllHaveEv(TrainingSpotFilter filter) async {
     try {
       final spots = await load();
       bool any = false;
       for (final s in spots) {
-        if (!_matchesFilters(s, filters)) continue;
+        if (!filter.matches(s)) continue;
         any = true;
         bool hasEv = false;
         for (final a in s.actions) {
@@ -97,13 +98,13 @@ class TrainingSpotStorageService extends ChangeNotifier {
     }
   }
 
-  Future<double?> filterEvCoverage(Map<String, dynamic> filters) async {
+  Future<double?> filterEvCoverage(TrainingSpotFilter filter) async {
     try {
       final spots = await load();
       int total = 0;
       int covered = 0;
       for (final s in spots) {
-        if (!_matchesFilters(s, filters)) continue;
+        if (!filter.matches(s)) continue;
         total++;
         for (final a in s.actions) {
           if (a.playerIndex == s.heroIndex && a.action == 'push') {
@@ -119,21 +120,4 @@ class TrainingSpotStorageService extends ChangeNotifier {
     }
   }
 
-  bool _matchesFilters(TrainingSpot spot, Map<String, dynamic> f) {
-    final tags = f['tags'];
-    if (tags is List && tags.isNotEmpty) {
-      if (!tags.every((t) => spot.tags.contains(t))) return false;
-    }
-    final pos = f['positions'];
-    if (pos is List && pos.isNotEmpty) {
-      final hero =
-          spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
-      if (!pos.contains(hero)) return false;
-    }
-    final minDiff = f['minDifficulty'];
-    if (minDiff is int && spot.difficulty < minDiff) return false;
-    final maxDiff = f['maxDifficulty'];
-    if (maxDiff is int && spot.difficulty > maxDiff) return false;
-    return true;
-  }
 }
