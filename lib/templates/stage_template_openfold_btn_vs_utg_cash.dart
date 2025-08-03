@@ -9,5 +9,6 @@ const LearningPathStageModel openFoldBtnVsUtgCashStageTemplate = LearningPathSta
   requiredAccuracy: 80,
   minHands: 10,
   tags: ['openfold', 'cash', 'preflop', 'level2', 'btn', 'vsUtg'],
+  unlocks: ['openfold_co_vs_hj_cash'],
 );
 
