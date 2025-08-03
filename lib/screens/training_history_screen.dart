@@ -7,15 +7,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:provider/provider.dart';
 import '../services/tag_service.dart';
 import 'package:flutter/services.dart';
 import '../helpers/color_utils.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
 import '../services/progress_export_service.dart';
+import '../services/training_history_export_service.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/history/accuracy_chart.dart';
@@ -116,65 +114,50 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
+    _init();
+  }
+
+  Future<void> _init() async {
+    final prefs = await _exportService.loadPrefs();
+    setState(() {
+      final idx = prefs.sortIndex.clamp(0, _SortOption.values.length - 1);
+      _sort = _SortOption.values[idx];
+      _ratingFilter = _RatingFilter.values[prefs.ratingIndex];
+      final accIdx =
+          prefs.accuracyRangeIndex.clamp(0, _AccuracyRange.values.length - 1);
+      _accuracyRange = _AccuracyRange.values[accIdx];
+      _selectedTags = prefs.tags.toSet();
+      _selectedTagColors = prefs.tagColors.toSet();
+      _showCharts = prefs.showCharts ?? true;
+      _showAvgChart = prefs.showAvgChart ?? true;
+      _showDistribution = prefs.showDistribution ?? true;
+      _showTrendChart = prefs.showTrendChart ?? true;
+      _hideEmptyTags = prefs.hideEmptyTags;
+      _sortByTag = prefs.sortByTag;
+      _chartMode = _ChartMode.values[prefs.chartModeIndex];
+      _tagCountFilter = _TagCountFilter.values[prefs.tagCountIndex];
+      _weekdayFilter = _WeekdayFilter.values[prefs.weekdayIndex];
+      _lengthFilter = _SessionLengthFilter.values[prefs.lengthIndex];
+      _includeChartInPdf = prefs.includeChartInPdf;
+      _exportTags3Only = prefs.exportTags3Only;
+      _exportNotesOnly = prefs.exportNotesOnly;
+      _dateFrom = prefs.dateFromMillis != null
+          ? DateTime.fromMillisecondsSinceEpoch(prefs.dateFromMillis!)
+          : null;
+      _dateTo = prefs.dateToMillis != null
+          ? DateTime.fromMillisecondsSinceEpoch(prefs.dateToMillis!)
+          : null;
+    });
+    await _loadHistory();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.tutorial?.showCurrentStep(context);
     });
   }
 
-  Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final sortIndex = prefs.getInt(_sortKey) ?? 0;
-    final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
-    final accuracyRangeIndex = prefs.getInt(_accuracyRangeKey) ?? 0;
-    final tags = prefs.getStringList(_tagKey) ?? [];
-    final colors = prefs.getStringList(_tagColorKey) ?? [];
-    final showCharts = prefs.getBool(_showChartsKey);
-    final showAvgChart = prefs.getBool(_showAvgChartKey);
-    final showDistribution = prefs.getBool(_showDistributionKey);
-    final showTrendChart = prefs.getBool(_showTrendChartKey);
-    final hideEmptyTags = prefs.getBool(_hideEmptyTagsKey) ?? false;
-    final sortByTag = prefs.getBool(_sortByTagKey) ?? false;
-    final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
-    final tagCountIndex = prefs.getInt(_tagCountKey) ?? 0;
-    final weekdayIndex = prefs.getInt(_weekdayKey) ?? 0;
-    final lengthIndex = prefs.getInt(_lengthKey) ?? 0;
-    final includeChart = prefs.getBool(_pdfIncludeChartKey) ?? true;
-    final tags3Only = prefs.getBool(_exportTags3OnlyKey) ?? false;
-    final notesOnly = prefs.getBool(_exportNotesOnlyKey) ?? false;
-    final fromMillis = prefs.getInt(_dateFromKey);
-    final toMillis = prefs.getInt(_dateToKey);
-    setState(() {
-      final idx = sortIndex.clamp(0, _SortOption.values.length - 1);
-      _sort = _SortOption.values[idx];
-      _ratingFilter = _RatingFilter.values[ratingIndex];
-      final idx = accuracyRangeIndex.clamp(0, _AccuracyRange.values.length - 1);
-      _accuracyRange = _AccuracyRange.values[idx];
-      _selectedTags = tags.toSet();
-      _selectedTagColors = colors.toSet();
-      _showCharts = showCharts ?? true;
-      _showAvgChart = showAvgChart ?? true;
-      _showDistribution = showDistribution ?? true;
-      _showTrendChart = showTrendChart ?? true;
-      _hideEmptyTags = hideEmptyTags;
-      _sortByTag = sortByTag;
-      _chartMode = _ChartMode.values[chartModeIndex];
-      _tagCountFilter = _TagCountFilter.values[tagCountIndex];
-      _weekdayFilter = _WeekdayFilter.values[weekdayIndex];
-      _lengthFilter = _SessionLengthFilter.values[lengthIndex];
-      _includeChartInPdf = includeChart;
-      _exportTags3Only = tags3Only;
-      _exportNotesOnly = notesOnly;
-      _dateFrom =
-          fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
-      _dateTo =
-          toMillis != null ? DateTime.fromMillisecondsSinceEpoch(toMillis) : null;
-    });
-    _loadHistory();
-  }
-
   final TrainingHistoryController _controller =
       TrainingHistoryController.instance;
+  final TrainingHistoryExportService _exportService =
+      TrainingHistoryExportService();
 
   Future<void> _loadHistory() async {
     final loaded = await _controller.loadHistory();
@@ -215,41 +198,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         .where((r) => !_exportNotesOnly || (r.notes?.trim().isNotEmpty ?? false))
         .toList();
     if (sessions.isEmpty) return;
-    final rows = <List<dynamic>>[];
     final filters = _buildExportFilterLines();
-    if (filters.isNotEmpty) {
-      for (final line in filters) {
-        rows.add([line]);
-      }
-      rows.add([]);
-    }
-    rows.add([
-      'Date',
-      'Total',
-      'Correct',
-      'Accuracy',
-      'Tags',
-      'Comment',
-      'Notes'
-    ]);
-    for (final r in sessions) {
-      rows.add([
-        formatDateTime(r.date),
-        r.total,
-        r.correct,
-        r.accuracy.toStringAsFixed(1),
-        r.tags.join(';'),
-        r.comment ?? '',
-        r.notes ?? '',
-      ]);
-    }
-    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.csv');
-    await file.writeAsString(csvStr, encoding: utf8);
-    await Share.shareXFiles([XFile(file.path)], text: 'training_history.csv');
+    final file = await _exportService.exportCsv(
+      sessions: sessions,
+      filters: filters,
+    );
+    _lastCsvPath = file.path;
   }
 
   Future<void> _exportMarkdown() async {
@@ -372,85 +326,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (sessions.isEmpty) return;
 
     final chartData = _groupSessionsForChart(sessions);
-
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (context) {
-          final table = pw.Table.fromTextArray(
-            headers: const [
-              'Date',
-              'Total',
-              'Correct',
-              'Accuracy',
-              'Tags',
-              'Comment',
-              'Notes'
-            ],
-            data: [
-              for (final r in sessions)
-                [
-                  formatDateTime(r.date),
-                  r.total,
-                  r.correct,
-                  r.accuracy.toStringAsFixed(1),
-                  r.tags.join(';'),
-                  r.comment ?? '',
-                  r.notes ?? ''
-                ]
-            ],
-          );
-
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              if (_includeChartInPdf)
-                pw.Container(
-                  height: 200,
-                  child: pw.Chart(
-                    grid: pw.CartesianGrid(
-                      xAxis: pw.FixedAxis.fromStrings(
-                        [for (final r in chartData) formatDate(r.date)],
-                        marginStart: 30,
-                      ),
-                      yAxis: pw.FixedAxis(
-                        [0, 20, 40, 60, 80, 100],
-                        divisions: true,
-                        marginStart: 30,
-                      ),
-                    ),
-                    datasets: [
-                      pw.LineDataSet(
-                        drawPoints: false,
-                        isCurved: true,
-                        data: [
-                          for (var i = 0; i < chartData.length; i++)
-                            pw.PointChartValue(
-                              i.toDouble(),
-                              chartData[i].accuracy,
-                            )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              if (_includeChartInPdf) pw.SizedBox(height: 16),
-              table,
-            ],
-          );
-        },
-      ),
+    final file = await _exportService.exportPdf(
+      sessions: sessions,
+      chartData: chartData,
+      includeChart: _includeChartInPdf,
     );
-
-    final bytes = await pdf.save();
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    await file.writeAsBytes(bytes);
-
     _lastPdfPath = file.path;
-    await Share.shareXFiles([XFile(file.path)], text: 'training_history.pdf');
   }
 
   Future<void> _exportJson() async {
@@ -498,21 +379,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final grouped = _groupSessionsForChart(filtered);
     if (grouped.isEmpty) return;
 
-    final rows = <List<dynamic>>[];
-    rows.add(['Date', 'Total', 'Correct', 'Accuracy']);
-    for (final r in grouped) {
-      rows.add([
-        formatDate(r.date),
-        r.total,
-        r.correct,
-        r.accuracy.toStringAsFixed(1),
-      ]);
-    }
-
-    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
-    final dir = await getApplicationDocumentsDirectory();
-
     String mode;
     switch (_chartMode) {
       case _ChartMode.daily:
@@ -525,16 +391,15 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         mode = 'monthly';
         break;
     }
-
-    final fileName = 'chart_${mode}_${DateTime.now().millisecondsSinceEpoch}.csv';
-    final file = File('${dir.path}/$fileName');
-    await file.writeAsString(csvStr, encoding: utf8);
-
+    final file = await _exportService.exportChartCsv(
+      grouped: grouped,
+      mode: mode,
+    );
     _lastCsvPath = file.path;
-
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: $fileName')),
+        SnackBar(
+            content: Text('Файл сохранён: ${file.path.split('/').last}')),
       );
     }
   }
@@ -568,40 +433,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         .where((r) => !_exportNotesOnly || (r.notes?.trim().isNotEmpty ?? false))
         .toList();
     if (sessions.isEmpty) return;
-    final rows = <List<dynamic>>[];
-    rows.add([
-      'Date',
-      'Accuracy',
-      'Total',
-      'Correct',
-      'Tags',
-      'Comment',
-      'Notes'
-    ]);
-    for (final r in sessions) {
-      rows.add([
-        formatDateTime(r.date),
-        r.accuracy.toStringAsFixed(1),
-        r.total,
-        r.correct,
-        r.tags.join(';'),
-        r.comment ?? '',
-        r.notes ?? '',
-      ]);
-    }
-    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
-    final dir = await getApplicationDocumentsDirectory();
-    final fileName =
-        'visible_${DateTime.now().millisecondsSinceEpoch}.csv';
-    final file = File('${dir.path}/$fileName');
-    await file.writeAsString(csvStr, encoding: utf8);
-
+    final file = await _exportService.exportVisibleCsv(sessions);
     _lastCsvPath = file.path;
-
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: $fileName')),
+        SnackBar(
+            content: Text('Файл сохранён: ${file.path.split('/').last}')),
       );
     }
   }
@@ -614,89 +451,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (sessions.isEmpty) return;
 
     final chartData = _groupSessionsForChart(sessions);
-
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (context) {
-          final table = pw.Table.fromTextArray(
-            headers: const [
-              'Date',
-              'Accuracy',
-              'Total',
-              'Correct',
-              'Tags',
-              'Comment',
-              'Notes'
-            ],
-            data: [
-              for (final r in sessions)
-                [
-                  formatDateTime(r.date),
-                  r.accuracy.toStringAsFixed(1),
-                  r.total,
-                  r.correct,
-                  r.tags.join(';'),
-                  r.comment ?? '',
-                  r.notes ?? ''
-                ]
-            ],
-          );
-
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              if (_includeChartInPdf)
-                pw.Container(
-                  height: 200,
-                  child: pw.Chart(
-                    grid: pw.CartesianGrid(
-                      xAxis: pw.FixedAxis.fromStrings(
-                        [for (final r in chartData) formatDate(r.date)],
-                        marginStart: 30,
-                      ),
-                      yAxis: pw.FixedAxis(
-                        [0, 20, 40, 60, 80, 100],
-                        divisions: true,
-                        marginStart: 30,
-                      ),
-                    ),
-                    datasets: [
-                      pw.LineDataSet(
-                        drawPoints: false,
-                        isCurved: true,
-                        data: [
-                          for (var i = 0; i < chartData.length; i++)
-                            pw.PointChartValue(
-                              i.toDouble(),
-                              chartData[i].accuracy,
-                            )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              if (_includeChartInPdf) pw.SizedBox(height: 16),
-              table,
-            ],
-          );
-        },
-      ),
+    final file = await _exportService.exportVisiblePdf(
+      sessions: sessions,
+      chartData: chartData,
+      includeChart: _includeChartInPdf,
     );
-
-    final bytes = await pdf.save();
-    final dir = await getApplicationDocumentsDirectory();
-    final fileName =
-        'visible_${DateTime.now().millisecondsSinceEpoch}.pdf';
-    final file = File('${dir.path}/$fileName');
-    await file.writeAsBytes(bytes);
-
     _lastPdfPath = file.path;
-
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: $fileName')),
+        SnackBar(
+            content: Text('Файл сохранён: ${file.path.split('/').last}')),
       );
     }
   }
@@ -857,36 +621,17 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
 
     if (confirm != true) return;
-
-    bool deleted = false;
-
-    if (_lastCsvPath != null) {
-      final file = File(_lastCsvPath!);
-      if (await file.exists()) {
-        await file.delete();
-        deleted = true;
-      }
-    }
-
-    if (_lastPdfPath != null) {
-      final file = File(_lastPdfPath!);
-      if (await file.exists()) {
-        await file.delete();
-        deleted = true;
-      }
-    }
-
+    final deleted =
+        await _exportService.deleteLatestExports(_lastCsvPath, _lastPdfPath);
     setState(() {
       _lastCsvPath = null;
       _lastPdfPath = null;
     });
-
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(deleted
-              ? 'Файлы удалены'
-              : 'Файлы не найдены'),
+          content:
+              Text(deleted ? 'Файлы удалены' : 'Файлы не найдены'),
         ),
       );
     }
