@@ -8,13 +8,8 @@ class StackWithInvestments {
   StackWithInvestments(this.initialStack);
 
   /// Remaining stack after subtracting all investments.
-  int get remainingStack {
-    int total = 0;
-    for (final int v in _investments.values) {
-      total += v;
-    }
-    return initialStack - total;
-  }
+  int get remainingStack =>
+      initialStack - _investments.values.fold(0, (a, b) => a + b);
 
   /// Returns the invested chips for [street].
   int getInvestmentForStreet(int street) => _investments[street] ?? 0;
