@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
@@ -33,11 +34,13 @@ class TrainingSessionLauncher {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
 
-    String? lessonId;
-    if (template.id == TrainingPackLibraryV2.mvpPackId) {
-      lessonId = 'lesson_push_fold_intro';
-    } else if (template.id == 'push_fold_btn_cash') {
-      lessonId = 'lesson_push_fold_btn_cash';
+    String? lessonId = template.meta['lessonId'] as String?;
+    if (lessonId == null) {
+      if (template.id == TrainingPackLibraryV2.mvpPackId) {
+        lessonId = 'lesson_push_fold_intro';
+      } else if (template.id == 'push_fold_btn_cash') {
+        lessonId = 'lesson_push_fold_btn_cash';
+      }
     }
 
     if (lessonId != null) {
@@ -72,6 +75,45 @@ class TrainingSessionLauncher {
 
     final statBefore = await TrainingPackStatsService.getStats(template.id);
     final handsBefore = await TrainingPackStatsService.getHandsCompleted(template.id);
+
+    if (!kDebugMode) {
+      final unmet = <String>[];
+
+      final reqAcc = template.requiredAccuracy;
+      if (reqAcc != null && (statBefore?.accuracy ?? 0) * 100 < reqAcc) {
+        unmet.add('достигнуть точности ${reqAcc.toStringAsFixed(0)}%');
+      }
+
+      final minHands = template.minHands;
+      if (minHands != null && handsBefore < minHands) {
+        unmet.add('сыграть $minHands рук');
+      }
+
+      if (template.requiresTheoryCompleted && lessonId != null) {
+        final done =
+            await TheoryLessonCompletionLogger.instance.isCompleted(lessonId);
+        if (!done) {
+          unmet.add('пройти теорию');
+        }
+      }
+
+      if (unmet.isNotEmpty) {
+        await showDialog<void>(
+          context: ctx,
+          builder: (context) => AlertDialog(
+            title: const Text('Пак ещё недоступен'),
+            content: Text('Необходимо: ${unmet.join(', ')}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    }
 
     final pack = TrainingPackV2.fromTemplate(template, template.id);
     await Navigator.push(
