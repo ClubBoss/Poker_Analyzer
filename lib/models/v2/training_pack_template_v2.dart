@@ -9,6 +9,7 @@ import 'training_pack_spot.dart';
 import 'spot_template.dart';
 import 'unlock_rules.dart';
 import 'hero_position.dart';
+import 'training_pack_template.dart' show TrainingPackTemplate;
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -31,16 +32,14 @@ class TrainingPackTemplateV2 {
   bool requiresTheoryCompleted;
   String? targetStreet;
   UnlockRules? unlockRules;
+  double? requiredAccuracy;
+  int? minHands;
 
+  // Legacy fields kept for backwards compatibility.
   double? get requiresAccuracy =>
       (meta['requiresAccuracy'] as num?)?.toDouble();
   int? get requiresVolume =>
       (meta['requiresVolume'] as num?)?.toInt();
-
-  // New performance gating fields.
-  double? get requiredAccuracy =>
-      (meta['requiredAccuracy'] as num?)?.toDouble();
-  int? get minHands => (meta['minHands'] as num?)?.toInt();
 
   /// Ephemeral flag – marks automatically generated packs. Never
   /// serialized to or from disk.
@@ -71,6 +70,8 @@ class TrainingPackTemplateV2 {
     this.requiresTheoryCompleted = false,
     this.targetStreet,
     this.unlockRules,
+    this.requiredAccuracy,
+    this.minHands,
     bool? isGeneratedPack,
     bool? isSampledPack,
   }) : tags = tags ?? [],
@@ -81,6 +82,8 @@ class TrainingPackTemplateV2 {
        isGeneratedPack = isGeneratedPack ?? false,
        isSampledPack = isSampledPack ?? false {
     if (theme != null) meta['theme'] = theme;
+    if (requiredAccuracy != null) meta['requiredAccuracy'] = requiredAccuracy;
+    if (minHands != null) meta['minHands'] = minHands;
     category ??= this.tags.isNotEmpty ? this.tags.first : null;
   }
 
@@ -122,6 +125,11 @@ class TrainingPackTemplateV2 {
       unlockRules: j['unlockRules'] is Map
           ? UnlockRules.fromJson(Map<String, dynamic>.from(j['unlockRules']))
           : null,
+      requiredAccuracy: j['meta'] is Map
+          ? (j['meta']['requiredAccuracy'] as num?)?.toDouble()
+          : null,
+      minHands:
+          j['meta'] is Map ? (j['meta']['minHands'] as num?)?.toInt() : null,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
     if (tpl.theme != null) tpl.meta['theme'] = tpl.theme;
@@ -155,6 +163,12 @@ class TrainingPackTemplateV2 {
     if (theme != null) metaMap['theme'] = theme;
     if (requiresTheoryCompleted) {
       metaMap['requiresTheoryCompleted'] = true;
+    }
+    if (requiredAccuracy != null) {
+      metaMap['requiredAccuracy'] = requiredAccuracy;
+    }
+    if (minHands != null) {
+      metaMap['minHands'] = minHands;
     }
     if (metaMap.isNotEmpty) map['meta'] = metaMap;
     return map;
@@ -247,5 +261,8 @@ class TrainingPackTemplateV2 {
     requiresTheoryCompleted:
         template.meta['requiresTheoryCompleted'] == true,
     targetStreet: template.targetStreet,
+    requiredAccuracy:
+        (template.meta['requiredAccuracy'] as num?)?.toDouble(),
+    minHands: (template.meta['minHands'] as num?)?.toInt(),
   );
 }
