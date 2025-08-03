@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
@@ -59,6 +60,32 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   final ScrollController _scrollController = ScrollController();
   final Map<String, GlobalKey> _stageKeys = {};
   bool _scrollDone = false;
+
+  bool _hudVisible = true;
+  double? _hudHeight;
+  final GlobalKey _hudKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final direction = _scrollController.position.userScrollDirection;
+    if (direction == ScrollDirection.reverse && _hudVisible) {
+      setState(() => _hudVisible = false);
+    } else if (direction == ScrollDirection.forward && !_hudVisible) {
+      setState(() => _hudVisible = true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -533,6 +560,26 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final activeStage = stages.firstWhereOrNull(
       (s) => _stageStates[s.id] == LearningStageUIState.active,
     );
+    Widget hud = _buildHud(template, activeStage, doneCount, totalCount);
+    if (_hudHeight == null) {
+      hud = KeyedSubtree(key: _hudKey, child: hud);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final box = _hudKey.currentContext?.findRenderObject() as RenderBox?;
+        if (box != null && mounted) {
+          setState(() => _hudHeight = box.size.height);
+        }
+      });
+    } else {
+      hud = AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        height: _hudVisible ? _hudHeight! : 0,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: _hudVisible ? 1 : 0,
+          child: hud,
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(template.title),
@@ -553,7 +600,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 }
                 return Column(
                   children: [
-                    _buildHud(template, activeStage, doneCount, totalCount),
+                    hud,
                     Expanded(
                       child: ListView(
                         controller: _scrollController,
