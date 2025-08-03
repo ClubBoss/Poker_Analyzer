@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../services/training_pack_tag_analytics_service.dart';
 import '../../utils/shared_prefs_keys.dart';
+import '../tag_preset_editor.dart';
 
 import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
@@ -125,8 +126,6 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<MapEntry<String, List<String>>?> _editTagPreset(
       {String? initialName, List<String>? initialTags}) async {
-    final controller = TextEditingController(text: initialName ?? '');
-    final local = <String>{...(initialTags ?? [])};
     final suggestions = <String>{
       ..._availableTags,
       for (final list in _tagPresets.values) ...list,
@@ -135,70 +134,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
     }..removeWhere((e) => e.isEmpty);
     final result = await showDialog<MapEntry<String, List<String>>>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: Text(
-            initialName == null ? 'Новый пресет' : 'Редактировать пресет',
-            style: const TextStyle(color: Colors.white),
-          ),
-          content: StatefulBuilder(
-            builder: (context, setStateDialog) {
-              return SizedBox(
-                width: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: controller,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Название',
-                        labelStyle: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          for (final tag in suggestions)
-                            CheckboxListTile(
-                              value: local.contains(tag),
-                              title: Text(tag,
-                                  style: const TextStyle(color: Colors.white)),
-                              onChanged: (v) {
-                                setStateDialog(() {
-                                  if (v ?? false) {
-                                    local.add(tag);
-                                  } else {
-                                    local.remove(tag);
-                                  }
-                                });
-                              },
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(
-                  context, MapEntry(controller.text.trim(), local.toList())),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => TagPresetEditor(
+        initialName: initialName,
+        initialTags: initialTags,
+        suggestions: suggestions,
+      ),
     );
     if (result == null || result.key.isEmpty) return null;
     return result;
