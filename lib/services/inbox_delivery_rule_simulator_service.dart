@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'smart_booster_exclusion_tracker_service.dart';
 import 'smart_booster_inbox_limiter_service.dart';
 import 'smart_inbox_heuristic_tuning_service.dart';
@@ -77,8 +79,7 @@ class InboxDeliveryRuleSimulatorService {
   void printSimulationReport(List<InboxSimulationResult> results) {
     for (final r in results) {
       final status = r.wouldShow ? 'SHOW' : 'EXCLUDED (${r.reasonIfExcluded})';
-      // ignore: avoid_print
-      print('${r.tag}: $status');
+      developer.log('${r.tag}: $status');
     }
   }
 }

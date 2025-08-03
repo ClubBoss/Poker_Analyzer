@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:poker_analyzer/services/smart_booster_exclusion_tracker_service.dart';
 
 class BoosterExclusionAnalytics {
@@ -46,16 +48,16 @@ class BoosterExclusionAnalyticsDashboardService {
     final tags = data.exclusionsByTag.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    print('Top exclusion reasons:');
+    developer.log('Top exclusion reasons:');
     for (int i = 0; i < reasons.length && i < 5; i++) {
       final r = reasons[i];
-      print('${r.key}: ${r.value}');
+      developer.log('${r.key}: ${r.value}');
     }
 
-    print('Top exclusion tags:');
+    developer.log('Top exclusion tags:');
     for (int i = 0; i < tags.length && i < 5; i++) {
       final t = tags[i];
-      print('${t.key}: ${t.value}');
+      developer.log('${t.key}: ${t.value}');
     }
   }
 }
