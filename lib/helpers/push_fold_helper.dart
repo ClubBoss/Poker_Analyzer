@@ -8,18 +8,15 @@ Map<String, int> _buildPushFoldThresholds() {
     map['$r$r'] = 15;
   }
 
-  void addBoth(String a, String b) {
-    final ha = val(a) >= val(b) ? a : b;
-    final lb = val(a) >= val(b) ? b : a;
-    map['$ha$lb' 'o'] = 15;
-    map['$ha$lb' 's'] = 15;
+  void add(String a, String b, {bool suited = false, bool offsuit = false}) {
+    final pair = [a, b]..sort((x, y) => val(y).compareTo(val(x)));
+    if (offsuit) map['${pair[0]}${pair[1]}o'] = 15;
+    if (suited) map['${pair[0]}${pair[1]}s'] = 15;
   }
 
-  void addSuited(String a, String b) {
-    final ha = val(a) >= val(b) ? a : b;
-    final lb = val(a) >= val(b) ? b : a;
-    map['$ha$lb' 's'] = 15;
-  }
+  void addBoth(String a, String b) => add(a, b, suited: true, offsuit: true);
+
+  void addSuited(String a, String b) => add(a, b, suited: true);
 
   for (final r in ranks) {
     addPair(r);
