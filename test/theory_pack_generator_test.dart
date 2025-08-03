@@ -18,4 +18,29 @@ void main() {
     final tpl = generator.generate('push_sb', 'demo');
     expect(tpl.spots.first.explanation?.isNotEmpty, true);
   });
+
+  test('uses default text when none provided', () {
+    final tpl = generator.generate('unknown', 'demo');
+    final spot = tpl.spots.first;
+    expect(spot.title, TheoryPackGenerator.defaultQuestion);
+    expect(spot.note, TheoryPackGenerator.defaultSolution);
+    expect(spot.explanation, TheoryPackGenerator.defaultExplanation);
+  });
+
+  test('allows localized overrides', () {
+    const q = 'Вопрос';
+    const s = 'Ответ';
+    const e = 'Объяснение';
+    final tpl = generator.generate(
+      'push_sb',
+      'loc',
+      question: q,
+      solution: s,
+      explanation: e,
+    );
+    final spot = tpl.spots.first;
+    expect(spot.title, q);
+    expect(spot.note, s);
+    expect(spot.explanation, e);
+  });
 }

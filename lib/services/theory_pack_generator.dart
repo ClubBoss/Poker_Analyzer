@@ -9,15 +9,29 @@ import 'booster_thematic_descriptions.dart';
 class TheoryPackGenerator {
   const TheoryPackGenerator();
 
+  /// Default text used when no localized strings are provided.
+  static const String defaultQuestion = 'Question';
+  static const String defaultSolution = 'Solution';
+  static const String defaultExplanation = 'Explanation';
+
   /// Builds a [TrainingPackTemplateV2] with a single theory spot.
-  TrainingPackTemplateV2 generate(String tag, String idPrefix) {
-    final explanation = BoosterThematicDescriptions.get(tag) ?? 'TODO: explanation';
+  TrainingPackTemplateV2 generate(
+    String tag,
+    String idPrefix, {
+    String question = defaultQuestion,
+    String solution = defaultSolution,
+    String? explanation,
+  }) {
+    final resolvedExplanation =
+        explanation ??
+        BoosterThematicDescriptions.get(tag) ??
+        defaultExplanation;
     final spot = TrainingPackSpot(
       id: '${idPrefix}_${tag}_1',
       type: 'theory',
-      title: 'TODO: question',
-      note: 'TODO: solution',
-      explanation: explanation,
+      title: question,
+      note: solution,
+      explanation: resolvedExplanation,
       tags: [tag],
       hand: HandData(),
     );
