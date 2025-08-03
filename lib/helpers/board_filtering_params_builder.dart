@@ -5,6 +5,8 @@
 /// passed into [FullBoardGeneratorService] via `boardFilterParams`.
 library board_filtering_params_builder;
 
+import '../services/board_filtering_tag_library_service.dart';
+
 class BoardFilteringParamsBuilder {
   /// Builds a map of filter parameters based on [textureTags].
   ///
@@ -12,8 +14,8 @@ class BoardFilteringParamsBuilder {
   /// - `rainbow`, `twoTone`, `monotone`
   /// - `paired`
   /// - `aceHigh`
-  /// - `lowBoard`
-  /// - `connected` (straight draw heavy)
+  /// - `low`
+  /// - `connected`/`wet`/`dynamic` (straight draw heavy)
   /// - `broadway`
   static Map<String, dynamic> build(List<String> textureTags) {
     final filter = <String, dynamic>{};
@@ -21,14 +23,12 @@ class BoardFilteringParamsBuilder {
     String? suitPattern;
 
     for (final t in textureTags) {
-      final tag = t.toLowerCase();
-      switch (tag) {
+      final resolved = BoardFilteringTagLibraryService.resolve(t)?.id ?? t;
+      switch (resolved) {
         case 'rainbow':
           suitPattern = 'rainbow';
           break;
-        case 'twotone':
-        case 'two-tone':
-        case 'two_tone':
+        case 'twoTone':
           suitPattern = 'twoTone';
           break;
         case 'monotone':
@@ -37,14 +37,15 @@ class BoardFilteringParamsBuilder {
         case 'paired':
           boardTextures.add('paired');
           break;
-        case 'acehigh':
+        case 'aceHigh':
           boardTextures.add('aceHigh');
           break;
-        case 'lowboard':
         case 'low':
           boardTextures.add('low');
           break;
         case 'connected':
+        case 'wet':
+        case 'dynamic':
           boardTextures.add('straightDrawHeavy');
           break;
         case 'broadway':

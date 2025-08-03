@@ -25,4 +25,10 @@ void main() {
     expect(ranks.toSet().length, lessThan(ranks.length));
     expect(board.flop.map((c) => c.suit).toSet().length, 3);
   });
+
+  test('aliases are resolved via tag library', () {
+    final params = BoardFilteringParamsBuilder.build(['two-tone', 'acehigh']);
+    expect(params['suitPattern'], 'twoTone');
+    expect(params['boardTexture'], contains('aceHigh'));
+  });
 }
