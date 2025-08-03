@@ -12,7 +12,7 @@ class BoosterInteractionTrackerService {
   Future<void> logOpened(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
-      SharedPrefsKeys.boosterOpened(tag),
+      SharedPrefsKey.boosterOpened.asString(tag),
       DateTime.now().millisecondsSinceEpoch,
     );
     await UserActionLogger.instance.logEvent({
@@ -24,7 +24,7 @@ class BoosterInteractionTrackerService {
   Future<void> logDismissed(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
-      SharedPrefsKeys.boosterDismissed(tag),
+      SharedPrefsKey.boosterDismissed.asString(tag),
       DateTime.now().millisecondsSinceEpoch,
     );
     await UserActionLogger.instance.logEvent({
@@ -35,14 +35,14 @@ class BoosterInteractionTrackerService {
 
   Future<DateTime?> getLastOpened(String tag) async {
     final prefs = await SharedPreferences.getInstance();
-    final ts = prefs.getInt(SharedPrefsKeys.boosterOpened(tag));
+    final ts = prefs.getInt(SharedPrefsKey.boosterOpened.asString(tag));
     if (ts == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(ts);
   }
 
   Future<DateTime?> getLastDismissed(String tag) async {
     final prefs = await SharedPreferences.getInstance();
-    final ts = prefs.getInt(SharedPrefsKeys.boosterDismissed(tag));
+    final ts = prefs.getInt(SharedPrefsKey.boosterDismissed.asString(tag));
     if (ts == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(ts);
   }
@@ -52,16 +52,16 @@ class BoosterInteractionTrackerService {
     final prefs = await SharedPreferences.getInstance();
     final result = <String, Map<String, DateTime?>>{};
     for (final key in prefs.getKeys()) {
-      if (key.startsWith(SharedPrefsKeys.boosterOpenedPrefix)) {
-        final tag = key.substring(SharedPrefsKeys.boosterOpenedPrefix.length);
+      if (key.startsWith(SharedPrefsKey.boosterOpened.asString())) {
+        final tag = key.substring(SharedPrefsKey.boosterOpened.asString().length);
         final ts = prefs.getInt(key);
         final map = result.putIfAbsent(tag, () => {});
         if (ts != null) {
           map['opened'] = DateTime.fromMillisecondsSinceEpoch(ts);
         }
-      } else if (key.startsWith(SharedPrefsKeys.boosterDismissedPrefix)) {
+      } else if (key.startsWith(SharedPrefsKey.boosterDismissed.asString())) {
         final tag =
-            key.substring(SharedPrefsKeys.boosterDismissedPrefix.length);
+            key.substring(SharedPrefsKey.boosterDismissed.asString().length);
         final ts = prefs.getInt(key);
         final map = result.putIfAbsent(tag, () => {});
         if (ts != null) {

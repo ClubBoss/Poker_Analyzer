@@ -9,8 +9,10 @@ class SmartBoosterInboxLimiterService {
 
   static const int maxPerDay = 2;
   static const Duration tagCooldown = Duration(hours: 48);
-  static const String _totalDateKey = SharedPrefsKeys.boosterInboxTotalDate;
-  static const String _totalCountKey = SharedPrefsKeys.boosterInboxTotalCount;
+  static final String _totalDateKey =
+      SharedPrefsKey.boosterInboxTotalDate.asString();
+  static final String _totalCountKey =
+      SharedPrefsKey.boosterInboxTotalCount.asString();
 
   String _todayKey(DateTime dt) =>
       '${dt.year.toString().padLeft(4, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
@@ -33,7 +35,7 @@ class SmartBoosterInboxLimiterService {
     }
 
     final lastMillis =
-        prefs.getInt(SharedPrefsKeys.boosterInboxLast(tag));
+        prefs.getInt(SharedPrefsKey.boosterInboxLast.asString(tag));
     if (lastMillis != null) {
       final last = DateTime.fromMillisecondsSinceEpoch(lastMillis);
       if (now.difference(last) < tagCooldown) {
@@ -50,7 +52,7 @@ class SmartBoosterInboxLimiterService {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     await prefs.setInt(
-      SharedPrefsKeys.boosterInboxLast(tag),
+      SharedPrefsKey.boosterInboxLast.asString(tag),
       now.millisecondsSinceEpoch,
     );
 

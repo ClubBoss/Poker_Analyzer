@@ -40,13 +40,15 @@ class TrainingSpotListState extends State<TrainingSpotList> {
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    _ascending = prefs.getBool(SharedPrefsKeys.trainingSpotListSort) ?? true;
+    _ascending =
+        prefs.getBool(SharedPrefsKey.trainingSpotListSort.asString()) ?? true;
     _sort();
   }
 
   Future<void> _savePrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(SharedPrefsKeys.trainingSpotListSort, _ascending);
+    await prefs
+        .setBool(SharedPrefsKey.trainingSpotListSort.asString(), _ascending);
   }
 
   void _sort() {

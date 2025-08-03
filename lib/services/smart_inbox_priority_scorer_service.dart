@@ -16,7 +16,7 @@ class SmartInboxPriorityScorerService {
     for (final s in input) {
       final base = _scoreForAction(s.action);
       final lastMillis =
-          prefs.getInt(SharedPrefsKeys.boosterInboxLast(s.tag));
+          prefs.getInt(SharedPrefsKey.boosterInboxLast.asString(s.tag));
       final last = lastMillis == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(lastMillis);
