@@ -94,17 +94,40 @@ class TrainingPackController extends ChangeNotifier {
   }
 
   void reorder(int oldIndex, int newIndex) {
-    final item = _spots.removeAt(oldIndex);
-    _spots.insert(newIndex, item);
-    final baseItem = _allSpots.removeAt(_allSpots.indexOf(item));
-    final target = newIndex >= _spots.length ? null : _spots[newIndex];
-    final baseIndex = target == null
-        ? _allSpots.length
-        : _allSpots.indexOf(target);
-    _allSpots.insert(baseIndex, baseItem);
+    // Remove the spot from the filtered list and keep a reference to it.
+    final item = _removeFromVisible(oldIndex);
+    // Insert the spot into the filtered list at its new position.
+    _insertIntoVisible(newIndex, item);
+    // Remove the corresponding spot from the base list.
+    final baseItem = _removeFromBase(item);
+    // Determine the insertion index within the base list.
+    final baseIndex = _findBaseInsertionIndex(newIndex);
+    // Insert the spot into the base list at the computed position.
+    _insertIntoBase(baseIndex, baseItem);
     saveSpots();
     notifyListeners();
   }
+
+  /// Removes the spot from the currently filtered list.
+  TrainingSpot _removeFromVisible(int index) => _spots.removeAt(index);
+
+  /// Inserts the spot into the currently filtered list.
+  void _insertIntoVisible(int index, TrainingSpot spot) =>
+      _spots.insert(index, spot);
+
+  /// Removes the spot from the full list of spots.
+  TrainingSpot _removeFromBase(TrainingSpot spot) =>
+      _allSpots.removeAt(_allSpots.indexOf(spot));
+
+  /// Computes the index where the spot should be inserted in the base list.
+  int _findBaseInsertionIndex(int newIndex) {
+    final target = newIndex >= _spots.length ? null : _spots[newIndex];
+    return target == null ? _allSpots.length : _allSpots.indexOf(target);
+  }
+
+  /// Inserts the spot into the full list of spots.
+  void _insertIntoBase(int index, TrainingSpot spot) =>
+      _allSpots.insert(index, spot);
 
   void clearFilters() {
     _stackFilter = null;
