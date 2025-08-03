@@ -2,16 +2,25 @@
 class SharedPrefsKeys {
   SharedPrefsKeys._();
 
-  static String boosterInboxLast(String tag) => 'booster_inbox_last_$tag';
-  static const String boosterInboxTotalDate = 'booster_inbox_total_date';
-  static const String boosterInboxTotalCount = 'booster_inbox_total_count';
-  static const String boosterExclusionLog = 'booster_exclusion_log';
+  static const String _boosterPrefix = 'booster';
+  static String _boosterKey(String suffix) => '$_boosterPrefix_$suffix';
+  static String _boosterTagKey(String type, String tag) =>
+      _boosterKey('$type_$tag');
 
-  static const String boosterOpenedPrefix = 'booster_opened_';
-  static String boosterOpened(String tag) => '${boosterOpenedPrefix}$tag';
+  static String boosterInboxLast(String tag) =>
+      _boosterTagKey('inbox_last', tag);
+  static final String boosterInboxTotalDate =
+      _boosterKey('inbox_total_date');
+  static final String boosterInboxTotalCount =
+      _boosterKey('inbox_total_count');
+  static final String boosterExclusionLog =
+      _boosterKey('exclusion_log');
 
-  static const String boosterDismissedPrefix = 'booster_dismissed_';
-  static String boosterDismissed(String tag) => '${boosterDismissedPrefix}$tag';
+  static String boosterOpened(String tag) =>
+      _boosterTagKey('opened', tag);
+
+  static String boosterDismissed(String tag) =>
+      _boosterTagKey('dismissed', tag);
 
   // Training spot list keys
   static const String trainingPresetTags = 'training_preset_tags';
