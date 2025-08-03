@@ -7,6 +7,7 @@ import '../training_pack.dart' show parseGameType;
 import '../../core/training/engine/training_type_engine.dart';
 import 'training_pack_spot.dart';
 import 'spot_template.dart';
+import 'dynamic_spot_template.dart';
 import 'unlock_rules.dart';
 import 'hero_position.dart';
 import 'training_pack_template.dart' show TrainingPackTemplate;
@@ -23,6 +24,7 @@ class TrainingPackTemplateV2 {
   TrainingType trainingType;
   List<SpotTemplate> spots;
   int spotCount;
+  List<DynamicSpotTemplate> dynamicSpots;
   final DateTime created;
   GameType gameType;
   int bb;
@@ -61,6 +63,7 @@ class TrainingPackTemplateV2 {
     required this.trainingType,
     List<SpotTemplate>? spots,
     this.spotCount = 0,
+    List<DynamicSpotTemplate>? dynamicSpots,
     DateTime? created,
     this.gameType = GameType.cash,
     this.bb = 0,
@@ -76,6 +79,7 @@ class TrainingPackTemplateV2 {
     bool? isSampledPack,
   }) : tags = tags ?? [],
        spots = spots ?? [],
+       dynamicSpots = dynamicSpots ?? [],
        positions = positions ?? [],
        created = created ?? DateTime.now(),
        meta = meta ?? {},
@@ -87,7 +91,38 @@ class TrainingPackTemplateV2 {
     category ??= this.tags.isNotEmpty ? this.tags.first : null;
   }
 
+  List<TrainingPackSpot> generateDynamicSpotSamples() {
+    final list = <TrainingPackSpot>[];
+    for (final d in dynamicSpots) {
+      list.addAll(d.generateSpots());
+    }
+    return list;
+  }
+
+  void regenerateDynamicSpots() {
+    if (dynamicSpots.isEmpty) return;
+    spots = generateDynamicSpotSamples();
+    spotCount = spots.length;
+  }
+
   factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) {
+    final dynamicList = <DynamicSpotTemplate>[
+      for (final d in (j['dynamicSpots'] as List? ?? []))
+        DynamicSpotTemplate.fromJson(Map<String, dynamic>.from(d)),
+    ];
+
+    var spots = <TrainingPackSpot>[
+      for (final s in (j['spots'] as List? ?? []))
+        TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
+    ];
+
+    if (dynamicList.isNotEmpty) {
+      spots = <TrainingPackSpot>[];
+      for (final d in dynamicList) {
+        spots.addAll(d.generateSpots());
+      }
+    }
+
     final tpl = TrainingPackTemplateV2(
       id: j['id'] as String? ?? '',
       name: j['name'] as String? ?? '',
@@ -103,11 +138,10 @@ class TrainingPackTemplateV2 {
         (e) => e.name == (j['trainingType'] ?? j['type']),
         orElse: () => TrainingType.pushFold,
       ),
-      spots: [
-        for (final s in (j['spots'] as List? ?? []))
-          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
-      ],
-      spotCount: j['spotCount'] as int? ?? (j['spots'] as List? ?? []).length,
+      spots: spots,
+      spotCount: j['spotCount'] as int? ?? (dynamicList.isNotEmpty
+          ? spots.length
+          : (j['spots'] as List? ?? []).length),
       created:
           DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
       gameType: parseGameType(j['gameType']),
@@ -130,6 +164,7 @@ class TrainingPackTemplateV2 {
           : null,
       minHands:
           j['meta'] is Map ? (j['meta']['minHands'] as num?)?.toInt() : null,
+      dynamicSpots: dynamicList,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
     if (tpl.theme != null) tpl.meta['theme'] = tpl.theme;
@@ -149,7 +184,10 @@ class TrainingPackTemplateV2 {
       if (tags.isNotEmpty) 'tags': tags,
       if (category != null && category!.isNotEmpty) 'category': category,
       'trainingType': trainingType.name,
-      if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
+      if (dynamicSpots.isNotEmpty)
+        'dynamicSpots': [for (final d in dynamicSpots) d.toJson()]
+      else if (spots.isNotEmpty)
+        'spots': [for (final s in spots) s.toJson()],
       'spotCount': spotCount,
       'created': created.toIso8601String(),
       'gameType': gameType.name,
