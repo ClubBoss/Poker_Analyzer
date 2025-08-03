@@ -12,6 +12,49 @@ class HandRangeLibrary {
         return PackGeneratorService.topNHands(70).toList();
       case 'icm':
         return PackGeneratorService.topNHands(10).toList();
+      case 'broadways':
+        const ranks = ['A', 'K', 'Q', 'J', 'T'];
+        final hands = <String>[];
+        for (var i = 0; i < ranks.length; i++) {
+          hands.add('${ranks[i]}${ranks[i]}');
+          for (var j = i + 1; j < ranks.length; j++) {
+            hands.add('${ranks[i]}${ranks[j]}s');
+            hands.add('${ranks[i]}${ranks[j]}o');
+          }
+        }
+        return hands;
+      case 'pockets':
+        return [
+          'AA',
+          'KK',
+          'QQ',
+          'JJ',
+          'TT',
+          '99',
+          '88',
+          '77',
+          '66',
+          '55',
+          '44',
+          '33',
+          '22',
+        ];
+      case 'suitedAx':
+        const kickers = [
+          'K',
+          'Q',
+          'J',
+          'T',
+          '9',
+          '8',
+          '7',
+          '6',
+          '5',
+          '4',
+          '3',
+          '2',
+        ];
+        return [for (final k in kickers) 'A${k}s'];
       case 'nash-10bb':
         return [
           '22',
