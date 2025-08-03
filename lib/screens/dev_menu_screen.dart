@@ -4,6 +4,7 @@ import 'dev_menu/booster_section.dart';
 import 'dev_menu/coverage_section.dart';
 import 'dev_menu/dev_menu_section.dart';
 import 'dev_menu/pack_generation_section.dart';
+import 'dev_menu/debug_tools_section.dart';
 
 class DevMenuScreen extends StatelessWidget {
   const DevMenuScreen({super.key});
@@ -22,6 +23,10 @@ class DevMenuScreen extends StatelessWidget {
       DevMenuSection(
         title: 'Booster Tools',
         builder: (_) => const BoosterSection(),
+      ),
+      DevMenuSection(
+        title: 'Debug Tools',
+        builder: (_) => const DebugToolsSection(),
       ),
     ];
 
