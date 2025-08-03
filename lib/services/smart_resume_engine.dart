@@ -1,6 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../helpers/training_pack_storage.dart';
+import '../models/resume_target.dart';
 import '../models/v2/training_pack_template.dart';
+import 'pinned_block_resume_strategy.dart';
+import 'resume_strategy.dart';
 
 class UnfinishedPack {
   final TrainingPackTemplate template;
@@ -12,8 +16,20 @@ class UnfinishedPack {
 }
 
 class SmartResumeEngine {
-  SmartResumeEngine._();
-  static final instance = SmartResumeEngine._();
+  SmartResumeEngine({List<ResumeStrategy>? strategies})
+      : _strategies = strategies ?? [PinnedBlockResumeStrategy()];
+
+  static final SmartResumeEngine instance = SmartResumeEngine();
+
+  final List<ResumeStrategy> _strategies;
+
+  Future<ResumeTarget?> getResumeTarget() async {
+    for (final strategy in _strategies) {
+      final target = await strategy.getResumeTarget();
+      if (target != null) return target;
+    }
+    return null;
+  }
 
   static const _playPrefix = 'tpl_prog_';
   static const _playTsPrefix = 'tpl_ts_';
