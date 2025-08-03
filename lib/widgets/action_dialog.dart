@@ -22,7 +22,20 @@ class ActionDialog extends StatefulWidget {
 
 enum _Action { fold, check, call, bet, raise }
 
+class _ActionDescriptor {
+  final String label;
+  final _Action action;
+  const _ActionDescriptor(this.label, this.action);
+}
+
 class _ActionDialogState extends State<ActionDialog> {
+  static const List<_ActionDescriptor> _actions = [
+    _ActionDescriptor('Fold', _Action.fold),
+    _ActionDescriptor('Check', _Action.check),
+    _ActionDescriptor('Call', _Action.call),
+    _ActionDescriptor('Bet', _Action.bet),
+    _ActionDescriptor('Raise', _Action.raise),
+  ];
   _Action? _selected;
   double _slider = 0;
 
@@ -120,15 +133,10 @@ class _ActionDialogState extends State<ActionDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _actionButton('Fold', _Action.fold),
-          const SizedBox(height: 8),
-          _actionButton('Check', _Action.check),
-          const SizedBox(height: 8),
-          _actionButton('Call', _Action.call),
-          const SizedBox(height: 8),
-          _actionButton('Bet', _Action.bet),
-          const SizedBox(height: 8),
-          _actionButton('Raise', _Action.raise),
+          for (int i = 0; i < _actions.length; i++) ...[
+            if (i > 0) const SizedBox(height: 8),
+            _actionButton(_actions[i].label, _actions[i].action),
+          ],
           if (_selected == _Action.bet || _selected == _Action.raise)
             _buildBetSizer(),
         ],
