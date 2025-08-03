@@ -2,22 +2,22 @@ import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
 
 int _rankVal(String r) {
-  const order = [
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'T',
-    'J',
-    'Q',
-    'K',
-    'A'
-  ];
-  return order.indexOf(r);
+  const order = {
+    '2': 0,
+    '3': 1,
+    '4': 2,
+    '5': 3,
+    '6': 4,
+    '7': 5,
+    '8': 6,
+    '9': 7,
+    'T': 8,
+    'J': 9,
+    'Q': 10,
+    'K': 11,
+    'A': 12,
+  };
+  return order[r] ?? -1;
 }
 
 String? handCode(String twoCardString) {
