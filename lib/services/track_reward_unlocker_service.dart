@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
 
 import '../main.dart';
 import '../screens/player_stats_screen.dart';
@@ -37,7 +38,7 @@ class TrackRewardUnlockerService {
 
     await showDialog<void>(
       context: ctx,
-      builder: (context) => AlertDialog(
+      builder: (context) => DarkAlertDialog(
         title: const Text('Награда за прохождение!'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -35,7 +36,7 @@ class TrackCompletionCelebrationService {
 
     await showDialog<void>(
       context: ctx,
-      builder: (context) => AlertDialog(
+      builder: (context) => DarkAlertDialog(
         title: const Text('🎉 Трек завершён!'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -45,7 +46,8 @@ class TrackCompletionCelebrationService {
               duration: const Duration(milliseconds: 700),
               builder: (context, value, child) =>
                   Transform.scale(scale: value, child: child),
-              child: const Icon(Icons.celebration, size: 48, color: Colors.orange),
+              child:
+                  const Icon(Icons.celebration, size: 48, color: Colors.orange),
             ),
             const SizedBox(height: 12),
             const Text('Вы прошли весь трек!'),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,7 +33,7 @@ void main() {
     }
     await tester.pumpAndSettle();
 
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(DarkAlertDialog), findsOneWidget);
   });
 
   testWidgets('skips reward if track incomplete', (tester) async {
@@ -45,6 +46,6 @@ void main() {
     await svc.unlockReward('T');
     await tester.pump();
 
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(DarkAlertDialog), findsNothing);
   });
 }
