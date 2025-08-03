@@ -6,22 +6,22 @@ import 'date_utils.dart';
 class ExportUtils {
   const ExportUtils._();
 
+  static Map<String, String?> _handFields(SavedHand hand) => {
+        'Действие': hand.expectedAction,
+        'GTO': hand.gtoAction,
+        'Группа': hand.rangeGroup,
+        'Комментарий': hand.comment,
+      };
+
   static String handMarkdown(SavedHand hand, {int level = 2}) {
     final buffer = StringBuffer();
     final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
     buffer.writeln('${'#' * level} $title');
-    final userAction = hand.expectedAction;
-    if (userAction != null && userAction.isNotEmpty) {
-      buffer.writeln('- Действие: $userAction');
-    }
-    if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
-      buffer.writeln('- GTO: ${hand.gtoAction}');
-    }
-    if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
-      buffer.writeln('- Группа: ${hand.rangeGroup}');
-    }
-    if (hand.comment != null && hand.comment!.isNotEmpty) {
-      buffer.writeln('- Комментарий: ${hand.comment}');
+    for (final entry in _handFields(hand).entries) {
+      final value = entry.value;
+      if (value != null && value.isNotEmpty) {
+        buffer.writeln('- ${entry.key}: $value');
+      }
     }
     buffer.writeln();
     return buffer.toString();
@@ -40,21 +40,12 @@ class ExportUtils {
       ),
       pw.SizedBox(height: 8),
     ];
-    if (hand.expectedAction != null && hand.expectedAction!.isNotEmpty) {
-      widgets.add(pw.Text('Действие: ${hand.expectedAction}',
-          style: pw.TextStyle(font: regular)));
-    }
-    if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
-      widgets.add(pw.Text('GTO: ${hand.gtoAction}',
-          style: pw.TextStyle(font: regular)));
-    }
-    if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
-      widgets.add(pw.Text('Группа: ${hand.rangeGroup}',
-          style: pw.TextStyle(font: regular)));
-    }
-    if (hand.comment != null && hand.comment!.isNotEmpty) {
-      widgets.add(pw.Text('Комментарий: ${hand.comment}',
-          style: pw.TextStyle(font: regular)));
+    for (final entry in _handFields(hand).entries) {
+      final value = entry.value;
+      if (value != null && value.isNotEmpty) {
+        widgets.add(pw.Text('${entry.key}: $value',
+            style: pw.TextStyle(font: regular)));
+      }
     }
     widgets.add(pw.SizedBox(height: 12));
     return widgets;
