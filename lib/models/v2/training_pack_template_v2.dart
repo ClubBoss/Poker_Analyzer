@@ -15,6 +15,8 @@ import '../../services/training_spot_generator_service.dart';
 import '../../services/constraint_resolver_engine.dart';
 import '../../helpers/board_filtering_params_builder.dart';
 import '../../services/hand_group_tag_library_service.dart';
+import '../training_pack_template_set.dart' as spot_set;
+import '../../services/training_pack_template_expander_service.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -225,10 +227,23 @@ class TrainingPackTemplateV2 {
           DynamicSpotTemplate.fromJson(Map<String, dynamic>.from(d)),
       ];
 
-      spots = <TrainingPackSpot>[
-        for (final s in (j['spots'] as List? ?? []))
-          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
-      ];
+      final rawSpots = j['spots'];
+      if (rawSpots is List) {
+        spots = [
+          for (final s in rawSpots)
+            TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
+        ];
+      } else if (rawSpots is Map && rawSpots['variations'] is List) {
+        final set = spot_set.TrainingPackTemplateSet.fromJson(
+            Map<String, dynamic>.from(rawSpots));
+        spots = TrainingPackTemplateExpanderService().expand(set);
+      } else if (rawSpots is Map) {
+        spots = [
+          TrainingPackSpot.fromJson(Map<String, dynamic>.from(rawSpots)),
+        ];
+      } else {
+        spots = <TrainingPackSpot>[];
+      }
 
       if (dynamicList.isNotEmpty) {
         spots = <TrainingPackSpot>[];
