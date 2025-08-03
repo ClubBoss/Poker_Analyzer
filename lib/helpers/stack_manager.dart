@@ -1,6 +1,8 @@
 import '../models/action_entry.dart';
 import 'stack_with_investments.dart';
 
+const Set<String> investmentActions = {'call', 'bet', 'raise', 'all-in'};
+
 /// Manages stack recalculations based solely on actions.
 class StackManager {
   final Map<int, int> _initialStacks;
@@ -24,13 +26,13 @@ class StackManager {
       sw.clear();
     }
     for (final ActionEntry a in actions) {
-      if (a.action == 'call' ||
-          a.action == 'bet' ||
-          a.action == 'raise' ||
-          a.action == 'all-in') {
+      if (investmentActions.contains(a.action)) {
         final double? amount = a.amount;
         if (amount != null) {
-          _currentStacks[a.playerIndex]?.addInvestment(a.street, amount.round());
+          _currentStacks[a.playerIndex]?.addInvestment(
+            a.street,
+            amount.round(),
+          );
         }
       }
     }
