@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'preferences_service.dart';
 import '../models/user_goal.dart';
 import '../widgets/confetti_overlay.dart';
 import '../main.dart';
@@ -38,7 +38,7 @@ class UserGoalEngine extends ChangeNotifier {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       _goals
@@ -48,7 +48,7 @@ class UserGoalEngine extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, UserGoal.encode(_goals));
     unawaited(sync?.upload(_goals));
   }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'preferences_service.dart';
 import '../models/goal.dart';
 
 class GoalEngine extends ChangeNotifier {
@@ -17,7 +17,7 @@ class GoalEngine extends ChangeNotifier {
   List<Goal> get goals => List.unmodifiable(_goals);
 
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -63,7 +63,7 @@ class GoalEngine extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, jsonEncode([for (final g in _goals) g.toJson()]));
   }
 
