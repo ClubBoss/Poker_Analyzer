@@ -9,7 +9,6 @@ import '../models/training_type.dart';
 import '../services/pack_favorite_service.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import '../services/training_session_launcher.dart';
-import '../services/training_progress_logger.dart';
 import '../services/theory_lesson_completion_logger.dart';
 import '../services/training_progress_tracker_service.dart';
 import '../services/training_pack_stats_service.dart';
@@ -240,7 +239,6 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
           return;
         }
         if (widget.template.id == TrainingPackLibraryV2.mvpPackId) {
-          await TrainingProgressLogger.startSession(widget.template.id);
           await const TrainingSessionLauncher().launch(widget.template);
         } else {
           widget.onTap();

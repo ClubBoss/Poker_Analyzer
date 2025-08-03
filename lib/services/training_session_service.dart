@@ -11,6 +11,7 @@ import '../screens/training_session_summary_screen.dart';
 import '../screens/training_session_completion_screen.dart';
 import 'mistake_review_pack_service.dart';
 import 'smart_review_service.dart';
+import 'training_progress_logger.dart';
 import 'learning_path_progress_service.dart';
 import 'cloud_training_history_service.dart';
 import 'learning_path_personalization_service.dart';
@@ -368,6 +369,7 @@ class TrainingSessionService extends ChangeNotifier {
     _sessionTags
       ..clear()
       ..addAll(sessionTags ?? []);
+    unawaited(TrainingProgressLogger.startSession(template.id));
     final total = template.totalWeight;
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
     _preIcmPct = total == 0 ? 0 : template.icmCovered * 100 / total;
@@ -650,8 +652,16 @@ class TrainingSessionService extends ChangeNotifier {
             ctx.read<SmartRecapBannerController>().triggerBannerIfNeeded());
         if (_template != null) {
           final totalHands = _spots.length;
-          unawaited(
-              TrainingProgressLogger.completeSession(_template!.id, totalHands));
+          final totalSpots = _template!.totalWeight;
+          final evAfter =
+              totalSpots == 0 ? 0.0 : _template!.evCovered * 100 / totalSpots;
+          unawaited(TrainingProgressLogger.finishSession(
+            _template!.id,
+            totalHands,
+            evPercent: evAfter,
+            requiredAccuracy: _template!.requiredAccuracy,
+            minHands: _template!.minHands,
+          ));
           unawaited(complete(
             ctx,
             resultBuilder: (_) => TrainingSessionCompletionScreen(
