@@ -22,6 +22,7 @@ import '../models/result_entry.dart';
 import '../models/evaluation_result.dart';
 import 'streak_tracker_service.dart';
 import 'training_streak_tracker_service.dart';
+import 'daily_streak_tracker_service.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -541,6 +542,7 @@ class TrainingSessionService extends ChangeNotifier {
       unawaited(TagGoalTrackerService.instance.logTraining(tag));
     }
     unawaited(TrainingStreakTrackerService.instance.markTrainingCompletedToday());
+    unawaited(DailyStreakTrackerService.instance.markCompletedToday());
     unawaited(StreakRewardEngine.instance.checkAndTriggerRewards());
     unawaited(context
         .read<GiftDropService>()
