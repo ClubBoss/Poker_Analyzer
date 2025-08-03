@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
 
-extension MapEqualsExtension on Map<String, dynamic> {
-  bool equals(Map<String, dynamic> other) => const DeepCollectionEquality().equals(this, other);
+extension MapEqualsExtension<K, V> on Map<K, V> {
+  bool equals(Map<K, V> other) => const DeepCollectionEquality().equals(this, other);
 }
