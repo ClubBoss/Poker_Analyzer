@@ -133,6 +133,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     for (var i = 0; i < spot.stacks.length; i++) {
       stacks['$i'] = spot.stacks[i].toDouble();
     }
+    final boardList = [for (final c in spot.boardCards) '${c.rank}${c.suit}'];
     final handData = HandData(
       heroCards: cardStr,
       position: parseHeroPosition(spot.heroPosition ?? ''),
@@ -140,11 +141,12 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
       playerCount: spot.numberOfPlayers,
       actions: actions,
       stacks: stacks,
-      board: [for (final c in spot.boardCards) '${c.rank}${c.suit}'],
+      board: boardList,
     );
     return TrainingPackSpot(
       id: id ?? const Uuid().v4(),
       hand: handData,
+      board: boardList,
       villainAction: villainAction,
       heroOptions: heroOptions ?? const [],
     );

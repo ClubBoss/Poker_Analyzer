@@ -26,6 +26,8 @@ class TrainingPackPreviewService {
       boardFilter: m['boardFilter'] is Map
           ? Map<String, dynamic>.from(m['boardFilter'])
           : null,
+      targetStreet: m['targetStreet']?.toString() ?? 'flop',
+      boardStages: (m['boardStages'] as num?)?.toInt(),
     );
     final spots = _generator.generate(params);
     return [
