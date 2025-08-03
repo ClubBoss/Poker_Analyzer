@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:yaml/yaml.dart';
 
 import '../core/error_logger.dart';
@@ -10,6 +8,7 @@ import '../models/theory_lesson_node.dart';
 import '../models/theory_mini_lesson_node.dart';
 import 'path_map_engine.dart';
 import 'theory_track_engine.dart';
+import '../utils/yaml_utils.dart';
 
 class GraphPathTemplateParser {
   final List<String> warnings = [];
@@ -17,7 +16,7 @@ class GraphPathTemplateParser {
   Future<List<LearningPathNode>> parseFromYaml(String yamlText) async {
     final doc = loadYaml(yamlText);
     final map = doc is Map
-        ? Map<String, dynamic>.from(jsonDecode(jsonEncode(doc)))
+        ? Map<String, dynamic>.from(yamlToDart(doc) as Map)
         : <String, dynamic>{};
     final nodesRaw = map['nodes'] as List? ?? [];
 

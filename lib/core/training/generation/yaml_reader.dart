@@ -1,16 +1,16 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:yaml/yaml.dart';
 
 import '../../models/v2/training_pack_template_v2.dart';
+import '../../../utils/yaml_utils.dart';
 
 class YamlReader {
   const YamlReader();
 
   Map<String, dynamic> read(String source) {
     final doc = loadYaml(source);
-    return jsonDecode(jsonEncode(doc)) as Map<String, dynamic>;
+    return yamlToDart(doc) as Map<String, dynamic>;
   }
 
   /// Loads a training pack template from [path]. The path can point to an asset

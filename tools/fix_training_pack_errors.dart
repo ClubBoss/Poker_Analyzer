@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:convert';
 
 import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
 import 'package:json2yaml/json2yaml.dart';
+import 'package:poker_analyzer/utils/yaml_utils.dart';
 
 /// Scans YAML training packs under `assets/packs/v2/` and fixes common
 /// validation errors. By default it runs in dry-run mode. Use `--apply`
@@ -46,7 +46,7 @@ Future<void> main(List<String> args) async {
 List<String> _fixFile(File file, {required bool apply}) {
   final yamlContent = file.readAsStringSync();
   final data = loadYaml(yamlContent);
-  final map = jsonDecode(jsonEncode(data)) as Map<String, dynamic>;
+  final map = yamlToDart(data) as Map<String, dynamic>;
 
   final changes = <String>[];
 
