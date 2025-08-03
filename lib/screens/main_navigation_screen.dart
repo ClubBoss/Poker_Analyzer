@@ -38,6 +38,8 @@ import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 import '../widgets/streak_widget.dart';
 import '../services/app_usage_tracker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import '../services/smart_inbox_debug_service.dart';
 import '../widgets/resume_training_card.dart';
 import '../services/ab_test_engine.dart';
 import '../services/daily_training_reminder_service.dart';
@@ -359,6 +361,37 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     );
   }
 
+  Future<void> _showAboutDialog() async {
+    final info = await PackageInfo.fromPlatform();
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('About'),
+        content: GestureDetector(
+          onLongPress: () {
+            SmartInboxDebugService.instance.toggle();
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Smart Inbox debug '
+                  '${SmartInboxDebugService.instance.enabled ? 'enabled' : 'disabled'}',
+                ),
+              ),
+            );
+          },
+          child: Text('Version ${info.version}'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onTap(int index) {
     UserActionLogger.instance.log('nav_$index');
     setState(() => _currentIndex = index);
@@ -487,7 +520,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                   );
                   break;
                 case 'about':
-                  showAboutDialog(context: context);
+                  _showAboutDialog();
                   break;
               }
             },
