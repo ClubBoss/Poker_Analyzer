@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../services/session_log_service.dart';
+import '../screens/stage_session_history_screen.dart';
 
 /// Small chip displaying historical stats for a learning path stage.
 class StageProgressChip extends StatelessWidget {
+  final String stageId;
   final StageStatsWithHistory stats;
 
-  const StageProgressChip({super.key, required this.stats});
+  const StageProgressChip({
+    super.key,
+    required this.stageId,
+    required this.stats,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,25 +53,35 @@ class StageProgressChip extends StatelessWidget {
     return Tooltip(
       message:
           'Средняя точность за всё время: ${accuracy.toStringAsFixed(0)}% ($hands рук)',
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.grey,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              text,
-              style: const TextStyle(color: Colors.black, fontSize: 12),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => StageSessionHistoryScreen(stageId: stageId),
             ),
-            if (chart != null) ...[
-              const SizedBox(height: 2),
-              chart,
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.grey,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                text,
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+              if (chart != null) ...[
+                const SizedBox(height: 2),
+                chart,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

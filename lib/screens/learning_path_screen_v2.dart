@@ -516,7 +516,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final stats = _logs.getStatsWithHistory(stage.packId);
     Widget? subtitle;
     if (stats.handsPlayed > 0) {
-      final chip = StageProgressChip(stats: stats);
+      final chip = StageProgressChip(stageId: stage.packId, stats: stats);
       if (stage.description.isNotEmpty) {
         subtitle = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
