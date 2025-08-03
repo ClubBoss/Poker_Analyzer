@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Handles creation and cleanup of evaluation queue backups.
-class BackupService {
+/// Manages file and directory operations for evaluation queue backups.
+class BackupFileManager {
   static const String backupsFolder = 'evaluation_backups';
   static const String autoBackupsFolder = 'evaluation_autobackups';
   static const String snapshotsFolder = 'evaluation_snapshots';
@@ -20,7 +20,7 @@ class BackupService {
   Timer? _autoBackupTimer;
   bool _autoBackupRunning = false;
 
-  BackupService({this.autoBackupRetentionLimit = defaultAutoBackupRetentionLimit});
+  BackupFileManager({this.autoBackupRetentionLimit = defaultAutoBackupRetentionLimit});
 
   /// Returns the backup directory for the given [subfolder], creating it if necessary.
   Future<Directory> getBackupDirectory(String subfolder) async {
@@ -30,6 +30,12 @@ class BackupService {
       await target.create(recursive: true);
     } catch (_) {}
     return target;
+  }
+
+  /// Ensures [dir] exists and returns a file with [name] inside it.
+  Future<File> createFile(Directory dir, String name) async {
+    await dir.create(recursive: true);
+    return File('${dir.path}/$name');
   }
 
   /// Writes [data] as JSON to [file].
@@ -101,7 +107,7 @@ class BackupService {
     _autoBackupRunning = true;
     try {
       final Directory backupDir = await getBackupDirectory(autoBackupsFolder);
-      final File file = File('${backupDir.path}/auto_${_timestamp()}.json');
+      final File file = await createFile(backupDir, 'auto_${_timestamp()}.json');
       await writeJsonFile(file, queueStateProvider());
       await cleanupOldAutoBackups();
       if (kDebugMode) {

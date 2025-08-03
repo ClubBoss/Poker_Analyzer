@@ -7,10 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:uuid/uuid.dart';
-
 import '../models/action_evaluation_request.dart';
-import 'backup_service.dart';
+import 'backup_file_manager.dart';
+import 'evaluation_queue_serializer.dart';
 import 'debug_panel_preferences.dart';
 import 'evaluation_queue_service.dart';
 
@@ -20,8 +19,10 @@ class BackupManagerService {
   BackupManagerService({
     required this.queueService,
     required this.debugPrefs,
-    BackupService? backupService,
-  }) : backupService = backupService ?? BackupService() {
+    BackupFileManager? fileManager,
+    EvaluationQueueSerializer? serializer,
+  })  : fileManager = fileManager ?? BackupFileManager(),
+        serializer = serializer ?? const EvaluationQueueSerializer() {
     // Start periodic automatic backups when the service is created and
     // clean up any stale files in the background.
     startAutoBackupTimer();
@@ -31,14 +32,15 @@ class BackupManagerService {
 
   final EvaluationQueueService queueService;
   final DebugPanelPreferences debugPrefs;
-  final BackupService backupService;
+  final BackupFileManager fileManager;
+  final EvaluationQueueSerializer serializer;
 
   VoidCallback? debugPanelCallback;
 
-  static const String backupsFolder = BackupService.backupsFolder;
-  static const String autoBackupsFolder = BackupService.autoBackupsFolder;
-  static const String snapshotsFolder = BackupService.snapshotsFolder;
-  static const String exportsFolder = BackupService.exportsFolder;
+  static const String backupsFolder = BackupFileManager.backupsFolder;
+  static const String autoBackupsFolder = BackupFileManager.autoBackupsFolder;
+  static const String snapshotsFolder = BackupFileManager.snapshotsFolder;
+  static const String exportsFolder = BackupFileManager.exportsFolder;
   static const int _backupRetentionLimit = 30;
   static const int _snapshotRetentionLimit = 50;
 
@@ -46,77 +48,30 @@ class BackupManagerService {
   List<ActionEvaluationRequest> get _failed => queueService.failed;
   List<ActionEvaluationRequest> get _completed => queueService.completed;
 
-  Map<String, dynamic> _currentState() => {
-        'pending': [for (final e in _pending) e.toJson()],
-        'failed': [for (final e in _failed) e.toJson()],
-        'completed': [for (final e in _completed) e.toJson()],
-      };
+  Map<String, dynamic> _currentState() => serializer.encodeQueues(
+        pending: _pending,
+        failed: _failed,
+        completed: _completed,
+      );
 
   String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
-  Future<File> _jsonFile(Directory dir, String name) async {
-    await dir.create(recursive: true);
-    return File('${dir.path}/$name');
-  }
-
-  ActionEvaluationRequest _decodeRequest(Map<String, dynamic> json) {
-    final map = Map<String, dynamic>.from(json);
-    if (map['id'] == null || map['id'] is! String || (map['id'] as String).isEmpty) {
-      map['id'] = const Uuid().v4();
-    }
-    return ActionEvaluationRequest.fromJson(map);
-  }
-
-  List<ActionEvaluationRequest> _decodeList(dynamic list) {
-    final items = <ActionEvaluationRequest>[];
-    if (list is List) {
-      for (final item in list) {
-        if (item is Map) {
-          try {
-            items.add(_decodeRequest(Map<String, dynamic>.from(item)));
-          } catch (_) {}
-        }
-      }
-    }
-    return items;
-  }
-
-  Map<String, List<ActionEvaluationRequest>> _decodeQueues(dynamic json) {
-    if (json is List) {
-      return {
-        'pending': _decodeList(json),
-        'failed': <ActionEvaluationRequest>[],
-        'completed': <ActionEvaluationRequest>[],
-      };
-    } else if (json is Map) {
-      return {
-        'pending': _decodeList(json['pending']),
-        'failed': _decodeList(json['failed']),
-        'completed': _decodeList(json['completed']),
-      };
-    }
-    throw const FormatException();
-  }
-
-  Future<Directory> _dir(String subfolder) async {
-    return backupService.getBackupDirectory(subfolder);
-  }
-
   Future<void> startAutoBackupTimer() async {
-    backupService.startAutoBackupTimer(_currentState);
+    fileManager.startAutoBackupTimer(_currentState);
   }
 
   void dispose() {
-    backupService.dispose();
+    fileManager.dispose();
   }
 
   Future<void> exportEvaluationQueue(BuildContext context) async {
     if (_pending.isEmpty) return;
     try {
-      final dir = await _dir(exportsFolder);
+      final dir = await fileManager.getBackupDirectory(exportsFolder);
       final fileName = 'evaluation_queue_${_timestamp()}.json';
-      final file = await _jsonFile(dir, fileName);
-      await backupService.writeJsonFile(file, [for (final e in _pending) e.toJson()]);
+      final file = await fileManager.createFile(dir, fileName);
+      await fileManager
+          .writeJsonFile(file, [for (final e in _pending) e.toJson()]);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -140,7 +95,7 @@ class BackupManagerService {
 
   Future<void> exportFullQueueState(BuildContext context) async {
     try {
-      final dir = await _dir(exportsFolder);
+      final dir = await fileManager.getBackupDirectory(exportsFolder);
       final fileName = 'queue_export_${_timestamp()}.json';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Full Queue State',
@@ -151,7 +106,7 @@ class BackupManagerService {
       );
       if (savePath == null) return;
       final file = File(savePath);
-      await backupService.writeJsonFile(file, _currentState());
+      await fileManager.writeJsonFile(file, _currentState());
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -169,7 +124,7 @@ class BackupManagerService {
 
   Future<void> importFullQueueState(BuildContext context) async {
     try {
-      final dir = await _dir(exportsFolder);
+      final dir = await fileManager.getBackupDirectory(exportsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -186,8 +141,8 @@ class BackupManagerService {
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final decoded = await backupService.readJsonFile(File(path));
-      final queues = _decodeQueues(decoded);
+      final decoded = await fileManager.readJsonFile(File(path));
+      final queues = serializer.decodeQueues(decoded);
       _pending
         ..clear()
         ..addAll(queues['pending']!);
@@ -217,7 +172,7 @@ class BackupManagerService {
 
   Future<void> restoreFullQueueState(BuildContext context) async {
     try {
-      final dir = await _dir(exportsFolder);
+      final dir = await fileManager.getBackupDirectory(exportsFolder);
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
@@ -226,8 +181,8 @@ class BackupManagerService {
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final decoded = await backupService.readJsonFile(File(path));
-      final queues = _decodeQueues(decoded);
+      final decoded = await fileManager.readJsonFile(File(path));
+      final queues = serializer.decodeQueues(decoded);
       _pending
         ..clear()
         ..addAll(queues['pending']!);
@@ -258,10 +213,10 @@ class BackupManagerService {
   Future<void> backupEvaluationQueue(BuildContext context) async {
     if (_pending.isEmpty) return;
     try {
-      final dir = await _dir(backupsFolder);
+      final dir = await fileManager.getBackupDirectory(backupsFolder);
       final fileName = 'evaluation_backup_${_timestamp()}.json';
-      final file = await _jsonFile(dir, fileName);
-      await backupService.writeJsonFile(file, _currentState());
+      final file = await fileManager.createFile(dir, fileName);
+      await fileManager.writeJsonFile(file, _currentState());
       Future(() => cleanupOldEvaluationBackups());
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -279,10 +234,10 @@ class BackupManagerService {
 
   Future<void> quickBackupEvaluationQueue(BuildContext context) async {
     try {
-      final dir = await _dir(backupsFolder);
+      final dir = await fileManager.getBackupDirectory(backupsFolder);
       final fileName = 'quick_backup_${_timestamp()}.json';
-      final file = await _jsonFile(dir, fileName);
-      await backupService.writeJsonFile(file, _currentState());
+      final file = await fileManager.createFile(dir, fileName);
+      await fileManager.writeJsonFile(file, _currentState());
       Future(() => cleanupOldEvaluationBackups());
       debugPanelCallback?.call();
       if (context.mounted) {
@@ -301,7 +256,7 @@ class BackupManagerService {
 
   Future<void> importQuickBackups(BuildContext context) async {
     try {
-      final dir = await _dir(backupsFolder);
+      final dir = await fileManager.getBackupDirectory(backupsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -333,8 +288,8 @@ class BackupManagerService {
           continue;
         }
         try {
-          final decoded = await backupService.readJsonFile(File(path));
-          final queues = _decodeQueues(decoded);
+          final decoded = await fileManager.readJsonFile(File(path));
+          final queues = serializer.decodeQueues(decoded);
           importedPending.addAll(queues['pending']!);
           importedFailed.addAll(queues['failed']!);
           importedCompleted.addAll(queues['completed']!);
@@ -367,16 +322,16 @@ class BackupManagerService {
   }
 
   Future<void> cleanupOldEvaluationBackups() async {
-    await backupService.cleanupOldFiles(backupsFolder, _backupRetentionLimit);
+    await fileManager.cleanupOldFiles(backupsFolder, _backupRetentionLimit);
   }
 
   Future<void> cleanupOldAutoBackups() async {
-    await backupService.cleanupOldFiles(
-        autoBackupsFolder, BackupService.defaultAutoBackupRetentionLimit);
+    await fileManager.cleanupOldFiles(
+        autoBackupsFolder, BackupFileManager.defaultAutoBackupRetentionLimit);
   }
 
   Future<void> cleanupOldEvaluationSnapshots() async {
-    await backupService.cleanupOldFiles(
+    await fileManager.cleanupOldFiles(
         snapshotsFolder, _snapshotRetentionLimit);
   }
 
@@ -386,10 +341,10 @@ class BackupManagerService {
     bool snapshotRetentionEnabled = true,
   }) async {
     try {
-      final dir = await _dir(snapshotsFolder);
+      final dir = await fileManager.getBackupDirectory(snapshotsFolder);
       final fileName = 'snapshot_${_timestamp()}.json';
-      final file = await _jsonFile(dir, fileName);
-      await backupService.writeJsonFile(file, state);
+      final file = await fileManager.createFile(dir, fileName);
+      await fileManager.writeJsonFile(file, state);
       if (snapshotRetentionEnabled) {
         await cleanupOldEvaluationSnapshots();
       }
@@ -405,7 +360,7 @@ class BackupManagerService {
 
   Future<dynamic> loadLatestQueueSnapshot() async {
     try {
-      final dir = await _dir(snapshotsFolder);
+      final dir = await fileManager.getBackupDirectory(snapshotsFolder);
       if (!await dir.exists()) return null;
       final files = await dir
           .list()
@@ -425,7 +380,7 @@ class BackupManagerService {
       if (entries.isEmpty) return null;
       entries.sort((a, b) => b.value.compareTo(a.value));
       final file = entries.first.key;
-      return await backupService.readJsonFile(file);
+      return await fileManager.readJsonFile(file);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Failed to load snapshot: $e');
@@ -462,7 +417,7 @@ class BackupManagerService {
         dialogTitle = 'Save Archive';
     }
     try {
-      final dir = await _dir(subfolder);
+      final dir = await fileManager.getBackupDirectory(subfolder);
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context)
@@ -522,7 +477,7 @@ class BackupManagerService {
 
   Future<void> restoreFromAutoBackup(BuildContext context) async {
     try {
-      final dir = await _dir(autoBackupsFolder);
+      final dir = await fileManager.getBackupDirectory(autoBackupsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -539,8 +494,8 @@ class BackupManagerService {
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final decoded = await backupService.readJsonFile(File(path));
-      final queues = _decodeQueues(decoded);
+      final decoded = await fileManager.readJsonFile(File(path));
+      final queues = serializer.decodeQueues(decoded);
       _pending
         ..clear()
         ..addAll(queues['pending']!);
@@ -581,9 +536,9 @@ class BackupManagerService {
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final decoded = await backupService.readJsonFile(File(path));
+      final decoded = await fileManager.readJsonFile(File(path));
       if (decoded is! List) throw const FormatException();
-      final items = _decodeList(decoded);
+      final items = serializer.decodeList(decoded);
       _pending
         ..clear()
         ..addAll(items);
@@ -606,7 +561,7 @@ class BackupManagerService {
 
   Future<void> restoreEvaluationQueue(BuildContext context) async {
     try {
-      final dir = await _dir(backupsFolder);
+      final dir = await fileManager.getBackupDirectory(backupsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -643,8 +598,8 @@ class BackupManagerService {
         ),
       );
       if (selected == null) return;
-      final decoded = await backupService.readJsonFile(selected);
-      final queues = _decodeQueues(decoded);
+      final decoded = await fileManager.readJsonFile(selected);
+      final queues = serializer.decodeQueues(decoded);
       _pending
         ..clear()
         ..addAll(queues['pending']!);
@@ -700,8 +655,8 @@ class BackupManagerService {
         continue;
       }
       try {
-        final decoded = await backupService.readJsonFile(File(path));
-        final queues = _decodeQueues(decoded);
+        final decoded = await fileManager.readJsonFile(File(path));
+        final queues = serializer.decodeQueues(decoded);
         importedPending.addAll(queues['pending']!);
         importedFailed.addAll(queues['failed']!);
         importedCompleted.addAll(queues['completed']!);
@@ -731,7 +686,7 @@ class BackupManagerService {
   }
 
   Future<void> bulkImportEvaluationBackups(BuildContext context) async {
-    final dir = await _dir(backupsFolder);
+    final dir = await fileManager.getBackupDirectory(backupsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -744,7 +699,7 @@ class BackupManagerService {
   }
 
   Future<void> bulkImportAutoBackups(BuildContext context) async {
-    final dir = await _dir(autoBackupsFolder);
+    final dir = await fileManager.getBackupDirectory(autoBackupsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -758,7 +713,7 @@ class BackupManagerService {
 
   Future<void> importEvaluationQueueSnapshot(BuildContext context) async {
     try {
-      final dir = await _dir(snapshotsFolder);
+      final dir = await fileManager.getBackupDirectory(snapshotsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -775,8 +730,8 @@ class BackupManagerService {
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final decoded = await backupService.readJsonFile(File(path));
-      final queues = _decodeQueues(decoded);
+      final decoded = await fileManager.readJsonFile(File(path));
+      final queues = serializer.decodeQueues(decoded);
       _pending
         ..clear()
         ..addAll(queues['pending']!);
@@ -805,7 +760,7 @@ class BackupManagerService {
   }
 
   Future<void> bulkImportEvaluationSnapshots(BuildContext context) async {
-    final dir = await _dir(snapshotsFolder);
+    final dir = await fileManager.getBackupDirectory(snapshotsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
