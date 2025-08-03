@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
-import 'edit_action_dialog.dart';
-import 'package:intl/intl.dart';
 
+import 'street_action_tile.dart';
 import 'street_pot_widget.dart';
-import 'chip_stack_widget.dart';
-import 'package:provider/provider.dart';
-import '../services/user_preferences_service.dart';
 
 /// Список действий на конкретной улице
 class StreetActionsList extends StatelessWidget {
@@ -44,258 +40,6 @@ class StreetActionsList extends StatelessWidget {
     this.onReorder,
     this.sprValue,
   });
-
-  Widget _buildTile(
-      BuildContext context, ActionEntry a, int globalIndex, int index) {
-    Color color;
-    switch (a.action) {
-      case 'fold':
-        color = Colors.red;
-        break;
-      case 'call':
-        color = Colors.blue;
-        break;
-      case 'raise':
-        color = Colors.green;
-        break;
-      case 'check':
-        color = Colors.grey;
-        break;
-      case 'custom':
-        color = Colors.purple;
-        break;
-      default:
-        color = Colors.white;
-    }
-    final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-    final actLabel = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
-    final baseTitle = '$pos — $actLabel';
-    final title = a.generated ? '$baseTitle (auto)' : baseTitle;
-
-    Color? qualityColor;
-    String? qualityLabel;
-    if (evaluateActionQuality != null && visibleCount != null) {
-      final q = a.manualEvaluation ?? evaluateActionQuality!(a);
-      switch (q) {
-        case 'Лучшая линия':
-          qualityColor = Colors.green;
-          qualityLabel = q;
-          break;
-        case 'Нормальная линия':
-          qualityColor = Colors.yellow;
-          qualityLabel = q;
-          break;
-        case 'Ошибка':
-          qualityColor = Colors.red;
-          qualityLabel = q;
-          break;
-      }
-    }
-    final tile = ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (a.amount != null) ...[
-            ChipStackWidget(
-              amount: a.amount!,
-              scale: 0.7,
-              color: color,
-            ),
-            const SizedBox(width: 6),
-          ],
-          if (a.amount != null)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                '${a.amount}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          if (a.amount != null) const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                color: color,
-                fontStyle: a.generated ? FontStyle.italic : FontStyle.normal,
-              ),
-            ),
-          ),
-        ],
-      ),
-      onTap: () async {
-        final edited = await showEditActionDialog(
-          context,
-          entry: a,
-          numberOfPlayers: numberOfPlayers,
-          playerPositions: playerPositions,
-        );
-        if (edited != null) {
-          onEdit(globalIndex, edited);
-        }
-      },
-      onLongPress: onDuplicate == null
-          ? null
-          : () async {
-              final dup = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => SimpleDialog(
-                  title: const Text('Выберите действие'),
-                  children: [
-                    SimpleDialogOption(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text('Дублировать'),
-                    ),
-                  ],
-                ),
-              );
-              if (dup == true) {
-                onDuplicate!(globalIndex);
-              }
-            },
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (onReorder != null)
-            ReorderableDragStartListener(
-              index: index,
-              child:
-                  const Icon(Icons.drag_handle, color: Colors.white70, size: 20),
-            ),
-          if (!a.generated)
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Text(
-                _formatTimestamp(globalIndex, a),
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-            ),
-          if (qualityLabel != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: GestureDetector(
-                onLongPress: onManualEvaluationChanged == null
-                    ? null
-                    : () async {
-                        final result = await showDialog<String>(
-                          context: context,
-                          builder: (ctx) => SimpleDialog(
-                            title: const Text('Оценить действие'),
-                            children: [
-                              SimpleDialogOption(
-                                onPressed: () =>
-                                    Navigator.pop(ctx, 'Лучшая линия'),
-                                child: const Text('Лучшая линия'),
-                              ),
-                              SimpleDialogOption(
-                                onPressed: () =>
-                                    Navigator.pop(ctx, 'Нормальная линия'),
-                                child: const Text('Нормальная линия'),
-                              ),
-                              SimpleDialogOption(
-                                onPressed: () => Navigator.pop(ctx, 'Ошибка'),
-                                child: const Text('Ошибка'),
-                              ),
-                            ],
-                          ),
-                        );
-                        if (result != null) {
-                          onManualEvaluationChanged!(a, result);
-                        }
-                      },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: qualityColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        qualityLabel,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    if (a.manualEvaluation != null &&
-                        onManualEvaluationChanged != null)
-                      GestureDetector(
-                        onTap: () =>
-                            onManualEvaluationChanged!(a, null),
-                        child: const Padding(
-                          padding: EdgeInsets.only(left: 4.0),
-                          child: Icon(
-                            Icons.close,
-                            size: 12,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () => onDelete(globalIndex),
-          ),
-        ],
-      ),
-    );
-
-    final prefs = context.watch<UserPreferencesService>();
-    if (!prefs.showActionHints || a.generated) return tile;
-
-    return Tooltip(
-      message: _buildTooltipMessage(a, globalIndex, qualityLabel),
-      preferBelow: false,
-      child: tile,
-    );
-  }
-
-  String _formatTimestamp(int index, ActionEntry a) {
-    if (index > 0) {
-      final prev = actions[index - 1];
-      final diff = a.timestamp.difference(prev.timestamp).inSeconds;
-      if (diff > 0 && diff < 60) {
-        return '+${diff}s';
-      }
-    }
-    return '⏱ ${DateFormat('HH:mm', Intl.getCurrentLocale()).format(a.timestamp)}';
-  }
-
-  String _buildTooltipMessage(
-      ActionEntry a, int index, String? qualityLabel) {
-    final buffer = StringBuffer(
-        'Время: ${DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp)}');
-    if (index > 0) {
-      final prev = actions[index - 1];
-      final diffMs =
-          a.timestamp.difference(prev.timestamp).inMilliseconds;
-      final diffSec = diffMs / 1000;
-      buffer.writeln(
-          '\nС момента прошлого действия: +${diffSec.toStringAsFixed(1)} сек');
-    }
-    if (qualityLabel != null) {
-      buffer.writeln('\nОценка: $qualityLabel');
-    }
-    return buffer.toString();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -374,8 +118,23 @@ class StreetActionsList extends StatelessWidget {
                     children: [
                       if (showDivider)
                         const Divider(height: 4, color: Colors.white24),
-                      _buildTile(
-                          context, entry, actions.indexOf(entry), index),
+                      StreetActionTile(
+                        entry: entry,
+                        previousEntry: actions.indexOf(entry) > 0
+                            ? actions[actions.indexOf(entry) - 1]
+                            : null,
+                        index: index,
+                        globalIndex: actions.indexOf(entry),
+                        numberOfPlayers: numberOfPlayers,
+                        playerPositions: playerPositions,
+                        onEdit: onEdit,
+                        onDelete: onDelete,
+                        onDuplicate: onDuplicate,
+                        visibleCount: visibleCount,
+                        evaluateActionQuality: evaluateActionQuality,
+                        onManualEvaluationChanged: onManualEvaluationChanged,
+                        showDragHandle: onReorder != null,
+                      ),
                     ],
                   ),
                 );
