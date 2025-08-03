@@ -12,6 +12,7 @@ import '../services/training_session_launcher.dart';
 import '../services/training_progress_logger.dart';
 import '../services/theory_lesson_completion_logger.dart';
 import '../services/training_progress_tracker_service.dart';
+import '../services/training_pack_stats_service.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -29,6 +30,7 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   late int _total;
   bool _locked = false;
   String? _lockMsg;
+  double? _accuracy;
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -63,6 +65,10 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     if (mounted) {
       setState(() => _completed = ids.length);
       _maybeShowReward();
+    }
+    final stat = await TrainingPackStatsService.getStats(widget.template.id);
+    if (mounted && stat != null) {
+      setState(() => _accuracy = stat.accuracy);
     }
     await _checkPerformance();
   }
@@ -157,6 +163,9 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final accText = _accuracy != null
+        ? ', точность ${(_accuracy! * 100).toStringAsFixed(0)}%'
+        : '';
     return GestureDetector(
       onTap: () async {
         if (_locked) {
@@ -210,9 +219,11 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('$_completed / $_total завершено',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
+                    child: Text(
+                      '$_completed / $_total рук$accText',
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
                   ),
                 ],
               ],
