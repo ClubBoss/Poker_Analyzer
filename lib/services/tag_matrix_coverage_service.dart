@@ -9,27 +9,73 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'matrix_tag_config_service.dart';
 
-class TagMatrixCellData {
-  int count;
-  final List<String> packs;
-  TagMatrixCellData(this.count, this.packs);
+class TagMatrixAxes {
+  final List<MatrixAxis> axes;
+
+  const TagMatrixAxes(this.axes);
+
+  int get length => axes.length;
+
+  MatrixAxis operator [](int index) => axes[index];
+
+  factory TagMatrixAxes.fromJson(List<dynamic> list) =>
+      TagMatrixAxes([
+        for (final a in list)
+          MatrixAxis.fromJson(Map<String, dynamic>.from(a as Map))
+      ]);
+
+  List<Map<String, dynamic>> toJson() => [for (final a in axes) a.toJson()];
 }
 
-class TagMatrixCoverageResult {
-  final List<MatrixAxis> axes;
-  final Map<String, Map<String, TagMatrixCellData>> cells;
+class TagMatrixCell {
+  int count;
+  final List<String> packs;
+
+  TagMatrixCell(this.count, this.packs);
+
+  factory TagMatrixCell.fromJson(Map<String, dynamic> json) => TagMatrixCell(
+        json['count'] as int,
+        [for (final p in json['packs']) p.toString()],
+      );
+
+  Map<String, dynamic> toJson() => {'count': count, 'packs': packs};
+}
+
+class TagMatrixResult {
+  final TagMatrixAxes axes;
+  final Map<String, Map<String, TagMatrixCell>> cells;
   final int max;
-  const TagMatrixCoverageResult({
+
+  const TagMatrixResult({
     required this.axes,
     required this.cells,
     required this.max,
   });
+
+  factory TagMatrixResult.fromJson(Map<String, dynamic> json) {
+    final axes = TagMatrixAxes.fromJson(json['axes'] as List);
+    final cells = <String, Map<String, TagMatrixCell>>{};
+    int max = 1;
+    final raw = json['cells'] as Map;
+    raw.forEach((k, v) {
+      final inner = <String, TagMatrixCell>{};
+      (v as Map).forEach((kk, vv) {
+        final cell =
+            TagMatrixCell.fromJson(Map<String, dynamic>.from(vv as Map));
+        if (cell.count > max) max = cell.count;
+        inner[kk as String] = cell;
+      });
+      cells[k as String] = inner;
+    });
+    if (max <= 0) max = 1;
+    return TagMatrixResult(axes: axes, cells: cells, max: max);
+  }
 }
 
 class TagMatrixCoverageService {
   const TagMatrixCoverageService();
 
-  Future<TagMatrixCoverageResult> load({
+  Future<TagMatrixResult> load({
     TrainingType? type,
     bool starter = false,
   }) async {
@@ -37,26 +83,7 @@ class TagMatrixCoverageService {
       'type': type?.name,
       'starter': starter,
     });
-    final axes = [
-      for (final a in res['axes'] as List)
-        MatrixAxis.fromJson(Map<String, dynamic>.from(a))
-    ];
-    final data = <String, Map<String, TagMatrixCellData>>{};
-    int max = 1;
-    final cells = res['cells'] as Map;
-    cells.forEach((k, v) {
-      final inner = <String, TagMatrixCellData>{};
-      (v as Map).forEach((kk, vv) {
-        final m = vv as Map;
-        final d = TagMatrixCellData(
-            m['count'] as int, [for (final p in m['packs']) p.toString()]);
-        if (d.count > max) max = d.count;
-        inner[kk as String] = d;
-      });
-      data[k as String] = inner;
-    });
-    if (max <= 0) max = 1;
-    return TagMatrixCoverageResult(axes: axes, cells: data, max: max);
+    return TagMatrixResult.fromJson(Map<String, dynamic>.from(res));
   }
 }
 

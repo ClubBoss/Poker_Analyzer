@@ -18,7 +18,7 @@ class _TagMatrixCoverageScreenState extends State<TagMatrixCoverageScreen> {
   bool _loading = true;
   TrainingType? _type;
   bool _starter = false;
-  TagMatrixCoverageResult? _result;
+  TagMatrixResult? _result;
   final _service = const TagMatrixCoverageService();
 
   @override
