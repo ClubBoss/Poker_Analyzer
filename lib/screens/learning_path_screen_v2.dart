@@ -156,8 +156,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       await prefs.remove('justCompletedTheoryStageId');
     }
 
-    if (!_scrollDone && widget.highlightedStageId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToStage());
+    if (!_scrollDone) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (widget.highlightedStageId != null) {
+          _scrollToStage();
+        } else {
+          _scrollToFirstUnlocked();
+        }
+      });
     }
 
     final completedAll = const LearningPathCompletionEngine()
@@ -314,6 +320,35 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     );
   }
 
+  void _scrollToFirstUnlocked() {
+    final stages = widget.template.stages;
+    final index = stages.indexWhere(
+      (s) => _stageStates[s.id] == LearningStageUIState.active,
+    );
+    if (index <= 0) {
+      _scrollDone = true;
+      return;
+    }
+    final id = stages[index].id;
+    final key = _stageKeys[id];
+    final context = key?.currentContext;
+    if (context == null) return;
+    final box = context.findRenderObject() as RenderBox;
+    final listBox =
+        _scrollController.position.context.storageContext.findRenderObject()
+            as RenderBox;
+    final offset =
+        box.localToGlobal(Offset.zero, ancestor: listBox).dy +
+            _scrollController.offset -
+            16;
+    _scrollDone = true;
+    _scrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   Widget _buildStageTile(LearningPathStageModel stage, int index) {
     final state = _stageStates[stage.id] ?? LearningStageUIState.locked;
     final accent = Theme.of(context).colorScheme.secondary;
@@ -447,9 +482,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Builder(
               builder: (context) {
-                if (!_scrollDone && widget.highlightedStageId != null) {
-                  WidgetsBinding.instance
-                      .addPostFrameCallback((_) => _scrollToStage());
+                if (!_scrollDone) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (widget.highlightedStageId != null) {
+                      _scrollToStage();
+                    } else {
+                      _scrollToFirstUnlocked();
+                    }
+                  });
                 }
                 return ListView(
                   controller: _scrollController,
