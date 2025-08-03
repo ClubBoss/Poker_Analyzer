@@ -223,6 +223,19 @@ class _PackCardState extends State<PackCard>
         'min_hands': widget.template.minHands,
       }),
     );
+    final ctaKey = 'cta_tapped_${widget.template.id}';
+    if (prefs.getBool(ctaKey) == true) {
+      unawaited(
+        AnalyticsService.instance.logEvent('unlock_funnel_complete', {
+          'pack_id': widget.template.id,
+          'accuracy': _accuracy,
+          'hands_completed': _handsCompleted,
+          'required_accuracy': widget.template.requiredAccuracy,
+          'min_hands': widget.template.minHands,
+        }),
+      );
+      await prefs.remove(ctaKey);
+    }
   }
 
   Future<void> _maybeShowReward() async {
@@ -329,6 +342,8 @@ class _PackCardState extends State<PackCard>
           'min_hands': widget.template.minHands,
         }),
       );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('cta_tapped_${widget.template.id}', true);
     }
     await Navigator.of(context, rootNavigator: true).maybePop();
     await const TrainingSessionLauncher().launch(widget.template);
