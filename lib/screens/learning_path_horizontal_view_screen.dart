@@ -9,16 +9,16 @@ import '../widgets/path_node_tile.dart';
 import 'mini_lesson_screen.dart';
 import 'training_pack_preview_screen.dart';
 
-class LearningPathLinearViewScreen extends StatefulWidget {
-  const LearningPathLinearViewScreen({super.key});
+class LearningPathHorizontalViewScreen extends StatefulWidget {
+  const LearningPathHorizontalViewScreen({super.key});
 
   @override
-  State<LearningPathLinearViewScreen> createState() =>
-      _LearningPathLinearViewScreenState();
+  State<LearningPathHorizontalViewScreen> createState() =>
+      _LearningPathHorizontalViewScreenState();
 }
 
-class _LearningPathLinearViewScreenState
-    extends State<LearningPathLinearViewScreen> {
+class _LearningPathHorizontalViewScreenState
+    extends State<LearningPathHorizontalViewScreen> {
   late Future<void> _initFuture;
   List<LearningPathNodeV2> _nodes = [];
   LearningPathNodeV2? _current;
@@ -90,36 +90,43 @@ class _LearningPathLinearViewScreenState
           return Column(
             children: [
               Expanded(
-                child: ListView.builder(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.all(16),
-                  itemCount: _nodes.length,
-                  itemBuilder: (context, index) {
-                    final node = _nodes[index];
-                    final currentId = _current?.id;
-                    final isCompleted =
-                        LearningPathEngine.instance.isCompleted(node.id);
-                    final isCurrent = node.id == currentId;
-                    final currentIndex =
-                        _nodes.indexWhere((n) => n.id == currentId);
-                    final nodeIndex = _nodes.indexOf(node);
-                    final isBlocked = !isCompleted &&
-                        !isCurrent &&
-                        nodeIndex > currentIndex &&
-                        currentIndex >= 0;
-                    final pack = _packs[node.trainingPackTemplateId];
-                    return PathNodeTile(
-                      node: node,
-                      pack: pack,
-                      isCurrent: isCurrent,
-                      isCompleted: isCompleted,
-                      isBlocked: isBlocked,
-                      onTap: () async {
-                        await LearningPathEngine.instance
-                            .markStageCompleted(node.id);
-                        _refresh();
-                      },
-                    );
-                  },
+                  child: Row(
+                    children: _nodes.map((node) {
+                      final currentId = _current?.id;
+                      final isCompleted =
+                          LearningPathEngine.instance.isCompleted(node.id);
+                      final isCurrent = node.id == currentId;
+                      final currentIndex =
+                          _nodes.indexWhere((n) => n.id == currentId);
+                      final nodeIndex = _nodes.indexOf(node);
+                      final isBlocked = !isCompleted &&
+                          !isCurrent &&
+                          nodeIndex > currentIndex &&
+                          currentIndex >= 0;
+                      final pack = _packs[node.trainingPackTemplateId];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: SizedBox(
+                          width: 200,
+                          child: PathNodeTile(
+                            node: node,
+                            pack: pack,
+                            isCurrent: isCurrent,
+                            isCompleted: isCompleted,
+                            isBlocked: isBlocked,
+                            onTap: () async {
+                              await LearningPathEngine.instance
+                                  .markStageCompleted(node.id);
+                              _refresh();
+                            },
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
               Padding(
