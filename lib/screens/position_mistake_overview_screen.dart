@@ -20,6 +20,7 @@ import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';
+import '../constants/app_constants.dart';
 
 /// Displays a list of hero positions sorted by mistake count.
 ///
@@ -176,13 +177,18 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
           ],
         ),
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppConstants.defaultPadding),
           sliver: SliverToBoxAdapter(
             child: MistakeSummarySection(summary: summary),
           ),
         ),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          padding: const EdgeInsets.fromLTRB(
+            AppConstants.defaultPadding,
+            0,
+            AppConstants.defaultPadding,
+            AppConstants.defaultPadding / 2,
+          ),
           sliver: SliverToBoxAdapter(
             child: Align(
               alignment: Alignment.centerRight,
@@ -211,7 +217,7 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
           )
         else
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
-import '../theme/constants.dart';
+import '../constants/app_constants.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';

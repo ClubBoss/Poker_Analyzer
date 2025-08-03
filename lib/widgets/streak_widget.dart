@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/streak_service.dart';
+import '../constants/app_constants.dart';
 
 class StreakWidget extends StatefulWidget {
   const StreakWidget({super.key});
@@ -46,7 +47,7 @@ class _StreakWidgetState extends State<StreakWidget>
         final accent = Theme.of(context).colorScheme.secondary;
         return AnimatedOpacity(
           opacity: value > 0 ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 300),
+          duration: AppConstants.fadeDuration,
           child: AnimatedBuilder(
             animation: _scale,
             builder: (context, child) => AnimatedScale(

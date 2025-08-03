@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
-import '../theme/constants.dart';
+import '../constants/app_constants.dart';
 
 class ThemeService extends ChangeNotifier {
-  static const _key = 'theme_mode';
-  static const _accentKey = 'accent_color';
   ThemeMode _mode = ThemeMode.dark;
   Color _accent = AppColors.accent;
 
@@ -60,13 +58,14 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString(_key);
+    final name = prefs.getString(AppConstants.prefsThemeMode);
     if (name == ThemeMode.light.name) {
       _mode = ThemeMode.light;
     } else {
       _mode = ThemeMode.dark;
     }
-    _accent = Color(prefs.getInt(_accentKey) ?? AppColors.accent.value);
+    _accent =
+        Color(prefs.getInt(AppConstants.prefsAccentColor) ?? AppColors.accent.value);
     AppColors.accent = _accent;
     notifyListeners();
   }
@@ -74,7 +73,7 @@ class ThemeService extends ChangeNotifier {
   Future<void> toggle() async {
     _mode = _mode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, _mode.name);
+    await prefs.setString(AppConstants.prefsThemeMode, _mode.name);
     notifyListeners();
   }
 
@@ -83,7 +82,7 @@ class ThemeService extends ChangeNotifier {
     _accent = color;
     AppColors.accent = color;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_accentKey, color.value);
+    await prefs.setInt(AppConstants.prefsAccentColor, color.value);
     notifyListeners();
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import '../theme/constants.dart';
+import '../constants/app_constants.dart';
 import '../models/summary_result.dart';
 
 class MistakeSummarySection extends StatelessWidget {

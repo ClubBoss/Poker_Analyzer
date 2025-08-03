@@ -17,7 +17,7 @@ import 'session_replay_screen.dart';
 import '../widgets/common/animated_line_chart.dart';
 import '../theme/app_colors.dart';
 import '../utils/responsive.dart';
-import '../theme/constants.dart';
+import '../constants/app_constants.dart';
 import '../services/session_note_service.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';

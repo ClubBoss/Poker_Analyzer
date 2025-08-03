@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/responsive.dart';
+import '../constants/app_constants.dart';
 
 import '../services/goals_service.dart';
 import '../widgets/sync_status_widget.dart';
@@ -33,7 +34,7 @@ class MyAchievementsScreen extends StatelessWidget {
             builder: (context, constraints) {
               final compact = constraints.maxWidth < 360;
               return GridView.builder(
-                padding: responsiveAll(context, 16),
+                padding: responsiveAll(context, AppConstants.defaultPadding),
                 itemCount: completed.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: compact ? 1 : 2,
@@ -44,10 +45,10 @@ class MyAchievementsScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final item = completed[index];
                   return Container(
-                    padding: responsiveAll(context, 12),
+                    padding: responsiveAll(context, AppConstants.defaultPadding * 0.75),
                     decoration: BoxDecoration(
                       color: Colors.grey[850],
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppConstants.cardCornerRadius),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
