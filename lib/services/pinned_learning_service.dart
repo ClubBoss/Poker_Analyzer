@@ -79,6 +79,20 @@ class PinnedLearningService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> moveToTop(String type, String id) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    for (var i = 0; i < _items.length; i++) {
+      final e = _items[i];
+      if (e.type == type && e.id == id) {
+        _items[i] = e.copyWith(lastSeen: now);
+        _sort();
+        await _save();
+        notifyListeners();
+        break;
+      }
+    }
+  }
+
   int? lastPosition(String type, String id) => _find(type, id)?.lastPosition;
 
   Future<void> setLastPosition(String type, String id, int position) async {
