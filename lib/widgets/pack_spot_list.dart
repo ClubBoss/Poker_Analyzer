@@ -24,7 +24,8 @@ class PackSpotList extends StatelessWidget {
         onEdit: onEdit,
         onRemove: controller.removeSpot,
         onChanged: controller.saveSpots,
-        onReorder: controller.reorder,
+        onReorder: (oldIndex, newIndex) =>
+            controller.reorder(oldIndex, newIndex),
       ),
     );
   }

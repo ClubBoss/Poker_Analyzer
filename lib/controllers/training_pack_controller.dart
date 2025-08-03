@@ -97,9 +97,9 @@ class TrainingPackController extends ChangeNotifier {
     _commit();
   }
 
-  void reorder(int oldIndex, int newIndex) {
+  Future<void> reorder(int oldIndex, int newIndex) async {
     _moveSpot(oldIndex, newIndex);
-    saveSpots();
+    await saveSpots();
     notifyListeners();
   }
 
