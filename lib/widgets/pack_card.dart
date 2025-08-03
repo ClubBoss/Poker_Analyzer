@@ -131,21 +131,21 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     final ok = await TrainingPackPerformanceTrackerService.instance
         .meetsRequirements(
       widget.template.id,
-      requiredAccuracy: reqAcc,
+      requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
       minHands: minHands,
     );
     if (!ok && mounted && !kDebugMode) {
       setState(() {
         _locked = true;
-        final parts = <String>[];
-        if (reqAcc != null) {
-          parts.add('точность ≥ ${(reqAcc * 100).toStringAsFixed(0)}%');
+        if (reqAcc != null && minHands != null) {
+          _lockMsg =
+              'Достигните точности ${reqAcc.toStringAsFixed(0)}% и сыграйте $minHands рук, чтобы открыть';
+        } else if (reqAcc != null) {
+          _lockMsg =
+              'Достигните точности ${reqAcc.toStringAsFixed(0)}%, чтобы открыть';
+        } else if (minHands != null) {
+          _lockMsg = 'Сыграйте $minHands рук, чтобы открыть';
         }
-        if (minHands != null) {
-          parts.add('≥ $minHands рук');
-        }
-        _lockMsg =
-            'Пройдите с ${parts.join(' и ')}, чтобы открыть следующую стадию';
       });
     }
   }
@@ -181,10 +181,10 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     final widgets = <Widget>[];
     if (reqAcc != null) {
       final accPct = (_accuracy ?? 0) * 100;
-      final target = reqAcc * 100;
+      final target = reqAcc;
       final color = _progressColor(accPct, target);
       widgets.add(LinearProgressIndicator(
-        value: (_accuracy ?? 0) / reqAcc,
+        value: target == 0 ? 0 : accPct / target,
         backgroundColor: Colors.white24,
         valueColor: AlwaysStoppedAnimation<Color>(color),
       ));
