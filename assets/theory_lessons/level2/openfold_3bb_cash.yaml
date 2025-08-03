@@ -1,0 +1,12 @@
+id: openfold_3bb_cash
+title: 'Open/Fold vs 3bb Raise (Cash)'
+tags: ['openfold', 'cash', 'preflop', 'level2']
+content: |-
+  After mastering push/fold play, the next frontier is deciding which hands to open when everyone folds to you in a 6-max cash game.
+  Facing a standard 3bb raise, understanding open/fold decisions keeps you aggressive while avoiding marginal opens.
+
+  6-max dynamics to remember:
+  - Standard open size is 3bb.
+  - Positions: UTG, HJ, CO, BTN, SB, BB.
+  - Fewer opponents allow wider ranges from late position.
+nextIds: ['openfold_btn_vs_utg_cash']

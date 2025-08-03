@@ -1,4 +1,5 @@
 packs:
   - assets/packs/v2/preflop/push_fold_cash.yaml
+  - assets/packs/v2/preflop/openfold_3bb_cash.yaml
   - assets/packs/v2/preflop/open_fold_mid_cash.yaml
   - assets/packs/v2/preflop/threebet_push_late_cash.yaml
