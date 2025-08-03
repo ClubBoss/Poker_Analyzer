@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/training_pack_controller.dart';
-import '../widgets/common/training_spot_list.dart';
+import '../widgets/common/training_spot_list_core.dart';
 
 class TrainingPackSpotPanel extends StatelessWidget {
   final TrainingPackController controller;
