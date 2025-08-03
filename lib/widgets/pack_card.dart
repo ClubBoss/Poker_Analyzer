@@ -19,6 +19,7 @@ import '../services/training_pack_performance_tracker_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../screens/mini_lesson_screen.dart';
 import 'pack_progress_summary_widget.dart';
+import 'unlock_tracker_widget.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -509,7 +510,7 @@ class _PackCardState extends State<PackCard>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          PackProgressSummaryWidget(
+                          UnlockTrackerWidget(
                             accuracy: _accuracy,
                             handsCompleted: _handsCompleted,
                             requiredAccuracy: _requiredAccuracy,
