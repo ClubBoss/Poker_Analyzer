@@ -79,14 +79,14 @@ class TrainingPackTemplateV2 {
     this.minHands,
     bool? isGeneratedPack,
     bool? isSampledPack,
-  }) : tags = tags ?? [],
-       spots = spots ?? [],
-       dynamicSpots = dynamicSpots ?? [],
-       positions = positions ?? [],
-       created = created ?? DateTime.now(),
-       meta = meta ?? {},
-       isGeneratedPack = isGeneratedPack ?? false,
-       isSampledPack = isSampledPack ?? false {
+  })  : tags = tags ?? [],
+        spots = spots ?? [],
+        dynamicSpots = dynamicSpots ?? [],
+        positions = positions ?? [],
+        created = created ?? DateTime.now(),
+        meta = meta ?? {},
+        isGeneratedPack = isGeneratedPack ?? false,
+        isSampledPack = isSampledPack ?? false {
     if (theme != null) meta['theme'] = theme;
     if (requiredAccuracy != null) meta['requiredAccuracy'] = requiredAccuracy;
     if (minHands != null) meta['minHands'] = minHands;
@@ -99,7 +99,8 @@ class TrainingPackTemplateV2 {
         Map<String, dynamic>.from(meta['dynamicParams']),
       );
       Map<String, dynamic>? boardFilter;
-      final tags = (m['textureTags'] as List?)?.cast<String>();
+      final tags = (m['boardTextureTags'] as List? ?? m['textureTags'] as List?)
+          ?.cast<String>();
       if (tags != null && tags.isNotEmpty) {
         boardFilter = BoardFilteringParamsBuilder.build(tags);
       }
@@ -149,9 +150,8 @@ class TrainingPackTemplateV2 {
   }
 
   factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) {
-    final metaMap = j['meta'] != null
-        ? Map<String, dynamic>.from(j['meta'])
-        : {};
+    final metaMap =
+        j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {};
 
     final dynParams = metaMap['dynamicParams'];
     var dynamicList = <DynamicSpotTemplate>[];
@@ -162,7 +162,9 @@ class TrainingPackTemplateV2 {
         Map<String, dynamic>.from(dynParams),
       );
       Map<String, dynamic>? boardFilter;
-      final tags = (norm['textureTags'] as List?)?.cast<String>();
+      final tags =
+          (norm['boardTextureTags'] as List? ?? norm['textureTags'] as List?)
+              ?.cast<String>();
       if (tags != null && tags.isNotEmpty) {
         boardFilter = BoardFilteringParamsBuilder.build(tags);
       }
@@ -219,8 +221,7 @@ class TrainingPackTemplateV2 {
       name: j['name'] as String? ?? '',
       description: j['description'] as String? ?? '',
       goal: j['goal'] as String? ?? '',
-      audience:
-          j['audience'] as String? ??
+      audience: j['audience'] as String? ??
           (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
       theme: j['meta'] is Map ? (j['meta']['theme'] as String?) : null,
       tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
@@ -239,8 +240,7 @@ class TrainingPackTemplateV2 {
         for (final p in (j['positions'] as List? ?? [])) p.toString(),
       ],
       meta: metaMap,
-      recommended:
-          j['recommended'] as bool? ??
+      recommended: j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
       requiresTheoryCompleted: j['meta'] is Map
           ? j['meta']['requiresTheoryCompleted'] == true
@@ -252,9 +252,8 @@ class TrainingPackTemplateV2 {
       requiredAccuracy: j['meta'] is Map
           ? (j['meta']['requiredAccuracy'] as num?)?.toDouble()
           : null,
-      minHands: j['meta'] is Map
-          ? (j['meta']['minHands'] as num?)?.toInt()
-          : null,
+      minHands:
+          j['meta'] is Map ? (j['meta']['minHands'] as num?)?.toInt() : null,
       dynamicSpots: dynamicList,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
@@ -370,27 +369,30 @@ class TrainingPackTemplateV2 {
   factory TrainingPackTemplateV2.fromTemplate(
     TrainingPackTemplate template, {
     required TrainingType type,
-  }) => TrainingPackTemplateV2(
-    id: template.id,
-    name: template.name,
-    description: template.description,
-    goal: template.goal,
-    audience: template.meta['audience'] as String?,
-    theme: template.meta['theme'] as String?,
-    tags: List<String>.from(template.tags),
-    category: template.tags.isNotEmpty ? template.tags.first : null,
-    trainingType: type,
-    spots: List<SpotTemplate>.from(template.spots),
-    spotCount: template.spotCount,
-    created: template.createdAt,
-    gameType: template.gameType,
-    bb: template.heroBbStack,
-    positions: [template.heroPos.name],
-    meta: Map<String, dynamic>.from(template.meta),
-    recommended: template.recommended,
-    requiresTheoryCompleted: template.meta['requiresTheoryCompleted'] == true,
-    targetStreet: template.targetStreet,
-    requiredAccuracy: (template.meta['requiredAccuracy'] as num?)?.toDouble(),
-    minHands: (template.meta['minHands'] as num?)?.toInt(),
-  );
+  }) =>
+      TrainingPackTemplateV2(
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        goal: template.goal,
+        audience: template.meta['audience'] as String?,
+        theme: template.meta['theme'] as String?,
+        tags: List<String>.from(template.tags),
+        category: template.tags.isNotEmpty ? template.tags.first : null,
+        trainingType: type,
+        spots: List<SpotTemplate>.from(template.spots),
+        spotCount: template.spotCount,
+        created: template.createdAt,
+        gameType: template.gameType,
+        bb: template.heroBbStack,
+        positions: [template.heroPos.name],
+        meta: Map<String, dynamic>.from(template.meta),
+        recommended: template.recommended,
+        requiresTheoryCompleted:
+            template.meta['requiresTheoryCompleted'] == true,
+        targetStreet: template.targetStreet,
+        requiredAccuracy:
+            (template.meta['requiredAccuracy'] as num?)?.toDouble(),
+        minHands: (template.meta['minHands'] as num?)?.toInt(),
+      );
 }
