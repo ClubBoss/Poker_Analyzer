@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import 'edit_action_dialog.dart';
 import 'package:intl/intl.dart';
+import '../helpers/action_color_helper.dart';
 
 import 'street_pot_widget.dart';
 import 'chip_stack_widget.dart';
@@ -47,26 +48,7 @@ class StreetActionsList extends StatelessWidget {
 
   Widget _buildTile(
       BuildContext context, ActionEntry a, int globalIndex, int index) {
-    Color color;
-    switch (a.action) {
-      case 'fold':
-        color = Colors.red;
-        break;
-      case 'call':
-        color = Colors.blue;
-        break;
-      case 'raise':
-        color = Colors.green;
-        break;
-      case 'check':
-        color = Colors.grey;
-        break;
-      case 'custom':
-        color = Colors.purple;
-        break;
-      default:
-        color = Colors.white;
-    }
+    final color = actionColor(a.action);
     final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
     final actLabel = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
     final baseTitle = '$pos — $actLabel';

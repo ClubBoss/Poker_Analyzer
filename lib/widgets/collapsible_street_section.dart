@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import '../helpers/action_color_helper.dart';
 import 'street_actions_list.dart';
 
 /// Collapsible block showing actions for a specific street.
@@ -42,23 +43,8 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
 
   String get _streetName => ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][widget.street];
 
-  String _capitalize(String s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
-
-  Color _colorForAction(String action) {
-    switch (action) {
-      case 'fold':
-        return Colors.red;
-      case 'call':
-        return Colors.blue;
-      case 'raise':
-      case 'bet':
-        return Colors.green;
-      case 'custom':
-        return Colors.purple;
-      default:
-        return Colors.white;
-    }
-  }
+  String _capitalize(String s) =>
+      s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 
   String _buildSummary(List<ActionEntry> actions) {
     if (actions.isEmpty) return 'Нет действий';
@@ -81,7 +67,7 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
 
     final summary = _buildSummary(streetActions);
     final summaryColor = streetActions.isNotEmpty
-        ? _colorForAction(streetActions.last.action)
+        ? actionColor(streetActions.last.action)
         : Colors.white54;
     bool hasNegative = false;
     if (widget.evaluateActionQuality != null) {
