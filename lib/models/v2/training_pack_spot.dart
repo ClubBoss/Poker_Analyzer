@@ -1,6 +1,11 @@
 import 'hand_data.dart';
 import '../evaluation_result.dart';
 import '../copy_with_mixin.dart';
+import '../action_entry.dart';
+import '../training_spot.dart';
+import 'hero_position.dart';
+import '../card_model.dart';
+import 'package:uuid/uuid.dart';
 
 class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   final String id;
@@ -107,6 +112,43 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
         ],
         meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
       );
+
+  factory TrainingPackSpot.fromTrainingSpot(
+    TrainingSpot spot, {
+    String? id,
+    String? villainAction,
+    List<String>? heroOptions,
+  }) {
+    final heroCards = spot.playerCards.length > spot.heroIndex
+        ? spot.playerCards[spot.heroIndex]
+        : <CardModel>[];
+    final cardStr = heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
+    final actions = <int, List<ActionEntry>>{};
+    for (final a in spot.actions) {
+      actions.putIfAbsent(a.street, () => []).add(
+            ActionEntry(a.street, a.playerIndex, a.action, amount: a.amount),
+          );
+    }
+    final stacks = <String, double>{};
+    for (var i = 0; i < spot.stacks.length; i++) {
+      stacks['$i'] = spot.stacks[i].toDouble();
+    }
+    final handData = HandData(
+      heroCards: cardStr,
+      position: parseHeroPosition(spot.heroPosition ?? ''),
+      heroIndex: spot.heroIndex,
+      playerCount: spot.numberOfPlayers,
+      actions: actions,
+      stacks: stacks,
+      board: [for (final c in spot.boardCards) '${c.rank}${c.suit}'],
+    );
+    return TrainingPackSpot(
+      id: id ?? const Uuid().v4(),
+      hand: handData,
+      villainAction: villainAction,
+      heroOptions: heroOptions ?? const [],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
