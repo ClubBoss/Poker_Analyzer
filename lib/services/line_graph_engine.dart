@@ -12,8 +12,9 @@ class LineGraphEngine {
       final nodes = <HandActionNode>[];
       for (final act in actions) {
         final actor = _inferActor(act);
-        nodes.add(HandActionNode(actor: actor, action: act));
-        tags.add('${street}${_capitalize(act)}');
+        final tag = '${street}${_capitalize(act)}';
+        nodes.add(HandActionNode(actor: actor, action: act, tag: tag));
+        tags.add(tag);
       }
       streets[street] = nodes;
     });
