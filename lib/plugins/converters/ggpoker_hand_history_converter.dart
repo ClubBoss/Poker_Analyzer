@@ -27,16 +27,38 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
   @override
   SavedHand? convertFrom(String externalData) {
     final lines = LineSplitter.split(externalData).map((e) => e.trim()).toList();
+    final header = _parseHeader(lines);
+    if (header == null) return null;
+    final seats = _parseSeats(lines);
+    if (seats.isEmpty) return null;
+    final hero = _parseHero(lines, seats);
+    final actions = _parseActions(lines, hero.nameToIndex);
+    return _buildSavedHand(header, seats, hero, actions);
+  }
+
+  // Parses the hand id and table name from the header lines.
+  _Header? _parseHeader(List<String> lines) {
     if (lines.isEmpty) return null;
     final idMatch = RegExp(r'^Hand #(\d+)').firstMatch(lines.first);
     if (idMatch == null) return null;
     final handId = idMatch.group(1)!;
     String tableName = '';
+    for (final line in lines) {
+      final tm =
+          RegExp(r"^Table '([^']+)'", caseSensitive: false).firstMatch(line);
+      if (tm != null) {
+        tableName = tm.group(1)!.trim();
+        break;
+      }
+    }
+    return _Header(handId, tableName);
+  }
+
+  // Extracts seat information including player name and stack size.
+  List<Map<String, dynamic>> _parseSeats(List<String> lines) {
     final seatEntries = <Map<String, dynamic>>[];
     final seatRegex = RegExp(r'^Seat (\d+):\s*(.+?)\s*\(([^)]+)\)');
     for (final line in lines) {
-      final tm = RegExp(r"^Table '([^']+)'", caseSensitive: false).firstMatch(line);
-      if (tm != null) tableName = tm.group(1)!.trim();
       final sm = seatRegex.firstMatch(line);
       if (sm != null) {
         seatEntries.add({
@@ -46,9 +68,15 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
         });
       }
     }
-    if (seatEntries.isEmpty) return null;
     seatEntries.sort((a, b) => (a['seat'] as int).compareTo(b['seat'] as int));
-    final playerCount = seatEntries.length;
+    return seatEntries;
+  }
+
+  // Determines hero info, player cards, and index mapping.
+  _HeroInfo _parseHero(
+    List<String> lines,
+    List<Map<String, dynamic>> seatEntries,
+  ) {
     String? heroName;
     List<CardModel> heroCards = [];
     for (final line in lines) {
@@ -61,6 +89,7 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
         break;
       }
     }
+    final playerCount = seatEntries.length;
     final nameToIndex = <String, int>{};
     for (int i = 0; i < playerCount; i++) {
       nameToIndex[seatEntries[i]['name'].toString().toLowerCase()] = i;
@@ -71,11 +100,14 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
       heroIndex = nameToIndex[heroName.toLowerCase()] ?? 0;
       if (heroCards.isNotEmpty) playerCards[heroIndex] = heroCards;
     }
-    final stackSizes = <int, int>{};
-    for (int i = 0; i < playerCount; i++) {
-      final stack = seatEntries[i]['stack'] as double? ?? 0;
-      stackSizes[i] = stack.round();
-    }
+    return _HeroInfo(heroIndex, playerCards, nameToIndex);
+  }
+
+  // Parses all player actions street by street.
+  List<ActionEntry> _parseActions(
+    List<String> lines,
+    Map<String, int> nameToIndex,
+  ) {
     final actions = <ActionEntry>[];
     int street = 0;
     for (final line in lines) {
@@ -98,21 +130,46 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
       m = RegExp(r'^(.+?): calls ([\d,.]+)').firstMatch(line);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
-        if (idx != null) actions.add(ActionEntry(street, idx, 'call', amount: _amount(m.group(2)!)));
+        if (idx != null) {
+          actions.add(
+              ActionEntry(street, idx, 'call', amount: _amount(m.group(2)!)));
+        }
         continue;
       }
       m = RegExp(r'^(.+?): bets ([\d,.]+)').firstMatch(line);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
-        if (idx != null) actions.add(ActionEntry(street, idx, 'bet', amount: _amount(m.group(2)!)));
+        if (idx != null) {
+          actions.add(
+              ActionEntry(street, idx, 'bet', amount: _amount(m.group(2)!)));
+        }
         continue;
       }
       m = RegExp(r'^(.+?): raises .* to ([\d,.]+)').firstMatch(line);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
-        if (idx != null) actions.add(ActionEntry(street, idx, 'raise', amount: _amount(m.group(2)!)));
+        if (idx != null) {
+          actions.add(
+              ActionEntry(street, idx, 'raise', amount: _amount(m.group(2)!)));
+        }
         continue;
       }
+    }
+    return actions;
+  }
+
+  // Builds the final SavedHand object.
+  SavedHand _buildSavedHand(
+    _Header header,
+    List<Map<String, dynamic>> seatEntries,
+    _HeroInfo hero,
+    List<ActionEntry> actions,
+  ) {
+    final playerCount = seatEntries.length;
+    final stackSizes = <int, int>{};
+    for (int i = 0; i < playerCount; i++) {
+      final stack = seatEntries[i]['stack'] as double? ?? 0;
+      stackSizes[i] = stack.round();
     }
     final positions = <int, String>{};
     try {
@@ -126,18 +183,32 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
       }
     }
     return SavedHand(
-      name: handId,
-      heroIndex: heroIndex,
-      heroPosition: positions[heroIndex] ?? 'BTN',
+      name: header.handId,
+      heroIndex: hero.heroIndex,
+      heroPosition: positions[hero.heroIndex] ?? 'BTN',
       numberOfPlayers: playerCount,
-      playerCards: playerCards,
+      playerCards: hero.playerCards,
       boardCards: const [],
       boardStreet: 0,
       actions: actions,
       stackSizes: stackSizes,
       playerPositions: positions,
-      comment: tableName,
+      comment: header.tableName,
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
     );
   }
 }
+
+class _Header {
+  _Header(this.handId, this.tableName);
+  final String handId;
+  final String tableName;
+}
+
+class _HeroInfo {
+  _HeroInfo(this.heroIndex, this.playerCards, this.nameToIndex);
+  final int heroIndex;
+  final List<List<CardModel>> playerCards;
+  final Map<String, int> nameToIndex;
+}
+
