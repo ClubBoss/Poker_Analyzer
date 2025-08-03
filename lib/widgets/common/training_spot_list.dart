@@ -17,46 +17,7 @@ import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
 import '../../theme/app_colors.dart';
 import '../../screens/training_spot_analysis_screen.dart';
-
-enum SortOption {
-  buyInAsc,
-  buyInDesc,
-  gameType,
-  tournamentId,
-  difficultyAsc,
-  difficultyDesc,
-}
-
-enum RatingSortOrder {
-  highFirst,
-  lowFirst,
-}
-
-enum SimpleSortField { createdAt, difficulty, rating }
-
-enum SimpleSortOrder { ascending, descending }
-
-enum ListSortOption { dateNew, dateOld, rating, difficulty, comment }
-
-enum QuickSortOption { id, difficulty, rating }
-
-class _FilterState {
-  const _FilterState({
-    required this.searchText,
-    required this.selectedTags,
-    required this.difficultyFilters,
-    required this.ratingFilters,
-    required this.icmOnly,
-    required this.ratedOnly,
-  });
-
-  final String searchText;
-  final Set<String> selectedTags;
-  final Set<int> difficultyFilters;
-  final Set<int> ratingFilters;
-  final bool icmOnly;
-  final bool ratedOnly;
-}
+import 'training_spot_list_models.dart';
 
 class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
@@ -160,9 +121,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
   QuickSortOption? _quickSort;
   bool _mistakesOnly = false;
 
-  _FilterState? _lastFilterState;
+  FilterState? _lastFilterState;
 
-  void _restoreFilterState(_FilterState state) {
+  void _restoreFilterState(FilterState state) {
     setState(() {
       _searchController.text = state.searchText;
       _selectedTags
@@ -3875,7 +3836,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   /// Reset all active filters and sorting options.
   void clearFilters() {
-    _lastFilterState = _FilterState(
+    _lastFilterState = FilterState(
       searchText: _searchController.text,
       selectedTags: Set<String>.from(_selectedTags),
       difficultyFilters: Set<int>.from(_difficultyFilters),
