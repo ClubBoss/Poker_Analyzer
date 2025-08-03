@@ -28,7 +28,6 @@ import '../../services/streak_tracker_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/mistake_review_pack_service.dart';
 import 'training_pack_result_screen_v2.dart';
-import '../../services/training_pack_stats_service.dart';
 import '../../services/mistake_categorization_engine.dart';
 import '../../models/mistake.dart';
 import '../../widgets/poker_table_view.dart' show PlayerAction;
@@ -52,21 +51,7 @@ import '../../core/training/library/training_pack_library_v2.dart';
 import '../../models/v2/training_pack_template_v2.dart';
 import '../../services/training_session_launcher.dart';
 import '../../services/pinned_learning_service.dart';
-
-
-enum PlayOrder { sequential, random, mistakes }
-
-class _SpotFeedback {
-  final String action;
-  final double? heroEv;
-  final double? evDiff;
-  final double? icmDiff;
-  final bool correct;
-  final bool repeated;
-  final String? advice;
-  const _SpotFeedback(this.action, this.heroEv, this.evDiff, this.icmDiff,
-      this.correct, this.repeated, this.advice);
-}
+import 'training_pack_play_core.dart';
 
 class TrainingPackPlayScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -85,7 +70,8 @@ class TrainingPackPlayScreen extends StatefulWidget {
   State<TrainingPackPlayScreen> createState() => _TrainingPackPlayScreenState();
 }
 
-class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
+class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen>
+    with TrainingPackPlayCore<TrainingPackPlayScreen> {
   late List<TrainingPackSpot> _spots;
   Map<String, String> _results = {};
   int _index = 0;
@@ -96,8 +82,77 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   final Map<String, int> _handTotals = {};
   bool _summaryShown = false;
   bool _autoAdvance = false;
-  _SpotFeedback? _feedback;
+  SpotFeedback? _feedback;
   Timer? _feedbackTimer;
+
+  @override
+  TrainingPackTemplate get template => widget.template;
+
+  @override
+  List<TrainingPackSpot> get spots => _spots;
+
+  @override
+  set spots(List<TrainingPackSpot> value) => _spots = value;
+
+  @override
+  Map<String, String> get results => _results;
+
+  @override
+  set results(Map<String, String> value) => _results = value;
+
+  @override
+  int get index => _index;
+
+  @override
+  set index(int value) => _index = value;
+
+  @override
+  bool get loading => _loading;
+
+  @override
+  set loading(bool value) => _loading = value;
+
+  @override
+  PlayOrder get order => _order;
+
+  @override
+  set order(PlayOrder value) => _order = value;
+
+  @override
+  int get streetCount => _streetCount;
+
+  @override
+  set streetCount(int value) => _streetCount = value;
+
+  @override
+  Map<String, int> get handCounts => _handCounts;
+
+  @override
+  Map<String, int> get handTotals => _handTotals;
+
+  @override
+  bool get summaryShown => _summaryShown;
+
+  @override
+  set summaryShown(bool value) => _summaryShown = value;
+
+  @override
+  bool get autoAdvance => _autoAdvance;
+
+  @override
+  set autoAdvance(bool value) => _autoAdvance = value;
+
+  @override
+  SpotFeedback? get feedback => _feedback;
+
+  @override
+  set feedback(SpotFeedback? value) => _feedback = value;
+
+  @override
+  Timer? get feedbackTimer => _feedbackTimer;
+
+  @override
+  set feedbackTimer(Timer? value) => _feedbackTimer = value;
 
   @override
   void initState() {
@@ -154,7 +209,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     if (widget.template.targetStreet != null) {
       for (final id in results.keys) {
         final s = spots.firstWhereOrNull((e) => e.id == id);
-        if (s != null && _matchStreet(s)) streetCount++;
+        if (s != null && matchStreet(s)) streetCount++;
       }
       streetCount = max(streetCount, prefs.getInt(streetKey) ?? 0);
     }
@@ -208,24 +263,6 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     });
   }
 
-  Future<void> _save({bool ts = true}) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('tpl_seq_${widget.template.id}', [for (final s in _spots) s.id]);
-    await prefs.setInt('tpl_prog_${widget.template.id}', _index);
-    await prefs.setString('tpl_res_${widget.template.id}', jsonEncode(_results));
-    if (widget.template.targetStreet != null) {
-      await prefs.setInt('tpl_street_${widget.template.id}', _streetCount);
-    }
-    if (widget.template.focusHandTypes.isNotEmpty) {
-      await prefs.setString('tpl_hand_${widget.template.id}', jsonEncode(_handCounts));
-    }
-    if (ts) {
-      await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
-    }
-    unawaited(TrainingPackStatsService.setLastIndex(widget.template.id, _index));
-    await PinnedLearningService.instance
-        .setLastPosition('pack', widget.template.id, _index);
-  }
 
   Future<void> _startNew() async {
     var spots = List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
@@ -252,7 +289,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ..addEntries(widget.template.focusHandTypes.map((e) => MapEntry(e.label, 0)));
       _loading = false;
     });
-    await _save();
+    await save();
   }
 
   String? _expected(TrainingPackSpot spot) {
@@ -289,19 +326,6 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return false;
   }
 
-  bool _matchStreet(TrainingPackSpot spot) {
-    final len = spot.hand.board.length;
-    switch (widget.template.targetStreet) {
-      case 'flop':
-        return len == 3;
-      case 'turn':
-        return len == 4;
-      case 'river':
-        return len == 5;
-      default:
-        return false;
-    }
-  }
 
   double? _actionEv(TrainingPackSpot spot, String action) {
     for (final a in spot.hand.actions[0] ?? []) {
@@ -425,7 +449,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     final advice =
         spot.tags.isNotEmpty ? kMistakeAdvice[spot.tags.first] : null;
     setState(() {
-      _feedback = _SpotFeedback(
+      _feedback = SpotFeedback(
           action, heroEv, evDiff, icmDiff, correct, repeated, advice);
     });
     _feedbackTimer = Timer(const Duration(seconds: 3), () {
@@ -570,10 +594,10 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     _hideFeedback();
     if (_index + 1 < _spots.length) {
       setState(() => _index++);
-      _save();
+      save();
     } else {
       _index = _spots.length - 1;
-      _save();
+      save();
       await context.read<StreakService>().onFinish();
       await context
           .read<StreakTrackerService>()
@@ -633,7 +657,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     if (act != null) {
       final first = !_results.containsKey(spot.id);
       _results[spot.id] = act.toLowerCase();
-      if (first && _matchStreet(spot)) _streetCount++;
+      if (first && matchStreet(spot)) _streetCount++;
       if (first) {
         for (final g in widget.template.focusHandTypes) {
           if (_matchHandTypeLabel(spot, g.label)) {
@@ -840,7 +864,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
               ),
             );
             if (confirm == true) {
-              _save();
+              save();
               Navigator.pop(context);
             }
           },
@@ -884,7 +908,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                   if (widget.template.focusHandTypes.isNotEmpty) {
                     prefs.remove('tpl_hand_${widget.template.id}');
                   }
-                  _save(ts: false);
+                  save(ts: false);
                 }
               } else if (choice is PlayOrder) {
                 setState(() => _order = choice);
