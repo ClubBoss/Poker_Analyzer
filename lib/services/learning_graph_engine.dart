@@ -9,6 +9,7 @@ import 'path_map_engine.dart';
 import 'training_path_progress_service_v2.dart';
 import 'learning_path_node_history.dart';
 import 'auto_theory_review_engine.dart';
+import 'learning_path_level_one_builder_service.dart';
 import '../models/learning_path_node.dart';
 import '../models/learning_path_session_state.dart';
 import '../models/learning_branch_node.dart';
@@ -19,6 +20,7 @@ import '../models/theory_mini_lesson_node.dart';
 class LearningPathEngine {
   final LearningPathGraphOrchestrator orchestrator;
   final TrainingPathProgressServiceV2 progress;
+  final LearningPathLevelOneBuilderService levelOneBuilder;
   PathMapEngine? _engine;
   static const _sessionKey = 'learning_path_session';
 
@@ -28,18 +30,24 @@ class LearningPathEngine {
   LearningPathEngine({
     LearningPathGraphOrchestrator? orchestrator,
     TrainingPathProgressServiceV2? progress,
+    LearningPathLevelOneBuilderService? levelOneBuilder,
   })  : orchestrator = orchestrator ?? LearningPathGraphOrchestrator(),
         progress = progress ??
             TrainingPathProgressServiceV2(
               logs: SessionLogService(sessions: TrainingSessionService()),
-            );
+            ),
+        levelOneBuilder =
+            levelOneBuilder ?? const LearningPathLevelOneBuilderService();
 
   static final LearningPathEngine instance = LearningPathEngine();
 
   /// Loads the active profile graph and prepares for traversal.
   Future<void> initialize() async {
     await LearningPathNodeHistory.instance.load();
-    final nodes = await orchestrator.loadGraph();
+    List<LearningPathNode> nodes = await orchestrator.loadGraph();
+    if (nodes.isEmpty) {
+      nodes = levelOneBuilder.build().cast<LearningPathNode>();
+    }
     _engine = PathMapEngine(progress: progress);
     await _engine!.loadNodes(nodes);
     await restoreSession();
