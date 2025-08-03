@@ -25,4 +25,15 @@ void main() {
     final ts = await tracker.getLastBoosterCompletion('call');
     expect(ts, isNotNull);
   });
+
+  test('returns most decayed tags', () async {
+    final tracker = const DecayTagRetentionTrackerService();
+    final now = DateTime.now();
+    await tracker.markBoosterCompleted('a', time: now.subtract(const Duration(days: 30)));
+    await tracker.markBoosterCompleted('b', time: now.subtract(const Duration(days: 10)));
+    final result = await tracker.getMostDecayedTags(2, now: now);
+    expect(result.length, 2);
+    expect(result.first.key, 'a');
+    expect(result.first.value, greaterThan(result.last.value));
+  });
 }

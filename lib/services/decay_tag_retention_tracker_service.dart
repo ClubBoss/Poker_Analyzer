@@ -84,4 +84,20 @@ class DecayTagRetentionTrackerService {
     }
     return result;
   }
+
+  /// Returns top decayed tags sorted by severity.
+  ///
+  /// Each entry contains the tag and its normalized decay score
+  /// (0-1 range where higher means more decayed).
+  Future<List<MapEntry<String, double>>> getMostDecayedTags(int limit,
+      {DateTime? now}) async {
+    if (limit <= 0) return [];
+    final scores = await getAllDecayScores(now: now);
+    final entries = scores.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    if (entries.length > limit) {
+      return entries.sublist(0, limit);
+    }
+    return entries;
+  }
 }
