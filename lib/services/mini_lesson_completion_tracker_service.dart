@@ -8,18 +8,24 @@ class MiniLessonCompletionTrackerService {
 
   static const String _key = 'theory_lessons_completed';
 
-  Future<void> markCompleted(String lessonId) async {
+  Set<String>? _completed;
+
+  Future<void> _ensureLoaded() async {
+    if (_completed != null) return;
     final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_key) ?? <String>[];
-    if (!list.contains(lessonId)) {
-      list.add(lessonId);
-      await prefs.setStringList(_key, list);
+    _completed = Set<String>.from(prefs.getStringList(_key) ?? <String>[]);
+  }
+
+  Future<void> markCompleted(String lessonId) async {
+    await _ensureLoaded();
+    if (_completed!.add(lessonId)) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_key, _completed!.toList());
     }
   }
 
   Future<bool> isCompleted(String lessonId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_key) ?? <String>[];
-    return list.contains(lessonId);
+    await _ensureLoaded();
+    return _completed!.contains(lessonId);
   }
 }
