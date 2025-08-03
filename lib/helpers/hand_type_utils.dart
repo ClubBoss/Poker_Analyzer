@@ -1,60 +1,63 @@
 const _ranks = '23456789TJQKA';
 
+String hi(String code) => code[0];
+String lo(String code) => code.length > 1 ? code[1] : '';
+
 final Map<String, bool Function(String)> _labelMatchers = {
   'PAIRS': (code) => code.length == 2,
   'SMALL PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) <= _ranks.indexOf('6');
+    final h = hi(code);
+    return code.length == 2 && _ranks.indexOf(h) <= _ranks.indexOf('6');
   },
   'LOW PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) <= _ranks.indexOf('6');
+    final h = hi(code);
+    return code.length == 2 && _ranks.indexOf(h) <= _ranks.indexOf('6');
   },
   'MID PAIRS': (code) {
-    final hi = code[0];
+    final h = hi(code);
     return code.length == 2 &&
-        _ranks.indexOf(hi) > _ranks.indexOf('6') &&
-        _ranks.indexOf(hi) <= _ranks.indexOf('T');
+        _ranks.indexOf(h) > _ranks.indexOf('6') &&
+        _ranks.indexOf(h) <= _ranks.indexOf('T');
   },
   'BIG PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) > _ranks.indexOf('T');
+    final h = hi(code);
+    return code.length == 2 && _ranks.indexOf(h) > _ranks.indexOf('T');
   },
   'HIGH PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) > _ranks.indexOf('T');
+    final h = hi(code);
+    return code.length == 2 && _ranks.indexOf(h) > _ranks.indexOf('T');
   },
   'SUITED CONNECTORS': (code) {
-    final hi = code[0];
-    final lo = code.length > 1 ? code[1] : '';
-    return code.endsWith('S') && _ranks.indexOf(hi) - _ranks.indexOf(lo) == 1;
+    final h = hi(code);
+    final l = lo(code);
+    return code.endsWith('S') && _ranks.indexOf(h) - _ranks.indexOf(l) == 1;
   },
   'OFFSUIT CONNECTORS': (code) {
-    final hi = code[0];
-    final lo = code.length > 1 ? code[1] : '';
+    final h = hi(code);
+    final l = lo(code);
     return !code.endsWith('S') &&
-        _ranks.indexOf(hi) - _ranks.indexOf(lo) == 1;
+        _ranks.indexOf(h) - _ranks.indexOf(l) == 1;
   },
   'CONNECTORS': (code) {
-    final hi = code[0];
-    final lo = code.length > 1 ? code[1] : '';
-    return _ranks.indexOf(hi) - _ranks.indexOf(lo) == 1;
+    final h = hi(code);
+    final l = lo(code);
+    return _ranks.indexOf(h) - _ranks.indexOf(l) == 1;
   },
   'SUITED AX': (code) {
-    final hi = code[0];
-    final lo = code.length > 1 ? code[1] : '';
+    final h = hi(code);
+    final l = lo(code);
     return code.startsWith('A') &&
         code.endsWith('S') &&
         code.length == 3 &&
-        hi != lo;
+        h != l;
   },
   'OFFSUIT AX': (code) {
-    final hi = code[0];
-    final lo = code.length > 1 ? code[1] : '';
+    final h = hi(code);
+    final l = lo(code);
     return code.startsWith('A') &&
         !code.endsWith('S') &&
         code.length == 3 &&
-        hi != lo;
+        h != l;
   },
 };
 
