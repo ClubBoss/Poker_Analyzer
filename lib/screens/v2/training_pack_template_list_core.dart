@@ -1,5 +1,27 @@
 part of 'training_pack_template_list_screen.dart';
 
+class TrainingPackTemplatePrefs {
+  static const hideCompleted = 'tpl_hide_completed';
+  static const groupByStreet = 'tpl_group_by_street';
+  static const groupByType = 'tpl_group_by_type';
+  static const mixedHandGoalOnly = 'tpl_mixed_handgoal_only';
+  static const mixedCount = 'tpl_mixed_count';
+  static const mixedStreet = 'tpl_mixed_street';
+  static const mixedAuto = 'tpl_mixed_auto';
+  static const endlessDrill = 'tpl_endless_drill';
+  static const favorites = 'tpl_favorites';
+  static const showFavoritesOnly = 'tpl_show_fav_only';
+  static const sortOption = 'tpl_sort_option';
+  static const stackFilter = 'tpl_stack_filter';
+  static const posFilter = 'tpl_pos_filter';
+  static const difficultyFilter = 'tpl_diff_filter';
+  static const streetFilter = 'tpl_street_filter';
+  static const recentPacks = 'tpl_recent_packs';
+  static const inProgress = 'tpl_in_progress';
+  static const mixedLastRun = 'tpl_mixed_last_run';
+  static const continueLast = 'tpl_continue_last';
+}
+
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
 
@@ -14,23 +36,6 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen>
     with TrainingPackTemplateIo, TrainingPackTemplateFilterPanel {
-  static const _prefsHideKey = 'tpl_hide_completed';
-  static const _prefsGroupKey = 'tpl_group_by_street';
-  static const _prefsTypeKey = 'tpl_group_by_type';
-  static const _prefsMixedHandKey = 'tpl_mixed_handgoal_only';
-  static const _prefsMixedCountKey = 'tpl_mixed_count';
-  static const _prefsMixedStreetKey = 'tpl_mixed_street';
-  static const _prefsMixedAutoKey = 'tpl_mixed_auto';
-  static const _prefsEndlessKey = 'tpl_endless_drill';
-  static const _prefsFavoritesKey = 'tpl_favorites';
-  static const _prefsShowFavOnlyKey = 'tpl_show_fav_only';
-  static const _prefsSortKey = 'tpl_sort_option';
-  static const _prefsStackKey = 'tpl_stack_filter';
-  static const _prefsPosKey = 'tpl_pos_filter';
-  static const _prefsDifficultyKey = 'tpl_diff_filter';
-  static const _prefsStreetKey = 'tpl_street_filter';
-  static const _prefsRecentKey = 'tpl_recent_packs';
-  static const _prefsInProgressKey = 'tpl_in_progress';
   static const _stackRanges = ['0-9', '10-15', '16-25', '26+'];
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
@@ -76,7 +81,7 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _loadSort() async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_prefsSortKey);
+    final value = prefs.getString(TrainingPackTemplatePrefs.sortOption);
     if (mounted && value != null) {
       setState(() {
         _sort = value;
@@ -91,7 +96,7 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsSortKey, value);
+    await prefs.setString(TrainingPackTemplatePrefs.sortOption, value);
   }
 
   Future<void> refreshFromStorage() async {
@@ -261,7 +266,7 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _maybeShowContinueReminder() async {
     final prefs = await SharedPreferences.getInstance();
-    final ts = prefs.getInt('tpl_continue_last');
+    final ts = prefs.getInt(TrainingPackTemplatePrefs.continueLast);
     if (ts != null && DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(ts)).inHours < 24) {
       return;
     }
@@ -283,7 +288,8 @@ class _TrainingPackTemplateListScreenState
             ),
           ),
         );
-        await prefs.setInt('tpl_continue_last', DateTime.now().millisecondsSinceEpoch);
+        await prefs.setInt(TrainingPackTemplatePrefs.continueLast,
+            DateTime.now().millisecondsSinceEpoch);
         break;
       }
     }
@@ -300,21 +306,24 @@ class _TrainingPackTemplateListScreenState
   Future<void> _loadHideCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _hideCompleted = prefs.getBool(_prefsHideKey) ?? false);
+      setState(() => _hideCompleted =
+          prefs.getBool(TrainingPackTemplatePrefs.hideCompleted) ?? false);
     }
   }
 
   Future<void> _loadGroupByStreet() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _groupByStreet = prefs.getBool(_prefsGroupKey) ?? false);
+      setState(() => _groupByStreet =
+          prefs.getBool(TrainingPackTemplatePrefs.groupByStreet) ?? false);
     }
   }
 
   Future<void> _loadGroupByType() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _groupByType = prefs.getBool(_prefsTypeKey) ?? false);
+      setState(() => _groupByType =
+          prefs.getBool(TrainingPackTemplatePrefs.groupByType) ?? false);
     }
   }
 
@@ -322,12 +331,18 @@ class _TrainingPackTemplateListScreenState
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
-        _mixedHandGoalOnly = prefs.getBool(_prefsMixedHandKey) ?? false;
-        _mixedCount = prefs.getInt(_prefsMixedCountKey) ?? 20;
-        _mixedStreet = prefs.getString(_prefsMixedStreetKey) ?? 'any';
-        _mixedAutoOnly = prefs.getBool(_prefsMixedAutoKey) ?? false;
-        _endlessDrill = prefs.getBool(_prefsEndlessKey) ?? false;
-        final ts = prefs.getInt('tpl_mixed_last_run');
+        _mixedHandGoalOnly =
+            prefs.getBool(TrainingPackTemplatePrefs.mixedHandGoalOnly) ??
+                false;
+        _mixedCount =
+            prefs.getInt(TrainingPackTemplatePrefs.mixedCount) ?? 20;
+        _mixedStreet =
+            prefs.getString(TrainingPackTemplatePrefs.mixedStreet) ?? 'any';
+        _mixedAutoOnly =
+            prefs.getBool(TrainingPackTemplatePrefs.mixedAuto) ?? false;
+        _endlessDrill =
+            prefs.getBool(TrainingPackTemplatePrefs.endlessDrill) ?? false;
+        final ts = prefs.getInt(TrainingPackTemplatePrefs.mixedLastRun);
         _mixedLastRun = ts == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch(ts);
@@ -338,34 +353,35 @@ class _TrainingPackTemplateListScreenState
   Future<void> _setHideCompleted(bool value) async {
     setState(() => _hideCompleted = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsHideKey, value);
+    await prefs.setBool(TrainingPackTemplatePrefs.hideCompleted, value);
   }
 
   Future<void> _setGroupByStreet(bool value) async {
     setState(() => _groupByStreet = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsGroupKey, value);
+    await prefs.setBool(TrainingPackTemplatePrefs.groupByStreet, value);
   }
 
   Future<void> _setGroupByType(bool value) async {
     setState(() => _groupByType = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsTypeKey, value);
+    await prefs.setBool(TrainingPackTemplatePrefs.groupByType, value);
   }
 
   Future<void> _setMixedHandGoalOnly(bool value) async {
     setState(() => _mixedHandGoalOnly = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsMixedHandKey, value);
+    await prefs.setBool(TrainingPackTemplatePrefs.mixedHandGoalOnly, value);
   }
 
   Future<void> _saveMixedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_prefsMixedCountKey, _mixedCount);
-    await prefs.setString(_prefsMixedStreetKey, _mixedStreet);
-    await prefs.setBool(_prefsMixedAutoKey, _mixedAutoOnly);
-    await prefs.setBool(_prefsEndlessKey, _endlessDrill);
-    await prefs.setBool(_prefsMixedHandKey, _mixedHandGoalOnly);
+    await prefs.setInt(TrainingPackTemplatePrefs.mixedCount, _mixedCount);
+    await prefs.setString(TrainingPackTemplatePrefs.mixedStreet, _mixedStreet);
+    await prefs.setBool(TrainingPackTemplatePrefs.mixedAuto, _mixedAutoOnly);
+    await prefs.setBool(TrainingPackTemplatePrefs.endlessDrill, _endlessDrill);
+    await prefs.setBool(
+        TrainingPackTemplatePrefs.mixedHandGoalOnly, _mixedHandGoalOnly);
   }
 
   Future<void> _clearMixedPrefs() async {
@@ -381,39 +397,45 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_prefsFavoritesKey) ?? [];
+    final list = prefs.getStringList(TrainingPackTemplatePrefs.favorites) ?? [];
     if (mounted) setState(() => _favorites.addAll(list));
   }
 
   Future<void> _loadShowFavoritesOnly() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _showFavoritesOnly = prefs.getBool(_prefsShowFavOnlyKey) ?? false);
+      setState(() =>
+          _showFavoritesOnly =
+              prefs.getBool(TrainingPackTemplatePrefs.showFavoritesOnly) ??
+                  false);
     }
   }
 
   Future<void> _loadShowInProgressOnly() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _showInProgressOnly = prefs.getBool(_prefsInProgressKey) ?? false);
+      setState(() =>
+          _showInProgressOnly =
+              prefs.getBool(TrainingPackTemplatePrefs.inProgress) ?? false);
     }
   }
 
   Future<void> _setShowFavoritesOnly(bool value) async {
     setState(() => _showFavoritesOnly = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsShowFavOnlyKey, value);
+    await prefs.setBool(TrainingPackTemplatePrefs.showFavoritesOnly, value);
   }
 
   Future<void> _setShowInProgressOnly(bool value) async {
     setState(() => _showInProgressOnly = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsInProgressKey, value);
+    await prefs.setBool(TrainingPackTemplatePrefs.inProgress, value);
   }
 
   Future<void> _saveFavorites() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_prefsFavoritesKey, _favorites.toList());
+    await prefs.setStringList(
+        TrainingPackTemplatePrefs.favorites, _favorites.toList());
   }
 
   Future<void> _toggleFavorite(String id) async {
@@ -427,22 +449,24 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _loadStackFilter() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) setState(() => _stackFilter = prefs.getString(_prefsStackKey));
+    if (mounted)
+      setState(() =>
+          _stackFilter = prefs.getString(TrainingPackTemplatePrefs.stackFilter));
   }
 
   Future<void> _setStackFilter(String? value) async {
     setState(() => _stackFilter = value);
     final prefs = await SharedPreferences.getInstance();
     if (value == null) {
-      await prefs.remove(_prefsStackKey);
+      await prefs.remove(TrainingPackTemplatePrefs.stackFilter);
     } else {
-      await prefs.setString(_prefsStackKey, value);
+      await prefs.setString(TrainingPackTemplatePrefs.stackFilter, value);
     }
   }
 
   Future<void> _loadPosFilter() async {
     final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString(_prefsPosKey);
+    final name = prefs.getString(TrainingPackTemplatePrefs.posFilter);
     if (mounted) {
       setState(() => _posFilter = name == null
           ? null
@@ -455,16 +479,18 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _loadDifficultyFilter() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) setState(() => _difficultyFilter = prefs.getString(_prefsDifficultyKey));
+    if (mounted)
+      setState(() => _difficultyFilter =
+          prefs.getString(TrainingPackTemplatePrefs.difficultyFilter));
   }
 
   Future<void> _setPosFilter(HeroPosition? value) async {
     setState(() => _posFilter = value);
     final prefs = await SharedPreferences.getInstance();
     if (value == null) {
-      await prefs.remove(_prefsPosKey);
+      await prefs.remove(TrainingPackTemplatePrefs.posFilter);
     } else {
-      await prefs.setString(_prefsPosKey, value.name);
+      await prefs.setString(TrainingPackTemplatePrefs.posFilter, value.name);
     }
   }
 
@@ -472,30 +498,33 @@ class _TrainingPackTemplateListScreenState
     setState(() => _difficultyFilter = value);
     final prefs = await SharedPreferences.getInstance();
     if (value == null) {
-      await prefs.remove(_prefsDifficultyKey);
+      await prefs.remove(TrainingPackTemplatePrefs.difficultyFilter);
     } else {
-      await prefs.setString(_prefsDifficultyKey, value);
+      await prefs.setString(TrainingPackTemplatePrefs.difficultyFilter, value);
     }
   }
 
   Future<void> _loadStreetFilter() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) setState(() => _streetFilter = prefs.getString(_prefsStreetKey));
+    if (mounted)
+      setState(() =>
+          _streetFilter = prefs.getString(TrainingPackTemplatePrefs.streetFilter));
   }
 
   Future<void> _setStreetFilter(String? value) async {
     setState(() => _streetFilter = value);
     final prefs = await SharedPreferences.getInstance();
     if (value == null) {
-      await prefs.remove(_prefsStreetKey);
+      await prefs.remove(TrainingPackTemplatePrefs.streetFilter);
     } else {
-      await prefs.setString(_prefsStreetKey, value);
+      await prefs.setString(TrainingPackTemplatePrefs.streetFilter, value);
     }
   }
 
   Future<void> _loadRecent() async {
     final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_prefsRecentKey) ?? [];
+    final list =
+        prefs.getStringList(TrainingPackTemplatePrefs.recentPacks) ?? [];
     if (mounted) {
       setState(() => _recentIds
       ..clear()
@@ -512,13 +541,14 @@ class _TrainingPackTemplateListScreenState
         _recentIds.removeRange(10, _recentIds.length);
       }
     });
-    await prefs.setStringList(_prefsRecentKey, _recentIds);
+    await prefs.setStringList(
+        TrainingPackTemplatePrefs.recentPacks, _recentIds);
   }
 
   Future<void> _clearRecent() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() => _recentIds.clear());
-    await prefs.remove(_prefsRecentKey);
+    await prefs.remove(TrainingPackTemplatePrefs.recentPacks);
   }
 
   bool _matchStack(int stack) {
@@ -612,10 +642,10 @@ class _TrainingPackTemplateListScreenState
       _completedOnly = false;
     });
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_prefsDifficultyKey);
-    await prefs.remove(_prefsPosKey);
-    await prefs.remove(_prefsStackKey);
-    await prefs.remove(_prefsStreetKey);
+    await prefs.remove(TrainingPackTemplatePrefs.difficultyFilter);
+    await prefs.remove(TrainingPackTemplatePrefs.posFilter);
+    await prefs.remove(TrainingPackTemplatePrefs.stackFilter);
+    await prefs.remove(TrainingPackTemplatePrefs.streetFilter);
   }
 
   List<String> _topTags(TrainingPackTemplate tpl) {
@@ -2429,7 +2459,8 @@ class _TrainingPackTemplateListScreenState
   Future<void> _runMixedDrill() async {
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('tpl_mixed_last_run', now.millisecondsSinceEpoch);
+    await prefs.setInt(TrainingPackTemplatePrefs.mixedLastRun,
+        now.millisecondsSinceEpoch);
     setState(() => _mixedLastRun = now);
     final count = _mixedCount;
     final autoOnly = _mixedAutoOnly;
