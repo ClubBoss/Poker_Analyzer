@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/player_model.dart';
@@ -21,6 +23,9 @@ class PokerAnalyzerController extends ChangeNotifier {
   /// List of current players.
   final List<PlayerModel> _players = [];
 
+  late final UnmodifiableListView<PlayerModel> _unmodifiablePlayers =
+      UnmodifiableListView(_players);
+
   /// Flag controlling display of debug information in the overlay.
   bool _debugMode = false;
 
@@ -37,21 +42,21 @@ class PokerAnalyzerController extends ChangeNotifier {
     });
   }
 
-  Map<int, String> get playerPositions => Map.unmodifiable(_playerPositions);
+  Map<int, String> get playerPositions => UnmodifiableMapView(_playerPositions);
   void setPlayerPosition(int index, String position) {
     _update(() {
       _playerPositions[index] = position;
     });
   }
 
-  Map<int, PlayerType> get playerTypes => Map.unmodifiable(_playerTypes);
+  Map<int, PlayerType> get playerTypes => UnmodifiableMapView(_playerTypes);
   void setPlayerType(int index, PlayerType type) {
     _update(() {
       _playerTypes[index] = type;
     });
   }
 
-  List<PlayerModel> get players => List.unmodifiable(_players);
+  List<PlayerModel> get players => _unmodifiablePlayers;
   void addPlayer(PlayerModel player) {
     _update(() {
       _players.add(player);
@@ -76,4 +81,3 @@ class PokerAnalyzerController extends ChangeNotifier {
   /// Convenience getter for the current player count.
   int get playerCount => _players.length;
 }
-
