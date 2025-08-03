@@ -10,6 +10,7 @@ import 'decay_tag_retention_tracker_service.dart';
 import 'mini_lesson_library_service.dart';
 import 'pack_library_service.dart';
 import 'in_app_nudge_service.dart';
+import 'nudge_fatigue_detector_service.dart';
 
 /// Periodically nudges the user to resume decayed pinned content when the app
 /// is resumed after being idle.
@@ -17,14 +18,17 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
   PinnedComebackNudgeService({
     SmartPinnedRecommenderService? recommender,
     DecayTagRetentionTrackerService? retention,
+    NudgeFatigueDetectorService? fatigue,
   })  : _recommender = recommender ?? SmartPinnedRecommenderService(),
-        _retention = retention ?? const DecayTagRetentionTrackerService();
+        _retention = retention ?? const DecayTagRetentionTrackerService(),
+        _fatigue = fatigue ?? NudgeFatigueDetectorService.instance;
 
   static final PinnedComebackNudgeService instance =
       PinnedComebackNudgeService();
 
   final SmartPinnedRecommenderService _recommender;
   final DecayTagRetentionTrackerService _retention;
+  final NudgeFatigueDetectorService _fatigue;
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _pluginInitialized = false;
@@ -60,8 +64,9 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
       final prefs = await SharedPreferences.getInstance();
       final lastMillis = prefs.getInt(_lastKey);
       if (lastMillis != null &&
-          DateTime.now()
-                  .difference(DateTime.fromMillisecondsSinceEpoch(lastMillis)) <
+          DateTime.now().difference(
+                DateTime.fromMillisecondsSinceEpoch(lastMillis),
+              ) <
               const Duration(hours: 24)) {
         return;
       }
@@ -84,9 +89,11 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
   }
 
   Future<bool> _shouldNudge(PinnedLearningItem item) async {
+    if (await _fatigue.isFatigued(item)) return false;
     if (item.lastSeen != null &&
-        DateTime.now()
-                .difference(DateTime.fromMillisecondsSinceEpoch(item.lastSeen!)) <=
+        DateTime.now().difference(
+              DateTime.fromMillisecondsSinceEpoch(item.lastSeen!),
+            ) <=
             const Duration(days: 7)) {
       return false;
     }
@@ -129,7 +136,10 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
       'Come back to training',
       'You have pinned content getting rusty.',
       const NotificationDetails(
-        android: AndroidNotificationDetails('pinned_comeback', 'Pinned Comeback'),
+        android: AndroidNotificationDetails(
+          'pinned_comeback',
+          'Pinned Comeback',
+        ),
         iOS: DarwinNotificationDetails(),
       ),
     );
