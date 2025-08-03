@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import 'pinned_learning_tile.dart';
+import '../services/theory_block_library_service.dart';
 
 class PinnedLearningSection extends StatefulWidget {
   const PinnedLearningSection({super.key});
@@ -20,6 +21,7 @@ class _PinnedLearningSectionState extends State<PinnedLearningSection> {
     _service.addListener(_reload);
     _service.load();
     MiniLessonLibraryService.instance.loadAll();
+    TheoryBlockLibraryService.instance.loadAll();
   }
 
   void _reload() => setState(() {});

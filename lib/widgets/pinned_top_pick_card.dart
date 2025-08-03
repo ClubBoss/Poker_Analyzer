@@ -8,6 +8,8 @@ import '../screens/mini_lesson_screen.dart';
 import '../screens/training_pack_screen.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/pinned_learning_item.dart';
+import '../services/theory_block_library_service.dart';
+import '../services/theory_block_launcher.dart';
 
 class PinnedTopPickCard extends StatelessWidget {
   const PinnedTopPickCard({super.key});
@@ -44,6 +46,24 @@ class PinnedTopPickCard extends StatelessWidget {
                           ),
                         ),
                       );
+                    },
+                  );
+                },
+              );
+            }
+            if (item.type == 'block') {
+              return FutureBuilder<void>(
+                future: TheoryBlockLibraryService.instance.loadAll(),
+                builder: (context, snapshot) {
+                  final block =
+                      TheoryBlockLibraryService.instance.getById(item.id);
+                  if (block == null) return const SizedBox.shrink();
+                  return _buildCard(
+                    context,
+                    title: block.title,
+                    onTap: () {
+                      const TheoryBlockLauncher()
+                          .launch(context: context, block: block);
                     },
                   );
                 },

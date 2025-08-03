@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/pinned_learning_item.dart';
+import '../models/theory_block_model.dart';
+import 'theory_block_library_service.dart';
 
 class PinnedLearningService extends ChangeNotifier {
   PinnedLearningService._();
@@ -53,10 +55,48 @@ class PinnedLearningService extends ChangeNotifier {
   }
 
   Future<void> toggle(String type, String id) async {
+    if (type == 'block') {
+      final block =
+          TheoryBlockLibraryService.instance.getById(id) ?? TheoryBlockModel(
+            id: id,
+            title: '',
+            nodeIds: const [],
+            practicePackIds: const [],
+          );
+      await toggleBlock(block);
+      return;
+    }
+
     if (isPinned(type, id)) {
       _items.removeWhere((e) => e.type == type && e.id == id);
     } else {
+      final prefs = await SharedPreferences.getInstance();
+      await TheoryBlockLibraryService.instance.loadAll();
+      for (final b in TheoryBlockLibraryService.instance.all) {
+        if ((type == 'lesson' && b.nodeIds.contains(id)) ||
+            (type == 'pack' && b.practicePackIds.contains(id))) {
+          _items.removeWhere((e) => e.type == 'block' && e.id == b.id);
+          await prefs.remove('pinned_block_${b.id}');
+        }
+      }
       _items.insert(0, PinnedLearningItem(type: type, id: id));
+    }
+    await _save();
+    notifyListeners();
+  }
+
+  Future<void> toggleBlock(TheoryBlockModel block) async {
+    final id = block.id;
+    final prefs = await SharedPreferences.getInstance();
+    if (isPinned('block', id)) {
+      _items.removeWhere((e) => e.type == 'block' && e.id == id);
+      await prefs.remove('pinned_block_$id');
+    } else {
+      _items.removeWhere((e) =>
+          (e.type == 'lesson' && block.nodeIds.contains(e.id)) ||
+          (e.type == 'pack' && block.practicePackIds.contains(e.id)));
+      await prefs.setBool('pinned_block_$id', true);
+      _items.insert(0, PinnedLearningItem(type: 'block', id: id));
     }
     await _save();
     notifyListeners();
@@ -64,6 +104,10 @@ class PinnedLearningService extends ChangeNotifier {
 
   Future<void> unpin(String type, String id) async {
     _items.removeWhere((e) => e.type == type && e.id == id);
+    if (type == 'block') {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('pinned_block_$id');
+    }
     await _save();
     notifyListeners();
   }

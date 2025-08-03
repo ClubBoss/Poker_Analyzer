@@ -5,12 +5,12 @@ import '../services/theory_path_completion_evaluator_service.dart';
 import '../services/user_progress_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
-import '../services/training_session_launcher.dart';
-import '../services/theory_track_resume_service.dart';
 import '../screens/mini_lesson_screen.dart';
 import '../screens/training_pack_screen.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../services/pinned_learning_service.dart';
+import '../services/theory_block_launcher.dart';
 
 /// Card widget displaying a [TheoryBlockModel] with completion progress.
 class TheoryBlockCardWidget extends StatefulWidget {
@@ -34,11 +34,15 @@ class TheoryBlockCardWidget extends StatefulWidget {
 class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   double? _percent;
   CompletionStatus? _status;
+  bool _pinned = false;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _pinned =
+        PinnedLearningService.instance.isPinned('block', widget.block.id);
+    PinnedLearningService.instance.addListener(_updatePinned);
   }
 
   Future<void> _load() async {
@@ -78,41 +82,27 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   }
 
   Future<void> _handleTap() async {
-    final block = widget.block;
-    final trackId = widget.trackId;
-    if (trackId != null) {
-      await TheoryTrackResumeService.instance
-          .saveLastVisitedBlock(trackId, block.id);
-    }
-    await MiniLessonLibraryService.instance.loadAll();
-    for (final id in block.nodeIds) {
-      final done = await widget.progress.isTheoryLessonCompleted(id);
-      if (!done) {
-        final lesson = MiniLessonLibraryService.instance.getById(id);
-        if (lesson != null && mounted) {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => MiniLessonScreen(lesson: lesson),
-            ),
-          );
-        }
-        return;
-      }
-    }
-    for (final id in block.practicePackIds) {
-      final done = await widget.progress.isPackCompleted(id);
-      if (!done) {
-        final tpl = await PackLibraryService.instance.getById(id);
-        if (tpl != null) {
-          await const TrainingSessionLauncher().launch(tpl);
-        }
-        return;
-      }
-    }
+    await const TheoryBlockLauncher().launch(
+      context: context,
+      block: widget.block,
+      trackId: widget.trackId,
+    );
+  }
+
+  void _updatePinned() {
+    final pinned =
+        PinnedLearningService.instance.isPinned('block', widget.block.id);
+    if (pinned != _pinned) setState(() => _pinned = pinned);
+  }
+
+  Future<void> _togglePinned() async {
+    await PinnedLearningService.instance.toggleBlock(widget.block);
+    final pinned =
+        PinnedLearningService.instance.isPinned('block', widget.block.id);
     if (mounted) {
+      setState(() => _pinned = pinned);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Block Completed')),
+        SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
       );
     }
   }
@@ -145,6 +135,15 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
           child: ListView(
             shrinkWrap: true,
             children: [
+              ListTile(
+                leading: Icon(
+                    _pinned ? Icons.push_pin : Icons.push_pin_outlined),
+                title: Text(_pinned ? 'Unpin Block' : 'Pin Block'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _togglePinned();
+                },
+              ),
               if (lessons.isNotEmpty)
                 const ListTile(title: Text('Lessons')),
               for (final e in lessons)
@@ -222,57 +221,78 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
       onLongPress: _handleLongPress,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: border),
-        ),
-        child: Row(
+        child: Stack(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[850],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: border),
+              ),
+              child: Row(
                 children: [
-                  Text(
-                    widget.block.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.block.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          label,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    label,
-                    style: const TextStyle(color: Colors.white70),
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          value: percent.clamp(0.0, 1.0),
+                          backgroundColor: Colors.white24,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              border == Colors.transparent ? accent : border),
+                          strokeWidth: 4,
+                        ),
+                        Text(
+                          '${(percent.clamp(0.0, 1.0) * 100).round()}%',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(
-              width: 40,
-              height: 40,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    value: percent.clamp(0.0, 1.0),
-                    backgroundColor: Colors.white24,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        border == Colors.transparent ? accent : border),
-                    strokeWidth: 4,
-                  ),
-                  Text(
-                    '${(percent.clamp(0.0, 1.0) * 100).round()}%',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
+            Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                icon: Icon(
+                    _pinned ? Icons.push_pin : Icons.push_pin_outlined),
+                onPressed: _togglePinned,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    PinnedLearningService.instance.removeListener(_updatePinned);
+    super.dispose();
   }
 }
 

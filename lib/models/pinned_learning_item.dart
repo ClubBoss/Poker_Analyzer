@@ -1,5 +1,5 @@
 class PinnedLearningItem {
-  final String type; // 'lesson' or 'pack'
+  final String type; // 'lesson', 'pack', or 'block'
   final String id;
   final int? lastPosition;
   final int? lastSeen;
