@@ -1,79 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:archive/archive.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:flutter/services.dart';
-import 'dart:async';
-import 'dart:math';
-import '../../utils/clipboard_hh_detector.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
-import '../../models/v2/focus_goal.dart';
-import '../../services/template_undo_redo_service.dart';
-import '../../models/template_snapshot.dart';
-import 'package:collection/collection.dart';
-import '../../models/game_type.dart';
-import '../../helpers/training_pack_storage.dart';
-import '../../helpers/title_utils.dart';
 import '../../models/v2/hand_data.dart';
-import '../../models/v2/hero_position.dart';
-import '../../models/saved_hand.dart';
-import '../../models/action_entry.dart';
-import '../../models/evaluation_result.dart';
-import 'training_pack_spot_editor_screen.dart';
-import '../../widgets/v2/training_pack_spot_preview_card.dart';
-import '../../widgets/spot_viewer_dialog.dart';
-import '../../services/training_session_service.dart';
-import '../training_session_screen.dart';
-import '../../helpers/training_pack_validator.dart';
-import '../../utils/template_coverage_utils.dart';
-import '../../core/training/engine/training_type_engine.dart';
-import '../../widgets/common/ev_distribution_chart.dart';
-import '../../widgets/ev_summary_card.dart';
-import '../../theme/app_colors.dart';
-import '../../services/room_hand_history_importer.dart';
-import '../../services/push_fold_ev_service.dart';
-import '../../services/pack_export_service.dart';
-import '../../services/png_exporter.dart';
-import '../../widgets/range_matrix_picker.dart';
-import '../../services/evaluation_executor_service.dart';
-import '../../services/pack_generator_service.dart';
-import '../../models/v2/training_pack_variant.dart';
-import '../../services/range_import_export_service.dart';
-import '../../services/training_pack_template_ui_service.dart';
-import '../../services/bulk_evaluator_service.dart';
-import '../../services/offline_evaluator_service.dart';
-import '../../helpers/hand_utils.dart';
-import '../../helpers/hand_type_utils.dart';
-import '../../models/v2/training_pack_preset.dart';
-import '../../repositories/training_pack_preset_repository.dart';
-import '../../services/training_pack_template_storage_service.dart';
-import '../../services/template_storage_service.dart';
-import '../../services/file_saver_service.dart';
-import 'package:csv/csv.dart';
-import '../../widgets/markdown_preview_dialog.dart';
-import '../../main.dart';
-import '../../services/preview_cache_service.dart';
-import '../../widgets/snapshot_list_dialog.dart';
-import '../../services/evaluation_settings_service.dart';
-import '../spot_solve_screen.dart';
-import '../../models/training_spot.dart';
-import '../../models/card_model.dart';
-import '../../models/player_model.dart';
-import 'editor/template_preview_widgets.dart';
-import '../../services/training_pack_stats_service.dart';
-import '../../services/saved_hand_manager_service.dart';
-import '../../services/spot_duplicate_finder.dart';
 
-part 'training_pack_template_editor_screen_old.dart';
-part 'spot_list_section.dart';
-part 'template_settings_section.dart';
+import 'spot_list_section.dart';
+import 'statistics_pane.dart';
+import 'actions_toolbar.dart';
+
+class TrainingPackTemplateEditorScreen extends StatefulWidget {
+  final TrainingPackTemplate template;
+  final bool readOnly;
+
+  const TrainingPackTemplateEditorScreen({
+    super.key,
+    required this.template,
+    this.readOnly = false,
+  });
+
+  @override
+  State<TrainingPackTemplateEditorScreen> createState() =>
+      _TrainingPackTemplateEditorScreenState();
+}
+
+class _TrainingPackTemplateEditorScreenState
+    extends State<TrainingPackTemplateEditorScreen> {
+  void _addSpot() {
+    setState(() {
+      widget.template.spots.add(
+        TrainingPackSpot(
+          id: const Uuid().v4(),
+          title: 'New spot',
+          hand: HandData(),
+        ),
+      );
+    });
+  }
+
+  void _save() {
+    // TODO: implement persistence
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Template saved')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.template.name)),
+      body: Row(
+        children: [
+          Expanded(
+            child: SpotListSection(
+              spots: widget.template.spots,
+              onAdd: widget.readOnly ? null : _addSpot,
+            ),
+          ),
+          StatisticsPane(spots: widget.template.spots),
+        ],
+      ),
+      floatingActionButton: widget.readOnly
+          ? null
+          : ActionsToolbar(
+              onAddSpot: _addSpot,
+              onSave: _save,
+            ),
+    );
+  }
+}
