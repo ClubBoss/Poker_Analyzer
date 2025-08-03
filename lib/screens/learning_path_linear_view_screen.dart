@@ -10,7 +10,8 @@ import 'mini_lesson_screen.dart';
 import 'training_pack_preview_screen.dart';
 
 class LearningPathLinearViewScreen extends StatefulWidget {
-  const LearningPathLinearViewScreen({super.key});
+  final bool showAppBar;
+  const LearningPathLinearViewScreen({super.key, this.showAppBar = true});
 
   @override
   State<LearningPathLinearViewScreen> createState() =>
@@ -79,60 +80,64 @@ class _LearningPathLinearViewScreenState
 
   @override
   Widget build(BuildContext context) {
+    final body = FutureBuilder<void>(
+      future: _initFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _nodes.length,
+                itemBuilder: (context, index) {
+                  final node = _nodes[index];
+                  final currentId = _current?.id;
+                  final isCompleted =
+                      LearningPathEngine.instance.isCompleted(node.id);
+                  final isCurrent = node.id == currentId;
+                  final currentIndex =
+                      _nodes.indexWhere((n) => n.id == currentId);
+                  final nodeIndex = _nodes.indexOf(node);
+                  final isBlocked = !isCompleted &&
+                      !isCurrent &&
+                      nodeIndex > currentIndex &&
+                      currentIndex >= 0;
+                  final pack = _packs[node.trainingPackTemplateId];
+                  return PathNodeTile(
+                    node: node,
+                    pack: pack,
+                    isCurrent: isCurrent,
+                    isCompleted: isCompleted,
+                    isBlocked: isBlocked,
+                    onTap: () async {
+                      await LearningPathEngine.instance
+                          .markStageCompleted(node.id);
+                      _refresh();
+                    },
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: _openCurrent,
+                child: const Text('Продолжить'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (!widget.showAppBar) {
+      return body;
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Level I: Push/Fold Essentials')),
-      body: FutureBuilder<void>(
-        future: _initFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _nodes.length,
-                  itemBuilder: (context, index) {
-                    final node = _nodes[index];
-                    final currentId = _current?.id;
-                    final isCompleted =
-                        LearningPathEngine.instance.isCompleted(node.id);
-                    final isCurrent = node.id == currentId;
-                    final currentIndex =
-                        _nodes.indexWhere((n) => n.id == currentId);
-                    final nodeIndex = _nodes.indexOf(node);
-                    final isBlocked = !isCompleted &&
-                        !isCurrent &&
-                        nodeIndex > currentIndex &&
-                        currentIndex >= 0;
-                    final pack = _packs[node.trainingPackTemplateId];
-                    return PathNodeTile(
-                      node: node,
-                      pack: pack,
-                      isCurrent: isCurrent,
-                      isCompleted: isCompleted,
-                      isBlocked: isBlocked,
-                      onTap: () async {
-                        await LearningPathEngine.instance
-                            .markStageCompleted(node.id);
-                        _refresh();
-                      },
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton(
-                  onPressed: _openCurrent,
-                  child: const Text('Продолжить'),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+      body: body,
     );
   }
 }
