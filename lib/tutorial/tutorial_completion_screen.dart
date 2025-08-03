@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../user_preferences.dart';
+import 'package:provider/provider.dart';
+import '../services/user_preferences_service.dart';
 
 class TutorialCompletionScreen extends StatefulWidget {
   final void Function() onRepeat;
@@ -14,7 +15,7 @@ class _TutorialCompletionScreenState extends State<TutorialCompletionScreen> {
   @override
   void initState() {
     super.initState();
-    UserPreferences.instance.setTutorialCompleted(true);
+    context.read<UserPreferencesService>().setTutorialCompleted(true);
   }
 
   @override

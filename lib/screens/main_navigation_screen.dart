@@ -71,7 +71,7 @@ import 'theory_cluster_detail_screen.dart';
 import 'package:collection/collection.dart';
 import 'learning_path_screen_v2.dart';
 import '../widgets/sync_status_widget.dart';
-import '../user_preferences.dart';
+import '../services/user_preferences_service.dart';
 import '../services/gift_drop_service.dart';
 import '../services/session_streak_overlay_prompt_service.dart';
 import '../services/overlay_decay_booster_orchestrator.dart';
@@ -97,7 +97,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    final prefs = UserPreferences.instance;
+    final prefs = context.read<UserPreferencesService>();
     _simpleNavigation = prefs.simpleNavigation;
     _tutorialCompleted = prefs.tutorialCompleted;
     _pathFuture = _loadLearningPath();
@@ -133,7 +133,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     );
     if (mounted) {
       setState(() =>
-          _tutorialCompleted = UserPreferences.instance.tutorialCompleted);
+          _tutorialCompleted =
+              context.read<UserPreferencesService>().tutorialCompleted);
     }
   }
 
