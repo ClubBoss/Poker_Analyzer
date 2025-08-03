@@ -1,4 +1,5 @@
 import '../models/goal_progress.dart';
+
 class GoalCompletionEngine {
   GoalCompletionEngine._();
   static final instance = GoalCompletionEngine._();
@@ -11,7 +12,8 @@ class GoalCompletionEngine {
     final cached = _cache[key];
     if (cached != null) return cached;
     final completed =
-        progress.stagesCompleted >= 3 && progress.averageAccuracy >= 80;
+        progress.stagesCompleted >= progress.totalStages &&
+        progress.averageAccuracy >= 80;
     _cache[key] = completed;
     return completed;
   }
