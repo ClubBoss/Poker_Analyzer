@@ -43,20 +43,11 @@ import 'victory_label.dart';
 import 'busted_label.dart';
 import 'player_zone_animations.dart';
 import 'player_zone_overlay.dart';
-import 'player_zone_animator.dart';
 import 'player_zone_action_panel.dart';
 
-class PlayerZoneRegistry {
-  final Map<String, _PlayerZoneWidgetState> _states = {};
-
-  void register(String name, _PlayerZoneWidgetState state) => _states[name] = state;
-
-  void unregister(String name) => _states.remove(name);
-
-  _PlayerZoneWidgetState? operator [](String name) => _states[name];
-
-  Iterable<_PlayerZoneWidgetState> get values => _states.values;
-}
+part 'player_zone_registry.dart';
+part 'player_zone_animation_controller.dart';
+part 'player_zone_overlay_controller.dart';
 class PlayerZoneWidget extends StatefulWidget {
   final PlayerZoneConfig config;
 
@@ -106,7 +97,7 @@ class PlayerZoneWidget extends StatefulWidget {
 }
 
 class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
-    with TickerProviderStateMixin, PlayerZoneAnimator {
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
   late final PlayerZoneRegistry _registry;
   late PlayerType _playerType;
@@ -115,22 +106,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   int? _stack;
   int? _remainingStack;
   String? _actionTagText;
-  OverlayEntry? _betEntry;
-  OverlayEntry? _betOverlayEntry;
-  OverlayEntry? _actionLabelEntry;
-  OverlayEntry? _refundMessageEntry;
-  OverlayEntry? _lossAmountEntry;
-  OverlayEntry? _gainAmountEntry;
-  OverlayEntry? _chipWinEntry;
-  OverlayEntry? _foldChipEntry;
-  OverlayEntry? _showdownLossEntry;
-  bool _winChipsAnimating = false;
-  final List<OverlayEntry> _winChipEntries = [];
-  bool _winnerHighlight = false;
-  Timer? _highlightTimer;
   late final PlayerZoneAnimations _animations;
-  bool _refundGlow = false;
-  Timer? _refundGlowTimer;
+  late final PlayerZoneAnimationController _animationController;
+  late final PlayerZoneOverlayController _overlayController;
   bool _actionGlow = false;
   Color _actionGlowColor = Colors.transparent;
   Timer? _actionGlowTimer;
@@ -521,6 +499,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _wasAllIn = true;
       _showAllInLabel();
     }
+    _animationController = PlayerZoneAnimationController(this);
+    _overlayController = PlayerZoneOverlayController(this);
   }
 
   @override
@@ -561,7 +541,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       if (!widget.isHero) {
         _stackBarFadeController.reverse();
         if (_betStackAmount != null) {
-          _startFoldChipAnimation();
+          _overlayController.startFoldChipAnimation();
           _betFoldController.forward(from: 0.0).whenComplete(() {
             if (mounted) setState(() => _betStackAmount = null);
           });
@@ -582,7 +562,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         !widget.isFolded &&
         widget.isShowdownLoser &&
         !oldWidget.isShowdownLoser) {
-      _startShowdownLossAnimation();
+      _overlayController.startShowdownLossAnimation();
     }
     if (widget.player.bet != oldWidget.player.bet ||
         widget.currentBet != oldWidget.currentBet) {
@@ -590,7 +570,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       if (widget.currentBet != oldWidget.currentBet) {
         final delta = widget.currentBet - oldWidget.currentBet;
         if (delta > 0) {
-          _playBetAnimation(delta);
+          _overlayController.playBetAnimation(delta);
         } else if (delta < 0) {
           Offset? start;
           final betBox =
@@ -599,7 +579,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             start = betBox.localToGlobal(
                 Offset(betBox.size.width / 2, betBox.size.height / 2));
           }
-          _playBetRefundAnimation(
+          _overlayController.playBetRefundAnimation(
             -delta,
             startPosition: start,
             color: Colors.amber,
@@ -684,6 +664,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
   }
 
+  void highlightWinner() => _animationController.highlightWinner();
+
+  void clearWinnerHighlight() =>
+      _animationController.clearWinnerHighlight();
+
+  void showRefundGlow() => _animationController.showRefundGlow();
+
+  Future<void> playWinnerBounce() =>
+      _animationController.playWinnerBounce();
+
 
   /// Returns the display color for a last action label.
   Color _lastActionColorFor(String action) {
@@ -714,8 +704,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ..stop()
       ..value = 0.0;
     if (text == null) {
-      _actionLabelEntry?.remove();
-      _actionLabelEntry = null;
+      _overlayController.clearActionLabel();
       setState(() {
         _lastActionText = null;
         _actionGlow = false;
@@ -730,7 +719,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _actionGlow = true;
       _actionGlowColor = labelColor;
     });
-    _showActionLabel(text, labelColor);
+    _overlayController.showActionLabel(text, labelColor);
     _actionGlowController.forward(from: 0.0);
     _actionTagController.forward(from: 0.0);
     _lastActionTimer = Timer(const Duration(milliseconds: 1500), () {
@@ -746,9 +735,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       }
     });
     if (amount != null) {
-      showBetOverlay(amount, color);
+      _overlayController.showBetOverlay(amount, color);
       if (action == 'bet' || action == 'raise' || action == 'call') {
-        playBetChipsToCenter(amount, color: color);
+        _overlayController.playBetChipsToCenter(amount, color: color);
       }
       if (action == 'bet' || action == 'raise') {
         _showStackBetDisplay(amount, color);
@@ -782,11 +771,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _showFinalStackLabel();
       _showBustedLabel();
       if (lostAmount != null && lostAmount > 0) {
-        _showLossAmount(lostAmount);
+        _overlayController.showLossAmount(lostAmount);
         _showStackLossLabel(lostAmount);
       }
       if (gainAmount != null && gainAmount > 0) {
-        _showGainAmount(gainAmount);
+        _overlayController.showGainAmount(gainAmount);
       }
     }
   }
@@ -830,221 +819,24 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     overlay.insert(entry);
   }
 
-  void _playBetAnimation(int amount) {
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final start =
-        box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
-    final media = MediaQuery.of(context).size;
-    final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
-    final control = Offset(
-      (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2 -
-          (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
-    );
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => BetFlyingChips(
-        start: start,
-        end: end,
-        control: control,
-        amount: amount,
-        color: Colors.amber,
-        scale: widget.scale,
-        onCompleted: () => entry.remove(),
-      ),
-    );
-    overlay.insert(entry);
-    _betEntry = entry;
-  }
-
   void _playBetRefundAnimation(
     int amount, {
     Offset? startPosition,
     Color color = Colors.lightGreenAccent,
     VoidCallback? onCompleted,
-  }) {
-    final overlay = Overlay.of(context);
-    final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (stackBox == null) return;
-    final media = MediaQuery.of(context).size;
-    final start = startPosition ??
-        Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
-    final end = stackBox.localToGlobal(
-        Offset(stackBox.size.width / 2, stackBox.size.height / 2));
-    final control = Offset(
-      (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2 -
-          (40 + RefundChipStackMovingWidget.activeCount * 8) * widget.scale,
-    );
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => RefundChipStackMovingWidget(
-        start: start,
-        end: end,
-        control: control,
-        amount: amount,
-        color: color,
-        scale: widget.scale,
-        onCompleted: () {
-          entry.remove();
-          onCompleted?.call();
-        },
-      ),
-    );
-    overlay.insert(entry);
-    _betEntry = entry;
-  }
+  }) =>
+      _overlayController.playBetRefundAnimation(amount,
+          startPosition: startPosition, color: color, onCompleted: onCompleted);
 
   /// Animates this player's bet flying toward the center pot.
-  void playBetChipsToCenter(int amount, {Color color = Colors.amber}) {
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final start =
-        box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
-    final media = MediaQuery.of(context).size;
-    final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
-    final control = Offset(
-      (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2 -
-          (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
-    );
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => BetToCenterAnimation(
-        start: start,
-        end: end,
-        control: control,
-        amount: amount,
-        color: color,
-        scale: widget.scale,
-        fadeStart: 0.8,
-        labelStyle: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 14 * widget.scale,
-          shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
-        ),
-        onCompleted: () => entry.remove(),
-      ),
-    );
-    overlay.insert(entry);
-  }
+  void playBetChipsToCenter(int amount, {Color color = Colors.amber}) =>
+      _overlayController.playBetChipsToCenter(amount, color: color);
 
-  void showBetOverlay(int amount, Color color) {
-    _betOverlayEntry?.remove();
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => BetAmountOverlay(
-        position: pos,
-        amount: amount,
-        color: color,
-        scale: widget.scale,
-        onCompleted: () {
-          entry.remove();
-          if (_betOverlayEntry == entry) _betOverlayEntry = null;
-        },
-      ),
-    );
-    overlay.insert(entry);
-    _betOverlayEntry = entry;
-  }
+  void showBetOverlay(int amount, Color color) =>
+      _overlayController.showBetOverlay(amount, color);
 
-  void showRefundMessage(int amount) {
-    _refundMessageEntry?.remove();
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final pos =
-        box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => RefundMessageOverlay(
-        position: pos,
-        amount: amount,
-        scale: widget.scale,
-        onCompleted: () {
-          entry.remove();
-          if (_refundMessageEntry == entry) _refundMessageEntry = null;
-        },
-      ),
-    );
-    overlay.insert(entry);
-    _refundMessageEntry = entry;
-  }
-
-  void _showLossAmount(int amount) {
-    _lossAmountEntry?.remove();
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => LossAmountWidget(
-        position: pos,
-        amount: amount,
-        scale: widget.scale,
-        onCompleted: () {
-          entry.remove();
-          if (_lossAmountEntry == entry) _lossAmountEntry = null;
-        },
-      ),
-    );
-    overlay.insert(entry);
-    _lossAmountEntry = entry;
-  }
-
-  void _showGainAmount(int amount) {
-    _gainAmountEntry?.remove();
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => GainAmountWidget(
-        position: pos,
-        amount: amount,
-        scale: widget.scale,
-        onCompleted: () {
-          entry.remove();
-          if (_gainAmountEntry == entry) _gainAmountEntry = null;
-        },
-      ),
-    );
-    overlay.insert(entry);
-    _gainAmountEntry = entry;
-  }
-
-  void _showActionLabel(String text, Color color) {
-    _actionLabelEntry?.remove();
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-    final pos = box.localToGlobal(Offset(box.size.width / 2, -32 * widget.scale));
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => ActionLabelOverlay(
-        position: pos,
-        text: text,
-        color: color,
-        scale: widget.scale,
-        onCompleted: () {
-          entry.remove();
-          if (_actionLabelEntry == entry) _actionLabelEntry = null;
-        },
-      ),
-    );
-    overlay.insert(entry);
-    _actionLabelEntry = entry;
-  }
+  void showRefundMessage(int amount) =>
+      _overlayController.showRefundMessage(amount);
 
   void _showStackBetDisplay(int amount, Color color) {
     _stackBetTimer?.cancel();
@@ -1189,49 +981,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   }
 
   /// Animates chips flying from the center pot to this player.
-  void playWinChipsAnimation(int amount) {
-    if (_winChipsAnimating) return;
-    final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-
-    _stackWinController.forward(from: 0.0);
-
-    _winChipsAnimating = true;
-    final media = MediaQuery.of(context).size;
-    final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
-    final end = box.localToGlobal(box.size.center(Offset.zero));
-    final rnd = Random();
-    final chipCount = 6 + rnd.nextInt(3);
-    for (int i = 0; i < chipCount; i++) {
-      Future.delayed(Duration(milliseconds: 50 * i), () {
-        if (!mounted) return;
-        final control = Offset(
-          (start.dx + end.dx) / 2 + (rnd.nextDouble() * 40 - 20) * widget.scale,
-          (start.dy + end.dy) / 2 -
-              (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
-        );
-        late OverlayEntry entry;
-        entry = OverlayEntry(
-          builder: (_) => WinnerFlyingChip(
-            start: start,
-            end: end,
-            control: control,
-            scale: widget.scale,
-            onCompleted: () {
-              entry.remove();
-              _winChipEntries.remove(entry);
-              if (_winChipEntries.isEmpty) {
-                _winChipsAnimating = false;
-              }
-            },
-          ),
-        );
-        overlay.insert(entry);
-        _winChipEntries.add(entry);
-      });
-    }
-  }
+  void playWinChipsAnimation(int amount) =>
+      _overlayController.playWinChipsAnimation(amount);
 
   /// Smoothly increases this player's stack by [amount].
   Future<void> animateStackIncrease(int amount) async {
@@ -1315,7 +1066,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void onShowdownResult() {
     if (!widget.isHero && !widget.isFolded && widget.isShowdownLoser == true) {
-      _startShowdownLossAnimation();
+      _overlayController.startShowdownLossAnimation();
     }
   }
 
@@ -1394,7 +1145,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   @override
   void dispose() {
     _registry.unregister(widget.playerName);
-    _highlightTimer?.cancel();
     _lastActionTimer?.cancel();
     _actionGlowTimer?.cancel();
     _stackBetTimer?.cancel();
@@ -1406,15 +1156,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _bustedTimer?.cancel();
     _allInTimer?.cancel();
     _revealEyeTimer?.cancel();
-    _betEntry?.remove();
-    _betOverlayEntry?.remove();
-    _actionLabelEntry?.remove();
-    _refundMessageEntry?.remove();
-    _lossAmountEntry?.remove();
-    _gainAmountEntry?.remove();
-    _chipWinEntry?.remove();
-    _foldChipEntry?.remove();
-    _showdownLossEntry?.remove();
+    _animationController.dispose();
+    _overlayController.dispose();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
@@ -2152,7 +1895,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
     result = AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      decoration: (_refundGlow && !_winnerHighlight)
+      decoration: (_animationController.refundGlow && !_animationController.winnerHighlight)
           ? BoxDecoration(
               borderRadius: BorderRadius.circular(12 * widget.scale),
               boxShadow: [
@@ -2189,7 +1932,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       builder: (_, child) {
         final glow = _animations.winnerGlowOpacity.value;
         final scale = _animations.winnerGlowScale.value;
-        if (!_winnerHighlight && glow == 0.0) return child!;
+        if (!_animationController.winnerHighlight && glow == 0.0) return child!;
         return Transform.scale(
           scale: scale,
           child: Container(
