@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../services/matrix_tag_config_service.dart';
 import '../services/tag_matrix_coverage_service.dart';
 import '../theme/app_colors.dart';
 
 class TagMatrixCoverageTable extends StatelessWidget {
-  final List<MatrixAxis> axes;
-  final Map<String, Map<String, TagMatrixCellData>> data;
+  final TagMatrixAxes axes;
+  final Map<String, Map<String, TagMatrixCell>> data;
   final int max;
 
   const TagMatrixCoverageTable({
