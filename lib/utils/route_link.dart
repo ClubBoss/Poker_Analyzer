@@ -1,3 +1,6 @@
+import 'package:meta/meta.dart';
+
+@immutable
 class RouteLink {
   final String pathId;
   final String? stageId;
@@ -30,4 +33,12 @@ class RouteLink {
     }
     return null;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RouteLink && other.pathId == pathId && other.stageId == stageId;
+
+  @override
+  int get hashCode => Object.hash(pathId, stageId);
 }
