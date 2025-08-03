@@ -13,6 +13,7 @@ import '../services/training_progress_logger.dart';
 import '../services/theory_lesson_completion_logger.dart';
 import '../services/training_progress_tracker_service.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/training_pack_performance_tracker_service.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -118,26 +119,28 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   }
 
   Future<void> _checkPerformance() async {
-    final reqAcc = widget.template.requiresAccuracy;
-    final reqVol = widget.template.requiresVolume;
-    if (reqAcc == null && reqVol == null) return;
-    final ok = await TrainingProgressTrackerService.instance
-        .meetsPerformanceRequirements(
+    if (widget.template.requiresTheoryCompleted && !_theoryCompleted) return;
+    final reqAcc = widget.template.requiredAccuracy;
+    final minHands = widget.template.minHands;
+    if (reqAcc == null && minHands == null) return;
+    final ok = await TrainingPackPerformanceTrackerService.instance
+        .meetsRequirements(
       widget.template.id,
-      requiresAccuracy: reqAcc,
-      requiresVolume: reqVol,
+      requiredAccuracy: reqAcc,
+      minHands: minHands,
     );
-    if (!ok && mounted) {
+    if (!ok && mounted && !kDebugMode) {
       setState(() {
         _locked = true;
         final parts = <String>[];
         if (reqAcc != null) {
-          parts.add('точность ≥ ${reqAcc.toStringAsFixed(0)}%');
+          parts.add('точность ≥ ${(reqAcc * 100).toStringAsFixed(0)}%');
         }
-        if (reqVol != null) {
-          parts.add('≥ ${reqVol.toString()} рук');
+        if (minHands != null) {
+          parts.add('≥ $minHands рук');
         }
-        _lockMsg = 'Требуется ${parts.join(' и ')}';
+        _lockMsg =
+            'Пройдите с ${parts.join(' и ')}, чтобы открыть следующую стадию';
       });
     }
   }

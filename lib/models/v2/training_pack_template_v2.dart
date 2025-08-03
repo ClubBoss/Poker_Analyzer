@@ -37,6 +37,11 @@ class TrainingPackTemplateV2 {
   int? get requiresVolume =>
       (meta['requiresVolume'] as num?)?.toInt();
 
+  // New performance gating fields.
+  double? get requiredAccuracy =>
+      (meta['requiredAccuracy'] as num?)?.toDouble();
+  int? get minHands => (meta['minHands'] as num?)?.toInt();
+
   /// Ephemeral flag – marks automatically generated packs. Never
   /// serialized to or from disk.
   bool isGeneratedPack;
