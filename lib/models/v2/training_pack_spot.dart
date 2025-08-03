@@ -40,6 +40,9 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   List<String> heroOptions;
   Map<String, dynamic> meta;
 
+  /// Optional reference to the template spot that produced this variation.
+  String? templateSourceId;
+
   /// Ephemeral link to a related theory lesson.
   ///
   /// This field is populated at runtime by [AutoSpotTheoryInjectorService]
@@ -71,6 +74,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     this.villainAction,
     List<String>? heroOptions,
     Map<String, dynamic>? meta,
+    this.templateSourceId,
   })  : isNew = isNew ?? false,
         isGenerated = isGenerated ?? false,
         hand = hand ?? HandData(),
@@ -118,6 +122,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
           for (final a in (j['heroOptions'] as List? ?? [])) a.toString()
         ],
         meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
+        templateSourceId: j['templateSourceId'] as String?,
       );
 
   factory TrainingPackSpot.fromTrainingSpot(
@@ -182,6 +187,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
         if (villainAction != null) 'villainAction': villainAction,
         if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
         if (meta.isNotEmpty) 'meta': meta,
+        if (templateSourceId != null) 'templateSourceId': templateSourceId,
       };
 
   @override
@@ -269,7 +275,8 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
           street == other.street &&
           villainAction == other.villainAction &&
           const ListEquality().equals(heroOptions, other.heroOptions) &&
-          const DeepCollectionEquality().equals(meta, other.meta);
+          const DeepCollectionEquality().equals(meta, other.meta) &&
+          templateSourceId == other.templateSourceId;
 
   @override
   int get hashCode => Object.hashAll([
@@ -294,6 +301,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
         villainAction,
         const ListEquality().hash(heroOptions),
         const DeepCollectionEquality().hash(meta),
+        templateSourceId,
       ]);
 }
 
