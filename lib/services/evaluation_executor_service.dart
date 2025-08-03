@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +38,8 @@ import '../models/evaluation_mode.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
+import 'evaluation_queue.dart';
+import 'evaluation_cache.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
@@ -51,13 +52,14 @@ abstract class EvaluationExecutor {
 
 /// Handles execution of a single evaluation request.
 class EvaluationExecutorService implements EvaluationExecutor {
-  EvaluationExecutorService() {
+  EvaluationExecutorService({EvaluationQueue? queue, EvaluationCache? cache})
+      : _cache = cache ?? EvaluationCache() {
+    _queue = queue ?? EvaluationQueue(_evaluate);
     _initFuture;
   }
 
-  final Queue<_QueueItem> _queue = Queue();
-  final Map<String, EvalResult> _cache = {};
-  bool _processing = false;
+  late final EvaluationQueue _queue;
+  final EvaluationCache _cache;
 
   static const _evaluatedKey = 'eval_total_evaluated';
   static const _correctKey = 'eval_total_correct';
@@ -79,39 +81,25 @@ class EvaluationExecutorService implements EvaluationExecutor {
   @override
   Future<EvalResult> evaluate(EvalRequest request) async {
     await _initFuture;
-    final cached = _cache[request.hash];
+    final cached = _cache.get(request.hash);
     if (cached != null) {
       TrainingStatsService.instance?.addEvalResult(cached.score);
-      return Future.value(cached);
+      return cached;
     }
-    final completer = Completer<EvalResult>();
-    _queue.add(_QueueItem(request, completer));
-    _processQueue();
-    return completer.future.timeout(const Duration(seconds: 3)).then((res) {
-      TrainingStatsService.instance?.addEvalResult(res.score);
-      return res;
-    });
-  }
-
-  void _processQueue() {
-    if (_processing || _queue.isEmpty) return;
-    _processing = true;
-    final item = _queue.removeFirst();
-    _evaluate(item.request).then((res) {
-      _cache[item.request.hash] = res;
-      item.completer.complete(res);
-      if (!res.isError) {
-        _totalEvaluated += 1;
-        if (res.score == 1) _totalCorrect += 1;
-        unawaited(_saveStats());
-      }
-    }).catchError((e) {
-      item.completer
-          .complete(EvalResult(isError: true, reason: '$e', score: 0));
-    }).whenComplete(() {
-      _processing = false;
-      _processQueue();
-    });
+    EvalResult res;
+    try {
+      res = await _queue.enqueue(request).timeout(const Duration(seconds: 3));
+    } catch (e) {
+      res = EvalResult(isError: true, reason: '$e', score: 0);
+    }
+    if (!res.isError) {
+      _cache.set(request.hash, res);
+      _totalEvaluated += 1;
+      if (res.score == 1) _totalCorrect += 1;
+      unawaited(_saveStats());
+    }
+    TrainingStatsService.instance?.addEvalResult(res.score);
+    return res;
   }
 
   Future<void> _loadStats() async {
@@ -658,12 +646,6 @@ class EvaluationExecutorService implements EvaluationExecutor {
       );
     }
   }
-}
-
-class _QueueItem {
-  final EvalRequest request;
-  final Completer<EvalResult> completer;
-  _QueueItem(this.request, this.completer);
 }
 
 Map<String, double> _computeEv(Map<String, dynamic> args) {
