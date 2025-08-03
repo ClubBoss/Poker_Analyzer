@@ -12,6 +12,7 @@ import 'unlock_rules.dart';
 import 'hero_position.dart';
 import 'training_pack_template.dart' show TrainingPackTemplate;
 import '../../services/training_spot_generator_service.dart';
+import '../../services/board_texture_filter_service.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -103,7 +104,21 @@ class TrainingPackTemplateV2 {
         ],
         count: (m['count'] as num?)?.toInt() ?? 0,
       );
-      final gen = TrainingSpotGeneratorService().generate(params);
+      var gen = TrainingSpotGeneratorService().generate(params);
+      final filters = <String>[
+        if (m['boardFilter'] is String) m['boardFilter'].toString(),
+        if (m['boardFilter'] is List)
+          for (final f in (m['boardFilter'] as List)) f.toString(),
+      ];
+      if (filters.isNotEmpty) {
+        final svc = BoardTextureFilterService();
+        gen = [
+          for (final s in gen)
+            if (svc.filter(
+                [for (final c in s.boardCards) '${c.rank}${c.suit}'], filters))
+              s,
+        ];
+      }
       return [
         for (final s in gen)
           TrainingPackSpot.fromTrainingSpot(
