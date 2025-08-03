@@ -21,7 +21,7 @@ class TheoryPackAutoFixEngine {
       sections.add(
         TheorySectionModel(
           title: 'Placeholder',
-          text: 'TODO: Add content',
+          text: 'Content will be added later',
           type: 'info',
         ),
       );

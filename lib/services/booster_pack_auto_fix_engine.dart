@@ -27,7 +27,7 @@ class BoosterPackAutoFixEngine extends TheoryPackAutoFixEngine {
       sections.add(
         const TheorySectionModel(
           title: 'Placeholder',
-          text: 'TODO: Add content',
+          text: 'Content will be added later',
           type: 'tip',
         ),
       );
