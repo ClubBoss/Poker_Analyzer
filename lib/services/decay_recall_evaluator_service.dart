@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'decay_tag_retention_tracker_service.dart';
 import 'tag_mastery_history_service.dart';
+import '../models/theory_block_model.dart';
 
 /// Evaluates whether decay theory or booster reviews restored mastery.
 class DecayRecallEvaluatorService {
@@ -60,5 +61,29 @@ class DecayRecallEvaluatorService {
     final success = after - before >= improvementThreshold;
     _cache[cacheKey] = success;
     return success;
+  }
+
+  /// Returns a list of tags within [block] that have decayed beyond
+  /// [threshold] days since last review or booster completion.
+  Future<List<String>> getDecayedTags(TheoryBlockModel block,
+      {double threshold = 30}) async {
+    final decayed = <String>[];
+    for (final raw in block.tags) {
+      final tag = raw.trim().toLowerCase();
+      if (tag.isEmpty) continue;
+      final days = await retention.getDecayScore(tag);
+      if (days > threshold) {
+        decayed.add(tag);
+      }
+    }
+    return decayed;
+  }
+
+  /// Whether [block] contains any tags that have decayed beyond
+  /// [threshold] days.
+  Future<bool> hasDecayedTags(TheoryBlockModel block,
+      {double threshold = 30}) async {
+    final decayed = await getDecayedTags(block, threshold: threshold);
+    return decayed.isNotEmpty;
   }
 }
