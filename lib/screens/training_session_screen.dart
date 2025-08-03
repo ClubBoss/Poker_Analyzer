@@ -53,6 +53,8 @@ import '../services/booster_completion_tracker.dart';
 import '../services/user_action_logger.dart';
 import '../services/booster_auto_retry_suggester.dart';
 import '../services/mistake_booster_progress_tracker.dart';
+import '../services/training_progress_logger.dart';
+import 'training_session_completion_screen.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -497,74 +499,21 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           ),
       ];
 
-      if (service.totalCount < 3) {
-        Map<String, int>? counts;
-        if (tpl.id == 'suggested_weekly') {
-          counts = {};
-          for (final e in service.getCategoryStats().entries) {
-            final n = e.value.played - e.value.correct;
-            if (n > 0) counts[e.key] = n;
-          }
-        }
-        await service.complete(
-          context,
-          resultBuilder: (_) => isBooster
-              ? BoosterRecapScreen(
-                  result: TrainingSessionResult(
-                    date: DateTime.now(),
-                    total: total,
-                    correct: correct,
-                  ),
-                  booster: boosterTpl!,
-                  tagDeltas: deltas,
-                  reinforcements: reinforcements,
-                )
-              : PackStatsScreen(
-                  templateId: tpl.id,
-                  correct: correct,
-                  total: total,
-                  completedAt: DateTime.now(),
-                  categoryCounts: counts,
-                ),
-        );
-        if (isBooster) {
-          _boosterRecapShown = true;
-          if (boosterAccuracy != null && boosterTpl != null) {
-            await BoosterAutoRetrySuggester.instance.maybeSuggestRetry(
-              boosterTpl!,
-              boosterAccuracy!,
-            );
-          }
-        }
-      } else {
-        await service.complete(
-          context,
-          resultBuilder: (_) => isBooster
-              ? BoosterRecapScreen(
-                  result: TrainingSessionResult(
-                    date: DateTime.now(),
-                    total: total,
-                    correct: correct,
-                  ),
-                  booster: boosterTpl!,
-                  tagDeltas: deltas,
-                  reinforcements: reinforcements,
-                )
-              : TrainingRecapScreen(
-                  templateId: tpl.id,
-                  correct: correct,
-                  total: total,
-                  elapsed: elapsed,
-                ),
-        );
-        if (isBooster) {
-          _boosterRecapShown = true;
-          if (boosterAccuracy != null && boosterTpl != null) {
-            await BoosterAutoRetrySuggester.instance.maybeSuggestRetry(
-              boosterTpl!,
-              boosterAccuracy!,
-            );
-          }
+      unawaited(TrainingProgressLogger.completeSession(tpl.id, total));
+      await service.complete(
+        context,
+        resultBuilder: (_) => TrainingSessionCompletionScreen(
+          template: tpl,
+          hands: total,
+        ),
+      );
+      if (isBooster) {
+        _boosterRecapShown = true;
+        if (boosterAccuracy != null && boosterTpl != null) {
+          await BoosterAutoRetrySuggester.instance.maybeSuggestRetry(
+            boosterTpl!,
+            boosterAccuracy!,
+          );
         }
       }
 
