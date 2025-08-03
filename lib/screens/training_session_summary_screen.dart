@@ -584,7 +584,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const WeaknessOverviewScreen(autoExport: true),
+                    builder: (_) => const WeaknessOverviewScreen(),
                   ),
                 );
               },
