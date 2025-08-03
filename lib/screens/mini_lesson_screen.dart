@@ -28,6 +28,7 @@ class MiniLessonScreen extends StatefulWidget {
 class _MiniLessonScreenState extends State<MiniLessonScreen> {
   late DateTime _started;
   late final ScrollController _controller;
+  bool _pinned = false;
 
   @override
   void initState() {
@@ -36,11 +37,31 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
     _controller = ScrollController(
       initialScrollOffset: (widget.initialPosition ?? 0).toDouble(),
     );
+    _pinned =
+        PinnedLearningService.instance.isPinned('lesson', widget.lesson.id);
+    PinnedLearningService.instance.addListener(_updatePinned);
     unawaited(
       PinnedLearningService.instance.recordOpen('lesson', widget.lesson.id),
     );
     unawaited(
       TheoryBoosterRecallEngine.instance.recordLaunch(widget.lesson.id),
+    );
+  }
+
+  void _updatePinned() {
+    final pinned =
+        PinnedLearningService.instance.isPinned('lesson', widget.lesson.id);
+    if (pinned != _pinned) setState(() => _pinned = pinned);
+  }
+
+  Future<void> _togglePinned() async {
+    await PinnedLearningService.instance
+        .toggle('lesson', widget.lesson.id);
+    final pinned =
+        PinnedLearningService.instance.isPinned('lesson', widget.lesson.id);
+    setState(() => _pinned = pinned);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
     );
   }
 
@@ -58,13 +79,23 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
     PinnedLearningService.instance
         .setLastPosition('lesson', widget.lesson.id, _controller.offset.round());
     _controller.dispose();
+    PinnedLearningService.instance.removeListener(_updatePinned);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.lesson.resolvedTitle)),
+      appBar: AppBar(
+        title: Text(widget.lesson.resolvedTitle),
+        actions: [
+          IconButton(
+            icon: Icon(
+                _pinned ? Icons.push_pin : Icons.push_pin_outlined),
+            onPressed: _togglePinned,
+          ),
+        ],
+      ),
       backgroundColor: const Color(0xFF121212),
       body: Padding(
         padding: const EdgeInsets.all(16),
