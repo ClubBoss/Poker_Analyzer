@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'chip_trail.dart';
+import '../constants/app_constants.dart';
 
 /// Displays a small row of chips on the table along the betting trail.
 class BetChipsOnTable extends StatelessWidget {
@@ -53,8 +54,9 @@ class BetChipsOnTable extends StatelessWidget {
             child: Transform.rotate(
               angle: angle,
               child: AnimatedSwitcher(
-                duration:
-                    animate ? const Duration(milliseconds: 300) : Duration.zero,
+                duration: animate
+                    ? AppConstants.fadeDuration
+                    : Duration.zero,
                 transitionBuilder: (child, animation) => FadeTransition(
                   opacity: animation,
                   child: ScaleTransition(scale: animation, child: child),

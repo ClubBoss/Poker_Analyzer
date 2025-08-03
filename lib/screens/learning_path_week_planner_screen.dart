@@ -16,6 +16,7 @@ import '../widgets/learning_path_stage_progress_card.dart';
 import '../widgets/tag_badge.dart';
 import 'learning_path_stage_preview_screen.dart';
 import 'training_pack_preview_screen.dart';
+import '../constants/app_constants.dart';
 
 class LearningPathWeekPlannerScreen extends StatefulWidget {
   const LearningPathWeekPlannerScreen({super.key});
@@ -159,7 +160,7 @@ class _LearningPathWeekPlannerScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
               children: [
                 ValueListenableBuilder<double>(
                   valueListenable: _overallProgress,
@@ -171,7 +172,7 @@ class _LearningPathWeekPlannerScreenState
                       children: [
                         TweenAnimationBuilder<double>(
                           tween: Tween<double>(begin: 0, end: value.clamp(0.0, 1.0)),
-                          duration: const Duration(milliseconds: 300),
+                          duration: AppConstants.fadeDuration,
                           builder: (context, val, __) {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(4),

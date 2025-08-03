@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../helpers/poker_street_helper.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
-import '../theme/constants.dart';
+import '../constants/app_constants.dart';
 
 class MistakeSummaryCard extends StatelessWidget {
   const MistakeSummaryCard({super.key});

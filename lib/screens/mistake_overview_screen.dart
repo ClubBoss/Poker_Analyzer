@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import '../theme/constants.dart';
+import '../constants/app_constants.dart';
 import '../services/ignored_mistake_service.dart';
 
 import 'tag_mistake_overview_screen.dart';

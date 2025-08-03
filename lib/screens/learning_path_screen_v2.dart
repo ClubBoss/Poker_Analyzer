@@ -28,6 +28,7 @@ import '../widgets/next_steps_modal.dart';
 import '../widgets/stage_progress_chip.dart';
 import '../widgets/stage_preview_dialog.dart';
 import '../widgets/stage_completed_dialog.dart';
+import '../constants/app_constants.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -373,7 +374,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     _scrollDone = true;
     Scrollable.ensureVisible(
       context,
-      duration: const Duration(milliseconds: 300),
+      duration: AppConstants.fadeDuration,
     );
   }
 
@@ -401,7 +402,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     _scrollDone = true;
     _scrollController.animateTo(
       offset,
-      duration: const Duration(milliseconds: 300),
+      duration: AppConstants.fadeDuration,
       curve: Curves.easeInOut,
     );
   }
@@ -414,9 +415,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   ) {
     final progress = total == 0 ? 0.0 : done / total;
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+          horizontal: AppConstants.defaultPadding,
+          vertical: AppConstants.defaultPadding / 2),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -536,7 +539,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final key = _stageKeys.putIfAbsent(stage.id, () => GlobalKey());
     return Card(
       key: key,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: const EdgeInsets.symmetric(
+          horizontal: AppConstants.defaultPadding,
+          vertical: AppConstants.defaultPadding / 2 - 2),
       shape: border,
       color: highlight
           ? Colors.amber.withOpacity(0.2)
@@ -612,10 +617,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       });
     } else {
       hud = AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: AppConstants.fadeDuration,
         height: _hudVisible ? _hudHeight! : 0,
         child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
+          duration: AppConstants.fadeDuration,
           opacity: _hudVisible ? 1 : 0,
           child: hud,
         ),
@@ -705,7 +710,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                             _buildStageTile(template.stages[i], i),
                           if (tags.isNotEmpty)
                             Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(AppConstants.defaultPadding),
                               child: Wrap(
                                 spacing: 8,
                                 children: [

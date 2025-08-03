@@ -13,7 +13,7 @@ import '../services/session_manager.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../helpers/date_utils.dart';
 import '../theme/app_colors.dart';
-import '../theme/constants.dart';
+import '../constants/app_constants.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 
