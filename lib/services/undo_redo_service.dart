@@ -57,47 +57,108 @@ class UndoRedoService {
   final List<StateDiff> _redoDiffs = [];
 
   SavedHand _currentSnapshot() {
-    final stackService = playbackManager.stackService;
-    final reveal = boardReveal.toJson();
-    potSync.updateEffectiveStacks(
-        actionSync.analyzerActions, playerManager.numberOfPlayers);
+    final playerData = _buildPlayerData();
+    final stackData = _buildStackData();
+    final boardData = _buildBoardData();
     final hand = SavedHand(
       name: handContext.currentHandName ?? '',
       heroIndex: playerManager.heroIndex,
       heroPosition: playerManager.heroPosition,
       numberOfPlayers: playerManager.numberOfPlayers,
-      playerCards: [
-        for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          List<CardModel>.from(playerManager.playerCards[i])
-      ],
-      boardCards: List<CardModel>.from(playerManager.boardCards),
-      boardStreet: boardManager.boardStreet,
-      revealedCards: [
-        for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          [for (final c in playerManager.players[i].revealedCards) if (c != null) c]
-      ],
-      opponentIndex: playerManager.opponentIndex,
+      playerCards: playerData.playerCards,
+      boardCards: boardData.boardCards,
+      boardStreet: boardData.boardStreet,
+      revealedCards: playerData.revealedCards,
+      opponentIndex: playerData.opponentIndex,
       actions: List<ActionEntry>.from(actionSync.analyzerActions),
-      stackSizes: Map<int, int>.from(stackService.initialStacks),
-      remainingStacks: {
-        for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          i: stackService.getStackForPlayer(i)
-      },
-      playerPositions: Map<int, String>.from(playerManager.playerPositions),
-      playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
+      stackSizes: stackData.stackSizes,
+      remainingStacks: stackData.remainingStacks,
+      playerPositions: playerData.playerPositions,
+      playerTypes: playerData.playerTypes,
       comment: handContext.comment,
       tags: handContext.tags,
       commentCursor: handContext.commentCursor,
       tagsCursor: handContext.tagsCursor,
       collapsedHistoryStreets: actionHistory.collapsedStreets(),
+      foldedPlayers: playerData.foldedPlayers,
+      allInPlayers: playerData.allInPlayers,
+      actionTags: actionTagService.toNullableMap(),
+      effectiveStacksPerStreet: stackData.effectiveStacksPerStreet,
+      showFullBoard: boardData.showFullBoard,
+      revealStreet: boardData.revealStreet,
+    );
+    return playbackManager.applyTo(hand);
+  }
+
+  ({
+    List<List<CardModel>> playerCards,
+    List<List<CardModel>> revealedCards,
+    int opponentIndex,
+    Map<int, String> playerPositions,
+    Map<int, PlayerType> playerTypes,
+    List<int>? foldedPlayers,
+    List<int>? allInPlayers,
+  })
+  _buildPlayerData() {
+    final playerCards = [
+      for (int i = 0; i < playerManager.numberOfPlayers; i++)
+        List<CardModel>.from(playerManager.playerCards[i]),
+    ];
+    final revealedCards = [
+      for (int i = 0; i < playerManager.numberOfPlayers; i++)
+        [
+          for (final c in playerManager.players[i].revealedCards)
+            if (c != null) c,
+        ],
+    ];
+    return (
+      playerCards: playerCards,
+      revealedCards: revealedCards,
+      opponentIndex: playerManager.opponentIndex,
+      playerPositions: Map<int, String>.from(playerManager.playerPositions),
+      playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
       foldedPlayers: foldedPlayers.toNullableList(),
       allInPlayers: allInPlayers.toNullableList(),
-      actionTags: actionTagService.toNullableMap(),
+    );
+  }
+
+  ({
+    Map<int, int> stackSizes,
+    Map<int, int> remainingStacks,
+    Map<String, int>? effectiveStacksPerStreet,
+  })
+  _buildStackData() {
+    final stackService = playbackManager.stackService;
+    potSync.updateEffectiveStacks(
+      actionSync.analyzerActions,
+      playerManager.numberOfPlayers,
+    );
+    final stackSizes = Map<int, int>.from(stackService.initialStacks);
+    final remainingStacks = {
+      for (int i = 0; i < playerManager.numberOfPlayers; i++)
+        i: stackService.getStackForPlayer(i),
+    };
+    return (
+      stackSizes: stackSizes,
+      remainingStacks: remainingStacks,
       effectiveStacksPerStreet: potSync.toNullableJson(),
+    );
+  }
+
+  ({
+    List<CardModel> boardCards,
+    int boardStreet,
+    bool showFullBoard,
+    int revealStreet,
+  })
+  _buildBoardData() {
+    final reveal = boardReveal.toJson();
+    return (
+      boardCards: List<CardModel>.from(playerManager.boardCards),
+      boardStreet: boardManager.boardStreet,
       showFullBoard: reveal['showFullBoard'] as bool,
       revealStreet: reveal['revealStreet'] as int,
     );
-    return playbackManager.applyTo(hand);
   }
 
   void recordSnapshot() {
@@ -146,8 +207,10 @@ class UndoRedoService {
     foldedPlayers.restoreFromHand(snap);
     allInPlayers.restoreFromHand(snap);
     actionHistory.restoreFromCollapsed(snap.collapsedHistoryStreets);
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     boardManager.boardStreet = snap.boardStreet;
     boardManager.currentStreet = snap.boardStreet;
     boardReveal.restoreFromHand(snap);
