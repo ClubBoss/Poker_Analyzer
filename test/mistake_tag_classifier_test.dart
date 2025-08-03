@@ -28,4 +28,10 @@ void main() {
     expect(cls!.tag, MistakeTag.overfoldBtn);
     expect(cls.severity, greaterThan(0.8));
   });
+
+  test('provides theory tags for overfold', () {
+    final tags = const MistakeTagClassifier().classifyTheory(_attempt());
+    expect(tags, contains('pushRange'));
+    expect(tags, contains('overfold'));
+  });
 }

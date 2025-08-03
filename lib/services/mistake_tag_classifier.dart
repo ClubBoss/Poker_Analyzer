@@ -30,4 +30,49 @@ class MistakeTagClassifier {
 
     return MistakeTagClassification(tag: tag, severity: severity);
   }
+
+  /// Returns theory tags relevant to a mistake.
+  ///
+  /// The rules are intentionally simplistic and cover only a few common
+  /// scenarios to bootstrap mistake‑driven lesson suggestions.
+  ///
+  /// * Folding when the correct action is push with significant EV loss will
+  ///   return `['pushRange', 'overfold']`.
+  /// * Folding instead of calling returns `['callRange']` with an additional
+  ///   `overfold` tag for large EV losses.
+  /// * Calling when the correct action is fold returns `['callRange']`.
+  /// * Aggressive actions (bet/push/raise) when a fold is correct yield
+  ///   `['overbluff']`.
+  /// * Checking when betting is correct maps to `cbet` on the flop and `probe`
+  ///   on later streets.
+  List<String> classifyTheory(TrainingSpotAttempt attempt) {
+    final tags = <String>{};
+    final user = attempt.userAction.toLowerCase();
+    final correct = attempt.correctAction.toLowerCase();
+    final evDiff = attempt.evDiff;
+
+    if (user == 'fold' && correct == 'push') {
+      tags.add('pushRange');
+      if (evDiff <= -2) tags.add('overfold');
+    } else if (user == 'fold' && correct == 'call') {
+      tags.add('callRange');
+      if (evDiff <= -2) tags.add('overfold');
+    } else if (user == 'call' && correct == 'fold') {
+      tags.add('callRange');
+    } else if (
+        (user == 'bet' || user == 'push' || user == 'raise') &&
+        correct == 'fold') {
+      tags.add('overbluff');
+    } else if (user == 'check' && (correct == 'bet' || correct == 'push')) {
+      final street = attempt.spot.street;
+      final villain = attempt.spot.villainAction?.toLowerCase() ?? '';
+      if (street == 1 && villain == 'check') {
+        tags.add('cbet');
+      } else {
+        tags.add('probe');
+      }
+    }
+
+    return tags.toList();
+  }
 }
