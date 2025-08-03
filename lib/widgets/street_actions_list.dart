@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import 'edit_action_dialog.dart';
-import 'package:intl/intl.dart';
+import '../helpers/date_utils.dart';
 
 import 'street_pot_widget.dart';
 import 'chip_stack_widget.dart';
@@ -273,23 +273,21 @@ class StreetActionsList extends StatelessWidget {
       final prev = actions[index - 1];
       final diff = a.timestamp.difference(prev.timestamp).inSeconds;
       if (diff > 0 && diff < 60) {
-        return '+${diff}s';
+        return '${timeDiff(prev.timestamp, a.timestamp)}s';
       }
     }
-    return '⏱ ${DateFormat('HH:mm', Intl.getCurrentLocale()).format(a.timestamp)}';
+    return '⏱ ${shortTime(a.timestamp)}';
   }
 
   String _buildTooltipMessage(
       ActionEntry a, int index, String? qualityLabel) {
-    final buffer = StringBuffer(
-        'Время: ${DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp)}');
+    final seconds = a.timestamp.second.toString().padLeft(2, '0');
+    final buffer =
+        StringBuffer('Время: ${shortTime(a.timestamp)}:$seconds');
     if (index > 0) {
       final prev = actions[index - 1];
-      final diffMs =
-          a.timestamp.difference(prev.timestamp).inMilliseconds;
-      final diffSec = diffMs / 1000;
       buffer.writeln(
-          '\nС момента прошлого действия: +${diffSec.toStringAsFixed(1)} сек');
+          '\nС момента прошлого действия: ${timeDiff(prev.timestamp, a.timestamp)} сек');
     }
     if (qualityLabel != null) {
       buffer.writeln('\nОценка: $qualityLabel');

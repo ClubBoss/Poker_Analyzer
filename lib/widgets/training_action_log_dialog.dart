@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../helpers/date_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../models/v2/training_action.dart';
@@ -25,7 +25,8 @@ class TrainingActionLogDialog extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final a = actions[index];
                   final color = a.isCorrect ? AppColors.cardBackground : AppColors.errorBg;
-                  final time = DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp);
+                  final seconds = a.timestamp.second.toString().padLeft(2, '0');
+                  final time = '${shortTime(a.timestamp)}:$seconds';
                   TrainingPackSpot? spot;
                   try {
                     spot = context.read<TrainingSessionService>().spots.firstWhere((s) => s.id == a.spotId);

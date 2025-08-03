@@ -24,3 +24,16 @@ String formatDuration(Duration d) {
   parts.add('${minutes}м');
   return parts.join(' ');
 }
+
+String shortTime(DateTime date) {
+  return DateFormat('HH:mm', _currentLocale()).format(date);
+}
+
+String timeDiff(DateTime prev, DateTime next) {
+  final diffMs = next.difference(prev).inMilliseconds;
+  final diffSec = diffMs / 1000;
+  final value = diffSec % 1 == 0
+      ? diffSec.toInt().toString()
+      : diffSec.toStringAsFixed(1);
+  return '+$value';
+}
