@@ -38,6 +38,10 @@ import 'winner_flying_chip.dart';
 import 'action_tag_label.dart';
 import 'player_effective_stack_label.dart';
 import 'player_position_label.dart';
+import 'showdown_label.dart';
+import 'winner_label.dart';
+import 'victory_label.dart';
+import 'busted_label.dart';
 import 'player_zone_animations.dart';
 import 'player_zone_overlay.dart';
 import 'player_zone_animator.dart';
@@ -1626,27 +1630,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         ),
         SizedBox(height: 4 * widget.scale),
         if (_showdownLabel != null && !widget.isHero)
-          FadeTransition(
+          ShowdownLabel(
+            text: _showdownLabel!,
+            scale: widget.scale,
             opacity: _showdownLabelOpacity,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 4 * widget.scale),
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(8 * widget.scale),
-                ),
-                child: Text(
-                  _showdownLabel!,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10 * widget.scale,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
           ),
         Builder(
           builder: (_) {
@@ -1914,72 +1901,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     ),
                   ),
                 if (_showWinnerLabel && !widget.isHero)
-                  Positioned(
-                    top: -36 * widget.scale,
-                    child: FadeTransition(
-                      opacity: _winnerLabelOpacity,
-                      child: ScaleTransition(
-                        scale: _winnerLabelScale,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 6 * widget.scale,
-                            vertical: 2 * widget.scale,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            borderRadius:
-                                BorderRadius.circular(8 * widget.scale),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            'Выиграл банк',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10 * widget.scale,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  WinnerLabel(
+                    scale: widget.scale,
+                    opacity: _winnerLabelOpacity,
+                    scaleAnimation: _winnerLabelScale,
                   ),
                 if (_showVictory)
-                  Positioned(
-                    top: -52 * widget.scale,
-                    child: FadeTransition(
-                      opacity: _victoryOpacity,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6 * widget.scale,
-                          vertical: 2 * widget.scale,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent,
-                          borderRadius: BorderRadius.circular(8 * widget.scale),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          '🏆 Победа!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12 * widget.scale,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
+                  VictoryLabel(
+                    scale: widget.scale,
+                    opacity: _victoryOpacity,
                   ),
                 if (_gainLabelAmount != null && !widget.isHero)
                   Positioned(
@@ -2004,7 +1934,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     ),
                   ),
                 if (_showBusted && !widget.isHero)
-                  _BustedLabel(
+                  BustedLabel(
                     scale: widget.scale,
                     offset: _bustedOffset,
                     opacity: _bustedOpacity,
@@ -2676,45 +2606,3 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   String _capitalize(String s) =>
       s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 }
-
-class _BustedLabel extends StatelessWidget {
-  final double scale;
-  final Animation<double> opacity;
-  final Animation<Offset> offset;
-
-  const _BustedLabel({
-    required this.scale,
-    required this.opacity,
-    required this.offset,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      bottom: -24 * scale,
-      child: SlideTransition(
-        position: offset,
-        child: FadeTransition(
-          opacity: opacity,
-          child: Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
-            decoration: BoxDecoration(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(8 * scale),
-            ),
-            child: Text(
-              'BUSTED',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 10 * scale,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
