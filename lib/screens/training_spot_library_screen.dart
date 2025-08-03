@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:csv/csv.dart';
+import '../services/training_spot_file_service.dart';
+import '../widgets/training_spot_search_bar.dart';
+import '../widgets/training_spot_filter_panel.dart';
+import '../widgets/training_spot_list_body.dart';
 
 import '../models/training_spot.dart';
 import '../models/training_pack_template_model.dart';
@@ -28,6 +28,7 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _positionFilter = 'All';
   String _tagFilter = 'All';
+  final TrainingSpotFileService _fileService = const TrainingSpotFileService();
 
   bool _matchesFilters(TrainingSpot spot, Map<String, dynamic> f) {
     final tags = f['tags'];
@@ -165,19 +166,7 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
   }
 
   Future<void> _exportCsv() async {
-    final rows = <List<String>>[];
-    rows.add(['date', 'position', 'stackChips', 'tags']);
-    for (final s in _selected) {
-      final pos = s.positions.isNotEmpty ? s.positions[s.heroIndex] : '';
-      final stack = s.stacks.isNotEmpty ? s.stacks[s.heroIndex].toString() : '';
-      final date = s.createdAt.toIso8601String();
-      rows.add([date, pos, stack, s.tags.join(';')]);
-    }
-    final csv = const ListToCsvConverter().convert(rows);
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/spots_${DateTime.now().millisecondsSinceEpoch}.csv');
-    await file.writeAsString(csv);
-    await Share.shareXFiles([XFile(file.path)]);
+    await _fileService.shareSpotsCsv(_selected.toList());
     if (mounted) setState(() => _selected.clear());
   }
 
@@ -243,37 +232,17 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(hintText: 'Search'),
-              onChanged: (_) => setState(() {}),
-            ),
+          TrainingSpotSearchBar(
+            controller: _searchController,
+            onChanged: (_) => setState(() {}),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                DropdownButton<String>(
-                  value: _positionFilter,
-                  underline: const SizedBox.shrink(),
-                  onChanged: (v) => setState(() => _positionFilter = v ?? 'All'),
-                  items: ['All', ...positions]
-                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                      .toList(),
-                ),
-                const SizedBox(width: 12),
-                DropdownButton<String>(
-                  value: _tagFilter,
-                  underline: const SizedBox.shrink(),
-                  onChanged: (v) => setState(() => _tagFilter = v ?? 'All'),
-                  items: ['All', ...tags]
-                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                      .toList(),
-                ),
-              ],
-            ),
+          TrainingSpotFilterPanel(
+            tags: tags,
+            positions: positions,
+            positionValue: _positionFilter,
+            tagValue: _tagFilter,
+            onPositionChanged: (v) => setState(() => _positionFilter = v ?? 'All'),
+            onTagChanged: (v) => setState(() => _tagFilter = v ?? 'All'),
           ),
           if (filters.isNotEmpty)
             Container(
@@ -297,64 +266,14 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
               ),
             ),
           Expanded(
-            child: Stack(
-              children: [
-                ListView.builder(
-                  itemCount: visible.length,
-                  itemBuilder: (context, index) {
-                    final s = visible[index];
-                    final selected = _selected.contains(s);
-                    final pos = s.positions.isNotEmpty ? s.positions[s.heroIndex] : '';
-                    final stack = s.stacks.isNotEmpty ? s.stacks[s.heroIndex] : 0;
-                    return Dismissible(
-                      key: ValueKey(s.createdAt),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      confirmDismiss: (_) async {
-                        await _delete(s);
-                        return false;
-                      },
-                      child: ListTile(
-                        leading: Checkbox(
-                          value: selected,
-                          onChanged: (_) => _toggle(s),
-                        ),
-                        title: Text('$pos ${stack}bb'),
-                        subtitle: s.tags.isNotEmpty ? Text(s.tags.join(', ')) : null,
-                        onTap: () => _toggle(s),
-                      ),
-                    );
-                  },
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    height: _selected.isNotEmpty ? 56 : 0,
-                    child: _selected.isNotEmpty
-                        ? Container(
-                            color: Colors.black54,
-                            padding: const EdgeInsets.all(8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                ElevatedButton(onPressed: _addTag, child: const Text('🏷 Add Tag')),
-                                ElevatedButton(onPressed: _removeTag, child: const Text('❌ Remove Tag')),
-                                ElevatedButton(onPressed: _exportCsv, child: const Text('📄 Export CSV')),
-                              ],
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
-              ],
+            child: TrainingSpotListBody(
+              spots: visible,
+              selected: _selected,
+              onToggle: _toggle,
+              onDelete: _delete,
+              onAddTag: _addTag,
+              onRemoveTag: _removeTag,
+              onExportCsv: _exportCsv,
             ),
           ),
         ],

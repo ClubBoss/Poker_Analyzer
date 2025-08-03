@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:csv/csv.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../services/training_pack_tag_analytics_service.dart';
 import '../../utils/shared_prefs_keys.dart';
 import '../tag_preset_editor.dart';
+import 'training_spot_filters.dart';
+import '../../services/training_spot_file_service.dart';
+import 'dart:io';
 
 import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
@@ -46,32 +44,10 @@ class TrainingSpotList extends StatefulWidget {
 class TrainingSpotListState extends State<TrainingSpotList>
     with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
+  final TrainingSpotFileService _fileService = const TrainingSpotFileService();
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
-  static const List<String> _availableTags = [
-    '3бет пот',
-    'Фиш',
-    'Рег',
-    'ICM',
-    'vs агро',
-  ];
-
-  static const Map<String, List<String>> _tagPresets = {
-    '3бет пот': ['3бет пот'],
-    'Фиш': ['Фиш'],
-    'Рег': ['Рег'],
-    'ICM': ['ICM'],
-    'vs агро': ['vs агро'],
-  };
-
-  static const Map<String, String> _quickFilterPresets = {
-    'ICM': 'ICM',
-    'Push/Fold': 'Push/Fold',
-    'Postflop': 'Postflop',
-    '3-bet': '3-bet',
-    'Bubble': 'Bubble',
-  };
 
   Map<String, List<String>> _customTagPresets = {};
 
@@ -127,8 +103,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<MapEntry<String, List<String>>?> _editTagPreset(
       {String? initialName, List<String>? initialTags}) async {
     final suggestions = <String>{
-      ..._availableTags,
-      for (final list in _tagPresets.values) ...list,
+      ...kAvailableTags,
+      for (final list in kTagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -150,7 +126,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
-            final staticEntries = _tagPresets.entries.toList();
+            final staticEntries = kTagPresets.entries.toList();
             final customEntries = _customTagPresets.entries.toList();
             return AlertDialog(
               backgroundColor: AppColors.cardBackground,
@@ -445,7 +421,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _activeQuickPreset = quickPreset;
     if (_activeQuickPreset != null) {
       _prevQuickTags = Set<String>.from(_selectedTags);
-      final tag = _quickFilterPresets[_activeQuickPreset!];
+      final tag = kQuickFilterPresets[_activeQuickPreset!];
       if (tag != null) {
         _selectedTags
           ..clear()
@@ -779,7 +755,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     Wrap(
                       spacing: 4,
                       children: [
-                        for (final tag in _availableTags)
+                        for (final tag in kAvailableTags)
                           FilterChip(
                             label: Text(tag),
                             selected: localTags.contains(tag),
@@ -1109,7 +1085,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    for (final tag in _availableTags)
+                    for (final tag in kAvailableTags)
                       CheckboxListTile(
                         value: localTags.contains(tag),
                         title:
@@ -1159,8 +1135,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _quickAddTagsForSpot(TrainingSpot spot) async {
     final suggestions = <String>{
-      ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      ...kAvailableTags,
+      for (final list in kTagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -1381,8 +1357,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     if (count == 0) return;
 
     final suggestions = <String>{
-      ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      ...kAvailableTags,
+      for (final list in kTagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -1926,8 +1902,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     }
 
     final suggestions = <String>{
-      ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      ...kAvailableTags,
+      for (final list in kTagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -2118,7 +2094,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                           _prevQuickTags = Set<String>.from(_selectedTags);
                         }
                         _activeQuickPreset = value;
-                        final tag = _quickFilterPresets[value];
+                        final tag = kQuickFilterPresets[value];
                         if (tag != null) {
                           _selectedTags
                             ..clear()
@@ -2241,7 +2217,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     },
                     onPresetSelected: (value) {
                       if (value == null) return;
-                      final tags = TrainingSpotListState._tagPresets[value] ??
+                      final tags = kTagPresets[value] ??
                           _customTagPresets[value];
                       if (tags == null) return;
                       setState(() {
@@ -3815,9 +3791,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final popular = [for (final a in analytics.getPopularTags()) a.tag];
     final tags = [
       for (final t in popular)
-        if (_availableTags.contains(t)) t,
+        if (kAvailableTags.contains(t)) t,
       ...[
-        for (final t in _availableTags)
+        for (final t in kAvailableTags)
           if (!popular.contains(t)) t
       ]
     ];
@@ -4090,150 +4066,36 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 
   Future<void> _exportPack(List<TrainingSpot> spots) async {
-    if (spots.isEmpty) return;
-    const encoder = JsonEncoder.withIndent('  ');
-    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/training_spots_${DateTime.now().millisecondsSinceEpoch}.json');
-    await file.writeAsString(jsonStr);
-    await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
+    await _fileService.exportPack(spots);
   }
 
   Future<void> _exportNamedPack(List<TrainingSpot> spots, String name) async {
-    if (spots.isEmpty) return;
-    const encoder = JsonEncoder.withIndent('  ');
-    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
-    final dir = await getTemporaryDirectory();
-    final safe = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
-    final file = File('${dir.path}/$safe.json');
-    await file.writeAsString(jsonStr);
-    await Share.shareXFiles([XFile(file.path)], text: '$safe.json');
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Пакет "$name" создан, спотов: ${spots.length}')),
-      );
-    }
+    await _fileService.exportNamedPack(context, spots, name);
   }
 
   Future<void> _exportPackSummary(List<TrainingSpot> spots) async {
-    if (spots.isEmpty) return;
-    final buffer = StringBuffer();
-    for (final spot in spots) {
-      buffer.writeln(
-          'ID: ${spot.tournamentId ?? '-'}, Buy-In: ${spot.buyIn ?? '-'}, Game: ${spot.gameType ?? '-'}, Tags: ${spot.tags.length}');
-    }
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/spot_summary_${DateTime.now().millisecondsSinceEpoch}.txt');
-    await file.writeAsString(buffer.toString());
-    await Share.shareXFiles([XFile(file.path)], text: 'spot_summary.txt');
+    await _fileService.exportPackSummary(spots);
   }
 
   Future<void> _exportCsv(List<TrainingSpot> spots,
       {String? successMessage}) async {
-    if (spots.isEmpty) return;
-
-    final rows = <List<dynamic>>[];
-    rows.add(['ID', 'Difficulty', 'Rating', 'Tags', 'Buy-in', 'ICM', 'Date']);
-    final today = DateTime.now();
-    final dateStr =
-        '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    for (final s in spots) {
-      rows.add([
-        s.tournamentId ?? '',
-        s.difficulty,
-        s.rating,
-        s.tags.join(';'),
-        s.buyIn ?? '',
-        s.tags.contains('ICM') ? '1' : '0',
-        dateStr,
-      ]);
-    }
-
-    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
-    final bytes = Uint8List.fromList(utf8.encode(csvStr));
-    final name = 'training_spots_${DateTime.now().millisecondsSinceEpoch}';
-    try {
-      await FileSaver.instance.saveAs(
-        name: name,
-        bytes: bytes,
-        ext: 'csv',
-        mimeType: MimeType.csv,
-      );
-      if (mounted) {
-        final msg = successMessage ??
-            'Экспортировано ${spots.length} спотов в CSV';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
-      }
-    }
-  }
-
-  Future<void> _importFromFile(String path) async {
-    final file = File(path);
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      if (data is! List) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      final spots = <TrainingSpot>[];
-      for (final e in data) {
-        if (e is Map) {
-          try {
-            spots.add(TrainingSpot.fromJson(Map<String, dynamic>.from(e)));
-          } catch (_) {}
-        }
-      }
-      if (spots.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      setState(() => widget.spots.addAll(spots));
-      widget.onChanged?.call();
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
-      }
-    }
+    await _fileService.exportSpotsCsv(context, spots,
+        successMessage: successMessage);
   }
 
   Future<void> _importPack() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
-    if (result == null || result.files.isEmpty) return;
-    final path = result.files.single.path;
-    if (path == null) return;
-    await _importFromFile(path);
+    final spots = await _fileService.pickAndImportSpots(context);
+    if (spots.isEmpty) return;
+    setState(() => widget.spots.addAll(spots));
+    widget.onChanged?.call();
   }
 
   Future<void> _handleDrop(DropDoneDetails details) async {
     for (final item in details.files) {
-      final path = item.path;
-      if (path.toLowerCase().endsWith('.json')) {
-        await _importFromFile(path);
-      }
+      final spots = await _fileService.importSpotsJson(context, item.path);
+      if (spots.isEmpty) continue;
+      setState(() => widget.spots.addAll(spots));
+      widget.onChanged?.call();
     }
   }
 
@@ -4561,7 +4423,7 @@ class _TagFilterSection extends StatelessWidget {
           dropdownColor: AppColors.cardBackground,
           style: const TextStyle(color: Colors.white),
           items: [
-            for (final entry in TrainingSpotListState._tagPresets.entries)
+            for (final entry in kTagPresets.entries)
               DropdownMenuItem(
                 value: entry.key,
                 child: Text(entry.key),
@@ -5193,7 +5055,7 @@ class _QuickPresetRow extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          for (final entry in TrainingSpotListState._quickFilterPresets.entries)
+          for (final entry in kQuickFilterPresets.entries)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: ChoiceChip(
