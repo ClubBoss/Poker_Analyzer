@@ -15,6 +15,7 @@ class ConstraintResolverEngine {
         case 'excludedCombos':
         case 'requiredCombos':
         case 'textureTags':
+        case 'boardTextureTags':
           result[key] = _asStringList(value);
           break;
         case 'boardFilter':

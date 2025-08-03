@@ -31,4 +31,11 @@ void main() {
     expect(params['suitPattern'], 'twoTone');
     expect(params['boardTexture'], contains('aceHigh'));
   });
+
+  test('throws on unknown tag', () {
+    expect(
+      () => BoardFilteringParamsBuilder.build(['unknown']),
+      throwsArgumentError,
+    );
+  });
 }

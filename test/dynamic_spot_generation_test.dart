@@ -79,7 +79,7 @@ meta:
     }
   });
 
-  test('dynamicParams textureTags generates ace high boards', () {
+  test('dynamicParams boardTextureTags generates ace high boards', () {
     const yamlTags = '''
 id: gen_pack
 name: Generator Pack
@@ -92,7 +92,7 @@ meta:
     villainAction: "3bet 9.0"
     handGroup: ["pockets"]
     count: 3
-    textureTags: ['aceHigh']
+    boardTextureTags: ['aceHigh']
 ''';
     final tpl = TrainingPackTemplateV2.fromYamlAuto(yamlTags);
     expect(tpl.spots.length, 3);
@@ -101,7 +101,7 @@ meta:
     }
   });
 
-  test('boardFilter overrides textureTags when conflicting', () {
+  test('boardFilter overrides boardTextureTags when conflicting', () {
     const yamlOverride = '''
 id: gen_pack
 name: Generator Pack
@@ -114,7 +114,7 @@ meta:
     villainAction: "3bet 9.0"
     handGroup: ["pockets"]
     count: 3
-    textureTags: ['aceHigh']
+    boardTextureTags: ['aceHigh']
     boardFilter:
       boardTexture: low
 ''';

@@ -9,7 +9,7 @@ class TrainingPackPreviewService {
   final TrainingSpotGeneratorService _generator;
 
   TrainingPackPreviewService({TrainingSpotGeneratorService? generator})
-    : _generator = generator ?? TrainingSpotGeneratorService();
+      : _generator = generator ?? TrainingSpotGeneratorService();
 
   List<TrainingPackPreviewSpot> getPreviewSpots(
     TrainingPackTemplateV2 tpl, {
@@ -21,7 +21,8 @@ class TrainingPackPreviewService {
       Map<String, dynamic>.from(dyn),
     );
     Map<String, dynamic>? boardFilter;
-    final tags = (m['textureTags'] as List?)?.cast<String>();
+    final tags = (m['boardTextureTags'] as List? ?? m['textureTags'] as List?)
+        ?.cast<String>();
     if (tags != null && tags.isNotEmpty) {
       boardFilter = BoardFilteringParamsBuilder.build(tags);
     }

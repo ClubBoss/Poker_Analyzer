@@ -23,7 +23,11 @@ class BoardFilteringParamsBuilder {
     String? suitPattern;
 
     for (final t in textureTags) {
-      final resolved = BoardFilteringTagLibraryService.resolve(t)?.id ?? t;
+      final tag = BoardFilteringTagLibraryService.resolve(t);
+      if (tag == null) {
+        throw ArgumentError('Unknown board texture tag: $t');
+      }
+      final resolved = tag.id;
       switch (resolved) {
         case 'rainbow':
           suitPattern = 'rainbow';
