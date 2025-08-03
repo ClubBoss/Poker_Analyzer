@@ -115,7 +115,9 @@ flutter:
     - assets/theory_lessons/level2/threebet_co_vs_hj_cash.yaml
     - assets/packs/v2/preflop/threebet_hj_vs_utg_cash.yaml
     - assets/theory_lessons/level2/threebet_hj_vs_utg_cash.yaml
-    - assets/templates/
+    - assets/packs/v2/preflop/defend_utg_vs_hj_3bet_cash.yaml
+    - assets/theory_lessons/level2/defend_utg_vs_hj_3bet_cash.yaml
+  - assets/templates/
     - assets/built_in_packs.yaml
     - assets/theory_packs/
     - assets/theory_blocks/
