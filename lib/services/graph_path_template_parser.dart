@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:yaml/yaml.dart';
 
+import '../core/error_logger.dart';
 import '../models/learning_branch_node.dart';
 import '../models/learning_path_node.dart';
 import '../models/stage_type.dart';
@@ -190,9 +191,8 @@ class GraphPathTemplateParser {
     }
 
     if (warnings.isNotEmpty) {
-      // ignore: avoid_print
       for (final w in warnings) {
-        print('GraphPathTemplateParser: $w');
+        ErrorLogger.instance.logError('GraphPathTemplateParser: $w');
       }
     }
 

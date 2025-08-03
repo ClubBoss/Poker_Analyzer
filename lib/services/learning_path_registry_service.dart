@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:yaml/yaml.dart';
 
+import '../core/error_logger.dart';
 import '../models/learning_path_template_v2.dart';
 
 class LearningPathRegistryService {
@@ -94,7 +95,7 @@ class LearningPathRegistryService {
       ];
 
   /// Validates that all stage references and prerequisites are valid.
-  /// Prints errors to the console and returns the list of messages.
+  /// Logs errors and returns the list of messages.
   Future<List<String>> validateAll() async {
     await loadAll();
     final errors = <String>[];
@@ -120,8 +121,7 @@ class LearningPathRegistryService {
       }
     }
     for (final e in errors) {
-      // ignore: avoid_print
-      print('LearningPath validation: $e');
+      ErrorLogger.instance.logError('LearningPath validation: $e');
     }
     return errors;
   }
