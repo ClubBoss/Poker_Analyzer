@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import 'mini_lesson_library_service.dart';
+import 'theory_reinforcement_entry.dart';
 
 /// Queue service scheduling theory lesson reviews using spaced repetition.
 class TheoryReinforcementQueueService {
@@ -18,28 +19,28 @@ class TheoryReinforcementQueueService {
     Duration(days: 12),
   ];
 
-  Future<Map<String, _Entry>> _load() async {
+  Future<Map<String, TheoryReinforcementEntry>> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
         final data = jsonDecode(raw);
         if (data is Map) {
-          final map = <String, _Entry>{};
+          final map = <String, TheoryReinforcementEntry>{};
           for (final e in data.entries) {
             if (e.value is Map) {
-              map[e.key as String] =
-                  _Entry.fromJson(Map<String, dynamic>.from(e.value as Map));
+              map[e.key as String] = TheoryReinforcementEntry.fromJson(
+                  Map<String, dynamic>.from(e.value as Map));
             }
           }
           return map;
         }
       } catch (_) {}
     }
-    return <String, _Entry>{};
+    return <String, TheoryReinforcementEntry>{};
   }
 
-  Future<void> _save(Map<String, _Entry> map) async {
+  Future<void> _save(Map<String, TheoryReinforcementEntry> map) async {
     final prefs = await SharedPreferences.getInstance();
     final data = {for (final e in map.entries) e.key: e.value.toJson()};
     await prefs.setString(_prefsKey, jsonEncode(data));
@@ -54,7 +55,8 @@ class TheoryReinforcementQueueService {
       map.remove(lessonId);
     } else {
       final next = DateTime.now().add(_intervals[level]);
-      map[lessonId] = _Entry(level: level + 1, next: next);
+      map[lessonId] =
+          TheoryReinforcementEntry(level: level + 1, next: next);
     }
     await _save(map);
   }
@@ -62,8 +64,8 @@ class TheoryReinforcementQueueService {
   /// Registers a failed completion for [lessonId]. Resets progression.
   Future<void> registerFailure(String lessonId) async {
     final map = await _load();
-    map[lessonId] =
-        _Entry(level: 0, next: DateTime.now().add(const Duration(days: 1)));
+    map[lessonId] = TheoryReinforcementEntry(
+        level: 0, next: DateTime.now().add(const Duration(days: 1)));
     await _save(map);
   }
 
@@ -91,21 +93,3 @@ class TheoryReinforcementQueueService {
   }
 }
 
-class _Entry {
-  final int level;
-  final DateTime next;
-
-  const _Entry({required this.level, required this.next});
-
-  Map<String, dynamic> toJson() => {
-        'level': level,
-        'next': next.toIso8601String(),
-      };
-
-  factory _Entry.fromJson(Map<String, dynamic> j) => _Entry(
-        level: j['level'] is int
-            ? j['level'] as int
-            : int.tryParse(j['level']?.toString() ?? '') ?? 0,
-        next: DateTime.tryParse(j['next']?.toString() ?? '') ?? DateTime.now(),
-      );
-}
