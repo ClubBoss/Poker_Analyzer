@@ -11,6 +11,7 @@ import 'dynamic_spot_template.dart';
 import 'unlock_rules.dart';
 import 'hero_position.dart';
 import 'training_pack_template.dart' show TrainingPackTemplate;
+import '../../services/training_spot_generator_service.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -92,6 +93,25 @@ class TrainingPackTemplateV2 {
   }
 
   List<TrainingPackSpot> generateDynamicSpotSamples() {
+    if (meta['dynamicParams'] is Map) {
+      final m = Map<String, dynamic>.from(meta['dynamicParams']);
+      final params = SpotGenerationParams(
+        position: m['position']?.toString() ?? 'btn',
+        villainAction: m['villainAction']?.toString() ?? '',
+        handGroup: [
+          for (final g in (m['handGroup'] as List? ?? [])) g.toString()
+        ],
+        count: (m['count'] as num?)?.toInt() ?? 0,
+      );
+      final gen = TrainingSpotGeneratorService().generate(params);
+      return [
+        for (final s in gen)
+          TrainingPackSpot.fromTrainingSpot(
+            s,
+            villainAction: params.villainAction,
+          )
+      ];
+    }
     final list = <TrainingPackSpot>[];
     for (final d in dynamicSpots) {
       list.addAll(d.generateSpots());
@@ -100,26 +120,52 @@ class TrainingPackTemplateV2 {
   }
 
   void regenerateDynamicSpots() {
-    if (dynamicSpots.isEmpty) return;
+    if (dynamicSpots.isEmpty && meta['dynamicParams'] is! Map) return;
     spots = generateDynamicSpotSamples();
     spotCount = spots.length;
   }
 
   factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) {
-    final dynamicList = <DynamicSpotTemplate>[
-      for (final d in (j['dynamicSpots'] as List? ?? []))
-        DynamicSpotTemplate.fromJson(Map<String, dynamic>.from(d)),
-    ];
+    final metaMap = j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {};
 
-    var spots = <TrainingPackSpot>[
-      for (final s in (j['spots'] as List? ?? []))
-        TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
-    ];
+    final dynParams = metaMap['dynamicParams'];
+    var dynamicList = <DynamicSpotTemplate>[];
+    var spots = <TrainingPackSpot>[];
 
-    if (dynamicList.isNotEmpty) {
-      spots = <TrainingPackSpot>[];
-      for (final d in dynamicList) {
-        spots.addAll(d.generateSpots());
+    if (dynParams is Map) {
+      final params = SpotGenerationParams(
+        position: dynParams['position']?.toString() ?? 'btn',
+        villainAction: dynParams['villainAction']?.toString() ?? '',
+        handGroup: [
+          for (final g in (dynParams['handGroup'] as List? ?? [])) g.toString()
+        ],
+        count: (dynParams['count'] as num?)?.toInt() ?? 0,
+      );
+      final generator = TrainingSpotGeneratorService();
+      final genSpots = generator.generate(params);
+      spots = [
+        for (final s in genSpots)
+          TrainingPackSpot.fromTrainingSpot(
+            s,
+            villainAction: params.villainAction,
+          )
+      ];
+    } else {
+      dynamicList = <DynamicSpotTemplate>[
+        for (final d in (j['dynamicSpots'] as List? ?? []))
+          DynamicSpotTemplate.fromJson(Map<String, dynamic>.from(d)),
+      ];
+
+      spots = <TrainingPackSpot>[
+        for (final s in (j['spots'] as List? ?? []))
+          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
+      ];
+
+      if (dynamicList.isNotEmpty) {
+        spots = <TrainingPackSpot>[];
+        for (final d in dynamicList) {
+          spots.addAll(d.generateSpots());
+        }
       }
     }
 
@@ -139,9 +185,7 @@ class TrainingPackTemplateV2 {
         orElse: () => TrainingType.pushFold,
       ),
       spots: spots,
-      spotCount: j['spotCount'] as int? ?? (dynamicList.isNotEmpty
-          ? spots.length
-          : (j['spots'] as List? ?? []).length),
+      spotCount: spots.length,
       created:
           DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
       gameType: parseGameType(j['gameType']),
@@ -149,7 +193,7 @@ class TrainingPackTemplateV2 {
       positions: [
         for (final p in (j['positions'] as List? ?? [])) p.toString(),
       ],
-      meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
+      meta: metaMap,
       recommended: j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
       requiresTheoryCompleted: j['meta'] is Map

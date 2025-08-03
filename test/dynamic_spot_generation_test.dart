@@ -36,4 +36,23 @@ dynamicSpots:
       expect(s.heroOptions, ['call', 'fold']);
     }
   });
+
+  test('dynamicParams generate spots via generator service', () {
+    const yaml2 = '''
+id: gen_pack
+name: Generator Pack
+trainingType: mtt
+positions:
+  - hj
+meta:
+  dynamicParams:
+    position: hj
+    villainAction: "3bet 9.0"
+    handGroup: ["pockets"]
+    count: 3
+''';
+    final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml2);
+    expect(tpl.spots.length, 3);
+    expect(tpl.spotCount, 3);
+  });
 }
