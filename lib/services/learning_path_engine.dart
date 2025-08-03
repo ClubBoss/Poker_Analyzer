@@ -8,6 +8,7 @@ import 'tag_mastery_service.dart';
 import 'weakness_cluster_engine_v2.dart';
 import 'training_pack_generator_v2.dart';
 import 'theory_stage_progress_tracker.dart';
+import 'mini_lesson_library_service.dart';
 
 /// Engine driving adaptive learning path stages.
 class LearningPathEngine {
@@ -41,7 +42,16 @@ class LearningPathEngine {
         allPacks.firstWhereOrNull((p) => p.id == stage.packId);
 
     if (stage.type == StageType.theory) {
-      return defaultPack;
+      final ids = MiniLessonLibraryService.instance.linkedPacksFor(stage.id);
+      final linked = [
+        for (final id in ids)
+          allPacks.firstWhereOrNull((p) => p.id == id)
+      ].whereType<TrainingPackTemplateV2>().toList();
+      if (linked.isEmpty) return defaultPack;
+      if (linked.length == 1) return linked.first;
+      final first = linked.first;
+      first.meta['stageGroup'] = [for (final p in linked) p.id];
+      return first;
     }
 
     if (stage.type != StageType.theory && stage.theoryPackId != null) {

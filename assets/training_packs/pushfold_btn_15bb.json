@@ -4,6 +4,7 @@
   "category": "Push-Fold",
   "gameType": "Tournament",
   "isBuiltIn": true,
+  "meta": {"requiresTheoryCompleted": true},
   "hands": [
     {
       "name": "BTN shove 15bb",

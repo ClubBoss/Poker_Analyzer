@@ -6,7 +6,8 @@ tags:
   - beginner
   - level1
 linkedPackIds:
-  - push_fold_mvp
+  - pushfold_btn_15bb
+  - pushfold_sb_15bb
 parts:
   - title: 'What is push/fold?'
     content: |
