@@ -40,6 +40,7 @@ class _PackCardState extends State<PackCard>
   double? _accuracy;
   int _handsCompleted = 0;
   bool _almostUnlocked = false;
+  bool _lockedViewLogged = false;
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -238,6 +239,27 @@ class _PackCardState extends State<PackCard>
     }
   }
 
+  Future<void> _logLockedViewEventIfNeeded() async {
+    if (!_locked || _lockedViewLogged || kDebugMode) return;
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'locked_pack_viewed_${widget.template.id}';
+    if (prefs.getBool(key) == true) {
+      _lockedViewLogged = true;
+      return;
+    }
+    await prefs.setBool(key, true);
+    _lockedViewLogged = true;
+    unawaited(
+      AnalyticsService.instance.logEvent('locked_pack_view', {
+        'pack_id': widget.template.id,
+        'accuracy': _accuracy,
+        'hands_completed': _handsCompleted,
+        'required_accuracy': widget.template.requiredAccuracy,
+        'min_hands': widget.template.minHands,
+      }),
+    );
+  }
+
   Future<void> _maybeShowReward() async {
     if (!_theoryCompleted ||
         _total == 0 ||
@@ -351,6 +373,7 @@ class _PackCardState extends State<PackCard>
 
   @override
   Widget build(BuildContext context) {
+    unawaited(_logLockedViewEventIfNeeded());
     final accText = _accuracy != null
         ? ', точность ${(_accuracy! * 100).toStringAsFixed(0)}%'
         : '';
