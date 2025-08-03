@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/pinned_learning_service.dart';
 import '../services/mini_lesson_library_service.dart';
-import '../services/pack_library_service.dart';
-import '../screens/mini_lesson_screen.dart';
-import '../screens/training_pack_screen.dart';
-import '../models/pinned_learning_item.dart';
-import '../models/v2/training_pack_template_v2.dart';
+import 'pinned_learning_tile.dart';
 
 class PinnedLearningSection extends StatefulWidget {
   const PinnedLearningSection({super.key});
@@ -48,61 +44,8 @@ class _PinnedLearningSectionState extends State<PinnedLearningSection> {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
-        for (final item in items) _buildTile(item),
+        for (final item in items) PinnedLearningTile(item: item),
       ],
     );
-  }
-
-  Widget _buildTile(PinnedLearningItem item) {
-    if (item.type == 'lesson') {
-      final lesson = MiniLessonLibraryService.instance.getById(item.id);
-      if (lesson == null) return const SizedBox.shrink();
-      return ListTile(
-        leading: const Text('📘', style: TextStyle(fontSize: 20)),
-        title: Text(lesson.title),
-        trailing: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => _service.unpin('lesson', item.id),
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => MiniLessonScreen(
-                lesson: lesson,
-                initialPosition: item.lastPosition,
-              ),
-            ),
-          );
-        },
-      );
-    } else {
-      return FutureBuilder<TrainingPackTemplateV2?>(
-        future: PackLibraryService.instance.getById(item.id),
-        builder: (context, snapshot) {
-          final tpl = snapshot.data;
-          if (tpl == null) return const SizedBox.shrink();
-          return ListTile(
-            leading: const Text('🎯', style: TextStyle(fontSize: 20)),
-            title: Text(tpl.name),
-            trailing: IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => _service.unpin('pack', item.id),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => TrainingPackScreen(
-                    pack: tpl,
-                    initialPosition: item.lastPosition,
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      );
-    }
   }
 }
