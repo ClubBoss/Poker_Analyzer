@@ -12,6 +12,7 @@ class MiniLessonLibraryService {
   static const List<String> _dirs = [
     'assets/mini_lessons/',
     'assets/theory_mini_lessons/',
+    'assets/theory_lessons/level1/',
   ];
 
   final List<TheoryMiniLessonNode> _lessons = [];
