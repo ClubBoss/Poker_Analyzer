@@ -16,6 +16,8 @@ import '../helpers/color_utils.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import '../services/progress_export_service.dart';
+import '../services/training_history_preferences.dart';
+import '../services/training_history_prefs.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/history/accuracy_chart.dart';
@@ -47,50 +49,13 @@ class TrainingHistoryScreen extends StatefulWidget {
   State<TrainingHistoryScreen> createState() => _TrainingHistoryScreenState();
 }
 
-enum _SortOption { newest, oldest, position, mistakes, evDiff, icmDiff }
-
-enum _RatingFilter { all, pct40, pct60, pct80 }
-
-enum _AccuracyRange { all, lt50, pct50to75, pct75plus }
-
-enum _ChartMode { daily, weekly, monthly }
-
-enum _TagCountFilter { any, one, twoPlus, threePlus }
-
-enum _WeekdayFilter { all, mon, tue, wed, thu, fri, sat, sun }
-
-enum _SessionLengthFilter { any, oneToFive, sixToTen, elevenPlus }
-
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
-  static const _sortKey = 'training_history_sort';
-  static const _ratingKey = 'training_history_rating';
-  static const _tagKey = 'training_history_tags';
-  static const _tagColorKey = 'training_history_tag_colors';
-  static const _showChartsKey = 'training_history_show_charts';
-  static const _showAvgChartKey = 'training_history_show_chart';
-  static const _showDistributionKey = 'training_history_show_distribution';
-  static const _showTrendChartKey = 'training_history_show_trend_chart';
-  static const _dateFromKey = 'training_history_date_from';
-  static const _dateToKey = 'training_history_date_to';
-  static const _chartModeKey = 'training_history_chart_mode';
-  static const _hideEmptyTagsKey = 'hide_empty_tags';
-  static const _sortByTagKey = 'training_history_sort_by_tag';
-  static const _accuracyRangeKey = 'training_history_accuracy_range';
-  static const _tagCountKey = 'training_history_tag_count';
-  static const _weekdayKey = 'training_history_weekday';
-  static const _lengthKey = 'training_history_length';
-  static const _pdfIncludeChartKey =
-      'training_history_pdf_include_chart';
-  static const _exportTags3OnlyKey =
-      'training_history_export_tags_3plus';
-  static const _exportNotesOnlyKey =
-      'training_history_export_notes_only';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
-  _SortOption _sort = _SortOption.newest;
-  _RatingFilter _ratingFilter = _RatingFilter.all;
-  _AccuracyRange _accuracyRange = _AccuracyRange.all;
+  SortOption _sort = SortOption.newest;
+  RatingFilter _ratingFilter = RatingFilter.all;
+  AccuracyRange _accuracyRange = AccuracyRange.all;
   Set<String> _selectedTags = {};
   Set<String> _selectedTagColors = {};
   bool _showCharts = true;
@@ -100,12 +65,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _hideEmptyTags = false;
   bool _sortByTag = false;
   bool _includeChartInPdf = true;
-  _ChartMode _chartMode = _ChartMode.daily;
-  _TagCountFilter _tagCountFilter = _TagCountFilter.any;
-  _WeekdayFilter _weekdayFilter = _WeekdayFilter.all;
-  _SessionLengthFilter _lengthFilter = _SessionLengthFilter.any;
+  ChartMode _chartMode = ChartMode.daily;
+  TagCountFilter _tagCountFilter = TagCountFilter.any;
+  WeekdayFilter _weekdayFilter = WeekdayFilter.all;
+  SessionLengthFilter _lengthFilter = SessionLengthFilter.any;
   bool _exportTags3Only = false;
   bool _exportNotesOnly = false;
+  late TrainingHistoryPreferences _prefs;
 
   String? _lastCsvPath;
   String? _lastPdfPath;
@@ -116,59 +82,35 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
+    _initPrefs();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.tutorial?.showCurrentStep(context);
     });
   }
 
-  Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final sortIndex = prefs.getInt(_sortKey) ?? 0;
-    final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
-    final accuracyRangeIndex = prefs.getInt(_accuracyRangeKey) ?? 0;
-    final tags = prefs.getStringList(_tagKey) ?? [];
-    final colors = prefs.getStringList(_tagColorKey) ?? [];
-    final showCharts = prefs.getBool(_showChartsKey);
-    final showAvgChart = prefs.getBool(_showAvgChartKey);
-    final showDistribution = prefs.getBool(_showDistributionKey);
-    final showTrendChart = prefs.getBool(_showTrendChartKey);
-    final hideEmptyTags = prefs.getBool(_hideEmptyTagsKey) ?? false;
-    final sortByTag = prefs.getBool(_sortByTagKey) ?? false;
-    final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
-    final tagCountIndex = prefs.getInt(_tagCountKey) ?? 0;
-    final weekdayIndex = prefs.getInt(_weekdayKey) ?? 0;
-    final lengthIndex = prefs.getInt(_lengthKey) ?? 0;
-    final includeChart = prefs.getBool(_pdfIncludeChartKey) ?? true;
-    final tags3Only = prefs.getBool(_exportTags3OnlyKey) ?? false;
-    final notesOnly = prefs.getBool(_exportNotesOnlyKey) ?? false;
-    final fromMillis = prefs.getInt(_dateFromKey);
-    final toMillis = prefs.getInt(_dateToKey);
+  Future<void> _initPrefs() async {
+    _prefs = await TrainingHistoryPreferences.load();
     setState(() {
-      final idx = sortIndex.clamp(0, _SortOption.values.length - 1);
-      _sort = _SortOption.values[idx];
-      _ratingFilter = _RatingFilter.values[ratingIndex];
-      final idx = accuracyRangeIndex.clamp(0, _AccuracyRange.values.length - 1);
-      _accuracyRange = _AccuracyRange.values[idx];
-      _selectedTags = tags.toSet();
-      _selectedTagColors = colors.toSet();
-      _showCharts = showCharts ?? true;
-      _showAvgChart = showAvgChart ?? true;
-      _showDistribution = showDistribution ?? true;
-      _showTrendChart = showTrendChart ?? true;
-      _hideEmptyTags = hideEmptyTags;
-      _sortByTag = sortByTag;
-      _chartMode = _ChartMode.values[chartModeIndex];
-      _tagCountFilter = _TagCountFilter.values[tagCountIndex];
-      _weekdayFilter = _WeekdayFilter.values[weekdayIndex];
-      _lengthFilter = _SessionLengthFilter.values[lengthIndex];
-      _includeChartInPdf = includeChart;
-      _exportTags3Only = tags3Only;
-      _exportNotesOnly = notesOnly;
-      _dateFrom =
-          fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
-      _dateTo =
-          toMillis != null ? DateTime.fromMillisecondsSinceEpoch(toMillis) : null;
+      _sort = _prefs.sort;
+      _ratingFilter = _prefs.ratingFilter;
+      _accuracyRange = _prefs.accuracyRange;
+      _selectedTags = _prefs.selectedTags;
+      _selectedTagColors = _prefs.selectedTagColors;
+      _showCharts = _prefs.showCharts;
+      _showAvgChart = _prefs.showAvgChart;
+      _showDistribution = _prefs.showDistribution;
+      _showTrendChart = _prefs.showTrendChart;
+      _hideEmptyTags = _prefs.hideEmptyTags;
+      _sortByTag = _prefs.sortByTag;
+      _chartMode = _prefs.chartMode;
+      _tagCountFilter = _prefs.tagCountFilter;
+      _weekdayFilter = _prefs.weekdayFilter;
+      _lengthFilter = _prefs.lengthFilter;
+      _includeChartInPdf = _prefs.includeChartInPdf;
+      _exportTags3Only = _prefs.exportTags3Only;
+      _exportNotesOnly = _prefs.exportNotesOnly;
+      _dateFrom = _prefs.dateFrom;
+      _dateTo = _prefs.dateTo;
     });
     _loadHistory();
   }
@@ -515,13 +457,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
     String mode;
     switch (_chartMode) {
-      case _ChartMode.daily:
+      case ChartMode.daily:
         mode = 'daily';
         break;
-      case _ChartMode.weekly:
+      case ChartMode.weekly:
         mode = 'weekly';
         break;
-      case _ChartMode.monthly:
+      case ChartMode.monthly:
         mode = 'monthly';
         break;
     }
@@ -941,25 +883,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
 
   Future<void> _resetFilters() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_sortKey, _SortOption.newest.index);
-    await prefs.setInt(_ratingKey, _RatingFilter.all.index);
-    await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
-    await prefs.setInt(_tagCountKey, _TagCountFilter.any.index);
-    await prefs.setInt(_weekdayKey, _WeekdayFilter.all.index);
-    await prefs.setInt(_lengthKey, _SessionLengthFilter.any.index);
-    await prefs.setBool(_sortByTagKey, false);
-    await prefs.remove(_tagKey);
-    await prefs.remove(_tagColorKey);
-    await prefs.remove(_dateFromKey);
-    await prefs.remove(_dateToKey);
+    await _prefs.resetFilters();
     setState(() {
-      _sort = _SortOption.newest;
-      _ratingFilter = _RatingFilter.all;
-      _accuracyRange = _AccuracyRange.all;
-      _tagCountFilter = _TagCountFilter.any;
-      _weekdayFilter = _WeekdayFilter.all;
-      _lengthFilter = _SessionLengthFilter.any;
+      _sort = SortOption.newest;
+      _ratingFilter = RatingFilter.all;
+      _accuracyRange = AccuracyRange.all;
+      _tagCountFilter = TagCountFilter.any;
+      _weekdayFilter = WeekdayFilter.all;
+      _lengthFilter = SessionLengthFilter.any;
       _selectedTags.clear();
       _selectedTagColors.clear();
       _sortByTag = false;
@@ -969,33 +900,27 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _clearTagFilters() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tagKey);
+    await _prefs.clearTagFilters();
     setState(() => _selectedTags.clear());
   }
 
   Future<void> _clearColorFilters() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tagColorKey);
+    await _prefs.clearColorFilters();
     setState(() => _selectedTagColors.clear());
   }
 
   Future<void> _clearLengthFilter() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_lengthKey, _SessionLengthFilter.any.index);
-    setState(() => _lengthFilter = _SessionLengthFilter.any);
+    await _prefs.clearLengthFilter();
+    setState(() => _lengthFilter = SessionLengthFilter.any);
   }
 
   Future<void> _clearAccuracyFilter() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
-    setState(() => _accuracyRange = _AccuracyRange.all);
+    await _prefs.clearAccuracyFilter();
+    setState(() => _accuracyRange = AccuracyRange.all);
   }
 
   Future<void> _clearDateFilter() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_dateFromKey);
-    await prefs.remove(_dateToKey);
+    await _prefs.clearDateFilter();
     setState(() {
       _dateFrom = null;
       _dateTo = null;
@@ -1021,66 +946,66 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         .where((r) => _dateTo == null || !r.date.isAfter(_dateTo!))
         .where((r) {
           final min = switch (_ratingFilter) {
-            _RatingFilter.all => 0,
-            _RatingFilter.pct40 => 40,
-            _RatingFilter.pct60 => 60,
-            _RatingFilter.pct80 => 80,
+            RatingFilter.all => 0,
+            RatingFilter.pct40 => 40,
+            RatingFilter.pct60 => 60,
+            RatingFilter.pct80 => 80,
           };
           return r.accuracy >= min;
         })
         .where((r) {
           switch (_accuracyRange) {
-            case _AccuracyRange.all:
+            case AccuracyRange.all:
               return true;
-            case _AccuracyRange.lt50:
+            case AccuracyRange.lt50:
               return r.accuracy < 50;
-            case _AccuracyRange.pct50to75:
+            case AccuracyRange.pct50to75:
               return r.accuracy >= 50 && r.accuracy < 75;
-            case _AccuracyRange.pct75plus:
+            case AccuracyRange.pct75plus:
               return r.accuracy >= 75;
           }
         })
         .where((r) {
           switch (_tagCountFilter) {
-            case _TagCountFilter.any:
+            case TagCountFilter.any:
               return true;
-            case _TagCountFilter.one:
+            case TagCountFilter.one:
               return r.tags.length == 1;
-            case _TagCountFilter.twoPlus:
+            case TagCountFilter.twoPlus:
               return r.tags.length >= 2;
-            case _TagCountFilter.threePlus:
+            case TagCountFilter.threePlus:
               return r.tags.length >= 3;
           }
         })
         .where((r) {
           switch (_weekdayFilter) {
-            case _WeekdayFilter.all:
+            case WeekdayFilter.all:
               return true;
-            case _WeekdayFilter.mon:
+            case WeekdayFilter.mon:
               return r.date.weekday == DateTime.monday;
-            case _WeekdayFilter.tue:
+            case WeekdayFilter.tue:
               return r.date.weekday == DateTime.tuesday;
-            case _WeekdayFilter.wed:
+            case WeekdayFilter.wed:
               return r.date.weekday == DateTime.wednesday;
-            case _WeekdayFilter.thu:
+            case WeekdayFilter.thu:
               return r.date.weekday == DateTime.thursday;
-            case _WeekdayFilter.fri:
+            case WeekdayFilter.fri:
               return r.date.weekday == DateTime.friday;
-            case _WeekdayFilter.sat:
+            case WeekdayFilter.sat:
               return r.date.weekday == DateTime.saturday;
-            case _WeekdayFilter.sun:
+            case WeekdayFilter.sun:
               return r.date.weekday == DateTime.sunday;
           }
         })
         .where((r) {
           switch (_lengthFilter) {
-            case _SessionLengthFilter.any:
+            case SessionLengthFilter.any:
               return true;
-            case _SessionLengthFilter.oneToFive:
+            case SessionLengthFilter.oneToFive:
               return r.total >= 1 && r.total <= 5;
-            case _SessionLengthFilter.sixToTen:
+            case SessionLengthFilter.sixToTen:
               return r.total >= 6 && r.total <= 10;
-            case _SessionLengthFilter.elevenPlus:
+            case SessionLengthFilter.elevenPlus:
               return r.total >= 11;
           }
         })
@@ -1098,11 +1023,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
     int compareBase(TrainingResult a, TrainingResult b) {
       switch (_sort) {
-        case _SortOption.newest:
+        case SortOption.newest:
           return b.date.compareTo(a.date);
-        case _SortOption.oldest:
+        case SortOption.oldest:
           return a.date.compareTo(b.date);
-        case _SortOption.position:
+        case SortOption.position:
           int idx(String? p) {
             const order = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
             return order.indexOf(p ?? '');
@@ -1117,17 +1042,17 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           final bi = idx(bp);
           if (ai != bi) return ai.compareTo(bi);
           return b.date.compareTo(a.date);
-        case _SortOption.mistakes:
+        case SortOption.mistakes:
           final am = a.total - a.correct;
           final bm = b.total - b.correct;
           if (am != bm) return bm.compareTo(am);
           return b.date.compareTo(a.date);
-        case _SortOption.evDiff:
+        case SortOption.evDiff:
           final ae = a.evDiff ?? 0;
           final be = b.evDiff ?? 0;
           if (ae != be) return be.compareTo(ae);
           return b.date.compareTo(a.date);
-        case _SortOption.icmDiff:
+        case SortOption.icmDiff:
           final ai = a.icmDiff ?? 0;
           final bi = b.icmDiff ?? 0;
           if (ai != bi) return bi.compareTo(ai);
@@ -1204,7 +1129,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   List<TrainingResult> _groupSessionsForChart(List<TrainingResult> list) {
-    if (_chartMode == _ChartMode.daily) {
+    if (_chartMode == ChartMode.daily) {
       final sorted = [...list]..sort((a, b) => a.date.compareTo(b.date));
       return sorted;
     }
@@ -1213,14 +1138,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     for (final r in list) {
       DateTime key;
       switch (_chartMode) {
-        case _ChartMode.weekly:
+        case ChartMode.weekly:
           final d = DateTime(r.date.year, r.date.month, r.date.day);
           key = d.subtract(Duration(days: d.weekday - 1));
           break;
-        case _ChartMode.monthly:
+        case ChartMode.monthly:
           key = DateTime(r.date.year, r.date.month);
           break;
-        case _ChartMode.daily:
+        case ChartMode.daily:
           key = DateTime(r.date.year, r.date.month, r.date.day);
           break;
       }
@@ -1246,38 +1171,38 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   String _getActiveFilterSummary() {
     final parts = <String>[];
-    if (_tagCountFilter != _TagCountFilter.any) {
+    if (_tagCountFilter != TagCountFilter.any) {
       final label = switch (_tagCountFilter) {
-        _TagCountFilter.one => '1 тег',
-        _TagCountFilter.twoPlus => '2+',
-        _TagCountFilter.threePlus => '3+',
+        TagCountFilter.one => '1 тег',
+        TagCountFilter.twoPlus => '2+',
+        TagCountFilter.threePlus => '3+',
         _ => '',
       };
       if (label.isNotEmpty) parts.add('теги: $label');
     }
-    if (_ratingFilter != _RatingFilter.all) {
+    if (_ratingFilter != RatingFilter.all) {
       final label = switch (_ratingFilter) {
-        _RatingFilter.pct40 => '40%+',
-        _RatingFilter.pct60 => '60%+',
-        _RatingFilter.pct80 => '80%+',
+        RatingFilter.pct40 => '40%+',
+        RatingFilter.pct60 => '60%+',
+        RatingFilter.pct80 => '80%+',
         _ => '',
       };
       if (label.isNotEmpty) parts.add('рейтинг: $label');
     }
-    if (_accuracyRange != _AccuracyRange.all) {
+    if (_accuracyRange != AccuracyRange.all) {
       final label = switch (_accuracyRange) {
-        _AccuracyRange.lt50 => '<50%',
-        _AccuracyRange.pct50to75 => '50–75%',
-        _AccuracyRange.pct75plus => '>75%',
+        AccuracyRange.lt50 => '<50%',
+        AccuracyRange.pct50to75 => '50–75%',
+        AccuracyRange.pct75plus => '>75%',
         _ => '',
       };
       if (label.isNotEmpty) parts.add('точность: $label');
     }
-    if (_lengthFilter != _SessionLengthFilter.any) {
+    if (_lengthFilter != SessionLengthFilter.any) {
       final label = switch (_lengthFilter) {
-        _SessionLengthFilter.oneToFive => '1–5',
-        _SessionLengthFilter.sixToTen => '6–10',
-        _SessionLengthFilter.elevenPlus => '11+',
+        SessionLengthFilter.oneToFive => '1–5',
+        SessionLengthFilter.sixToTen => '6–10',
+        SessionLengthFilter.elevenPlus => '11+',
         _ => '',
       };
       if (label.isNotEmpty) parts.add('длина: $label');
@@ -1311,7 +1236,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _selectedTags.contains(tag),
                 selectedColor: colorFromHex(tagService.colorOf(tag)),
                 onSelected: (selected) async {
-                  final prefs = await SharedPreferences.getInstance();
                   setState(() {
                     if (selected) {
                       _selectedTags.add(tag);
@@ -1319,7 +1243,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       _selectedTags.remove(tag);
                     }
                   });
-                  await prefs.setStringList(_tagKey, _selectedTags.toList());
+                  await _prefs.setSelectedTags(_selectedTags);
                 },
               ),
             );
@@ -1337,13 +1261,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   Widget _buildQuickLengthRow() {
     const items = {
-      _SessionLengthFilter.any: 'Все',
-      _SessionLengthFilter.oneToFive: '1–5',
-      _SessionLengthFilter.sixToTen: '6–10',
-      _SessionLengthFilter.elevenPlus: '11+',
+      SessionLengthFilter.any: 'Все',
+      SessionLengthFilter.oneToFive: '1–5',
+      SessionLengthFilter.sixToTen: '6–10',
+      SessionLengthFilter.elevenPlus: '11+',
     };
     final entries = items.entries.toList();
-    final showClear = _lengthFilter != _SessionLengthFilter.any;
+    final showClear = _lengthFilter != SessionLengthFilter.any;
     return SizedBox(
       height: 36,
       child: ListView.builder(
@@ -1360,8 +1284,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _lengthFilter == entry.key,
                 onSelected: (selected) async {
                   if (!selected) return;
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setInt(_lengthKey, entry.key.index);
+                  await _prefs.setLengthFilter(entry.key);
                   setState(() => _lengthFilter = entry.key);
                 },
               ),
@@ -1380,13 +1303,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   Widget _buildQuickAccuracyRow() {
     const items = {
-      _AccuracyRange.lt50: '<50%',
-      _AccuracyRange.pct50to75: '50–75%',
-      _AccuracyRange.pct75plus: '>75%',
-      _AccuracyRange.all: 'Все',
+      AccuracyRange.lt50: '<50%',
+      AccuracyRange.pct50to75: '50–75%',
+      AccuracyRange.pct75plus: '>75%',
+      AccuracyRange.all: 'Все',
     };
     final entries = items.entries.toList();
-    final showClear = _accuracyRange != _AccuracyRange.all;
+    final showClear = _accuracyRange != AccuracyRange.all;
     return SizedBox(
       height: 36,
       child: ListView.builder(
@@ -1403,8 +1326,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _accuracyRange == entry.key,
                 onSelected: (selected) async {
                   if (!selected) return;
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setInt(_accuracyRangeKey, entry.key.index);
+                  await _prefs.setAccuracyRange(entry.key);
                   setState(() => _accuracyRange = entry.key);
                 },
               ),
@@ -1452,7 +1374,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _selectedTagColors.contains(color),
                 selectedColor: colorFromHex(color),
                 onSelected: (selected) async {
-                  final prefs = await SharedPreferences.getInstance();
                   setState(() {
                     if (selected) {
                       _selectedTagColors.add(color);
@@ -1460,8 +1381,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       _selectedTagColors.remove(color);
                     }
                   });
-                  await prefs.setStringList(
-                      _tagColorKey, _selectedTagColors.toList());
+                  await _prefs.setSelectedTagColors(_selectedTagColors);
                 },
               ),
             );
@@ -1490,29 +1410,29 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (_selectedTags.isNotEmpty) {
       lines.add('Tags: ${_selectedTags.join(', ')}');
     }
-    if (_ratingFilter != _RatingFilter.all) {
+    if (_ratingFilter != RatingFilter.all) {
       final label = switch (_ratingFilter) {
-        _RatingFilter.pct40 => '40%+',
-        _RatingFilter.pct60 => '60%+',
-        _RatingFilter.pct80 => '80%+',
+        RatingFilter.pct40 => '40%+',
+        RatingFilter.pct60 => '60%+',
+        RatingFilter.pct80 => '80%+',
         _ => '',
       };
       if (label.isNotEmpty) lines.add('Rating: $label');
     }
-    if (_accuracyRange != _AccuracyRange.all) {
+    if (_accuracyRange != AccuracyRange.all) {
       final label = switch (_accuracyRange) {
-        _AccuracyRange.lt50 => '<50%',
-        _AccuracyRange.pct50to75 => '50-75%',
-        _AccuracyRange.pct75plus => '>75%',
+        AccuracyRange.lt50 => '<50%',
+        AccuracyRange.pct50to75 => '50-75%',
+        AccuracyRange.pct75plus => '>75%',
         _ => '',
       };
       if (label.isNotEmpty) lines.add('Accuracy: $label');
     }
-    if (_lengthFilter != _SessionLengthFilter.any) {
+    if (_lengthFilter != SessionLengthFilter.any) {
       final label = switch (_lengthFilter) {
-        _SessionLengthFilter.oneToFive => '1-5',
-        _SessionLengthFilter.sixToTen => '6-10',
-        _SessionLengthFilter.elevenPlus => '11+',
+        SessionLengthFilter.oneToFive => '1-5',
+        SessionLengthFilter.sixToTen => '6-10',
+        SessionLengthFilter.elevenPlus => '11+',
         _ => '',
       };
       if (label.isNotEmpty) lines.add('Session length: $label');
@@ -1591,8 +1511,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       },
     );
     if (result != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_tagKey, result.toList());
+      await _prefs.setSelectedTags(result);
       setState(() => _selectedTags = result);
     }
   }
@@ -1665,8 +1584,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       },
     );
     if (result != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_tagColorKey, result.toList());
+      await _prefs.setSelectedTagColors(result);
       setState(() => _selectedTagColors = result);
     }
   }
@@ -2069,62 +1987,52 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   Future<void> _setChartsVisible(bool value) async {
     setState(() => _showCharts = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_showChartsKey, _showCharts);
+    await _prefs.setShowCharts(_showCharts);
   }
 
   Future<void> _setAvgChartVisible(bool value) async {
     setState(() => _showAvgChart = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_showAvgChartKey, _showAvgChart);
+    await _prefs.setShowAvgChart(_showAvgChart);
   }
 
   Future<void> _setDistributionVisible(bool value) async {
     setState(() => _showDistribution = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_showDistributionKey, _showDistribution);
+    await _prefs.setShowDistribution(_showDistribution);
   }
 
   Future<void> _setTrendChartVisible(bool value) async {
     setState(() => _showTrendChart = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_showTrendChartKey, _showTrendChart);
+    await _prefs.setShowTrendChart(_showTrendChart);
   }
 
   Future<void> _setIncludeChartInPdf(bool value) async {
     setState(() => _includeChartInPdf = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_pdfIncludeChartKey, _includeChartInPdf);
+    await _prefs.setIncludeChartInPdf(_includeChartInPdf);
   }
 
   Future<void> _setExportTags3Only(bool value) async {
     setState(() => _exportTags3Only = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_exportTags3OnlyKey, _exportTags3Only);
+    await _prefs.setExportTags3Only(_exportTags3Only);
   }
 
   Future<void> _setExportNotesOnly(bool value) async {
     setState(() => _exportNotesOnly = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_exportNotesOnlyKey, _exportNotesOnly);
+    await _prefs.setExportNotesOnly(_exportNotesOnly);
   }
 
   Future<void> _setHideEmptyTags(bool value) async {
     setState(() => _hideEmptyTags = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_hideEmptyTagsKey, _hideEmptyTags);
+    await _prefs.setHideEmptyTags(_hideEmptyTags);
   }
 
   Future<void> _setSortByTag(bool value) async {
     setState(() => _sortByTag = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_sortByTagKey, _sortByTag);
+    await _prefs.setSortByTag(_sortByTag);
   }
 
-  Future<void> _setChartMode(_ChartMode mode) async {
+  Future<void> _setChartMode(ChartMode mode) async {
     setState(() => _chartMode = mode);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_chartModeKey, mode.index);
+    await _prefs.setChartMode(mode);
   }
 
   Future<void> _pickDateRange() async {
@@ -2137,9 +2045,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           : null,
     );
     if (range != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(_dateFromKey, DateUtils.dateOnly(range.start).millisecondsSinceEpoch);
-      await prefs.setInt(_dateToKey, DateUtils.dateOnly(range.end).millisecondsSinceEpoch);
+      await _prefs.setDateRange(range.start, range.end);
       setState(() {
         _dateFrom = DateUtils.dateOnly(range.start);
         _dateTo = DateUtils.dateOnly(range.end);
@@ -2155,11 +2061,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _applyQuickDateFilter(int days) async {
-    final prefs = await SharedPreferences.getInstance();
     final now = DateUtils.dateOnly(DateTime.now());
     final from = DateUtils.dateOnly(now.subtract(Duration(days: days - 1)));
-    await prefs.setInt(_dateFromKey, from.millisecondsSinceEpoch);
-    await prefs.setInt(_dateToKey, now.millisecondsSinceEpoch);
+    await _prefs.setDateRange(from, now);
     setState(() {
       _dateFrom = from;
       _dateTo = now;
@@ -2333,13 +2237,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                   backgroundColor: colorFromHex(
                                       context.read<TagService>().colorOf(tag)),
                                   onSelected: (selected) async {
-                                    final prefs = await SharedPreferences
-                                        .getInstance();
                                     setState(() {
                                       _selectedTags.remove(tag);
                                     });
-                                    await prefs.setStringList(
-                                        _tagKey, _selectedTags.toList());
+                                    await _prefs.setSelectedTags(
+                                        _selectedTags);
                                   },
                                 ),
                               );
@@ -2415,13 +2317,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                   selected: true,
                                   backgroundColor: colorFromHex(color),
                                   onSelected: (selected) async {
-                                    final prefs = await SharedPreferences
-                                        .getInstance();
                                     setState(() {
                                       _selectedTagColors.remove(color);
                                     });
-                                    await prefs.setStringList(_tagColorKey,
-                                        _selectedTagColors.toList());
+                                    await _prefs.setSelectedTagColors(
+                                        _selectedTagColors);
                                   },
                                 ),
                               );
@@ -2452,25 +2352,23 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const Text('Фильтр по рейтингу',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
-                      DropdownButton<_RatingFilter>(
+                      DropdownButton<RatingFilter>(
                         value: _ratingFilter,
                         dropdownColor: AppColors.cardBackground,
                         style: const TextStyle(color: Colors.white),
                         items: const [
                           DropdownMenuItem(
-                              value: _RatingFilter.all, child: Text('Все')),
+                              value: RatingFilter.all, child: Text('Все')),
                           DropdownMenuItem(
-                              value: _RatingFilter.pct40, child: Text('40%+')),
+                              value: RatingFilter.pct40, child: Text('40%+')),
                           DropdownMenuItem(
-                              value: _RatingFilter.pct60, child: Text('60%+')),
+                              value: RatingFilter.pct60, child: Text('60%+')),
                           DropdownMenuItem(
-                              value: _RatingFilter.pct80, child: Text('80%+')),
+                              value: RatingFilter.pct80, child: Text('80%+')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setInt(_ratingKey, value.index);
+                          await _prefs.setRatingFilter(value);
                           setState(() => _ratingFilter = value);
                         },
                       ),
@@ -2478,35 +2376,33 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const Text('Sort By',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
-                      DropdownButton<_SortOption>(
+                      DropdownButton<SortOption>(
                         value: _sort,
                         dropdownColor: AppColors.cardBackground,
                         style: const TextStyle(color: Colors.white),
                         items: const [
                           DropdownMenuItem(
-                              value: _SortOption.newest,
+                              value: SortOption.newest,
                               child: Text('Newest First')),
                           DropdownMenuItem(
-                              value: _SortOption.oldest,
+                              value: SortOption.oldest,
                               child: Text('Oldest First')),
                           DropdownMenuItem(
-                              value: _SortOption.position,
+                              value: SortOption.position,
                               child: Text('Hero Position')),
                           DropdownMenuItem(
-                              value: _SortOption.mistakes,
+                              value: SortOption.mistakes,
                               child: Text('Mistakes First')),
                           DropdownMenuItem(
-                              value: _SortOption.evDiff,
+                              value: SortOption.evDiff,
                               child: Text('EV Change')),
                           DropdownMenuItem(
-                              value: _SortOption.icmDiff,
+                              value: SortOption.icmDiff,
                               child: Text('ICM Change')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setInt(_sortKey, value.index);
+                          await _prefs.setSort(value);
                           setState(() => _sort = value);
                         },
                       ),
@@ -2525,24 +2421,23 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const Text('Кол-во тегов',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
-                      DropdownButton<_TagCountFilter>(
+                      DropdownButton<TagCountFilter>(
                         value: _tagCountFilter,
                         dropdownColor: AppColors.cardBackground,
                         style: const TextStyle(color: Colors.white),
                         items: const [
                           DropdownMenuItem(
-                              value: _TagCountFilter.any, child: Text('Любое')),
+                              value: TagCountFilter.any, child: Text('Любое')),
                           DropdownMenuItem(
-                              value: _TagCountFilter.one, child: Text('1 тег')),
+                              value: TagCountFilter.one, child: Text('1 тег')),
                           DropdownMenuItem(
-                              value: _TagCountFilter.twoPlus, child: Text('2+')),
+                              value: TagCountFilter.twoPlus, child: Text('2+')),
                           DropdownMenuItem(
-                              value: _TagCountFilter.threePlus, child: Text('3+')),
+                              value: TagCountFilter.threePlus, child: Text('3+')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setInt(_tagCountKey, value.index);
+                          await _prefs.setTagCountFilter(value);
                           setState(() => _tagCountFilter = value);
                         },
                       ),
@@ -2556,33 +2451,32 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const Text('День недели',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
-                      DropdownButton<_WeekdayFilter>(
+                      DropdownButton<WeekdayFilter>(
                         value: _weekdayFilter,
                         dropdownColor: AppColors.cardBackground,
                         style: const TextStyle(color: Colors.white),
                         items: const [
                           DropdownMenuItem(
-                              value: _WeekdayFilter.all, child: Text('Все')),
+                              value: WeekdayFilter.all, child: Text('Все')),
                           DropdownMenuItem(
-                              value: _WeekdayFilter.mon, child: Text('Пн')),
+                              value: WeekdayFilter.mon, child: Text('Пн')),
                           DropdownMenuItem(
-                              value: _WeekdayFilter.tue, child: Text('Вт')),
+                              value: WeekdayFilter.tue, child: Text('Вт')),
                           DropdownMenuItem(
-                              value: _WeekdayFilter.wed, child: Text('Ср')),
+                              value: WeekdayFilter.wed, child: Text('Ср')),
                           DropdownMenuItem(
-                              value: _WeekdayFilter.thu, child: Text('Чт')),
+                              value: WeekdayFilter.thu, child: Text('Чт')),
                           DropdownMenuItem(
-                              value: _WeekdayFilter.fri, child: Text('Пт')),
+                              value: WeekdayFilter.fri, child: Text('Пт')),
                           DropdownMenuItem(
-                              value: _WeekdayFilter.sat, child: Text('Сб')),
+                              value: WeekdayFilter.sat, child: Text('Сб')),
                           DropdownMenuItem(
-                              value: _WeekdayFilter.sun, child: Text('Вс')),
+                              value: WeekdayFilter.sun, child: Text('Вс')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setInt(_weekdayKey, value.index);
-                          setState(() => _weekdayFilter = value);
+                           await _prefs.setWeekdayFilter(value);
+                           setState(() => _weekdayFilter = value);
                         },
                       ),
                     ],
@@ -2595,28 +2489,27 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const Text('Длина сессии',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
-                      DropdownButton<_SessionLengthFilter>(
+                      DropdownButton<SessionLengthFilter>(
                         value: _lengthFilter,
                         dropdownColor: AppColors.cardBackground,
                         style: const TextStyle(color: Colors.white),
                         items: const [
                           DropdownMenuItem(
-                              value: _SessionLengthFilter.any,
+                              value: SessionLengthFilter.any,
                               child: Text('Любая')),
                           DropdownMenuItem(
-                              value: _SessionLengthFilter.oneToFive,
+                              value: SessionLengthFilter.oneToFive,
                               child: Text('1–5')),
                           DropdownMenuItem(
-                              value: _SessionLengthFilter.sixToTen,
+                              value: SessionLengthFilter.sixToTen,
                               child: Text('6–10')),
                           DropdownMenuItem(
-                              value: _SessionLengthFilter.elevenPlus,
+                              value: SessionLengthFilter.elevenPlus,
                               child: Text('11+')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setInt(_lengthKey, value.index);
+                          await _prefs.setLengthFilter(value);
                           setState(() => _lengthFilter = value);
                         },
                       ),
@@ -2630,27 +2523,25 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const Text('Точность',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
-                      DropdownButton<_AccuracyRange>(
+                      DropdownButton<AccuracyRange>(
                         value: _accuracyRange,
                         dropdownColor: AppColors.cardBackground,
                         style: const TextStyle(color: Colors.white),
                         items: const [
                           DropdownMenuItem(
-                              value: _AccuracyRange.all, child: Text('Все')),
+                              value: AccuracyRange.all, child: Text('Все')),
                           DropdownMenuItem(
-                              value: _AccuracyRange.lt50, child: Text('<50%')),
+                              value: AccuracyRange.lt50, child: Text('<50%')),
                           DropdownMenuItem(
-                              value: _AccuracyRange.pct50to75,
+                              value: AccuracyRange.pct50to75,
                               child: Text('50–75%')),
                           DropdownMenuItem(
-                              value: _AccuracyRange.pct75plus,
+                              value: AccuracyRange.pct75plus,
                               child: Text('>75%')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setInt(_accuracyRangeKey, value.index);
+                          await _prefs.setAccuracyRange(value);
                           setState(() => _accuracyRange = value);
                         },
                       ),
@@ -2871,12 +2762,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         const Spacer(),
                         ToggleButtons(
                           isSelected: [
-                            _chartMode == _ChartMode.daily,
-                            _chartMode == _ChartMode.weekly,
-                            _chartMode == _ChartMode.monthly,
+                            _chartMode == ChartMode.daily,
+                            _chartMode == ChartMode.weekly,
+                            _chartMode == ChartMode.monthly,
                           ],
                           onPressed: (index) =>
-                              _setChartMode(_ChartMode.values[index]),
+                              _setChartMode(ChartMode.values[index]),
                           borderRadius: BorderRadius.circular(4),
                           selectedColor: Colors.white,
                           fillColor: Colors.blueGrey,
