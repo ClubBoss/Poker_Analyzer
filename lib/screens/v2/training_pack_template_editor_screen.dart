@@ -39,7 +39,7 @@ class _TrainingPackTemplateEditorScreenState
   }
 
   void _save() {
-    // TODO: implement persistence
+    // Persistence layer is not yet implemented; show confirmation only.
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Template saved')));
   }

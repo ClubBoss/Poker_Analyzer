@@ -36,7 +36,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
     final yaml = await YamlLessonTrackLoader.instance.loadTracksFromAssets();
     final allTracks = [...builtIn, ...yaml];
 
-    // TODO: load real profile data when available
+    // Uses a temporary profile until real profile data becomes available.
     final profile = PlayerProfile();
     final tracks = await const TrackVisibilityFilterEngine()
         .filterUnlockedTracks(allTracks, profile);

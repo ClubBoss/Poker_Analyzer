@@ -8,7 +8,7 @@ class PathSuggestionService {
 
   /// Returns next recommended [LearningPathTemplateV2] or `null` if none.
   Future<LearningPathTemplateV2?> nextPath() async {
-    // TODO: implement actual suggestion logic
+    // Currently returns the second template as a simple placeholder suggestion.
     final templates = await LearningPathRegistryService.instance.loadAll();
     if (templates.length < 2) return null;
     return templates[1];

@@ -26,7 +26,7 @@ class MasteryLevelEngine {
 
     final stepCount = completedSteps.length;
 
-    // TODO: incorporate EV/ICM metrics from trainings
+    // Future enhancement: incorporate EV/ICM metrics from trainings.
 
     if (stepCount >= 100 && completedTracks >= 3) {
       return MasteryLevel.expert;
