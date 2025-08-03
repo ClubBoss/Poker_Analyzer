@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:poker_analyzer/widgets/inline_theory_linker.dart';
+import 'package:poker_analyzer/widgets/inline_theory_link_chip.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
-import 'package:poker_analyzer/screens/mini_lesson_screen.dart';
+import 'package:poker_analyzer/services/inline_theory_linker.dart';
+import 'package:poker_analyzer/services/theory_mini_lesson_navigator.dart';
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final Map<String, TheoryMiniLessonNode> byTag;
@@ -37,6 +38,15 @@ class _FakeLibrary implements MiniLessonLibraryService {
       ];
 }
 
+class _FakeNavigator extends TheoryMiniLessonNavigator {
+  String? openedTag;
+
+  @override
+  Future<void> openLessonByTag(String tag, [BuildContext? context]) async {
+    openedTag = tag;
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -44,41 +54,31 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('shows chip and triggers callback', (tester) async {
-    const lesson = TheoryMiniLessonNode(id: 'l1', title: 'Intro', content: '', tags: ['t']);
+  testWidgets('shows chip and navigates via navigator', (tester) async {
+    const lesson = TheoryMiniLessonNode(
+        id: 'l1', title: 'Intro', content: '', tags: ['t']);
     final library = _FakeLibrary({'t': lesson});
-    TheoryMiniLessonNode? tapped;
+    final nav = _FakeNavigator();
     await tester.pumpWidget(MaterialApp(
-      home: InlineTheoryLinker(
+      home: InlineTheoryLinkChip(
         theoryTag: 't',
-        library: library,
-        onTap: (l) => tapped = l,
+        linker: InlineTheoryLinker(library: library, navigator: nav),
       ),
     ));
     expect(find.byType(ActionChip), findsOneWidget);
     expect(find.text('Theory: Intro'), findsOneWidget);
     await tester.tap(find.byType(ActionChip));
-    expect(tapped, lesson);
-  });
-
-  testWidgets('navigates to lesson screen by default', (tester) async {
-    const lesson = TheoryMiniLessonNode(id: 'l1', title: 'Intro', content: '', tags: ['t']);
-    final library = _FakeLibrary({'t': lesson});
-    await tester.pumpWidget(MaterialApp(
-      home: InlineTheoryLinker(
-        theoryTag: 't',
-        library: library,
-      ),
-    ));
-    await tester.tap(find.byType(ActionChip));
-    await tester.pumpAndSettle();
-    expect(find.byType(MiniLessonScreen), findsOneWidget);
+    expect(nav.openedTag, 't');
   });
 
   testWidgets('renders nothing for missing tag', (tester) async {
     final library = _FakeLibrary({});
-    await tester.pumpWidget(const MaterialApp(
-      home: InlineTheoryLinker(theoryTag: null),
+    await tester.pumpWidget(MaterialApp(
+      home: InlineTheoryLinkChip(
+        theoryTag: null,
+        linker:
+            InlineTheoryLinker(library: library, navigator: _FakeNavigator()),
+      ),
     ));
     expect(find.byType(ActionChip), findsNothing);
   });
