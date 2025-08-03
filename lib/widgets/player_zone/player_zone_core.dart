@@ -42,8 +42,11 @@ import 'winner_label.dart';
 import 'victory_label.dart';
 import 'busted_label.dart';
 import 'player_zone_animations.dart';
+import 'player_zone_label_animations.dart';
 import 'player_zone_overlay.dart';
 import 'player_zone_action_panel.dart';
+import 'bet_chip.dart';
+import 'effective_stack_info.dart';
 
 part 'player_zone_registry.dart';
 part 'player_zone_animation_controller.dart';
@@ -147,14 +150,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   bool _hoverAction = false;
   String? _showdownLabel;
   Timer? _showdownLabelTimer;
-  late final AnimationController _showdownLabelController;
-  late final Animation<double> _showdownLabelOpacity;
   String? _finalStackText;
   Timer? _finalStackTimer;
   Timer? _hideCardsTimer;
-  late final AnimationController _finalStackController;
-  late final Animation<double> _finalStackOpacity;
-  late final Animation<Offset> _finalStackOffset;
   late final AnimationController _revealController;
   late final Animation<double> _revealOpacity;
   late final Animation<double> _revealScale;
@@ -187,16 +185,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _allInScale;
   bool _wasAllIn = false;
   bool _showWinnerLabel = false;
-  late final AnimationController _winnerLabelController;
-  late final Animation<double> _winnerLabelOpacity;
-  late final Animation<double> _winnerLabelScale;
-  late final AnimationController _heroLabelController;
-  late final Animation<double> _heroLabelOpacity;
-  late final Animation<double> _heroLabelScale;
-
+  late final PlayerZoneLabelAnimations _labelAnimations;
   bool _showVictory = false;
-  late final AnimationController _victoryController;
-  late final Animation<double> _victoryOpacity;
 
   late final AnimationController _stackBarController;
   late Animation<double> _stackBarProgressAnimation;
@@ -264,20 +254,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.isFolded) {
       _showCards = false;
     }
-    _showdownLabelController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _showdownLabelOpacity =
-        CurvedAnimation(parent: _showdownLabelController, curve: Curves.easeIn);
-    _finalStackController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _finalStackOpacity =
-        CurvedAnimation(parent: _finalStackController, curve: Curves.easeIn);
-    _finalStackOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _finalStackController, curve: Curves.easeOut));
+    _labelAnimations =
+        PlayerZoneLabelAnimations(vsync: this, isHero: widget.isHero);
+    _labelAnimations.winnerLabelController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() => _showWinnerLabel = false);
+      }
+    });
+    _labelAnimations.victoryController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() => _showVictory = false);
+      }
+    });
     _actionGlowController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -384,74 +372,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             CurvedAnimation(parent: _allInController, curve: Curves.easeOut));
     _allInScale = Tween<double>(begin: 0.8, end: 1.0)
         .animate(CurvedAnimation(parent: _allInController, curve: Curves.easeOut));
-
-    _winnerLabelController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed && mounted) {
-          setState(() => _showWinnerLabel = false);
-        }
-      });
-    _winnerLabelOpacity = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 20,
-      ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 20,
-      ),
-    ]).animate(_winnerLabelController);
-    _winnerLabelScale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.9, end: 1.05)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.05, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 50,
-      ),
-    ]).animate(_winnerLabelController);
-
-    _heroLabelController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _heroLabelOpacity =
-        CurvedAnimation(parent: _heroLabelController, curve: Curves.easeIn);
-    _heroLabelScale = Tween<double>(begin: 0.8, end: 1.0)
-        .animate(CurvedAnimation(parent: _heroLabelController, curve: Curves.easeOut));
-    if (widget.isHero) {
-      _heroLabelController.forward();
-    }
-
-    _victoryController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed && mounted) {
-          setState(() => _showVictory = false);
-        }
-      });
-    _victoryOpacity = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 20,
-      ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 20,
-      ),
-    ]).animate(_victoryController);
 
     _stackBarController = AnimationController(
       vsync: this,
@@ -787,10 +707,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     _showdownLabelTimer?.cancel();
     setState(() => _showdownLabel = text);
-    _showdownLabelController.forward(from: 0.0);
+    _labelAnimations.showdownLabelController.forward(from: 0.0);
     _showdownLabelTimer = Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
-      _showdownLabelController.reverse().whenComplete(() {
+      _labelAnimations.showdownLabelController.reverse().whenComplete(() {
         if (mounted) {
           setState(() => _showdownLabel = null);
         }
@@ -802,7 +722,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _showdownLabelTimer?.cancel();
     if (_showdownLabel != null) {
       setState(() => _showdownLabel = null);
-      _showdownLabelController.reset();
+      _labelAnimations.showdownLabelController.reset();
     }
   }
 
@@ -889,10 +809,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.isHero) return;
     _finalStackTimer?.cancel();
     setState(() => _finalStackText = text);
-    _finalStackController.forward(from: 0.0);
+    _labelAnimations.finalStackController.forward(from: 0.0);
     _finalStackTimer = Timer(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
-      _finalStackController.reverse().whenComplete(() {
+      _labelAnimations.finalStackController.reverse().whenComplete(() {
         if (mounted) setState(() => _finalStackText = null);
       });
     });
@@ -901,12 +821,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _showWinnerLabelAnimated() {
     if (widget.isHero) return;
     setState(() => _showWinnerLabel = true);
-    _winnerLabelController.forward(from: 0.0);
+    _labelAnimations.winnerLabelController.forward(from: 0.0);
   }
 
   void showVictoryMessage() {
     setState(() => _showVictory = true);
-    _victoryController.forward(from: 0.0);
+    _labelAnimations.victoryController.forward(from: 0.0);
   }
 
   void _showAllInLabel() {
@@ -1084,64 +1004,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
   }
 
-  Widget _betChip(TextStyle style) {
-    final double radius = 12 * widget.scale;
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: ScaleTransition(scale: animation, child: child),
-      ),
-      child: _currentBet > 0
-          ? Container(
-              key: ValueKey(_currentBet),
-              width: radius * 2,
-              height: radius * 2,
-              margin: EdgeInsets.symmetric(horizontal: 4 * widget.scale),
-              decoration: BoxDecoration(
-                color: Colors.yellowAccent,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
-                    blurRadius: 3 * widget.scale,
-                    offset: const Offset(1, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '$_currentBet',
-                style: style.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          : SizedBox(width: radius * 2, height: radius * 2),
-    );
-  }
-
-  Widget _effectiveStackLabel(TextStyle style) {
-    final potSync = context.watch<PotSyncService>();
-    final eff = potSync.effectiveStacks[widget.street];
-    final effText = eff != null ? eff.toDouble().toStringAsFixed(1) : '--';
-    final platform = Theme.of(context).platform;
-    final isMobile =
-        platform == TargetPlatform.android || platform == TargetPlatform.iOS;
-    return Tooltip(
-      triggerMode:
-          isMobile ? TooltipTriggerMode.longPress : TooltipTriggerMode.hover,
-      message:
-          'Эффективный стек — минимальный стек между вами и соперником. Используется при пуш/фолд.',
-      child: Text(
-        'Eff. stack: $effText BB',
-        style: style,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
   @override
   void dispose() {
     _registry.unregister(widget.playerName);
@@ -1163,12 +1025,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _controller.dispose();
     _bounceController.dispose();
     _foldController.dispose();
-    _showdownLabelController.dispose();
-    _finalStackController.dispose();
+    _labelAnimations.dispose();
     _revealController.dispose();
     _revealEyeController.dispose();
-    _heroLabelController.dispose();
-    _winnerLabelController.dispose();
     _animations.dispose();
     _actionGlowController.dispose();
     _actionTagController.dispose();
@@ -1176,7 +1035,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _foldChipController.dispose();
     _showdownLossController.dispose();
     _stackWinController.dispose();
-    _victoryController.dispose();
     _stackBarController.dispose();
     _stackBarFadeController.dispose();
     _betFoldController.dispose();
@@ -1309,7 +1167,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ),
             Padding(
               padding: EdgeInsets.only(top: 2.0 * widget.scale),
-              child: _effectiveStackLabel(stackStyle),
+              child: EffectiveStackInfo(
+                street: widget.street,
+                style: stackStyle,
+              ),
             ),
           ],
         ),
@@ -1346,9 +1207,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final labelRow = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (_isLeftSide(widget.position)) _betChip(betStyle),
+        if (_isLeftSide(widget.position))
+          BetChip(currentBet: _currentBet, scale: widget.scale, style: betStyle),
         labelWithIcon,
-        if (!_isLeftSide(widget.position)) _betChip(betStyle),
+        if (!_isLeftSide(widget.position))
+          BetChip(currentBet: _currentBet, scale: widget.scale, style: betStyle),
       ],
     );
 
@@ -1375,7 +1238,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           ShowdownLabel(
             text: _showdownLabel!,
             scale: widget.scale,
-            opacity: _showdownLabelOpacity,
+            opacity: _labelAnimations.showdownLabelOpacity,
           ),
         Builder(
           builder: (_) {
@@ -1618,9 +1481,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   Positioned(
                     top: -24 * widget.scale,
                     child: SlideTransition(
-                      position: _finalStackOffset,
+                      position: _labelAnimations.finalStackOffset,
                       child: FadeTransition(
-                        opacity: _finalStackOpacity,
+                        opacity: _labelAnimations.finalStackOpacity,
                         child: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 6 * widget.scale,
@@ -1645,13 +1508,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 if (_showWinnerLabel && !widget.isHero)
                   WinnerLabel(
                     scale: widget.scale,
-                    opacity: _winnerLabelOpacity,
-                    scaleAnimation: _winnerLabelScale,
+                    opacity: _labelAnimations.winnerLabelOpacity,
+                    scaleAnimation: _labelAnimations.winnerLabelScale,
                   ),
                 if (_showVictory)
                   VictoryLabel(
                     scale: widget.scale,
-                    opacity: _victoryOpacity,
+                    opacity: _labelAnimations.victoryOpacity,
                   ),
                 if (_gainLabelAmount != null && !widget.isHero)
                   Positioned(
@@ -1773,8 +1636,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       lastActionText: _lastActionText,
       actionTagOpacity: _actionTagOpacity,
       lastActionColor: _lastActionColor,
-      heroLabelOpacity: _heroLabelOpacity,
-      heroLabelScale: _heroLabelScale,
+      heroLabelOpacity: _labelAnimations.heroLabelOpacity,
+      heroLabelScale: _labelAnimations.heroLabelScale,
       scale: widget.scale,
     );
 
