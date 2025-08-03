@@ -22,6 +22,7 @@ import '../services/intro_seen_tracker.dart';
 import '../services/booster_thematic_descriptions.dart';
 import '../widgets/theory_intro_banner.dart';
 import '../widgets/theory_booster_banner.dart';
+import '../widgets/booster_reminder_banner.dart';
 import 'learning_path_celebration_screen.dart';
 import '../widgets/next_steps_modal.dart';
 import '../widgets/stage_progress_chip.dart';
@@ -599,6 +600,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     }
                   });
                 }
+                final boosterStage = stages.firstWhereOrNull(
+                  (s) =>
+                      _stageStates[s.id] == LearningStageUIState.active &&
+                      _nextBooster[s.id] != null,
+                );
                 final pendingStage = stages.firstWhereOrNull(
                   (s) =>
                       _stageStates[s.id] == LearningStageUIState.active &&
@@ -607,6 +613,18 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 );
                 return Column(
                   children: [
+                    if (boosterStage != null)
+                      BoosterReminderBanner(
+                        onOpen: () async {
+                          final start = await showDialog<bool>(
+                            context: context,
+                            builder: (_) => StagePreviewDialog(stage: boosterStage),
+                          );
+                          if (start == true) {
+                            await _handleStageTap(boosterStage);
+                          }
+                        },
+                      ),
                     if (pendingStage != null)
                       TheoryBoosterBanner(
                         onOpen: () async {
