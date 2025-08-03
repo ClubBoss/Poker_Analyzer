@@ -13,7 +13,9 @@ class LearningPathStageModel {
   final String? theoryPackId;
   final List<String>? boosterTheoryPackIds;
   final double requiredAccuracy;
-  final int minHands;
+  final int requiredHands;
+  @Deprecated('Use requiredHands instead')
+  int get minHands => requiredHands;
   final List<SubStageModel> subStages;
   final List<String> unlocks;
   final List<String> unlockAfter;
@@ -31,7 +33,8 @@ class LearningPathStageModel {
     this.theoryPackId,
     this.boosterTheoryPackIds,
     required this.requiredAccuracy,
-    required this.minHands,
+    int? requiredHands,
+    int minHands = 0,
     List<SubStageModel>? subStages,
     List<String>? unlocks,
     List<String>? tags,
@@ -41,7 +44,8 @@ class LearningPathStageModel {
     this.isOptional = false,
     this.unlockCondition,
     this.type = StageType.practice,
-  })  : unlocks = unlocks ?? const [],
+  })  : requiredHands = requiredHands ?? minHands,
+        unlocks = unlocks ?? const [],
         unlockAfter = unlockAfter ?? const [],
         tags = tags ?? const [],
         objectives = objectives ?? const [],
@@ -60,7 +64,9 @@ class LearningPathStageModel {
           b.toString()
       ],
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
-      minHands: (json['minHands'] as num?)?.toInt() ?? 0,
+      requiredHands: (json['requiredHands'] as num?)?.toInt() ??
+          (json['minHands'] as num?)?.toInt() ??
+          0,
       unlocks: [for (final u in (json['unlocks'] as List? ?? [])) u.toString()],
       unlockAfter: [
         for (final u in (json['unlockAfter'] as List? ?? [])) u.toString(),
@@ -104,7 +110,7 @@ class LearningPathStageModel {
         if (boosterTheoryPackIds != null && boosterTheoryPackIds!.isNotEmpty)
           'boosterTheoryPackIds': boosterTheoryPackIds,
         'requiredAccuracy': requiredAccuracy,
-        'minHands': minHands,
+        'requiredHands': requiredHands,
         if (unlocks.isNotEmpty) 'unlocks': unlocks,
         if (unlockAfter.isNotEmpty) 'unlockAfter': unlockAfter,
         if (tags.isNotEmpty) 'tags': tags,

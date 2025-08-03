@@ -5,13 +5,13 @@ import '../models/session_log.dart';
 class StageProgressChip extends StatelessWidget {
   final SessionLog? log;
   final double requiredAccuracy;
-  final int minHands;
+  final int requiredHands;
 
   const StageProgressChip({
     super.key,
     required this.log,
     required this.requiredAccuracy,
-    required this.minHands,
+    required this.requiredHands,
   });
 
   @override
@@ -19,7 +19,8 @@ class StageProgressChip extends StatelessWidget {
     final hands = (log?.correctCount ?? 0) + (log?.mistakeCount ?? 0);
     final correct = log?.correctCount ?? 0;
     final accuracy = hands == 0 ? 0.0 : correct / hands * 100;
-    final completed = hands >= minHands && accuracy >= requiredAccuracy;
+    final completed =
+        hands >= requiredHands && accuracy >= requiredAccuracy;
 
     Color color;
     if (completed) {
@@ -30,7 +31,7 @@ class StageProgressChip extends StatelessWidget {
       color = Colors.grey;
     }
 
-    final text = '$hands/$minHands · ${accuracy.toStringAsFixed(0)}%';
+    final text = '$hands/$requiredHands · ${accuracy.toStringAsFixed(0)}%';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
