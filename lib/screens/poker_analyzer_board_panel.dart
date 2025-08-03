@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/poker_analyzer_board_display.dart';
+
 /// Panel responsible for board editing and visualization.
 class PokerAnalyzerBoardPanel extends StatelessWidget {
   const PokerAnalyzerBoardPanel({super.key});
@@ -8,12 +10,7 @@ class PokerAnalyzerBoardPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.green.shade800,
-      child: const Center(
-        child: Text(
-          'Board Panel',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+      child: const PokerAnalyzerBoardDisplay(),
     );
   }
 }

@@ -1,43 +1,30 @@
 import 'package:flutter/material.dart';
-import '../models/player_model.dart';
+import 'package:provider/provider.dart';
+
+import '../controllers/poker_analyzer_controller.dart';
 import 'poker_analyzer_action_panel.dart';
 import 'poker_analyzer_board_panel.dart';
 import 'poker_analyzer_overlay.dart';
 
 /// Primary poker analyzer screen.
 ///
-/// This widget hosts the core state management and delegates UI pieces
-/// to the action/board panels and overlay modules.
-class PokerAnalyzerScreen extends StatefulWidget {
+/// Provides a [PokerAnalyzerController] to the widget subtree and composes the
+/// high level panels responsible for board interaction, action controls and
+/// overlays.
+class PokerAnalyzerScreen extends StatelessWidget {
   const PokerAnalyzerScreen({super.key});
 
   @override
-  PokerAnalyzerScreenState createState() => PokerAnalyzerScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => PokerAnalyzerController(),
+      child: const _PokerAnalyzerView(),
+    );
+  }
 }
 
-/// Core state for [PokerAnalyzerScreen].
-///
-/// Only a tiny subset of the original implementation is preserved here to
-/// keep the example lightweight while demonstrating the new modular
-/// structure.  Services and complex logic from the original screen can be
-/// reintroduced as needed.
-class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
-  /// Number of players at the table.
-  int numberOfPlayers = 2;
-
-  /// Mapping from player index to their table position (e.g. "BTN").
-  final Map<int, String> playerPositions = {};
-
-  /// Player type metadata keyed by player index.
-  final Map<int, PlayerType> playerTypes = {};
-
-  /// List of current players.  In the full application this would be managed
-  /// by dedicated services; here it's only a placeholder to illustrate
-  /// how the state object exposes information to the overlay widgets.
-  final List<PlayerModel> players = [];
-
-  /// Flag controlling display of debug information in the overlay.
-  bool debugMode = false;
+class _PokerAnalyzerView extends StatelessWidget {
+  const _PokerAnalyzerView();
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +38,10 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             ],
           ),
           // Overlay elements such as HUD, chip animations and debug UI.
-          PokerAnalyzerOverlay(state: this),
+          const PokerAnalyzerOverlay(),
         ],
       ),
     );
   }
 }
+
