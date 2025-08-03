@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'booster_interaction_tracker_service.dart';
 import 'smart_pinned_block_booster_provider.dart';
+import 'smart_booster_exclusion_tracker_service.dart';
+import 'smart_booster_inbox_limiter_service.dart';
 
 /// Schedules booster suggestions to maximize variety and penalize recent repeats.
 class SmartBoosterDiversitySchedulerService {
@@ -54,9 +56,12 @@ class SmartBoosterDiversitySchedulerService {
     final rnd = Random();
     final result = <PinnedBlockBoosterSuggestion>[];
     var added = true;
-    while (added) {
+    while (added &&
+        result.length < SmartBoosterInboxLimiterService.maxPerDay) {
       added = false;
       for (final tag in tags) {
+        if (result.length >=
+            SmartBoosterInboxLimiterService.maxPerDay) break;
         final list = byTag[tag]!;
         if (list.isNotEmpty) {
           // add slight randomness to avoid deterministic ordering within same score
@@ -67,6 +72,13 @@ class SmartBoosterDiversitySchedulerService {
       }
       // shuffle tags each round to enhance diversity
       tags.shuffle(rnd);
+    }
+
+    for (final list in byTag.values) {
+      for (final leftover in list) {
+        await SmartBoosterExclusionTrackerService()
+            .logExclusion(leftover.suggestion.tag, 'filteredByType');
+      }
     }
 
     return result;

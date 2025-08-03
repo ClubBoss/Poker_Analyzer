@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/services/smart_booster_inbox_limiter_service.dart';
+import 'package:poker_analyzer/services/smart_booster_exclusion_tracker_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -38,5 +39,16 @@ void main() {
 
     expect(await limiter.getTotalBoostersShownToday(), 0);
     expect(await limiter.canShow('t1'), isTrue);
+  });
+
+  test('logs rate limited exclusions', () async {
+    final limiter = SmartBoosterInboxLimiterService();
+    await limiter.recordShown('t1');
+    expect(await limiter.canShow('t1'), isFalse);
+    final log =
+        await SmartBoosterExclusionTrackerService().exportLog();
+    expect(log.length, 1);
+    expect(log.first['tag'], 't1');
+    expect(log.first['reason'], 'rateLimited');
   });
 }
