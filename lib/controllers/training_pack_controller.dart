@@ -68,7 +68,7 @@ class TrainingPackController extends ChangeNotifier {
 
   void _commit() {
     _applyStackFilter();
-    saveSpots();
+    unawaited(saveSpots());
     notifyListeners();
   }
 
@@ -99,8 +99,7 @@ class TrainingPackController extends ChangeNotifier {
 
   void reorder(int oldIndex, int newIndex) {
     _moveSpot(oldIndex, newIndex);
-    saveSpots();
-    notifyListeners();
+    _commit();
   }
 
   /// Moves a spot within the filtered list and keeps the base list in sync.
