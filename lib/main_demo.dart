@@ -8,7 +8,6 @@ import 'services/board_editing_service.dart';
 import 'services/board_manager_service.dart';
 import 'services/board_reveal_service.dart';
 import 'services/board_sync_service.dart';
-import 'services/current_hand_context_service.dart';
 import 'services/folded_players_service.dart';
 import 'services/player_editing_service.dart';
 import 'services/player_manager_service.dart';
@@ -18,10 +17,10 @@ import 'services/pot_history_service.dart';
 import 'services/pot_sync_service.dart';
 import 'services/stack_manager_service.dart';
 import 'services/transition_lock_service.dart';
-import 'services/action_history_service.dart';
 import 'services/ignored_mistake_service.dart';
 import 'services/training_import_export_service.dart';
 import 'services/demo_playback_controller.dart';
+import 'services/poker_analyzer_service.dart';
 import 'screens/weakness_overview_screen.dart';
 import 'screens/master_mode_screen.dart';
 import 'screens/goal_center_screen.dart';
@@ -70,6 +69,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PlayerProfileService()),
+        ChangeNotifierProvider(create: (_) => PokerAnalyzerService()),
         ChangeNotifierProvider(
           create: (context) =>
               PlayerManagerService(context.read<PlayerProfileService>()),
@@ -105,7 +105,6 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
             actionSync: context.read<ActionSyncService>(),
           ),
         ),
-        Provider(create: (_) => ActionHistoryService()),
         ChangeNotifierProvider(create: (_) => IgnoredMistakeService()..load()),
         Provider(create: (_) => const TrainingImportExportService()),
       ],
@@ -215,33 +214,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                     ],
                   );
                 },
-                home: PokerAnalyzerScreen(
-                  actionSync: context.read<ActionSyncService>(),
-                  foldedPlayersService: context.read<FoldedPlayersService>(),
-                  allInPlayersService: context.read<AllInPlayersService>(),
-                  handContext: CurrentHandContextService(),
-                  playbackManager: context.read<PlaybackManagerService>(),
-                  stackService: context
-                      .read<PlaybackManagerService>()
-                      .stackService,
-                  potSyncService: context
-                      .read<PlaybackManagerService>()
-                      .potSync,
-                  boardManager: context.read<BoardManagerService>(),
-                  boardSync: context.read<BoardSyncService>(),
-                  boardEditing: context.read<BoardEditingService>(),
-                  playerEditing: context.read<PlayerEditingService>(),
-                  playerManager: context.read<PlayerManagerService>(),
-                  playerProfile: context.read<PlayerProfileService>(),
-                  actionTagService: context
-                      .read<PlayerProfileService>()
-                      .actionTagService,
-                  boardReveal: boardReveal,
-                  lockService: lockService,
-                  actionHistory: context.read<ActionHistoryService>(),
-                  demoMode: widget.demoMode,
-                  key: analyzerKey,
-                ),
+                home: PokerAnalyzerScreen(key: analyzerKey),
               ),
             ),
           );

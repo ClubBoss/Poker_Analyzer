@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/player_model.dart';
-import 'poker_analyzer_core.dart';
+import '../services/poker_analyzer_service.dart';
 
 /// Overlay and animation elements for [PokerAnalyzerScreen].
 ///
@@ -10,17 +10,17 @@ import 'poker_analyzer_core.dart';
 /// refactor it serves as a lightweight facade that can be expanded in later
 /// iterations.
 class PokerAnalyzerOverlay extends StatelessWidget {
-  final PokerAnalyzerScreenState state;
-  const PokerAnalyzerOverlay({super.key, required this.state});
+  const PokerAnalyzerOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final service = context.watch<PokerAnalyzerService>();
     return IgnorePointer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _HudHeader(
-            playerCount: state.players.length,
+            playerCount: service.players.length,
             handName: 'Hand',
           ),
           const Spacer(),

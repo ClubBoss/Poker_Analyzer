@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/panel_placeholder.dart';
+
 /// Panel containing action controls and evaluation information.
 class PokerAnalyzerActionPanel extends StatelessWidget {
   const PokerAnalyzerActionPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PanelPlaceholder(
       color: Colors.grey.shade900,
-      child: const Center(
-        child: Text(
-          'Action Panel',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+      label: 'Action Panel',
     );
   }
 }

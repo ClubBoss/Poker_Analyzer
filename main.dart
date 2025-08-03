@@ -9,7 +9,6 @@ import 'package:poker_analyzer/services/board_editing_service.dart';
 import 'package:poker_analyzer/services/board_manager_service.dart';
 import 'package:poker_analyzer/services/board_reveal_service.dart';
 import 'package:poker_analyzer/services/board_sync_service.dart';
-import 'package:poker_analyzer/services/current_hand_context_service.dart';
 import 'package:poker_analyzer/services/folded_players_service.dart';
 import 'package:poker_analyzer/services/player_editing_service.dart';
 import 'package:poker_analyzer/services/player_manager_service.dart';
@@ -22,6 +21,7 @@ import 'package:poker_analyzer/services/transition_lock_service.dart';
 import 'package:poker_analyzer/services/action_history_service.dart';
 import 'package:poker_analyzer/services/training_import_export_service.dart';
 import 'package:poker_analyzer/services/demo_playback_controller.dart';
+import 'package:poker_analyzer/services/poker_analyzer_service.dart';
 
 final PluginRuntime pluginRuntime = PluginRuntime();
 
@@ -65,6 +65,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PlayerProfileService()),
+        ChangeNotifierProvider(create: (_) => PokerAnalyzerService()),
         ChangeNotifierProvider(
           create: (context) =>
               PlayerManagerService(context.read<PlayerProfileService>()),
@@ -193,28 +194,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                   ],
                 );
               },
-              home: PokerAnalyzerScreen(
-                actionSync: context.read<ActionSyncService>(),
-                foldedPlayersService: context.read<FoldedPlayersService>(),
-                allInPlayersService: context.read<AllInPlayersService>(),
-                handContext: CurrentHandContextService(),
-                playbackManager: context.read<PlaybackManagerService>(),
-                stackService:
-                    context.read<PlaybackManagerService>().stackService,
-                potSyncService: context.read<PlaybackManagerService>().potSync,
-                boardManager: context.read<BoardManagerService>(),
-                boardSync: context.read<BoardSyncService>(),
-                boardEditing: context.read<BoardEditingService>(),
-                playerEditing: context.read<PlayerEditingService>(),
-                playerManager: context.read<PlayerManagerService>(),
-                playerProfile: context.read<PlayerProfileService>(),
-                actionTagService:
-                    context.read<PlayerProfileService>().actionTagService,
-                boardReveal: boardReveal,
-                lockService: lockService,
-                actionHistory: context.read<ActionHistoryService>(),
-                demoMode: widget.demoMode,
-              ),
+              home: const PokerAnalyzerScreen(),
               routes: const {},
             ),
           );
