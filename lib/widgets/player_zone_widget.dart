@@ -11,6 +11,7 @@ import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../models/action_outcome.dart';
+import '../models/player_zone_config.dart';
 import '../services/action_sync_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/pot_animation_service.dart';
@@ -38,45 +39,19 @@ import 'action_tag_label.dart';
 import 'player_effective_stack_label.dart';
 import 'player_position_label.dart';
 
-final Map<String, _PlayerZoneWidgetState> playerZoneRegistry = {};
+class PlayerZoneRegistry {
+  final Map<String, _PlayerZoneWidgetState> _states = {};
 
+  void register(String name, _PlayerZoneWidgetState state) => _states[name] = state;
+
+  void unregister(String name) => _states.remove(name);
+
+  _PlayerZoneWidgetState? operator [](String name) => _states[name];
+
+  Iterable<_PlayerZoneWidgetState> get values => _states.values;
+}
 class PlayerZoneWidget extends StatefulWidget {
-  final String playerName;
-  final String street;
-  final String? position;
-  final List<CardModel> cards;
-  final bool isHero;
-  final bool isFolded;
-  final bool isShowdownLoser;
-  /// Current bet placed by the player.
-  final int currentBet;
-  /// Current stack size of the player.
-  final int? stackSize;
-  /// Map of stack sizes keyed by player index.
-  final Map<int, int>? stackSizes;
-  /// Index of this player within the stack map.
-  final int? playerIndex;
-  final PlayerType playerType;
-  final ValueChanged<PlayerType>? onPlayerTypeChanged;
-  final bool isActive;
-  final bool highlightLastAction;
-  final bool showHint;
-  /// Whether to display the player type label under the stack.
-  final bool showPlayerTypeLabel;
-  /// Player's remaining stack after subtracting investments.
-  final int? remainingStack;
-  final String? actionTagText;
-  final void Function(int, CardModel) onCardsSelected;
-  /// Starting stack value representing 100% for the stack bar.
-  final int maxStackSize;
-  final double scale;
-  final Set<String> usedCards;
-  final bool editMode;
-  final PlayerModel player;
-  final ValueChanged<int>? onStackChanged;
-  final ValueChanged<int>? onBetChanged;
-  final ValueChanged<String>? onRevealRequest;
-  // Stack editing is handled by PlayerInfoWidget
+  final PlayerZoneConfig config;
 
   /// Returns the offset of a seat around an elliptical poker table. This is
   /// based on the size of the table widget and indexes players so that index 0
@@ -87,37 +62,37 @@ class PlayerZoneWidget extends StatefulWidget {
         index, playerCount, tableSize.width, tableSize.height);
   }
 
-  const PlayerZoneWidget({
-    Key? key,
-    required this.player,
-    required this.playerName,
-    required this.street,
-    this.position,
-    required this.cards,
-    required this.isHero,
-    required this.isFolded,
-    this.isShowdownLoser = false,
-    this.currentBet = 0,
-    this.stackSize,
-    this.stackSizes,
-    this.playerIndex,
-    this.playerType = PlayerType.unknown,
-    this.onPlayerTypeChanged,
-    required this.onCardsSelected,
-    this.isActive = false,
-    this.highlightLastAction = false,
-    this.showHint = false,
-    this.showPlayerTypeLabel = false,
-    this.remainingStack,
-    this.actionTagText,
-    this.maxStackSize = 100,
-    this.scale = 1.0,
-    this.usedCards = const {},
-    this.editMode = false,
-    this.onStackChanged,
-    this.onBetChanged,
-    this.onRevealRequest,
-  }) : super(key: key);
+  const PlayerZoneWidget({Key? key, required this.config}) : super(key: key);
+
+  // Backward compatible getters
+  String get playerName => config.playerName;
+  String get street => config.street;
+  String? get position => config.position;
+  List<CardModel> get cards => config.cards;
+  bool get isHero => config.isHero;
+  bool get isFolded => config.isFolded;
+  bool get isShowdownLoser => config.isShowdownLoser;
+  int get currentBet => config.currentBet;
+  int? get stackSize => config.stackSize;
+  Map<int, int>? get stackSizes => config.stackSizes;
+  int? get playerIndex => config.playerIndex;
+  PlayerType get playerType => config.playerType;
+  ValueChanged<PlayerType>? get onPlayerTypeChanged => config.onPlayerTypeChanged;
+  bool get isActive => config.isActive;
+  bool get highlightLastAction => config.highlightLastAction;
+  bool get showHint => config.showHint;
+  bool get showPlayerTypeLabel => config.showPlayerTypeLabel;
+  int? get remainingStack => config.remainingStack;
+  String? get actionTagText => config.actionTagText;
+  void Function(int, CardModel) get onCardsSelected => config.onCardsSelected;
+  int get maxStackSize => config.maxStackSize;
+  double get scale => config.scale;
+  Set<String> get usedCards => config.usedCards;
+  bool get editMode => config.editMode;
+  PlayerModel get player => config.player;
+  ValueChanged<int>? get onStackChanged => config.onStackChanged;
+  ValueChanged<int>? get onBetChanged => config.onBetChanged;
+  ValueChanged<String>? get onRevealRequest => config.onRevealRequest;
 
   @override
   State<PlayerZoneWidget> createState() => _PlayerZoneWidgetState();
@@ -126,6 +101,7 @@ class PlayerZoneWidget extends StatefulWidget {
 class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
+  late final PlayerZoneRegistry _registry;
   late PlayerType _playerType;
   late int _currentBet;
   late List<CardModel> _cards;
@@ -267,7 +243,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _currentBet = widget.currentBet;
     }
     _remainingStack = widget.remainingStack;
-    playerZoneRegistry[widget.playerName] = this;
+    _registry = Provider.of<PlayerZoneRegistry>(context, listen: false);
+    _registry.register(widget.playerName, this);
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -611,8 +588,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void didUpdateWidget(covariant PlayerZoneWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.playerName != oldWidget.playerName) {
-      playerZoneRegistry.remove(oldWidget.playerName);
-      playerZoneRegistry[widget.playerName] = this;
+      _registry.unregister(oldWidget.playerName);
+      _registry.register(widget.playerName, this);
     }
     if (widget.isActive && !oldWidget.isActive) {
       _controller
@@ -1586,7 +1563,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   @override
   void dispose() {
-    playerZoneRegistry.remove(widget.playerName);
+    _registry.unregister(widget.playerName);
     _highlightTimer?.cancel();
     _lastActionTimer?.cancel();
     _actionGlowTimer?.cancel();
@@ -3636,8 +3613,9 @@ void showWinnerHighlight(BuildContext context, String playerName) {
 }
 
 /// Displays an animated glow overlay around the winning player's zone.
-void showWinnerZoneOverlay(BuildContext context, String playerName) {
-  final state = playerZoneRegistry[playerName];
+void showWinnerZoneOverlay(
+    BuildContext context, PlayerZoneRegistry registry, String playerName) {
+  final state = registry[playerName];
   final overlay = Overlay.of(context);
   if (state == null) return;
   final box = state.context.findRenderObject() as RenderBox?;
@@ -3652,49 +3630,54 @@ void showWinnerZoneOverlay(BuildContext context, String playerName) {
 
 /// Updates and reveals cards for the [PlayerZoneWidget] with the given
 /// [playerName].
-void revealOpponentCards(String playerName, List<CardModel> cards) {
-  final state = playerZoneRegistry[playerName];
+void revealOpponentCards(
+    PlayerZoneRegistry registry, String playerName, List<CardModel> cards) {
+  final state = registry[playerName];
   state?.updateCards(cards);
 }
 
 /// Sets and displays the last action label for the given player.
-void setPlayerLastAction(
-    String playerName, String? text, Color color, String action, [int? amount]) {
-  final state = playerZoneRegistry[playerName];
+void setPlayerLastAction(PlayerZoneRegistry registry, String playerName,
+    String? text, Color color, String action,
+    [int? amount]) {
+  final state = registry[playerName];
   state?.setLastAction(text, color, action, amount);
 }
 
 /// Applies a [outcome] classification to the last action label of [playerName].
-void setPlayerLastActionOutcome(String playerName, ActionOutcome outcome) {
-  final state = playerZoneRegistry[playerName];
+void setPlayerLastActionOutcome(
+    PlayerZoneRegistry registry, String playerName, ActionOutcome outcome) {
+  final state = registry[playerName];
   state?.setLastActionOutcome(outcome);
 }
 
 /// Shows a showdown status label for the given player.
-void setPlayerShowdownStatus(String playerName, String label) {
-  final state = playerZoneRegistry[playerName];
+void setPlayerShowdownStatus(
+    PlayerZoneRegistry registry, String playerName, String label) {
+  final state = registry[playerName];
   state?.showShowdownLabel(label);
 }
 
 /// Clears the showdown status label for the given player.
-void clearPlayerShowdownStatus(String playerName) {
-  final state = playerZoneRegistry[playerName];
+void clearPlayerShowdownStatus(PlayerZoneRegistry registry, String playerName) {
+  final state = registry[playerName];
   state?.clearShowdownLabel();
 }
 
 /// Reveals cards for multiple opponents at once. Typically called after
 /// [showWinnerHighlight] and before [showWinPotAnimation].
-void showOpponentCards(
-    BuildContext context, Map<String, List<CardModel>> cardsByPlayer) {
+void showOpponentCards(BuildContext context, PlayerZoneRegistry registry,
+    Map<String, List<CardModel>> cardsByPlayer) {
   for (final entry in cardsByPlayer.entries) {
-    revealOpponentCards(entry.key, entry.value);
+    revealOpponentCards(registry, entry.key, entry.value);
   }
 }
 
 /// Animates the central pot moving to the specified player's zone.
-void movePotToWinner(BuildContext context, String playerName) {
+void movePotToWinner(
+    BuildContext context, PlayerZoneRegistry registry, String playerName) {
   final overlay = Overlay.of(context);
-  final state = playerZoneRegistry[playerName];
+  final state = registry[playerName];
   if (state == null) return;
 
   final box = state.context.findRenderObject() as RenderBox?;
@@ -3717,9 +3700,10 @@ void movePotToWinner(BuildContext context, String playerName) {
 }
 
 /// Displays a short celebratory overlay over the winning player's zone.
-void showWinnerCelebration(BuildContext context, String playerName) {
+void showWinnerCelebration(
+    BuildContext context, PlayerZoneRegistry registry, String playerName) {
   final overlay = Overlay.of(context);
-  final state = playerZoneRegistry[playerName];
+  final state = registry[playerName];
   if (state == null) return;
 
   final box = state.context.findRenderObject() as RenderBox?;
@@ -3745,6 +3729,7 @@ void showWinnerCelebration(BuildContext context, String playerName) {
 /// shown one after another when [showCelebration] is true.
 Future<void> showWinnerSequence(
   BuildContext context,
+  PlayerZoneRegistry registry,
   List<String> playerNames, {
   Map<String, List<CardModel>>? revealedCardsByPlayer,
   bool showCelebration = true,
@@ -3759,27 +3744,28 @@ Future<void> showWinnerSequence(
     final cards = revealedCardsByPlayer?[name];
     if (cards != null && prefs.showCardReveal) {
       await Future.delayed(const Duration(milliseconds: 500));
-      revealOpponentCards(name, cards);
+      revealOpponentCards(registry, name, cards);
     }
 
     // Delay slightly longer before moving the pot.
     if (prefs.showPotAnimation) {
       await Future.delayed(const Duration(milliseconds: 700));
-      movePotToWinner(context, name);
+      movePotToWinner(context, registry, name);
     }
 
     if (showCelebration && prefs.showWinnerCelebration) {
       await Future.delayed(const Duration(milliseconds: 1000));
-      showWinnerCelebration(context, name);
-    }
+      showWinnerCelebration(context, registry, name);
   }
+}
 }
 
 /// Highlights the player at [winnerIndex] and animates their stack increasing
 /// by [potAmount] while chips fly from the center pot.
-Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
+Future<void> triggerWinnerAnimation(
+    PlayerZoneRegistry registry, int winnerIndex, int potAmount) async {
   _PlayerZoneWidgetState? state;
-  for (final s in playerZoneRegistry.values) {
+  for (final s in registry.values) {
     if (s.widget.playerIndex == winnerIndex) {
       state = s;
       break;
@@ -3799,19 +3785,21 @@ Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
 
 /// Animates refunds flying from the center pot back to each player in [refunds].
 /// Uses the same chip trail as [triggerWinnerAnimation] without highlights.
-Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
-  await PotAnimationService().triggerRefundAnimations(refunds);
+Future<void> triggerRefundAnimations(
+    Map<int, int> refunds, PlayerZoneRegistry registry) async {
+  await PotAnimationService().triggerRefundAnimations(refunds, registry);
 }
 
 /// Fades out the player zone when a player busts from the game.
-void fadeOutBustedPlayerZone(String playerName) {
-  final state = playerZoneRegistry[playerName];
+void fadeOutBustedPlayerZone(PlayerZoneRegistry registry, String playerName) {
+  final state = registry[playerName];
   state?.fadeOutZone();
 }
 
 /// Plays a refund animation for the given [playerIndex]. Chips fly from
 /// [startPosition] to the player's stack.
 void playRefundToPlayer(
+  PlayerZoneRegistry registry,
   int playerIndex,
   int amount, {
   Offset? startPosition,
@@ -3819,7 +3807,7 @@ void playRefundToPlayer(
   VoidCallback? onCompleted,
 }) {
   _PlayerZoneWidgetState? state;
-  for (final s in playerZoneRegistry.values) {
+  for (final s in registry.values) {
     if (s.widget.playerIndex == playerIndex) {
       state = s;
       break;
@@ -3833,8 +3821,8 @@ void playRefundToPlayer(
   );
 }
 
-void onShowdownResult(String playerName) {
-  final state = playerZoneRegistry[playerName];
+void onShowdownResult(PlayerZoneRegistry registry, String playerName) {
+  final state = registry[playerName];
   state?.onShowdownResult();
 }
 

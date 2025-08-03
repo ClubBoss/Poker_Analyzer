@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../widgets/pot_collection_chips.dart' as chips;
 import '../widgets/player_zone_widget.dart' as pzw;
+import 'package:provider/provider.dart';
 import '../widgets/winner_glow_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
 
@@ -32,7 +33,9 @@ class DemoAnimationManager {
 
   /// Display an overlay glow around the given winner's zone.
   void showWinnerZoneOverlay(BuildContext context, String playerName) {
-    pzw.showWinnerZoneOverlay(context, playerName);
+    final registry =
+        Provider.of<pzw.PlayerZoneRegistry>(context, listen: false);
+    pzw.showWinnerZoneOverlay(context, registry, playerName);
   }
 
   /// Show chips flying from the pot to the winner's stack.

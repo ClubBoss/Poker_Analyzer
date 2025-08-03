@@ -38,6 +38,7 @@ import 'services/daily_hand_service.dart';
 import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
+import 'widgets/player_zone_widget.dart';
 import 'services/reward_service.dart';
 import 'services/reward_system_service.dart';
 import 'services/coins_service.dart';
@@ -157,6 +158,7 @@ List<SingleChildWidget> buildCoreProviders(CloudSyncService cloud) {
     ChangeNotifierProvider<AbTestEngine>.value(value: ab),
     ChangeNotifierProvider(create: (_) => ThemeService()..load()),
     Provider<CloudSyncService>.value(value: cloud),
+    Provider(create: (_) => PlayerZoneRegistry()),
   ];
 }
 

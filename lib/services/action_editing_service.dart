@@ -28,6 +28,7 @@ class ActionEditingService {
   final PlayerManagerService playerManager;
   final void Function(ActionEntry entry)? triggerCenterChip;
   final void Function(ActionEntry entry)? playChipAnimation;
+  final PlayerZoneRegistry playerZoneRegistry;
 
   ActionEditingService({
     required this.actionSync,
@@ -42,6 +43,7 @@ class ActionEditingService {
     required this.playerManager,
     this.triggerCenterChip,
     this.playChipAnimation,
+    required this.playerZoneRegistry,
   });
 
   List<ActionEntry> get actions => actionSync.analyzerActions;
@@ -80,6 +82,7 @@ class ActionEditingService {
         visibleCount: playbackManager.playbackIndex);
     actionTag.updateForAction(entry);
     setPlayerLastAction(
+      playerZoneRegistry,
       players[entry.playerIndex].name,
       ActionFormattingHelper.formatLastAction(entry),
       ActionFormattingHelper.actionColor(entry.action),
@@ -122,6 +125,7 @@ class ActionEditingService {
     actionSync.notifyListeners();
     actionTag.updateForAction(entry);
     setPlayerLastAction(
+      playerZoneRegistry,
       players[entry.playerIndex].name,
       ActionFormattingHelper.formatLastAction(entry),
       ActionFormattingHelper.actionColor(entry.action),

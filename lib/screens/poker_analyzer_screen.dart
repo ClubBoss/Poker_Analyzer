@@ -1193,7 +1193,8 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
       for (final i in _bustedPlayers) {
-        fadeOutBustedPlayerZone(players[i].name);
+        fadeOutBustedPlayerZone(
+            context.read<PlayerZoneRegistry>(), players[i].name);
       }
     });
     if (widget.demoMode) {
@@ -1270,16 +1271,18 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         .where((e) => e.value > 0)
         .map((e) => e.key)
         .toSet();
+    final registry = context.read<PlayerZoneRegistry>();
     for (int i = 0; i < numberOfPlayers; i++) {
       final name = players[i].name;
       if (!_actionTagService.tags.containsKey(i)) {
-        setPlayerLastActionOutcome(name, ActionOutcome.neutral);
+        setPlayerLastActionOutcome(
+            registry, name, ActionOutcome.neutral);
       } else if (winnerSet.contains(i)) {
-        setPlayerLastActionOutcome(name, ActionOutcome.win);
-        setPlayerShowdownStatus(name, 'W');
+        setPlayerLastActionOutcome(registry, name, ActionOutcome.win);
+        setPlayerShowdownStatus(registry, name, 'W');
       } else {
-        setPlayerLastActionOutcome(name, ActionOutcome.lose);
-        setPlayerShowdownStatus(name, 'L');
+        setPlayerLastActionOutcome(registry, name, ActionOutcome.lose);
+        setPlayerShowdownStatus(registry, name, 'L');
       }
     }
   }
@@ -1306,9 +1309,11 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       payouts[winner] = pot - returnTotal;
     }
     final resultSidePots = List<int>.from(_sidePots);
-    await triggerWinnerAnimation(winner, pot - returnTotal);
+    await triggerWinnerAnimation(
+        context.read<PlayerZoneRegistry>(), winner, pot - returnTotal);
     if (!_returnsAnimated) {
-      await _potAnimations.triggerRefundAnimations(returns);
+      await _potAnimations.triggerRefundAnimations(
+          returns, context.read<PlayerZoneRegistry>());
     }
     await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
@@ -1422,6 +1427,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
     _registerResetAnimation();
     playRefundToPlayer(
+      context.read<PlayerZoneRegistry>(),
       playerIndex,
       amount,
       startPosition: start,
@@ -1475,6 +1481,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (!mounted) return;
         _registerResetAnimation();
         playRefundToPlayer(
+          context.read<PlayerZoneRegistry>(),
           playerIndex,
           amount,
           startPosition: start,
@@ -1505,7 +1512,8 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _notifyShowdownResults() {
     for (int i = 0; i < numberOfPlayers; i++) {
-      onShowdownResult(players[i].name);
+      onShowdownResult(
+          context.read<PlayerZoneRegistry>(), players[i].name);
     }
   }
 
@@ -1864,7 +1872,8 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (final p in winners) {
       showWinnerHighlight(context, players[p].name);
       if (prefs.showWinnerCelebration) {
-        showWinnerCelebration(context, players[p].name);
+        showWinnerCelebration(
+            context, context.read<PlayerZoneRegistry>(), players[p].name);
       }
       if (widget.demoMode) {
         _demoAnimations.showWinnerZoneOverlay(context, players[p].name);
@@ -2344,7 +2353,8 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
       final name = players[playerIndex].name;
       showWinnerHighlight(context, name);
-      showWinnerZoneOverlay(context, name);
+      showWinnerZoneOverlay(
+          context, context.read<PlayerZoneRegistry>(), name);
       showPotCollectionChips(
         context: context,
         start: start,
@@ -3491,6 +3501,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       playerManager: _playerManager,
       triggerCenterChip: _triggerCenterChip,
       playChipAnimation: _handleBetAction,
+      playerZoneRegistry: context.read<PlayerZoneRegistry>(),
     ));
     _actionEditing = _serviceRegistry.get<ActionEditingService>();
     Future(() => _initializeDebugPreferences());
@@ -3811,7 +3822,8 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _winnerIndex = activePlayers.first;
     final winnerName = players[_winnerIndex!].name;
     showWinnerHighlight(context, winnerName);
-    showWinnerZoneOverlay(context, winnerName);
+    showWinnerZoneOverlay(
+        context, context.read<PlayerZoneRegistry>(), winnerName);
     _returns = _calculateUncalledReturns();
     _playPotWinAnimation();
     _scheduleAutoReset();
@@ -5103,7 +5115,8 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     const color = Colors.red;
     for (int i = 0; i < numberOfPlayers; i++) {
       if (i == heroIndex) continue;
-      setPlayerLastAction(players[i].name, 'Fold', color, 'fold');
+      setPlayerLastAction(context.read<PlayerZoneRegistry>(),
+          players[i].name, 'Fold', color, 'fold');
     }
   }
 
