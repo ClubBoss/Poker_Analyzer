@@ -10,6 +10,10 @@ class TrainingPackPerformanceTrackerService extends ChangeNotifier {
     return stat?.accuracy;
   }
 
+  Future<int> handsCompleted(String packId) async {
+    return await TrainingPackStatsService.getHandsCompleted(packId);
+  }
+
   Future<bool> meetsRequirements(
     String packId, {
     double? requiredAccuracy,

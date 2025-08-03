@@ -41,6 +41,11 @@ class _PackCardState extends State<PackCard>
   int _handsCompleted = 0;
   bool _almostUnlocked = false;
 
+  double? get _requiredAccuracy =>
+      (widget.template.meta['requiredAccuracy'] as num?)?.toDouble();
+  int? get _minHands =>
+      (widget.template.meta['minHands'] as num?)?.toInt();
+
   bool _showReward = false;
   late final AnimationController _rewardController;
   late final ConfettiController _confettiController;
@@ -79,20 +84,20 @@ class _PackCardState extends State<PackCard>
       setState(() => _completed = ids.length);
       _maybeShowReward();
     }
-    final stat = await TrainingPackStatsService.getStats(widget.template.id);
-    final hands = await TrainingPackStatsService.getHandsCompleted(
-      widget.template.id,
-    );
+    final acc = await TrainingPackPerformanceTrackerService.instance
+        .recentAccuracy(widget.template.id);
+    final hands = await TrainingPackPerformanceTrackerService.instance
+        .handsCompleted(widget.template.id);
     if (mounted) {
       setState(() {
-        if (stat != null) _accuracy = stat.accuracy;
+        if (acc != null) _accuracy = acc;
         _handsCompleted = hands;
-        final reqAcc = widget.template.requiredAccuracy;
-        final minHands = widget.template.minHands;
+        final reqAcc = _requiredAccuracy;
+        final minHands = _minHands;
         double accRatio = 0;
         double handsRatio = 0;
-        if (stat != null && reqAcc != null && reqAcc > 0) {
-          accRatio = (stat.accuracy * 100) / reqAcc;
+        if (acc != null && reqAcc != null && reqAcc > 0) {
+          accRatio = (acc * 100) / reqAcc;
         }
         if (minHands != null && minHands > 0) {
           handsRatio = hands / minHands;
@@ -160,8 +165,8 @@ class _PackCardState extends State<PackCard>
 
   Future<void> _checkPerformance() async {
     if (widget.template.requiresTheoryCompleted && !_theoryCompleted) return;
-    final reqAcc = widget.template.requiredAccuracy;
-    final minHands = widget.template.minHands;
+    final reqAcc = _requiredAccuracy;
+    final minHands = _minHands;
     if (reqAcc == null && minHands == null) return;
     final ok = await TrainingPackPerformanceTrackerService.instance
         .meetsRequirements(
@@ -214,8 +219,8 @@ class _PackCardState extends State<PackCard>
       widget.template.id,
       accuracy: _accuracy,
       handsCompleted: _handsCompleted,
-      requiredAccuracy: widget.template.requiredAccuracy,
-      minHands: widget.template.minHands,
+      requiredAccuracy: _requiredAccuracy,
+      minHands: _minHands,
     );
   }
 
@@ -225,8 +230,8 @@ class _PackCardState extends State<PackCard>
       widget.template.id,
       accuracy: _accuracy,
       handsCompleted: _handsCompleted,
-      requiredAccuracy: widget.template.requiredAccuracy,
-      minHands: widget.template.minHands,
+      requiredAccuracy: _requiredAccuracy,
+      minHands: _minHands,
     );
   }
 
@@ -253,8 +258,8 @@ class _PackCardState extends State<PackCard>
   }
 
   Future<void> _showLockDetails() async {
-    final reqAcc = widget.template.requiredAccuracy;
-    final minHands = widget.template.minHands;
+    final reqAcc = _requiredAccuracy;
+    final minHands = _minHands;
     final needsTheory = widget.template.requiresTheoryCompleted;
     final needsTheoryAction = needsTheory && !_theoryCompleted;
     final lessonId = needsTheoryAction ? _linkedLessonId() : null;
@@ -311,8 +316,8 @@ class _PackCardState extends State<PackCard>
   }
 
   String? get _ctaText {
-    final reqAcc = widget.template.requiredAccuracy;
-    final minHands = widget.template.minHands;
+    final reqAcc = _requiredAccuracy;
+    final minHands = _minHands;
     final accShort =
         reqAcc != null && (_accuracy ?? 0) * 100 < reqAcc;
     if (accShort) return 'Улучшить точность';
@@ -329,8 +334,8 @@ class _PackCardState extends State<PackCard>
         ctaType: _ctaText,
         accuracy: _accuracy,
         handsCompleted: _handsCompleted,
-        requiredAccuracy: widget.template.requiredAccuracy,
-        minHands: widget.template.minHands,
+        requiredAccuracy: _requiredAccuracy,
+        minHands: _minHands,
       );
     }
     await Navigator.of(context, rootNavigator: true).maybePop();
@@ -384,13 +389,13 @@ class _PackCardState extends State<PackCard>
                   ),
                 ),
                 if (!_locked &&
-                    ((widget.template.requiredAccuracy ?? 0) > 0 ||
-                        (widget.template.minHands ?? 0) > 0))
+                    ((_requiredAccuracy ?? 0) > 0 ||
+                        (_minHands ?? 0) > 0))
                   PackProgressSummaryWidget(
                     accuracy: _accuracy,
                     handsCompleted: _handsCompleted,
-                    requiredAccuracy: widget.template.requiredAccuracy,
-                    minHands: widget.template.minHands,
+                    requiredAccuracy: _requiredAccuracy,
+                    minHands: _minHands,
                   ),
                 if (widget.template.tags.isNotEmpty)
                   Padding(
@@ -495,8 +500,8 @@ class _PackCardState extends State<PackCard>
                       ),
                     ),
                   ),
-                  if ((widget.template.requiredAccuracy ?? 0) > 0 ||
-                      (widget.template.minHands ?? 0) > 0)
+                  if ((_requiredAccuracy ?? 0) > 0 ||
+                      (_minHands ?? 0) > 0)
                     Container(
                       width: double.infinity,
                       color: Colors.black87,
@@ -507,8 +512,8 @@ class _PackCardState extends State<PackCard>
                           PackProgressSummaryWidget(
                             accuracy: _accuracy,
                             handsCompleted: _handsCompleted,
-                            requiredAccuracy: widget.template.requiredAccuracy,
-                            minHands: widget.template.minHands,
+                            requiredAccuracy: _requiredAccuracy,
+                            minHands: _minHands,
                           ),
                           const SizedBox(height: 8),
                           if (_ctaText != null)
