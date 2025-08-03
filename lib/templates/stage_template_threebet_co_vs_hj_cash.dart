@@ -9,4 +9,5 @@ const LearningPathStageModel threeBetCoVsHjCashStageTemplate = LearningPathStage
   requiredAccuracy: 80,
   minHands: 10,
   tags: ['threebet', 'cash', 'preflop', 'level2', 'co', 'vsHj'],
+  unlocks: ['threebet_hj_vs_utg_cash'],
 );
