@@ -12,11 +12,14 @@ import 'learning_path_node_history.dart';
 import 'auto_theory_review_engine.dart';
 import 'learning_path_level_one_builder_service.dart';
 import 'learning_path_auto_expander.dart';
+import 'mini_lesson_library_service.dart';
+import 'learning_path_stage_library.dart';
 import '../models/learning_path_node.dart';
 import '../models/learning_path_session_state.dart';
 import '../models/learning_branch_node.dart';
 import '../models/theory_lesson_node.dart';
 import '../models/theory_mini_lesson_node.dart';
+import '../models/stage_type.dart';
 
 /// Coordinates loading and traversal of the adaptive learning path graph.
 class LearningPathEngine {
@@ -52,6 +55,58 @@ class LearningPathEngine {
     List<LearningPathNode> nodes = await orchestrator.loadGraph();
     if (nodes.isEmpty) {
       nodes = levelOneBuilder.build().cast<LearningPathNode>();
+    }
+    final injectedIds = LearningPathNodeHistory.instance.getAutoInjectedIds();
+    if (injectedIds.isNotEmpty) {
+      await MiniLessonLibraryService.instance.loadAll();
+      final existing = {for (final n in nodes) n.id};
+      final toAdd = <LearningPathNode>[];
+      final added = <String>{};
+
+      void addNode(String id) {
+        if (existing.contains(id) || !added.add(id)) return;
+        final mini = MiniLessonLibraryService.instance.getById(id);
+        if (mini != null) {
+          toAdd.add(TheoryMiniLessonNode(
+            id: mini.id,
+            refId: mini.refId,
+            title: mini.title,
+            content: mini.content,
+            tags: List<String>.from(mini.tags),
+            nextIds: List<String>.from(mini.nextIds),
+          ));
+          for (final next in mini.nextIds) {
+            addNode(next);
+          }
+          return;
+        }
+        final stage = LearningPathStageLibrary.instance.getById(id);
+        if (stage != null) {
+          final nextIds = List<String>.from(stage.unlocks);
+          final node = stage.type == StageType.theory
+              ? TheoryStageNode(
+                  id: stage.id,
+                  nextIds: nextIds,
+                  dependsOn: List<String>.from(stage.unlockAfter),
+                )
+              : TrainingStageNode(
+                  id: stage.id,
+                  nextIds: nextIds,
+                  dependsOn: List<String>.from(stage.unlockAfter),
+                );
+          toAdd.add(node);
+          for (final next in nextIds) {
+            addNode(next);
+          }
+        }
+      }
+
+      for (final id in injectedIds) {
+        addNode(id);
+      }
+      if (toAdd.isNotEmpty) {
+        nodes.addAll(toAdd);
+      }
     }
     _engine = PathMapEngine(progress: progress);
     await _engine!.loadNodes(nodes);

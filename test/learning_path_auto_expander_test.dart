@@ -8,6 +8,8 @@ import 'package:poker_analyzer/services/session_log_service.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/learning_path_auto_expander.dart';
+import 'package:poker_analyzer/services/learning_path_node_history.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeOrchestrator extends LearningPathGraphOrchestrator {
   final List<LearningPathNode> nodes;
@@ -62,6 +64,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('auto expands mini lesson chain on completion', () async {
+    SharedPreferences.setMockInitialValues({});
     final a = TheoryMiniLessonNode(id: 'a', title: 'A', content: '', nextIds: const ['b']);
     final orch = _FakeOrchestrator([a]);
     final progress = _FakeProgress({});
@@ -83,5 +86,19 @@ void main() {
     expect(engine.getCurrentNode()!.id, 'b');
     final nodes = engine.engine!.allNodes;
     expect(nodes.any((n) => n.id == 'c'), isTrue);
+    expect(
+      LearningPathNodeHistory.instance.getAutoInjectedIds(),
+      containsAll(['b', 'c']),
+    );
+
+    final engine2 = LearningPathEngine(
+      orchestrator: orch,
+      progress: progress,
+      autoExpander: expander,
+    );
+    await engine2.initialize();
+    final nodes2 = engine2.engine!.allNodes;
+    expect(nodes2.any((n) => n.id == 'b'), isTrue);
+    expect(nodes2.any((n) => n.id == 'c'), isTrue);
   });
 }

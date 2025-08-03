@@ -6,6 +6,7 @@ import '../models/theory_mini_lesson_node.dart';
 import '../models/stage_type.dart';
 import 'mini_lesson_library_service.dart';
 import 'learning_path_stage_library.dart';
+import 'learning_path_node_history.dart';
 import 'path_map_engine.dart';
 
 /// Automatically injects nodes referenced by `nextIds` when theory mini lessons
@@ -80,6 +81,9 @@ class LearningPathAutoExpander {
     final state = engine.getState();
     await engine.loadNodes(updated);
     await engine.restoreState(state);
+    for (final id in injected) {
+      await LearningPathNodeHistory.instance.markAutoInjected(id);
+    }
     debugPrint('LearningPathAutoExpander: injected ${injected.join(', ')}');
   }
 
