@@ -300,8 +300,9 @@ class _PackCardState extends State<PackCard>
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ),
-                if ((widget.template.requiredAccuracy ?? 0) > 0 ||
-                    (widget.template.minHands ?? 0) > 0)
+                if (!_locked &&
+                    ((widget.template.requiredAccuracy ?? 0) > 0 ||
+                        (widget.template.minHands ?? 0) > 0))
                   PackProgressSummaryWidget(
                     accuracy: _accuracy,
                     handsCompleted: _handsCompleted,
@@ -394,18 +395,37 @@ class _PackCardState extends State<PackCard>
             ),
           if (_locked)
             Positioned.fill(
-              child: Container(
-                color: Colors.black54,
-                child: Center(
-                  child: Tooltip(
-                    message: _lockMsg ?? 'Пак заблокирован',
-                    child: const Icon(
-                      Icons.lock,
-                      color: Colors.white70,
-                      size: 48,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      color: Colors.black54,
+                      child: Center(
+                        child: Tooltip(
+                          message: _lockMsg ?? 'Пак заблокирован',
+                          child: const Icon(
+                            Icons.lock,
+                            color: Colors.white70,
+                            size: 48,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  if ((widget.template.requiredAccuracy ?? 0) > 0 ||
+                      (widget.template.minHands ?? 0) > 0)
+                    Container(
+                      width: double.infinity,
+                      color: Colors.black87,
+                      padding: const EdgeInsets.all(8),
+                      child: PackProgressSummaryWidget(
+                        accuracy: _accuracy,
+                        handsCompleted: _handsCompleted,
+                        requiredAccuracy: widget.template.requiredAccuracy,
+                        minHands: widget.template.minHands,
+                      ),
+                    ),
+                ],
               ),
             ),
           if (_showReward) ...[
