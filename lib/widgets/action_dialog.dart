@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import 'bet_sizer.dart';
 
 /// Dialog allowing to quickly choose an action for a player.
 class ActionDialog extends StatefulWidget {
@@ -24,12 +25,10 @@ enum _Action { fold, check, call, bet, raise }
 
 class _ActionDialogState extends State<ActionDialog> {
   _Action? _selected;
-  double _slider = 0;
 
   @override
   void initState() {
     super.initState();
-    _slider = 0;
   }
 
   void _selectSimple(_Action act) {
@@ -47,14 +46,6 @@ class _ActionDialogState extends State<ActionDialog> {
     );
   }
 
-  void _onSliderChange(double value) {
-    setState(() => _slider = value);
-    final amt = value;
-    if (amt > 0) {
-      _selectBetAmount(amt);
-    }
-  }
-
   Widget _actionButton(String label, _Action act) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -69,43 +60,10 @@ class _ActionDialogState extends State<ActionDialog> {
         } else {
           setState(() {
             _selected = act;
-            _slider = 0;
           });
         }
       },
       child: Text(label, style: const TextStyle(fontSize: 20)),
-    );
-  }
-
-  Widget _buildBetSizer() {
-    final int max = widget.stackSize;
-    return Column(
-      children: [
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            for (final f in [1 / 3, 0.5, 0.75, 1.0])
-              OutlinedButton(
-                onPressed: () {
-                  final amount = widget.pot * f;
-                  _selectBetAmount(amount);
-                },
-                child: Text('${(f * 100).round()}%'),
-              ),
-          ],
-        ),
-        Slider(
-          value: _slider,
-          min: 0,
-          max: max.toDouble(),
-          divisions: max,
-          label: _slider.round().toString(),
-          onChanged: _onSliderChange,
-        ),
-        Text('Amount: ${_slider.round()}',
-            style: const TextStyle(color: Colors.white)),
-      ],
     );
   }
 
@@ -130,7 +88,11 @@ class _ActionDialogState extends State<ActionDialog> {
           const SizedBox(height: 8),
           _actionButton('Raise', _Action.raise),
           if (_selected == _Action.bet || _selected == _Action.raise)
-            _buildBetSizer(),
+            BetSizer(
+              stackSize: widget.stackSize,
+              pot: widget.pot,
+              onSelected: _selectBetAmount,
+            ),
         ],
       ),
     );
