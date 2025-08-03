@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import 'action_timer_ring.dart';
 import 'flip_card.dart';
-import 'player_stack_value.dart';
+import 'player_zone/player_stack_value.dart';
 
 /// Compact display for a player's position, stack, tag and last action.
 /// Optionally shows a simplified position label as a badge.
