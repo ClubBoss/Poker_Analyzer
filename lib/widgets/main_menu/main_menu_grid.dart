@@ -28,16 +28,20 @@ class MainMenuGrid extends StatelessWidget {
     required this.historyButtonKey,
   });
 
+  void _push(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
   List<_MenuItem> _buildMenuItems(BuildContext context) {
     return [
       _MenuItem(
         icon: Icons.sports_esports,
         label: 'Тренировка',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TrainingPacksScreen()),
-          );
+          _push(context, const TrainingPacksScreen());
         },
         key: trainingButtonKey,
       ),
@@ -45,10 +49,7 @@ class MainMenuGrid extends StatelessWidget {
         icon: Icons.add_circle,
         label: 'Новая раздача',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PlayerInputScreen()),
-          );
+          _push(context, const PlayerInputScreen());
         },
         key: newHandButtonKey,
       ),
@@ -56,10 +57,7 @@ class MainMenuGrid extends StatelessWidget {
         icon: Icons.history,
         label: 'История',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AllSessionsScreen()),
-          );
+          _push(context, const AllSessionsScreen());
         },
         key: historyButtonKey,
       ),
@@ -67,30 +65,21 @@ class MainMenuGrid extends StatelessWidget {
         icon: Icons.bar_chart,
         label: 'Аналитика',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProgressScreen()),
-          );
+          _push(context, const ProgressScreen());
         },
       ),
       _MenuItem(
         icon: Icons.show_chart,
         label: 'Прогресс',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProgressOverviewScreen()),
-          );
+          Navigator.pushNamed(context, ProgressOverviewScreen.route);
         },
       ),
       _MenuItem(
         icon: Icons.timeline,
         label: 'История EV/ICM',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProgressHistoryScreen()),
-          );
+          Navigator.pushNamed(context, ProgressHistoryScreen.route);
         },
       ),
       _MenuItem(
@@ -139,20 +128,14 @@ class MainMenuGrid extends StatelessWidget {
         icon: Icons.folder,
         label: 'Раздачи',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SavedHandsScreen()),
-          );
+          _push(context, const SavedHandsScreen());
         },
       ),
       _MenuItem(
         icon: Icons.settings,
         label: 'Настройки',
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SettingsScreen()),
-          );
+          _push(context, const SettingsScreen());
         },
       ),
     ];
