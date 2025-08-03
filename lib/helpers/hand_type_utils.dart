@@ -1,29 +1,25 @@
 const _ranks = '23456789TJQKA';
 
+bool _isLowPairs(String code) {
+  final hi = code[0];
+  return code.length == 2 && _ranks.indexOf(hi) <= _ranks.indexOf('6');
+}
+
+bool _isHighPairs(String code) {
+  final hi = code[0];
+  return code.length == 2 && _ranks.indexOf(hi) > _ranks.indexOf('T');
+}
+
 final Map<String, bool Function(String)> _labelMatchers = {
   'PAIRS': (code) => code.length == 2,
-  'SMALL PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) <= _ranks.indexOf('6');
-  },
-  'LOW PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) <= _ranks.indexOf('6');
-  },
+  'SMALL PAIRS': _isLowPairs,
   'MID PAIRS': (code) {
     final hi = code[0];
     return code.length == 2 &&
         _ranks.indexOf(hi) > _ranks.indexOf('6') &&
         _ranks.indexOf(hi) <= _ranks.indexOf('T');
   },
-  'BIG PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) > _ranks.indexOf('T');
-  },
-  'HIGH PAIRS': (code) {
-    final hi = code[0];
-    return code.length == 2 && _ranks.indexOf(hi) > _ranks.indexOf('T');
-  },
+  'BIG PAIRS': _isHighPairs,
   'SUITED CONNECTORS': (code) {
     final hi = code[0];
     final lo = code.length > 1 ? code[1] : '';
@@ -32,8 +28,7 @@ final Map<String, bool Function(String)> _labelMatchers = {
   'OFFSUIT CONNECTORS': (code) {
     final hi = code[0];
     final lo = code.length > 1 ? code[1] : '';
-    return !code.endsWith('S') &&
-        _ranks.indexOf(hi) - _ranks.indexOf(lo) == 1;
+    return !code.endsWith('S') && _ranks.indexOf(hi) - _ranks.indexOf(lo) == 1;
   },
   'CONNECTORS': (code) {
     final hi = code[0];
@@ -56,24 +51,24 @@ final Map<String, bool Function(String)> _labelMatchers = {
         code.length == 3 &&
         hi != lo;
   },
-};
+}..addAll({'LOW PAIRS': _isLowPairs, 'HIGH PAIRS': _isHighPairs});
 
 String? handTypeLabelError(String label) {
   final l = label.trim().toUpperCase();
   if (l.isEmpty) return 'Empty label';
   if ({
-        'PAIRS',
-        'SMALL PAIRS',
-        'MID PAIRS',
-        'BIG PAIRS',
-        'LOW PAIRS',
-        'HIGH PAIRS',
-        'SUITED CONNECTORS',
-        'OFFSUIT CONNECTORS',
-        'CONNECTORS',
-        'SUITED AX',
-        'OFFSUIT AX'
-      }.contains(l)) {
+    'PAIRS',
+    'SMALL PAIRS',
+    'MID PAIRS',
+    'BIG PAIRS',
+    'LOW PAIRS',
+    'HIGH PAIRS',
+    'SUITED CONNECTORS',
+    'OFFSUIT CONNECTORS',
+    'CONNECTORS',
+    'SUITED AX',
+    'OFFSUIT AX',
+  }.contains(l)) {
     return null;
   }
   if (RegExp(r'^[2-9TJQKA]X[so]?$').hasMatch(l)) return null;
@@ -105,8 +100,9 @@ bool matchHandTypeLabel(String label, String handCode) {
     return fn(code);
   }
 
-  final m2 =
-      RegExp(r'^([2-9TJQKA])([2-9TJQKA])([so](?:\\+)?|\\+)?$').firstMatch(l);
+  final m2 = RegExp(
+    r'^([2-9TJQKA])([2-9TJQKA])([so](?:\\+)?|\\+)?$',
+  ).firstMatch(l);
   if (m2 != null) {
     final h = m2.group(1)!;
     final lw = m2.group(2)!;
@@ -138,4 +134,3 @@ bool matchHandTypeLabel(String label, String handCode) {
 
   return false;
 }
-
