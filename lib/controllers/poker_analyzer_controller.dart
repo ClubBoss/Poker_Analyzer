@@ -1,4 +1,4 @@
-import 'dart:collection';
+import 'dart:collection' show UnmodifiableListView, UnmodifiableMapView;
 
 import 'package:flutter/foundation.dart';
 
@@ -33,19 +33,20 @@ class PokerAnalyzerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Map<int, String> get playerPositions => Map.unmodifiable(_playerPositions);
+  Map<int, String> get playerPositions =>
+      UnmodifiableMapView(_playerPositions);
   void setPlayerPosition(int index, String position) {
     _playerPositions[index] = position;
     notifyListeners();
   }
 
-  Map<int, PlayerType> get playerTypes => Map.unmodifiable(_playerTypes);
+  Map<int, PlayerType> get playerTypes => UnmodifiableMapView(_playerTypes);
   void setPlayerType(int index, PlayerType type) {
     _playerTypes[index] = type;
     notifyListeners();
   }
 
-  List<PlayerModel> get players => List.unmodifiable(_players);
+  List<PlayerModel> get players => UnmodifiableListView(_players);
   void addPlayer(PlayerModel player) {
     _players.add(player);
     notifyListeners();
