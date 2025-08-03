@@ -43,11 +43,24 @@ class TrainingPackTemplateExpanderService {
     final overrides = Map<String, List<dynamic>>.from(set.overrides);
     final constraintValues = overrides.remove(constraintKey)!;
     final boards = <List<String>>[];
+    String? streetOverride = set.targetStreet;
     for (final c in constraintValues) {
       if (c is Map<String, dynamic>) {
-        final generated = _boardGenerator.generate(c);
-        for (final b in generated) {
-          boards.add([...b.flop, b.turn, b.river]);
+        final params = Map<String, dynamic>.from(c);
+        final street = params.remove('targetStreet')?.toString().toLowerCase();
+        if (street != null) streetOverride = street;
+        final generated = _boardGenerator.generate(params);
+        if (street == 'turn') {
+          final seen = <String>{};
+          for (final b in generated) {
+            final combo = [...b.flop, b.turn];
+            final key = combo.join(',');
+            if (seen.add(key)) boards.add(combo);
+          }
+        } else {
+          for (final b in generated) {
+            boards.add([...b.flop, b.turn, b.river]);
+          }
         }
       }
     }
@@ -57,7 +70,7 @@ class TrainingPackTemplateExpanderService {
       positions: set.positions,
       handGroup: set.handGroup,
       villainActions: set.villainActions,
-      targetStreet: set.targetStreet,
+      targetStreet: streetOverride,
       overrides: overrides,
       tags: set.tags,
       tagMergeMode: set.tagMergeMode,
