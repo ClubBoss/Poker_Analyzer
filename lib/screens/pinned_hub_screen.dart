@@ -7,6 +7,9 @@ import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/pinned_learning_service.dart';
 import '../widgets/pinned_learning_tile.dart';
+import '../services/theory_block_library_service.dart';
+import '../services/theory_block_launcher.dart';
+import '../models/theory_block_model.dart';
 
 class PinnedHubScreen extends StatefulWidget {
   const PinnedHubScreen({super.key});
@@ -25,6 +28,7 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
     _service.addListener(_reload);
     _service.load();
     MiniLessonLibraryService.instance.loadAll();
+    TheoryBlockLibraryService.instance.loadAll();
   }
 
   void _reload() => setState(() {});
@@ -41,6 +45,8 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
         _service.items.where((e) => e.type == 'lesson').toList(growable: false);
     final packs =
         _service.items.where((e) => e.type == 'pack').toList(growable: false);
+    final blocks =
+        _service.items.where((e) => e.type == 'block').toList(growable: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pinned Items'),
@@ -55,6 +61,7 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
         children: [
           _buildSection('📘 Lessons', lessons, 'lesson'),
           _buildSection('🎯 Drill Packs', packs, 'pack'),
+          _buildSection('📚 Blocks', blocks, 'block'),
         ],
       ),
     );
@@ -111,6 +118,28 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
           context,
           item,
           () => _openLesson(lesson, item),
+        ),
+      );
+    }
+
+    if (type == 'block') {
+      final block = TheoryBlockLibraryService.instance.getById(item.id);
+      if (block == null) return const SizedBox.shrink();
+      return ListTile(
+        key: ValueKey('block:${item.id}'),
+        leading: const Text('📚', style: TextStyle(fontSize: 20)),
+        title: Text(block.title),
+        trailing: _editMode
+            ? ReorderableDragStartListener(
+                index: index,
+                child: const Icon(Icons.drag_handle),
+              )
+            : null,
+        onTap: () => _openBlock(block, item),
+        onLongPress: () => showPinnedLearningMenu(
+          context,
+          item,
+          () => _openBlock(block, item),
         ),
       );
     }
@@ -180,6 +209,10 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
         ),
       ),
     );
+  }
+
+  void _openBlock(TheoryBlockModel block, PinnedLearningItem item) {
+    const TheoryBlockLauncher().launch(context: context, block: block);
   }
 }
 

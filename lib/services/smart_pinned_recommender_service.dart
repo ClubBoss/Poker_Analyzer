@@ -7,6 +7,9 @@ import 'mini_lesson_library_service.dart';
 import 'pack_library_service.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/theory_mini_lesson_node.dart';
+import 'theory_block_library_service.dart';
+import 'theory_path_completion_evaluator_service.dart';
+import 'user_progress_service.dart';
 
 /// Chooses the best pinned item to resume next based on simple heuristics.
 class SmartPinnedRecommenderService {
@@ -34,6 +37,7 @@ class SmartPinnedRecommenderService {
     PinnedLearningItem? best;
     var bestScore = double.negativeInfinity;
 
+    await TheoryBlockLibraryService.instance.loadAll();
     for (final item in items) {
       var score = 0.0;
       final tags = <String>[];
@@ -54,6 +58,16 @@ class SmartPinnedRecommenderService {
           tags.addAll(lesson.tags.map((e) => e.trim().toLowerCase()));
           final completed = await _lessons.isCompleted(item.id);
           if (!completed) score += 6; // Incomplete lesson
+        }
+      } else if (item.type == 'block') {
+        final block = TheoryBlockLibraryService.instance.getById(item.id);
+        if (block != null) {
+          tags.addAll(block.tags.map((e) => e.trim().toLowerCase()));
+          final evaluator = TheoryPathCompletionEvaluatorService(
+            userProgress: UserProgressService.instance,
+          );
+          final pct = await evaluator.getBlockCompletionPercent(block);
+          score += (1 - pct) * 6;
         }
       }
 

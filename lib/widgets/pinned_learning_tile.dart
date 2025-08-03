@@ -7,6 +7,9 @@ import '../screens/training_pack_screen.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/pinned_learning_service.dart';
+import '../services/theory_block_library_service.dart';
+import '../services/theory_block_launcher.dart';
+import '../models/theory_block_model.dart';
 
 class PinnedLearningTile extends StatelessWidget {
   const PinnedLearningTile({super.key, required this.item});
@@ -31,6 +34,31 @@ class PinnedLearningTile extends StatelessWidget {
           item,
           () => _openLesson(context, lesson),
         ),
+      );
+    }
+
+    if (item.type == 'block') {
+      return FutureBuilder<void>(
+        future: TheoryBlockLibraryService.instance.loadAll(),
+        builder: (context, snapshot) {
+          final block = TheoryBlockLibraryService.instance.getById(item.id);
+          if (block == null) return const SizedBox.shrink();
+          return ListTile(
+            leading: const Text('📚', style: TextStyle(fontSize: 20)),
+            title: Text(block.title),
+            trailing: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () =>
+                  PinnedLearningService.instance.unpin('block', item.id),
+            ),
+            onTap: () => _openBlock(context, block),
+            onLongPress: () => showPinnedLearningMenu(
+              context,
+              item,
+              () => _openBlock(context, block),
+            ),
+          );
+        },
       );
     }
 
@@ -79,6 +107,10 @@ class PinnedLearningTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _openBlock(BuildContext context, TheoryBlockModel block) {
+    const TheoryBlockLauncher().launch(context: context, block: block);
   }
 
 }
