@@ -255,6 +255,23 @@ class _PackCardState extends State<PackCard>
     );
   }
 
+  String? get _ctaText {
+    final reqAcc = widget.template.requiredAccuracy;
+    final minHands = widget.template.minHands;
+    final accShort =
+        reqAcc != null && (_accuracy ?? 0) * 100 < reqAcc;
+    if (accShort) return 'Улучшить точность';
+    final handsShort =
+        minHands != null && _handsCompleted < minHands;
+    if (handsShort) return 'Сыграть руки';
+    return null;
+  }
+
+  Future<void> _handleCta(BuildContext context) async {
+    await Navigator.of(context, rootNavigator: true).maybePop();
+    await const TrainingSessionLauncher().launch(widget.template);
+  }
+
   @override
   Widget build(BuildContext context) {
     final accText = _accuracy != null
@@ -418,11 +435,25 @@ class _PackCardState extends State<PackCard>
                       width: double.infinity,
                       color: Colors.black87,
                       padding: const EdgeInsets.all(8),
-                      child: PackProgressSummaryWidget(
-                        accuracy: _accuracy,
-                        handsCompleted: _handsCompleted,
-                        requiredAccuracy: widget.template.requiredAccuracy,
-                        minHands: widget.template.minHands,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          PackProgressSummaryWidget(
+                            accuracy: _accuracy,
+                            handsCompleted: _handsCompleted,
+                            requiredAccuracy: widget.template.requiredAccuracy,
+                            minHands: widget.template.minHands,
+                          ),
+                          const SizedBox(height: 8),
+                          if (_ctaText != null)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () => _handleCta(context),
+                                child: Text(_ctaText!),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                 ],
