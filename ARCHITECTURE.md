@@ -9,7 +9,8 @@ This document summarizes the current set of services used by the Poker Analyzer 
 - **ActionSyncService** – central event bus for actions; synchronizes playback index, folded players and stack manager.
 - **ActionTagService** – manages per-player action tags and serializes them with hands.
 - **BackupManagerService** – creates, loads and cleans up evaluation queue backups.
-- **BackupService** – low level helper used by `BackupManagerService` to persist backup files.
+- **BackupFileManager** – low level helper used by `BackupManagerService` for file operations.
+- **EvaluationQueueSerializer** – encodes/decodes `ActionEvaluationRequest` queue states.
 - **BoardEditingService** – validates board edits and warns about inconsistent card choices.
 - **BoardManagerService** – controls board street transitions, visible cards and locks during playback.
 - **BoardRevealService** – animates board card reveal sequences while respecting transition locks.
