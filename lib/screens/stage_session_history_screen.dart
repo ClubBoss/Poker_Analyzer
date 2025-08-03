@@ -46,6 +46,8 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
               final log = visibleLogs[index];
               final total = log.correctCount + log.mistakeCount;
               final acc = total == 0 ? 0.0 : log.correctCount / total * 100;
+              final ev = log.evPercent;
+              final evText = ev != null ? ev.toStringAsFixed(1) : '—';
               final cats = log.categories.entries.toList()
                 ..sort((a, b) => b.value.compareTo(a.value));
               final tagText =
@@ -61,7 +63,7 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Acc ${acc.toStringAsFixed(1)}% · $total рук · EV 0%',
+                        'Acc ${acc.toStringAsFixed(1)}% · $total рук · EV ${evText}%',
                         style: const TextStyle(color: Colors.white70),
                       ),
                       if (tagText != null)
