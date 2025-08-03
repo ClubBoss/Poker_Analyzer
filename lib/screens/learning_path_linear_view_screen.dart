@@ -5,6 +5,7 @@ import '../services/learning_graph_engine.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../widgets/path_node_tile.dart';
 import 'mini_lesson_screen.dart';
 import 'training_pack_preview_screen.dart';
 
@@ -91,58 +92,6 @@ class _LearningPathLinearViewScreenState
     }
   }
 
-  Widget _buildTile(LearningPathNodeV2 node) {
-    final currentId = _current?.id;
-    final isCompleted = LearningPathEngine.instance.isCompleted(node.id);
-    final isCurrent = node.id == currentId;
-    final currentIndex = _nodes.indexWhere((n) => n.id == currentId);
-    final nodeIndex = _nodes.indexOf(node);
-    final isBlocked =
-        !isCompleted && !isCurrent && nodeIndex > currentIndex && currentIndex >= 0;
-
-    String title;
-    Widget icon;
-    if (node.type == LearningPathNodeType.theory) {
-      final lesson =
-          MiniLessonLibraryService.instance.getById(node.miniLessonId ?? '');
-      title = lesson?.resolvedTitle ?? node.miniLessonId ?? '';
-      icon = const Text('📘', style: TextStyle(fontSize: 24));
-    } else {
-      final pack = _packs[node.trainingPackTemplateId];
-      title = pack?.name ?? node.trainingPackTemplateId ?? '';
-      icon = const Text('🃏', style: TextStyle(fontSize: 24));
-    }
-
-    String? subtitle;
-    if (isCompleted) {
-      subtitle = 'Completed';
-    } else if (isCurrent) {
-      subtitle = 'Current';
-    } else if (isBlocked) {
-      subtitle = 'Locked';
-    }
-
-    final border = isCurrent
-        ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
-        : null;
-
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: border ?? BorderSide.none,
-      ),
-      child: ListTile(
-        leading: icon,
-        title: Text(title),
-        subtitle: subtitle != null ? Text(subtitle) : null,
-        onTap: () async {
-          await LearningPathEngine.instance.markStageCompleted(node.id);
-          _refresh();
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,7 +110,30 @@ class _LearningPathLinearViewScreenState
                   itemCount: _nodes.length,
                   itemBuilder: (context, index) {
                     final node = _nodes[index];
-                    return _buildTile(node);
+                    final currentId = _current?.id;
+                    final isCompleted =
+                        LearningPathEngine.instance.isCompleted(node.id);
+                    final isCurrent = node.id == currentId;
+                    final currentIndex =
+                        _nodes.indexWhere((n) => n.id == currentId);
+                    final nodeIndex = _nodes.indexOf(node);
+                    final isBlocked = !isCompleted &&
+                        !isCurrent &&
+                        nodeIndex > currentIndex &&
+                        currentIndex >= 0;
+                    final pack = _packs[node.trainingPackTemplateId];
+                    return PathNodeTile(
+                      node: node,
+                      pack: pack,
+                      isCurrent: isCurrent,
+                      isCompleted: isCompleted,
+                      isBlocked: isBlocked,
+                      onTap: () async {
+                        await LearningPathEngine.instance
+                            .markStageCompleted(node.id);
+                        _refresh();
+                      },
+                    );
                   },
                 ),
               ),
