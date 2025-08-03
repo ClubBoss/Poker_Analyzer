@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,8 +12,6 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
 import '../services/progress_export_service.dart';
 import '../services/training_stats_service.dart';
-import '../theme/app_colors.dart';
-import '../utils/responsive.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
 import '../widgets/common/mistake_by_street_chart.dart';
 import '../widgets/common/session_volume_accuracy_chart.dart';
@@ -24,6 +21,14 @@ import 'saved_hands_screen.dart';
 import 'mistake_overview_screen.dart';
 import 'accuracy_mistake_overview_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../widgets/session_stats/accuracy_progress_bar.dart';
+import '../widgets/session_stats/goal_progress_bar.dart';
+import '../widgets/session_stats/position_accuracy_row.dart';
+import '../widgets/session_stats/section_header.dart';
+import '../widgets/session_stats/stat_row.dart';
+import '../widgets/session_stats/street_filter_chips.dart';
+import '../widgets/session_stats/tag_row.dart';
+import '../widgets/session_stats/weekly_winrate_chart.dart';
 
 class SessionStatsScreen extends StatefulWidget {
   const SessionStatsScreen({super.key});
@@ -95,7 +100,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     return hands;
   }
 
-  List<_WeekData> _weeklyWinrates(Map<int, List<SavedHand>> data) {
+  List<WeekWinrate> _weeklyWinrates(Map<int, List<SavedHand>> data) {
     final Map<DateTime, List<double>> grouped = {};
     for (final entry in data.entries) {
       final hands = List<SavedHand>.from(entry.value)
@@ -126,197 +131,11 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        _WeekData(
+        WeekWinrate(
           e.key,
           e.value.reduce((a, b) => a + b) / e.value.length,
         )
     ];
-  }
-
-  Widget _buildStat(String label, String value, double scale,
-      {VoidCallback? onTap}) {
-    final content = LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < 360) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-            SizedBox(height: 4 * scale),
-            Text(value,
-                style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-          ],
-        );
-      }
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-              child: Text(label,
-                  style:
-                      TextStyle(color: Colors.white70, fontSize: 14 * scale))),
-          Text(value,
-              style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-        ],
-      );
-    });
-    final row = Padding(
-      padding: EdgeInsets.only(bottom: 12 * scale),
-      child: content,
-    );
-    return onTap != null ? InkWell(onTap: onTap, child: row) : row;
-  }
-
-  Widget _buildTag(BuildContext context, String tag, int count, double scale) {
-    final selected = _activeTag == tag;
-    final accent = Theme.of(context).colorScheme.secondary;
-    final style = TextStyle(
-      color: selected ? accent : Colors.white,
-      fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-    );
-    return InkWell(
-      onTap: () {
-        setState(() => _activeTag = selected ? null : tag);
-        _saveActiveTag();
-      },
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 12 * scale),
-        child: LayoutBuilder(builder: (context, constraints) {
-          if (constraints.maxWidth < 360) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(tag, style: style.copyWith(fontSize: 14 * scale)),
-                SizedBox(height: 4 * scale),
-                Text(count.toString(),
-                    style: style.copyWith(fontSize: 14 * scale)),
-              ],
-            );
-          }
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                  child:
-                      Text(tag, style: style.copyWith(fontSize: 14 * scale))),
-              Text(count.toString(),
-                  style: style.copyWith(fontSize: 14 * scale)),
-            ],
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildPositionRow(String pos, int correct, int total, double scale,
-      {VoidCallback? onTap}) {
-    final accuracy = total > 0 ? (correct / total * 100).round() : 0;
-    final row = Padding(
-      padding: EdgeInsets.only(bottom: 12 * scale),
-      child: Text(
-        '$pos — $accuracy% точность ($correct из $total верно)',
-        style: TextStyle(color: Colors.white, fontSize: 14 * scale),
-      ),
-    );
-    if (onTap != null) {
-      return InkWell(onTap: onTap, child: row);
-    }
-    return row;
-  }
-
-  Widget _buildAccuracyProgress(
-      BuildContext context, int good, int total, double scale) {
-    final progress = total > 0 ? good / total : 0.0;
-    final accent = Theme.of(context).colorScheme.secondary;
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12 * scale),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          LayoutBuilder(builder: (context, constraints) {
-            if (constraints.maxWidth < 360) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Сессии с точностью > 80%',
-                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-                  SizedBox(height: 4 * scale),
-                  Text('$good из $total',
-                      style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-                ],
-              );
-            }
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Сессии с точностью > 80%',
-                    style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-                Text('$good из $total',
-                    style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-              ],
-            );
-          }),
-          SizedBox(height: 4 * scale),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.white24,
-              valueColor: AlwaysStoppedAnimation<Color>(accent),
-              minHeight: 6 * scale,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGoalProgress(BuildContext context, int good, double scale) {
-    final progress = (good / 10.0).clamp(0.0, 1.0);
-    final accent = Theme.of(context).colorScheme.secondary;
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12 * scale),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          LayoutBuilder(builder: (context, constraints) {
-            if (constraints.maxWidth < 360) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Цель месяца: 10 сессий с точностью > 90%',
-                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-                  SizedBox(height: 4 * scale),
-                  Text('$good из 10',
-                      style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-                ],
-              );
-            }
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text('Цель месяца: 10 сессий с точностью > 90%',
-                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-                ),
-                Text('$good из 10',
-                    style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-              ],
-            );
-          }),
-          SizedBox(height: 4 * scale),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.white24,
-              valueColor: AlwaysStoppedAnimation<Color>(accent),
-              minHeight: 6 * scale,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Color _diffColor(num diff, bool higherIsBetter) {
@@ -334,33 +153,6 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final arrow = diff <= 0 ? '▼' : '▲';
     final sign = diff > 0 ? '+' : '-';
     return '$arrow $sign${diff.abs()} mistakes vs last session';
-  }
-
-  Widget _buildStreetFilters(double scale) {
-    const labels = kStreetNames;
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12 * scale),
-      child: Wrap(
-        spacing: 8 * scale,
-        children: [
-          for (int i = 0; i < labels.length; i++)
-            FilterChip(
-              label: Text(labels[i]),
-              selected: _selectedStreets.contains(i),
-              onSelected: (v) {
-                setState(() {
-                  if (v) {
-                    _selectedStreets.add(i);
-                  } else {
-                    _selectedStreets.remove(i);
-                  }
-                });
-                _saveSelectedStreets();
-              },
-            ),
-        ],
-      ),
-    );
   }
 
   _StatsSummary _gatherStats(SavedHandManagerService manager,
@@ -885,12 +677,19 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 child: const Text('Сбросить фильтр'),
               ),
             ),
-          _buildStat('Всего раздач', summary.totalHands.toString(), scale),
-          _buildStat(
-              'Сред. длительность', formatDuration(summary.avgDuration), scale),
+          SessionStatRow(
+              label: 'Всего раздач',
+              value: summary.totalHands.toString(),
+              scale: scale),
+          SessionStatRow(
+              label: 'Сред. длительность',
+              value: formatDuration(summary.avgDuration),
+              scale: scale),
           if (summary.overallAccuracy != null)
-            _buildStat('Точность',
-                '${summary.overallAccuracy!.toStringAsFixed(1)}%', scale),
+            SessionStatRow(
+                label: 'Точность',
+                value: '${summary.overallAccuracy!.toStringAsFixed(1)}%',
+                scale: scale),
           if (summary.accuracyDiff != null || summary.mistakeDiff != null)
             Padding(
               padding: EdgeInsets.only(bottom: 12 * scale),
@@ -912,11 +711,15 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 ],
               ),
             ),
-          _buildStat('Сессий с заметками', summary.sessionsWithNotes.toString(),
-              scale),
-          _buildAccuracyProgress(
-              context, summary.sessionsAbove80, summary.sessionsCount, scale),
-          _buildGoalProgress(context, summary.sessionsAbove90, scale),
+          SessionStatRow(
+              label: 'Сессий с заметками',
+              value: summary.sessionsWithNotes.toString(),
+              scale: scale),
+          AccuracyProgressBar(
+              good: summary.sessionsAbove80,
+              total: summary.sessionsCount,
+              scale: scale),
+          GoalProgressBar(good: summary.sessionsAbove90, scale: scale),
           Padding(
             padding: EdgeInsets.only(bottom: 12 * scale),
             child: ElevatedButton(
@@ -945,83 +748,27 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
               child: const Text('Точность по группам'),
             ),
           ),
-          _buildStreetFilters(scale),
+          StreetFilterChips(
+            selected: _selectedStreets,
+            scale: scale,
+            onChanged: (i, v) {
+              setState(() {
+                if (v) {
+                  _selectedStreets.add(i);
+                } else {
+                  _selectedStreets.remove(i);
+                }
+              });
+              _saveSelectedStreets();
+            },
+          ),
           MistakeByStreetChart(counts: summary.mistakesByStreet),
           SessionAccuracyDistributionChart(
               accuracies: summary.sessionAccuracies),
           SessionVolumeAccuracyChart(sessions: sessionSeries),
           SizedBox(height: 16 * scale),
           if (weekly.length > 1)
-            Container(
-              height: responsiveSize(context, 200),
-              padding: EdgeInsets.all(12 * scale),
-              decoration: BoxDecoration(
-                color: AppColors.cardBackground,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: LineChart(
-                LineChartData(
-                  minY: 0,
-                  maxY: 100,
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: false,
-                    horizontalInterval: 20,
-                    getDrawingHorizontalLine: (value) =>
-                        const FlLine(color: Colors.white24, strokeWidth: 1),
-                  ),
-                  titlesData: FlTitlesData(
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: 20,
-                        reservedSize: 30,
-                        getTitlesWidget: (value, meta) => Text(
-                          value.toInt().toString(),
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 10),
-                        ),
-                      ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: 1,
-                        getTitlesWidget: (value, meta) {
-                          final index = value.toInt();
-                          if (index < 0 || index >= weekly.length) {
-                            return const SizedBox.shrink();
-                          }
-                          if (index % step != 0 && index != weekly.length - 1) {
-                            return const SizedBox.shrink();
-                          }
-                          final d = weekly[index].weekStart;
-                          final label =
-                              '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                          return Text(
-                            label,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 10),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: const Border(
-                      left: BorderSide(color: Colors.white24),
-                      bottom: BorderSide(color: Colors.white24),
-                    ),
-                  ),
-                  lineBarsData: [line],
-                ),
-              ),
-            ),
+            WeeklyWinrateChart(data: weekly, scale: scale),
           if (summary.mistakeTag != null) ...[
             SizedBox(height: 16 * scale),
             Container(
@@ -1039,8 +786,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Типичная ошибка',
-                            style: TextStyle(color: Colors.white70)),
+                        const SessionSectionHeader('Типичная ошибка'),
                         SizedBox(height: 4 * scale),
                         Text(
                           '${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})',
@@ -1055,22 +801,30 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           ],
           if (summary.tagEntries.isNotEmpty) ...[
             SizedBox(height: 16 * scale),
-            const Text('Использование тегов',
-                style: TextStyle(color: Colors.white70)),
+            const SessionSectionHeader('Использование тегов'),
             SizedBox(height: 8 * scale),
             for (final e in summary.tagEntries)
-              _buildTag(context, e.key, e.value, scale),
+              SessionTagRow(
+                tag: e.key,
+                count: e.value,
+                scale: scale,
+                selected: _activeTag == e.key,
+                onTap: () {
+                  setState(() =>
+                      _activeTag = _activeTag == e.key ? null : e.key);
+                  _saveActiveTag();
+                },
+              ),
           ],
           if (summary.errorTagEntries.isNotEmpty) ...[
             SizedBox(height: 16 * scale),
-            const Text('Ошибки по тегам',
-                style: TextStyle(color: Colors.white70)),
+            const SessionSectionHeader('Ошибки по тегам'),
             SizedBox(height: 8 * scale),
             for (final e in summary.errorTagEntries)
-              _buildStat(
-                e.key,
-                e.value.toString(),
-                scale,
+              SessionStatRow(
+                label: e.key,
+                value: e.value.toString(),
+                scale: scale,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -1086,15 +840,14 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           ],
           if (summary.positionTotals.values.any((v) => v > 0)) ...[
             SizedBox(height: 16 * scale),
-            const Text('Ошибки по позициям',
-                style: TextStyle(color: Colors.white70)),
+            const SessionSectionHeader('Ошибки по позициям'),
             SizedBox(height: 8 * scale),
             if (summary.positionTotals['SB']! > 0)
-              _buildPositionRow(
-                'SB',
-                summary.positionCorrect['SB']!,
-                summary.positionTotals['SB']!,
-                scale,
+              PositionAccuracyRow(
+                position: 'SB',
+                correct: summary.positionCorrect['SB']!,
+                total: summary.positionTotals['SB']!,
+                scale: scale,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -1108,11 +861,11 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 },
               ),
             if (summary.positionTotals['BB']! > 0)
-              _buildPositionRow(
-                'BB',
-                summary.positionCorrect['BB']!,
-                summary.positionTotals['BB']!,
-                scale,
+              PositionAccuracyRow(
+                position: 'BB',
+                correct: summary.positionCorrect['BB']!,
+                total: summary.positionTotals['BB']!,
+                scale: scale,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -1130,13 +883,6 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       ),
     );
   }
-}
-
-class _WeekData {
-  final DateTime weekStart;
-  final double winrate;
-
-  _WeekData(this.weekStart, this.winrate);
 }
 
 class _SessionData {
@@ -1158,7 +904,7 @@ class _StatsSummary {
   final int sessionsAbove90;
   final List<double> sessionAccuracies;
   final List<SessionVolumeAccuracyPoint> sessions;
-  final List<_WeekData> weekly;
+  final List<WeekWinrate> weekly;
   final List<MapEntry<String, int>> tagEntries;
   final List<MapEntry<String, int>> errorTagEntries;
   final Map<String, int> positionTotals;
