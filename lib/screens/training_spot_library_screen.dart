@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/training_spot_file_service.dart';
-import '../widgets/training_spot_search_bar.dart';
 import '../widgets/training_spot_filter_panel.dart';
 import '../widgets/training_spot_list_body.dart';
 
@@ -232,16 +231,15 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
       ),
       body: Column(
         children: [
-          TrainingSpotSearchBar(
-            controller: _searchController,
-            onChanged: (_) => setState(() {}),
-          ),
           TrainingSpotFilterPanel(
+            searchController: _searchController,
+            onSearchChanged: (_) => setState(() {}),
             tags: tags,
             positions: positions,
             positionValue: _positionFilter,
             tagValue: _tagFilter,
-            onPositionChanged: (v) => setState(() => _positionFilter = v ?? 'All'),
+            onPositionChanged:
+                (v) => setState(() => _positionFilter = v ?? 'All'),
             onTagChanged: (v) => setState(() => _tagFilter = v ?? 'All'),
           ),
           if (filters.isNotEmpty)

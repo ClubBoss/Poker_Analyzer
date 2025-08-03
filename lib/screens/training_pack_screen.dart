@@ -65,7 +65,7 @@ import '../services/goals_service.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/eval_result_view.dart';
 import '../models/result_entry.dart';
-import '../widgets/common/training_spot_list.dart';
+import '../widgets/training_spot_list_core.dart';
 import 'markdown_preview_screen.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'training_spot_detail_screen.dart';
