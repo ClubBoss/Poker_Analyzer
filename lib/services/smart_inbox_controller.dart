@@ -8,6 +8,7 @@ import 'smart_booster_inbox_limiter_service.dart';
 import 'smart_pinned_block_booster_provider.dart';
 import 'smart_inbox_item_deduplication_service.dart';
 import 'smart_inbox_priority_scorer_service.dart';
+import 'smart_decay_inbox_booster_service.dart';
 
 /// Aggregates smart inbox items for the user.
 class SmartInboxController {
@@ -17,6 +18,7 @@ class SmartInboxController {
     SmartBoosterDiversitySchedulerService? diversityScheduler,
     SmartInboxItemDeduplicationService? deduplicator,
     SmartInboxPriorityScorerService? priorityScorer,
+    SmartDecayInboxBoosterService? decayBooster,
   })  : boosterProvider = boosterProvider ?? SmartPinnedBlockBoosterProvider(),
         inboxLimiter = inboxLimiter ?? SmartBoosterInboxLimiterService(),
         diversityScheduler =
@@ -24,18 +26,30 @@ class SmartInboxController {
         deduplicator =
             deduplicator ?? SmartInboxItemDeduplicationService(),
         priorityScorer =
-            priorityScorer ?? SmartInboxPriorityScorerService();
+            priorityScorer ?? SmartInboxPriorityScorerService(),
+        decayBooster = decayBooster ?? const SmartDecayInboxBoosterService();
 
   final SmartPinnedBlockBoosterProvider boosterProvider;
   final SmartBoosterInboxLimiterService inboxLimiter;
   final SmartBoosterDiversitySchedulerService diversityScheduler;
   final SmartInboxItemDeduplicationService deduplicator;
   final SmartInboxPriorityScorerService priorityScorer;
+  final SmartDecayInboxBoosterService decayBooster;
 
   /// Builds booster widgets to display in the smart inbox.
   Future<List<Widget>> buildBoosterInbox() async {
     final items = <Widget>[];
-    final boosters = await boosterProvider.getBoosters();
+    final boosters = <PinnedBlockBoosterSuggestion>[];
+    boosters.addAll(await boosterProvider.getBoosters());
+    final decayItems = await decayBooster.getItems();
+    for (final item in decayItems) {
+      boosters.add(PinnedBlockBoosterSuggestion(
+        blockId: 'decay:${item.tag}',
+        blockTitle: 'Decay Recovery',
+        tag: item.tag,
+        action: 'decayBooster',
+      ));
+    }
     var scheduled = <PinnedBlockBoosterSuggestion>[];
     var deduped = <PinnedBlockBoosterSuggestion>[];
     var sorted = <PinnedBlockBoosterSuggestion>[];

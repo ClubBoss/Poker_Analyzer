@@ -7,6 +7,7 @@ import '../services/mini_lesson_library_service.dart';
 import '../screens/v2/training_pack_play_screen.dart';
 import '../screens/mini_lesson_screen.dart';
 import '../services/booster_interaction_tracker_service.dart';
+import '../services/decay_booster_training_launcher.dart';
 
 /// Banner that surfaces booster suggestions from pinned theory blocks with
 /// decayed tags.
@@ -19,6 +20,10 @@ class InboxPinnedBlockBoosterBanner extends StatelessWidget {
     BuildContext context,
     PinnedBlockBoosterSuggestion s,
   ) async {
+    if (s.action == 'decayBooster') {
+      await const DecayBoosterTrainingLauncher().launch();
+      return;
+    }
     if (s.action == 'resumePack' && s.packId != null) {
       final tpl = await PackLibraryService.instance.getById(s.packId!);
       if (tpl == null) return;
@@ -83,7 +88,11 @@ class InboxPinnedBlockBoosterBanner extends StatelessWidget {
                 ),
                 ActionChip(
                   label: Text(
-                    s.action == 'resumePack' ? '🎯 Drill' : '📘 Review',
+                    s.action == 'resumePack'
+                        ? '🎯 Drill'
+                        : s.action == 'decayBooster'
+                            ? '⚡ Boost'
+                            : '📘 Review',
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor: accent,
