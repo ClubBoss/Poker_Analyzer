@@ -25,3 +25,6 @@ nodes:
     next: [defend_utg_vs_hj_3bet_cash]
   - type: stage
     stageId: defend_utg_vs_hj_3bet_cash
+    next: [postflop_utg_call_vs_hj_3bet_cash]
+  - type: stage
+    stageId: postflop_utg_call_vs_hj_3bet_cash

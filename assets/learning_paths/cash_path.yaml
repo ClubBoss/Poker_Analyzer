@@ -8,5 +8,6 @@ packs:
   - assets/packs/v2/preflop/threebet_co_vs_hj_cash.yaml
   - assets/packs/v2/preflop/threebet_hj_vs_utg_cash.yaml
   - assets/packs/v2/preflop/defend_utg_vs_hj_3bet_cash.yaml
+  - assets/packs/v2/postflop/postflop_utg_call_vs_hj_3bet_cash.yaml
   - assets/packs/v2/preflop/open_fold_mid_cash.yaml
   - assets/packs/v2/preflop/threebet_push_late_cash.yaml
