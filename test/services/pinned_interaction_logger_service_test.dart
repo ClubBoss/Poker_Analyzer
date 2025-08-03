@@ -33,5 +33,20 @@ void main() {
     expect(stats['dismissals'], 1);
     expect(stats['opens'], 0);
   });
+
+  test('records dismissal time and clears fatigue', () async {
+    final service = PinnedInteractionLoggerService.instance;
+    const item = PinnedLearningItem(type: 'lesson', id: 'l2');
+
+    await service.logDismissed(item);
+
+    expect(await service.getLastDismissed('l2'), isNotNull);
+
+    await service.clearFatigueFor('l2');
+
+    final stats = await service.getStatsFor('l2');
+    expect(stats['dismissals'], 0);
+    expect(stats['lastDismissed'], isNull);
+  });
 }
 
