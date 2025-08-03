@@ -1,5 +1,6 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
@@ -26,6 +27,7 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   bool _theoryCompleted = false;
   int _completed = 0;
   late int _total;
+  bool _locked = false;
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -84,11 +86,18 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
 
   Future<void> _checkTheory() async {
     final lessonId = _linkedLessonId();
-    if (lessonId == null) return;
+    if (lessonId == null) {
+      if (mounted) setState(() => _locked = false);
+      return;
+    }
     final done =
         await TheoryLessonCompletionLogger.instance.isCompleted(lessonId);
     if (mounted) {
-      setState(() => _theoryCompleted = done);
+      setState(() {
+        _theoryCompleted = done;
+        _locked =
+            widget.template.requiresTheoryCompleted && !done && !kDebugMode;
+      });
       _maybeShowReward();
     }
   }
@@ -116,6 +125,12 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
+        if (_locked) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Сначала пройдите теорию')),
+          );
+          return;
+        }
         if (widget.template.id == TrainingPackLibraryV2.mvpPackId) {
           await TrainingProgressLogger.startSession(widget.template.id);
           await const TrainingSessionLauncher().launch(widget.template);
@@ -195,6 +210,19 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
               child: Tooltip(
                 message: 'Пак завершен',
                 child: Icon(Icons.emoji_events, color: Colors.amber),
+              ),
+            ),
+          if (_locked)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: Tooltip(
+                    message: 'Сначала пройдите теорию',
+                    child:
+                        Icon(Icons.lock, color: Colors.white70, size: 48),
+                  ),
+                ),
               ),
             ),
           if (_showReward) ...[
