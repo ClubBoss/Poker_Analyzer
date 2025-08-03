@@ -10,15 +10,17 @@ class SpotIssue {
 
 typedef SpotRule = String? Function(TrainingPackSpot s, int idx);
 
-final List<SpotRule> spotRules = [
-  (s, i) => s.hand.heroCards.trim().isEmpty ? 'no hero cards' : null,
-  (s, i) {
-    final board = [
+List<String> _extractBoard(TrainingPackSpot s) => [
       for (final street in [1, 2, 3])
         for (final a in s.hand.actions[street] ?? [])
           if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
             ...a.customLabel!.split(' ')
     ];
+
+final List<SpotRule> spotRules = [
+  (s, i) => s.hand.heroCards.trim().isEmpty ? 'no hero cards' : null,
+  (s, i) {
+    final board = _extractBoard(s);
     if (board.isNotEmpty && ![3, 4, 5].contains(board.length)) {
       return 'invalid board';
     }
