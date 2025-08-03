@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'theory_recall_evaluator.dart';
 
 /// Provides recall lesson suggestions after booster completion.
@@ -19,7 +19,7 @@ class BoosterRecallBannerEngine {
     final lessons = await recall.recallSuggestions(limit: 1);
     if (lessons.isEmpty) return null;
     final lesson = lessons.first;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (prefs.getBool('$_dismissPrefix${lesson.id}') ?? false) {
       return null;
     }
@@ -28,7 +28,7 @@ class BoosterRecallBannerEngine {
 
   /// Marks [lessonId] dismissed so it won't be suggested again.
   Future<void> dismiss(String lessonId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool('$_dismissPrefix$lessonId', true);
   }
 }

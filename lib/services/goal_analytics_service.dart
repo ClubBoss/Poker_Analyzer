@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_goal.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'user_action_logger.dart';
 
 class GoalAnalyticsService {
@@ -17,7 +17,7 @@ class GoalAnalyticsService {
   }
 
   Future<void> logGoalCompleted(UserGoal goal) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = '$_completionPrefix${goal.id}';
     if (prefs.getBool(key) == true) return;
     await _logEvent('goal_completed', goal, 100);

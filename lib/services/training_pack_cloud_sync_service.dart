@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cloud_retry_policy.dart';
 
@@ -20,7 +20,7 @@ class TrainingPackCloudSyncService {
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final ts = prefs.getString('pack_sync_ts');
     if (ts != null) lastSync.value = DateTime.tryParse(ts);
   }
@@ -69,7 +69,7 @@ class TrainingPackCloudSyncService {
       await batch.commit();
     });
     lastSync.value = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
   }
 
@@ -79,7 +79,7 @@ class TrainingPackCloudSyncService {
     storage.notifyListeners();
     storage.schedulePersist();
     lastSync.value = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
   }
 
@@ -155,7 +155,7 @@ class TrainingPackCloudSyncService {
     storage.merge(remote);
     await storage.saveAll();
     lastSync.value = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
   }
 
@@ -171,7 +171,7 @@ class TrainingPackCloudSyncService {
     });
     await syncUpStats();
     lastSync.value = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
   }
 
@@ -188,7 +188,7 @@ class TrainingPackCloudSyncService {
   }
 
   Future<Map<String, TrainingPackStat>> _localStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final map = <String, TrainingPackStat>{};
     for (final k in prefs.getKeys()) {
       if (!k.startsWith('tpl_stat_')) continue;
@@ -205,7 +205,7 @@ class TrainingPackCloudSyncService {
   }
 
   Future<void> _saveLocalStats(Map<String, TrainingPackStat> stats) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final e in stats.entries) {
       await prefs.setString('tpl_stat_${e.key}', jsonEncode(e.value.toJson()));
     }
@@ -222,7 +222,7 @@ class TrainingPackCloudSyncService {
     }
     await _saveLocalStats(local);
     lastSync.value = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('pack_sync_ts', lastSync.value!.toIso8601String());
   }
 

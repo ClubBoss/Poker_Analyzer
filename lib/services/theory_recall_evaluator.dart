@@ -1,4 +1,5 @@
 import '../models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/v2/training_spot_v2.dart';
 import 'booster_cooldown_service.dart';
 import 'mini_lesson_progress_tracker.dart';
@@ -7,7 +8,6 @@ import 'mini_lesson_library_service.dart';
 import 'pack_library_loader_service.dart';
 import 'training_pack_stats_service.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Scores theory lessons for recall based on relevance and recency.
 class TheoryRecallEvaluator {
@@ -100,7 +100,7 @@ class TheoryRecallEvaluator {
     final packs = boosterLibrary ?? await PackLibraryLoaderService.instance.loadLibrary();
     final lessons = library ?? MiniLessonLibraryService.instance;
     await lessons.loadAll();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final cutoff = DateTime.now().subtract(Duration(days: days));
 
     final completed = await BoosterCompletionTracker.instance.getAllCompletedBoosters();

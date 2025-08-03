@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists tag mastery values between app sessions.
 class MasteryPersistenceService {
@@ -8,7 +8,7 @@ class MasteryPersistenceService {
 
   /// Saves the provided [tagMastery] map to local storage.
   Future<void> save(Map<String, double> tagMastery) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final sanitized = <String, double>{};
     tagMastery.forEach((tag, value) {
       final key = tag.trim().toLowerCase();
@@ -21,7 +21,7 @@ class MasteryPersistenceService {
 
   /// Loads the persisted tag mastery map.
   Future<Map<String, double>> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw == null || raw.isEmpty) return {};
     try {

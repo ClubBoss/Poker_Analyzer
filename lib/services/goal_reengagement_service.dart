@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_goal.dart';
 import '../models/goal_engagement.dart';
@@ -25,7 +25,7 @@ class GoalReengagementService {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -41,7 +41,7 @@ class GoalReengagementService {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode({for (final e in _dismissed.entries) e.key: e.value}),

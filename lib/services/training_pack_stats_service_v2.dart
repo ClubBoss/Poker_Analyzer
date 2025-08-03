@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
 import 'training_pack_stats_service.dart';
@@ -53,7 +53,7 @@ class TrainingPackStatsServiceV2 {
   static const _key = 'training_pack_stats_v2';
 
   static Future<List<PackResultEntry>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw == null) return [];
     try {
@@ -70,7 +70,7 @@ class TrainingPackStatsServiceV2 {
   }
 
   static Future<void> _save(List<PackResultEntry> list) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_key, jsonEncode([for (final e in list) e.toJson()]));
   }
 

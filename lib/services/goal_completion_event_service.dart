@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/goal_completion_event.dart';
 import '../models/goal_progress.dart';
@@ -21,7 +21,7 @@ class GoalCompletionEventService {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -39,7 +39,7 @@ class GoalCompletionEventService {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final map = {
       for (final e in _events.entries) e.key: e.value.toIso8601String()
     };

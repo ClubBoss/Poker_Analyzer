@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
 import 'achievements_engine.dart';
@@ -108,7 +108,7 @@ class MistakeReviewPackService extends ChangeNotifier {
     } else {
       _box = Hive.box('mistake_packs');
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _progress = prefs.getInt(_progressKey) ?? 0;
     final str = prefs.getString(_dateKey);
     _date = str != null ? DateTime.tryParse(str) : null;
@@ -161,7 +161,7 @@ class MistakeReviewPackService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_progressKey, _progress);
     await prefs.setString(_dateKey, _date!.toIso8601String());
     await prefs.setStringList(
@@ -252,7 +252,7 @@ class MistakeReviewPackService extends ChangeNotifier {
         _packs.remove(p);
         // cleanup orphaned cached entries
         try {
-          await SharedPreferences.getInstance()
+          await PreferencesService.getInstance()
               .then((prefs) => prefs.remove('mistake_pack_${p.id}'));
           if (_box != null) await _box!.delete('mistake_pack_${p.id}');
         } catch (_) {}

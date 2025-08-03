@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
 import 'pack_library_loader_service.dart';
@@ -26,7 +26,7 @@ class SmartSuggestionEngine {
 
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = PackLibraryLoaderService.instance.library;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
 
     final recentMistakes = logs.getRecentMistakes();
     final mistakeTags =

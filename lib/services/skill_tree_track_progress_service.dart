@@ -1,11 +1,11 @@
 import '../models/skill_tree.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/skill_tree_node_model.dart';
 import 'skill_tree_builder_service.dart';
 import 'skill_tree_library_service.dart';
 import 'skill_tree_node_progress_tracker.dart';
 import 'skill_tree_final_node_completion_detector.dart';
 import 'skill_tree_unlock_evaluator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'track_milestone_unlocker_service.dart';
 
 /// Progress information for a single skill tree track.
@@ -125,13 +125,13 @@ class SkillTreeTrackProgressService {
 
   /// Marks [trackId] as started.
   Future<void> markStarted(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_startedKey(trackId), true);
   }
 
   /// Whether [trackId] has been started previously.
   Future<bool> isStarted(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_startedKey(trackId)) ?? false;
   }
 }

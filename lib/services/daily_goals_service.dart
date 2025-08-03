@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/saved_hand.dart';
 import 'training_stats_service.dart';
 import 'saved_hand_manager_service.dart';
@@ -26,7 +26,7 @@ class DailyGoalsService extends ChangeNotifier {
   DailyGoalsService({required this.stats, required this.hands});
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dateStr = prefs.getString(_dateKey);
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
     final raw = prefs.getString(_targetsKey);
@@ -105,7 +105,7 @@ class DailyGoalsService extends ChangeNotifier {
     targetIcm = _calcIcm(recent) + 0.1;
     _baseSessions = stats.sessionsCompleted;
     _date = DateTime(now.year, now.month, now.day);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_dateKey, _date!.toIso8601String());
     await prefs.setInt(_baseSessionsKey, _baseSessions);
     await prefs.setString(

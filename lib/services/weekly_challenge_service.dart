@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
 import 'training_pack_storage_service.dart';
@@ -46,7 +46,7 @@ class WeeklyChallengeService extends ChangeNotifier {
   WeeklyChallenge get current => _challenges[_index];
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _index = prefs.getInt(_indexKey) ?? 0;
     final startStr = prefs.getString(_startKey);
     _start = startStr != null ? DateTime.tryParse(startStr) ?? DateTime.now() : DateTime.now();
@@ -119,7 +119,7 @@ class WeeklyChallengeService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_indexKey, _index);
     await prefs.setString(_startKey, _start.toIso8601String());
     await prefs.setInt(_handsKey, _baseHands);

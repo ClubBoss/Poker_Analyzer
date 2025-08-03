@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'recap_history_tracker.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Evaluates recap history and detects user fatigue to avoid overprompting.
 class RecapFatigueEvaluator {
@@ -14,7 +14,7 @@ class RecapFatigueEvaluator {
   static const _lessonPrefix = 'recap_fatigue_lesson_';
 
   Future<bool> _isActive(String key) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(key);
     if (str == null) return false;
     final ts = DateTime.tryParse(str);
@@ -25,7 +25,7 @@ class RecapFatigueEvaluator {
   }
 
   Future<void> _set(String key, Duration duration) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(key, DateTime.now().add(duration).toIso8601String());
   }
 
@@ -70,7 +70,7 @@ class RecapFatigueEvaluator {
 
   /// Remaining cooldown based on active fatigue flags.
   Future<Duration> recommendedCooldown() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     DateTime? until;
     final globalStr = prefs.getString(_globalKey);
     if (globalStr != null) {

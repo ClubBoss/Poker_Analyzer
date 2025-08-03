@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import '../helpers/category_translations.dart';
@@ -353,7 +353,7 @@ class _PackCard extends StatelessWidget {
 
   Future<void> _onDone(BuildContext context) async {
     onDone();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final done = prefs.getBool('completed_tpl_${template.id}') ?? false;
     if (!done || !context.mounted) return;
     final templates = context.read<TemplateStorageService>().templates;

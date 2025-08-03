@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/pinned_pack_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/mistake_category_translations.dart';
 import 'coverage_meter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/date_utils.dart';
 import '../services/training_pack_stats_service.dart';
 import 'package:intl/intl.dart';
@@ -54,7 +54,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   }
 
   Future<void> _resetProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove('progress_tpl_${widget.template.id}');
     await prefs.remove('completed_tpl_${widget.template.id}');
     await prefs.remove('completed_at_tpl_${widget.template.id}');
@@ -138,7 +138,7 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   }
 
   Future<void> _loadStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final ts = DateTime.tryParse(
       prefs.getString('completed_at_tpl_${widget.template.id}') ?? '',
     );

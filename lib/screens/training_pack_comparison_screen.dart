@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../widgets/progress_chip.dart';
@@ -16,7 +17,6 @@ import '../models/training_pack_stats.dart';
 import '../models/pack_chart_sort_option.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_review_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/pack_next_step_card.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
@@ -244,15 +244,15 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   String _colorFilter = 'All';
   Color _lastColor = Colors.blue;
   static const _lastColorKey = 'pack_last_color';
-  SharedPreferences? _prefs;
+  bool _prefsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
+    PreferencesService.getInstance().then((p) {
       if (mounted) {
         setState(() {
-          _prefs = p;
+          _prefsLoaded = true;
           _diffFilter = p.getInt('pack_diff_filter') ?? 0;
           _colorFilter = p.getString('pack_color_filter') ?? 'All';
           _lastColor = colorFromHex(p.getString(_lastColorKey) ?? '#2196F3');
@@ -538,7 +538,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 
   Future<void> _setColorTag() async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final color = await showColorPickerDialog(
       context,
       initialColor: _lastColor,
@@ -610,9 +610,10 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
 
     TrainingPack? nextPack;
     double nextProgress = 1.0;
-    if (_prefs != null) {
+    if (_prefsLoaded) {
       for (final p in packs) {
-        final idx = _prefs!.getInt('training_progress_${p.name}') ?? 0;
+        final idx =
+            PreferencesService.instance.getInt('training_progress_${p.name}') ?? 0;
         if (p.hands.isEmpty || idx >= p.hands.length) continue;
         final ratio = idx / p.hands.length;
         if (nextPack == null || ratio < nextProgress) {
@@ -670,7 +671,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             diffFilter: _diffFilter,
             onDiffChanged: (value) async {
               setState(() => _diffFilter = value);
-              final prefs = _prefs ?? await SharedPreferences.getInstance();
+              final prefs = await PreferencesService.getInstance();
               if (value == 0) {
                 await prefs.remove('pack_diff_filter');
               } else {
@@ -680,7 +681,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             colorFilter: _colorFilter,
             onColorChanged: (value) async {
               final val = value ?? 'All';
-              final prefs = _prefs ?? await SharedPreferences.getInstance();
+              final prefs = await PreferencesService.getInstance();
               if (val == 'Custom') {
                 final color = await showColorPickerDialog(
                   context,

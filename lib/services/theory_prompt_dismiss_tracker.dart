@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_prompt_dismiss_entry.dart';
 
@@ -17,7 +17,7 @@ class TheoryPromptDismissTracker {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw != null) {
       try {
@@ -32,7 +32,7 @@ class TheoryPromptDismissTracker {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _key,
       jsonEncode([for (final h in _history) h.toJson()]),

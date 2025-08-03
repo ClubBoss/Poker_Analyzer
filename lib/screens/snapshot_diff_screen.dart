@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/pack_snapshot.dart';
 import '../models/training_pack.dart';
@@ -42,7 +42,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     super.initState();
     _pack = widget.pack;
     _compute();
-    SharedPreferences.getInstance().then((p) =>
+    PreferencesService.getInstance().then((p) =>
         p.setString('pack_editor_last_snapshot_diff', widget.snapshot.id));
   }
 

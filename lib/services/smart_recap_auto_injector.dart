@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import '../widgets/theory_recap_dialog.dart';
 import 'recap_opportunity_detector.dart';
@@ -43,7 +43,7 @@ class SmartRecapAutoInjector {
   }
 
   Future<bool> _recentlyDismissed() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString('smart_theory_recap_dismissed');
     if (str == null) return false;
     final ts = DateTime.tryParse(str);

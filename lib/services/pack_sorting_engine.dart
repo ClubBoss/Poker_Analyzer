@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
 import 'pack_library_completion_service.dart';
@@ -53,7 +53,7 @@ class PackSortingEngine {
   /// Sorts [packs] by the time they were last trained.
   static Future<List<TrainingPackTemplateV2>> sortByLastTrained(
       List<TrainingPackTemplateV2> packs) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final entries = packs.asMap().entries.toList();
     mergeSort<MapEntry<int, TrainingPackTemplateV2>>(entries,
         compare: (a, b) {

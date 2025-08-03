@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_goal.dart';
 import 'user_goal_engine.dart';
@@ -50,7 +50,7 @@ class SmartGoalReminderScheduler with WidgetsBindingObserver {
   }
 
   Future<void> _evaluate() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final Map<String, String> log = {};
     final raw = prefs.getString(_logKey);
     if (raw != null && raw.isNotEmpty) {

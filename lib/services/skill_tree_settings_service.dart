@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'cloud_preferences_service.dart';
 
@@ -14,7 +14,7 @@ class SkillTreeSettingsService {
 
   Future<void> load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final cloudVal =
         await CloudPreferencesService.instance.getBool(_hideCompletedKey);
     final localVal = prefs.getBool(_hideCompletedKey);
@@ -25,7 +25,7 @@ class SkillTreeSettingsService {
   }
 
   Future<void> setHideCompletedPrereqs(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_hideCompletedKey, value);
     hideCompletedPrereqs.value = value;
     await CloudPreferencesService.instance.setBool(_hideCompletedKey, value);

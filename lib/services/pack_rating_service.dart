@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class PackRatingService {
   PackRatingService._();
@@ -9,7 +9,7 @@ class PackRatingService {
   Map<String, int> _ratings = {};
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -26,7 +26,7 @@ class PackRatingService {
   Future<void> rate(String packId, int rating) async {
     if (rating < 1 || rating > 5) return;
     _ratings[packId] = rating;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, jsonEncode(_ratings));
   }
 

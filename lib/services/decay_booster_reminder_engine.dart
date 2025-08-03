@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'booster_queue_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'theory_tag_decay_tracker.dart';
 import 'user_action_logger.dart';
 
@@ -32,7 +32,7 @@ class DecayBoosterReminderEngine {
       return false;
     }
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     if (last != null && current.difference(last) < const Duration(days: 1)) {

@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -23,7 +23,7 @@ class StreakReminderService extends ChangeNotifier {
   StreakReminderService({required this.logs});
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _enabled = prefs.getBool(_enabledKey) ?? true;
     await _initPlugin();
     _logsListener = _schedule;
@@ -41,7 +41,7 @@ class StreakReminderService extends ChangeNotifier {
 
   Future<void> setEnabled(bool value) async {
     if (_enabled == value) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_enabledKey, value);
     _enabled = value;
     if (!value) await _plugin.cancel(_id);

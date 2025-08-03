@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/confetti_overlay.dart';
 import 'coins_service.dart';
@@ -48,7 +48,7 @@ class DecayMilestoneCelebrationService {
 
   /// Checks the current streak and celebrates newly reached milestones.
   Future<void> maybeCelebrate(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final last = prefs.getInt(_prefsKey) ?? 0;
     final streak = await tracker.getCurrentStreak();
     int? milestone;

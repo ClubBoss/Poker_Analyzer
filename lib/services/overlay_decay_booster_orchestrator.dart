@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../models/theory_mini_lesson_node.dart';
@@ -45,7 +45,7 @@ class OverlayDecayBoosterOrchestrator {
 
   /// Shows a prompt if a highly decayed tag is detected.
   Future<void> maybeShow(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;

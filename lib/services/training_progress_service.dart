@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'learning_path_orchestrator.dart';
 import 'pack_library_loader_service.dart';
 
@@ -30,7 +30,7 @@ class TrainingProgressService {
   DateTime _tagCacheTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   Future<double> getProgress(String templateId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final idx = prefs.getInt('tpl_prog_$templateId') ??
         prefs.getInt('progress_tpl_$templateId');
     if (idx == null) return 0.0;

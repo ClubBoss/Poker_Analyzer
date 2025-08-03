@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import 'skill_tree_node_progress_tracker.dart';
@@ -24,7 +24,7 @@ class TrackCompletionCelebrationService {
   Future<void> maybeCelebrate(String trackId) async {
     if (!await progress.isTrackCompleted(trackId)) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = '$_prefsPrefix$trackId';
     if (prefs.getBool(key) ?? false) return;
     await prefs.setBool(key, true);

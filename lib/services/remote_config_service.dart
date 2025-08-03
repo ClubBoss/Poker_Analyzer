@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cloud_retry_policy.dart';
 
@@ -17,7 +17,7 @@ class RemoteConfigService extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final json = prefs.getString('remote_config_json');
     final ts = prefs.getInt('remote_config_ts');
     if (json != null) {
@@ -47,7 +47,7 @@ class RemoteConfigService extends ChangeNotifier {
         () => FirebaseFirestore.instance.collection('config').doc('public').get(),
       );
       if (doc.exists) {
-        final prefs = await SharedPreferences.getInstance();
+        final prefs = await PreferencesService.getInstance();
         final now = DateTime.now();
         _data = doc.data() ?? {};
         data.value = Map.from(_data);

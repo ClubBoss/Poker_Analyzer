@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_goal.dart';
 import 'mini_lesson_library_service.dart';
@@ -47,7 +47,7 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
   DateTime _lastUpdated = DateTime.fromMillisecondsSinceEpoch(0);
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_prefsKey);
     if (list != null) {
       try {
@@ -66,7 +66,7 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _prefsKey,
       [for (final g in _activeGoals) jsonEncode(g.toJson())],

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'training_history_service_v2.dart';
 import 'training_pack_stats_service.dart';
 import 'training_tag_performance_engine.dart';
@@ -48,7 +48,7 @@ class TrainingGapDetectorService {
   Future<String?> detectWeakCategory(
       {int minHands = 10, double evThreshold = 50}) async {
     await TrainingPackStatsService.getCategoryStats();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_skillKey);
     if (raw == null) return null;
     try {

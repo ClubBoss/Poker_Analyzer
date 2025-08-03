@@ -1,6 +1,6 @@
 import 'dart:math';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'decay_reward_fatigue_limiter.dart';
 
@@ -50,7 +50,7 @@ class DecayRewardDropEngine {
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_countKey, (prefs.getInt(_countKey) ?? 0) + 1);
     await prefs.setString(_lastKey, DateTime.now().toIso8601String());
 

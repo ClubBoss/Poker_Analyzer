@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:collection/collection.dart';
 import '../helpers/training_pack_storage.dart';
 import '../models/v2/training_pack_template.dart';
@@ -27,7 +27,7 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
 
   Future<void> _load() async {
     final list = await TrainingPackStorage.load();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final last = prefs.getString(_lastKey);
     if (!mounted) return;
     setState(() {
@@ -39,7 +39,7 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
 
 
   Future<void> _start(TrainingPackTemplate tpl) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_lastKey, tpl.name);
     setState(() => _last = tpl.name);
     final hands = [for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)];

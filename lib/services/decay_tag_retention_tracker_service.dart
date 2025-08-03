@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks reinforcement events for decayed theory tags.
 class DecayTagRetentionTrackerService {
@@ -8,7 +7,7 @@ class DecayTagRetentionTrackerService {
   static const String _boosterPrefix = 'retention.boosterCompleted.';
 
   Future<void> markTheoryReviewed(String tag, {DateTime? time}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       '$_theoryPrefix${tag.toLowerCase()}',
       (time ?? DateTime.now()).toIso8601String(),
@@ -16,7 +15,7 @@ class DecayTagRetentionTrackerService {
   }
 
   Future<void> markBoosterCompleted(String tag, {DateTime? time}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       '$_boosterPrefix${tag.toLowerCase()}',
       (time ?? DateTime.now()).toIso8601String(),
@@ -24,13 +23,13 @@ class DecayTagRetentionTrackerService {
   }
 
   Future<DateTime?> getLastTheoryReview(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString('$_theoryPrefix${tag.toLowerCase()}');
     return str != null ? DateTime.tryParse(str) : null;
   }
 
   Future<DateTime?> getLastBoosterCompletion(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString('$_boosterPrefix${tag.toLowerCase()}');
     return str != null ? DateTime.tryParse(str) : null;
   }
@@ -52,7 +51,7 @@ class DecayTagRetentionTrackerService {
 
   /// Returns normalized decay scores for all tracked tags.
   Future<Map<String, double>> getAllDecayScores({DateTime? now}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final tags = <String>{};
     for (final key in prefs.getKeys()) {
       if (key.startsWith(_theoryPrefix)) {

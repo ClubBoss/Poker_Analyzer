@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Logs user interactions with Smart Inbox items.
 ///
@@ -21,7 +20,7 @@ class SmartInboxFeedbackLoggerService {
   /// Optional [source] can be provided to describe origin of the inbox item.
   Future<void> logEvent(String itemId, String eventType,
       {String? source}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = _key(itemId, eventType);
     await prefs.setInt(key, DateTime.now().millisecondsSinceEpoch);
     if (source != null) {
@@ -31,7 +30,7 @@ class SmartInboxFeedbackLoggerService {
 
   /// Returns a map of item id -> event -> timestamp.
   Future<Map<String, Map<String, DateTime>>> getFeedbackSummary() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, Map<String, DateTime>>{};
     for (final key in prefs.getKeys()) {
       if (!key.startsWith(_prefix)) continue;

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'booster_recall_scheduler.dart';
 
@@ -28,7 +28,7 @@ class BoosterRecallDecayCleaner with WidgetsBindingObserver {
   }
 
   Future<void> _runIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_lastKey);
     final last = str != null ? DateTime.tryParse(str) : null;
     if (last == null || DateTime.now().difference(last).inDays >= 7) {

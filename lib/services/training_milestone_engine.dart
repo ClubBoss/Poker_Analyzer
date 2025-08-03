@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class MilestoneResult {
   final bool triggered;
@@ -24,7 +24,7 @@ class TrainingMilestoneEngine {
 
   Future<Set<int>> _load() async {
     if (_triggered != null) return _triggered!;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getStringList(_prefsKey);
     _triggered = raw?.map((e) => int.tryParse(e) ?? 0).where((e) => e > 0).toSet() ?? {};
     return _triggered!;
@@ -32,7 +32,7 @@ class TrainingMilestoneEngine {
 
   Future<void> _save() async {
     if (_triggered == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _prefsKey,
       _triggered!.map((e) => e.toString()).toList(),

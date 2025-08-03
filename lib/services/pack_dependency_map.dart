@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'learning_path_progress_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'pack_library_loader_service.dart';
 
 class PackDependencyMap {
@@ -30,7 +30,7 @@ class PackDependencyMap {
 
   Future<List<String>> getUnlockedAfter(String packId) async {
     await _load();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final unlocked = prefs.getStringList(_prefsKey) ?? <String>[];
     final dependents = _reverse[packId] ?? const [];
     final newlyUnlocked = <String>[];
@@ -53,7 +53,7 @@ class PackDependencyMap {
 
   Future<void> recalc() async {
     await _load();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final unlocked = <String>[];
     for (final entry in _deps.entries) {
       final reqs = entry.value;
@@ -66,7 +66,7 @@ class PackDependencyMap {
   }
 
   Future<List<String>> getUnlockedPackIds() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getStringList(_prefsKey) ?? <String>[];
   }
 }

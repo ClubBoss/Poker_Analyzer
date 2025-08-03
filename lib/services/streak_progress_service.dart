@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class StreakData {
   final int currentStreak;
@@ -23,7 +22,7 @@ class StreakProgressService {
   static const _longestKey = 'streak_progress_longest';
 
   Future<void> registerDailyActivity() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastKey);
@@ -50,7 +49,7 @@ class StreakProgressService {
   }
 
   Future<StreakData> getStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final current = prefs.getInt(_currentKey) ?? 0;
     final longest = prefs.getInt(_longestKey) ?? 0;
     final lastStr = prefs.getString(_lastKey);

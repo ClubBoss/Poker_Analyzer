@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -26,7 +26,7 @@ class LessonReminderScheduler {
   }
 
   Future<TimeOfDay?> getScheduledTime() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final enabled = prefs.getBool(_enabledKey) ?? false;
     if (!enabled) return null;
     final hour = prefs.getInt(_hourKey) ?? 19;
@@ -36,7 +36,7 @@ class LessonReminderScheduler {
 
   Future<void> scheduleReminder({required TimeOfDay time}) async {
     await _init();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_hourKey, time.hour);
     await prefs.setInt(_minuteKey, time.minute);
     await prefs.setBool(_enabledKey, true);
@@ -65,7 +65,7 @@ class LessonReminderScheduler {
   Future<void> cancelReminder() async {
     await _init();
     await _plugin.cancel(_id);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_enabledKey, false);
   }
 }

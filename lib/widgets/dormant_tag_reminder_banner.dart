@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/training_gap_detector_service.dart';
 import '../services/pack_library_loader_service.dart';
@@ -29,7 +29,7 @@ class _DormantTagReminderBannerState extends State<DormantTagReminderBanner> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final hideStr = prefs.getString(_hideKey);
     final now = DateTime.now();
     if (hideStr != null) {
@@ -77,7 +77,7 @@ class _DormantTagReminderBannerState extends State<DormantTagReminderBanner> {
   }
 
   Future<void> _hide() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final until = DateTime.now().add(const Duration(days: 1));
     await prefs.setString(_hideKey, until.toIso8601String());
     if (mounted) setState(() => _pack = null);

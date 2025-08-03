@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'inbox_booster_service.dart';
 import 'mini_lesson_library_service.dart';
 import 'mini_lesson_progress_tracker.dart';
@@ -33,7 +33,7 @@ class DecayBoosterReminderService {
 
   /// Checks decayed tags and queues inbox reminders when needed.
   Future<void> run() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'saved_hand_manager_service.dart';
 
@@ -22,13 +22,13 @@ class RecommendedPackService extends ChangeNotifier {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _preferredTags = prefs.getStringList(_tagsKey) ?? [];
     _preferredCategories = prefs.getStringList(_catsKey) ?? [];
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_tagsKey, _preferredTags);
     await prefs.setStringList(_catsKey, _preferredCategories);
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/achievement_info.dart';
 import '../models/simple_achievement.dart';
 import '../widgets/achievement_unlocked_overlay.dart';
@@ -46,7 +46,7 @@ class AchievementService extends ChangeNotifier {
   DateTime? _parse(String? s) => s != null ? DateTime.tryParse(s) : null;
 
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _achievements.addAll([
       SimpleAchievement(
         id: 'first_pack',
@@ -148,7 +148,7 @@ class AchievementService extends ChangeNotifier {
   }
 
   Future<void> _save(SimpleAchievement a) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool('$_key${a.id}', a.unlocked);
     if (a.date != null) {
       await prefs.setString('$_key${a.id}_date', a.date!.toIso8601String());

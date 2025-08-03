@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_goal.dart';
 import 'cloud_retry_policy.dart';
@@ -46,7 +46,7 @@ class GoalSyncService {
       batch.set(col.doc(g.id), data, SetOptions(merge: true));
     }
     await CloudRetryPolicy.execute(() => batch.commit());
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_syncKey, now);
   }
 
@@ -76,7 +76,7 @@ class GoalSyncService {
         ),
       );
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_syncKey, DateTime.now().toIso8601String());
     return result;
   }

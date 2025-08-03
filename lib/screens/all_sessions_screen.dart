@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -75,7 +75,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   }
 
   Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final startStr = prefs.getString('sessions_date_start');
     final endStr = prefs.getString('sessions_date_end');
     DateTimeRange? range;
@@ -120,7 +120,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   }
 
   Future<void> _savePreferences() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('sessions_filter', _filter);
     await prefs.setString('sessions_sortMode', _sortMode);
     await prefs.setBool('sessions_show_summary', _showSummary);

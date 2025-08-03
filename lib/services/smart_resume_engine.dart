@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/training_pack_storage.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/resume_target.dart';
 import '../models/v2/training_pack_template.dart';
 import 'pinned_block_resume_strategy.dart';
@@ -37,7 +37,7 @@ class SmartResumeEngine {
   static const _sessionTsPrefix = 'ts_ts_';
 
   Future<int> getProgressPercent(String templateId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final templates = await TrainingPackStorage.load();
     final t = templates.firstWhere(
       (e) => e.id == templateId,
@@ -53,7 +53,7 @@ class SmartResumeEngine {
   }
 
   Future<List<UnfinishedPack>> getRecentUnfinished({int limit = 3}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final templates = await TrainingPackStorage.load();
     final entries = <MapEntry<UnfinishedPack, int>>[];
     for (final t in templates) {

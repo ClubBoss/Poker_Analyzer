@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
@@ -20,7 +20,7 @@ class _DailySpotScreenState extends State<DailySpotScreen> {
   bool _show = false;
 
   Future<void> _finish() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final packs = context.read<TrainingPackStorageService>().packs;
     String? id;
     for (int i = 0; i < packs.length; i++) {

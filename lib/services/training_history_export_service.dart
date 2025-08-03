@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/training_result.dart';
@@ -79,7 +79,7 @@ class TrainingHistoryExportService {
   static const _dateToKey = 'training_history_date_to';
 
   Future<TrainingHistoryPrefs> loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return TrainingHistoryPrefs(
       sortIndex: prefs.getInt(_sortKey) ?? 0,
       ratingIndex: prefs.getInt(_ratingKey) ?? 0,

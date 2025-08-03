@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/goal_progress_entry.dart';
 import '../models/drill_session_result.dart';
@@ -26,7 +27,7 @@ class GoalPersistence {
   GoalPersistence(this.prefs);
 
   static Future<GoalPersistence> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return GoalPersistence(prefs);
   }
 

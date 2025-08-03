@@ -1,7 +1,8 @@
 import 'dart:typed_data';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'png_exporter.dart';
 import 'reward_card_style_tuner_service.dart';
@@ -25,7 +26,7 @@ class RewardCardRendererService {
     SharedPreferences? prefs,
     RewardCardStyleTunerService? styleTuner,
   }) async {
-    final p = prefs ?? await SharedPreferences.getInstance();
+    final p = prefs ?? await PreferencesService.getInstance();
     final l = library ?? SkillTreeLibraryService.instance;
     final t = styleTuner ?? RewardCardStyleTunerService();
     return RewardCardRendererService._(library: l, prefs: p, styleTuner: t);

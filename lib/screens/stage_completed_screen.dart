@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../widgets/confetti_overlay.dart';
 import '../widgets/weakness_booster_overlay.dart';
 import '../services/learning_path_registry_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../services/training_session_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'learning_path_screen_v2.dart';
 import 'training_session_screen.dart';
@@ -39,7 +39,7 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
   }
 
   Future<void> _maybeShowBooster() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (!(prefs.getBool('showWeaknessOverlay') ?? true)) return;
     final mastery = context.read<TagMasteryService>();
     final weak = await mastery.findWeakTags(threshold: 0.6);

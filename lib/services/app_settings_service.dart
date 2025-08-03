@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettingsService {
   static final AppSettingsService instance = AppSettingsService._();
@@ -17,7 +16,7 @@ class AppSettingsService {
   bool get useIcm => _useIcm;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _notificationsEnabled = prefs.getBool(_notificationsKey) ?? true;
     _useNewTrainerUi = prefs.getBool(_newTrainerUiKey) ?? false;
     _useIcm = prefs.getBool(_useIcmKey) ?? false;
@@ -25,19 +24,19 @@ class AppSettingsService {
 
   Future<void> setNotificationsEnabled(bool value) async {
     _notificationsEnabled = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_notificationsKey, value);
   }
 
   Future<void> setUseNewTrainerUi(bool value) async {
     _useNewTrainerUi = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_newTrainerUiKey, value);
   }
 
   Future<void> setUseIcm(bool value) async {
     _useIcm = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_useIcmKey, value);
   }
 }

@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/pinned_learning_item.dart';
 import 'smart_pinned_recommender_service.dart';
@@ -61,7 +61,7 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
     if (_checking) return;
     _checking = true;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final lastMillis = prefs.getInt(_lastKey);
       if (lastMillis != null &&
           DateTime.now().difference(

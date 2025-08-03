@@ -1,12 +1,14 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/action_evaluation_request.dart';
 import 'backup_manager_service.dart';
@@ -37,8 +39,6 @@ class EvaluationQueueService {
   // Cached application documents directory path to avoid repeated lookups.
   late final String _documentsDirPath;
 
-  // Cached SharedPreferences instance for quick persistence operations.
-  late final SharedPreferences _sharedPrefs;
   late final Future<void> _initFuture;
   /// Optional callback invoked whenever the queue state changes so the
   /// debug panel can update immediately.
@@ -68,7 +68,7 @@ class EvaluationQueueService {
 
   Future<void> _initialize() async {
     _documentsDirPath = (await getApplicationDocumentsDirectory()).path;
-    _sharedPrefs = await SharedPreferences.getInstance();
+    await PreferencesService.getInstance();
   }
 
   Future<void> _writeJson(File file, Object data) async {
@@ -162,12 +162,12 @@ class EvaluationQueueService {
 
       final pendingIds = await _queueLock
           .synchronized(() => [for (final e in pending) _queueEntryId(e)]);
-      await _sharedPrefs.setStringList(_pendingOrderKey, pendingIds);
-      await _sharedPrefs.setStringList(_failedOrderKey,
+      await PreferencesService.instance.setStringList(_pendingOrderKey, pendingIds);
+      await PreferencesService.instance.setStringList(_failedOrderKey,
           [for (final e in failed) _queueEntryId(e)]);
-      await _sharedPrefs.setStringList(_completedOrderKey,
+      await PreferencesService.instance.setStringList(_completedOrderKey,
           [for (final e in completed) _queueEntryId(e)]);
-      await _sharedPrefs.setString(
+      await PreferencesService.instance.setString(
           _timeKey, DateTime.now().toIso8601String());
       if (cloud != null) {
         await cloud!.uploadQueue({
@@ -273,9 +273,9 @@ class EvaluationQueueService {
           ..clear()
           ..addAll(queues['completed']!);
 
-        applySavedOrder(pending, _sharedPrefs.getStringList(_pendingOrderKey));
-        applySavedOrder(failed, _sharedPrefs.getStringList(_failedOrderKey));
-        applySavedOrder(completed, _sharedPrefs.getStringList(_completedOrderKey));
+        applySavedOrder(pending, PreferencesService.instance.getStringList(_pendingOrderKey));
+        applySavedOrder(failed, PreferencesService.instance.getStringList(_failedOrderKey));
+        applySavedOrder(completed, PreferencesService.instance.getStringList(_completedOrderKey));
 
         resumed =
             pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
@@ -444,7 +444,7 @@ class EvaluationQueueService {
     final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
         DateTime.fromMillisecondsSinceEpoch(0);
     final localAt =
-        DateTime.tryParse(_sharedPrefs.getString(_timeKey) ?? '') ??
+        DateTime.tryParse(PreferencesService.instance.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
     if (remoteAt.isAfter(localAt)) {
       final queues = _decodeQueues(remote);
@@ -459,13 +459,13 @@ class EvaluationQueueService {
       completed
         ..clear()
         ..addAll(queues['completed']!);
-      await _sharedPrefs.setStringList(
+      await PreferencesService.instance.setStringList(
           _pendingOrderKey, [for (final e in pending) _queueEntryId(e)]);
-      await _sharedPrefs.setStringList(
+      await PreferencesService.instance.setStringList(
           _failedOrderKey, [for (final e in failed) _queueEntryId(e)]);
-      await _sharedPrefs.setStringList(
+      await PreferencesService.instance.setStringList(
           _completedOrderKey, [for (final e in completed) _queueEntryId(e)]);
-      await _sharedPrefs.setString(_timeKey, remoteAt.toIso8601String());
+      await PreferencesService.instance.setString(_timeKey, remoteAt.toIso8601String());
       await _persist();
     } else if (localAt.isAfter(remoteAt)) {
       await syncUp();

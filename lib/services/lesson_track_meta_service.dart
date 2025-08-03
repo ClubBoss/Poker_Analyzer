@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v3/track_meta.dart';
 
@@ -11,7 +11,7 @@ class LessonTrackMetaService {
   static String _key(String id) => 'lesson_track_meta_$id';
 
   Future<void> markStarted(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key(trackId));
     TrackMeta meta;
     if (raw != null) {
@@ -38,7 +38,7 @@ class LessonTrackMetaService {
   }
 
   Future<void> markCompleted(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key(trackId));
     TrackMeta meta;
     if (raw != null) {
@@ -64,7 +64,7 @@ class LessonTrackMetaService {
   }
 
   Future<TrackMeta?> load(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key(trackId));
     if (raw == null) return null;
     try {

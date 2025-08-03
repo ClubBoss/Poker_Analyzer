@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/constants.dart';
 
@@ -59,7 +59,7 @@ class ThemeService extends ChangeNotifier {
       );
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final name = prefs.getString(_key);
     if (name == ThemeMode.light.name) {
       _mode = ThemeMode.light;
@@ -73,7 +73,7 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> toggle() async {
     _mode = _mode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_key, _mode.name);
     notifyListeners();
   }
@@ -82,7 +82,7 @@ class ThemeService extends ChangeNotifier {
     if (_accent == color) return;
     _accent = color;
     AppColors.accent = color;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_accentKey, color.value);
     notifyListeners();
   }

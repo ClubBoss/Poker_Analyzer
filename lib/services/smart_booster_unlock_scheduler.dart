@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'smart_booster_unlocker.dart';
 import 'training_session_service.dart';
@@ -75,13 +75,13 @@ class SmartBoosterUnlockScheduler with WidgetsBindingObserver {
   }
 
   Future<DateTime?> _loadLastRun() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_prefsKey);
     return str == null ? null : DateTime.tryParse(str);
   }
 
   Future<void> _saveLastRun(DateTime time) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, time.toIso8601String());
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/training_session_service.dart';
@@ -13,7 +14,6 @@ import '../services/cloud_sync_service.dart';
 import '../services/achievement_service.dart';
 import '../services/achievement_trigger_engine.dart';
 import '../services/smart_review_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/tag_review_history_service.dart';
 import '../services/skill_boost_log_service.dart';
 import '../models/skill_boost_log_entry.dart';
@@ -237,7 +237,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     await _checkGoalProgress();
     final tpl = service.template;
     if (tpl != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       if (next == null) {
         await prefs.remove('progress_tpl_${tpl.id}');
         await prefs.setBool('completed_tpl_${tpl.id}', true);
@@ -355,7 +355,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           ),
         );
       }
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final acc = total == 0 ? 0.0 : correct * 100 / total;
       await prefs.setBool('completed_tpl_${tpl.id}', true);
       await LearningPathProgressService.instance.markCompleted(tpl.id);

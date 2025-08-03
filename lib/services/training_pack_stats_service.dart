@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/training_pack_template.dart';
 import '../models/session_log.dart';
@@ -82,7 +82,7 @@ class TrainingPackStatsService {
     double icmSum = 0,
   }) async {
     if (templateId.isEmpty || total <= 0) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_prefix$templateId');
     int lastIndex = 0;
     if (raw != null) {
@@ -123,7 +123,7 @@ class TrainingPackStatsService {
   }
 
   static Future<TrainingPackStat?> getStats(String templateId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_prefix$templateId');
     if (raw == null) return null;
     try {
@@ -144,7 +144,7 @@ class TrainingPackStatsService {
   }
 
   static Future<void> setLastIndex(String templateId, int index) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_prefix$templateId');
     TrainingPackStat stat;
     if (raw != null) {
@@ -176,7 +176,7 @@ class TrainingPackStatsService {
   }
 
   static Future<int> getHandsCompleted(String templateId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final v = prefs.getInt('tpl_prog_$templateId');
     if (v != null) return v + 1;
     final legacy = prefs.getInt('progress_tpl_$templateId');
@@ -187,7 +187,7 @@ class TrainingPackStatsService {
     List<TrainingPackTemplate> templates, {
     int days = 3,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final cutoff = DateTime.now().subtract(Duration(days: days));
     final list = <MapEntry<TrainingPackTemplate, DateTime>>[];
     for (final t in templates) {
@@ -249,7 +249,7 @@ class TrainingPackStatsService {
   }
 
   static Future<List<TrainingPackStat>> history(String id) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_histPrefix$id');
     if (raw == null) return [];
     try {
@@ -277,7 +277,7 @@ class TrainingPackStatsService {
   }
 
   static Future<Map<String, double>> getCategoryStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_skillKey);
     if (raw == null) return {};
     try {
@@ -308,7 +308,7 @@ class TrainingPackStatsService {
         DateTime.now().difference(_cacheTime) < const Duration(minutes: 1)) {
       return _cache!;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     double acc = 0;
     double ev = 0;
     int count = 0;

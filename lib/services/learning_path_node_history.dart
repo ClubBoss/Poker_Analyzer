@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/node_visit.dart';
 
@@ -16,7 +16,7 @@ class LearningPathNodeHistory {
 
   Future<void> load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null && raw.isNotEmpty) {
       try {
@@ -36,7 +36,7 @@ class LearningPathNodeHistory {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final map = {for (final e in _visits.entries) e.key: e.value.toJson()};
     await prefs.setString(_prefsKey, jsonEncode(map));
   }
@@ -74,7 +74,7 @@ class LearningPathNodeHistory {
 
   Future<void> clear() async {
     _visits.clear();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_prefsKey);
   }
 }

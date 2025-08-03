@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../main.dart';
 import 'coins_service.dart';
@@ -17,12 +17,12 @@ class SessionStreakTrackerService {
   static const _avatarBonusKey = 'session_streak_avatar_bonus';
 
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_countKey) ?? 0;
   }
 
   Future<void> markCompletedToday() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastDateKey);
@@ -46,7 +46,7 @@ class SessionStreakTrackerService {
   }
 
   Future<void> checkAndTriggerRewards() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final ctx = navigatorKey.currentContext;
     final streak = prefs.getInt(_countKey) ?? 0;
     bool updated = false;

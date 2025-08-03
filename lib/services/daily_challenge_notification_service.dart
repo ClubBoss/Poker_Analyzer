@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -26,7 +26,7 @@ class DailyChallengeNotificationService {
   }
 
   static Future<TimeOfDay> getScheduledTime() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final hour = prefs.getInt(_hourKey) ?? 12;
     final minute = prefs.getInt(_minuteKey) ?? 0;
     return TimeOfDay(hour: hour, minute: minute);

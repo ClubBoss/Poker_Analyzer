@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/game_type.dart';
@@ -20,12 +20,12 @@ class LearningPathService {
   static const _progressKey = 'starter_path_progress';
 
   Future<int> getStarterPathProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_progressKey) ?? 0;
   }
 
   Future<void> _setProgress(int step) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_progressKey, step);
   }
 

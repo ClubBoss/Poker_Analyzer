@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v3/lesson_track.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'learning_track_engine.dart';
 import 'lesson_progress_service.dart';
 import 'lesson_progress_tracker_service.dart';
@@ -40,7 +40,7 @@ class LessonPathProgressService {
   }
 
   Future<LessonPathProgress> computeProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final trackId = prefs.getString('lesson_selected_track');
     if (trackId == null) {
       return LessonPathProgress(

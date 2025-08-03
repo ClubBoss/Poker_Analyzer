@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:math';
 import 'dart:async';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_spot.dart';
 import '../models/spot_of_day_history_entry.dart';
@@ -40,7 +40,7 @@ class SpotOfTheDayService extends ChangeNotifier {
   }
 
   Future<void> _loadHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stored = prefs.getStringList(_historyKey) ?? [];
     _history = [];
     for (final item in stored) {
@@ -55,7 +55,7 @@ class SpotOfTheDayService extends ChangeNotifier {
   }
 
   Future<void> _saveHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = [for (final e in _history) jsonEncode(e.toJson())];
     await prefs.setStringList(_historyKey, list);
   }
@@ -72,7 +72,7 @@ class SpotOfTheDayService extends ChangeNotifier {
   Future<List<TrainingSpot>> loadAllSpots() => _loadAllSpots();
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await _loadHistory();
     final dateStr = prefs.getString(_dateKey);
     final index = prefs.getInt(_indexKey);
@@ -127,7 +127,7 @@ class SpotOfTheDayService extends ChangeNotifier {
     _history.add(SpotOfDayHistoryEntry(
         date: _date!, spotIndex: rnd, recommendedAction: _spot?.recommendedAction));
     await _saveHistory();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_dateKey, _date!.toIso8601String());
     await prefs.setInt(_indexKey, rnd);
     await prefs.remove(_resultKey);
@@ -137,7 +137,7 @@ class SpotOfTheDayService extends ChangeNotifier {
 
   Future<void> saveResult(String action) async {
     _result = action;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_resultKey, action);
     if (_date != null) {
       final idx = _history.indexWhere((e) => _isSameDay(e.date, _date!));

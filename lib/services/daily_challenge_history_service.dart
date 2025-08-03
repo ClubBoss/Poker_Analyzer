@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Manages completion history for Daily Challenges.
 class DailyChallengeHistoryService {
@@ -12,7 +11,7 @@ class DailyChallengeHistoryService {
 
   /// Returns the list of completion dates.
   Future<List<DateTime>> loadHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getStringList(_historyKey) ?? [];
     return [
       for (final s in raw)
@@ -28,7 +27,7 @@ class DailyChallengeHistoryService {
 
   /// Adds today's date to the history if absent.
   Future<void> addToday() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_historyKey) ?? [];
     final now = DateTime.now();
     final todayStr = DateTime(now.year, now.month, now.day).toIso8601String();

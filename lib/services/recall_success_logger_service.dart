@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/recall_success_entry.dart';
 import 'decay_recall_evaluator_service.dart';
@@ -22,7 +22,7 @@ class RecallSuccessLoggerService {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -41,7 +41,7 @@ class RecallSuccessLoggerService {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode([for (final l in _logs) l.toJson()]),

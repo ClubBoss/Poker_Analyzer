@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
@@ -22,13 +22,13 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
+    PreferencesService.getInstance().then((p) {
       if (mounted) setState(() => _ts = p.getInt(_key));
     });
   }
 
   Future<void> _mark(int ts) async {
-    final p = await SharedPreferences.getInstance();
+    final p = await PreferencesService.getInstance();
     await p.setInt(_key, ts);
     if (mounted) setState(() => _ts = ts);
   }

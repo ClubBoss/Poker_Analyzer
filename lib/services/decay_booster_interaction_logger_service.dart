@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Logs user interactions with decay driven booster inbox items.
 ///
@@ -19,7 +18,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Records that a decay booster with [tag] was opened.
   Future<void> logOpened(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(
       _openedKey(tag),
       DateTime.now().millisecondsSinceEpoch,
@@ -28,7 +27,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Records that a decay booster with [tag] was dismissed.
   Future<void> logDismissed(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(
       _dismissedKey(tag),
       DateTime.now().millisecondsSinceEpoch,
@@ -37,7 +36,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Records that a decay booster with [tag] was completed.
   Future<void> logCompleted(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(
       _completedKey(tag),
       DateTime.now().millisecondsSinceEpoch,
@@ -46,7 +45,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Returns the last time a decay booster with [tag] was opened.
   Future<DateTime?> getOpenedAt(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final millis = prefs.getInt(_openedKey(tag));
     return millis == null
         ? null
@@ -55,7 +54,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Returns the last time a decay booster with [tag] was dismissed.
   Future<DateTime?> getDismissedAt(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final millis = prefs.getInt(_dismissedKey(tag));
     return millis == null
         ? null
@@ -64,7 +63,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Returns the last time a decay booster with [tag] was completed.
   Future<DateTime?> getCompletedAt(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final millis = prefs.getInt(_completedKey(tag));
     return millis == null
         ? null
@@ -73,7 +72,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Returns a summary map of event type to timestamp for [tag].
   Future<Map<String, DateTime?>> getStatsFor(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     DateTime? _read(String key) {
       final millis = prefs.getInt(key);
       return millis == null
@@ -90,7 +89,7 @@ class DecayBoosterInteractionLoggerService {
 
   /// Returns a map of tag -> event -> timestamp for all logged boosters.
   Future<Map<String, Map<String, DateTime>>> getInteractionSummary() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, Map<String, DateTime>>{};
     for (final key in prefs.getKeys()) {
       if (!key.startsWith('$_prefix_')) continue;

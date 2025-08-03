@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../models/user_goal.dart';
@@ -18,7 +18,7 @@ class GoalToastService {
   }
 
   Future<void> _maybeShowToast(UserGoal goal, double newProgress) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await GoalAnalyticsService.instance.logGoalProgress(goal, newProgress);
     final bannerKey = '$_bannerPrefix${goal.id}';
     final bannerShown = prefs.getBool(bannerKey) ?? false;

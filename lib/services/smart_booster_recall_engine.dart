@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'booster_context_evaluator.dart';
 import 'booster_suggestion_stats_service.dart';
@@ -27,7 +27,7 @@ class SmartBoosterRecallEngine {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -44,7 +44,7 @@ class SmartBoosterRecallEngine {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode({for (final e in _dismissed.entries) e.key: e.value.toIso8601String()}),

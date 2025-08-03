@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cloud_retry_policy.dart';
 import 'cloud_sync_service.dart';
@@ -61,7 +61,7 @@ class StreakService extends ChangeNotifier {
 
   /// Loads the persisted streak information and refreshes it for today.
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastOpenKey);
     _lastOpen = lastStr != null ? DateTime.tryParse(lastStr) : null;
     _count = prefs.getInt(_countKey) ?? 0;
@@ -98,7 +98,7 @@ class StreakService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_lastOpen != null) {
       await prefs.setString(_lastOpenKey, _lastOpen!.toIso8601String());
     } else {
@@ -110,7 +110,7 @@ class StreakService extends ChangeNotifier {
   }
 
   Future<void> _saveTraining() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_trainingCountKey, streak.value);
     if (_lastTrainingDate != null) {
       await prefs.setString(

@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/learning_path_template_v2.dart';
 import 'starter_learning_path_builder.dart';
@@ -51,7 +51,7 @@ class LearningPathOrchestrator {
   }
 
   Future<LearningPathTemplateV2?> _loadLocal() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw == null) return null;
     try {
@@ -64,7 +64,7 @@ class LearningPathOrchestrator {
   }
 
   Future<void> _saveLocal(LearningPathTemplateV2 path) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, jsonEncode(path.toJson()));
   }
 

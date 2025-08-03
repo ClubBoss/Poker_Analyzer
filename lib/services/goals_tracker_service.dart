@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/goal.dart';
 import 'reward_service.dart';
 import 'training_stats_service.dart';
@@ -40,7 +40,7 @@ class GoalsTrackerService extends ChangeNotifier {
   Goal _current(String type) => _all[type]![_index[type]!];
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final t in _all.keys) {
       _index[t] = prefs.getInt('goal_${t}_index') ?? 0;
       final g = _current(t);
@@ -50,7 +50,7 @@ class GoalsTrackerService extends ChangeNotifier {
   }
 
   Future<void> _save(String type) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final g = _current(type);
     await prefs.setInt('goal_${type}_index', _index[type]!);
     await prefs.setInt('goal_${type}_progress', g.progress);

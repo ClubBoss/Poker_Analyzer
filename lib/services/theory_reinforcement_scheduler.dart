@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Schedules follow-up reviews for theory lessons using spaced repetition.
 class TheoryReinforcementScheduler {
@@ -17,7 +17,7 @@ class TheoryReinforcementScheduler {
   ];
 
   Future<Map<String, _Entry>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -38,7 +38,7 @@ class TheoryReinforcementScheduler {
   }
 
   Future<void> _save(Map<String, _Entry> map) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = {for (final e in map.entries) e.key: e.value.toJson()};
     await prefs.setString(_prefsKey, jsonEncode(data));
   }

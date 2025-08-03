@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:math';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_spot_attempt.dart';
 import '../models/v2/training_action.dart';
@@ -21,13 +21,13 @@ class BoosterMistakeRecorder {
   bool get enabled => _enabled;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _enabled = prefs.getBool(_enabledKey) ?? true;
   }
 
   Future<void> setEnabled(bool value) async {
     _enabled = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_enabledKey, value);
   }
 

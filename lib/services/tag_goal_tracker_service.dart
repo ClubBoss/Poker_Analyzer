@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/tag_goal_progress.dart';
 
@@ -13,7 +13,7 @@ class TagGoalTrackerService {
   static const _tagXpPrefix = 'tag_xp_';
 
   Future<TagGoalProgress> getProgress(String tagId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final tag = tagId.toLowerCase();
     final count = prefs.getInt('$_countPrefix$tag') ?? 0;
     final streak = prefs.getInt('$_streakPrefix$tag') ?? 0;
@@ -38,7 +38,7 @@ class TagGoalTrackerService {
   }
 
   Future<void> logTraining(String tagId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final tag = tagId.toLowerCase();
     final countKey = '$_countPrefix$tag';
     final streakKey = '$_streakPrefix$tag';

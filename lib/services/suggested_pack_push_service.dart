@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/training_pack_template.dart';
 import 'training_gap_notification_service.dart';
@@ -30,7 +30,7 @@ class SuggestedPackPushService {
     await _init();
     await AppSettingsService.instance.load();
     if (!AppSettingsService.instance.notificationsEnabled) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastPushKey);
     if (lastStr != null) {
       final last = DateTime.tryParse(lastStr);

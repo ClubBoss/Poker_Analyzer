@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/shared_prefs_keys.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'smart_booster_exclusion_tracker_service.dart';
 
 /// Limits how often booster inbox banners can be shown per tag and per day.
@@ -17,7 +17,7 @@ class SmartBoosterInboxLimiterService {
 
   /// Whether a booster banner for [tag] can be shown now.
   Future<bool> canShow(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
 
     final dateKey = _todayKey(now);
@@ -47,7 +47,7 @@ class SmartBoosterInboxLimiterService {
 
   /// Records that a booster for [tag] was shown now.
   Future<void> recordShown(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     await prefs.setInt(
       SharedPrefsKeys.boosterInboxLast(tag),
@@ -67,7 +67,7 @@ class SmartBoosterInboxLimiterService {
 
   /// Returns total boosters shown today.
   Future<int> getTotalBoostersShownToday() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dateKey = _todayKey(DateTime.now());
     final storedDate = prefs.getString(_totalDateKey);
     if (storedDate != dateKey) return 0;

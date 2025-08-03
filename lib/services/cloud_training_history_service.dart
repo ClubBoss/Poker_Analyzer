@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/session_log.dart';
 import 'session_log_service.dart';
@@ -14,7 +14,7 @@ class CloudTrainingHistoryService {
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final ts = prefs.getString('history_sync_ts');
     if (ts != null) lastSync.value = DateTime.tryParse(ts);
   }
@@ -68,7 +68,7 @@ class CloudTrainingHistoryService {
       await logs.addLog(log);
     }
     lastSync.value = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('history_sync_ts', lastSync.value!.toIso8601String());
   }
 

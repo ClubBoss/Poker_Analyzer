@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/learning_goal.dart';
 import '../models/training_track.dart';
@@ -17,7 +17,7 @@ class LearningPlanCache {
 
   /// Saves [plan] to local storage.
   Future<void> save(AdaptiveLearningPlan plan) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = _planToJson(plan);
     await prefs.setString(_key, jsonEncode(data));
   }
@@ -25,7 +25,7 @@ class LearningPlanCache {
   /// Loads cached plan if available. Returns `null` if the cache is missing
   /// or corrupted.
   Future<AdaptiveLearningPlan?> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw == null) return null;
     try {

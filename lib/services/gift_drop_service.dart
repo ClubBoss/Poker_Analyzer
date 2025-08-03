@@ -1,7 +1,7 @@
 import 'dart:math';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'coins_service.dart';
 
@@ -18,7 +18,7 @@ class GiftDropService {
   }
 
   Future<void> checkAndDropGift({required BuildContext context}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     final now = DateTime.now();

@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'learning_path_progress_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class BlockCompletionRewardService {
   BlockCompletionRewardService._();
@@ -20,13 +20,13 @@ class BlockCompletionRewardService {
     final completed =
         stage.items.every((i) => i.status == LearningItemStatus.completed);
     if (!completed) return false;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_completedKey(stageTitle), true);
     return !(prefs.getBool(_bannerKey(stageTitle)) ?? false);
   }
 
   Future<void> markBannerShown(String stageTitle) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_bannerKey(stageTitle), true);
   }
 }

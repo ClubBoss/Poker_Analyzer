@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../services/user_preferences_service.dart';
 import 'tag_management_screen.dart';
@@ -14,7 +15,6 @@ import 'evaluation_settings_screen.dart';
 import '../services/notification_service.dart';
 import '../services/daily_challenge_notification_service.dart';
 import '../services/remote_config_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'lesson_track_library_screen.dart';
 import '../services/skill_tree_settings_service.dart';
@@ -120,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialTime: _challengeTime,
     );
     if (picked != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setInt('daily_challenge_reminder_hour', picked.hour);
       await prefs.setInt('daily_challenge_reminder_minute', picked.minute);
       await DailyChallengeNotificationService.scheduleDailyReminder(

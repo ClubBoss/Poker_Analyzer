@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../models/v2/training_pack_template.dart';
@@ -19,7 +19,7 @@ class TrainingPackStorage {
   ];
 
   static Future<List<TrainingPackTemplate>> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw == null || raw.isEmpty) {
       final generated = [
@@ -54,7 +54,7 @@ class TrainingPackStorage {
     for (final tpl in t) {
       TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_key, jsonEncode([for (final x in t) x.toJson()]));
   }
 

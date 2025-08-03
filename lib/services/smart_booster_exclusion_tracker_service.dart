@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/shared_prefs_keys.dart';
 
@@ -12,7 +12,7 @@ class SmartBoosterExclusionTrackerService {
 
   /// Records that a booster with [tag] was skipped for [reason].
   Future<void> logExclusion(String tag, String reason) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final entries = prefs.getStringList(SharedPrefsKeys.boosterExclusionLog) ?? [];
     entries.add(jsonEncode({
       'tag': tag,
@@ -27,7 +27,7 @@ class SmartBoosterExclusionTrackerService {
 
   /// Returns the raw exclusion log entries for diagnostics.
   Future<List<Map<String, dynamic>>> exportLog() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final entries = prefs.getStringList(SharedPrefsKeys.boosterExclusionLog) ?? [];
     return entries
         .map((e) => jsonDecode(e) as Map<String, dynamic>)
@@ -36,7 +36,7 @@ class SmartBoosterExclusionTrackerService {
 
   /// Clears the stored exclusion log.
   Future<void> clear() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(SharedPrefsKeys.boosterExclusionLog);
   }
 }

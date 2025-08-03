@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks consecutive days with completed training sessions.
 class DailyStreakTrackerService {
@@ -17,7 +17,7 @@ class DailyStreakTrackerService {
 
   /// Marks today as a completed training day and updates the streak.
   Future<void> markCompletedToday() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastDateKey);
@@ -45,7 +45,7 @@ class DailyStreakTrackerService {
 
   /// Returns the current streak value. Resets to 0 if a day was missed.
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastDateKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     int count = prefs.getInt(_countKey) ?? 0;
@@ -66,14 +66,14 @@ class DailyStreakTrackerService {
 
   /// Returns the date when the last training was recorded, if any.
   Future<DateTime?> getLastCompletionDate() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastDateKey);
     return lastStr != null ? DateTime.tryParse(lastStr) : null;
   }
 
   /// Clears the stored streak information. Useful for tests.
   Future<void> reset() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_lastDateKey);
     await prefs.remove(_countKey);
     _controller.add(0);

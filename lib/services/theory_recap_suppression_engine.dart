@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/recap_analytics_summary.dart';
 import 'theory_recap_analytics_summarizer.dart';
@@ -20,7 +20,7 @@ class TheoryRecapSuppressionEngine {
 
   Future<Map<String, DateTime>> _load() async {
     if (_cache != null) return _cache!;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -40,7 +40,7 @@ class TheoryRecapSuppressionEngine {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 
 import '../models/training_pack_template.dart';
@@ -34,7 +34,7 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final hideStr = prefs.getString(_hideKey);
     final now = DateTime.now();
     if (hideStr != null) {
@@ -92,7 +92,7 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
   }
 
   Future<void> _hide() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final until = DateTime.now().add(const Duration(days: 1));
     await prefs.setString(_hideKey, until.toIso8601String());
     if (mounted) setState(() => _pack = null);

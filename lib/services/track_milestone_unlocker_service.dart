@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Represents the state of a milestone stage within a track.
 enum MilestoneState { locked, unlocked, completed }
@@ -13,7 +12,7 @@ class TrackMilestoneUnlockerService {
 
   /// Ensures a milestone entry exists for [trackId] with stage 0 unlocked.
   Future<void> initializeMilestones(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = _key(trackId);
     if (!prefs.containsKey(key)) {
       await prefs.setInt(key, 0);
@@ -22,13 +21,13 @@ class TrackMilestoneUnlockerService {
 
   /// Returns the highest stage index unlocked for [trackId].
   Future<int> getHighestUnlockedStage(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_key(trackId)) ?? 0;
   }
 
   /// Unlocks the next stage for [trackId].
   Future<void> unlockNextStage(String trackId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = _key(trackId);
     final current = prefs.getInt(key) ?? 0;
     await prefs.setInt(key, current + 1);

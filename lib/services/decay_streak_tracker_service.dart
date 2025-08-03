@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'recall_tag_decay_summary_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Tracks consecutive days with no critical decay across all tags.
 class DecayStreakTrackerService {
@@ -14,13 +14,13 @@ class DecayStreakTrackerService {
 
   /// Returns current streak of days without critical decay.
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_countKey) ?? 0;
   }
 
   /// Evaluates today's decay summary and updates streak accordingly.
   Future<void> evaluateToday() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastCheckKey);

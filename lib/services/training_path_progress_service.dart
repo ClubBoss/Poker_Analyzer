@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:yaml/yaml.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TrainingPathProgressService {
   TrainingPathProgressService._();
@@ -37,7 +37,7 @@ class TrainingPathProgressService {
   Future<Map<String, List<String>>> getStages() => _loadStages();
 
   Future<void> markCompleted(String packId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool('$_prefsPrefix$packId', true);
   }
 
@@ -45,7 +45,7 @@ class TrainingPathProgressService {
     final stages = await _loadStages();
     final packs = stages[stageId] ?? const <String>[];
     if (packs.isEmpty) return 0.0;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final completed =
         packs.where((id) => prefs.getBool('$_prefsPrefix$id') ?? false).length;
     return completed / packs.length;
@@ -55,7 +55,7 @@ class TrainingPathProgressService {
     final stages = await _loadStages();
     final packs = stages[stageId] ?? const <String>[];
     if (packs.isEmpty) return const <String>[];
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final done = <String>[];
     for (final id in packs) {
       if (prefs.getBool('$_prefsPrefix$id') ?? false) {

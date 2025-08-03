@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/error_logger.dart';
 import '../utils/asset_paths.dart';
@@ -17,7 +18,7 @@ class AssetSyncService {
   static const _prefix = kAssetPrefix;
 
   Future<void> syncIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final ts = prefs.getInt(_tsKey);
     if (ts != null &&
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(ts)) <

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../services/session_log_service.dart';
 import '../widgets/skill_loss_overlay_prompt.dart';
@@ -14,7 +14,7 @@ class SkillLossOverlayPromptService {
   static const _gap = Duration(days: 5);
 
   Future<void> run(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../widgets/streak_lost_dialog.dart';
 import '../widgets/streak_saved_dialog.dart';
@@ -23,7 +23,7 @@ class StreakTrackerService {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<bool> markActiveToday(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastKey);
@@ -63,7 +63,7 @@ class StreakTrackerService {
   }
 
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     var current = prefs.getInt(_currentKey) ?? 0;
@@ -82,12 +82,12 @@ class StreakTrackerService {
   }
 
   Future<int> getBestStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_bestKey) ?? 0;
   }
 
   Future<Map<DateTime, bool>> getLast30DaysMap() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_daysKey) ?? <String>[];
     final set = list
         .map((e) => DateTime.tryParse(e))
@@ -106,7 +106,7 @@ class StreakTrackerService {
   }
 
   Future<void> checkAndHandleStreakBreak(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastKey);

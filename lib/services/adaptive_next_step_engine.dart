@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v3/lesson_step.dart';
 import '../models/v3/lesson_track.dart';
@@ -51,7 +51,7 @@ class AdaptiveNextStepEngine {
     final tagsByStep = await tagProvider.getTagsByStepId();
     final coverage = await coverageService.computeTagCoverage();
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final trackId = prefs.getString('lesson_selected_track');
     final trackSteps = <String>{};
     if (trackId != null) {

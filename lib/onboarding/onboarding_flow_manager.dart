@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/pack_library_service.dart';
 import '../services/training_session_service.dart';
@@ -25,25 +25,25 @@ class OnboardingFlowManager {
   bool get completed => _completed;
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _completed = prefs.getBool(_completedKey) ?? false;
     _mistakeRepeatCompleted = prefs.getBool(_mistakeRepeatKey) ?? false;
   }
 
   Future<void> _markCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_completedKey, true);
     _completed = true;
   }
 
   Future<void> _markMistakeRepeatCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_mistakeRepeatKey, true);
     _mistakeRepeatCompleted = true;
   }
 
   Future<bool> _hasCompletedTraining() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final k in prefs.getKeys()) {
       if (k.startsWith('completed_tpl_') && prefs.getBool(k) == true) {
         return true;

@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MistakeStreakService extends ChangeNotifier {
   static const _lastKey = 'mistake_streak_last';
@@ -21,7 +21,7 @@ class MistakeStreakService extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_lastKey);
     _last = str != null ? DateTime.tryParse(str) : null;
     _count = prefs.getInt(_countKey) ?? 0;
@@ -59,7 +59,7 @@ class MistakeStreakService extends ChangeNotifier {
       _history.remove(keys.first);
       keys.removeAt(0);
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_lastKey, _last!.toIso8601String());
     await prefs.setInt(_countKey, _count);
     await prefs.setString(_historyKey, jsonEncode(_history));

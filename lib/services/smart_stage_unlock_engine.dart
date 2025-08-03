@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'learning_path_progress_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class SmartStageUnlockEngine {
   SmartStageUnlockEngine._();
@@ -13,7 +13,7 @@ class SmartStageUnlockEngine {
 
   Future<List<String>> _loadUnlocked() async {
     if (mock) return _mockUnlocked.toList();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getStringList(_prefsKey) ?? <String>[];
   }
 
@@ -24,7 +24,7 @@ class SmartStageUnlockEngine {
         ..addAll(stages);
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, stages);
   }
 

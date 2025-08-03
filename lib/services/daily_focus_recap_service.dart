@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/v2/hero_position.dart';
 import '../models/saved_hand.dart';
 import '../models/v2/training_pack_template.dart';
@@ -36,7 +36,7 @@ class DailyFocusRecapService extends ChangeNotifier {
   bool get show => !_shown && _summary.isNotEmpty;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dateStr = prefs.getString(_dateKey);
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
     final focusStr = prefs.getString(_focusKey);
@@ -60,7 +60,7 @@ class DailyFocusRecapService extends ChangeNotifier {
       focus == null ? Future.value(null) : weak.buildPack(focus!);
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_date != null) await prefs.setString(_dateKey, _date!.toIso8601String());
     if (_focus != null) await prefs.setString(_focusKey, _focus!.name);
     await prefs.setString(_summaryKey, _summary);

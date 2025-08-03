@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/saved_hand.dart';
 import 'cloud_sync_service.dart';
@@ -18,7 +18,7 @@ class SavedHandStorageService extends ChangeNotifier {
   List<SavedHand> get hands => List.unmodifiable(_hands);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getStringList(_storageKey) ?? [];
     _hands
       ..clear()
@@ -45,7 +45,7 @@ class SavedHandStorageService extends ChangeNotifier {
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = _hands.map((e) => jsonEncode(e.toJson())).toList();
     await prefs.setStringList(_storageKey, data);
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());

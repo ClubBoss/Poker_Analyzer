@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/skill_tree.dart';
 import 'skill_tree_stage_gate_evaluator.dart';
@@ -30,7 +30,7 @@ class SkillTreeStageGateCelebrationOverlay {
     const gateEval = SkillTreeStageGateEvaluator();
     final unlockedStages = gateEval.getUnlockedStages(tree, completed).toSet();
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final prev =
         prefs.getStringList(_prefsKey(trackId))?.map(int.parse).toSet() ??
             <int>{};

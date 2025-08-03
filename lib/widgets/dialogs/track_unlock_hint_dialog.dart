@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../../screens/lesson_path_screen.dart';
 import '../../services/track_unlock_reason_service.dart';
@@ -53,7 +53,7 @@ class TrackUnlockHintDialog extends StatelessWidget {
         if (prerequisiteId != null && prerequisiteTitle != null)
           TextButton(
             onPressed: () async {
-              final prefs = await SharedPreferences.getInstance();
+              final prefs = await PreferencesService.getInstance();
               await prefs.setString(
                   'lesson_selected_track', prerequisiteId!);
               Navigator.pushReplacement(

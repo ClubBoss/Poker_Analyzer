@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -33,7 +33,6 @@ class CloudSyncService {
 
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
-  late SharedPreferences _prefs;
   Box? _box;
   static bool get isLocal => kIsWeb ||
       (!kIsWeb && (defaultTargetPlatform == TargetPlatform.windows ||
@@ -67,13 +66,13 @@ class CloudSyncService {
       final ts = _box!.get('last_sync') as String?;
       if (ts != null) lastSync.value = DateTime.tryParse(ts);
     } else {
-      _prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       _db.settings = const Settings(persistenceEnabled: true);
-      final list = _prefs.getStringList('pending_mutations') ?? [];
+      final list = prefs.getStringList('pending_mutations') ?? [];
       _pending
         ..clear()
         ..addAll(list.map((e) => jsonDecode(e) as Map<String, dynamic>));
-      final ts = _prefs.getString('last_sync');
+      final ts = prefs.getString('last_sync');
       if (ts != null) lastSync.value = DateTime.tryParse(ts);
     }
     _conn = Connectivity();
@@ -115,9 +114,9 @@ class CloudSyncService {
     try {
       await batch.commit();
       _pending.clear();
-      await _prefs.setStringList('pending_mutations', []);
+      await PreferencesService.instance.setStringList('pending_mutations', []);
       lastSync.value = DateTime.now();
-      await _prefs.setString('last_sync', lastSync.value!.toIso8601String());
+      await PreferencesService.instance.setString('last_sync', lastSync.value!.toIso8601String());
     } catch (_) {
       progress.value = -1;
       return;
@@ -146,7 +145,7 @@ class CloudSyncService {
           final snap = snaps[i];
           if (!snap.exists) continue;
           final remote = snap.data()!;
-          final localStr = _prefs.getString('cached_$col');
+          final localStr = PreferencesService.instance.getString('cached_$col');
           final local =
               localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
           final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
@@ -154,10 +153,10 @@ class CloudSyncService {
           final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ??
               DateTime.fromMillisecondsSinceEpoch(0);
           if (remoteAt.isAfter(localAt)) {
-            await _prefs.setString('cached_$col', jsonEncode(remote));
+            await PreferencesService.instance.setString('cached_$col', jsonEncode(remote));
           }
         }
-        final ts = _prefs.getString('last_sync');
+        final ts = PreferencesService.instance.getString('last_sync');
         if (ts != null) lastSync.value = DateTime.tryParse(ts);
       });
     } catch (_) {
@@ -175,8 +174,8 @@ class CloudSyncService {
       await _box!.put('pending_mutations', _pending);
       await _box!.put('cached_$col', data);
     } else {
-      await _prefs.setStringList('pending_mutations', _pending.map(jsonEncode).toList());
-      await _prefs.setString('cached_$col', jsonEncode(data));
+      await PreferencesService.instance.setStringList('pending_mutations', _pending.map(jsonEncode).toList());
+      await PreferencesService.instance.setString('cached_$col', jsonEncode(data));
     }
   }
 
@@ -187,7 +186,7 @@ class CloudSyncService {
       if (val is String) return jsonDecode(val) as Map<String, dynamic>;
       return null;
     }
-    final str = _prefs.getString('cached_$col');
+    final str = PreferencesService.instance.getString('cached_$col');
     return str != null ? jsonDecode(str) as Map<String, dynamic> : null;
   }
 
@@ -202,9 +201,9 @@ class CloudSyncService {
           .snapshots()
           .listen((snap) async {
         if (!snap.exists) return;
-        await _prefs.setString('cached_$col', jsonEncode(snap.data()));
+        await PreferencesService.instance.setString('cached_$col', jsonEncode(snap.data()));
         lastSync.value = DateTime.now();
-        await _prefs.setString('last_sync', lastSync.value!.toIso8601String());
+        await PreferencesService.instance.setString('last_sync', lastSync.value!.toIso8601String());
       });
     }
   }
@@ -218,7 +217,7 @@ class CloudSyncService {
       await _box!.put(key, value);
       return;
     }
-    await _prefs.setString(key, value);
+    await PreferencesService.instance.setString(key, value);
     if (uid == null) return;
     await CloudRetryPolicy.execute(() =>
         _db.collection('users').doc(uid).collection('prefs').doc(key).set({'v': value}));
@@ -230,7 +229,7 @@ class CloudSyncService {
       if (val is String) return val;
       return null;
     }
-    final local = _prefs.getString(key);
+    final local = PreferencesService.instance.getString(key);
     if (uid == null) return local;
     try {
       final snap = await CloudRetryPolicy.execute(() =>
@@ -238,7 +237,7 @@ class CloudSyncService {
       final data = snap.data();
       if (data != null && data['v'] is String) {
         final v = data['v'] as String;
-        await _prefs.setString(key, v);
+        await PreferencesService.instance.setString(key, v);
         return v;
       }
     } catch (_) {}
@@ -312,7 +311,7 @@ class CloudSyncService {
           if (_local) {
             await _box!.put('cached_saved_hands', remote);
           } else {
-            await _prefs.setString('cached_saved_hands', jsonEncode(remote));
+            await PreferencesService.instance.setString('cached_saved_hands', jsonEncode(remote));
           }
         }
       } else if (localAt.isAfter(remoteAt)) {

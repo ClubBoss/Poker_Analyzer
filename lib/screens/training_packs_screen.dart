@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
 import '../models/game_type.dart';
@@ -56,7 +56,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   bool _groupByColor = false;
   Color _lastColor = Colors.blue;
   _PackSort _sort = _PackSort.recommended;
-  SharedPreferences? _prefs;
+  bool _prefsLoaded = false;
   List<TrainingPack> _suggestions = [];
   bool _hotOnly = false;
   List<TrainingPack> _hot = [];
@@ -129,9 +129,9 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
-      _prefs = prefs;
+      _prefsLoaded = true;
       _hideCompleted = prefs.getBool(_hideKey) ?? false;
       final t = prefs.getString(_typeKey);
       if (t == 'tournament') _typeFilter = GameType.tournament;
@@ -145,13 +145,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
   Future<void> _toggleHideCompleted(bool value) async {
     setState(() => _hideCompleted = value);
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_hideKey, value);
   }
 
   Future<void> _setTypeFilter(GameType? value) async {
     setState(() => _typeFilter = value);
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (value == null) {
       await prefs.remove(_typeKey);
     } else {
@@ -161,7 +161,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
   Future<void> _setDiffFilter(int value) async {
     setState(() => _diffFilter = value);
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (value == 0) {
       await prefs.remove(_diffKey);
     } else {
@@ -170,7 +170,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   }
 
   Future<void> _setColorFilter(String value) async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (value == 'Custom') {
       final color = await showColorPickerDialog(
         context,
@@ -196,7 +196,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
 
   bool _isPackCompleted(TrainingPack pack) {
-    final progress = _prefs?.getInt('training_progress_${pack.name}') ?? 0;
+    final progress =
+        PreferencesService.instance.getInt('training_progress_${pack.name}') ?? 0;
     return progress >= pack.hands.length;
   }
 
@@ -222,7 +223,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       }
     }
 
-    if (_prefs == null) {
+    if (!_prefsLoaded) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
@@ -603,7 +604,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           value: _groupByColor,
           onChanged: (v) async {
             setState(() => _groupByColor = v);
-            final prefs = _prefs ?? await SharedPreferences.getInstance();
+            final prefs = await PreferencesService.getInstance();
             await prefs.setBool(_groupKey, v);
           },
           activeColor: Colors.orange,

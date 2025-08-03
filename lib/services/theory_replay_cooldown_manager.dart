@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Manages cooldowns for theory replay suggestions by tag.
 class TheoryReplayCooldownManager {
@@ -13,7 +13,7 @@ class TheoryReplayCooldownManager {
 
   static Future<Map<String, DateTime>> _load() async {
     if (_cache != null) return _cache!;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -33,7 +33,7 @@ class TheoryReplayCooldownManager {
   }
 
   static Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,

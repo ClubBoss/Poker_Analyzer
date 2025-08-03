@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/track_play_history.dart';
 
 /// Records usage of generated training tracks for progress tracking.
@@ -14,7 +14,7 @@ class TrackPlayRecorder {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -29,7 +29,7 @@ class TrackPlayRecorder {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode([for (final h in _history) h.toJson()]),

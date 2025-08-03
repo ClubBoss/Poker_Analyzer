@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks completed boosters to avoid reinjecting them.
 class BoosterCompletionTracker {
@@ -18,13 +17,13 @@ class BoosterCompletionTracker {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _completed.addAll(prefs.getStringList(_prefsKey)?.toSet() ?? <String>{});
     _loaded = true;
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, _completed.toList());
   }
 

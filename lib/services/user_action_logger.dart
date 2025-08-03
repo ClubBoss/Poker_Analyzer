@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserActionLogger extends ChangeNotifier {
   static final UserActionLogger _instance = UserActionLogger._();
@@ -15,7 +15,7 @@ class UserActionLogger extends ChangeNotifier {
   String? _lastAction;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getStringList(_prefsKey) ?? [];
     _events
       ..clear()
@@ -29,7 +29,7 @@ class UserActionLogger extends ChangeNotifier {
       'time': DateTime.now().toIso8601String(),
     };
     _events.add(event);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _prefsKey,
       _events.map((e) => jsonEncode(e)).toList(),
@@ -50,7 +50,7 @@ class UserActionLogger extends ChangeNotifier {
   Future<void> logEvent(Map<String, dynamic> event) async {
     event['time'] ??= DateTime.now().toIso8601String();
     _events.add(event);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _prefsKey,
       _events.map((e) => jsonEncode(e)).toList(),

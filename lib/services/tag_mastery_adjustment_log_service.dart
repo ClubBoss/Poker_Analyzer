@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class TagMasteryAdjustmentEntry {
   final String tag;
@@ -38,7 +38,7 @@ class TagMasteryAdjustmentLogService {
   List<TagMasteryAdjustmentEntry> get logs => List.unmodifiable(_logs);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw == null) return;
     try {
@@ -54,7 +54,7 @@ class TagMasteryAdjustmentLogService {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_key, jsonEncode([for (final l in _logs) l.toJson()]));
   }
 

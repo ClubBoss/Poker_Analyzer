@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/hand_analysis_record.dart';
 
 class HandAnalysisHistoryService extends ChangeNotifier {
@@ -10,7 +10,7 @@ class HandAnalysisHistoryService extends ChangeNotifier {
   List<HandAnalysisRecord> get records => List.unmodifiable(_records);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw != null) {
       try {
@@ -27,7 +27,7 @@ class HandAnalysisHistoryService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_key, jsonEncode([for (final r in _records) r.toJson()]));
   }
 

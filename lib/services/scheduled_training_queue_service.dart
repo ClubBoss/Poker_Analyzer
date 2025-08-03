@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'pack_library_service.dart';
 import 'review_path_recommender.dart';
 import 'skill_loss_detector.dart';
@@ -19,7 +19,7 @@ class ScheduledTrainingQueueService extends ChangeNotifier {
   List<String> get queue => List.unmodifiable(_queue);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -34,7 +34,7 @@ class ScheduledTrainingQueueService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, jsonEncode(_queue));
   }
 

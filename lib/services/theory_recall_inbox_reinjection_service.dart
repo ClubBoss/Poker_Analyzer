@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'theory_booster_recall_engine.dart';
 import 'inbox_booster_service.dart';
 
@@ -24,7 +24,7 @@ class TheoryRecallInboxReinjectionService {
 
   /// Executes reinjection once per day if suitable candidates exist.
   Future<void> start() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_prefsKey);
     final last = lastStr == null ? null : DateTime.tryParse(lastStr);

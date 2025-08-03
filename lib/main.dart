@@ -1,6 +1,7 @@
 // lib/main.dart
 
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -53,7 +54,6 @@ import 'app_bootstrap.dart';
 import 'app_providers.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 import 'helpers/training_pack_storage.dart';
 import 'screens/v2/training_pack_play_screen.dart';
@@ -95,7 +95,7 @@ Future<void> main() async {
     if (!auth.isSignedIn) {
       final uid = await auth.signInAnonymously();
       if (uid != null) {
-        final prefs = await SharedPreferences.getInstance();
+        final prefs = await PreferencesService.getInstance();
         await prefs.setString('anon_uid_log', uid);
       }
     }
@@ -159,7 +159,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   late final ConnectivitySyncController _sync;
 
   Future<void> _maybeShowIntroTutorial() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     var done = true;
     for (int i = 0; i < 3; i++) {
       if (prefs.getBool('intro_step_$i') != true) {
@@ -174,7 +174,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   }
 
   Future<void> _maybeResumeTraining() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     String? id;
     int ts = 0;
     for (final k in prefs.getKeys()) {
@@ -283,7 +283,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
     final templates = TrainingPackTemplateService.getAllTemplates(ctx);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final valid = templates
         .where((t) => !(prefs.getBool('completed_tpl_${t.id}') ?? false))
         .toList();

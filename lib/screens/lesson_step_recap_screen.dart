@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v3/lesson_step.dart';
 import '../models/v3/lesson_track.dart';
@@ -59,7 +59,7 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
       completedSteps: completed,
       profile: profile,
     );
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final selectedId = prefs.getString('lesson_selected_track');
     final track = tracks.firstWhereOrNull((t) => t.id == selectedId);
     bool doneTrack = false;

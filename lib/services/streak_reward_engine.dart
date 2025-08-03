@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../widgets/confetti_overlay.dart';
 import 'dev_console_log_service.dart';
@@ -23,7 +23,7 @@ class StreakRewardEngine {
   };
 
   Future<void> checkAndTriggerRewards() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final unlocked = prefs.getStringList(_rewardKey) ?? <String>[];
     final current = await TrainingStreakTrackerService.instance.getCurrentStreak();
     bool updated = false;

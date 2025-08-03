@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../services/achievement_service.dart';
 import 'learning_path_progress_service.dart';
@@ -19,7 +19,7 @@ class AchievementTriggerEngine {
 
   Future<bool> _isUnlocked(String id) async {
     if (mock) return _mockUnlocked.contains(id);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_key(id)) ?? false;
   }
 
@@ -27,7 +27,7 @@ class AchievementTriggerEngine {
     if (mock) {
       _mockUnlocked.add(id);
     } else {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setBool(_key(id), true);
     }
     if (!AchievementService.instance.isUnlocked(id)) {

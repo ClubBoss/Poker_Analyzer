@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class CoinsService extends ChangeNotifier {
   static CoinsService? _instance;
@@ -15,13 +15,13 @@ class CoinsService extends ChangeNotifier {
   int get coins => _coins;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _coins = prefs.getInt(_key) ?? 0;
     notifyListeners();
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_key, _coins);
   }
 

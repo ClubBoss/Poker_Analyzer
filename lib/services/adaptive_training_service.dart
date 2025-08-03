@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'progress_forecast_service.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
@@ -54,7 +54,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
   TrainingPackStat? statFor(String id) => _stats[id];
 
   Future<void> refresh() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     var level = xp.level;
     final f = forecast.forecast;
     if (f.accuracy < 0.6) {
@@ -209,7 +209,7 @@ class AdaptiveTrainingService extends ChangeNotifier {
 
   Future<TrainingPackTemplate?> nextRecommendedPack() async {
     await refresh();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final t in _recommended) {
       final idx = prefs.getInt('tpl_prog_${t.id}') ?? 0;
       if (idx < t.spots.length) return t;

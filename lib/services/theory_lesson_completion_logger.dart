@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Logs completion timestamps for theory mini lessons.
 class TheoryLessonCompletionLogger {
@@ -10,7 +9,7 @@ class TheoryLessonCompletionLogger {
 
   /// Marks [lessonId] as completed with current timestamp.
   Future<void> markCompleted(String lessonId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       '$_prefix$lessonId',
       DateTime.now().toIso8601String(),
@@ -19,13 +18,13 @@ class TheoryLessonCompletionLogger {
 
   /// Returns true if [lessonId] was previously completed.
   Future<bool> isCompleted(String lessonId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.containsKey('$_prefix$lessonId');
   }
 
   /// Returns map of completed lesson ids and their completion timestamps.
   Future<Map<String, DateTime>> getCompletedLessons() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, DateTime>{};
     for (final key in prefs.getKeys()) {
       if (key.startsWith(_prefix)) {

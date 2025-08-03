@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Records the sequential trail of visited theory lessons.
 class TheoryLessonTrailTracker {
@@ -16,14 +15,14 @@ class TheoryLessonTrailTracker {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_prefsKey);
     if (list != null) _trail.addAll(list);
     _loaded = true;
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, _trail);
   }
 
@@ -51,7 +50,7 @@ class TheoryLessonTrailTracker {
   Future<void> clearTrail() async {
     await _load();
     _trail.clear();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_prefsKey);
   }
 }

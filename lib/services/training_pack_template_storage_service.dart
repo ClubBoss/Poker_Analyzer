@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../repositories/training_pack_template_repository.dart';
@@ -26,7 +26,7 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
   List<TrainingPackTemplateModel> get templates => List.unmodifiable(_templates);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getStringList(_key) ?? [];
     _templates
       ..clear()
@@ -47,7 +47,7 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _key,
       [for (final t in _templates) jsonEncode(t.toJson())],

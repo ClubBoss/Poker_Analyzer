@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/action_entry.dart';
 import '../models/card_model.dart';
@@ -40,7 +40,7 @@ class DailyChallengeService extends ChangeNotifier {
 
   /// Loads or generates today's challenge spot.
   Future<TrainingSpot?> getTodayChallenge() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
 
     if (_spot != null && _date != null && _sameDay(_date!, now)) {
@@ -81,7 +81,7 @@ class DailyChallengeService extends ChangeNotifier {
 
   /// Marks today's challenge as completed.
   Future<void> markCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     _date = DateTime(now.year, now.month, now.day);
     _completed = true;

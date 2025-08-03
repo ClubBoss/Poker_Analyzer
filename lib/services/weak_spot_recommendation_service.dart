@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/hero_position.dart';
@@ -120,7 +120,7 @@ class WeakSpotRecommendationService extends ChangeNotifier {
     int minLaunches = 10,
     Duration recent = const Duration(days: 3),
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final cacheTime = DateTime.tryParse(
         prefs.getString('weak_training_type_time') ?? '');

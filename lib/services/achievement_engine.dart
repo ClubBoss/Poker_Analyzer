@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement.dart';
 import '../widgets/confetti_overlay.dart';
 import 'training_stats_service.dart';
@@ -39,7 +39,7 @@ class AchievementEngine extends ChangeNotifier {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final k in ['s', 'h', 'm', 'w']) {
       _shown[k] = prefs.getInt('ach_level_$k') ?? 0;
     }
@@ -47,13 +47,13 @@ class AchievementEngine extends ChangeNotifier {
   }
 
   Future<void> _save(String key, int level) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt('ach_level_$key', level);
     await prefs.setInt('ach_unseen', _unseen);
   }
 
   Future<void> _saveUnseen() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt('ach_unseen', _unseen);
   }
 

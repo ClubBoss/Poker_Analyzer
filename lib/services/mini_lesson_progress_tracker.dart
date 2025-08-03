@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/lesson_failure.dart';
 
@@ -24,7 +24,7 @@ class MiniLessonProgressTracker {
   Future<_MiniProgress> _load(String id) async {
     final cached = _cache[id];
     if (cached != null) return cached;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_prefix$id');
     if (raw != null) {
       try {
@@ -38,7 +38,7 @@ class MiniLessonProgressTracker {
   }
 
   Future<void> _save(String id) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = _cache[id] ?? _MiniProgress();
     await prefs.setString('$_prefix$id', jsonEncode(data.toMap()));
   }
@@ -97,7 +97,7 @@ class MiniLessonProgressTracker {
   Future<List<LessonFailure>> _loadFailures(String id) async {
     final cached = _failureCache[id];
     if (cached != null) return cached;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_failurePrefix$id');
     if (raw != null) {
       try {
@@ -117,7 +117,7 @@ class MiniLessonProgressTracker {
   }
 
   Future<void> _saveFailures(String id) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = _failureCache[id] ?? <LessonFailure>[];
     await prefs.setString('$_failurePrefix$id',
         jsonEncode([for (final f in list) f.toJson()]));

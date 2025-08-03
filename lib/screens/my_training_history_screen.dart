@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/session_summary.dart';
@@ -35,7 +35,7 @@ class _MyTrainingHistoryScreenState extends State<MyTrainingHistoryScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final packs = context.read<TrainingPackStorageService>().packs;
     final List<_HistoryEntry> loaded = [];
     for (final pack in packs) {

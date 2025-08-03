@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import 'booster_inbox_delivery_service.dart';
@@ -41,7 +41,7 @@ class DecayReminderSchedulerService with WidgetsBindingObserver {
 
   /// Schedules the reminder notification for 19:00 if conditions allow.
   Future<void> scheduleReminderIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_prefsKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;

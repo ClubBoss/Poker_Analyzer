@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import '../widgets/confetti_overlay.dart';
 import 'reward_system_service.dart';
@@ -37,7 +37,7 @@ class StreakCounterService extends ChangeNotifier {
   }
 
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _count = prefs.getInt(_countKey) ?? 0;
     _max = prefs.getInt(_maxKey) ?? 0;
     final lastStr = prefs.getString(_lastKey);
@@ -50,7 +50,7 @@ class StreakCounterService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_countKey, _count);
     await prefs.setInt(_maxKey, _max);
     await prefs.setInt(_rewardKey, _rewardLevel);

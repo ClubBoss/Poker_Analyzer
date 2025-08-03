@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -26,7 +26,7 @@ class SessionNoteService extends ChangeNotifier {
   String noteFor(int sessionId) => _notes[sessionId] ?? '';
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -73,7 +73,7 @@ class SessionNoteService extends ChangeNotifier {
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = {for (final e in _notes.entries) e.key.toString(): e.value};
     await prefs.setString(_prefsKey, jsonEncode(data));
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());

@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/learning_path_stage_model.dart';
 import '../models/learning_path_template_v2.dart';
@@ -59,7 +59,7 @@ class LearningPathSummaryCache {
 
   Future<void> _compute() async {
     final templates = await registry.loadAll();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _summaries.clear();
     for (final t in templates) {
       final progressMap = <String, _StageProgress>{};

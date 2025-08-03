@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import 'smart_theory_booster_linker.dart';
@@ -44,7 +44,7 @@ class SmartTheoryRecapEngine {
   Future<bool> _recentlyDismissed([
     Duration threshold = const Duration(hours: 12),
   ]) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_dismissKey);
     if (str == null) return false;
     final ts = DateTime.tryParse(str);
@@ -53,7 +53,7 @@ class SmartTheoryRecapEngine {
   }
 
   Future<void> _markDismissed() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_dismissKey, DateTime.now().toIso8601String());
   }
 

@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/mixed_drill_stat.dart';
@@ -27,7 +27,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -40,7 +40,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode({'street': _street, 'tag': _tag}),

@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/training_result.dart';
 
@@ -9,7 +9,7 @@ class TrainingHistoryController {
   static final instance = TrainingHistoryController._();
 
   Future<List<TrainingResult>> loadHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stored = prefs.getStringList('training_history') ?? [];
     final results = <TrainingResult>[];
     for (final item in stored) {
@@ -26,7 +26,7 @@ class TrainingHistoryController {
   }
 
   Future<void> clearHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove('training_history');
   }
 }

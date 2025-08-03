@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/skill_tree.dart';
 import '../models/skill_tree_node_model.dart';
@@ -12,7 +13,6 @@ import '../widgets/skill_tree_track_overview_header.dart';
 import '../widgets/skill_tree_stage_badge_legend_widget.dart';
 import 'skill_tree_node_detail_screen.dart';
 import '../services/banner_queue_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Renders the full learning path for a skill track.
 class SkillTreePathScreen extends StatefulWidget {
@@ -77,7 +77,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final hasNewTheory = newTheoryNodeIds.isNotEmpty;
     final hasNewPractice = newPracticeNodeIds.isNotEmpty;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final blocks = _listBuilder.stageMarker.build(nodes);
     final folded = <int>{};
     _stageKeys.clear();
@@ -220,7 +220,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   String _foldKey(int stage) => 'stage_fold_${widget.trackId}_$stage';
 
   Future<void> _toggleStageFold(int stage) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
       if (_foldedStages.contains(stage)) {
         _foldedStages.remove(stage);

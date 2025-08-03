@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'session_log_service.dart';
 import 'training_session_service.dart';
@@ -107,14 +107,14 @@ class LearningPathEngine {
   /// Saves current session state to [SharedPreferences].
   Future<void> saveSession() async {
     if (_engine == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final json = jsonEncode(_engine!.getState().toJson());
     await prefs.setString(_sessionKey, json);
   }
 
   /// Restores session state from [SharedPreferences] if available.
   Future<void> restoreSession() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_sessionKey);
     if (raw == null || raw.isEmpty) return;
     final map = jsonDecode(raw);
@@ -124,7 +124,7 @@ class LearningPathEngine {
 
   /// Removes any persisted session state.
   Future<void> clearSession() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_sessionKey);
   }
 

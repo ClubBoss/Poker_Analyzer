@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/booster_tag_history.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'pack_recall_stats_service.dart';
 import 'booster_path_history_service.dart';
 
@@ -67,7 +67,7 @@ class ReviewStreakEvaluatorService {
 
   /// Returns ids of packs with broken review streaks.
   Future<List<String>> packsWithBrokenStreaks() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     const prefix = 'pack_recall_history.';
     final ids = <String>[];
     for (final key in prefs.getKeys()) {

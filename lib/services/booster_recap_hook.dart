@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/booster_backlink.dart';
 import '../models/training_pack.dart';
@@ -53,7 +53,7 @@ class BoosterRecapHook {
 
   Future<int> _incrementReview(String id) async {
     if (id.isEmpty) return 0;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = '$_reviewPrefix$id';
     final count = (prefs.getInt(key) ?? 0) + 1;
     await prefs.setInt(key, count);

@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
@@ -45,7 +45,7 @@ class DailyHandService extends ChangeNotifier {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final handStr = prefs.getString(_handKey);
     final dateStr = prefs.getString(_dateKey);
     final resultVal = prefs.getBool(_resultKey);
@@ -64,7 +64,7 @@ class DailyHandService extends ChangeNotifier {
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_hand != null) {
       await prefs.setString(_handKey, jsonEncode(_hand!.toJson()));
     } else {

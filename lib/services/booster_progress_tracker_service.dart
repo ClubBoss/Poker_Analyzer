@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks play progress for booster packs.
 class BoosterProgressTrackerService {
@@ -9,27 +8,27 @@ class BoosterProgressTrackerService {
   static const _completedPrefix = 'completed_tpl_';
 
   Future<int?> getLastIndex(String boosterId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt('$_progressPrefix$boosterId');
   }
 
   Future<void> setLastIndex(String boosterId, int index) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt('$_progressPrefix$boosterId', index);
   }
 
   Future<void> clearProgress(String boosterId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove('$_progressPrefix$boosterId');
   }
 
   Future<bool> isCompleted(String boosterId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool('$_completedPrefix$boosterId') ?? false;
   }
 
   Future<Map<String, int>> getAllProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, int>{};
     for (final k in prefs.getKeys()) {
       if (k.startsWith(_progressPrefix)) {

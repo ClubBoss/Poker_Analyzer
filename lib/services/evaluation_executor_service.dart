@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 
 import '../models/action_evaluation_request.dart';
@@ -103,13 +103,13 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }
 
   Future<void> _loadStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _totalEvaluated = prefs.getInt(_evaluatedKey) ?? 0;
     _totalCorrect = prefs.getInt(_correctKey) ?? 0;
   }
 
   Future<void> _saveStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_evaluatedKey, _totalEvaluated);
     await prefs.setInt(_correctKey, _totalCorrect);
   }

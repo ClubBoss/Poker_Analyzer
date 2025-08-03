@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'achievement_service.dart';
 
 class DailyLearningGoalService extends ChangeNotifier {
@@ -21,7 +21,7 @@ class DailyLearningGoalService extends ChangeNotifier {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_prefKey);
     _lastCompleted = str != null ? DateTime.tryParse(str) : null;
     streakCount = prefs.getInt(_streakKey) ?? 0;
@@ -43,7 +43,7 @@ class DailyLearningGoalService extends ChangeNotifier {
 
   Future<void> markCompleted() async {
     final now = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dayKey = now.toIso8601String().split('T').first;
     if (_lastCompleted != null) {
       if (_sameDay(_lastCompleted!, now)) {
@@ -77,7 +77,7 @@ class DailyLearningGoalService extends ChangeNotifier {
   }
 
   Future<bool> isGoalCompleted(DateTime date) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_prefKey);
     final last = str != null ? DateTime.tryParse(str) : null;
     if (last == null) return false;

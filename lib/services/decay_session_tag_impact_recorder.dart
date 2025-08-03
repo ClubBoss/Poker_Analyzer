@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/decay_tag_reinforcement_event.dart';
 
@@ -13,7 +13,7 @@ class DecaySessionTagImpactRecorder {
   static const _allKey = 'decay_tag_reinf_all';
 
   Future<List<DecayTagReinforcementEvent>> _load(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = '$_prefix${tag.toLowerCase()}';
     final raw = prefs.getString(key);
     if (raw == null) return <DecayTagReinforcementEvent>[];
@@ -31,14 +31,14 @@ class DecaySessionTagImpactRecorder {
   }
 
   Future<void> _save(String tag, List<DecayTagReinforcementEvent> list) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = '$_prefix${tag.toLowerCase()}';
     await prefs.setString(
         key, jsonEncode([for (final e in list) e.toJson()]));
   }
 
   Future<List<DecayTagReinforcementEvent>> _loadAll() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_allKey);
     if (raw == null) return <DecayTagReinforcementEvent>[];
     try {
@@ -55,7 +55,7 @@ class DecaySessionTagImpactRecorder {
   }
 
   Future<void> _saveAll(List<DecayTagReinforcementEvent> list) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
         _allKey, jsonEncode([for (final e in list) e.toJson()]));
   }

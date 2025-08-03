@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class GeneratedPackHistoryService {
   static const _key = 'generated_pack_history';
@@ -10,7 +10,7 @@ class GeneratedPackHistoryService {
     required String type,
     required DateTime ts,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_key) ?? <String>[];
     final info = GeneratedPackInfo(id: id, name: name, type: type, ts: ts);
     list.insert(0, jsonEncode(info.toJson()));
@@ -19,7 +19,7 @@ class GeneratedPackHistoryService {
   }
 
   static Future<List<GeneratedPackInfo>> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_key) ?? <String>[];
     return [
       for (final e in list)
@@ -28,7 +28,7 @@ class GeneratedPackHistoryService {
   }
 
   static Future<void> clear() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_key);
   }
 }

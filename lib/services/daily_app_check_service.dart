@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'learning_path_reminder_engine.dart';
 import 'notification_service.dart';
@@ -26,7 +26,7 @@ class DailyAppCheckService {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> run(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;

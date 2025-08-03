@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
@@ -176,7 +176,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _saveHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = [for (final r in _history) jsonEncode(r.toJson())];
     await prefs.setStringList('training_history', list);
   }
@@ -686,7 +686,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
 
   Future<void> _resetFilters() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_sortKey, _SortOption.newest.index);
     await prefs.setInt(_ratingKey, _RatingFilter.all.index);
     await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
@@ -714,31 +714,31 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _clearTagFilters() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_tagKey);
     setState(() => _selectedTags.clear());
   }
 
   Future<void> _clearColorFilters() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_tagColorKey);
     setState(() => _selectedTagColors.clear());
   }
 
   Future<void> _clearLengthFilter() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_lengthKey, _SessionLengthFilter.any.index);
     setState(() => _lengthFilter = _SessionLengthFilter.any);
   }
 
   Future<void> _clearAccuracyFilter() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
     setState(() => _accuracyRange = _AccuracyRange.all);
   }
 
   Future<void> _clearDateFilter() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_dateFromKey);
     await prefs.remove(_dateToKey);
     setState(() {
@@ -1056,7 +1056,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _selectedTags.contains(tag),
                 selectedColor: colorFromHex(tagService.colorOf(tag)),
                 onSelected: (selected) async {
-                  final prefs = await SharedPreferences.getInstance();
+                  final prefs = await PreferencesService.getInstance();
                   setState(() {
                     if (selected) {
                       _selectedTags.add(tag);
@@ -1105,7 +1105,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _lengthFilter == entry.key,
                 onSelected: (selected) async {
                   if (!selected) return;
-                  final prefs = await SharedPreferences.getInstance();
+                  final prefs = await PreferencesService.getInstance();
                   await prefs.setInt(_lengthKey, entry.key.index);
                   setState(() => _lengthFilter = entry.key);
                 },
@@ -1148,7 +1148,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _accuracyRange == entry.key,
                 onSelected: (selected) async {
                   if (!selected) return;
-                  final prefs = await SharedPreferences.getInstance();
+                  final prefs = await PreferencesService.getInstance();
                   await prefs.setInt(_accuracyRangeKey, entry.key.index);
                   setState(() => _accuracyRange = entry.key);
                 },
@@ -1197,7 +1197,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 selected: _selectedTagColors.contains(color),
                 selectedColor: colorFromHex(color),
                 onSelected: (selected) async {
-                  final prefs = await SharedPreferences.getInstance();
+                  final prefs = await PreferencesService.getInstance();
                   setState(() {
                     if (selected) {
                       _selectedTagColors.add(color);
@@ -1336,7 +1336,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       },
     );
     if (result != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setStringList(_tagKey, result.toList());
       setState(() => _selectedTags = result);
     }
@@ -1410,7 +1410,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       },
     );
     if (result != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setStringList(_tagColorKey, result.toList());
       setState(() => _selectedTagColors = result);
     }
@@ -1814,61 +1814,61 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   Future<void> _setChartsVisible(bool value) async {
     setState(() => _showCharts = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_showChartsKey, _showCharts);
   }
 
   Future<void> _setAvgChartVisible(bool value) async {
     setState(() => _showAvgChart = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_showAvgChartKey, _showAvgChart);
   }
 
   Future<void> _setDistributionVisible(bool value) async {
     setState(() => _showDistribution = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_showDistributionKey, _showDistribution);
   }
 
   Future<void> _setTrendChartVisible(bool value) async {
     setState(() => _showTrendChart = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_showTrendChartKey, _showTrendChart);
   }
 
   Future<void> _setIncludeChartInPdf(bool value) async {
     setState(() => _includeChartInPdf = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_pdfIncludeChartKey, _includeChartInPdf);
   }
 
   Future<void> _setExportTags3Only(bool value) async {
     setState(() => _exportTags3Only = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_exportTags3OnlyKey, _exportTags3Only);
   }
 
   Future<void> _setExportNotesOnly(bool value) async {
     setState(() => _exportNotesOnly = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_exportNotesOnlyKey, _exportNotesOnly);
   }
 
   Future<void> _setHideEmptyTags(bool value) async {
     setState(() => _hideEmptyTags = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_hideEmptyTagsKey, _hideEmptyTags);
   }
 
   Future<void> _setSortByTag(bool value) async {
     setState(() => _sortByTag = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_sortByTagKey, _sortByTag);
   }
 
   Future<void> _setChartMode(_ChartMode mode) async {
     setState(() => _chartMode = mode);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_chartModeKey, mode.index);
   }
 
@@ -1882,7 +1882,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           : null,
     );
     if (range != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setInt(_dateFromKey, DateUtils.dateOnly(range.start).millisecondsSinceEpoch);
       await prefs.setInt(_dateToKey, DateUtils.dateOnly(range.end).millisecondsSinceEpoch);
       setState(() {
@@ -1900,7 +1900,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _applyQuickDateFilter(int days) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateUtils.dateOnly(DateTime.now());
     final from = DateUtils.dateOnly(now.subtract(Duration(days: days - 1)));
     await prefs.setInt(_dateFromKey, from.millisecondsSinceEpoch);
@@ -2078,7 +2078,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                   backgroundColor: colorFromHex(
                                       context.read<TagService>().colorOf(tag)),
                                   onSelected: (selected) async {
-                                    final prefs = await SharedPreferences
+                                    final prefs = await PreferencesService
                                         .getInstance();
                                     setState(() {
                                       _selectedTags.remove(tag);
@@ -2160,7 +2160,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                   selected: true,
                                   backgroundColor: colorFromHex(color),
                                   onSelected: (selected) async {
-                                    final prefs = await SharedPreferences
+                                    final prefs = await PreferencesService
                                         .getInstance();
                                     setState(() {
                                       _selectedTagColors.remove(color);
@@ -2214,7 +2214,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         onChanged: (value) async {
                           if (value == null) return;
                           final prefs =
-                              await SharedPreferences.getInstance();
+                              await PreferencesService.getInstance();
                           await prefs.setInt(_ratingKey, value.index);
                           setState(() => _ratingFilter = value);
                         },
@@ -2250,7 +2250,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         onChanged: (value) async {
                           if (value == null) return;
                           final prefs =
-                              await SharedPreferences.getInstance();
+                              await PreferencesService.getInstance();
                           await prefs.setInt(_sortKey, value.index);
                           setState(() => _sort = value);
                         },
@@ -2286,7 +2286,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs = await SharedPreferences.getInstance();
+                          final prefs = await PreferencesService.getInstance();
                           await prefs.setInt(_tagCountKey, value.index);
                           setState(() => _tagCountFilter = value);
                         },
@@ -2325,7 +2325,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs = await SharedPreferences.getInstance();
+                          final prefs = await PreferencesService.getInstance();
                           await prefs.setInt(_weekdayKey, value.index);
                           setState(() => _weekdayFilter = value);
                         },
@@ -2360,7 +2360,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
-                          final prefs = await SharedPreferences.getInstance();
+                          final prefs = await PreferencesService.getInstance();
                           await prefs.setInt(_lengthKey, value.index);
                           setState(() => _lengthFilter = value);
                         },
@@ -2394,7 +2394,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         onChanged: (value) async {
                           if (value == null) return;
                           final prefs =
-                              await SharedPreferences.getInstance();
+                              await PreferencesService.getInstance();
                           await prefs.setInt(_accuracyRangeKey, value.index);
                           setState(() => _accuracyRange = value);
                         },

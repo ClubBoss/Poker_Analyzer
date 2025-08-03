@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -47,7 +47,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   }
 
   Future<void> _loadSelectedStreets() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_streetPrefsKey);
     if (list != null && list.isNotEmpty) {
       final values = <int>[];
@@ -64,13 +64,13 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   }
 
   Future<void> _saveSelectedStreets() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
         _streetPrefsKey, _selectedStreets.map((e) => e.toString()).toList());
   }
 
   Future<void> _loadActiveTag() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final tag = prefs.getString(_activeTagPrefsKey);
     if (tag != null && tag.isNotEmpty) {
       setState(() => _activeTag = tag);
@@ -78,7 +78,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   }
 
   Future<void> _saveActiveTag() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_activeTag == null) {
       await prefs.remove(_activeTagPrefsKey);
     } else {

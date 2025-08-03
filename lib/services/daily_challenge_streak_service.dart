@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DailyChallengeStreakService {
   DailyChallengeStreakService._();
@@ -9,12 +8,12 @@ class DailyChallengeStreakService {
   static const String _streakKey = 'currentStreak';
 
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_streakKey) ?? 0;
   }
 
   Future<void> updateStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_dateKey);

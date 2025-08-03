@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'stage_completion_celebration_service.dart';
 import 'skill_tree_track_resolver.dart';
@@ -22,7 +22,7 @@ class SkillTreeNodeProgressTracker {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     completedNodeIds.value =
         (prefs.getStringList(_prefsKey)?.toSet() ?? <String>{});
     completedTracks.value =
@@ -31,12 +31,12 @@ class SkillTreeNodeProgressTracker {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, completedNodeIds.value.toList());
   }
 
   Future<void> _saveTracks() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
         _trackPrefsKey, completedTracks.value.toList());
   }
@@ -87,7 +87,7 @@ class SkillTreeNodeProgressTracker {
 
   /// Clears stored progress for tests.
   Future<void> resetForTest() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_prefsKey);
     await prefs.remove(_trackPrefsKey);
     completedNodeIds.value = <String>{};

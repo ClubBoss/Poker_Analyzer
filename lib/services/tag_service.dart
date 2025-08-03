@@ -1,9 +1,9 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TagService extends ChangeNotifier {
   static const _prefsKey = 'global_tags';
@@ -16,7 +16,7 @@ class TagService extends ChangeNotifier {
   String colorOf(String tag) => _colors[tag] ?? _defaultColor;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stored = prefs.getString(_prefsKey);
     if (stored != null) {
       try {
@@ -50,7 +50,7 @@ class TagService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = [
       for (final name in _tags)
         {'name': name, 'color': _colors[name] ?? _defaultColor}

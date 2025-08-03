@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import 'mini_lesson_library_service.dart';
@@ -49,7 +49,7 @@ class SmartRecapSuggestionEngine {
   Stream<TheoryMiniLessonNode> get nextRecap => _ctrl.stream;
 
   Future<Map<String, DateTime>> _loadSchedule() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('theory_reinforcement_schedule');
     if (raw == null) return {};
     try {

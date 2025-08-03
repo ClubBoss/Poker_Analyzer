@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/hero_position.dart';
 
@@ -20,7 +20,7 @@ class TrainingPackFilterMemoryService {
   bool groupByStack = false;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = prefs.getString(_prefsKey);
     if (data == null) return;
     try {
@@ -40,7 +40,7 @@ class TrainingPackFilterMemoryService {
   }
 
   Future<void> save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final jsonStr = jsonEncode({
       'tags': selectedTags.toList(),
       'stack': stackFilters.toList(),

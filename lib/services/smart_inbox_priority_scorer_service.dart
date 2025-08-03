@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/shared_prefs_keys.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'smart_pinned_block_booster_provider.dart';
 
 /// Scores and sorts booster suggestions by urgency for the smart inbox.
@@ -10,7 +10,7 @@ class SmartInboxPriorityScorerService {
       List<PinnedBlockBoosterSuggestion> input) async {
     if (input.isEmpty) return [];
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final scored = <_ScoredSuggestion>[];
     for (final s in input) {

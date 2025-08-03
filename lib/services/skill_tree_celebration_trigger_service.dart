@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/skill_tree.dart';
 import 'skill_tree_final_node_completion_detector.dart';
@@ -30,7 +30,7 @@ class SkillTreeCelebrationTriggerService {
   Future<void> maybeCelebrate(BuildContext context, SkillTree tree) async {
     final id = tree.nodes.values.isNotEmpty ? tree.nodes.values.first.category : '';
     final key = '$_prefix$id';
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (prefs.getBool(key) ?? false) return;
     if (!await detector.isTreeCompleted(tree)) return;
     await prefs.setBool(key, true);

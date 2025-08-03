@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Aggregated progress info for a mistake tag recovered via boosters.
 class MistakeTagRecoveryStatus {
@@ -37,7 +37,7 @@ class MistakeBoosterProgressTracker {
   /// Records mastery deltas for a completed booster session.
   Future<void> recordProgress(Map<String, double> tagDeltas) async {
     if (tagDeltas.isEmpty) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final entry in tagDeltas.entries) {
       final tag = entry.key.toLowerCase();
       final countKey = '$_countPrefix$tag';
@@ -56,7 +56,7 @@ class MistakeBoosterProgressTracker {
     int repeatThreshold = 3,
     double deltaThreshold = 0.1,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <MistakeTagRecoveryStatus>[];
     for (final key in prefs.getKeys()) {
       if (!key.startsWith(_countPrefix)) continue;
@@ -81,7 +81,7 @@ class MistakeBoosterProgressTracker {
     int repeatThreshold = 3,
     double deltaThreshold = 0.1,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     int reinforced = 0;
     int recovered = 0;
     for (final key in prefs.getKeys()) {
@@ -101,7 +101,7 @@ class MistakeBoosterProgressTracker {
 
   /// Clears all stored progress (used by tests).
   Future<void> resetForTest() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final keys = prefs
         .getKeys()
         .where((k) => k.startsWith(_countPrefix) || k.startsWith(_deltaPrefix))

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -46,7 +46,6 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
   static const _sortKey = 'review_sort_option';
   static const _searchKey = 'review_search_query';
 
-  SharedPreferences? _prefs;
   bool _onlyMistakes = false;
   final TextEditingController _searchController = TextEditingController();
   _SortOption _sort = _SortOption.name;
@@ -58,10 +57,9 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final sortIndex = prefs.getInt(_sortKey) ?? 0;
     setState(() {
-      _prefs = prefs;
       _onlyMistakes = prefs.getBool(_mistakesKey) ?? false;
       _sort = _SortOption.values[sortIndex.clamp(0, _SortOption.values.length - 1)];
       _searchController.text = prefs.getString(_searchKey) ?? '';
@@ -69,7 +67,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
   }
 
   Future<void> _savePrefs() async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_mistakesKey, _onlyMistakes);
     await prefs.setInt(_sortKey, _sort.index);
     await prefs.setString(_searchKey, _searchController.text);
@@ -562,8 +560,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                 ? null
                 : (v) async {
                     setState(() => _onlyMistakes = v);
-                    final prefs =
-                        _prefs ?? await SharedPreferences.getInstance();
+                    final prefs = await PreferencesService.getInstance();
                     await prefs.setBool(_mistakesKey, v);
                   },
             activeColor: Colors.orange,
@@ -581,8 +578,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                         icon: const Icon(Icons.clear),
                         onPressed: () async {
                           _searchController.clear();
-                          final prefs =
-                              _prefs ?? await SharedPreferences.getInstance();
+                          final prefs = await PreferencesService.getInstance();
                           await prefs.setString(_searchKey, '');
                           setState(() {});
                         },
@@ -590,8 +586,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
               ),
               onChanged: (_) async {
                 setState(() {});
-                final prefs =
-                    _prefs ?? await SharedPreferences.getInstance();
+                final prefs = await PreferencesService.getInstance();
                 await prefs.setString(_searchKey, _searchController.text);
               },
             ),
@@ -618,8 +613,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                   onChanged: (value) async {
                     if (value == null) return;
                     setState(() => _sort = value);
-                    final prefs =
-                        _prefs ?? await SharedPreferences.getInstance();
+                    final prefs = await PreferencesService.getInstance();
                     await prefs.setInt(_sortKey, value.index);
                   },
                 ),

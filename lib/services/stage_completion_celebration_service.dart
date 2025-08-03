@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:poker_analyzer/widgets/dark_alert_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import 'skill_tree_library_service.dart';
@@ -48,7 +48,7 @@ class StageCompletionCelebrationService {
     final stageIndex = completedStages.last;
     final totalStages = tree.nodes.values.map((n) => n.level).toSet().length;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'stage_celebrated_${trackId}_$stageIndex';
     if (prefs.getBool(key) ?? false) return;
     await prefs.setBool(key, true);

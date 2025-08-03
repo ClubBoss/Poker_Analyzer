@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,7 +11,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/session_log.dart';
 import '../asset_manifest.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
 
 import '../models/training_pack.dart';
@@ -59,7 +59,7 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   Future<DateTime> _readLogsTime() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return DateTime.tryParse(prefs.getString(_logsKey) ?? '') ??
         DateTime.fromMillisecondsSinceEpoch(0);
   }
@@ -399,7 +399,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     final history = List<TrainingSessionResult>.from(pack.history)..removeLast();
     final updated = pack.copyWith(history: history);
     _packs[index] = updated;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove('training_progress_${pack.name}');
     await _persist();
     await _sync(updated);
@@ -516,7 +516,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       name = '$base ($idx)';
       idx++;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final last = prefs.getString('pack_last_color');
     final reg = RegExp(r'^#[0-9A-Fa-f]{6}\$');
     final color = last != null && reg.hasMatch(last) ? last : tpl.defaultColor;

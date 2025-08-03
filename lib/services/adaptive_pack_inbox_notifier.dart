@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/memory_reminder.dart';
 import 'adaptive_pack_recommender_service.dart';
@@ -43,13 +43,13 @@ class AdaptivePackInboxNotifier with WidgetsBindingObserver {
   }
 
   Future<DateTime?> _lastRun() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_lastKey);
     return str == null ? null : DateTime.tryParse(str);
   }
 
   Future<void> _setLastRun(DateTime time) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_lastKey, time.toIso8601String());
   }
 

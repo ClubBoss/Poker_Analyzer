@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Remembers recap dismissals per lesson or tag and throttles prompts
 /// with an adaptive cooldown that increases on repeated dismissals.
@@ -16,7 +16,7 @@ class SmartTheoryRecapDismissalMemory {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -35,7 +35,7 @@ class SmartTheoryRecapDismissalMemory {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode({for (final e in _cache.entries) e.key: e.value.toJson()}),

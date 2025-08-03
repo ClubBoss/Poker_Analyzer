@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/lesson_streak_engine.dart';
 import 'confetti_overlay.dart';
@@ -36,7 +36,7 @@ class _StreakBannerWidgetState extends State<StreakBannerWidget>
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final disabled = prefs.getBool(_disabledKey) ?? false;
     final trackId = prefs.getString('lesson_selected_track');
     final value = await LessonStreakEngine.instance.getCurrentStreak();

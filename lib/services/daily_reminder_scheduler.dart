@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -25,7 +25,7 @@ class DailyReminderScheduler {
 
   Future<void> scheduleDailyReminder({required String packName}) async {
     await _init();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final storedPack = prefs.getString(_packKey);
     var count = prefs.getInt(_countKey) ?? 0;
     if (storedPack != packName) {
@@ -64,7 +64,7 @@ class DailyReminderScheduler {
     for (int i = 0; i < 3; i++) {
       await _plugin.cancel(_idBase + i);
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_packKey);
     await prefs.remove(_countKey);
   }

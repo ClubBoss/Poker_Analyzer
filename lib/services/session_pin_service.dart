@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'cloud_sync_service.dart';
 
 class SessionPinService extends ChangeNotifier {
@@ -17,7 +17,7 @@ class SessionPinService extends ChangeNotifier {
   bool isPinned(int id) => _pinned.contains(id);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stored = prefs.getStringList(_prefsKey) ?? [];
     _pinned
       ..clear()
@@ -49,7 +49,7 @@ class SessionPinService extends ChangeNotifier {
     } else {
       _pinned.remove(id);
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
         _prefsKey, _pinned.map((e) => e.toString()).toList());
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());
@@ -60,7 +60,7 @@ class SessionPinService extends ChangeNotifier {
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
         _prefsKey, _pinned.map((e) => e.toString()).toList());
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());

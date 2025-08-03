@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/player_profile.dart';
 import '../models/v3/lesson_step.dart';
@@ -19,7 +19,7 @@ class LessonResumeEngine {
         .applyFilters(steps, profile: profile);
     final completed = await LessonProgressService.instance.getCompletedSteps();
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final trackId = prefs.getString('lesson_selected_track');
     LessonTrack? track;
     if (trackId != null) {

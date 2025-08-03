@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class MotivationService {
   MotivationService._();
@@ -17,7 +17,7 @@ class MotivationService {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   static Future<String> getDailyQuote() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dateStr = prefs.getString(_dateKey);
     final quote = prefs.getString(_quoteKey);
     final now = DateTime.now();

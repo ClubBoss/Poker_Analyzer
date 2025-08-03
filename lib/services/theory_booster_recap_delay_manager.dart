@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'theory_recap_analytics_reporter.dart';
 import 'smart_booster_dropoff_detector.dart';
 
@@ -14,7 +14,7 @@ class TheoryBoosterRecapDelayManager {
 
   static Future<Map<String, DateTime>> _load() async {
     if (_cache != null) return _cache!;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -35,7 +35,7 @@ class TheoryBoosterRecapDelayManager {
   }
 
   static Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,

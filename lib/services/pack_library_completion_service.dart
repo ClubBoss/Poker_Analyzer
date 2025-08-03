@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class PackCompletionData {
   final DateTime completedAt;
@@ -49,7 +49,7 @@ class PackLibraryCompletionService {
     Duration? elapsed,
   }) async {
     if (packId.isEmpty || total <= 0) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final accuracy = correct / total;
     final existingRaw = prefs.getString('$_prefix$packId');
@@ -79,7 +79,7 @@ class PackLibraryCompletionService {
   }
 
   Future<PackCompletionData?> getCompletion(String packId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_prefix$packId');
     if (raw == null) return null;
     try {
@@ -93,7 +93,7 @@ class PackLibraryCompletionService {
   }
 
   Future<Map<String, PackCompletionData>> getAllCompletions() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, PackCompletionData>{};
     for (final k in prefs.getKeys()) {
       if (k.startsWith(_prefix)) {

@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks pin/unpin actions for theory blocks and exposes basic analytics.
 class PinnedBlockTrackerService {
@@ -13,7 +12,7 @@ class PinnedBlockTrackerService {
 
   /// Records that the block with [blockId] was pinned.
   Future<void> logPin(String blockId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_pinKey(blockId), true);
     await prefs.setInt(
       _lastPinKey(blockId),
@@ -23,13 +22,13 @@ class PinnedBlockTrackerService {
 
   /// Records that the block with [blockId] was unpinned.
   Future<void> logUnpin(String blockId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_pinKey(blockId));
   }
 
   /// Returns the last time the block with [blockId] was pinned.
   Future<DateTime?> getLastPinTime(String blockId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final millis = prefs.getInt(_lastPinKey(blockId));
     if (millis == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(millis);
@@ -37,13 +36,13 @@ class PinnedBlockTrackerService {
 
   /// Whether the block with [blockId] is currently pinned.
   Future<bool> isPinned(String blockId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_pinKey(blockId)) ?? false;
   }
 
   /// Returns all currently pinned block ids.
   Future<List<String>> getPinnedBlockIds() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final prefix = 'pinned_block_';
     final lastPrefix = 'pinned_block_last_';
     final ids = <String>[];

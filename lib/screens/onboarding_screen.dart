@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
 import '../services/user_preferences_service.dart';
 import '../services/hand_history_file_service.dart';
@@ -33,7 +33,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _finish() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool('tutorial_completed', true);
     await context.read<UserPreferencesService>().setTutorialCompleted(true);
     if (mounted) Navigator.pop(context);

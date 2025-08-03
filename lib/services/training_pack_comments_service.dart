@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class TrainingPackCommentsService {
   TrainingPackCommentsService._();
@@ -9,7 +9,7 @@ class TrainingPackCommentsService {
   Map<String, String> _comments = {};
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -27,7 +27,7 @@ class TrainingPackCommentsService {
 
   Future<void> saveComment(String packId, String comment) async {
     _comments[packId] = comment;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, jsonEncode(_comments));
   }
 

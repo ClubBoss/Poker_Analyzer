@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'booster_suggestion_engine.dart';
 
 /// Fetches booster lessons for inbox banner reminders.
@@ -21,7 +21,7 @@ class TheoryInboxBannerEngine {
 
   /// Runs recommendation check if enough time elapsed since last run.
   Future<void> run() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr == null ? null : DateTime.tryParse(lastStr);

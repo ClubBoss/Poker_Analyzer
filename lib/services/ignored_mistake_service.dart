@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class IgnoredMistakeService extends ChangeNotifier {
   static const _prefsKey = 'ignored_mistakes';
@@ -9,7 +9,7 @@ class IgnoredMistakeService extends ChangeNotifier {
   Set<String> get ignored => _ignored;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_prefsKey);
     _ignored
       ..clear()
@@ -20,7 +20,7 @@ class IgnoredMistakeService extends ChangeNotifier {
   Future<void> ignore(String key) async {
     if (_ignored.contains(key)) return;
     _ignored.add(key);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, _ignored.toList());
     notifyListeners();
   }
@@ -28,7 +28,7 @@ class IgnoredMistakeService extends ChangeNotifier {
   Future<void> reset() async {
     if (_ignored.isEmpty) return;
     _ignored.clear();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_prefsKey);
     notifyListeners();
   }

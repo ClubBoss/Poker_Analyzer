@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../../models/training_spot.dart';
 import '../../utils/shared_prefs_keys.dart';
@@ -39,13 +39,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _ascending = prefs.getBool(SharedPrefsKeys.trainingSpotListSort) ?? true;
     _sort();
   }
 
   Future<void> _savePrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(SharedPrefsKeys.trainingSpotListSort, _ascending);
   }
 

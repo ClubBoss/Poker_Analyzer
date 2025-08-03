@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/skill_tree.dart';
 import 'skill_tree_unlock_evaluator.dart';
@@ -23,7 +23,7 @@ class SkillTreeUnlockNotificationService {
         : '';
     if (trackId.isEmpty) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
 
     await progress.isCompleted('');
     final completed = progress.completedNodeIds.value;

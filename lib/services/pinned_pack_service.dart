@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class PinnedPackService {
   PinnedPackService._();
@@ -12,7 +12,7 @@ class PinnedPackService {
   Stream<Set<String>> get pinned$ => _ctrl.stream;
 
   Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _ids = prefs.getStringList(_key)?.toSet() ?? {};
     _ctrl.add(Set.from(_ids));
   }
@@ -21,7 +21,7 @@ class PinnedPackService {
     if (!_ids.add(id)) {
       _ids.remove(id);
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_key, _ids.toList());
     _ctrl.add(Set.from(_ids));
   }

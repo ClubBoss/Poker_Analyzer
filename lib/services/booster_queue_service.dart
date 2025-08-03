@@ -1,5 +1,5 @@
 import '../models/v2/training_spot_v2.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Stores training spots scheduled as boosters.
 
@@ -35,7 +35,7 @@ class BoosterQueueService {
 
   Future<DateTime?> lastUsed() async {
     if (_lastUsedAt != null) return _lastUsedAt;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_lastKey);
     _lastUsedAt = str != null ? DateTime.tryParse(str) : null;
     return _lastUsedAt;
@@ -43,7 +43,7 @@ class BoosterQueueService {
 
   Future<void> markUsed({DateTime? time}) async {
     _lastUsedAt = time ?? DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_lastKey, _lastUsedAt!.toIso8601String());
   }
 }

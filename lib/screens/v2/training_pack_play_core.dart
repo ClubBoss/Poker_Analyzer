@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
@@ -60,7 +60,7 @@ mixin TrainingPackPlayCore<T extends StatefulWidget> on State<T> {
   TrainingPackTemplate get template;
 
   Future<void> save({bool ts = true}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList('tpl_seq_${template.id}',
         [for (final s in spots) s.id]);
     await prefs.setInt('tpl_prog_${template.id}', index);

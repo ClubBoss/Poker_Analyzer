@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -453,13 +454,13 @@ class TrainingStatsService extends ChangeNotifier {
   Future<void> _updateStreaks() async {
     _currentStreak = _calcCurrentStreak();
     _bestStreak = _calcBestStreak();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_currentStreakKey, _currentStreak);
     await prefs.setInt(_bestStreakKey, _bestStreak);
   }
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _sessions = prefs.getInt(_sessionsKey) ?? 0;
     _hands = prefs.getInt(_handsKey) ?? 0;
     _mistakes = prefs.getInt(_mistakesKey) ?? 0;
@@ -566,7 +567,7 @@ class TrainingStatsService extends ChangeNotifier {
       };
 
   Future<void> _persist(DateTime ts) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_sessionsKey, _sessions);
     await prefs.setInt(_handsKey, _hands);
     await prefs.setInt(_mistakesKey, _mistakes);
@@ -630,7 +631,7 @@ class TrainingStatsService extends ChangeNotifier {
     _mistakeCounts
       ..clear()
       ..addAll(map);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_mistakeCountsKey, jsonEncode(_mistakeCounts));
     if (cloud != null) {
       await cloud!.uploadTrainingStats(_toMap());

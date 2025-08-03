@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template.dart';
 import 'adaptive_training_service.dart';
 import 'achievement_engine.dart';
@@ -120,7 +120,7 @@ class PersonalRecommendationService extends ChangeNotifier {
   }
 
   Future<TrainingPackTemplate?> getTopRecommended() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final t in _packs) {
       final completed = prefs.getBool('completed_tpl_${t.id}') ?? false;
       final stat = await TrainingPackStatsService.getStats(t.id);

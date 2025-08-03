@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
@@ -22,7 +22,7 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
+    PreferencesService.getInstance().then((p) {
       final done = p.getBool(_key) ?? false;
       final ts = p.getInt(_tsKey);
       final hide = ts != null &&
@@ -84,7 +84,7 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
                   context, entry.key);
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
-              final p = await SharedPreferences.getInstance();
+              final p = await PreferencesService.getInstance();
               await p.setInt(
                   _tsKey, DateTime.now().millisecondsSinceEpoch);
               if (mounted) setState(() => _done = false);

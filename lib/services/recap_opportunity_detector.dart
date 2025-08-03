@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_usage_tracker.dart';
 import 'smart_theory_recap_engine.dart';
@@ -64,13 +64,13 @@ class RecapOpportunityDetector {
   }
 
   Future<DateTime?> _lastPromptTime() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_lastKey);
     return str == null ? null : DateTime.tryParse(str);
   }
 
   Future<void> _markPrompted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_lastKey, DateTime.now().toIso8601String());
   }
 

@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'streak_tracker_service.dart';
 import 'xp_level_engine.dart';
 import 'level_up_celebration_engine.dart';
@@ -51,7 +51,7 @@ class XPTrackerService extends ChangeNotifier {
   Future<void> _persist(DateTime ts) async {
     await _saveXp();
     await _persistHistory();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_timeKey, ts.toIso8601String());
   }
 
@@ -70,7 +70,7 @@ class XPTrackerService extends ChangeNotifier {
   List<XPEntry> get history => List.unmodifiable(_history);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (!Hive.isBoxOpen(_boxKey)) {
       await Hive.initFlutter();
       _box = await Hive.openBox(_boxKey);
@@ -115,7 +115,7 @@ class XPTrackerService extends ChangeNotifier {
   }
 
   Future<void> _saveXp() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_xpKey, _xp);
   }
 
@@ -151,7 +151,7 @@ class XPTrackerService extends ChangeNotifier {
 
   Future<void> addPerTagXP(Map<String, int> tagXp,
       {required String source}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     for (final entry in tagXp.entries) {
       final tag = entry.key.toLowerCase();
@@ -182,7 +182,7 @@ class XPTrackerService extends ChangeNotifier {
   }
 
   Future<Map<String, int>> getTotalXpPerTag() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, int>{};
     for (final key in prefs.getKeys()) {
       if (!key.startsWith(_tagXpPrefix)) continue;

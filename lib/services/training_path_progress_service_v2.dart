@@ -1,6 +1,6 @@
 
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/learning_path_template_v2.dart';
 import '../models/learning_path_stage_model.dart';
@@ -26,7 +26,7 @@ class TrainingPathProgressServiceV2 {
     _template = templates.firstWhereOrNull((e) => e.id == pathId);
     if (_template == null) return;
     _pathId = pathId;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _progress.clear();
     for (final stage in _template!.stages) {
       final acc = prefs.getDouble(_accKey(stage.id)) ?? 0.0;
@@ -38,7 +38,7 @@ class TrainingPathProgressServiceV2 {
 
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     if (_pathId == null || _template == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stage = _template!.stages.firstWhereOrNull((s) => s.id == stageId);
     if (stage == null) return;
     final stats = _computeStats(stage);

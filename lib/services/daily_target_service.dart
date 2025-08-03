@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'training_stats_service.dart';
 
 class DailyTargetService extends ChangeNotifier {
@@ -15,7 +15,7 @@ class DailyTargetService extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _target = prefs.getInt(_key) ?? 10;
     notifyListeners();
   }
@@ -23,7 +23,7 @@ class DailyTargetService extends ChangeNotifier {
   Future<void> setTarget(int value) async {
     if (_target == value) return;
     _target = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_key, value);
     notifyListeners();
   }

@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LearningPathCompletionService {
   LearningPathCompletionService._();
@@ -8,12 +7,12 @@ class LearningPathCompletionService {
   static const _dateKey = 'learning_path_completed_at';
 
   Future<bool> isPathCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_completedKey) ?? false;
   }
 
   Future<void> markPathCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final already = prefs.getBool(_completedKey) ?? false;
     if (already) return;
     await prefs.setBool(_completedKey, true);
@@ -21,7 +20,7 @@ class LearningPathCompletionService {
   }
 
   Future<DateTime?> getCompletionDate() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_dateKey);
     return raw != null ? DateTime.tryParse(raw) : null;
   }

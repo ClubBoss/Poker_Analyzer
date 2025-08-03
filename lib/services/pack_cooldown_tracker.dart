@@ -1,12 +1,12 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PackCooldownTracker {
   static const _prefsKey = 'pack_cooldown_timestamps';
 
   static Future<Map<String, DateTime>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -24,7 +24,7 @@ class PackCooldownTracker {
   }
 
   static Future<void> _save(Map<String, DateTime> data) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode({for (final e in data.entries) e.key: e.value.toIso8601String()}),

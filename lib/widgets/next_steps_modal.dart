@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/learning_path_template_v2.dart';
 import '../models/v2/training_pack_template.dart';
@@ -52,7 +52,7 @@ class _NextStepsModalState extends State<NextStepsModal> {
     final paths = unlocked.take(2).toList();
 
     TrainingPackTemplate? booster;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (prefs.getBool('showWeaknessOverlay') ?? true) {
       final mastery = context.read<TagMasteryService>();
       final weak = await mastery.findWeakTags(threshold: 0.6);

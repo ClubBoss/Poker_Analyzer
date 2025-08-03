@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
+import 'package:flutter/material.dart';
 import 'cloud_sync_service.dart';
 import 'theme_service.dart';
 
@@ -60,7 +61,7 @@ class UserPreferencesService extends ChangeNotifier {
   Color get accentColor => theme.accentColor;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _showPotAnimation = _boolPref(prefs, _potAnimationKey, true);
     _showCardReveal = _boolPref(prefs, _cardRevealKey, true);
     _showWinnerCelebration = _boolPref(prefs, _winnerCelebrationKey, true);
@@ -104,7 +105,7 @@ class UserPreferencesService extends ChangeNotifier {
       };
 
   Future<void> _save(String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(key, value);
     if (cloud != null) {
       final data = _toMap();
@@ -153,7 +154,7 @@ class UserPreferencesService extends ChangeNotifier {
 
   Future<void> setWeaknessRange(DateTimeRange? value) async {
     _weakRange = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (value == null) {
       await prefs.remove(_weakRangeStartKey);
       await prefs.remove(_weakRangeEndKey);
@@ -171,7 +172,7 @@ class UserPreferencesService extends ChangeNotifier {
 
   Future<void> setWeaknessCategoryCount(int value) async {
     _weakCatCount = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_weakCatCountKey, value);
     if (cloud != null) {
       final data = _toMap();
@@ -183,7 +184,7 @@ class UserPreferencesService extends ChangeNotifier {
 
   Future<void> setEvRange(RangeValues value) async {
     _evRange = value;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setDouble(_evRangeStartKey, value.start);
     await prefs.setDouble(_evRangeEndKey, value.end);
     if (cloud != null) {

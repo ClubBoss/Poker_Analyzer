@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'user_action_logger.dart';
 
@@ -23,7 +23,7 @@ class SuggestionBannerABTestService {
   /// Initialize the service. Must be called once on startup.
   Future<void> init() async {
     if (_initialized) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
 
     // QA override via query parameter (?variant=layoutB)
     final override = Uri.base.queryParameters['variant'];

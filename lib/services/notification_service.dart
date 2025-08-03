@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'remote_config_service.dart';
 import 'training_stats_service.dart';
@@ -41,7 +41,7 @@ class NotificationService {
   static Future<void> cancel(int id) => _plugin.cancel(id);
 
   static Future<int> _loadTime(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final def = context
         .read<RemoteConfigService>()
         .get<int>('dailyReminderDefaultMinutes', 20 * 60);
@@ -55,14 +55,14 @@ class NotificationService {
 
   static Future<void> updateReminderTime(
       BuildContext context, TimeOfDay t) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_timeKey, t.hour * 60 + t.minute);
     await cancel(101);
     await scheduleDailyReminder(context);
   }
 
   static Future<void> scheduleDailyReminder(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final last = prefs.getString('last_training_day');
     final time = await _loadTime(context);
     final now = DateTime.now();
@@ -100,7 +100,7 @@ class NotificationService {
     if (sessions.isNotEmpty && sessions.first.value > 0) return;
     final rec = context.read<PersonalRecommendationService>();
     final tpl = rec.packs.isNotEmpty ? rec.packs.first : null;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final focus = tpl?.heroPos.label ?? 'training';
     var remaining = 0;
     if (tpl != null) {
@@ -158,7 +158,7 @@ class NotificationService {
       final tpl =
           await context.read<AdaptiveTrainingService>().nextRecommendedPack();
       if (tpl == null) return;
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final idx = prefs.getInt('tpl_prog_${tpl.id}') ?? 0;
       final remaining = tpl.spots.length - idx;
       await _plugin.show(

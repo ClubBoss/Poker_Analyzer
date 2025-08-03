@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../screens/skill_tree_track_celebration_screen.dart';
 import '../screens/skill_tree_track_launcher.dart';
@@ -26,7 +26,7 @@ class SkillTreeTrackCelebrationService {
   Future<void> maybeCelebrate(BuildContext context, String trackId) async {
     if (!await evaluator.isCompleted(trackId)) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final done = prefs.getStringList(_prefsKey) ?? <String>[];
     if (done.contains(trackId)) return;
 

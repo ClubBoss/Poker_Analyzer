@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'lesson_track_meta_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'lesson_streak_engine.dart';
 import 'lesson_progress_service.dart';
 import '../models/track_unlock_requirement_progress.dart';
@@ -66,7 +66,7 @@ class LessonTrackUnlockEngine {
 
     final xpReq = _xpReq[trackId];
     if (xpReq != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final xp = prefs.getInt(_xpKey) ?? 0;
       reqs.add(
         TrackUnlockRequirementProgress(
@@ -97,14 +97,14 @@ class LessonTrackUnlockEngine {
   }
 
   Future<List<String>> _loadUnlocked() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_prefsKey) ?? <String>[];
     if (!list.contains(defaultTrackId)) list.add(defaultTrackId);
     return list;
   }
 
   Future<void> _saveUnlocked(List<String> ids) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, ids);
   }
 
@@ -123,7 +123,7 @@ class LessonTrackUnlockEngine {
 
     final xpReq = _xpReq[id];
     if (xpReq != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final xp = prefs.getInt(_xpKey) ?? 0;
       if (xp < xpReq) return false;
     }

@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'booster_path_history_service.dart';
 import 'recap_effectiveness_analyzer.dart';
@@ -45,7 +45,7 @@ class SmartRecapInjectionPlanner {
   static const _prefsKey = 'smart_recap_injection_plan';
 
   Future<RecapInjectionPlan?> _loadLast() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw == null) return null;
     try {
@@ -58,7 +58,7 @@ class SmartRecapInjectionPlanner {
   }
 
   Future<void> _save(RecapInjectionPlan plan) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, jsonEncode(plan.toJson()));
   }
 

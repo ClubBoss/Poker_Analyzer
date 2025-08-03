@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'pack_library_loader_service.dart';
 import 'pack_unlocking_rules_engine.dart';
 import 'tag_mastery_service.dart';
 import 'training_progress_service.dart';
 import 'training_pack_stats_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SuggestedNextPackEngine {
   final TagMasteryService mastery;
@@ -37,7 +37,7 @@ class SuggestedNextPackEngine {
     final weakTags = (await mastery.getWeakTags()).map((e) => e.toLowerCase());
     focusTags.addAll(weakTags);
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final scored = <(TrainingPackTemplateV2, double)>[];
 
     for (final p in library) {

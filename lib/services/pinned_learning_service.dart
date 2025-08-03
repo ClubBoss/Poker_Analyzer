@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/pinned_learning_item.dart';
 import '../models/theory_block_model.dart';
@@ -25,7 +25,7 @@ class PinnedLearningService extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     _items
       ..clear();
@@ -45,7 +45,7 @@ class PinnedLearningService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = _items.map((e) => e.toJson()).toList();
     await prefs.setString(_prefsKey, jsonEncode(list));
   }
@@ -70,7 +70,7 @@ class PinnedLearningService extends ChangeNotifier {
     if (isPinned(type, id)) {
       _items.removeWhere((e) => e.type == type && e.id == id);
     } else {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await TheoryBlockLibraryService.instance.loadAll();
       for (final b in TheoryBlockLibraryService.instance.all) {
         if ((type == 'lesson' && b.nodeIds.contains(id)) ||
@@ -87,7 +87,7 @@ class PinnedLearningService extends ChangeNotifier {
 
   Future<void> toggleBlock(TheoryBlockModel block) async {
     final id = block.id;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (isPinned('block', id)) {
       _items.removeWhere((e) => e.type == 'block' && e.id == id);
       await prefs.remove('pinned_block_$id');
@@ -105,7 +105,7 @@ class PinnedLearningService extends ChangeNotifier {
   Future<void> unpin(String type, String id) async {
     _items.removeWhere((e) => e.type == type && e.id == id);
     if (type == 'block') {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.remove('pinned_block_$id');
     }
     await _save();

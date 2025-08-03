@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DailyTipService extends ChangeNotifier {
   static const _dataKey = 'daily_tip_data';
@@ -44,7 +44,7 @@ class DailyTipService extends ChangeNotifier {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _category = prefs.getString(_categoryKey) ?? _category;
     final raw = prefs.getString(_dataKey);
     if (raw != null) {
@@ -69,7 +69,7 @@ class DailyTipService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = {
       for (final c in _indexes.keys)
         c: {

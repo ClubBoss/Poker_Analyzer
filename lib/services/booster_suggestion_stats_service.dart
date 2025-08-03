@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/booster_stat_record.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Tracks suggestion interactions per booster type for analytics.
 class BoosterSuggestionStatsService {
@@ -11,7 +11,7 @@ class BoosterSuggestionStatsService {
   static const _prefix = 'booster_stats';
 
   Future<void> _increment(String type, String metric) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = '$_prefix.$type.$metric';
     final current = prefs.getInt(key) ?? 0;
     await prefs.setInt(key, current + 1);
@@ -28,7 +28,7 @@ class BoosterSuggestionStatsService {
 
   /// Returns aggregated stats for all booster types.
   Future<Map<String, BoosterStatRecord>> getStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, BoosterStatRecord>{};
     for (final key in prefs.getKeys()) {
       if (!key.startsWith(_prefix)) continue;
@@ -56,7 +56,7 @@ class BoosterSuggestionStatsService {
 
   /// Removes all stored statistics.
   Future<void> reset() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final keys = [for (final k in prefs.getKeys()) if (k.startsWith(_prefix)) k];
     for (final k in keys) {
       await prefs.remove(k);

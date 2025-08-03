@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'skill_tree_progress_analytics_service.dart';
 
@@ -27,7 +27,7 @@ class SkillTreeMotivationalHintEngine {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastKey);
     if (lastStr != null) {
       _lastShown = DateTime.tryParse(lastStr) ?? _lastShown;
@@ -43,7 +43,7 @@ class SkillTreeMotivationalHintEngine {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_lastKey, _lastShown.toIso8601String());
     await prefs.setStringList(
       _levelsKey,
@@ -57,7 +57,7 @@ class SkillTreeMotivationalHintEngine {
     _loaded = false;
     _lastShown = DateTime.fromMillisecondsSinceEpoch(0);
     _shownLevels.clear();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_lastKey);
     await prefs.remove(_levelsKey);
   }

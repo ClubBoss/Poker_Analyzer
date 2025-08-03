@@ -1,6 +1,6 @@
 import 'dart:math';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement_progress.dart';
 
 class RewardSystemService extends ChangeNotifier {
@@ -35,14 +35,14 @@ class RewardSystemService extends ChangeNotifier {
   double get progress => xpToNextLevel == 0 ? 0 : xpProgress / xpToNextLevel;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _totalXP = prefs.getInt(_xpKey) ?? 0;
     _currentLevel = prefs.getInt(_levelKey) ?? 1;
     notifyListeners();
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_xpKey, _totalXP);
     await prefs.setInt(_levelKey, _currentLevel);
   }

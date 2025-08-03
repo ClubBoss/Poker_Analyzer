@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'learning_path_summary_cache.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'training_history_service_v2.dart';
 
 /// Reminds the user about stalled learning path progress.
@@ -20,7 +20,7 @@ class LearningPathReminderEngine {
   static const _lastKey = 'learning_path_reminder_last';
 
   Future<bool> shouldRemindUser() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;

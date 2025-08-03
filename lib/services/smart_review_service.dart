@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_spot.dart';
 import 'template_storage_service.dart';
 import 'training_pack_template_builder.dart';
@@ -37,7 +37,7 @@ class SmartReviewService {
 
   /// Loads stored mistake spot IDs from [SharedPreferences].
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _ids
       ..clear()
       ..addAll(prefs.getStringList(_prefsKey) ?? <String>[]);
@@ -53,7 +53,7 @@ class SmartReviewService {
   Future<void> recordMistake(TrainingPackSpot spot) async {
     if (_ids.contains(spot.id)) return;
     _ids.add(spot.id);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, _ids.toList());
   }
 
@@ -172,7 +172,7 @@ class SmartReviewService {
   /// Clears all stored mistakes.
   Future<void> clearMistakes() async {
     _ids.clear();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_prefsKey);
   }
 
@@ -192,7 +192,7 @@ class SmartReviewService {
     while (_results.length > 3) {
       _results.removeAt(0);
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
         _resultsKey,
         [for (final r in _results) '${r[0]},${r[1]},${r[2]}']);

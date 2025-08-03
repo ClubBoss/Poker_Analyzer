@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/drill_result.dart';
 
@@ -11,7 +11,7 @@ class DrillHistoryService extends ChangeNotifier {
   List<DrillResult> get results => List.unmodifiable(_results);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw != null) {
       try {
@@ -28,7 +28,7 @@ class DrillHistoryService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_key, jsonEncode([for (final r in _results) r.toJson()]));
   }
 

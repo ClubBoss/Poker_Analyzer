@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import 'mini_lesson_library_service.dart';
@@ -19,7 +19,7 @@ class TheoryReinforcementQueueService {
   ];
 
   Future<Map<String, _Entry>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -40,7 +40,7 @@ class TheoryReinforcementQueueService {
   }
 
   Future<void> _save(Map<String, _Entry> map) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = {for (final e in map.entries) e.key: e.value.toJson()};
     await prefs.setString(_prefsKey, jsonEncode(data));
   }

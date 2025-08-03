@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_lesson_feedback.dart';
 
@@ -12,7 +12,7 @@ class TheoryFeedbackStorage {
   static const String _key = 'theory_lesson_feedback';
 
   Future<List<TheoryLessonFeedback>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getStringList(_key) ?? [];
     return [
       for (final s in raw)
@@ -27,7 +27,7 @@ class TheoryFeedbackStorage {
   }
 
   Future<void> _save(List<TheoryLessonFeedback> list) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _key,
       [for (final f in list) jsonEncode(f.toJson())],

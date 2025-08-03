@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class TagReviewRecord {
   final double accuracy;
@@ -26,7 +26,7 @@ class TagReviewHistoryService {
   static const _prefix = 'tag_review_';
 
   Future<void> logReview(String tag, double accuracy) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final record = TagReviewRecord(
       accuracy: accuracy,
       timestamp: DateTime.now(),
@@ -35,7 +35,7 @@ class TagReviewHistoryService {
   }
 
   Future<TagReviewRecord?> getRecord(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString('$_prefix${tag.toLowerCase()}');
     if (raw == null) return null;
     try {

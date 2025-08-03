@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'lesson_goal_streak_engine.dart';
 import '../utils/singleton_mixin.dart';
 
@@ -30,7 +31,7 @@ class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
   static const String _weeklyCountKey = 'goal_weekly_count';
 
   Future<GoalProgress> getDailyGoal() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await _resetDailyIfNeeded(prefs);
     final count = prefs.getInt(_dailyCountKey) ?? 0;
     final progress = GoalProgress(
@@ -46,7 +47,7 @@ class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
   }
 
   Future<GoalProgress> getWeeklyGoal() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await _resetWeeklyIfNeeded(prefs);
     final count = prefs.getInt(_weeklyCountKey) ?? 0;
     return GoalProgress(
@@ -57,7 +58,7 @@ class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
   }
 
   Future<void> updateProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await _resetDailyIfNeeded(prefs);
     await _resetWeeklyIfNeeded(prefs);
     final prevDaily = prefs.getInt(_dailyCountKey) ?? 0;

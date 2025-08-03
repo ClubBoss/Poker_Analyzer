@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PackFilterController extends ChangeNotifier {
   static const _queryKey = 'pack_filter_query';
@@ -13,33 +13,32 @@ class PackFilterController extends ChangeNotifier {
   final Set<String> streets = {};
   final Set<int> difficulties = {};
 
-  SharedPreferences? _prefs;
   Timer? _debounce;
 
   Future<void> load() async {
-    _prefs = await SharedPreferences.getInstance();
-    query.value = _prefs!.getString(_queryKey) ?? '';
+    final prefs = await PreferencesService.getInstance();
+    query.value = prefs.getString(_queryKey) ?? '';
     categories
       ..clear()
-      ..addAll(_prefs!.getStringList(_catKey) ?? []);
+      ..addAll(prefs.getStringList(_catKey) ?? []);
     streets
       ..clear()
-      ..addAll(_prefs!.getStringList(_streetKey) ?? []);
+      ..addAll(prefs.getStringList(_streetKey) ?? []);
     difficulties
       ..clear()
-      ..addAll(_prefs!
+      ..addAll(prefs
           .getStringList(_diffKey)
           ?.map(int.tryParse)
           .whereType<int>() ?? {});
   }
 
   void _save() {
-    final p = _prefs;
-    if (p == null) return;
+    final p = PreferencesService.instance;
     p.setString(_queryKey, query.value);
     p.setStringList(_catKey, categories.toList());
     p.setStringList(_streetKey, streets.toList());
-    p.setStringList(_diffKey, difficulties.map((e) => e.toString()).toList());
+    p.setStringList(
+        _diffKey, difficulties.map((e) => e.toString()).toList());
   }
 
   void setQuery(String value) {

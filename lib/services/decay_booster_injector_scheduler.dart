@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'decay_booster_spot_injector.dart';
 
@@ -22,7 +22,7 @@ class DecayBoosterInjectorScheduler {
     if (_running) return;
     _running = true;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final str = prefs.getString(_prefsKey);
       final last = str != null ? DateTime.tryParse(str) : null;
       final current = now ?? DateTime.now();

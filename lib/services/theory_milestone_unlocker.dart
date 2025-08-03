@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/theory_cluster_summary.dart';
 import '../models/theory_mini_lesson_node.dart';
@@ -31,12 +31,12 @@ class TheoryMilestoneUnlocker {
   Stream<TheoryMilestoneEvent> get stream => _ctrl.stream;
 
   Future<int> _loadIndex(String cluster) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt('$_prefsPrefix$cluster') ?? -1;
   }
 
   Future<void> _saveIndex(String cluster, int index) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt('$_prefsPrefix$cluster', index);
   }
 
@@ -81,7 +81,7 @@ class TheoryMilestoneUnlocker {
   }
 
   Future<void> reset() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final keys = prefs.getKeys().where((k) => k.startsWith(_prefsPrefix));
     for (final k in keys) {
       await prefs.remove(k);

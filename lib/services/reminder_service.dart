@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_goal.dart';
 import 'user_goal_engine.dart';
@@ -47,7 +47,7 @@ class ReminderService extends ChangeNotifier {
   });
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _enabled = prefs.getBool(_enabledKey) ?? true;
     final str = prefs.getString(_dismissKey);
     _dismissed = str != null ? DateTime.tryParse(str) : null;
@@ -75,7 +75,7 @@ class ReminderService extends ChangeNotifier {
 
   Future<void> setEnabled(bool value) async {
     if (_enabled == value) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_enabledKey, value);
     _enabled = value;
     if (!value) {
@@ -102,7 +102,7 @@ class ReminderService extends ChangeNotifier {
   }
 
   Future<void> _saveDismissals() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = {
       for (final e in _dismissDrillUntil.entries) e.key: e.value.toIso8601String()
     };

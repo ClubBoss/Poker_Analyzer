@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
 import 'learning_path_personalization_service.dart';
 import 'pack_library_loader_service.dart';
@@ -106,7 +106,7 @@ class SessionLogService extends ChangeNotifier {
     if (cloud != null) {
       final remote = cloud!.getCached('session_logs');
       if (remote != null) {
-        final prefs = await SharedPreferences.getInstance();
+        final prefs = await PreferencesService.getInstance();
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
                 DateTime.fromMillisecondsSinceEpoch(0);
@@ -140,7 +140,7 @@ class SessionLogService extends ChangeNotifier {
   }
 
   Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());
     if (cloud != null) {
       await cloud!.uploadSessionLogs(_logs);
@@ -192,7 +192,7 @@ class SessionLogService extends ChangeNotifier {
     unawaited(
         LearningPathPersonalizationService.instance.updateFromSession(log));
     unawaited(() async {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setBool(
           'mistakes_tpl_${log.templateId}', log.mistakeCount > 0);
     }());

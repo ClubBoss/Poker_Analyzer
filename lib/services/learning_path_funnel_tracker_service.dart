@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'analytics_service.dart';
 
@@ -16,7 +16,7 @@ class LearningPathFunnelTrackerService {
     double? requiredAccuracy,
     int? minHands,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'locked_pack_viewed_' + packId;
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);
@@ -39,7 +39,7 @@ class LearningPathFunnelTrackerService {
     double? requiredAccuracy,
     int? minHands,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'cta_tapped_' + packId;
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);
@@ -62,7 +62,7 @@ class LearningPathFunnelTrackerService {
     double? requiredAccuracy,
     int? minHands,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'unlock_logged_' + packId;
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);
@@ -95,7 +95,7 @@ class LearningPathFunnelTrackerService {
     double? requiredAccuracy,
     int? minHands,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'unlock_funnel_complete_' + packId;
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);

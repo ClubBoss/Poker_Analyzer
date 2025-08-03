@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/skill_tree_node_celebration_overlay.dart';
 import 'skill_tree_milestone_analytics_logger.dart';
@@ -28,7 +28,7 @@ class SkillTreeNodeCelebrationService {
   }) async {
     if (!await progress.isCompleted(nodeId)) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = '$_prefsPrefix$nodeId';
     if (prefs.getBool(key) ?? false) return;
     await prefs.setBool(key, true);

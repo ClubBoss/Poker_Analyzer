@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/achievement_basic.dart';
 import '../widgets/achievement_dialog.dart';
@@ -40,7 +40,7 @@ class AchievementsEngine extends ChangeNotifier {
   DateTime? _parse(String? s) => s != null ? DateTime.tryParse(s) : null;
 
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _achievements.addAll([
       AchievementBasic(
         id: 'first_xp',
@@ -90,7 +90,7 @@ class AchievementsEngine extends ChangeNotifier {
   }
 
   Future<void> _save(AchievementBasic a) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool('${_pref}${a.id}', a.isUnlocked);
     if (a.unlockDate != null) {
       await prefs.setString(
@@ -137,7 +137,7 @@ class AchievementsEngine extends ChangeNotifier {
     if (currentStreak >= 7) await _unlock('weekly_streak');
     // check first mistake review using GoalsService progress
     // If user reviewed at least one mistake, GoalsService stores progress
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final reviewed = prefs.getInt('mistake_review_progress') ?? 0;
     if (reviewed > 0) await _unlock('first_mistake_review');
   }

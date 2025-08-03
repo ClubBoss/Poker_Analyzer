@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -20,7 +21,6 @@ import '../services/adaptive_training_service.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/daily_tip_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/mistake_advice.dart';
 import '../helpers/poker_street_helper.dart';
 import '../services/session_log_service.dart';
@@ -173,7 +173,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
     if (accuracy >= 90) return;
     final rec = service.recommendation;
     if (rec == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'weak_tip_${rec.position.name}';
     final lastStr = prefs.getString(key);
     if (lastStr != null) {

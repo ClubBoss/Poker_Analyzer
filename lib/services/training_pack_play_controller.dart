@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../helpers/training_pack_storage.dart';
 import '../models/v2/training_pack_template.dart';
 import '../screens/v2/training_pack_play_screen.dart';
@@ -13,7 +13,7 @@ class TrainingPackPlayController extends ChangeNotifier {
   int get progress => _progress;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     String? id;
     int ts = 0;
     for (final k in prefs.getKeys()) {

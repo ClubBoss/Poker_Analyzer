@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'suggestion_cooldown_manager.dart';
 
 class SuggestedPackRecord {
@@ -36,7 +36,7 @@ class SuggestedTrainingPacksHistoryService {
   static const _prefsKey = 'suggested_pack_history';
 
   static Future<List<SuggestedPackRecord>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
 
     // Legacy format: list of JSON strings.
     final legacy = prefs.getStringList(_prefsKey);
@@ -73,7 +73,7 @@ class SuggestedTrainingPacksHistoryService {
   }
 
   static Future<void> _save(List<SuggestedPackRecord> list) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode([for (final e in list) e.toJson()]),

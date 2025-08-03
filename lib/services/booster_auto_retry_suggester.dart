@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../main.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -16,13 +16,13 @@ class BoosterAutoRetrySuggester {
   static const String _prefsKey = 'booster_retry_dismissed';
 
   Future<bool> _isDismissed(String boosterId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_prefsKey) ?? <String>[];
     return list.contains(boosterId);
   }
 
   Future<void> _markDismissed(String boosterId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_prefsKey) ?? <String>[];
     if (!list.contains(boosterId)) {
       list.add(boosterId);

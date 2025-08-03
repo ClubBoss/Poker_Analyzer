@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks days when the user completed at least one training session.
 /// Provides current and maximum streak information.
@@ -22,7 +21,7 @@ class TrainingStreakTrackerService {
   }
 
   Future<void> markTrainingCompletedToday() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final days = prefs.getStringList(_datesKey) ?? <String>[];
     final today = DateTime.now();
     final todayStr = _fmt(today);
@@ -34,7 +33,7 @@ class TrainingStreakTrackerService {
   }
 
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dates = _parseDates(prefs.getStringList(_datesKey) ?? <String>[]);
     if (dates.isEmpty) return 0;
     final set = dates.toSet();
@@ -49,7 +48,7 @@ class TrainingStreakTrackerService {
   }
 
   Future<int> getMaxStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dates = _parseDates(prefs.getStringList(_datesKey) ?? <String>[]);
     if (dates.isEmpty) return 0;
     int best = 1;
@@ -69,7 +68,7 @@ class TrainingStreakTrackerService {
 
   /// Returns a map with all stored dates and streak info for analytics.
   Future<Map<String, dynamic>> exportData() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final days = prefs.getStringList(_datesKey) ?? <String>[];
     final current = await getCurrentStreak();
     final max = await getMaxStreak();

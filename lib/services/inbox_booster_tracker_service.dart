@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'user_action_logger.dart';
 
@@ -25,7 +25,7 @@ class InboxBoosterTrackerService {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -44,7 +44,7 @@ class InboxBoosterTrackerService {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode({for (final e in _cache.entries) e.key: e.value.toJson()}),
@@ -53,13 +53,13 @@ class InboxBoosterTrackerService {
 
   Future<void> _loadQueue() async {
     if (_queueLoaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _queue = prefs.getStringList(_queueKey) ?? [];
     _queueLoaded = true;
   }
 
   Future<void> _saveQueue() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_queueKey, _queue);
   }
 

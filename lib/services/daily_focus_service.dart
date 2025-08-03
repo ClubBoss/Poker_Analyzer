@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -26,7 +26,7 @@ class DailyFocusService extends ChangeNotifier {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dateStr = prefs.getString(_dateKey);
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
     _tag = prefs.getString(_tagKey);
@@ -50,7 +50,7 @@ class DailyFocusService extends ChangeNotifier {
         _tag = null;
       }
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_dateKey, _date!.toIso8601String());
     if (_tag != null) {
       await prefs.setString(_tagKey, _tag!);

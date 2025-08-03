@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Detects when a user frequently abandons booster drills.
 class SmartBoosterDropoffDetector {
@@ -10,24 +9,24 @@ class SmartBoosterDropoffDetector {
   static const String _cooldownKey = 'booster_dropoff_cooldown';
 
   Future<List<String>> _loadRecent() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getStringList(_recentKey) ?? <String>[];
   }
 
   Future<void> _saveRecent(List<String> list) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_recentKey, list);
   }
 
   Future<DateTime?> _loadCooldown() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_cooldownKey);
     if (str == null) return null;
     return DateTime.tryParse(str);
   }
 
   Future<void> _setCooldown(Duration duration) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
         _cooldownKey, DateTime.now().add(duration).toIso8601String());
   }
@@ -50,7 +49,7 @@ class SmartBoosterDropoffDetector {
     final until = await _loadCooldown();
     if (until != null) {
       if (DateTime.now().isBefore(until)) return true;
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.remove(_cooldownKey);
     }
     final list = await _loadRecent();

@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'goal_reengagement_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'daily_training_reminder_service.dart';
 import '../models/training_goal.dart';
 
@@ -20,7 +20,7 @@ class SmartPushSchedulerService {
     final tag = goal?.tag?.trim().toLowerCase();
     if (tag == null || tag.isEmpty) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'push_last_shown:$tag';
     final lastStr = prefs.getString(key);
     if (lastStr != null) {

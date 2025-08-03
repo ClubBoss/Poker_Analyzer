@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'reward_card_renderer_service.dart';
 import 'reward_card_style_tuner_service.dart';
@@ -18,7 +19,7 @@ class TrackRewardPreviewService {
     SharedPreferences? prefs,
     RewardCardStyleTunerService? styleTuner,
   }) async {
-    final basePrefs = prefs ?? await SharedPreferences.getInstance();
+    final basePrefs = prefs ?? await PreferencesService.getInstance();
     final previewPrefs = _PreviewPreferences(basePrefs);
     final renderer = await RewardCardRendererService.create(
       library: library,

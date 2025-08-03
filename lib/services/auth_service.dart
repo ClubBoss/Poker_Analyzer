@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthService extends ChangeNotifier {
@@ -18,7 +18,7 @@ class AuthService extends ChangeNotifier {
       final cred = await _auth.signInAnonymously();
       final user = cred.user;
       if (user != null) {
-        final prefs = await SharedPreferences.getInstance();
+        final prefs = await PreferencesService.getInstance();
         await prefs.setString('anon_uid', user.uid);
       }
       notifyListeners();

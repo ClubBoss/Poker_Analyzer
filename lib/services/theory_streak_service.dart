@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TheoryStreakService {
   TheoryStreakService._();
@@ -10,17 +9,17 @@ class TheoryStreakService {
   static const String _bestKey = 'theory_streak_best';
 
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_countKey) ?? 0;
   }
 
   Future<int> getMaxStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_bestKey) ?? 0;
   }
 
   Future<void> recordToday() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastKey);

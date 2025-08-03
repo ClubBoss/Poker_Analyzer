@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/skill_boost_log_entry.dart';
 
@@ -14,7 +14,7 @@ class SkillBoostLogService extends ChangeNotifier {
   List<SkillBoostLogEntry> get logs => List.unmodifiable(_logs);
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_key);
     if (raw != null) {
       try {
@@ -32,7 +32,7 @@ class SkillBoostLogService extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_key, jsonEncode([for (final l in _logs) l.toJson()]));
   }
 

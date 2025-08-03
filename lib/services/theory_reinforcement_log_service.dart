@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/reinforcement_log.dart';
 
@@ -11,7 +11,7 @@ class TheoryReinforcementLogService {
   static const _prefsKey = 'theory_reinforcement_logs';
 
   Future<List<ReinforcementLog>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw == null) return <ReinforcementLog>[];
     try {
@@ -27,7 +27,7 @@ class TheoryReinforcementLogService {
   }
 
   Future<void> _save(List<ReinforcementLog> list) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode([for (final l in list) l.toJson()]),

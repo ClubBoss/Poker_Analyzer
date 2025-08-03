@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
 import '../core/training/engine/training_type_engine.dart';
@@ -29,7 +29,7 @@ class SuggestedNextStepEngine {
       return;
     }
     _stageCache = await path.getStages();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _completedCache = {};
     for (final entry in _stageCache!.entries) {
       final done = <String>{};

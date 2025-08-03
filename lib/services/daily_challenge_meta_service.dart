@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'daily_challenge_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 enum ChallengeState { locked, available, completed }
 
@@ -20,7 +20,7 @@ class DailyChallengeMetaService {
 
   /// Marks that today's challenge result has been viewed.
   Future<void> markResultShown() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     await prefs.setString(_shownResultKey, today.toIso8601String());
@@ -28,7 +28,7 @@ class DailyChallengeMetaService {
 
   /// Returns today's [ChallengeState].
   Future<ChallengeState> getTodayState() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final service = DailyChallengeService.instance;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);

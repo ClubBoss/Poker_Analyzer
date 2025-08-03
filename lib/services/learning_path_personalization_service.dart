@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/session_log.dart';
 import 'pack_library_loader_service.dart';
@@ -15,7 +15,7 @@ class LearningPathPersonalizationService {
 
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_skillKey);
     if (raw != null) {
       try {
@@ -34,7 +34,7 @@ class LearningPathPersonalizationService {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_skillKey, jsonEncode(_skills));
   }
 

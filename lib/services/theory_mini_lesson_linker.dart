@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -23,7 +23,7 @@ class TheoryMiniLessonLinker {
     await library.loadAll();
     final packs = await loader.loadLibrary();
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (!force) {
       final raw = prefs.getString(_cacheKey);
       if (raw != null) {

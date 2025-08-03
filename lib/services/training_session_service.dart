@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
@@ -320,7 +320,7 @@ class TrainingSessionService extends ChangeNotifier {
 
   Future<void> _saveIndex() async {
     if (_template == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt('$_indexPrefix${_template!.id}', _session?.index ?? 0);
     await prefs.setInt(
         '$_tsPrefix${_template!.id}', DateTime.now().millisecondsSinceEpoch);
@@ -328,7 +328,7 @@ class TrainingSessionService extends ChangeNotifier {
 
   Future<void> _clearIndex() async {
     if (_template == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove('$_indexPrefix${_template!.id}');
     await prefs.remove('$_tsPrefix${_template!.id}');
   }
@@ -411,7 +411,7 @@ class TrainingSessionService extends ChangeNotifier {
     }
     int savedIndex = startIndex;
     if (persist && startIndex == 0) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       savedIndex = prefs.getInt('$_indexPrefix${template.id}') ?? 0;
     }
     _session = TrainingSession.fromTemplate(
@@ -483,7 +483,7 @@ class TrainingSessionService extends ChangeNotifier {
   }) async {
     if (_session == null || _template == null) return;
     if (_template!.meta['samplePreview'] == true) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final list = prefs.getStringList(_previewKey) ?? [];
       if (!list.contains(_template!.id)) {
         list.add(_template!.id);

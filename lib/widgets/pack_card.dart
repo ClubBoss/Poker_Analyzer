@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:poker_analyzer/ui/padding_constants.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
@@ -244,7 +244,7 @@ class _PackCardState extends State<PackCard>
         _showReward) {
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (prefs.getString('lastRewardedPackId') == widget.template.id) return;
     await prefs.setString('lastRewardedPackId', widget.template.id);
     if (!mounted) return;

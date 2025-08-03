@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../models/theory_mini_lesson_node.dart';
@@ -64,13 +64,13 @@ class SmartRecapBannerController extends ChangeNotifier {
   List<TheoryMiniLessonNode> getBoosterLessons() => _boosters;
 
   Future<DateTime?> _lastShown() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString(_lastKey);
     return str == null ? null : DateTime.tryParse(str);
   }
 
   Future<void> _markShown() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_lastKey, DateTime.now().toIso8601String());
   }
 

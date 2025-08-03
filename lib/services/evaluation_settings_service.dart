@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class EvaluationSettingsService {
   EvaluationSettingsService._();
@@ -19,7 +18,7 @@ class EvaluationSettingsService {
   List<double> payouts = const [0.5, 0.3, 0.2];
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     evThreshold = prefs.getDouble(_thresholdKey) ?? -0.01;
     useIcm = prefs.getBool(_icmKey) ?? false;
     remoteEndpoint = prefs.getString(_endpointKey) ?? '';
@@ -31,7 +30,7 @@ class EvaluationSettingsService {
   }
 
   Future<void> update({double? threshold, bool? icm, String? endpoint, bool? offline, List<double>? payouts}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (threshold != null) {
       evThreshold = threshold;
       await prefs.setDouble(_thresholdKey, threshold);

@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'user_action_logger.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../utils/shared_prefs_keys.dart';
 
 /// Records when booster banners are opened or dismissed per tag.
@@ -10,7 +10,7 @@ class BoosterInteractionTrackerService {
       BoosterInteractionTrackerService._();
 
   Future<void> logOpened(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(
       SharedPrefsKeys.boosterOpened(tag),
       DateTime.now().millisecondsSinceEpoch,
@@ -22,7 +22,7 @@ class BoosterInteractionTrackerService {
   }
 
   Future<void> logDismissed(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(
       SharedPrefsKeys.boosterDismissed(tag),
       DateTime.now().millisecondsSinceEpoch,
@@ -34,14 +34,14 @@ class BoosterInteractionTrackerService {
   }
 
   Future<DateTime?> getLastOpened(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final ts = prefs.getInt(SharedPrefsKeys.boosterOpened(tag));
     if (ts == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(ts);
   }
 
   Future<DateTime?> getLastDismissed(String tag) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final ts = prefs.getInt(SharedPrefsKeys.boosterDismissed(tag));
     if (ts == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(ts);
@@ -49,7 +49,7 @@ class BoosterInteractionTrackerService {
 
   /// Returns summary analytics keyed by tag with last open/dismiss times.
   Future<Map<String, Map<String, DateTime?>>> getSummary() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, Map<String, DateTime?>>{};
     for (final key in prefs.getKeys()) {
       if (key.startsWith(SharedPrefsKeys.boosterOpenedPrefix)) {

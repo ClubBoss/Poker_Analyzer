@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/scheduled_booster_entry.dart';
 import 'smart_recall_booster_scheduler.dart';
@@ -27,7 +27,7 @@ class BoosterInboxDeliveryService {
   /// Loads cached delivery history.
   Future<void> _load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw != null) {
       try {
@@ -46,7 +46,7 @@ class BoosterInboxDeliveryService {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(
       _prefsKey,
       jsonEncode({for (final e in _history.entries) e.key: e.value.toIso8601String()}),

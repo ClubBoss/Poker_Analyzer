@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'skill_loss_detector.dart';
 import 'tag_mastery_history_service.dart';
@@ -13,7 +13,7 @@ class TagInsightReminderEngine {
   static const _dataKey = 'tag_insight_reminder_data';
 
   Future<List<SkillLoss>> loadLosses({int days = 14}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final lastStr = prefs.getString(_lastKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;

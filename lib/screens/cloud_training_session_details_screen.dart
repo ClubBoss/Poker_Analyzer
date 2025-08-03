@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -8,7 +9,6 @@ import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_saver/file_saver.dart';
 
@@ -35,7 +35,6 @@ class CloudTrainingSessionDetailsScreen extends StatefulWidget {
 class _CloudTrainingSessionDetailsScreenState
     extends State<CloudTrainingSessionDetailsScreen> {
   static const _mistakesKey = 'cloud_session_mistakes_only';
-  SharedPreferences? _prefs;
   bool _onlyErrors = false;
   late TextEditingController _commentController;
   String _comment = '';
@@ -65,15 +64,14 @@ class _CloudTrainingSessionDetailsScreenState
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
-      _prefs = prefs;
       _onlyErrors = prefs.getBool(_mistakesKey) ?? false;
     });
   }
 
   Future<void> _setMistakesOnly(bool v) async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_mistakesKey, v);
     setState(() => _onlyErrors = v);
   }

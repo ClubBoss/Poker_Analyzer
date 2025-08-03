@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/learning_path_progress_snapshot.dart';
 
@@ -12,13 +12,13 @@ abstract class ProgressSnapshotStorage {
 class PrefsProgressSnapshotStorage implements ProgressSnapshotStorage {
   @override
   Future<void> save(String key, String value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(key, value);
   }
 
   @override
   Future<String?> load(String key) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getString(key);
   }
 }

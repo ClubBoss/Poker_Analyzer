@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'pack_library_loader_service.dart';
 
 class UserProfile {
@@ -18,7 +18,7 @@ class SmartPackSuggestionEngine {
     int limit = 3,
   }) async {
     await PackLibraryLoaderService.instance.loadLibrary();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final entries = <MapEntry<TrainingPackTemplateV2, double>>[];
     for (final t in PackLibraryLoaderService.instance.library) {
       if (prefs.getBool('completed_tpl_${t.id}') ?? false) continue;

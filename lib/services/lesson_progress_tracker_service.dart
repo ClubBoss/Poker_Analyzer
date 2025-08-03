@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:async';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'lesson_streak_engine.dart';
 import 'lesson_goal_engine.dart';
 import 'xp_reward_engine.dart';
@@ -26,7 +26,7 @@ class LessonProgressTrackerService {
 
   Future<void> load() async {
     if (_loaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
 
     // Load new structured data.
     final lessons = prefs.getStringList(_lessonsKey);
@@ -64,13 +64,13 @@ class LessonProgressTrackerService {
   }
 
   Future<void> _saveLesson(String lessonId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
         _stepsPrefix + lessonId, _progress[lessonId]?.toList() ?? <String>[]);
   }
 
   Future<void> _saveLessons() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_lessonsKey, _completedLessons.toList());
   }
 
@@ -112,7 +112,7 @@ class LessonProgressTrackerService {
 
   /// Clears all lesson progress from storage. Used for development/testing only.
   Future<void> reset() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final keys = prefs
         .getKeys()
         .where((k) => k == _lessonsKey || k.startsWith(_stepsPrefix))

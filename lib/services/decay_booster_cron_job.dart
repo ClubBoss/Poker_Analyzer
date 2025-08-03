@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'decay_spot_booster_engine.dart';
 
@@ -36,7 +36,7 @@ class DecayBoosterCronJob with WidgetsBindingObserver {
     if (_running) return;
     _running = true;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final str = prefs.getString(_prefsKey);
       final last = str != null ? DateTime.tryParse(str) : null;
       if (last == null || DateTime.now().difference(last).inDays >= 7) {

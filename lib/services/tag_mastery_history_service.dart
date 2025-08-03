@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:collection';
 import 'dart:math' as math;
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/tag_xp_history_entry.dart';
 
@@ -11,7 +11,7 @@ class TagMasteryHistoryService {
 
   /// Returns aggregated XP history per tag grouped by day.
   Future<Map<String, List<TagXpHistoryEntry>>> getHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final result = <String, List<TagXpHistoryEntry>>{};
 
     for (final key in prefs.getKeys()) {

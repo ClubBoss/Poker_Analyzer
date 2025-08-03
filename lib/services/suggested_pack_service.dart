@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/training_pack_storage.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/saved_hand.dart';
@@ -31,7 +31,7 @@ class SuggestedPackService extends ChangeNotifier {
   DateTime? get date => _date;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final tplRaw = prefs.getString(_templateKey);
     final dateStr = prefs.getString(_dateKey);
     if (tplRaw != null) {
@@ -82,7 +82,7 @@ class SuggestedPackService extends ChangeNotifier {
     await TrainingPackStorage.save(stored);
     _template = tpl;
     _date = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_templateKey, jsonEncode(tpl.toJson()));
     await prefs.setString(_dateKey, _date!.toIso8601String());
     notifyListeners();

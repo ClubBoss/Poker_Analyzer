@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LessonGoalStreakEngine {
   LessonGoalStreakEngine._();
@@ -9,7 +8,7 @@ class LessonGoalStreakEngine {
   static const String _lastKey = 'goal_streak_last_date';
 
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final count = prefs.getInt(_countKey) ?? 0;
     final lastStr = prefs.getString(_lastKey);
     if (lastStr == null) return 0;
@@ -26,12 +25,12 @@ class LessonGoalStreakEngine {
   }
 
   Future<int> getBestStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getInt(_bestKey) ?? 0;
   }
 
   Future<void> updateStreakOnGoalCompletion() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastKey);

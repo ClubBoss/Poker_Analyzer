@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/training/generation/yaml_reader.dart';
 import '../models/training_pack.dart';
@@ -96,7 +96,7 @@ class SmartSuggestionService {
     const index = PackTagIndexService();
     final paths = await index.search(tags, mode: TagFilterMode.and);
     if (paths.isEmpty) return [];
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final completed = prefs
         .getKeys()
         .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)

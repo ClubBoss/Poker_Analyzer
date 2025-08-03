@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LessonStreakEngine {
   LessonStreakEngine._();
@@ -13,7 +13,7 @@ class LessonStreakEngine {
   Stream<int> get streakStream => _controller.stream;
 
   Future<void> markTodayCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final lastStr = prefs.getString(_lastDayKey);
@@ -40,7 +40,7 @@ class LessonStreakEngine {
   }
 
   Future<int> getCurrentStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastDayKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     var count = prefs.getInt(_countKey) ?? 0;
@@ -61,13 +61,13 @@ class LessonStreakEngine {
   }
 
   Future<DateTime?> getLastCompletionDate() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastDayKey);
     return lastStr != null ? DateTime.tryParse(lastStr) : null;
   }
 
   Future<void> resetStreak() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_lastDayKey);
     await prefs.remove(_countKey);
     _controller.add(0);

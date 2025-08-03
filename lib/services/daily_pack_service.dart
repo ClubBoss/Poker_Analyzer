@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'template_storage_service.dart';
 import 'training_pack_stats_service.dart';
@@ -23,7 +23,7 @@ class DailyPackService extends ChangeNotifier {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final id = prefs.getString(_idKey);
     final dateStr = prefs.getString(_dateKey);
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
@@ -61,7 +61,7 @@ class DailyPackService extends ChangeNotifier {
     final tpl = list[Random().nextInt(list.length)];
     _template = tpl;
     _date = DateTime(now.year, now.month, now.day);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_idKey, tpl.id);
     await prefs.setString(_dateKey, _date!.toIso8601String());
     _schedule();

@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../services/streak_counter_service.dart';
@@ -58,7 +58,7 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
         ),
       );
     });
-    SharedPreferences.getInstance().then((prefs) {
+    PreferencesService.getInstance().then((prefs) {
       final str = prefs.getString(_prefKey);
       if (str != null) {
         _lastCelebration = DateTime.tryParse(str);
@@ -80,7 +80,7 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
       if (_lastCelebration == null || !_isSameDay(_lastCelebration!, today)) {
         _celebrated = true;
         _lastCelebration = today;
-        SharedPreferences.getInstance().then(
+        PreferencesService.getInstance().then(
           (p) => p.setString(_prefKey, today.toIso8601String()),
         );
         _controller.forward(from: 0);

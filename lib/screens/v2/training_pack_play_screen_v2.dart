@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/training_spot.dart';
@@ -174,7 +174,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2>
   }
 
   Future<void> _prepare() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
       _autoAdvance =
           widget.template.targetStreet == null &&
@@ -190,7 +190,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2>
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final seqKey = 'tpl_seq_${widget.template.id}';
     final progKey = 'tpl_prog_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
@@ -621,7 +621,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2>
           .markActiveToday(context);
       await NotificationService.cancel(101);
       await NotificationService.cancel(102);
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setString('last_training_day',
           DateTime.now().toIso8601String().split('T').first);
       await NotificationService.scheduleDailyReminder(context);

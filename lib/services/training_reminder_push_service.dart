@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -52,7 +52,7 @@ class TrainingReminderPushService {
     final tag = goal?.tag?.trim().toLowerCase();
     if (tag == null || tag.isEmpty) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastKey);
     if (lastStr != null) {
       final last = DateTime.tryParse(lastStr);

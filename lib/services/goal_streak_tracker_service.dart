@@ -1,6 +1,7 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'goal_progress_persistence_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class GoalStreakInfo {
   final int currentStreak;
@@ -23,14 +24,14 @@ class GoalStreakTrackerService {
   static const _lastKey = 'goal_streak_last_day';
 
   Future<void> resetForTest() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_currentKey);
     await prefs.remove(_longestKey);
     await prefs.remove(_lastKey);
   }
 
   Future<GoalStreakInfo> getStreakInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_lastKey);
     var current = prefs.getInt(_currentKey) ?? 0;
     var longest = prefs.getInt(_longestKey) ?? current;

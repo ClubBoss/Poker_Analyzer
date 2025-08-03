@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import '../models/action_evaluation_request.dart';
 
 class DebugPanelPreferences extends ChangeNotifier {
@@ -41,31 +41,31 @@ class DebugPanelPreferences extends ChangeNotifier {
   bool get pinHeroPosition => _pinHeroPosition;
 
   Future<void> loadSnapshotRetention() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _snapshotRetentionEnabled = prefs.getBool(_snapshotRetentionKey) ?? true;
   }
 
   Future<void> setSnapshotRetentionEnabled(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_snapshotRetentionKey, value);
     _snapshotRetentionEnabled = value;
     notifyListeners();
   }
 
   Future<void> loadProcessingDelay() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _processingDelay = (prefs.getInt(_processingDelayKey) ?? 500).clamp(100, 2000);
   }
 
   Future<void> setProcessingDelay(int value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_processingDelayKey, value);
     _processingDelay = value;
     notifyListeners();
   }
 
   Future<void> loadQueueFilters() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_queueFilterKey);
     final filters = list?.toSet() ?? {'pending'};
     _queueFilters = filters.isEmpty ? {'pending'} : filters;
@@ -73,7 +73,7 @@ class DebugPanelPreferences extends ChangeNotifier {
 
   Future<void> setQueueFilters(Set<String> value) async {
     if (value.isEmpty) value = {'pending'};
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_queueFilterKey, value.toList());
     _queueFilters = value.isEmpty ? {'pending'} : value;
     notifyListeners();
@@ -90,101 +90,101 @@ class DebugPanelPreferences extends ChangeNotifier {
   }
 
   Future<void> loadAdvancedFilters() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_advancedFilterKey);
     _advancedFilters = list?.toSet() ?? {};
   }
 
   Future<void> setAdvancedFilters(Set<String> value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_advancedFilterKey, value.toList());
     _advancedFilters = value;
     notifyListeners();
   }
 
   Future<void> loadSortBySpr() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _sortBySpr = prefs.getBool(_sortBySprKey) ?? false;
   }
 
   Future<void> setSortBySpr(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_sortBySprKey, value);
     _sortBySpr = value;
     notifyListeners();
   }
 
   Future<void> loadSearchQuery() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _searchQuery = prefs.getString(_searchQueryKey) ?? '';
   }
 
   Future<void> setSearchQuery(String value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_searchQueryKey, value);
     _searchQuery = value;
     notifyListeners();
   }
 
   Future<void> loadQueueResumed() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _queueResumed = prefs.getBool(_queueResumedKey) ?? false;
   }
 
   Future<void> setEvaluationQueueResumed(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_queueResumedKey, value);
     _queueResumed = value;
     notifyListeners();
   }
 
   Future<void> loadDebugPanelOpen() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _isDebugPanelOpen = prefs.getBool(_debugPanelOpenKey) ?? false;
   }
 
   Future<void> setIsDebugPanelOpen(bool value) async {
     if (_isDebugPanelOpen == value) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_debugPanelOpenKey, value);
     _isDebugPanelOpen = value;
     notifyListeners();
   }
 
   Future<void> loadDebugLayout() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _debugLayout = prefs.getBool(_debugLayoutKey) ?? false;
   }
 
   Future<void> setDebugLayout(bool value) async {
     if (_debugLayout == value) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_debugLayoutKey, value);
     _debugLayout = value;
     notifyListeners();
   }
 
   Future<void> loadShowAllRevealedCards() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _showAllRevealedCards = prefs.getBool(_showAllCardsKey) ?? false;
   }
 
   Future<void> setShowAllRevealedCards(bool value) async {
     if (_showAllRevealedCards == value) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_showAllCardsKey, value);
     _showAllRevealedCards = value;
     notifyListeners();
   }
 
   Future<void> loadPinHeroPosition() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _pinHeroPosition = prefs.getBool(_pinHeroKey) ?? false;
   }
 
   Future<void> setPinHeroPosition(bool value) async {
     if (_pinHeroPosition == value) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_pinHeroKey, value);
     _pinHeroPosition = value;
     notifyListeners();
@@ -281,7 +281,7 @@ class DebugPanelPreferences extends ChangeNotifier {
   }
 
   Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_snapshotRetentionKey);
     await prefs.remove(_processingDelayKey);
     await prefs.remove(_queueFilterKey);

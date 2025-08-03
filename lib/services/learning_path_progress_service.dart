@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:collection/collection.dart';
 
 import 'training_progress_service.dart';
@@ -68,7 +68,7 @@ class LearningPathProgressService {
       _mockCompleted.clear();
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final keys = prefs.getKeys()
         .where((k) => k.startsWith('learning_completed_'))
         .toList();
@@ -81,7 +81,7 @@ class LearningPathProgressService {
 
   Future<bool> hasSeenIntro() async {
     if (mock) return _mockIntroSeen;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_introKey) ?? false;
   }
 
@@ -90,7 +90,7 @@ class LearningPathProgressService {
       _mockIntroSeen = true;
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_introKey, true);
   }
 
@@ -99,7 +99,7 @@ class LearningPathProgressService {
       _mockIntroSeen = false;
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_introKey);
   }
 
@@ -108,13 +108,13 @@ class LearningPathProgressService {
       _mockCustomPathStarted = true;
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_customPathKey, true);
   }
 
   Future<bool> isCustomPathStarted() async {
     if (mock) return _mockCustomPathStarted;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_customPathKey) ?? false;
   }
 
@@ -123,13 +123,13 @@ class LearningPathProgressService {
       _mockCustomPathCompleted = true;
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_customPathCompletedKey, true);
   }
 
   Future<bool> isCustomPathCompleted() async {
     if (mock) return _mockCustomPathCompleted;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_customPathCompletedKey) ?? false;
   }
 
@@ -139,7 +139,7 @@ class LearningPathProgressService {
       _mockCustomPathCompleted = false;
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove(_customPathKey);
     await prefs.remove(_customPathCompletedKey);
   }
@@ -156,13 +156,13 @@ class LearningPathProgressService {
       _mockCompleted[templateId] = true;
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_key(templateId), true);
   }
 
   Future<bool> isCompleted(String templateId) async {
     if (mock) return _mockCompleted[templateId] == true;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     return prefs.getBool(_key(templateId)) ?? false;
   }
 
@@ -179,7 +179,7 @@ class LearningPathProgressService {
       }
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     for (final item in stage.items) {
       final id = item.templateId;
       if (id == null) continue;
@@ -199,7 +199,7 @@ class LearningPathProgressService {
   }
 
   Future<List<LearningStageState>> getCurrentStageState() async {
-    final prefs = mock ? null : await SharedPreferences.getInstance();
+    final prefs = mock ? null : await PreferencesService.getInstance();
 
     bool completed(String id) {
       if (mock) return _mockCompleted[id] == true;
@@ -356,7 +356,7 @@ class LearningPathProgressService {
         if (unlockedStages.isNotEmpty) 'unlockedStages': unlockedStages,
       };
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final completed = prefs
         .getKeys()
         .where((k) => k.startsWith('learning_completed_') &&
@@ -399,7 +399,7 @@ class LearningPathProgressService {
       await SmartStageUnlockEngine.instance.setUnlockedStages(stages);
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final keys = prefs
         .getKeys()
         .where((k) => k.startsWith('learning_completed_'))

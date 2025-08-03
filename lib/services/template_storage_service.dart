@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'thumbnail_cache_service.dart';
 
 import '../models/training_pack_template.dart';
 import '../core/training/generation/yaml_reader.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TemplateStorageService extends ChangeNotifier {
   static final _manifestFuture = AssetManifest.instance;
@@ -105,7 +105,7 @@ class TemplateStorageService extends ChangeNotifier {
 
   Future<void> load() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final stored = prefs.getStringList(_prefsKey);
       if (stored != null && stored.isNotEmpty) {
         _templates
@@ -290,7 +290,7 @@ class TemplateStorageService extends ChangeNotifier {
   }
 
   Future<void> saveAll() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _prefsKey,
       [for (final t in _templates) jsonEncode(t.toJson())],

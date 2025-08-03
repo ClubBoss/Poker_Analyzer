@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PackFavoriteService {
   PackFavoriteService._();
@@ -8,7 +7,7 @@ class PackFavoriteService {
   Set<String> _ids = {};
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _ids = prefs.getStringList(_prefsKey)?.toSet() ?? {};
   }
 
@@ -16,7 +15,7 @@ class PackFavoriteService {
     if (!_ids.add(packId)) {
       _ids.remove(packId);
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, _ids.toList());
   }
 

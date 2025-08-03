@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 class MistakeHintService {
   MistakeHintService._();
@@ -8,7 +8,7 @@ class MistakeHintService {
   final Set<String> _shown = {};
 
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     _shown
       ..clear()
       ..addAll(prefs.getStringList(_prefsKey) ?? []);
@@ -19,7 +19,7 @@ class MistakeHintService {
   Future<void> markShown(String tag) async {
     if (_shown.contains(tag)) return;
     _shown.add(tag);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_prefsKey, _shown.toList());
   }
 

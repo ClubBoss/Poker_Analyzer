@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Persists IDs of practice spots from the last completed session.
 class RecentSpotHistoryService {
@@ -10,7 +10,7 @@ class RecentSpotHistoryService {
 
   /// Returns stored spot IDs from the last session.
   Future<List<String>> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_prefsKey);
     if (raw == null) return <String>[];
     try {
@@ -24,7 +24,7 @@ class RecentSpotHistoryService {
 
   /// Stores [spotIds] as the most recent session history.
   Future<void> save(List<String> spotIds) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, jsonEncode(spotIds));
   }
 }

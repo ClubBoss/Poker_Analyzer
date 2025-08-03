@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Enforces minimum delay between theory booster injections.
 class TheoryInjectionHorizonService {
@@ -18,7 +18,7 @@ class TheoryInjectionHorizonService {
 
   Future<DateTime?> _getLast(String type) async {
     if (_cache.containsKey(type)) return _cache[type];
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final str = prefs.getString('$_prefsPrefix$type');
     final ts = str == null ? null : DateTime.tryParse(str);
     _cache[type] = ts;
@@ -38,7 +38,7 @@ class TheoryInjectionHorizonService {
   /// Updates last injection timestamp for [type] to now.
   Future<void> markInjected(String type) async {
     final now = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('$_prefsPrefix$type', now.toIso8601String());
     _cache[type] = now;
     _injectController.add(type);

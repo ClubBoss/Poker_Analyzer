@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/confetti_overlay.dart';
 import 'xp_level_engine.dart';
@@ -24,7 +24,7 @@ class LevelUpCelebrationEngine {
     final newLevel = XPLevelEngine.instance.getLevel(newXp);
     if (newLevel <= oldLevel) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final last = prefs.getInt(_prefsKey) ?? 0;
     if (newLevel <= last) return;
 

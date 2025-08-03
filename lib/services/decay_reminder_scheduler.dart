@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:workmanager/workmanager.dart';
 
@@ -61,7 +61,7 @@ class DecayReminderScheduler {
 
   /// Runs the scheduler if it hasn't executed today.
   Future<void> runIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final lastStr = prefs.getString(_runKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     final now = DateTime.now();
@@ -84,7 +84,7 @@ class DecayReminderScheduler {
 
   Future<void> _run() async {
     await _init();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
 
     // Update decay streak and check for new badge.
     final tracker = const DecayStreakTrackerService();

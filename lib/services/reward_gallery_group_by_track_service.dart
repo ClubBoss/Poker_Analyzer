@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'skill_tree_library_service.dart';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
 /// Item representing a single reward entry, optionally tied to a stage.
 class RewardItem {
@@ -29,7 +29,7 @@ class RewardGalleryGroupByTrackService {
 
   /// Returns rewards grouped by track, optionally including stage-level info.
   Future<List<TrackRewardGroup>> getGroupedRewards() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final keys = prefs.getKeys();
     final library = SkillTreeLibraryService.instance;
     if (library.getAllTracks().isEmpty) {

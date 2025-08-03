@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:poker_analyzer/services/preferences_service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/booster_stats.dart';
 import '../models/player_profile.dart';
@@ -17,7 +17,7 @@ class BoosterSessionTracker {
   static const String _recentKey = 'booster_recent_tags';
 
   Future<Map<String, int>> _loadCounts() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final raw = prefs.getString(_countsKey);
     if (raw == null) return <String, int>{};
     try {
@@ -33,7 +33,7 @@ class BoosterSessionTracker {
   }
 
   Future<void> _saveCounts(Map<String, int> map) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_countsKey, jsonEncode(map));
   }
 
@@ -43,7 +43,7 @@ class BoosterSessionTracker {
     double confidenceDelta = 0.05,
     DateTime? now,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final counts = await _loadCounts();
     final date = now ?? DateTime.now();
     final tags = <String>{
