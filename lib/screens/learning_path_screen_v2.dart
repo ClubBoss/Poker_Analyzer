@@ -27,6 +27,7 @@ import 'learning_path_celebration_screen.dart';
 import '../widgets/next_steps_modal.dart';
 import '../widgets/stage_progress_chip.dart';
 import '../widgets/stage_preview_dialog.dart';
+import '../widgets/stage_completed_dialog.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -179,7 +180,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             context: context,
             builder: (_) => StagePreviewDialog(stage: stage),
           );
-          if (start == true) _startStage(stage);
+          if (start == true) {
+            await _onStageSelected(stage, skipPreview: true);
+          }
         });
       }
       await prefs.remove('justCompletedTheoryStageId');
@@ -228,7 +231,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       return;
     }
     await const TrainingSessionLauncher().launch(template);
-    if (mounted) _load();
+    if (mounted) await _load();
   }
 
   Future<void> _startBooster(LearningPathStageModel stage) async {
@@ -249,7 +252,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       if (completed) {
         await prefs.setBool('completed_booster_$id', true);
       }
-      _load();
+      await _load();
     }
   }
 
@@ -289,7 +292,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       if (completed) {
         await prefs.setString('justCompletedTheoryStageId', stage.id);
       }
-      _load();
+      await _load();
     }
   }
 
@@ -314,25 +317,43 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     return true;
   }
 
-  Future<void> _handleStageTap(LearningPathStageModel stage) async {
+  Future<bool> _handleStageTap(LearningPathStageModel stage,
+      {bool skipPreview = false}) async {
+    final wasDone =
+        _stageStates[stage.id] == LearningStageUIState.done;
     if (_nextBooster[stage.id] != null) {
       await _startBooster(stage);
-      return;
-    }
-    if (stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false)) {
+    } else if (stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false)) {
       await _startTheory(stage);
-      return;
-    }
-    final ready = _prefs.skipPreviewIfReady && await _isReadyForStage(stage);
-    if (ready) {
+    } else if (_prefs.skipPreviewIfReady && await _isReadyForStage(stage)) {
       await _startStage(stage);
-      return;
+    } else if (skipPreview) {
+      await _startStage(stage);
+    } else {
+      final start = await showDialog<bool>(
+        context: context,
+        builder: (_) => StagePreviewDialog(stage: stage),
+      );
+      if (start == true) {
+        await _startStage(stage);
+      }
     }
-    final start = await showDialog<bool>(
-      context: context,
-      builder: (_) => StagePreviewDialog(stage: stage),
-    );
-    if (start == true) _startStage(stage);
+    final isDone =
+        _stageStates[stage.id] == LearningStageUIState.done;
+    return !wasDone && isDone;
+  }
+
+  Future<void> _onStageSelected(LearningPathStageModel stage,
+      {bool skipPreview = false}) async {
+    final completed =
+        await _handleStageTap(stage, skipPreview: skipPreview);
+    if (completed && mounted) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => StageCompletedDialog(stageTitle: stage.title),
+      );
+    }
   }
 
   void _scrollToStage() {
@@ -422,7 +443,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             const SizedBox(width: 8),
             ElevatedButton(
               onPressed:
-                  active == null ? null : () => _handleStageTap(active),
+                  active == null ? null : () => _onStageSelected(active),
               child: const Text('Продолжить'),
             ),
           ],
@@ -534,7 +555,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     context: context,
                     builder: (_) => StagePreviewDialog(stage: stage),
                   );
-                  if (start == true) _startStage(stage);
+                  if (start == true) {
+                    await _onStageSelected(stage, skipPreview: true);
+                  }
                 },
               ),
             if (state == LearningStageUIState.active && !boosterPending && !theoryPending)
@@ -546,7 +569,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         ),
         onTap: state == LearningStageUIState.locked
             ? null
-            : () => _handleStageTap(stage),
+            : () => _onStageSelected(stage),
       ),
     );
   }
@@ -621,7 +644,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                             builder: (_) => StagePreviewDialog(stage: boosterStage),
                           );
                           if (start == true) {
-                            await _handleStageTap(boosterStage);
+                            await _onStageSelected(boosterStage,
+                                skipPreview: true);
                           }
                         },
                       ),
@@ -633,7 +657,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                             builder: (_) => StagePreviewDialog(stage: pendingStage),
                           );
                           if (start == true) {
-                            await _handleStageTap(pendingStage);
+                            await _onStageSelected(pendingStage,
+                                skipPreview: true);
                           }
                         },
                       ),
