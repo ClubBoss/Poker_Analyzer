@@ -7,7 +7,7 @@ extension ActionEntryX on ActionEntry {
   bool isHero(int heroIndex) => playerIndex == heroIndex;
 
   /// Returns true if this action was performed by an opponent of the hero.
-  bool isOpponent(int heroIndex) => playerIndex != heroIndex;
+  bool isOpponent(int heroIndex) => !isHero(heroIndex);
 }
 
 /// Provides convenient list helpers for [ActionEntry].
