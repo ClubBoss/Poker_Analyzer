@@ -349,6 +349,59 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     );
   }
 
+  Widget _buildHud(
+    LearningPathTemplateV2 template,
+    LearningPathStageModel? active,
+    int done,
+    int total,
+  ) {
+    final progress = total == 0 ? 0.0 : done / total;
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    template.title,
+                    style: const TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    active?.title ?? 'Все этапы завершены',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.white24,
+                    color: Colors.orange,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$done/$total этапов',
+                    style: const TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed:
+                  active == null ? null : () => _handleStageTap(active),
+              child: const Text('Продолжить'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStageTile(LearningPathStageModel stage, int index) {
     final state = _stageStates[stage.id] ?? LearningStageUIState.locked;
     final accent = Theme.of(context).colorScheme.secondary;
@@ -473,6 +526,13 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Widget build(BuildContext context) {
     final template = widget.template;
     final tags = template.tags;
+    final stages = template.stages;
+    final doneCount =
+        stages.where((s) => _stageStates[s.id] == LearningStageUIState.done).length;
+    final totalCount = stages.length;
+    final activeStage = stages.firstWhereOrNull(
+      (s) => _stageStates[s.id] == LearningStageUIState.active,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(template.title),
@@ -491,32 +551,42 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     }
                   });
                 }
-                return ListView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                return Column(
                   children: [
-                if (template.description.isNotEmpty)
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(
-                      template.description,
-                      style: const TextStyle(color: Colors.white70),
+                    _buildHud(template, activeStage, doneCount, totalCount),
+                    Expanded(
+                      child: ListView(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        children: [
+                          if (template.description.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              child: Text(
+                                template.description,
+                                style:
+                                    const TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                          for (int i = 0; i < template.stages.length; i++)
+                            _buildStageTile(template.stages[i], i),
+                          if (tags.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Wrap(
+                                spacing: 8,
+                                children: [
+                                  for (final t in tags) Chip(label: Text(t)),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                for (int i = 0; i < template.stages.length; i++)
-                  _buildStageTile(template.stages[i], i),
-                if (tags.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Wrap(
-                      spacing: 8,
-                      children: [
-                        for (final t in tags) Chip(label: Text(t)),
-                      ],
-                    ),
-                  ),
-              ],
+                  ],
+                );
+              },
             ),
     );
   }
