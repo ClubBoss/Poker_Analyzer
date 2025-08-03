@@ -24,20 +24,22 @@ class PackLibraryGenerationEngine {
         .where((e) => e.path.toLowerCase().endsWith('.yaml') ||
             e.path.toLowerCase().endsWith('.yml'))) {
       try {
-        final yaml = await f.readAsString();
-        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
-        final map = reader.read(yaml);
-        final report = const PackValidationEngine().validate(tpl);
-        if (!report.isValid) continue;
-        if (audience != null && audience.isNotEmpty) {
-          final a = tpl.audience;
-          if (a != null && a.isNotEmpty && a != audience) continue;
+        final templates = await reader.loadTemplates(f.path);
+        for (final tpl in templates) {
+          final report = const PackValidationEngine().validate(tpl);
+          if (!report.isValid) continue;
+          if (audience != null && audience.isNotEmpty) {
+            final a = tpl.audience;
+            if (a != null && a.isNotEmpty && a != audience) continue;
+          }
+          if (reqTags.isNotEmpty) {
+            final tplTags = <String>{
+              for (final t in tpl.tags) t.trim().toLowerCase()
+            };
+            if (!reqTags.every(tplTags.contains)) continue;
+          }
+          list.add(tpl.toJson());
         }
-        if (reqTags.isNotEmpty) {
-          final tplTags = <String>{for (final t in tpl.tags) t.trim().toLowerCase()};
-          if (!reqTags.every(tplTags.contains)) continue;
-        }
-        list.add(tpl.toJson());
       } catch (_) {}
     }
     final file = File(outputPath)..createSync(recursive: true);

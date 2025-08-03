@@ -77,4 +77,31 @@ templateSet:
     expect(packs[1].spots.length, 1);
     expect(packs[1].spots.first.id, 's1');
   });
+
+  test('base/variations format expands with ids and tags', () {
+    const yaml = '''
+templateId: defend
+base:
+  name: Base Pack
+  trainingType: pushFold
+  tags: [base]
+  spots: []
+  spotCount: 0
+variations:
+  - tags: [flat]
+    villainActions: ['3bet', 'call']
+  - tags: ['4bet shove']
+    villainActions: ['3bet', '4bet']
+''';
+
+    final packs = const TrainingPackTemplateSetGenerator().generateFromYaml(yaml);
+    expect(packs.length, 2);
+    expect(packs[0].id, contains('defend'));
+    expect(packs[0].name, 'Base Pack - flat');
+    expect(packs[0].tags.contains('base'), isTrue);
+    expect(packs[0].tags.contains('flat'), isTrue);
+    expect(packs[1].id, contains('defend'));
+    expect(packs[1].name, 'Base Pack - 4bet shove');
+    expect(packs[1].tags.contains('4bet shove'), isTrue);
+  });
 }

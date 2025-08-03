@@ -24,9 +24,49 @@ class TrainingPackTemplateSet {
        entries = entries ?? [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
-    // Determine base template map. If a nested `template` map is provided use
-    // it, otherwise treat the whole object minus helper keys as the template.
+    // Support multiple input structures:
+    // 1) Legacy format with `template` + `variants` or `templateSet`.
+    // 2) Simplified format with `base` + `variations` fields.
     final map = Map<String, dynamic>.from(json);
+
+    // New `base` + `variations` structure.
+    if (map['base'] is Map && map['variations'] is List) {
+      final baseMap = Map<String, dynamic>.from(map['base'] as Map);
+      // Allow `title` as an alias for `name`.
+      if (baseMap.containsKey('title') && !baseMap.containsKey('name')) {
+        baseMap['name'] = baseMap.remove('title');
+      }
+      final templateId = map['templateId']?.toString();
+      if (templateId != null && templateId.isNotEmpty) {
+        baseMap['id'] ??= templateId;
+      }
+      final tpl = TrainingPackTemplateV2.fromJson(baseMap);
+      final baseName = tpl.name;
+      final entries = <TemplateSetEntry>[];
+      final variations = map['variations'] as List;
+      for (var i = 0; i < variations.length; i++) {
+        final v = Map<String, dynamic>.from(variations[i] as Map);
+        final tags = <String>[
+          for (final t in (v['tags'] as List? ?? [])) t.toString(),
+        ];
+        final acts = <String>[
+          for (final a in (v['villainActions'] as List? ?? [])) a.toString(),
+        ];
+        final suffix = v['titleSuffix']?.toString() ??
+            (tags.isNotEmpty ? tags.join(' ') : 'var${i + 1}');
+        final name = suffix.isNotEmpty ? '$baseName - $suffix' : baseName;
+        entries.add(
+          TemplateSetEntry(
+            name: name,
+            tags: tags,
+            constraints: ConstraintSet(villainActions: acts),
+          ),
+        );
+      }
+      return TrainingPackTemplateSet(template: tpl, entries: entries);
+    }
+
+    // Legacy structures.
     Map<String, dynamic> tplMap;
     if (map['template'] is Map) {
       tplMap = Map<String, dynamic>.from(map['template']);
@@ -59,8 +99,10 @@ class TrainingPackTemplateSet {
 class TemplateSetEntry {
   final String name;
   final ConstraintSet constraints;
+  final List<String> tags;
 
-  TemplateSetEntry({required this.name, required this.constraints});
+  TemplateSetEntry({required this.name, required this.constraints, List<String>? tags})
+      : tags = tags ?? [];
 
   factory TemplateSetEntry.fromJson(Map<String, dynamic> json) {
     final c = Map<String, dynamic>.from(json['constraints'] ?? {});
@@ -81,6 +123,9 @@ class TemplateSetEntry {
         ],
         targetStreet: c['targetStreet']?.toString(),
       ),
+      tags: [
+        for (final t in (json['tags'] as List? ?? [])) t.toString(),
+      ],
     );
   }
 }
