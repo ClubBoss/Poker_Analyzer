@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../services/training_pack_tag_analytics_service.dart';
+import '../../utils/shared_prefs_keys.dart';
 
 import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
@@ -83,27 +84,6 @@ class TrainingSpotList extends StatefulWidget {
 class TrainingSpotListState extends State<TrainingSpotList>
     with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
-  static const String _prefsTagsKey = 'training_preset_tags';
-  static const String _prefsSearchKey = 'training_preset_search';
-  static const String _prefsExpandedKey = 'training_preset_expanded';
-  static const String _prefsSortKey = 'training_preset_sort';
-  static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
-  static const String _prefsRatedOnlyKey = 'training_preset_rated_only';
-  static const String _prefsHideCompletedKey = 'training_hide_completed';
-  static const String _prefsMistakesKey = 'training_mistakes_only';
-  static const String _prefsOrderKey = 'training_spots_order';
-  static const String _prefsListVisibleKey = 'training_spot_list_visible';
-  static const String _prefsDifficultyKey = 'training_preset_difficulties';
-  static const String _prefsRatingsKey = 'training_preset_ratings';
-  static const String _prefsRatingSortKey = 'training_preset_rating_sort';
-  static const String _prefsSimpleSortField = 'training_simple_sort_field';
-  static const String _prefsSimpleSortOrder = 'training_simple_sort_order';
-  static const String _prefsCustomPresetsKey =
-      'training_custom_tag_presets';
-  static const String _prefsQuickPresetKey = 'training_quick_preset';
-  static const String _prefsSearchHistoryKey = 'training_search_history';
-  static const String _prefsListSortKey = 'training_spot_list_sort';
-  static const String _prefsQuickSortKey = 'training_quick_sort_option';
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
@@ -530,26 +510,26 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _loadPresets() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await _restoreOrderFromPrefs(prefs);
-    final List<String> tags = prefs.getStringList(_prefsTagsKey) ?? <String>[];
-    final String search = prefs.getString(_prefsSearchKey) ?? '';
-    final bool expanded = prefs.getBool(_prefsExpandedKey) ?? true;
-    final bool listVisible = prefs.getBool(_prefsListVisibleKey) ?? true;
-    final String? sortName = prefs.getString(_prefsSortKey);
-    final String? ratingSortName = prefs.getString(_prefsRatingSortKey);
-    final String? simpleFieldName = prefs.getString(_prefsSimpleSortField);
-    final String? simpleOrderName = prefs.getString(_prefsSimpleSortOrder);
-    final String? listSortName = prefs.getString(_prefsListSortKey);
-    final String? quickSortName = prefs.getString(_prefsQuickSortKey);
-    final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
-    final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
-    final bool hideCompleted = prefs.getBool(_prefsHideCompletedKey) ?? false;
-    final bool mistakesOnly = prefs.getBool(_prefsMistakesKey) ?? false;
-    final List<String>? diffs = prefs.getStringList(_prefsDifficultyKey);
-    final List<String>? ratings = prefs.getStringList(_prefsRatingsKey);
-    final String? customJson = prefs.getString(_prefsCustomPresetsKey);
-    final String? quickPreset = prefs.getString(_prefsQuickPresetKey);
+    final List<String> tags = prefs.getStringList(SharedPrefsKeys.trainingPresetTags) ?? <String>[];
+    final String search = prefs.getString(SharedPrefsKeys.trainingPresetSearch) ?? '';
+    final bool expanded = prefs.getBool(SharedPrefsKeys.trainingPresetExpanded) ?? true;
+    final bool listVisible = prefs.getBool(SharedPrefsKeys.trainingSpotListVisible) ?? true;
+    final String? sortName = prefs.getString(SharedPrefsKeys.trainingPresetSort);
+    final String? ratingSortName = prefs.getString(SharedPrefsKeys.trainingPresetRatingSort);
+    final String? simpleFieldName = prefs.getString(SharedPrefsKeys.trainingSimpleSortField);
+    final String? simpleOrderName = prefs.getString(SharedPrefsKeys.trainingSimpleSortOrder);
+    final String? listSortName = prefs.getString(SharedPrefsKeys.trainingSpotListSort);
+    final String? quickSortName = prefs.getString(SharedPrefsKeys.trainingQuickSortOption);
+    final bool icmOnly = prefs.getBool(SharedPrefsKeys.trainingPresetIcmOnly) ?? widget.icmOnly;
+    final bool ratedOnly = prefs.getBool(SharedPrefsKeys.trainingPresetRatedOnly) ?? false;
+    final bool hideCompleted = prefs.getBool(SharedPrefsKeys.trainingHideCompleted) ?? false;
+    final bool mistakesOnly = prefs.getBool(SharedPrefsKeys.trainingMistakesOnly) ?? false;
+    final List<String>? diffs = prefs.getStringList(SharedPrefsKeys.trainingPresetDifficulties);
+    final List<String>? ratings = prefs.getStringList(SharedPrefsKeys.trainingPresetRatings);
+    final String? customJson = prefs.getString(SharedPrefsKeys.trainingCustomTagPresets);
+    final String? quickPreset = prefs.getString(SharedPrefsKeys.trainingQuickPreset);
     _searchHistory =
-        prefs.getStringList(_prefsSearchHistoryKey) ?? <String>[];
+        prefs.getStringList(SharedPrefsKeys.trainingSearchHistory) ?? <String>[];
     if (customJson != null && customJson.isNotEmpty) {
       final Map<String, dynamic> decoded = jsonDecode(customJson);
       _customTagPresets = {
@@ -670,73 +650,73 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _savePresets() async {
     if (!_presetsLoaded) return;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_prefsTagsKey, _selectedTags.toList());
-    await prefs.setString(_prefsSearchKey, _searchController.text);
-    await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
-    await prefs.setBool(_prefsIcmOnlyKey, _icmOnly);
-    await prefs.setBool(_prefsRatedOnlyKey, _ratedOnly);
-    await prefs.setBool(_prefsHideCompletedKey, _hideCompleted);
-    await prefs.setBool(_prefsMistakesKey, _mistakesOnly);
-    await prefs.setBool(_prefsListVisibleKey, _listVisible);
+    await prefs.setStringList(SharedPrefsKeys.trainingPresetTags, _selectedTags.toList());
+    await prefs.setString(SharedPrefsKeys.trainingPresetSearch, _searchController.text);
+    await prefs.setBool(SharedPrefsKeys.trainingPresetExpanded, _tagFiltersExpanded);
+    await prefs.setBool(SharedPrefsKeys.trainingPresetIcmOnly, _icmOnly);
+    await prefs.setBool(SharedPrefsKeys.trainingPresetRatedOnly, _ratedOnly);
+    await prefs.setBool(SharedPrefsKeys.trainingHideCompleted, _hideCompleted);
+    await prefs.setBool(SharedPrefsKeys.trainingMistakesOnly, _mistakesOnly);
+    await prefs.setBool(SharedPrefsKeys.trainingSpotListVisible, _listVisible);
     if (_difficultyFilters.isNotEmpty) {
-      await prefs.setStringList(_prefsDifficultyKey,
+      await prefs.setStringList(SharedPrefsKeys.trainingPresetDifficulties,
           _difficultyFilters.map((e) => e.toString()).toList());
     } else {
-      await prefs.remove(_prefsDifficultyKey);
+      await prefs.remove(SharedPrefsKeys.trainingPresetDifficulties);
     }
     if (_ratingFilters.isNotEmpty) {
-      await prefs.setStringList(_prefsRatingsKey,
+      await prefs.setStringList(SharedPrefsKeys.trainingPresetRatings,
           _ratingFilters.map((e) => e.toString()).toList());
     } else {
-      await prefs.remove(_prefsRatingsKey);
+      await prefs.remove(SharedPrefsKeys.trainingPresetRatings);
     }
     if (_ratingSort != null) {
-      await prefs.setString(_prefsRatingSortKey, _ratingSort!.name);
+      await prefs.setString(SharedPrefsKeys.trainingPresetRatingSort, _ratingSort!.name);
     } else {
-      await prefs.remove(_prefsRatingSortKey);
+      await prefs.remove(SharedPrefsKeys.trainingPresetRatingSort);
     }
     if (_simpleSortField != null) {
-      await prefs.setString(_prefsSimpleSortField, _simpleSortField!.name);
+      await prefs.setString(SharedPrefsKeys.trainingSimpleSortField, _simpleSortField!.name);
     } else {
-      await prefs.remove(_prefsSimpleSortField);
+      await prefs.remove(SharedPrefsKeys.trainingSimpleSortField);
     }
-    await prefs.setString(_prefsSimpleSortOrder, _simpleSortOrder.name);
+    await prefs.setString(SharedPrefsKeys.trainingSimpleSortOrder, _simpleSortOrder.name);
     if (_listSort != null) {
-      await prefs.setString(_prefsListSortKey, _listSort!.name);
+      await prefs.setString(SharedPrefsKeys.trainingSpotListSort, _listSort!.name);
     } else {
-      await prefs.remove(_prefsListSortKey);
+      await prefs.remove(SharedPrefsKeys.trainingSpotListSort);
     }
     if (_quickSort != null) {
-      await prefs.setString(_prefsQuickSortKey, _quickSort!.name);
+      await prefs.setString(SharedPrefsKeys.trainingQuickSortOption, _quickSort!.name);
     } else {
-      await prefs.remove(_prefsQuickSortKey);
+      await prefs.remove(SharedPrefsKeys.trainingQuickSortOption);
     }
     if (_sortOption != null) {
-      await prefs.setString(_prefsSortKey, _sortOption!.name);
+      await prefs.setString(SharedPrefsKeys.trainingPresetSort, _sortOption!.name);
     } else {
-      await prefs.remove(_prefsSortKey);
+      await prefs.remove(SharedPrefsKeys.trainingPresetSort);
     }
     if (_activeQuickPreset != null) {
-      await prefs.setString(_prefsQuickPresetKey, _activeQuickPreset!);
+      await prefs.setString(SharedPrefsKeys.trainingQuickPreset, _activeQuickPreset!);
     } else {
-      await prefs.remove(_prefsQuickPresetKey);
+      await prefs.remove(SharedPrefsKeys.trainingQuickPreset);
     }
     await prefs.setString(
-        _prefsCustomPresetsKey, jsonEncode(_customTagPresets));
+        SharedPrefsKeys.trainingCustomTagPresets, jsonEncode(_customTagPresets));
   }
 
   Future<void> _saveOrderToPrefs() async {
     if (!_presetsLoaded) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-      _prefsOrderKey,
+      SharedPrefsKeys.trainingSpotsOrder,
       [for (final s in widget.spots) jsonEncode(s.toJson())],
     );
   }
 
   Future<void> _saveSearchHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_prefsSearchHistoryKey, _searchHistory);
+    await prefs.setStringList(SharedPrefsKeys.trainingSearchHistory, _searchHistory);
   }
 
   Future<void> _addToSearchHistory(String query) async {
@@ -753,7 +733,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _clearSearchHistory() async {
     _searchHistory.clear();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_prefsSearchHistoryKey);
+    await prefs.remove(SharedPrefsKeys.trainingSearchHistory);
   }
 
   Future<void> _loadMistakeIds() async {
@@ -814,7 +794,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _restoreOrderFromPrefs(SharedPreferences prefs) async {
     if (_orderRestored || widget.spots.isEmpty) return;
-    final stored = prefs.getStringList(_prefsOrderKey);
+    final stored = prefs.getStringList(SharedPrefsKeys.trainingSpotsOrder);
     if (stored == null || stored.isEmpty) {
       _orderRestored = true;
       return;
