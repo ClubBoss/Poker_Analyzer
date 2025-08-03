@@ -50,15 +50,15 @@ class UserPreferencesService extends ChangeNotifier {
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
-    _showPotAnimation = prefs.getBool(_potAnimationKey) ?? true;
-    _showCardReveal = prefs.getBool(_cardRevealKey) ?? true;
-    _showWinnerCelebration = prefs.getBool(_winnerCelebrationKey) ?? true;
-    _showActionHints = prefs.getBool(_actionHintsKey) ?? true;
-    _coachMode = prefs.getBool(_coachModeKey) ?? false;
-    _demoMode = prefs.getBool(_demoModeKey) ?? false;
-    _tutorialCompleted = prefs.getBool(_tutorialCompletedKey) ?? false;
-    _simpleNavigation = prefs.getBool(_simpleNavKey) ?? false;
-    _showTagGoalBanner = prefs.getBool(_tagGoalBannerKey) ?? true;
+    _showPotAnimation = _boolPref(prefs, _potAnimationKey, true);
+    _showCardReveal = _boolPref(prefs, _cardRevealKey, true);
+    _showWinnerCelebration = _boolPref(prefs, _winnerCelebrationKey, true);
+    _showActionHints = _boolPref(prefs, _actionHintsKey, true);
+    _coachMode = _boolPref(prefs, _coachModeKey, false);
+    _demoMode = _boolPref(prefs, _demoModeKey, false);
+    _tutorialCompleted = _boolPref(prefs, _tutorialCompletedKey, false);
+    _simpleNavigation = _boolPref(prefs, _simpleNavKey, false);
+    _showTagGoalBanner = _boolPref(prefs, _tagGoalBannerKey, true);
     final startStr = prefs.getString(_weakRangeStartKey);
     final endStr = prefs.getString(_weakRangeEndKey);
     if (startStr != null && endStr != null) {
@@ -66,11 +66,10 @@ class UserPreferencesService extends ChangeNotifier {
       final e = DateTime.tryParse(endStr);
       if (s != null && e != null) _weakRange = DateTimeRange(start: s, end: e);
     }
-    final evStart = prefs.getDouble(_evRangeStartKey);
-    final evEnd = prefs.getDouble(_evRangeEndKey);
-    if (evStart != null && evEnd != null) {
-      _evRange = RangeValues(evStart, evEnd);
-    }
+    _evRange = RangeValues(
+      _doublePref(prefs, _evRangeStartKey, _evRange.start),
+      _doublePref(prefs, _evRangeEndKey, _evRange.end),
+    );
     _weakCatCount = prefs.getInt(_weakCatCountKey) ?? 5;
     notifyListeners();
   }
@@ -188,3 +187,9 @@ class UserPreferencesService extends ChangeNotifier {
       _setBool(_tagGoalBannerKey, _showTagGoalBanner, value,
           (v) => _showTagGoalBanner = v);
 }
+
+bool _boolPref(SharedPreferences prefs, String key, bool defaultValue) =>
+    prefs.getBool(key) ?? defaultValue;
+
+double _doublePref(SharedPreferences prefs, String key, double defaultValue) =>
+    prefs.getDouble(key) ?? defaultValue;
