@@ -30,11 +30,16 @@ class TrainingSessionLauncher {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
 
+    String? lessonId;
     if (template.id == TrainingPackLibraryV2.mvpPackId) {
+      lessonId = 'lesson_push_fold_intro';
+    } else if (template.id == 'push_fold_btn_cash') {
+      lessonId = 'lesson_push_fold_btn_cash';
+    }
+
+    if (lessonId != null) {
       await MiniLessonLibraryService.instance.loadAll();
-      final lesson = MiniLessonLibraryService.instance.getById(
-        'lesson_push_fold_intro',
-      );
+      final lesson = MiniLessonLibraryService.instance.getById(lessonId);
       if (lesson != null) {
         await Navigator.push(
           ctx,
