@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/v2/training_pack_template_v2.dart';
+import '../core/error_logger.dart';
 
 class PackLibraryLoaderService {
   PackLibraryLoaderService._();
@@ -25,7 +26,9 @@ class PackLibraryLoaderService {
         ];
         return _cache!;
       }
-    } catch (_) {}
+    } catch (e, st) {
+      ErrorLogger.instance.logError('Pack library load failed', e, st);
+    }
     _cache = [];
     return const [];
   }
