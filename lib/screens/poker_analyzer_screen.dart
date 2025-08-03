@@ -123,11 +123,7 @@ import 'package:poker_analyzer/plugins/plugin_manager.dart';
 import 'package:poker_analyzer/plugins/plugin_loader.dart';
 import 'package:poker_analyzer/plugins/plugin.dart';
 import '../services/demo_playback_controller.dart';
-import 'poker_analyzer/board_controls_widget.dart';
-import 'poker_analyzer/action_editor_widget.dart';
-import 'poker_analyzer/evaluation_panel_widget.dart';
-import 'poker_analyzer/action_controls_widget.dart';
-import 'poker_analyzer_screen_components.dart';
+import 'components/poker_analyzer_screen_components.dart';
 part 'poker_analyzer/debug_dialog.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
@@ -5498,7 +5494,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
               final content = <Widget>[
-                AnalyzerHUDPanel(
+                AnalyzerTopHUD(
                   handName: _handContext.currentHandName ?? 'New Hand',
                   playerCount: numberOfPlayers,
                   streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
@@ -5512,7 +5508,7 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   disabled: lockService.isLocked,
                   handProgressStep: _handProgressStep(),
                 ),
-                SmartInboxContainer(message: hint),
+                SmartInboxRegion(message: hint),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: Text(
@@ -5520,12 +5516,11 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
-                GameplayAreaWidget(
+                AnalyzerTableAreaWidget(
                   landscape: landscape,
                   uiScale: _uiScale,
                 ),
-                const Expanded(child: ActionEditor()),
-                const Expanded(child: EvaluationPanel()),
+                const AnalyzerSidebarWidget(),
               ];
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 200),

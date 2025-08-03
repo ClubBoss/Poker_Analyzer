@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../models/player_model.dart';
-import '../theme/app_colors.dart';
-import '../theme/constants.dart';
-import '../widgets/hand_completion_indicator.dart';
-import 'poker_analyzer/action_controls_widget.dart';
-import 'poker_analyzer/board_controls_widget.dart';
+import '../../models/player_model.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/constants.dart';
+import '../../widgets/hand_completion_indicator.dart';
+import '../poker_analyzer/action_controls_widget.dart';
+import '../poker_analyzer/board_controls_widget.dart';
+import '../poker_analyzer/action_editor_widget.dart';
+import '../poker_analyzer/evaluation_panel_widget.dart';
 
-class GameplayAreaWidget extends StatelessWidget {
+class AnalyzerTableAreaWidget extends StatelessWidget {
   final bool landscape;
   final double uiScale;
-  const GameplayAreaWidget({
+  const AnalyzerTableAreaWidget({
     super.key,
     required this.landscape,
     required this.uiScale,
@@ -48,9 +50,26 @@ class GameplayAreaWidget extends StatelessWidget {
   }
 }
 
-class SmartInboxContainer extends StatelessWidget {
+class AnalyzerSidebarWidget extends StatelessWidget {
+  const AnalyzerSidebarWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 2,
+      child: Column(
+        children: const [
+          Expanded(child: ActionEditor()),
+          Expanded(child: EvaluationPanel()),
+        ],
+      ),
+    );
+  }
+}
+
+class SmartInboxRegion extends StatelessWidget {
   final String? message;
-  const SmartInboxContainer({super.key, this.message});
+  const SmartInboxRegion({super.key, this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +78,7 @@ class SmartInboxContainer extends StatelessWidget {
   }
 }
 
-class AnalyzerHUDPanel extends StatelessWidget {
+class AnalyzerTopHUD extends StatelessWidget {
   final String handName;
   final int playerCount;
   final String streetName;
@@ -72,7 +91,7 @@ class AnalyzerHUDPanel extends StatelessWidget {
   final bool disabled;
   final int handProgressStep;
 
-  const AnalyzerHUDPanel({
+  const AnalyzerTopHUD({
     super.key,
     required this.handName,
     required this.playerCount,
