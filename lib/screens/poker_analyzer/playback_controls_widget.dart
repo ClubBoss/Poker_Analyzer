@@ -147,7 +147,7 @@ class _PlaybackControlsSection extends StatelessWidget {
   }
 }
 
-class _PlaybackAndHandControls extends StatelessWidget {
+class PlaybackControls extends StatelessWidget {
   final bool isPlaying;
   final int playbackIndex;
   final int actionCount;
@@ -172,7 +172,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
   final ValueChanged<bool> onFocusChanged;
   final bool backDisabled;
   final bool disabled;
-  const _PlaybackAndHandControls({
+  const PlaybackControls({
     required this.isPlaying,
     required this.playbackIndex,
     required this.actionCount,
@@ -235,4 +235,9 @@ class _PlaybackAndHandControls extends StatelessWidget {
       ],
     );
   }
+}
+String _formatDuration(Duration d) {
+  final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+  final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+  return '$minutes:$seconds';
 }
