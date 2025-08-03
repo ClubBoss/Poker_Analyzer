@@ -1,0 +1,84 @@
+id: threebet_co_vs_hj_cash
+name: CO vs HJ 3-bet Decision (Cash)
+
+trainingType: cash
+
+recommended: false
+
+icon: cash
+
+bb: 100
+
+gameType: cash
+
+positions:
+  - co
+
+tags:
+  - cash
+  - threebet
+  - preflop
+  - level2
+  - co
+  - hj
+
+spots:
+  - id: tb_co_hj_cash_1
+    title: CO KQo vs HJ 3bb
+    villainAction: open 3.0
+    heroOptions:
+      - 3bet
+      - fold
+    hand:
+      heroCards: Kh Qd
+      position: co
+      heroIndex: 2
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+  - id: tb_co_hj_cash_2
+    title: CO A2s vs HJ 3bb
+    villainAction: open 3.0
+    heroOptions:
+      - 3bet
+      - fold
+    hand:
+      heroCards: As 2s
+      position: co
+      heroIndex: 2
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+  - id: tb_co_hj_cash_3
+    title: CO 66 vs HJ 3bb
+    villainAction: open 3.0
+    heroOptions:
+      - 3bet
+      - fold
+    hand:
+      heroCards: 6h 6d
+      position: co
+      heroIndex: 2
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+
+spotCount: 3
+
+meta:
+  schemaVersion: 2.0.0
