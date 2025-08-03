@@ -1624,7 +1624,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       await TrainingPackTemplateService.generateFromPreset(p);
                   tpl.isBuiltIn = true;
                   await BulkEvaluatorService().generateMissing(tpl);
-                  TemplateCoverageUtils.recountAll(tpl);
+                  TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
                   service.addTemplate(tpl);
                   added++;
                 }

@@ -56,7 +56,7 @@ class _GlobalEvaluationScreenState extends State<GlobalEvaluationScreen> {
       if (!mounted) return;
       if (_cancelRequested) break;
       for (var j = 0; j < batch.length; j++) {
-        if (results[j] > 0) TemplateCoverageUtils.recountAll(batch[j]);
+        if (results[j] > 0) TemplateCoverageUtils.recountAll(batch[j]).applyTo(batch[j].meta);
       }
       setState(() => _progress = (i + batch.length) / total);
     }

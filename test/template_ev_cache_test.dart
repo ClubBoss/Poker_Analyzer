@@ -52,7 +52,7 @@ void main() {
     const service = TrainingPackTemplateUiService();
     final generated = await service.generateMissingSpotsWithProgress(ctx, tpl);
     tpl.spots.addAll(generated);
-    TemplateCoverageUtils.recountAll(tpl);
+    TemplateCoverageUtils.recountAll(tpl).applyTo(tpl.meta);
     expect(tpl.evCovered, 4 + generated.length);
   });
 }

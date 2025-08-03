@@ -268,7 +268,7 @@ part of 'training_pack_template_editor_screen.dart';
   Future<void> _persist() async {
     if (widget.readOnly) return;
     widget.template.isDraft = true;
-    TemplateCoverageUtils.recountAll(widget.template);
+    TemplateCoverageUtils.recountAll(widget.template).applyTo(widget.template.meta);
     context.read<TemplateStorageService>().updateTemplate(widget.template);
     setState(() {});
     await TrainingPackStorage.save(widget.templates);

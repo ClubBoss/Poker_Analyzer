@@ -47,7 +47,7 @@ class BulkEvaluatorService {
         }
       }
       if (next <= 1) onProgress?.call(1.0);
-      TemplateCoverageUtils.recountAll(template);
+      TemplateCoverageUtils.recountAll(template).applyTo(template.meta);
       return updated;
     } else if (target is TrainingPackSpot) {
       final spot = target;
