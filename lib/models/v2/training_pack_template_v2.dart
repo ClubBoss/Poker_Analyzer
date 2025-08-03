@@ -32,6 +32,11 @@ class TrainingPackTemplateV2 {
   String? targetStreet;
   UnlockRules? unlockRules;
 
+  double? get requiresAccuracy =>
+      (meta['requiresAccuracy'] as num?)?.toDouble();
+  int? get requiresVolume =>
+      (meta['requiresVolume'] as num?)?.toInt();
+
   /// Ephemeral flag – marks automatically generated packs. Never
   /// serialized to or from disk.
   bool isGeneratedPack;

@@ -28,6 +28,7 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   int _completed = 0;
   late int _total;
   bool _locked = false;
+  String? _lockMsg;
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -63,6 +64,7 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
       setState(() => _completed = ids.length);
       _maybeShowReward();
     }
+    await _checkPerformance();
   }
 
   Future<void> _toggleFavorite() async {
@@ -87,7 +89,13 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   Future<void> _checkTheory() async {
     final lessonId = _linkedLessonId();
     if (lessonId == null) {
-      if (mounted) setState(() => _locked = false);
+      if (mounted) {
+        setState(() {
+          _locked = false;
+          _lockMsg = null;
+        });
+      }
+      await _checkPerformance();
       return;
     }
     final done =
@@ -95,10 +103,36 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     if (mounted) {
       setState(() {
         _theoryCompleted = done;
-        _locked =
-            widget.template.requiresTheoryCompleted && !done && !kDebugMode;
+        _locked = widget.template.requiresTheoryCompleted && !done && !kDebugMode;
+        _lockMsg = _locked ? 'Сначала пройдите теорию' : null;
       });
       _maybeShowReward();
+    }
+    await _checkPerformance();
+  }
+
+  Future<void> _checkPerformance() async {
+    final reqAcc = widget.template.requiresAccuracy;
+    final reqVol = widget.template.requiresVolume;
+    if (reqAcc == null && reqVol == null) return;
+    final ok = await TrainingProgressTrackerService.instance
+        .meetsPerformanceRequirements(
+      widget.template.id,
+      requiresAccuracy: reqAcc,
+      requiresVolume: reqVol,
+    );
+    if (!ok && mounted) {
+      setState(() {
+        _locked = true;
+        final parts = <String>[];
+        if (reqAcc != null) {
+          parts.add('точность ≥ ${reqAcc.toStringAsFixed(0)}%');
+        }
+        if (reqVol != null) {
+          parts.add('≥ ${reqVol.toString()} рук');
+        }
+        _lockMsg = 'Требуется ${parts.join(' и ')}';
+      });
     }
   }
 
@@ -127,7 +161,7 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
       onTap: () async {
         if (_locked) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Сначала пройдите теорию')),
+            SnackBar(content: Text(_lockMsg ?? 'Пак заблокирован')),
           );
           return;
         }
@@ -216,11 +250,10 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
             Positioned.fill(
               child: Container(
                 color: Colors.black54,
-                child: const Center(
+                child: Center(
                   child: Tooltip(
-                    message: 'Сначала пройдите теорию',
-                    child:
-                        Icon(Icons.lock, color: Colors.white70, size: 48),
+                    message: _lockMsg ?? 'Пак заблокирован',
+                    child: const Icon(Icons.lock, color: Colors.white70, size: 48),
                   ),
                 ),
               ),
