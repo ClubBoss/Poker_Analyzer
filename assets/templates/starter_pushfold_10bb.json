@@ -1,0 +1,439 @@
+{
+    "id": "starter_pushfold_10bb",
+    "slug": "",
+    "name": "Push/Fold 10BB (No Ante)",
+    "description": "",
+    "category": "",
+    "gameType": "tournament",
+    "spots": [
+        {
+            "id": "pf10_1",
+            "type": "quiz",
+            "title": "A9o push",
+            "note": "",
+            "hand": {
+                "heroCards": "As 9d",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_2",
+            "type": "quiz",
+            "title": "Q6s fold",
+            "note": "",
+            "hand": {
+                "heroCards": "Qs 6s",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_3",
+            "type": "quiz",
+            "title": "22 push call",
+            "note": "",
+            "hand": {
+                "heroCards": "2c 2d",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "call",
+                            "amount": 9.5,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_4",
+            "type": "quiz",
+            "title": "J9s push",
+            "note": "",
+            "hand": {
+                "heroCards": "Jh 9h",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_5",
+            "type": "quiz",
+            "title": "KTo push",
+            "note": "",
+            "hand": {
+                "heroCards": "Kh Td",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_6",
+            "type": "quiz",
+            "title": "Q9s push",
+            "note": "",
+            "hand": {
+                "heroCards": "Qd 9d",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_7",
+            "type": "quiz",
+            "title": "A5s push",
+            "note": "",
+            "hand": {
+                "heroCards": "Ah 5h",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_8",
+            "type": "quiz",
+            "title": "77 push",
+            "note": "",
+            "hand": {
+                "heroCards": "7h 7c",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_9",
+            "type": "quiz",
+            "title": "T8o fold",
+            "note": "",
+            "hand": {
+                "heroCards": "Td 8c",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "fold",
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": "pf10_10",
+            "type": "quiz",
+            "title": "99 push call",
+            "note": "",
+            "hand": {
+                "heroCards": "9s 9d",
+                "position": "sb",
+                "heroIndex": 0,
+                "playerCount": 2,
+                "actions": {
+                    "0": [
+                        {
+                            "street": 0,
+                            "playerIndex": 0,
+                            "action": "push",
+                            "amount": 10,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        },
+                        {
+                            "street": 0,
+                            "playerIndex": 1,
+                            "action": "call",
+                            "amount": 9.5,
+                            "generated": false,
+                            "timestamp": "2024-01-01T00:00:00.000Z",
+                            "potAfter": 0
+                        }
+                    ]
+                },
+                "stacks": {
+                    "0": 10,
+                    "1": 10
+                },
+                "anteBb": 0
+            },
+            "tags": [],
+            "categories": [],
+            "editedAt": "2024-01-01T00:00:00.000Z",
+            "createdAt": "2024-01-01T00:00:00.000Z"
+        }
+    ],
+    "tags": [
+        "starter"
+    ],
+    "focusTags": [],
+    "focusHandTypes": [],
+    "heroBbStack": 10,
+    "playerStacksBb": [
+        10,
+        10
+    ],
+    "heroPos": "sb",
+    "spotCount": 10,
+    "bbCallPct": 20,
+    "anteBb": 0,
+    "minEvForCorrect": 0.01,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "goalAchieved": false,
+    "goalTarget": 0,
+    "goalProgress": 0,
+    "streetGoal": 0,
+    "isDraft": false,
+    "isBuiltIn": true,
+    "isPinned": false,
+    "trending": false,
+    "recommended": false
+}

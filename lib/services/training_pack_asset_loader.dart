@@ -5,6 +5,7 @@ import 'package:yaml/yaml.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/hero_position.dart';
 import '../helpers/training_pack_validator.dart';
+import 'package:collection/collection.dart';
 
 class TrainingPackAssetLoader {
   TrainingPackAssetLoader._();
@@ -31,8 +32,10 @@ class TrainingPackAssetLoader {
     final manifestRaw = await rootBundle.loadString('AssetManifest.json');
     final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
     final List<String> paths = manifest.keys.where((e) {
-      final ok = e.startsWith('assets/packs/') ||
-          e.startsWith('assets/training_templates/');
+      final ok =
+          e.startsWith('assets/packs/') ||
+          e.startsWith('assets/training_templates/') ||
+          e.startsWith('assets/templates/');
       return ok && (e.endsWith('.yaml') || e.endsWith('.json'));
     }).toList();
     const libPath = 'assets/training_packs/training_pack_library.json';
@@ -46,8 +49,12 @@ class TrainingPackAssetLoader {
             for (final item in list) {
               if (item is Map) {
                 final tpl = TrainingPackTemplate.fromJson(
-                    Map<String, dynamic>.from(item));
-                tpl.tags = [for (final t in tpl.tags) if (t.trim().isNotEmpty) t];
+                  Map<String, dynamic>.from(item),
+                );
+                tpl.tags = [
+                  for (final t in tpl.tags)
+                    if (t.trim().isNotEmpty) t,
+                ];
                 if (!_validMeta(tpl, ids)) continue;
                 final issues = validateTrainingPackTemplate(tpl);
                 if (issues.isEmpty) _packs.add(tpl);
@@ -65,7 +72,10 @@ class TrainingPackAssetLoader {
           map = Map<String, dynamic>.from(json);
         }
         final tpl = TrainingPackTemplate.fromJson(map);
-        tpl.tags = [for (final t in tpl.tags) if (t.trim().isNotEmpty) t];
+        tpl.tags = [
+          for (final t in tpl.tags)
+            if (t.trim().isNotEmpty) t,
+        ];
         if (!_validMeta(tpl, ids)) continue;
         final issues = validateTrainingPackTemplate(tpl);
         if (issues.isEmpty) _packs.add(tpl);
@@ -74,4 +84,7 @@ class TrainingPackAssetLoader {
   }
 
   List<TrainingPackTemplate> getAll() => List.unmodifiable(_packs);
+
+  TrainingPackTemplate? getById(String id) =>
+      _packs.firstWhereOrNull((p) => p.id == id);
 }
