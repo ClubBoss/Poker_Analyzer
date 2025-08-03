@@ -1,0 +1,169 @@
+id: push_fold_btn_cash
+name: BTN Push/Fold Cash 10bb
+audience: Beginner
+trainingType: cash
+bb: 10
+gameType: cash
+positions:
+  - btn
+tags:
+  - pushFold
+  - btn
+  - cash
+  - beginner
+spots:
+  - id: cash_btn_pf1
+    title: BTN shove AJo 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: push
+    hand:
+      heroCards: As Jd
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: cash_btn_pf2
+    title: BTN shove K9s 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: push
+    hand:
+      heroCards: Kc 9c
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: cash_btn_pf3
+    title: BTN shove QTs 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: push
+    hand:
+      heroCards: Qh Ts
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: cash_btn_pf4
+    title: BTN shove 55 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: push
+    hand:
+      heroCards: 5c 5d
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: cash_btn_pf5
+    title: BTN shove K5o 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: fold
+    hand:
+      heroCards: Kd 5c
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: cash_btn_pf6
+    title: BTN shove Q7o 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: fold
+    hand:
+      heroCards: Qc 7d
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: cash_btn_pf7
+    title: BTN shove J4s 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: fold
+    hand:
+      heroCards: Jh 4s
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: cash_btn_pf8
+    title: BTN shove 96o 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: fold
+    hand:
+      heroCards: 9d 6h
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+spotCount: 8
+meta:
+  schemaVersion: 2.0.0
