@@ -5,7 +5,7 @@ import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../models/player_model.dart';
 import 'hand_range_library.dart';
-import 'board_texture_filter_service.dart';
+import 'full_board_generator_service.dart';
 
 class SpotGenerationParams {
   final String position;
@@ -14,6 +14,7 @@ class SpotGenerationParams {
   final int count;
   final Map<String, dynamic>? boardFilter;
   final String targetStreet;
+  final int boardStages;
 
   SpotGenerationParams({
     required this.position,
@@ -22,13 +23,32 @@ class SpotGenerationParams {
     required this.count,
     this.boardFilter,
     this.targetStreet = 'flop',
-  });
+    int? boardStages,
+  }) : boardStages =
+            boardStages ?? _streetToStages(targetStreet);
+
+  static int _streetToStages(String street) {
+    switch (street.toLowerCase()) {
+      case 'turn':
+        return 4;
+      case 'river':
+        return 5;
+      default:
+        return 3;
+    }
+  }
 }
 
 class TrainingSpotGeneratorService {
-  TrainingSpotGeneratorService({Random? random}) : _random = random ?? Random();
+  TrainingSpotGeneratorService({
+    Random? random,
+    FullBoardGeneratorService? boardGenerator,
+  })  : _random = random ?? Random(),
+        _boardGenerator =
+            boardGenerator ?? FullBoardGeneratorService(random: random ?? Random());
 
   final Random _random;
+  final FullBoardGeneratorService _boardGenerator;
   static const List<String> _positions6max = ['utg', 'hj', 'co', 'btn', 'sb', 'bb'];
 
   List<TrainingSpot> generate(SpotGenerationParams params) {
@@ -55,11 +75,12 @@ class TrainingSpotGeneratorService {
     playerCards[idx] = _cardsForHand(hand);
 
     final allPlayerCards = playerCards.expand((e) => e).toList();
-    final board = generateRandomBoard(
-      street: params.targetStreet,
-      boardFilter: params.boardFilter,
+    final board = _boardGenerator.generatePartialBoard(
+      stages: params.boardStages,
       excludedCards: allPlayerCards,
+      boardFilterParams: params.boardFilter,
     );
+    final boardCards = board.cards;
 
     final villain = (idx + 1) % 6;
     final parts = params.villainAction.split(' ');
@@ -69,7 +90,7 @@ class TrainingSpotGeneratorService {
     final actions = [ActionEntry(0, villain, action, amount: amount)];
     return TrainingSpot(
       playerCards: playerCards,
-      boardCards: board,
+      boardCards: boardCards,
       actions: actions,
       heroIndex: idx,
       numberOfPlayers: 6,
@@ -113,53 +134,17 @@ class TrainingSpotGeneratorService {
     Map<String, dynamic>? boardFilter,
     List<CardModel> excludedCards = const [],
   }) {
-    final cardsNeeded = street == 'river'
+    final stages = street == 'river'
         ? 5
         : street == 'turn'
             ? 4
             : 3;
-
-    const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-    const suits = ['♠', '♥', '♦', '♣'];
-
-    final excludedRanks = <String>{
-      for (final r in (boardFilter?['excludedRanks'] as List? ?? []))
-        r.toString().toUpperCase(),
-    };
-
-    final requiredRanks = <String>[...
-      (boardFilter?['requiredRanks'] as List? ?? [])
-          .map((e) => e.toString().toUpperCase())
-    ];
-    final requiredSuits = <String>[...
-      (boardFilter?['requiredSuits'] as List? ?? [])
-          .map((e) => e.toString())
-    ];
-
-    final deck = <CardModel>[
-      for (final r in ranks)
-        if (!excludedRanks.contains(r))
-          for (final s in suits) CardModel(rank: r, suit: s),
-    ];
-
-    deck.removeWhere((c) =>
-        excludedCards.any((e) => e.rank == c.rank && e.suit == c.suit));
-
-    final svc = const BoardTextureFilterService();
-    for (var i = 0; i < 10000; i++) {
-      deck.shuffle(_random);
-      final board = deck.take(cardsNeeded).toList();
-      if (requiredRanks.any((r) => !board.any((c) => c.rank == r))) {
-        continue;
-      }
-      if (requiredSuits.any((s) => !board.any((c) => c.suit == s))) {
-        continue;
-      }
-      if (svc.isMatch(board, boardFilter)) {
-        return board;
-      }
-    }
-    throw StateError('Unable to generate board with given filter');
+    final board = _boardGenerator.generatePartialBoard(
+      stages: stages,
+      excludedCards: excludedCards,
+      boardFilterParams: boardFilter,
+    );
+    return board.cards;
   }
 
   List<CardModel> generateRandomFlop({

@@ -78,4 +78,26 @@ meta:
       expect(s.board.any((c) => c.startsWith('A')), true);
     }
   });
+
+  test('dynamicParams boardStages generates full boards', () {
+    const yaml4 = '''
+id: gen_pack
+name: Generator Pack
+trainingType: mtt
+positions:
+  - hj
+meta:
+  dynamicParams:
+    position: hj
+    villainAction: "3bet 9.0"
+    handGroup: ["pockets"]
+    count: 2
+    boardStages: 5
+''';
+    final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml4);
+    expect(tpl.spots.length, 2);
+    for (final s in tpl.spots) {
+      expect(s.board.length, 5);
+    }
+  });
 }

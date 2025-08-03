@@ -105,6 +105,8 @@ class TrainingPackTemplateV2 {
         ],
         count: (m['count'] as num?)?.toInt() ?? 0,
         boardFilter: boardFilter,
+        targetStreet: m['targetStreet']?.toString() ?? 'flop',
+        boardStages: (m['boardStages'] as num?)?.toInt(),
       );
       final gen = TrainingSpotGeneratorService().generate(params);
       return [
@@ -147,6 +149,8 @@ class TrainingPackTemplateV2 {
         ],
         count: (dynParams['count'] as num?)?.toInt() ?? 0,
         boardFilter: boardFilter,
+        targetStreet: dynParams['targetStreet']?.toString() ?? 'flop',
+        boardStages: (dynParams['boardStages'] as num?)?.toInt(),
       );
       final generator = TrainingSpotGeneratorService();
       final genSpots = generator.generate(params);

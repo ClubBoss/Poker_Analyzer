@@ -48,4 +48,18 @@ void main() {
         hero.any((h) => h.rank == b.rank && h.suit == b.suit));
     expect(clash, false);
   });
+
+  test('boardStages generates river board when set to 5', () {
+    final svc = TrainingSpotGeneratorService(random: Random(4));
+    final spot = svc
+        .generate(SpotGenerationParams(
+          position: 'btn',
+          villainAction: 'check',
+          handGroup: ['AKs'],
+          count: 1,
+          boardStages: 5,
+        ))
+        .first;
+    expect(spot.boardCards.length, 5);
+  });
 }
