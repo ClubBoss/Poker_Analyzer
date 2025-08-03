@@ -1,13 +1,14 @@
-part of 'player_zone_core.dart';
+import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 
-class _FoldChipOverlay extends StatelessWidget {
+class FoldChipOverlay extends StatelessWidget {
   final Animation<double> animation;
   final Offset start;
   final Offset end;
   final double scale;
   final int chipCount;
 
-  const _FoldChipOverlay({
+  const FoldChipOverlay({
     required this.animation,
     required this.start,
     required this.end,
@@ -71,12 +72,12 @@ class _FoldChipOverlay extends StatelessWidget {
   }
 }
 
-class _AllInLabel extends StatelessWidget {
+class AllInLabel extends StatelessWidget {
   final double scale;
   final Animation<double> opacity;
   final Animation<double> labelScale;
 
-  const _AllInLabel({
+  const AllInLabel({
     required this.scale,
     required this.opacity,
     required this.labelScale,
@@ -113,12 +114,12 @@ class _AllInLabel extends StatelessWidget {
 }
 
 /// Simple fade-in/out "Winner" label displayed over a player zone.
-class _WinnerCelebration extends StatefulWidget {
+class WinnerCelebration extends StatefulWidget {
   final Offset position;
   final double scale;
   final VoidCallback? onCompleted;
 
-  const _WinnerCelebration({
+  const WinnerCelebration({
     Key? key,
     required this.position,
     this.scale = 1.0,
@@ -126,10 +127,10 @@ class _WinnerCelebration extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<_WinnerCelebration> createState() => _WinnerCelebrationState();
+  State<WinnerCelebration> createState() => _WinnerCelebrationState();
 }
 
-class _WinnerCelebrationState extends State<_WinnerCelebration>
+class _WinnerCelebrationState extends State<WinnerCelebration>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacity;
@@ -235,319 +236,23 @@ class _WinnerCelebrationState extends State<_WinnerCelebration>
   }
 }
 
-class _BetAmountOverlay extends StatefulWidget {
-  final Offset position;
-  final int amount;
-  final Color color;
-  final double scale;
-  final VoidCallback? onCompleted;
-
-  const _BetAmountOverlay({
-    Key? key,
-    required this.position,
-    required this.amount,
-    required this.color,
-    this.scale = 1.0,
-    this.onCompleted,
-  }) : super(key: key);
-
-  @override
-  State<_BetAmountOverlay> createState() => _BetAmountOverlayState();
-}
-
-class _ActionLabelOverlay extends StatefulWidget {
-  final Offset position;
-  final String text;
-  final Color color;
-  final double scale;
-  final VoidCallback? onCompleted;
-
-  const _ActionLabelOverlay({
-    Key? key,
-    required this.position,
-    required this.text,
-    required this.color,
-    this.scale = 1.0,
-    this.onCompleted,
-  }) : super(key: key);
-
-  @override
-  State<_ActionLabelOverlay> createState() => _ActionLabelOverlayState();
-}
-
-class _ActionLabelOverlayState extends State<_ActionLabelOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _opacity;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    );
-
-    _opacity = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 20,
-      ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 20,
-      ),
-    ]).animate(_controller);
-
-    _scale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.8, end: 1.1)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.1, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 50,
-      ),
-    ]).animate(_controller);
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onCompleted?.call();
-      }
-    });
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: widget.position.dx,
-      top: widget.position.dy,
-      child: FadeTransition(
-        opacity: _opacity,
-        child: ScaleTransition(
-          scale: _scale,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 8 * widget.scale,
-              vertical: 4 * widget.scale,
-            ),
-            decoration: BoxDecoration(
-              color: widget.color.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(8 * widget.scale),
-              boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
-            ),
-            child: Text(
-              widget.text,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14 * widget.scale,
-              ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BetAmountOverlayState extends State<_BetAmountOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    );
-    _opacity = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
-        weight: 25,
-      ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
-        weight: 25,
-      ),
-    ]).animate(_controller);
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onCompleted?.call();
-      }
-    });
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final double radius = 16 * widget.scale;
-    return Positioned(
-      left: widget.position.dx - radius,
-      top: widget.position.dy - radius,
-      child: FadeTransition(
-        opacity: _opacity,
-        child: Container(
-          width: radius * 2,
-          height: radius * 2,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: widget.color.withOpacity(0.9),
-            shape: BoxShape.circle,
-            boxShadow: const [
-              BoxShadow(color: Colors.black45, blurRadius: 4),
-            ],
-          ),
-          child: Text(
-            '${widget.amount}',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14 * widget.scale,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RefundMessageOverlay extends StatefulWidget {
-  final Offset position;
-  final int amount;
-  final double scale;
-  final VoidCallback? onCompleted;
-
-  const _RefundMessageOverlay({
-    Key? key,
-    required this.position,
-    required this.amount,
-    this.scale = 1.0,
-    this.onCompleted,
-  }) : super(key: key);
-
-  @override
-  State<_RefundMessageOverlay> createState() => _RefundMessageOverlayState();
-}
-
-class _RefundMessageOverlayState extends State<_RefundMessageOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _opacity = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
-        weight: 25,
-      ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
-        weight: 25,
-      ),
-    ]).animate(_controller);
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onCompleted?.call();
-      }
-    });
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: widget.position.dx,
-      top: widget.position.dy,
-      child: FadeTransition(
-        opacity: _opacity,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 8 * widget.scale,
-            vertical: 4 * widget.scale,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.lightGreenAccent.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(8 * widget.scale),
-            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
-          ),
-          child: Text(
-            '+${widget.amount} returned',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14 * widget.scale,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// Dark overlay that fades in and out when revealing opponent cards.
-class _CardRevealBackdrop extends StatefulWidget {
+class CardRevealBackdrop extends StatefulWidget {
   final Animation<double> revealAnimation;
   final VoidCallback? onCompleted;
 
-  const _CardRevealBackdrop({
+  const CardRevealBackdrop({
     Key? key,
     required this.revealAnimation,
     this.onCompleted,
   }) : super(key: key);
 
   @override
-  State<_CardRevealBackdrop> createState() => _CardRevealBackdropState();
+  State<CardRevealBackdrop> createState() => _CardRevealBackdropState();
 }
 
-class _CardRevealBackdropState extends State<_CardRevealBackdrop>
+class _CardRevealBackdropState extends State<CardRevealBackdrop>
     with SingleTickerProviderStateMixin {
   late final AnimationController _fadeOutController;
 
@@ -589,14 +294,14 @@ class _CardRevealBackdropState extends State<_CardRevealBackdrop>
   }
 }
 
-class _ChipWinOverlay extends StatelessWidget {
+class ChipWinOverlay extends StatelessWidget {
   final Animation<double> animation;
   final Offset start;
   final Offset end;
   final double scale;
   final int chipCount;
 
-  const _ChipWinOverlay({
+  const ChipWinOverlay({
     required this.animation,
     required this.start,
     required this.end,

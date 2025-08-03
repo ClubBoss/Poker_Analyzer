@@ -39,9 +39,9 @@ import 'action_tag_label.dart';
 import 'player_effective_stack_label.dart';
 import 'player_position_label.dart';
 import 'player_zone_animations.dart';
-
-part 'player_zone_overlay.dart';
-part 'player_zone_animator.dart';
+import 'player_zone_overlay.dart';
+import 'player_zone_animator.dart';
+import 'player_zone_action_panel.dart';
 
 class PlayerZoneRegistry {
   final Map<String, _PlayerZoneWidgetState> _states = {};
@@ -819,7 +819,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _CardRevealBackdrop(
+      builder: (_) => CardRevealBackdrop(
         revealAnimation: _revealOpacity,
         onCompleted: () => entry.remove(),
       ),
@@ -938,7 +938,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _BetAmountOverlay(
+      builder: (_) => BetAmountOverlay(
         position: pos,
         amount: amount,
         color: color,
@@ -962,7 +962,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _RefundMessageOverlay(
+      builder: (_) => RefundMessageOverlay(
         position: pos,
         amount: amount,
         scale: widget.scale,
@@ -1028,7 +1028,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final pos = box.localToGlobal(Offset(box.size.width / 2, -32 * widget.scale));
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _ActionLabelOverlay(
+      builder: (_) => ActionLabelOverlay(
         position: pos,
         text: text,
         color: color,
@@ -2010,7 +2010,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     opacity: _bustedOpacity,
                   ),
                 if (_showAllIn && !widget.isHero)
-                  _AllInLabel(
+                  AllInLabel(
                     scale: widget.scale,
                     opacity: _allInOpacity,
                     labelScale: _allInScale,
@@ -2087,111 +2087,59 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           )
         },
       ],
-    )
+    );
+
+    final panel = PlayerZoneActionPanel(
+      child: column,
+      betStackAmount: _betStackAmount,
+      isHero: widget.isHero,
+      isLeftSide: _isLeftSide(widget.position),
+      betFoldOffset: _betFoldOffset,
+      betFoldOpacity: _betFoldOpacity,
+      betStackOpacity: _betStackOpacity,
+      betStackKey: _betStackKey,
+      lastActionText: _lastActionText,
+      actionTagOpacity: _actionTagOpacity,
+      lastActionColor: _lastActionColor,
+      heroLabelOpacity: _heroLabelOpacity,
+      heroLabelScale: _heroLabelScale,
+      scale: widget.scale,
+    );
 
     final content = Stack(
       clipBehavior: Clip.none,
       children: [
-        column,
-        if (_betStackAmount != null && !widget.isHero)
-          Positioned(
-            top: 12 * widget.scale,
-            right: _isLeftSide(widget.position) ? null : -32 * widget.scale,
-            left: _isLeftSide(widget.position) ? -32 * widget.scale : null,
-            child: SlideTransition(
-              position: _betFoldOffset,
-              child: FadeTransition(
-                opacity: _betFoldOpacity,
-                child: FadeTransition(
-                  key: _betStackKey,
-                  opacity: _betStackOpacity,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: ChipStackWidget(
-                      key: ValueKey(_betStackAmount),
-                      amount: _betStackAmount!,
-                      scale: widget.scale,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        if (_lastActionText != null)
-          Positioned(
-            top: -20 * widget.scale,
-            child: FadeTransition(
-              opacity: _actionTagOpacity,
-              child: ActionTagLabel(
-                text: _lastActionText!,
-                color: _lastActionColor,
-                scale: widget.scale,
-              ),
-            ),
-          ),
-        if (widget.isHero)
-          Positioned(
-            top: -8 * widget.scale,
-            left: -8 * widget.scale,
-            child: FadeTransition(
-              opacity: _heroLabelOpacity,
-              child: ScaleTransition(
-                scale: _heroLabelScale,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
-                  decoration: BoxDecoration(
-                    color: AppColors.accent,
-                    borderRadius: BorderRadius.circular(8 * widget.scale),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.accent.withOpacity(0.6),
-                        blurRadius: 6 * widget.scale,
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    'Hero',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10 * widget.scale,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+        panel,
         if (!widget.isHero && !widget.isFolded && widget.onRevealRequest != null && widget.cards.length == 2)
           Positioned(
             top: -8 * widget.scale,
             left: 0,
             right: 0,
-          child: FadeTransition(
-            opacity: _revealEyeController,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(8 * widget.scale),
-              ),
-              child: Tooltip(
-                key: _revealTooltipKey,
-                triggerMode: TooltipTriggerMode.manual,
-                showDuration: const Duration(seconds: 2),
-                preferBelow: false,
-                message: 'Нажмите, чтобы раскрыть карты',
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  iconSize: 14 * widget.scale,
-                  splashRadius: 16 * widget.scale,
-                  icon: const Icon(Icons.remove_red_eye, color: Colors.white),
-                  onPressed: () =>
-                      widget.onRevealRequest?.call(widget.playerName),
+            child: FadeTransition(
+              opacity: _revealEyeController,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(8 * widget.scale),
+                ),
+                child: Tooltip(
+                  key: _revealTooltipKey,
+                  triggerMode: TooltipTriggerMode.manual,
+                  showDuration: const Duration(seconds: 2),
+                  preferBelow: false,
+                  message: 'Нажмите, чтобы раскрыть карты',
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    iconSize: 14 * widget.scale,
+                    splashRadius: 16 * widget.scale,
+                    icon: const Icon(Icons.remove_red_eye, color: Colors.white),
+                    onPressed: () =>
+                        widget.onRevealRequest?.call(widget.playerName),
+                  ),
                 ),
               ),
             ),
-          ),
           ),
         Positioned(
           top: -8 * widget.scale,

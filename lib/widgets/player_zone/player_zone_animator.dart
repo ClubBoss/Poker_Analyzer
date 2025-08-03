@@ -1,4 +1,7 @@
-part of 'player_zone_core.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'player_zone_overlay.dart';
+import 'player_zone_core.dart';
 
 mixin PlayerZoneAnimator on State<PlayerZoneWidget> {
   void highlightWinner() {
@@ -27,7 +30,7 @@ mixin PlayerZoneAnimator on State<PlayerZoneWidget> {
     final end = box.localToGlobal(box.size.center(Offset.zero));
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _ChipWinOverlay(
+      builder: (_) => ChipWinOverlay(
         animation: _chipWinController,
         start: start,
         end: end,
@@ -51,7 +54,7 @@ mixin PlayerZoneAnimator on State<PlayerZoneWidget> {
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _FoldChipOverlay(
+      builder: (_) => FoldChipOverlay(
         animation: _foldChipController,
         start: start,
         end: end,
@@ -75,7 +78,7 @@ mixin PlayerZoneAnimator on State<PlayerZoneWidget> {
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => _FoldChipOverlay(
+      builder: (_) => FoldChipOverlay(
         animation: _showdownLossController,
         start: start,
         end: end,
