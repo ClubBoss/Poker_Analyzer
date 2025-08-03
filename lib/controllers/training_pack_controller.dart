@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/saved_hand.dart';
@@ -11,29 +13,30 @@ class TrainingPackController extends ChangeNotifier {
   List<SavedHand> allHands;
 
   String? _stackFilter;
-  late List<TrainingSpot> _allSpots;
-  late List<TrainingSpot> _spots;
-  late List<SavedHand> _sessionHands;
+  List<TrainingSpot> _allSpots = const [];
+  List<TrainingSpot> _spots = const [];
+  List<SavedHand> _sessionHands = const [];
 
   TrainingPackController({
     required this.pack,
     required this.allHands,
     required this.storage,
   }) {
-    _allSpots = List.from(pack.spots);
-    _spots = List.from(_allSpots);
-    _sessionHands = List.from(allHands);
+    _allSpots = List<TrainingSpot>.unmodifiable(pack.spots);
+    _spots = _allSpots;
+    _sessionHands = List<SavedHand>.unmodifiable(allHands);
   }
 
-  List<TrainingSpot> get spots => List.unmodifiable(_spots);
-  List<SavedHand> get sessionHands => List.unmodifiable(_sessionHands);
+  UnmodifiableListView<TrainingSpot> get spots => UnmodifiableListView(_spots);
+  UnmodifiableListView<SavedHand> get sessionHands =>
+      UnmodifiableListView(_sessionHands);
 
   String? get stackFilter => _stackFilter;
 
   Future<void> loadSpots() async {
     final loaded = await storage.load();
     if (loaded.isNotEmpty) {
-      _allSpots = loaded;
+      _allSpots = List<TrainingSpot>.unmodifiable(loaded);
       _applyStackFilter();
       notifyListeners();
     }
@@ -66,14 +69,14 @@ class TrainingPackController extends ChangeNotifier {
   }
 
   void _applyStackFilter() {
-    _sessionHands = [
+    _sessionHands = List<SavedHand>.unmodifiable([
       for (final h in allHands)
         if (_matchStack(h.stackSizes[h.heroIndex] ?? 0)) h,
-    ];
-    _spots = [
+    ]);
+    _spots = List<TrainingSpot>.unmodifiable([
       for (final s in _allSpots)
         if (_matchStack(s.stacks[s.heroIndex])) s,
-    ];
+    ]);
   }
 
   void updateHands(List<SavedHand> hands) {
@@ -85,7 +88,9 @@ class TrainingPackController extends ChangeNotifier {
   void updateSpot(int index, TrainingSpot updated) {
     final baseIndex = _allSpots.indexOf(_spots[index]);
     if (baseIndex != -1) {
-      _allSpots[baseIndex] = updated;
+      final mutable = _allSpots.toList();
+      mutable[baseIndex] = updated;
+      _allSpots = List<TrainingSpot>.unmodifiable(mutable);
       _applyStackFilter();
       saveSpots();
       notifyListeners();
@@ -93,28 +98,34 @@ class TrainingPackController extends ChangeNotifier {
   }
 
   void removeSpot(int index) {
-    final spot = _spots.removeAt(index);
-    _allSpots.remove(spot);
+    final spot = _spots[index];
+    final mutable = _allSpots.toList()..remove(spot);
+    _allSpots = List<TrainingSpot>.unmodifiable(mutable);
     saveSpots();
     _applyStackFilter();
     notifyListeners();
   }
 
   void setSpots(List<TrainingSpot> spots) {
-    _allSpots = List.from(spots);
+    _allSpots = List<TrainingSpot>.unmodifiable(spots);
     _applyStackFilter();
     saveSpots();
     notifyListeners();
   }
 
   void reorder(int oldIndex, int newIndex) {
-    final item = _spots.removeAt(oldIndex);
-    _spots.insert(newIndex, item);
-    final baseItem = _allSpots.removeAt(_allSpots.indexOf(item));
-    final target = newIndex >= _spots.length ? null : _spots[newIndex];
-    final baseIndex =
-        target == null ? _allSpots.length : _allSpots.indexOf(target);
-    _allSpots.insert(baseIndex, baseItem);
+    final filtered = _spots.toList();
+    final item = filtered.removeAt(oldIndex);
+    filtered.insert(newIndex, item);
+
+    final base = _allSpots.toList();
+    final baseItem = base.removeAt(base.indexOf(item));
+    final target = newIndex >= filtered.length ? null : filtered[newIndex];
+    final baseIndex = target == null ? base.length : base.indexOf(target);
+    base.insert(baseIndex, baseItem);
+
+    _spots = List<TrainingSpot>.unmodifiable(filtered);
+    _allSpots = List<TrainingSpot>.unmodifiable(base);
     saveSpots();
     notifyListeners();
   }
