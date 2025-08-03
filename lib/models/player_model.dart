@@ -1,6 +1,7 @@
 import 'action_model.dart';
 import 'card_model.dart';
 import 'copy_with_mixin.dart';
+import 'poker_street.dart';
 
 /// Different types of players at the table.
 enum PlayerType {
@@ -28,7 +29,7 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
   final List<String> cards;
   /// Cards that this player has revealed. Two slots that may be null.
   final List<CardModel?> revealedCards;
-  final Map<String, List<PlayerActionModel>> actions;
+  final Map<PokerStreet, List<PlayerActionModel>> actions;
   PlayerType type;
   int stack;
   int bet;
@@ -43,10 +44,10 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
         revealedCards =
             revealedCards ?? List<CardModel?>.filled(2, null, growable: false),
         actions = {
-          'Preflop': [],
-          'Flop': [],
-          'Turn': [],
-          'River': [],
+          PokerStreet.preflop: [],
+          PokerStreet.flop: [],
+          PokerStreet.turn: [],
+          PokerStreet.river: [],
         };
 
   Map<String, dynamic> toJson() => {
@@ -56,7 +57,7 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
           for (final c in revealedCards)
             c != null ? {'rank': c.rank, 'suit': c.suit} : null
         ],
-        'actions': actions.map((k, v) => MapEntry(k, [
+        'actions': actions.map((k, v) => MapEntry(pokerStreetToString(k), [
               for (final a in v)
                 {
                   'type': a.type.name,
@@ -87,7 +88,8 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
     model.cards.addAll([for (final c in (json['cards'] as List? ?? [])) c as String]);
     final acts = json['actions'] as Map? ?? {};
     acts.forEach((key, value) {
-      model.actions[key as String] = [
+      final street = pokerStreetFromString(key as String);
+      model.actions[street] = [
         for (final a in (value as List? ?? []))
           PlayerActionModel(
             type: PlayerActionType.values.firstWhere(
