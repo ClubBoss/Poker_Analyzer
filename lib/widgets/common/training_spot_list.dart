@@ -3,10 +3,6 @@ import 'dart:math';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:csv/csv.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +13,8 @@ import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
 import '../../theme/app_colors.dart';
 import '../../screens/training_spot_analysis_screen.dart';
+import 'training_spot_import_export.dart';
+import 'training_spot_filter_widgets.dart';
 
 enum SortOption {
   buyInAsc,
@@ -115,7 +113,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     'vs агро',
   ];
 
-  static const Map<String, List<String>> _tagPresets = {
+  static const Map<String, List<String>> tagPresets = {
     '3бет пот': ['3бет пот'],
     'Фиш': ['Фиш'],
     'Рег': ['Рег'],
@@ -123,7 +121,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     'vs агро': ['vs агро'],
   };
 
-  static const Map<String, String> _quickFilterPresets = {
+  static const Map<String, String> quickFilterPresets = {
     'ICM': 'ICM',
     'Push/Fold': 'Push/Fold',
     'Postflop': 'Postflop',
@@ -188,7 +186,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final local = <String>{...(initialTags ?? [])};
     final suggestions = <String>{
       ..._availableTags,
-      for (final list in _tagPresets.values) ...list,
+      for (final list in tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -269,7 +267,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
-            final staticEntries = _tagPresets.entries.toList();
+            final staticEntries = tagPresets.entries.toList();
             final customEntries = _customTagPresets.entries.toList();
             return AlertDialog(
               backgroundColor: AppColors.cardBackground,
@@ -564,7 +562,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _activeQuickPreset = quickPreset;
     if (_activeQuickPreset != null) {
       _prevQuickTags = Set<String>.from(_selectedTags);
-      final tag = _quickFilterPresets[_activeQuickPreset!];
+      final tag = quickFilterPresets[_activeQuickPreset!];
       if (tag != null) {
         _selectedTags
           ..clear()
@@ -1279,7 +1277,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _quickAddTagsForSpot(TrainingSpot spot) async {
     final suggestions = <String>{
       ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      for (final list in TrainingSpotListState.tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -1501,7 +1499,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
     final suggestions = <String>{
       ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      for (final list in TrainingSpotListState.tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -1964,7 +1962,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
     if (name == null || name.isEmpty) return;
 
-    await _exportNamedPack(filtered, name);
+    await TrainingSpotImportExport.exportNamedPack(
+      context,
+      filtered,
+      name,
+    );
   }
 
   Widget _buildRatingStars(TrainingSpot spot, {bool highlight = false}) {
@@ -2046,7 +2048,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
     final suggestions = <String>{
       ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      for (final list in TrainingSpotListState.tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -2184,10 +2186,28 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _exportSelected() async {
     final spots = _selectedSpots.toList();
     if (spots.isEmpty) return;
-    await _exportCsv(
+    await TrainingSpotImportExport.exportCsv(
+      context,
       spots,
       successMessage: 'Экспортировано ${spots.length} выбранных спотов в CSV',
     );
+  }
+
+  Future<void> _importPack() async {
+    final spots = await TrainingSpotImportExport.pickPack(context);
+    if (spots != null && spots.isNotEmpty) {
+      setState(() => widget.spots.addAll(spots));
+      widget.onChanged?.call();
+    }
+  }
+
+  Future<void> _handleDrop(DropDoneDetails details) async {
+    final spots =
+        await TrainingSpotImportExport.importFromDrop(context, details);
+    if (spots.isNotEmpty) {
+      setState(() => widget.spots.addAll(spots));
+      widget.onChanged?.call();
+    }
   }
 
   @override
@@ -2228,8 +2248,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
               children: [
                 _buildSearchField(),
                 const SizedBox(height: 4),
-                _QuickPresetRow(
+                QuickPresetRow(
                   active: _activeQuickPreset,
+                  presets: TrainingSpotListState.quickFilterPresets,
                   onChanged: (value) {
                     setState(() {
                       if (value != null) {
@@ -2237,7 +2258,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                           _prevQuickTags = Set<String>.from(_selectedTags);
                         }
                         _activeQuickPreset = value;
-                        final tag = _quickFilterPresets[value];
+                        final tag = quickFilterPresets[value];
                         if (tag != null) {
                           _selectedTags
                             ..clear()
@@ -2286,7 +2307,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   ),
                 ),
                 const SizedBox(height: 4),
-                _BatchFilterActions(
+                BatchFilterActions(
                   disabled: !_hasActiveFilters || filtered.isEmpty,
                   onApply: () => _applyActiveFiltersToFiltered(filtered),
                   onDelete: () => _deleteFiltered(filtered),
@@ -2338,12 +2359,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 _buildFilterToggleButton(),
                 if (_tagFiltersExpanded) ...[
                   const SizedBox(height: 8),
-                  _TagFilterSection(
+                  TagFilterSection(
                     filtered: filtered,
                     selectedTags: _selectedTags,
                     expanded: _tagFiltersExpanded,
                     selectedPreset: _selectedPreset,
                     customPresets: _customTagPresets,
+                    defaultPresets: TrainingSpotListState.tagPresets,
                     onExpanded: (v) {
                       setState(() => _tagFiltersExpanded = v);
                       _savePresets();
@@ -2360,7 +2382,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     },
                     onPresetSelected: (value) {
                       if (value == null) return;
-                      final tags = TrainingSpotListState._tagPresets[value] ??
+                      final tags = TrainingSpotListState.tagPresets[value] ??
                           _customTagPresets[value];
                       if (tags == null) return;
                       setState(() {
@@ -2382,7 +2404,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 ],
                 const SizedBox(height: 8),
                 if (widget.onRemove != null) ...[
-                  _SelectionActions(
+                  SelectionActions(
                     selectedCount: _selectedSpots.length,
                     filtered: filtered,
                     onSelectAll: _selectAllVisible,
@@ -2438,7 +2460,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                         child: const Text('Перемешать'),
                       ),
                       const SizedBox(width: 8),
-                      _SortDropdown(
+                      SortDropdown(
                         sortOption: _sortOption,
                         filtered: filtered,
                         manualOrder: _manualOrder,
@@ -2477,9 +2499,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
           ),
           SliverPersistentHeader(
             pinned: true,
-            delegate: _SliverFilterBarDelegate(
+            delegate: SliverFilterBarDelegate(
               height: 140,
-              child: _FilterBar(
+              child: FilterBar(
                 selectedTags: _selectedTags,
                 onTagToggle: (tag, selected) {
                   setState(() {
@@ -2542,7 +2564,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
           ),
           SliverPersistentHeader(
             pinned: true,
-            delegate: _SliverSortHeaderDelegate(
+            delegate: SliverSortHeaderDelegate(
               height: 40,
               child: _buildSortHeader(),
             ),
@@ -2555,7 +2577,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                _QuickSortSegment(
+                QuickSortSegment(
                   value: _quickSort,
                   onChanged: (v) {
                     setState(() => _quickSort = v);
@@ -2563,7 +2585,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   },
                 ),
                 const SizedBox(height: 8),
-                _ListSortDropdown(
+                ListSortDropdown(
                   value: _listSort,
                   filtered: filtered,
                   manualOrder: _manualOrder,
@@ -2577,7 +2599,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   },
                 ),
                 const SizedBox(height: 8),
-                _RatingSortDropdown(
+                RatingSortDropdown(
                   order: _ratingSort,
                   filtered: filtered,
                   manualOrder: _manualOrder,
@@ -2590,7 +2612,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   },
                 ),
                 const SizedBox(height: 8),
-                _SimpleSortRow(
+                SimpleSortRow(
                   field: _simpleSortField,
                   order: _simpleSortOrder,
                   onFieldChanged: (value) {
@@ -2616,14 +2638,14 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 _buildHideCompletedSwitch(),
                 _buildMistakeSwitch(),
                 const SizedBox(height: 8),
-                _ApplyDifficultyDropdown(
+                ApplyDifficultyDropdown(
                   onChanged: (value) {
                     if (value == null) return;
                     _applyDifficultyToFiltered(value);
                   },
                 ),
                 const SizedBox(height: 8),
-                _ApplyRatingDropdown(
+                ApplyRatingDropdown(
                   onChanged: (value) {
                     if (value == null) return;
                     _applyRatingToFiltered(value);
@@ -3132,13 +3154,21 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     children: [
                       ElevatedButton(
                         onPressed:
-                            filtered.isEmpty ? null : () => _exportPack(filtered),
+                            filtered.isEmpty
+                                ? null
+                                : () =>
+                                    TrainingSpotImportExport.exportPack(filtered),
                         child: const Text('Экспортировать пакет'),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed:
-                            filtered.isEmpty ? null : () => _exportCsv(filtered),
+                            filtered.isEmpty
+                                ? null
+                                : () => TrainingSpotImportExport.exportCsv(
+                                      context,
+                                      filtered,
+                                    ),
                         child: const Text('Скачать CSV'),
                       ),
                     ],
@@ -3151,7 +3181,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     child: ElevatedButton(
                       onPressed: filtered.isEmpty
                           ? null
-                          : () => _exportPackSummary(filtered),
+                          : () =>
+                              TrainingSpotImportExport.exportPackSummary(filtered),
                       child: const Text('Export Spot Summary'),
                     ),
                   ),
@@ -3170,7 +3201,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
         ],
       ),
     );
-        _RatingSortDropdown(
+        RatingSortDropdown(
           order: _ratingSort,
           filtered: filtered,
           manualOrder: _manualOrder,
@@ -3187,14 +3218,14 @@ class TrainingSpotListState extends State<TrainingSpotList>
         _buildHideCompletedSwitch(),
         _buildMistakeSwitch(),
         const SizedBox(height: 8),
-        _ApplyDifficultyDropdown(
+        ApplyDifficultyDropdown(
           onChanged: (value) {
             if (value == null) return;
             _applyDifficultyToFiltered(value);
           },
         ),
         const SizedBox(height: 8),
-        _ApplyRatingDropdown(
+        ApplyRatingDropdown(
           onChanged: (value) {
             if (value == null) return;
             _applyRatingToFiltered(value);
@@ -3511,13 +3542,21 @@ class TrainingSpotListState extends State<TrainingSpotList>
             children: [
               ElevatedButton(
                 onPressed:
-                    filtered.isEmpty ? null : () => _exportPack(filtered),
+                    filtered.isEmpty
+                        ? null
+                        : () =>
+                            TrainingSpotImportExport.exportPack(filtered),
                 child: const Text('Экспортировать пакет'),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed:
-                    filtered.isEmpty ? null : () => _exportCsv(filtered),
+                    filtered.isEmpty
+                        ? null
+                        : () => TrainingSpotImportExport.exportCsv(
+                              context,
+                              filtered,
+                            ),
                 child: const Text('Скачать CSV'),
               ),
             ],
@@ -3530,7 +3569,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
             child: ElevatedButton(
               onPressed: filtered.isEmpty
                   ? null
-                  : () => _exportPackSummary(filtered),
+                  : () =>
+                      TrainingSpotImportExport.exportPackSummary(filtered),
               child: const Text('Export Spot Summary'),
             ),
           ),
@@ -3714,7 +3754,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
             if (_hasActiveFilters)
               const Padding(
                 padding: EdgeInsets.only(left: 4.0),
-                child: _PulsingIndicator(),
+                child: PulsingIndicator(),
               ),
           ],
         ),
@@ -4208,153 +4248,6 @@ class TrainingSpotListState extends State<TrainingSpotList>
     widget.onChanged?.call();
   }
 
-  Future<void> _exportPack(List<TrainingSpot> spots) async {
-    if (spots.isEmpty) return;
-    const encoder = JsonEncoder.withIndent('  ');
-    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/training_spots_${DateTime.now().millisecondsSinceEpoch}.json');
-    await file.writeAsString(jsonStr);
-    await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
-  }
-
-  Future<void> _exportNamedPack(List<TrainingSpot> spots, String name) async {
-    if (spots.isEmpty) return;
-    const encoder = JsonEncoder.withIndent('  ');
-    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
-    final dir = await getTemporaryDirectory();
-    final safe = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
-    final file = File('${dir.path}/$safe.json');
-    await file.writeAsString(jsonStr);
-    await Share.shareXFiles([XFile(file.path)], text: '$safe.json');
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Пакет "$name" создан, спотов: ${spots.length}')),
-      );
-    }
-  }
-
-  Future<void> _exportPackSummary(List<TrainingSpot> spots) async {
-    if (spots.isEmpty) return;
-    final buffer = StringBuffer();
-    for (final spot in spots) {
-      buffer.writeln(
-          'ID: ${spot.tournamentId ?? '-'}, Buy-In: ${spot.buyIn ?? '-'}, Game: ${spot.gameType ?? '-'}, Tags: ${spot.tags.length}');
-    }
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/spot_summary_${DateTime.now().millisecondsSinceEpoch}.txt');
-    await file.writeAsString(buffer.toString());
-    await Share.shareXFiles([XFile(file.path)], text: 'spot_summary.txt');
-  }
-
-  Future<void> _exportCsv(List<TrainingSpot> spots,
-      {String? successMessage}) async {
-    if (spots.isEmpty) return;
-
-    final rows = <List<dynamic>>[];
-    rows.add(['ID', 'Difficulty', 'Rating', 'Tags', 'Buy-in', 'ICM', 'Date']);
-    final today = DateTime.now();
-    final dateStr =
-        '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    for (final s in spots) {
-      rows.add([
-        s.tournamentId ?? '',
-        s.difficulty,
-        s.rating,
-        s.tags.join(';'),
-        s.buyIn ?? '',
-        s.tags.contains('ICM') ? '1' : '0',
-        dateStr,
-      ]);
-    }
-
-    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
-    final bytes = Uint8List.fromList(utf8.encode(csvStr));
-    final name = 'training_spots_${DateTime.now().millisecondsSinceEpoch}';
-    try {
-      await FileSaver.instance.saveAs(
-        name: name,
-        bytes: bytes,
-        ext: 'csv',
-        mimeType: MimeType.csv,
-      );
-      if (mounted) {
-        final msg = successMessage ??
-            'Экспортировано ${spots.length} спотов в CSV';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
-      }
-    }
-  }
-
-  Future<void> _importFromFile(String path) async {
-    final file = File(path);
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      if (data is! List) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      final spots = <TrainingSpot>[];
-      for (final e in data) {
-        if (e is Map) {
-          try {
-            spots.add(TrainingSpot.fromJson(Map<String, dynamic>.from(e)));
-          } catch (_) {}
-        }
-      }
-      if (spots.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      setState(() => widget.spots.addAll(spots));
-      widget.onChanged?.call();
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
-      }
-    }
-  }
-
-  Future<void> _importPack() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
-    if (result == null || result.files.isEmpty) return;
-    final path = result.files.single.path;
-    if (path == null) return;
-    await _importFromFile(path);
-  }
-
-  Future<void> _handleDrop(DropDoneDetails details) async {
-    for (final item in details.files) {
-      final path = item.path;
-      if (path.toLowerCase().endsWith('.json')) {
-        await _importFromFile(path);
-      }
-    }
-  }
 
   void _sortFiltered(List<TrainingSpot> filtered, SortOption option) {
     final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
@@ -4562,795 +4455,3 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 }
 
-class _TagFilterSection extends StatelessWidget {
-  final List<TrainingSpot> filtered;
-  final Set<String> selectedTags;
-  final bool expanded;
-  final String? selectedPreset;
-  final Map<String, List<String>> customPresets;
-  final ValueChanged<bool> onExpanded;
-  final void Function(String tag, bool selected) onTagToggle;
-  final ValueChanged<String?> onPresetSelected;
-  final VoidCallback onClearTags;
-  final VoidCallback onOpenSelector;
-  final VoidCallback onManagePresets;
-
-  const _TagFilterSection({
-    required this.filtered,
-    required this.selectedTags,
-    required this.expanded,
-    required this.selectedPreset,
-    required this.customPresets,
-    required this.onExpanded,
-    required this.onTagToggle,
-    required this.onPresetSelected,
-    required this.onClearTags,
-    required this.onOpenSelector,
-    required this.onManagePresets,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ExpansionTile(
-          title: const Text(
-            'Фильтры тегов',
-            style: TextStyle(color: Colors.white),
-          ),
-          initiallyExpanded: expanded,
-          onExpansionChanged: onExpanded,
-          iconColor: Colors.white,
-          collapsedIconColor: Colors.white,
-          collapsedTextColor: Colors.white,
-          textColor: Colors.white,
-          childrenPadding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-          children: [
-            _buildTagFilters(),
-            const SizedBox(height: 8),
-            _buildPresetDropdown(),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: onClearTags,
-                child: const Text('Сбросить теги'),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        _buildTagFilterRow(),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ElevatedButton(
-            onPressed: onManagePresets,
-            child: const Text('Редактировать пресеты'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTagFilterRow() {
-    return SizedBox(
-      height: 40,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          for (final tag in selectedTags)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: FilterChip(
-                label: Text(tag),
-                selected: true,
-                onSelected: (selected) => onTagToggle(tag, selected),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTagFilters() {
-    final count = selectedTags.length;
-    final label =
-        count == 0 ? 'Выбрать теги' : 'Выбрано: $count';
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: ElevatedButton(
-        onPressed: onOpenSelector,
-        child: Text(label),
-      ),
-    );
-  }
-
-  Widget _buildPresetDropdown() {
-    return Row(
-      children: [
-        const Text('Применить теги ко всем',
-            style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        DropdownButton<String>(
-          value: selectedPreset,
-          hint: const Text('Выбрать', style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: [
-            for (final entry in TrainingSpotListState._tagPresets.entries)
-              DropdownMenuItem(
-                value: entry.key,
-                child: Text(entry.key),
-              ),
-            for (final entry in customPresets.entries)
-              DropdownMenuItem(
-                value: entry.key,
-                child: Text(entry.key),
-              ),
-          ],
-          onChanged: onPresetSelected,
-        ),
-      ],
-    );
-  }
-}
-
-class _DifficultyChipRow extends StatelessWidget {
-  final Set<int> selected;
-  final ValueChanged<int> onChanged;
-  final VoidCallback onToggleAll;
-
-  const _DifficultyChipRow({
-    required this.selected,
-    required this.onChanged,
-    required this.onToggleAll,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text('Сложность', style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        Wrap(
-          spacing: 4,
-          children: [
-            for (int i = 1; i <= 5; i++)
-              FilterChip(
-                label: Text('$i'),
-                selected: selected.contains(i),
-                onSelected: (_) => onChanged(i),
-              ),
-          ],
-        ),
-        const SizedBox(width: 8),
-        TextButton(
-          onPressed: onToggleAll,
-          child: const Text('Выбрать все'),
-        ),
-      ],
-    );
-  }
-}
-
-
-class _RatingChipRow extends StatelessWidget {
-  final Set<int> selected;
-  final ValueChanged<int> onChanged;
-  final VoidCallback onToggleAll;
-
-  const _RatingChipRow({
-    required this.selected,
-    required this.onChanged,
-    required this.onToggleAll,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text('Рейтинг', style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        Wrap(
-          spacing: 4,
-          children: [
-            for (int i = 1; i <= 5; i++)
-              FilterChip(
-                label: Text('$i'),
-                selected: selected.contains(i),
-                onSelected: (_) => onChanged(i),
-              ),
-          ],
-        ),
-        const SizedBox(width: 8),
-        TextButton(
-          onPressed: onToggleAll,
-          child: const Text('Выбрать все'),
-        ),
-      ],
-    );
-  }
-}
-
-class _FilterBar extends StatelessWidget {
-  final Set<String> selectedTags;
-  final void Function(String tag, bool selected) onTagToggle;
-  final Set<int> difficultyFilters;
-  final ValueChanged<int> onDifficultyChanged;
-  final VoidCallback onDifficultyToggleAll;
-  final Set<int> ratingFilters;
-  final ValueChanged<int> onRatingChanged;
-  final VoidCallback onRatingToggleAll;
-
-  const _FilterBar({
-    required this.selectedTags,
-    required this.onTagToggle,
-    required this.difficultyFilters,
-    required this.onDifficultyChanged,
-    required this.onDifficultyToggleAll,
-    required this.ratingFilters,
-    required this.onRatingChanged,
-    required this.onRatingToggleAll,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.background,
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                for (final tag in selectedTags)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: FilterChip(
-                      label: Text(tag),
-                      selected: true,
-                      onSelected: (selected) => onTagToggle(tag, selected),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          _DifficultyChipRow(
-            selected: difficultyFilters,
-            onChanged: onDifficultyChanged,
-            onToggleAll: onDifficultyToggleAll,
-          ),
-          const SizedBox(height: 8),
-          _RatingChipRow(
-            selected: ratingFilters,
-            onChanged: onRatingChanged,
-            onToggleAll: onRatingToggleAll,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SliverFilterBarDelegate extends SliverPersistentHeaderDelegate {
-  final double height;
-  final Widget child;
-
-  _SliverFilterBarDelegate({required this.height, required this.child});
-
-  @override
-  double get minExtent => height;
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
-  }
-
-  @override
-  bool shouldRebuild(covariant _SliverFilterBarDelegate oldDelegate) {
-    return oldDelegate.child != child || oldDelegate.height != height;
-  }
-}
-
-class _SliverSortHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double height;
-  final Widget child;
-
-  _SliverSortHeaderDelegate({required this.height, required this.child});
-
-  @override
-  double get minExtent => height;
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
-  }
-
-  @override
-  bool shouldRebuild(covariant _SliverSortHeaderDelegate oldDelegate) {
-    return oldDelegate.child != child || oldDelegate.height != height;
-  }
-}
-
-class _ApplyDifficultyDropdown extends StatelessWidget {
-  final ValueChanged<int?> onChanged;
-
-  const _ApplyDifficultyDropdown({required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text('Применить сложность ко всем',
-            style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        DropdownButton<int?>(
-          hint: const Text('Выбрать', style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: [
-            for (int i = 1; i <= 5; i++)
-              DropdownMenuItem(value: i, child: Text('$i')),
-          ],
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-}
-
-class _ApplyRatingDropdown extends StatelessWidget {
-  final ValueChanged<int?> onChanged;
-
-  const _ApplyRatingDropdown({required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text('Применить рейтинг ко всем',
-            style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        DropdownButton<int?>(
-          hint: const Text('Выбрать', style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: [
-            for (int i = 1; i <= 5; i++)
-              DropdownMenuItem(value: i, child: Text('$i')),
-          ],
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-}
-
-class _SortDropdown extends StatelessWidget {
-  final SortOption? sortOption;
-  final List<TrainingSpot> filtered;
-  final bool manualOrder;
-  final void Function(SortOption? value, List<TrainingSpot> spots) onChanged;
-
-  const _SortDropdown({
-    required this.sortOption,
-    required this.filtered,
-    required this.manualOrder,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<SortOption?>(
-      value: sortOption,
-      hint: const Text('Сортировать', style: TextStyle(color: Colors.white60)),
-      dropdownColor: AppColors.cardBackground,
-      style: const TextStyle(color: Colors.white),
-      items: const [
-        DropdownMenuItem(
-          value: null,
-          child: Text('Сбросить сортировку'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.buyInAsc,
-          child: Text('Buy-In ↑'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.buyInDesc,
-          child: Text('Buy-In ↓'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.gameType,
-          child: Text('Тип игры'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.tournamentId,
-          child: Text('ID турнира'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.difficultyAsc,
-          child: Text('Сложность (по возрастанию)'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.difficultyDesc,
-          child: Text('Сложность (по убыванию)'),
-        ),
-      ],
-      onChanged:
-          manualOrder ? null : (value) => onChanged(value, filtered),
-    );
-  }
-}
-
-class _ListSortDropdown extends StatelessWidget {
-  final ListSortOption? value;
-  final List<TrainingSpot> filtered;
-  final bool manualOrder;
-  final void Function(ListSortOption? value, List<TrainingSpot> spots) onChanged;
-
-  const _ListSortDropdown({
-    required this.value,
-    required this.filtered,
-    required this.manualOrder,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text('Сортировка', style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        DropdownButton<ListSortOption?>(
-          value: value,
-          hint:
-              const Text('Без сортировки', style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: const [
-            DropdownMenuItem(value: null, child: Text('Без сортировки')),
-            DropdownMenuItem(
-                value: ListSortOption.dateNew,
-                child: Text('Дата добавления (новые)')),
-            DropdownMenuItem(
-                value: ListSortOption.dateOld,
-                child: Text('Дата добавления (старые)')),
-            DropdownMenuItem(
-                value: ListSortOption.rating, child: Text('Рейтинг')),
-            DropdownMenuItem(
-                value: ListSortOption.difficulty, child: Text('Сложность')),
-            DropdownMenuItem(
-                value: ListSortOption.comment, child: Text('Комментарий')),
-          ],
-          onChanged: manualOrder ? null : (v) => onChanged(v, filtered),
-        ),
-      ],
-    );
-  }
-}
-
-class _RatingSortDropdown extends StatelessWidget {
-  final RatingSortOrder? order;
-  final List<TrainingSpot> filtered;
-  final bool manualOrder;
-  final void Function(RatingSortOrder? value, List<TrainingSpot> spots)
-      onChanged;
-
-  const _RatingSortDropdown({
-    required this.order,
-    required this.filtered,
-    required this.manualOrder,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text('Сортировать по рейтингу',
-            style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        DropdownButton<RatingSortOrder?>(
-          value: order,
-          hint:
-              const Text('Без сортировки', style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: const [
-            DropdownMenuItem(
-              value: null,
-              child: Text('Без сортировки'),
-            ),
-            DropdownMenuItem(
-              value: RatingSortOrder.highFirst,
-              child: Text('Сначала высокий'),
-            ),
-            DropdownMenuItem(
-              value: RatingSortOrder.lowFirst,
-              child: Text('Сначала низкий'),
-            ),
-          ],
-          onChanged: manualOrder ? null : (v) => onChanged(v, filtered),
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickSortSegment extends StatelessWidget {
-  final QuickSortOption? value;
-  final ValueChanged<QuickSortOption> onChanged;
-
-  const _QuickSortSegment({
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Сортировать по', style: TextStyle(color: Colors.white)),
-        const SizedBox(height: 4),
-        ToggleButtons(
-          isSelected: QuickSortOption.values
-              .map((e) => e == value)
-              .toList(),
-          onPressed: (i) => onChanged(QuickSortOption.values[i]),
-          children: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text('ID'),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text('Сложность'),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text('Рейтинг'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _SimpleSortRow extends StatelessWidget {
-  final SimpleSortField? field;
-  final SimpleSortOrder order;
-  final ValueChanged<SimpleSortField?> onFieldChanged;
-  final ValueChanged<SimpleSortOrder> onOrderChanged;
-
-  const _SimpleSortRow({
-    required this.field,
-    required this.order,
-    required this.onFieldChanged,
-    required this.onOrderChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        DropdownButton<SimpleSortField?>(
-          value: field,
-          hint: const Text('Сортировать по',
-              style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: const [
-            DropdownMenuItem(value: null, child: Text('Без сортировки')),
-            DropdownMenuItem(
-                value: SimpleSortField.createdAt, child: Text('Дата')),
-            DropdownMenuItem(
-                value: SimpleSortField.difficulty, child: Text('Сложность')),
-            DropdownMenuItem(
-                value: SimpleSortField.rating, child: Text('Рейтинг')),
-          ],
-          onChanged: onFieldChanged,
-        ),
-        const SizedBox(width: 8),
-        DropdownButton<SimpleSortOrder>(
-          value: order,
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: const [
-            DropdownMenuItem(
-                value: SimpleSortOrder.ascending,
-                child: Text('По возрастанию')),
-            DropdownMenuItem(
-                value: SimpleSortOrder.descending,
-                child: Text('По убыванию')),
-          ],
-          onChanged: (v) => onOrderChanged(v!),
-        ),
-      ],
-    );
-  }
-}
-
-class _SelectionActions extends StatelessWidget {
-  final int selectedCount;
-  final List<TrainingSpot> filtered;
-  final void Function(List<TrainingSpot> spots) onSelectAll;
-  final VoidCallback onClearSelection;
-  final VoidCallback onDeleteSelected;
-  final VoidCallback onExportSelected;
-  final VoidCallback onEditTags;
-
-  const _SelectionActions({
-    required this.selectedCount,
-    required this.filtered,
-    required this.onSelectAll,
-    required this.onClearSelection,
-    required this.onDeleteSelected,
-    required this.onExportSelected,
-    required this.onEditTags,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            onPressed: () => onSelectAll(filtered),
-            child: const Text('Выделить все'),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: selectedCount == 0 ? null : onClearSelection,
-            child: const Text('Снять выделение'),
-          ),
-          const SizedBox(width: 8),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              ElevatedButton(
-                onPressed: selectedCount == 0 ? null : onDeleteSelected,
-                child: const Text('Удалить выбранные'),
-              ),
-              if (selectedCount > 0)
-                Positioned(
-                  right: -6,
-                  top: -6,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$selectedCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: selectedCount == 0 ? null : onExportSelected,
-            child: const Text('Экспортировать выбранные'),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton.icon(
-            onPressed: selectedCount == 0 ? null : onEditTags,
-            icon: const Icon(Icons.label_outline),
-            label: const Text('Метки'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BatchFilterActions extends StatelessWidget {
-  final bool disabled;
-  final VoidCallback onApply;
-  final VoidCallback onDelete;
-
-  const _BatchFilterActions({
-    required this.disabled,
-    required this.onApply,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            onPressed: disabled ? null : onApply,
-            child: const Text('Применить фильтры ко всем'),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: disabled ? null : onDelete,
-            child: const Text('Удалить все отфильтрованные'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickPresetRow extends StatelessWidget {
-  final String? active;
-  final ValueChanged<String?> onChanged;
-
-  const _QuickPresetRow({required this.active, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 36,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          for (final entry in TrainingSpotListState._quickFilterPresets.entries)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: ChoiceChip(
-                label: Text(entry.key),
-                selected: active == entry.key,
-                onSelected: (selected) =>
-                    onChanged(selected ? entry.key : null),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PulsingIndicator extends StatefulWidget {
-  const _PulsingIndicator();
-
-  @override
-  State<_PulsingIndicator> createState() => _PulsingIndicatorState();
-}
-
-class _PulsingIndicatorState extends State<_PulsingIndicator> {
-  bool _fadeIn = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: _fadeIn ? 1.0 : 0.4, end: _fadeIn ? 0.4 : 1.0),
-      duration: const Duration(seconds: 1),
-      onEnd: () => setState(() => _fadeIn = !_fadeIn),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: child,
-        );
-      },
-      child: const Icon(Icons.circle, size: 8, color: Colors.red),
-    );
-  }
-}
