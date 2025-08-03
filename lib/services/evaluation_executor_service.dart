@@ -116,37 +116,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
 
   Future<EvalResult> _evaluate(EvalRequest request) async {
     final spot = request.spot;
-    String? expectedAction;
-    if (spot.recommendedAction != null) {
-      expectedAction = spot.recommendedAction;
-    } else {
-      final cards = spot.playerCards.length > spot.heroIndex
-          ? spot.playerCards[spot.heroIndex]
-          : <CardModel>[];
-      if (spot.boardCards.isEmpty && cards.length >= 2) {
-        final code = handCode(
-            '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
-        final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
-        if (code != null && stack <= 15) {
-          final heroAct = _heroAction(spot);
-          final ev = computePushEV(
-            heroBbStack: stack,
-            bbCount: spot.numberOfPlayers - 1,
-            heroHand: code,
-            anteBb: spot.anteBb,
-          );
-          if (heroAct == 'call' || heroAct == 'raise') {
-            expectedAction = ev >= 0 ? heroAct : 'fold';
-          } else {
-            expectedAction = ev >= 0 ? 'push' : 'fold';
-          }
-        }
-      }
-      expectedAction ??= _heroAction(spot) ?? '-';
-    }
-    final normExpected = expectedAction.trim().toLowerCase();
+    final expectedAction = _expectedAction(spot);
     final normUser = request.action.trim().toLowerCase();
-    final correct = normUser == normExpected;
+    final correct = normUser == expectedAction;
     final reason = correct ? null : 'Expected $expectedAction';
     final score = correct ? 1.0 : 0.0;
     return EvalResult(isError: false, reason: reason, score: score);
@@ -175,15 +147,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
   @override
   EvaluationResult evaluateSpot(
       BuildContext context, TrainingSpot spot, String userAction) {
-    final expectedAction = spot.recommendedAction ??
-        (spot.actionType == SpotActionType.callPush
-            ? _evaluateCallPush(spot)
-            : _evaluatePushFold(spot)) ??
-        _heroAction(spot) ??
-        '-';
-    final normExpected = expectedAction.trim().toLowerCase();
+    final expectedAction = _expectedAction(spot);
     final normUser = userAction.trim().toLowerCase();
-    final correct = normUser == normExpected;
+    final correct = normUser == expectedAction;
     final expectedEquity =
         spot.equities != null && spot.equities!.length > spot.heroIndex
             ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
@@ -264,6 +230,16 @@ class EvaluationExecutorService implements EvaluationExecutor {
       if (a.playerIndex == spot.heroIndex) return a.action;
     }
     return null;
+  }
+
+  String _expectedAction(TrainingSpot spot) {
+    final action = spot.recommendedAction ??
+        (spot.actionType == SpotActionType.callPush
+            ? _evaluateCallPush(spot)
+            : _evaluatePushFold(spot)) ??
+        _heroAction(spot) ??
+        '-';
+    return action.trim().toLowerCase();
   }
 
   String? _evaluatePushFold(TrainingSpot spot) {
