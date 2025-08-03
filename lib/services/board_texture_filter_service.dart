@@ -19,6 +19,11 @@ class BoardTextureFilterService {
             return false;
           }
           break;
+        case 'highCard':
+          if (!_isHighCard(board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+            return false;
+          }
+          break;
         case 'paired':
           if (!_isPaired(board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
             return false;
@@ -68,6 +73,9 @@ class BoardTextureFilterService {
           break;
         case 'aceHigh':
           if (!_isAceHigh(board)) return false;
+          break;
+        case 'highCard':
+          if (!_isHighCard(board)) return false;
           break;
         case 'paired':
           if (!_isPaired(board)) return false;
@@ -123,6 +131,9 @@ class BoardTextureFilterService {
 
   bool _isAceHigh(List<CardModel> board) =>
       board.any((c) => _rankValue(c.rank) == 14);
+
+  bool _isHighCard(List<CardModel> board) =>
+      board.any((c) => _rankValue(c.rank) >= 10);
 
   bool _isPaired(List<CardModel> board) {
     final ranks = board.map((c) => c.rank).toList();

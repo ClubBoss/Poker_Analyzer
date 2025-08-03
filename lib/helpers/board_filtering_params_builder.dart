@@ -15,6 +15,7 @@ class BoardFilteringParamsBuilder {
   /// - `paired`
   /// - `aceHigh`
   /// - `low`
+  /// - `highCard`
   /// - `connected`/`wet`/`dynamic` (straight draw heavy)
   /// - `broadway`
   static Map<String, dynamic> build(List<String> textureTags) {
@@ -46,6 +47,9 @@ class BoardFilteringParamsBuilder {
           break;
         case 'low':
           boardTextures.add('low');
+          break;
+        case 'highCard':
+          boardTextures.add('highCard');
           break;
         case 'connected':
         case 'wet':

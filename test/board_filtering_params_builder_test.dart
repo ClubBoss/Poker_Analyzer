@@ -27,9 +27,14 @@ void main() {
   });
 
   test('aliases are resolved via tag library', () {
-    final params = BoardFilteringParamsBuilder.build(['two-tone', 'acehigh']);
+    final params = BoardFilteringParamsBuilder.build([
+      'two-tone',
+      'acehigh',
+      'drawy',
+    ]);
     expect(params['suitPattern'], 'twoTone');
     expect(params['boardTexture'], contains('aceHigh'));
+    expect(params['boardTexture'], contains('straightDrawHeavy'));
   });
 
   test('throws on unknown tag', () {
@@ -37,5 +42,15 @@ void main() {
       () => BoardFilteringParamsBuilder.build(['unknown']),
       throwsArgumentError,
     );
+  });
+
+  test('highCard tag generates board with high card', () {
+    final params = BoardFilteringParamsBuilder.build(['highCard']);
+    final svc = FullBoardGeneratorService(random: Random(7));
+    final board = svc.generateBoard(
+      FullBoardRequest(stages: 3, boardFilterParams: params),
+    );
+    expect(board.flop.any((c) => ['T', 'J', 'Q', 'K', 'A'].contains(c.rank)),
+        isTrue);
   });
 }

@@ -101,6 +101,28 @@ meta:
     }
   });
 
+  test('dynamicParams boardTextureTags highCard generates high card boards', () {
+    const yamlHigh = '''
+id: gen_pack
+name: Generator Pack
+trainingType: mtt
+positions:
+  - hj
+meta:
+  dynamicParams:
+    position: hj
+    villainAction: "3bet 9.0"
+    handGroup: ["pockets"]
+    count: 3
+    boardTextureTags: ['highCard']
+''';
+    final tpl = TrainingPackTemplateV2.fromYamlAuto(yamlHigh);
+    expect(tpl.spots.length, 3);
+    for (final s in tpl.spots) {
+      expect(s.board.any((c) => 'TJQKA'.contains(c[0])), true);
+    }
+  });
+
   test('boardFilter overrides boardTextureTags when conflicting', () {
     const yamlOverride = '''
 id: gen_pack

@@ -39,6 +39,12 @@ class BoardFilteringTagLibraryService {
       exampleBoards: ['2h 5c 9d'],
     ),
     const BoardFilteringTag(
+      id: 'highCard',
+      description: 'Contains at least one card Ten or higher',
+      aliases: ['highcard', 'high_card'],
+      exampleBoards: ['Kd 7c 2h', 'Th 5s 2d'],
+    ),
+    const BoardFilteringTag(
       id: 'connected',
       description: 'Straight draw heavy',
       aliases: ['straightdrawheavy', 'coordinated'],
@@ -53,7 +59,7 @@ class BoardFilteringTagLibraryService {
     const BoardFilteringTag(
       id: 'wet',
       description: 'Draw-heavy board with many possibilities',
-      aliases: ['dynamic', 'coordinated'],
+      aliases: ['dynamic', 'coordinated', 'drawy'],
       exampleBoards: ['9c Tc Jc'],
     ),
     const BoardFilteringTag(
