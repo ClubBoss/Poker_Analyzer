@@ -13,6 +13,7 @@ import '../models/training_pack_template_model.dart';
 import '../models/training_pack_template.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplateModel? initial;
@@ -84,21 +85,18 @@ class _TrainingPackTemplateEditorScreenState
           throw const FormatException();
         }
       } catch (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Некорректный JSON фильтров')));
+        SnackbarUtil.showMessage(context, 'Некорректный JSON фильтров');
         return;
       }
     }
     final streets = filters['streets'];
     if (streets is! List || streets.isEmpty || streets.any((e) => e is! String)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Некорректный список улиц')));
+      SnackbarUtil.showMessage(context, 'Некорректный список улиц');
       return;
     }
     for (final s in streets) {
       if (!_validStreets.contains(s)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Улица "$s" не поддерживается')));
+        SnackbarUtil.showMessage(context, 'Улица "$s" не поддерживается');
         return;
       }
     }
@@ -169,29 +167,25 @@ class _TrainingPackTemplateEditorScreenState
       final error = service.validateTemplateJson(Map<String, dynamic>.from(map));
       if (error != null) {
         if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(error)));
+          SnackbarUtil.showMessage(context, error);
         }
         return;
       }
       final template = TrainingPackTemplate.fromMap(map);
       if (service.templates.any((t) => t.id == template.id)) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Такой шаблон уже есть')));
+          SnackbarUtil.showMessage(context, 'Такой шаблон уже есть');
         }
         return;
       }
       service.addTemplate(template);
       await service.saveAll();
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Шаблон импортирован')));
+        SnackbarUtil.showMessage(context, 'Шаблон импортирован');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка импорта файла')));
+        SnackbarUtil.showMessage(context, 'Ошибка импорта файла');
       }
     }
   }

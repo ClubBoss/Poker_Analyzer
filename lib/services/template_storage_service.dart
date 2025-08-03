@@ -14,6 +14,7 @@ import 'thumbnail_cache_service.dart';
 import '../models/training_pack_template.dart';
 import '../core/training/generation/yaml_reader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/snackbar_util.dart';
 
 class TemplateStorageService extends ChangeNotifier {
   static final _manifestFuture = AssetManifest.instance;
@@ -147,16 +148,14 @@ class TemplateStorageService extends ChangeNotifier {
       final data = jsonDecode(content);
       if (data is! Map<String, dynamic>) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Неверный формат шаблона: неверный JSON')));
+          SnackbarUtil.showMessage(context, 'Неверный формат шаблона: неверный JSON');
         }
         return null;
       }
       final error = validateTemplateJson(Map<String, dynamic>.from(data));
       if (error != null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Неверный формат шаблона: $error')));
+          SnackbarUtil.showMessage(context, 'Неверный формат шаблона: $error');
         }
         return null;
       }
@@ -187,27 +186,20 @@ class TemplateStorageService extends ChangeNotifier {
             ThumbnailCacheService.instance.invalidate(template.id);
             notifyListeners();
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Шаблон обновлён'),
-                  action: SnackBarAction(
+              SnackbarUtil.showMessage(context, 'Шаблон обновлён', action: SnackBarAction(
                     label: 'Отмена',
                     onPressed: () {
                       _templates[index] = existing;
                       notifyListeners();
                     },
-                  ),
-                ),
-              );
+                  ));
             }
             return template;
           }
           return null;
         } else if (template.revision == existing.revision) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Такой шаблон уже есть')),
-            );
+            SnackbarUtil.showMessage(context, 'Такой шаблон уже есть');
           }
           return null;
         } else {
@@ -236,18 +228,13 @@ class TemplateStorageService extends ChangeNotifier {
             ThumbnailCacheService.instance.invalidate(template.id);
             notifyListeners();
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Шаблон обновлён'),
-                  action: SnackBarAction(
+              SnackbarUtil.showMessage(context, 'Шаблон обновлён', action: SnackBarAction(
                     label: 'Отмена',
                     onPressed: () {
                       _templates[index] = existing;
                       notifyListeners();
                     },
-                  ),
-                ),
-              );
+                  ));
             }
             return template;
           } else if (action == 'keep') {
@@ -274,16 +261,12 @@ class TemplateStorageService extends ChangeNotifier {
       _resort();
       notifyListeners();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Шаблон импортирован')),
-        );
+        SnackbarUtil.showMessage(context, 'Шаблон импортирован');
       }
       return template;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка импорта файла')),
-        );
+        SnackbarUtil.showMessage(context, 'Ошибка импорта файла');
       }
       return null;
     }
@@ -328,21 +311,14 @@ class TemplateStorageService extends ChangeNotifier {
       final file = File('${dir.path}/$safeName.json');
       await file.writeAsString(jsonEncode(template.toJson()));
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Экспорт завершён'),
-            action: SnackBarAction(
+        SnackbarUtil.showMessage(context, 'Экспорт завершён', action: SnackBarAction(
               label: 'Открыть',
               onPressed: () => OpenFilex.open(file.path),
-            ),
-          ),
-        );
+            ));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось экспортировать файл')),
-        );
+        SnackbarUtil.showMessage(context, 'Не удалось экспортировать файл');
       }
     }
   }

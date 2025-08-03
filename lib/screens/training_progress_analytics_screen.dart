@@ -8,6 +8,7 @@ import '../services/progress_forecast_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
@@ -16,9 +17,7 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
   Future<void> _exportCsv(BuildContext context) async {
     final file = await context.read<ProgressForecastService>().exportForecastCsv();
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
-    );
+    SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
   }
 
   Widget _chart(List<MapEntry<DateTime, int>> data, Color color) {

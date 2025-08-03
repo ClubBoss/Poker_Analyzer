@@ -11,6 +11,7 @@ import '../../core/training/generation/pack_yaml_config_parser.dart';
 import '../../core/training/engine/training_type_engine.dart';
 import '../../services/tag_service.dart';
 import '../../ui/tools/training_pack_yaml_previewer.dart';
+import '../../utils/snackbar_util.dart';
 
 class PackGenerationSection extends StatefulWidget {
   const PackGenerationSection({super.key});
@@ -232,9 +233,7 @@ class _PackGenerationSectionState extends State<PackGenerationSection> {
     );
     if (!mounted) return;
     setState(() => _batchLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Создано: $success')),
-    );
+    SnackbarUtil.showMessage(context, 'Создано: $success');
   }
 
   @override

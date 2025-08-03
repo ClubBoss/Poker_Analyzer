@@ -15,6 +15,7 @@ import '../models/v2/hand_data.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/action_entry.dart';
 import 'package:uuid/uuid.dart';
+import '../utils/snackbar_util.dart';
 
 class AnalyzerResultScreen extends StatefulWidget {
   final SavedHand hand;
@@ -97,10 +98,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final loss = _hand.evLoss ?? 0;
       if (loss.abs() >= 1.0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('EV Loss ≥ 1.0'),
-            action: SnackBarAction(
+        SnackbarUtil.showMessage(context, 'EV Loss ≥ 1.0', action: SnackBarAction(
               label: 'Тренировать похожее',
               onPressed: () async {
                 final tpl = await TrainingPackService.createSimilarMistakeDrill(
@@ -117,9 +115,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
                   );
                 }
               },
-            ),
-          ),
-        );
+            ));
       }
       await _offerDrill();
       await _offerSimilarDrill();

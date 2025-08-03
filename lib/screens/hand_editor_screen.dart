@@ -12,6 +12,7 @@ import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../helpers/poker_position_helper.dart';
 import '../services/hand_evaluator.dart';
+import '../utils/snackbar_util.dart';
 
 class UndoIntent extends Intent { const UndoIntent(); }
 class RedoIntent extends Intent { const RedoIntent(); }
@@ -252,9 +253,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     if (_canUndo) {
       _redo.add(_makeSnapshot());
       _applySnapshot(_undo.removeLast());
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Undo')),
-      );
+      SnackbarUtil.showMessage(context, 'Undo');
     }
   }
 
@@ -262,9 +261,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     if (_canRedo) {
       _undo.add(_makeSnapshot());
       _applySnapshot(_redo.removeLast());
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Redo')),
-      );
+      SnackbarUtil.showMessage(context, 'Redo');
     }
   }
 
@@ -398,9 +395,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   Future<void> _exportJson() async {
     final jsonStr = jsonEncode(_toJson());
     await Clipboard.setData(ClipboardData(text: jsonStr));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Hand copied to clipboard')),
-    );
+    SnackbarUtil.showMessage(context, 'Hand copied to clipboard');
   }
 
   Future<void> _importJson() async {
@@ -408,13 +403,9 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     if (data?.text == null || data!.text!.trim().isEmpty) return;
     try {
       _applyFromJson(Map<String, dynamic>.from(jsonDecode(data.text!)));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Hand loaded')),
-      );
+      SnackbarUtil.showMessage(context, 'Hand loaded');
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid JSON')),
-      );
+      SnackbarUtil.showMessage(context, 'Invalid JSON');
     }
   }
 
@@ -465,12 +456,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   void _nextStreet() {
     final current = _tabController.index;
     if (current < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Stakes committed — moving to ${['Flop', 'Turn', 'River', 'Showdown'][current + 1]}'),
-        ),
-      );
+      SnackbarUtil.showMessage(context, 'Stakes committed — moving to ${['Flop', 'Turn', 'River', 'Showdown'][current + 1]}');
       setState(() {
         for (int i = 0; i < _playerCount; i++) {
           _pot += _bets[i];
@@ -770,9 +756,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                     onChanged: (v) {
                       final val = double.tryParse(v);
                       if (val == null || val < 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Enter valid stack')),
-                        );
+                        SnackbarUtil.showMessage(context, 'Enter valid stack');
                         return;
                       }
                       setState(() {

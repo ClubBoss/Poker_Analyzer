@@ -10,6 +10,7 @@ import '../services/training_session_service.dart';
 import '../services/tag_service.dart';
 import 'share_dialog.dart';
 import '../screens/v2/training_pack_spot_editor_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class SpotViewerDialog extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -176,9 +177,7 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
 
   void _copyId() {
     Clipboard.setData(ClipboardData(text: spot.id));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Spot ID copied to clipboard')),
-    );
+    SnackbarUtil.showMessage(context, 'Spot ID copied to clipboard');
   }
 
   Widget _evCard() {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'learning_path_summary_cache_v2.dart';
 import 'pack_library_service.dart';
 import 'training_session_launcher.dart';
+import '../utils/snackbar_util.dart';
 
 /// Launches the next available stage for a learning path.
 class LearningPathLauncherService {
@@ -22,25 +23,19 @@ class LearningPathLauncherService {
     await cache.refresh();
     final summary = cache.summaryById(pathId);
     if (summary == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Learning path not found')),
-      );
+      SnackbarUtil.showMessage(context, 'Learning path not found');
       return;
     }
 
     final stage = summary.nextStageToTrain;
     if (stage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All stages completed')),
-      );
+      SnackbarUtil.showMessage(context, 'All stages completed');
       return;
     }
 
     final template = await library.getById(stage.packId);
     if (template == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Training pack not found')),
-      );
+      SnackbarUtil.showMessage(context, 'Training pack not found');
       return;
     }
 

@@ -8,6 +8,7 @@ import 'pack_library_service.dart';
 import 'skill_map_booster_recommender.dart';
 import 'tag_mastery_service.dart';
 import 'training_session_launcher.dart';
+import '../utils/snackbar_util.dart';
 
 class BoosterPackLauncher {
   final TagMasteryService mastery;
@@ -36,9 +37,7 @@ class BoosterPackLauncher {
     if (pack != null) {
       await launcher.launch(pack);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет подходящих бустеров')),
-      );
+      SnackbarUtil.showMessage(context, 'Нет подходящих бустеров');
     }
   }
 }

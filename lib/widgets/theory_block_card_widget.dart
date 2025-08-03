@@ -6,6 +6,7 @@ import '../services/user_progress_service.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/theory_block_launcher.dart';
 import 'theory_block_context_sheet.dart';
+import '../utils/snackbar_util.dart';
 
 /// Card widget displaying a [TheoryBlockModel] with completion progress.
 class TheoryBlockCardWidget extends StatefulWidget {
@@ -96,9 +97,7 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
         PinnedLearningService.instance.isPinned('block', widget.block.id);
     if (mounted) {
       setState(() => _pinned = pinned);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
-      );
+      SnackbarUtil.showMessage(context, pinned ? 'Pinned' : 'Unpinned');
     }
   }
 

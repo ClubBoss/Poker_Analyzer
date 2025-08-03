@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import '../utils/snackbar_util.dart';
 
 class ShareDialog extends StatelessWidget {
   final String text;
@@ -21,9 +22,7 @@ class ShareDialog extends StatelessWidget {
           onPressed: () {
             Clipboard.setData(ClipboardData(text: text));
             Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Copied to clipboard')),
-            );
+            SnackbarUtil.showMessage(context, 'Copied to clipboard');
           },
           child: const Text('Copy'),
         ),

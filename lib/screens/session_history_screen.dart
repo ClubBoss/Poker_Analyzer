@@ -11,6 +11,7 @@ import '../services/training_stats_service.dart';
 import 'session_analysis_screen.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
+import '../utils/snackbar_util.dart';
 
 class SessionHistoryScreen extends StatefulWidget {
   const SessionHistoryScreen({super.key});
@@ -132,8 +133,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     final path = await notes.exportAsPdf(stats);
     if (path == null || !mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    SnackbarUtil.showMessage(context, 'Файл сохранён: $name');
   }
 
   @override

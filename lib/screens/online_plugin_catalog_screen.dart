@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import '../plugins/plugin_loader.dart';
 import '../plugins/plugin_manager.dart';
 import '../services/service_registry.dart';
+import '../utils/snackbar_util.dart';
 
 class OnlinePlugin {
   final String name;
@@ -67,7 +68,7 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
     final manager = PluginManager();
     await PluginLoader().loadAll(registry, manager, context: context);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
+      SnackbarUtil.showMessage(context, 'Plugins reloaded');
     }
     await _load();
   }
@@ -76,17 +77,12 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
     try {
       final downloaded = await PluginLoader().downloadFromUrl(p.url, checksum: p.checksum);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(downloaded ? 'Plugin installed' : 'Plugin up to date'),
-            action: SnackBarAction(label: 'Reload', onPressed: _reload),
-          ),
-        );
+        SnackbarUtil.showMessage(context, downloaded ? 'Plugin installed' : 'Plugin up to date', action: SnackBarAction(label: 'Reload', onPressed: _reload));
         await _load();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Install failed: $e')));
+        SnackbarUtil.showMessage(context, 'Install failed: $e');
       }
     }
   }

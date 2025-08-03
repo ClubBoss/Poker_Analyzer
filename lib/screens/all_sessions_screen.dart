@@ -20,6 +20,7 @@ import '../models/game_type.dart';
 import 'session_detail_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
+import '../utils/snackbar_util.dart';
 
 class AllSessionsScreen extends StatefulWidget {
   const AllSessionsScreen({super.key});
@@ -320,17 +321,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
 
     if (mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $name'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $name', action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
               OpenFilex.open(file.path);
             },
-          ),
-        ),
-      );
+          ));
     }
   }
 
@@ -364,17 +360,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
 
     if (mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $name'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $name', action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
               OpenFilex.open(file.path);
             },
-          ),
-        ),
-      );
+          ));
     }
   }
 
@@ -603,17 +594,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
 
     if (mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $name'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $name', action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
               OpenFilex.open(file.path);
             },
-          ),
-        ),
-      );
+          ));
     }
   }
 
@@ -650,9 +636,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     _packs.clear();
     _applyFilter();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Все сессии удалены')),
-    );
+    SnackbarUtil.showMessage(context, 'Все сессии удалены');
   }
 
   Widget _buildAccuracyChart() {
@@ -929,9 +913,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     _applyFilter();
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пакет переименован')),
-      );
+      SnackbarUtil.showMessage(context, 'Пакет переименован');
     }
   }
 
@@ -981,9 +963,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     _applyFilter();
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пакет удалён')),
-      );
+      SnackbarUtil.showMessage(context, 'Пакет удалён');
     }
   }
 

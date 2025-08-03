@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/training_pack.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingPackOverlay extends StatelessWidget {
   final TrainingPack pack;
@@ -18,8 +19,7 @@ class TrainingPackOverlay extends StatelessWidget {
 
   Future<void> _export(BuildContext context) async {
     // Export functionality is not yet implemented; show a placeholder message.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Export is unavailable')));
+    SnackbarUtil.showMessage(context, 'Export is unavailable');
   }
 
   Future<void> _share(BuildContext context) async {
@@ -28,8 +28,7 @@ class TrainingPackOverlay extends StatelessWidget {
 
   Future<void> _print(BuildContext context) async {
     // Printing is currently unsupported; notify the user.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Print is unavailable')));
+    SnackbarUtil.showMessage(context, 'Print is unavailable');
   }
 
   @override

@@ -23,6 +23,7 @@ import '../services/training_pack_template_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
 import 'package:uuid/uuid.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 /// Displays all spots from [pack] with option to show only mistaken ones.
 class TrainingPackReviewScreen extends StatefulWidget {
@@ -258,9 +259,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     final markdown = _generateMarkdown();
     await Clipboard.setData(ClipboardData(text: markdown));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Markdown copied to clipboard')),
-      );
+      SnackbarUtil.showMessage(context, 'Markdown copied to clipboard');
     }
   }
 
@@ -294,15 +293,10 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(markdown);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $fileName'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName', action: SnackBarAction(
             label: 'Открыть',
             onPressed: () => OpenFilex.open(file.path),
-          ),
-        ),
-      );
+          ));
     }
   }
 
@@ -354,17 +348,12 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     await file.writeAsBytes(bytes);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $fileName'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName', action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
               OpenFilex.open(file.path);
             },
-          ),
-        ),
-      );
+          ));
     }
   }
 
@@ -403,8 +392,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     );
     if (model != null && mounted) {
       await context.read<TrainingPackTemplateStorageService>().add(model);
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Шаблон сохранён')));
+      SnackbarUtil.showMessage(context, 'Шаблон сохранён');
     }
   }
 

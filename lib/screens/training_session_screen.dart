@@ -54,6 +54,7 @@ import '../services/booster_auto_retry_suggester.dart';
 import '../services/mistake_booster_progress_tracker.dart';
 import '../services/training_progress_logger.dart';
 import 'training_session_completion_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -301,9 +302,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final isBooster = tpl.meta['type']?.toString().toLowerCase() == 'booster';
       if (isBooster && _boosterRecapShown) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Booster recap already shown')),
-          );
+          SnackbarUtil.showMessage(context, 'Booster recap already shown');
         }
         return;
       }
@@ -366,13 +365,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         for (final id in newly) {
           final pack = lib.firstWhereOrNull((p) => p.id == id);
           if (pack != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '\uD83D\uDD13 Новый пак разблокирован: ${pack.name}',
-                ),
-              ),
-            );
+            SnackbarUtil.showMessage(context, '\uD83D\uDD13 Новый пак разблокирован: ${pack.name}',);
           }
         }
       }

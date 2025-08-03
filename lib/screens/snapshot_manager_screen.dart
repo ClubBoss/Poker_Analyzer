@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
 import 'snapshot_diff_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class SnapshotManagerScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -60,9 +61,7 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
                 final last =
                     prefs.getString('pack_editor_last_snapshot_restored');
                 if (last == s.id) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Already restored')),
-                  );
+                  SnackbarUtil.showMessage(context, 'Already restored');
                   return false;
                 }
                 final ok = await showDialog<bool>(
@@ -89,10 +88,7 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
                     .read<TrainingPackStorageService>()
                     .deleteSnapshot(widget.pack, s);
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Snapshot deleted'),
-                      action: SnackBarAction(
+                  SnackbarUtil.showMessage(context, 'Snapshot deleted', action: SnackBarAction(
                         label: 'Undo',
                         onPressed: () {
                           context
@@ -103,9 +99,7 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
                                   removed.tags,
                                   removed.comment);
                         },
-                      ),
-                    ),
-                  );
+                      ));
                 }
                 return false;
               }

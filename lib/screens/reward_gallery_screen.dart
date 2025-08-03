@@ -3,6 +3,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../services/reward_card_renderer_service.dart';
 import '../services/reward_gallery_group_by_track_service.dart';
+import '../utils/snackbar_util.dart';
 
 class RewardGalleryScreen extends StatefulWidget {
   static const route = '/rewards';
@@ -62,11 +63,7 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                         final img = await renderer.exportImage(g.trackId);
                         nav.pop();
                         if (img.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text('Не удалось сгенерировать карточку')),
-                          );
+                          SnackbarUtil.showMessage(context, 'Не удалось сгенерировать карточку');
                           return;
                         }
                         await Share.shareXFiles(
@@ -76,10 +73,7 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                         );
                       } catch (_) {
                         nav.pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Не удалось сгенерировать карточку')),
-                        );
+                        SnackbarUtil.showMessage(context, 'Не удалось сгенерировать карточку');
                       }
                     },
                   ),

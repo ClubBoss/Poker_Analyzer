@@ -13,6 +13,7 @@ import 'training_pack_template_editor_screen.dart';
 import 'training_spot_builder_screen.dart';
 import 'package:uuid/uuid.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingSpotLibraryScreen extends StatefulWidget {
   const TrainingSpotLibraryScreen({super.key});
@@ -224,8 +225,7 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
                 final service = context.read<TrainingSpotStorageService>();
                 service.activeFilters.clear();
                 service.notifyListeners();
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Фильтр сброшен')));
+                SnackbarUtil.showMessage(context, 'Фильтр сброшен');
               },
             ),
         ],

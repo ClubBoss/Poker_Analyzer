@@ -1,3 +1,4 @@
+import '../../utils/snackbar_util.dart';
 part of 'training_pack_template_list_screen.dart';
 
 mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
@@ -7,9 +8,7 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
         if (!t.isDraft) t.toJson()
     ]);
     await Clipboard.setData(ClipboardData(text: json));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Templates copied to clipboard')),
-    );
+    SnackbarUtil.showMessage(context, 'Templates copied to clipboard');
   }
 
   Future<void> _import() async {
@@ -20,8 +19,7 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
       raw = jsonDecode(clip.text!);
     } catch (_) {}
     if (raw is! List) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Invalid JSON')));
+      SnackbarUtil.showMessage(context, 'Invalid JSON');
       return;
     }
     final imported = [
@@ -49,9 +47,7 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
         _sortTemplates();
       });
       TrainingPackStorage.save(_templates);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${imported.length} template(s) imported')),
-      );
+      SnackbarUtil.showMessage(context, '${imported.length} template(s) imported');
     }
   }
 
@@ -87,15 +83,10 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
         _sortTemplates();
       });
       TrainingPackStorage.save(_templates);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
-        ),
-      );
+      SnackbarUtil.showMessage(context, 'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}');
       _edit(tpl);
     } catch (_) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Invalid CSV')));
+      SnackbarUtil.showMessage(context, 'Invalid CSV');
     }
   }
 
@@ -125,15 +116,10 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
         _sortTemplates();
       });
       TrainingPackStorage.save(_templates);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
-        ),
-      );
+      SnackbarUtil.showMessage(context, 'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}');
       _edit(tpl);
     } catch (_) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Invalid CSV')));
+      SnackbarUtil.showMessage(context, 'Invalid CSV');
     }
   }
 }

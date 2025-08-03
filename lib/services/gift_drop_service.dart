@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'coins_service.dart';
+import '../utils/snackbar_util.dart';
 
 class GiftDropService {
   GiftDropService({this.interval = const Duration(hours: 24)});
@@ -29,9 +30,7 @@ class GiftDropService {
     await CoinsService.instance.addCoins(amount);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('🎁 Подарок: +$amount монет!')),
-      );
+      SnackbarUtil.showMessage(context, '🎁 Подарок: +$amount монет!');
     }
   }
 }

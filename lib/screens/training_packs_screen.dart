@@ -29,6 +29,7 @@ import 'training_session_screen.dart';
 import '../models/saved_hand.dart';
 import 'top_packs_screen.dart';
 import 'popular_now_screen.dart';
+import '../utils/snackbar_util.dart';
 
 enum _PackSort { recommended, newest, hardest }
 
@@ -65,9 +66,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     final service = context.read<TrainingPackStorageService>();
     final msg = await service.importPackFromFile();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg ?? 'Пак импортирован')),
-    );
+    SnackbarUtil.showMessage(context, msg ?? 'Пак импортирован');
   }
 
   void _openHistory() {

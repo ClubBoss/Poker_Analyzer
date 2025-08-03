@@ -39,6 +39,7 @@ import '../../services/user_preferences_service.dart';
 import 'package:provider/provider.dart';
 import '../../services/pinned_learning_service.dart';
 import 'training_pack_play_core.dart';
+import '../../utils/snackbar_util.dart';
 
 class TrainingPackPlayScreenV2 extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -579,9 +580,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2>
         .read<MistakeReviewPackService>()
         .addSpot(widget.original, _spots[_index]);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Сохранено в Повторы ошибок')),
-      );
+      SnackbarUtil.showMessage(context, 'Сохранено в Повторы ошибок');
     }
   }
 
@@ -746,9 +745,7 @@ class _TrainingPackPlayScreenV2State extends State<TrainingPackPlayScreenV2>
             .read<MistakeReviewPackService>()
             .addSpot(widget.original, spot);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Сохранено в Повторы ошибок')),
-          );
+          SnackbarUtil.showMessage(context, 'Сохранено в Повторы ошибок');
         }
       }
       if (_autoAdvance && !incorrect) {

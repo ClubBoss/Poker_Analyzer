@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../services/decay_spot_booster_engine.dart';
 import '../services/theory_tag_decay_tracker.dart';
 import '../services/theory_booster_queue_service.dart';
+import '../utils/snackbar_util.dart';
 
 /// Dashboard tile showing most decayed theory tags with quick actions.
 class SkillDecayDashboardTile extends StatefulWidget {
@@ -37,17 +38,13 @@ class _SkillDecayDashboardTileState extends State<SkillDecayDashboardTile> {
     final engine = DecaySpotBoosterEngine();
     await engine.enqueueForTag(tag);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Споты добавлены в очередь')),
-    );
+    SnackbarUtil.showMessage(context, 'Споты добавлены в очередь');
   }
 
   Future<void> _reviewTheory(String tag) async {
     await TheoryBoosterQueueService.instance.enqueue(tag);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Теория добавлена в очередь')),
-    );
+    SnackbarUtil.showMessage(context, 'Теория добавлена в очередь');
   }
 
   @override

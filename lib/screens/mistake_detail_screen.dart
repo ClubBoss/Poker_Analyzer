@@ -7,6 +7,7 @@ import '../models/action_entry.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'ev_recovery_history_screen.dart';
 import 'package:provider/provider.dart';
+import '../utils/snackbar_util.dart';
 
 class MistakeDetailScreen extends StatelessWidget {
   final SavedHand hand;
@@ -51,12 +52,7 @@ class MistakeDetailScreen extends StatelessWidget {
                 final updated = hand.markAsCorrected();
                 await manager.update(index, updated);
                 if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '+${updated.evLossRecovered!.toStringAsFixed(1)} EV восстановлено',
-                    ),
-                    action: SnackBarAction(
+                SnackbarUtil.showMessage(context, '+${updated.evLossRecovered!.toStringAsFixed(1)} EV восстановлено',, action: SnackBarAction(
                       label: 'История',
                       onPressed: () {
                         Navigator.push(
@@ -65,9 +61,7 @@ class MistakeDetailScreen extends StatelessWidget {
                               builder: (_) => const EVRecoveryHistoryScreen()),
                         );
                       },
-                    ),
-                  ),
-                );
+                    ));
               },
               icon: const Icon(Icons.check),
               label: const Text('Исправлено'),

@@ -46,6 +46,7 @@ import '../widgets/confetti_overlay.dart';
 import '../services/overlay_booster_manager.dart';
 import '../widgets/decay_recall_stats_card.dart';
 import '../services/decay_session_tag_impact_recorder.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingSessionSummaryScreen extends StatefulWidget {
   final TrainingSession session;
@@ -184,11 +185,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
     }
     await prefs.setString(key, DateTime.now().toIso8601String());
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Want to improve your ${rec.position.label}? Try ${_weakPack!.name}.'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Want to improve your ${rec.position.label}? Try ${_weakPack!.name}.', action: SnackBarAction(
             label: 'Train',
             onPressed: () async {
               await context.read<TrainingSessionService>().startSession(_weakPack!, persist: false);
@@ -198,10 +195,7 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
                 MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
               );
             },
-          ),
-          duration: const Duration(seconds: 6),
-        ),
-      );
+          ));
     });
   }
 

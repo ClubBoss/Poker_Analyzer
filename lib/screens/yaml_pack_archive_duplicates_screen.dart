@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../theme/app_colors.dart';
+import '../utils/snackbar_util.dart';
 
 class YamlPackArchiveDuplicatesScreen extends StatefulWidget {
   const YamlPackArchiveDuplicatesScreen({super.key});
@@ -50,7 +51,7 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
     }
     await _load();
     if (mounted && deleted > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
+      SnackbarUtil.showMessage(context, 'Удалено файлов: $deleted');
     }
   }
 
@@ -79,7 +80,7 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
     }
     await _load();
     if (mounted && deleted > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
+      SnackbarUtil.showMessage(context, 'Удалено файлов: $deleted');
     }
   }
 

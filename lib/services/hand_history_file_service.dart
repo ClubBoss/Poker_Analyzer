@@ -17,6 +17,7 @@ import 'hand_analysis_history_service.dart';
 import 'xp_tracker_service.dart';
 
 import 'saved_hand_manager_service.dart';
+import '../utils/snackbar_util.dart';
 
 /// Handles importing external hand history files using available converters.
 class HandHistoryFileService {
@@ -57,17 +58,13 @@ class HandHistoryFileService {
     }
     if (imported.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось импортировать файлы')),
-        );
+        SnackbarUtil.showMessage(context, 'Не удалось импортировать файлы');
       }
       return 0;
     }
     await _handManager.addHands(imported);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Импортировано ${imported.length} раздач')),
-      );
+      SnackbarUtil.showMessage(context, 'Импортировано ${imported.length} раздач');
     }
     if (context.mounted) {
       final analyzer = Provider.of<HandAnalyzerService>(context, listen: false);

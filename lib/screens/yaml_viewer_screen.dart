@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
+import '../utils/snackbar_util.dart';
 
 class YamlViewerScreen extends StatelessWidget {
   final String yamlText;
@@ -17,7 +18,7 @@ class YamlViewerScreen extends StatelessWidget {
             icon: const Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: yamlText));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied')));
+              SnackbarUtil.showMessage(context, 'Copied');
             },
           ),
         ],

@@ -31,6 +31,7 @@ import 'gg_poker_converter_plugin.dart';
 import 'ipoker_converter_plugin.dart';
 import 'partypoker_converter_plugin.dart';
 import '../../plugins/LocalEvPlugin.dart';
+import '../utils/snackbar_util.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -366,10 +367,7 @@ class PluginLoader {
         await manager.logStatus(name, 'duplicate');
       }
       if (context != null && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
-        );
+        SnackbarUtil.showMessage(context, 'Duplicate plugins: ${duplicates.join(', ')}');
       }
     }
 

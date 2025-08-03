@@ -11,6 +11,7 @@ import '../screens/theory_pack_reader_screen.dart';
 import 'user_action_logger.dart';
 import 'overlay_decay_booster_orchestrator.dart';
 import 'dart:async';
+import '../utils/snackbar_util.dart';
 
 /// Helper to open a learning path stage.
 class LearningPathStageLauncher {
@@ -41,17 +42,13 @@ class LearningPathStageLauncher {
       case StageType.theory:
         final id = stage.theoryPackId;
         if (id == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Theory pack not found')),
-          );
+          SnackbarUtil.showMessage(context, 'Theory pack not found');
           return;
         }
         await _theoryLibrary.loadAll();
         final pack = _theoryLibrary.getById(id);
         if (pack == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Theory pack not found')),
-          );
+          SnackbarUtil.showMessage(context, 'Theory pack not found');
           return;
         }
         await Navigator.push(
@@ -65,9 +62,7 @@ class LearningPathStageLauncher {
       case StageType.practice:
         final tpl = await _library.getById(stage.packId);
         if (tpl == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Training pack not found')),
-          );
+          SnackbarUtil.showMessage(context, 'Training pack not found');
           return;
         }
         await _launcher.launch(tpl);
@@ -83,9 +78,7 @@ class LearningPathStageLauncher {
           (p) => stage.tags.any((t) => p.tags.contains(t)),
         );
         if (booster == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Booster not found')),
-          );
+          SnackbarUtil.showMessage(context, 'Booster not found');
           return;
         }
         await Navigator.push(

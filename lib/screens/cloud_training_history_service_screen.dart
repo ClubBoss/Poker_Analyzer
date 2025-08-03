@@ -10,6 +10,7 @@ import '../models/cloud_history_entry.dart';
 import '../services/cloud_training_history_service.dart';
 import '../services/cloud_training_session_import_service.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 enum _SortOption { newest, oldest, accuracyDesc, accuracyAsc }
 
@@ -73,9 +74,7 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     await file.writeAsString(buffer.toString());
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('История сохранена в cloud_history.md')),
-      );
+      SnackbarUtil.showMessage(context, 'История сохранена в cloud_history.md');
     }
   }
 
@@ -92,16 +91,13 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     final session = await service.importFromJson(file);
     if (session == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid file')));
+        SnackbarUtil.showMessage(context, 'Invalid file');
       }
       return;
     }
     await _load();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported ${formatDateTime(session.date)}')),
-      );
+      SnackbarUtil.showMessage(context, 'Imported ${formatDateTime(session.date)}');
     }
   }
 

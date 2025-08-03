@@ -71,6 +71,7 @@ import '../widgets/goal_suggestion_row.dart';
 import '../services/smart_goal_aggregator_service.dart';
 import '../models/goal_recommendation.dart';
 import '../widgets/skill_tree_main_menu_entry.dart';
+import '../utils/snackbar_util.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -975,13 +976,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                                 listen: false);
                         final path = await exporter.exportAllHandsMarkdown();
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(path != null
+                        SnackbarUtil.showMessage(context, path != null
                                 ? 'Файл сохранён: all_saved_hands.md'
-                                : 'Нет сохранённых раздач'),
-                          ),
-                        );
+                                : 'Нет сохранённых раздач');
                       },
                       child: const Text('Экспорт всех раздач'),
                     ),
@@ -993,13 +990,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                                 listen: false);
                         final path = await exporter.exportAllHandsPdf();
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(path != null
+                        SnackbarUtil.showMessage(context, path != null
                                 ? 'Файл сохранён: all_saved_hands.pdf'
-                                : 'Нет сохранённых раздач'),
-                          ),
-                        );
+                                : 'Нет сохранённых раздач');
                       },
                       child: const Text('Экспорт PDF раздач'),
                     ),

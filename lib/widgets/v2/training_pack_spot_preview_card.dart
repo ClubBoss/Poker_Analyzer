@@ -8,6 +8,7 @@ import '../../models/action_entry.dart';
 import '../../screens/v2/hand_editor_screen.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/snackbar_util.dart';
 
 /// ***Only the new Stateful implementation below is kept.
 ///   The former Stateless version has been removed to avoid a duplicate-class error.***
@@ -521,12 +522,7 @@ class _TrainingPackSpotPreviewCardState
               right: 4,
               child: GestureDetector(
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                        'EV or ICM is missing or outdated',
-                      ),
-                      action: SnackBarAction(
+                  SnackbarUtil.showMessage(context, 'EV or ICM is missing or outdated',, action: SnackBarAction(
                         label: 'Fix',
                         onPressed: () async {
                           await context
@@ -534,9 +530,7 @@ class _TrainingPackSpotPreviewCardState
                               .evaluateSingle(context, widget.spot);
                           if (mounted) setState(() {});
                         },
-                      ),
-                    ),
-                  );
+                      ));
                 },
                 child:
                     const Icon(Icons.error_outline, color: Colors.redAccent),

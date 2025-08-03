@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import '../plugins/plugin_loader.dart';
 import '../plugins/plugin_manager.dart';
+import '../utils/snackbar_util.dart';
 
 class CommunityPlugin {
   final String name;
@@ -95,13 +96,7 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
         checksum: p.checksum,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              downloaded ? 'Plugin installed' : 'Plugin up to date',
-            ),
-          ),
-        );
+        SnackbarUtil.showMessage(context, downloaded ? 'Plugin installed' : 'Plugin up to date',);
         await _load();
       }
     } catch (e) {

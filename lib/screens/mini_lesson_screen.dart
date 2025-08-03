@@ -9,6 +9,7 @@ import '../services/theory_streak_service.dart';
 import '../services/theory_booster_recall_engine.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/theory_lesson_completion_logger.dart';
+import '../utils/snackbar_util.dart';
 
 /// Simple viewer for a [TheoryMiniLessonNode].
 class MiniLessonScreen extends StatefulWidget {
@@ -61,9 +62,7 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
     final pinned =
         PinnedLearningService.instance.isPinned('lesson', widget.lesson.id);
     setState(() => _pinned = pinned);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
-    );
+    SnackbarUtil.showMessage(context, pinned ? 'Pinned' : 'Unpinned');
   }
 
   @override

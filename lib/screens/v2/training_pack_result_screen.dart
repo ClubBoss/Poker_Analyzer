@@ -25,6 +25,7 @@ import '../training_session_screen.dart';
 import '../../services/booster_recap_hook.dart';
 import '../../services/training_session_service.dart';
 import '../../services/pack_library_completion_service.dart';
+import '../../utils/snackbar_util.dart';
 
 class TrainingPackResultScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -566,10 +567,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       }
     }
     await prefs.setString(key, DateTime.now().toIso8601String());
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Want to improve your ${rec.position.label}? Try ${tpl.name}.'),
-        action: SnackBarAction(
+    SnackbarUtil.showMessage(context, 'Want to improve your ${rec.position.label}? Try ${tpl.name}.', action: SnackBarAction(
           label: 'Train',
           onPressed: () async {
             await context.read<TrainingSessionService>().startSession(tpl, persist: false);
@@ -579,10 +577,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
               MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
             );
           },
-        ),
-        duration: const Duration(seconds: 6),
-      ),
-    );
+        ));
   }
 
 }

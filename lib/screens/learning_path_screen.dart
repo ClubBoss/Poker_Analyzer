@@ -8,6 +8,7 @@ import '../services/training_pack_stats_service.dart';
 import '../models/learning_path_stage_model.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'learning_progress_stats_screen.dart';
+import '../utils/snackbar_util.dart';
 
 enum StageStatus { completed, open, locked }
 
@@ -302,9 +303,7 @@ class _DynamicStageTile extends StatelessWidget {
                         context,
                       );
                       if (tpl == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Template not found')),
-                        );
+                        SnackbarUtil.showMessage(context, 'Template not found');
                         return;
                       }
                       await Navigator.push(

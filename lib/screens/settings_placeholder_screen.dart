@@ -22,6 +22,7 @@ import '../widgets/sync_status_widget.dart';
 import 'notification_settings_screen.dart';
 import 'goal_overview_screen.dart';
 import 'weakness_overview_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -51,13 +52,10 @@ class SettingsPlaceholderScreen extends StatelessWidget {
         mimeType: MimeType.csv,
       );
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: $name.csv')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $name.csv');
     } catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
+      SnackbarUtil.showMessage(context, 'Ошибка экспорта CSV');
     }
   }
 
@@ -68,8 +66,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
     if (!context.mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    SnackbarUtil.showMessage(context, 'Файл сохранён: $name');
   }
 
   Future<void> _exportSummary(BuildContext context) async {
@@ -78,8 +75,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     final path = await manager.exportAllSessionsPdf(notes);
     if (path == null || !context.mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    SnackbarUtil.showMessage(context, 'Файл сохранён: $name');
   }
 
   Future<void> _exportSummaryCsv(BuildContext context) async {
@@ -90,8 +86,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     await Share.shareXFiles([XFile(path)], text: 'training_summary.csv');
     if (!context.mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    SnackbarUtil.showMessage(context, 'Файл сохранён: $name');
   }
 
   @override

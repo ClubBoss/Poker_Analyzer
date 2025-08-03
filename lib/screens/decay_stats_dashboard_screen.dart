@@ -5,6 +5,7 @@ import '../models/decay_retention_summary.dart';
 import '../services/decay_retention_summary_service.dart';
 import '../services/tag_decay_forecast_service.dart';
 import '../services/inbox_booster_delivery_controller.dart';
+import '../utils/snackbar_util.dart';
 
 class DecayStatsDashboardScreen extends StatefulWidget {
   static const route = '/decay_stats_dashboard';
@@ -46,8 +47,7 @@ class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
   Future<void> _reviewNow() async {
     await InboxBoosterDeliveryController().maybeTriggerBoosterInbox();
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Review triggered')));
+    SnackbarUtil.showMessage(context, 'Review triggered');
   }
 
   Widget _summarySection() {

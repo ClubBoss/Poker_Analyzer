@@ -12,6 +12,7 @@ import 'backup_file_manager.dart';
 import 'evaluation_queue_serializer.dart';
 import 'debug_panel_preferences.dart';
 import 'evaluation_queue_service.dart';
+import '../utils/snackbar_util.dart';
 
 /// Manages creation, loading and cleanup of evaluation queue backups
 /// and related import/export utilities.
@@ -73,21 +74,14 @@ class BackupManagerService {
       await fileManager
           .writeJsonFile(file, [for (final e in _pending) e.toJson()]);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Файл сохранён: $fileName'),
-            action: SnackBarAction(
+        SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName', action: SnackBarAction(
               label: 'Открыть',
               onPressed: () => OpenFilex.open(file.path),
-            ),
-          ),
-        );
+            ));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось экспортировать очередь')),
-        );
+        SnackbarUtil.showMessage(context, 'Не удалось экспортировать очередь');
       }
     }
   }
@@ -109,15 +103,11 @@ class BackupManagerService {
       await fileManager.writeJsonFile(file, _currentState());
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Queue exported: $name')),
-        );
+        SnackbarUtil.showMessage(context, 'Queue exported: $name');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export queue')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to export queue');
       }
     }
   }
@@ -127,9 +117,7 @@ class BackupManagerService {
       final dir = await fileManager.getBackupDirectory(exportsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No export files found')),
-          );
+          SnackbarUtil.showMessage(context, 'No export files found');
         }
         return;
       }
@@ -155,17 +143,11 @@ class BackupManagerService {
       await queueService.persist();
       debugPanelCallback?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
-        );
+        SnackbarUtil.showMessage(context, 'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import queue state')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to import queue state');
       }
     }
   }
@@ -195,17 +177,11 @@ class BackupManagerService {
       await queueService.persist();
       debugPanelCallback?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
-        );
+        SnackbarUtil.showMessage(context, 'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to restore full queue state')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to restore full queue state');
       }
     }
   }
@@ -219,15 +195,11 @@ class BackupManagerService {
       await fileManager.writeJsonFile(file, _currentState());
       Future(() => cleanupOldEvaluationBackups());
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Backup created: $fileName')),
-        );
+        SnackbarUtil.showMessage(context, 'Backup created: $fileName');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось создать бэкап')),
-        );
+        SnackbarUtil.showMessage(context, 'Не удалось создать бэкап');
       }
     }
   }
@@ -241,15 +213,11 @@ class BackupManagerService {
       Future(() => cleanupOldEvaluationBackups());
       debugPanelCallback?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Quick backup saved: $fileName')),
-        );
+        SnackbarUtil.showMessage(context, 'Quick backup saved: $fileName');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create quick backup')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to create quick backup');
       }
     }
   }
@@ -259,9 +227,7 @@ class BackupManagerService {
       final dir = await fileManager.getBackupDirectory(backupsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No quick backup files found')),
-          );
+          SnackbarUtil.showMessage(context, 'No quick backup files found');
         }
         return;
       }
@@ -308,15 +274,11 @@ class BackupManagerService {
           ? 'Imported $total evaluations from ${result.files.length} files'
           : 'Imported $total evaluations, $skipped files skipped';
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        SnackbarUtil.showMessage(context, msg);
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import quick backups')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to import quick backups');
       }
     }
   }
@@ -420,16 +382,14 @@ class BackupManagerService {
       final dir = await fileManager.getBackupDirectory(subfolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(emptyMsg)));
+          SnackbarUtil.showMessage(context, emptyMsg);
         }
         return;
       }
       final files = await dir.list(recursive: true).whereType<File>().toList();
       if (files.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(emptyMsg)));
+          SnackbarUtil.showMessage(context, emptyMsg);
         }
         return;
       }
@@ -452,13 +412,11 @@ class BackupManagerService {
       await zipFile.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+        SnackbarUtil.showMessage(context, 'Archive saved: $name');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(failMsg)));
+        SnackbarUtil.showMessage(context, failMsg);
       }
     }
   }
@@ -480,9 +438,7 @@ class BackupManagerService {
       final dir = await fileManager.getBackupDirectory(autoBackupsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No auto-backup files found')),
-          );
+          SnackbarUtil.showMessage(context, 'No auto-backup files found');
         }
         return;
       }
@@ -508,17 +464,11 @@ class BackupManagerService {
       await queueService.persist();
       debugPanelCallback?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
-        );
+        SnackbarUtil.showMessage(context, 'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to restore auto-backup')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to restore auto-backup');
       }
     }
   }
@@ -546,15 +496,11 @@ class BackupManagerService {
       await queueService.persist();
       debugPanelCallback?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Imported ${items.length} evaluations')),
-        );
+        SnackbarUtil.showMessage(context, 'Imported ${items.length} evaluations');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import queue')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to import queue');
       }
     }
   }
@@ -564,9 +510,7 @@ class BackupManagerService {
       final dir = await fileManager.getBackupDirectory(backupsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No backup files found')),
-          );
+          SnackbarUtil.showMessage(context, 'No backup files found');
         }
         return;
       }
@@ -577,9 +521,7 @@ class BackupManagerService {
           .toList();
       if (files.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No backup files found')),
-          );
+          SnackbarUtil.showMessage(context, 'No backup files found');
         }
         return;
       }
@@ -612,17 +554,11 @@ class BackupManagerService {
       await queueService.persist();
       debugPanelCallback?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
-        );
+        SnackbarUtil.showMessage(context, 'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to restore queue')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to restore queue');
       }
     }
   }
@@ -675,9 +611,7 @@ class BackupManagerService {
         ? 'Imported $total evaluations from ${result.files.length} files'
         : 'Imported $total evaluations, $skipped files skipped';
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      SnackbarUtil.showMessage(context, msg);
     }
   }
 
@@ -689,9 +623,7 @@ class BackupManagerService {
     final dir = await fileManager.getBackupDirectory(backupsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No backup files found')),
-        );
+        SnackbarUtil.showMessage(context, 'No backup files found');
       }
       return;
     }
@@ -702,9 +634,7 @@ class BackupManagerService {
     final dir = await fileManager.getBackupDirectory(autoBackupsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No auto-backup files found')),
-        );
+        SnackbarUtil.showMessage(context, 'No auto-backup files found');
       }
       return;
     }
@@ -716,9 +646,7 @@ class BackupManagerService {
       final dir = await fileManager.getBackupDirectory(snapshotsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
-          );
+          SnackbarUtil.showMessage(context, 'No snapshot files found');
         }
         return;
       }
@@ -744,17 +672,11 @@ class BackupManagerService {
       await queueService.persist();
       debugPanelCallback?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
-        );
+        SnackbarUtil.showMessage(context, 'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import snapshot')),
-        );
+        SnackbarUtil.showMessage(context, 'Failed to import snapshot');
       }
     }
   }
@@ -763,9 +685,7 @@ class BackupManagerService {
     final dir = await fileManager.getBackupDirectory(snapshotsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No snapshot files found')),
-        );
+        SnackbarUtil.showMessage(context, 'No snapshot files found');
       }
       return;
     }

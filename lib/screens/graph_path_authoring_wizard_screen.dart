@@ -13,6 +13,7 @@ import '../models/learning_path_node.dart';
 import '../services/learning_path_validator.dart';
 import '../theme/app_colors.dart';
 import '../ui/tools/path_map_visualizer.dart';
+import '../utils/snackbar_util.dart';
 
 class GraphPathAuthoringWizardScreen extends StatefulWidget {
   final String? initialTemplateId;
@@ -331,8 +332,7 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
     final file = File(path);
     await file.writeAsString(_yaml);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Saved')));
+    SnackbarUtil.showMessage(context, 'Saved');
   }
 
   Future<void> _exportTemplate() async {
@@ -466,8 +466,7 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
             ElevatedButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: _yaml));
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Copied')));
+                SnackbarUtil.showMessage(context, 'Copied');
               },
               child: const Text('Copy'),
             ),

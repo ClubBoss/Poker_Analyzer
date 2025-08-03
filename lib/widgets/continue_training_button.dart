@@ -5,6 +5,7 @@ import '../services/suggested_next_step_engine.dart';
 import '../services/training_session_service.dart';
 import '../models/v2/training_pack_template.dart';
 import '../screens/v2/training_pack_play_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class ContinueTrainingButton extends StatefulWidget {
   const ContinueTrainingButton({super.key});
@@ -42,9 +43,7 @@ class _ContinueTrainingButtonState extends State<ContinueTrainingButton> {
     final tpl = await engine.suggestNext();
     if (!mounted) return;
     if (tpl == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All training completed — well done!')),
-      );
+      SnackbarUtil.showMessage(context, 'All training completed — well done!');
       setState(() => _starting = false);
       return;
     }

@@ -31,6 +31,7 @@ import '../plugins/converter_registry.dart';
 import '../services/service_registry.dart';
 import 'v2/training_pack_play_screen.dart';
 import 'session_replay_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class SessionAnalysisImportScreen extends StatefulWidget {
   const SessionAnalysisImportScreen({super.key});
@@ -80,8 +81,7 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     if (plugin == null) {
       if (mounted) {
         setState(() => _loading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Unsupported format')));
+        SnackbarUtil.showMessage(context, 'Unsupported format');
       }
       return;
     }
@@ -251,8 +251,7 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     }
     await PackExportService.exportSessionCsv(list, evs, icms);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('CSV exported')));
+      SnackbarUtil.showMessage(context, 'CSV exported');
     }
   }
 
@@ -269,8 +268,7 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     }
     await PackExportService.exportSessionPdf(list, evs, icms);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('PDF exported')));
+      SnackbarUtil.showMessage(context, 'PDF exported');
     }
   }
 
@@ -278,8 +276,7 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     if (_hands.isEmpty) return;
     await context.read<SavedHandManagerService>().addHands(_hands);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Hands saved')));
+      SnackbarUtil.showMessage(context, 'Hands saved');
     }
   }
 

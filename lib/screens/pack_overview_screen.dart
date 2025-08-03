@@ -25,6 +25,7 @@ import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../services/pack_export_service.dart';
 import 'package:uuid/uuid.dart';
+import '../utils/snackbar_util.dart';
 
 class PackOverviewScreen extends StatefulWidget {
   const PackOverviewScreen({super.key});
@@ -149,17 +150,14 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     final link = PackExportService.exportShareLink(tpl);
     await Clipboard.setData(ClipboardData(text: link));
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Link copied')));
+      SnackbarUtil.showMessage(context, 'Link copied');
     }
   }
 
   Future<void> _exportPack(TrainingPack pack) async {
     final file = await context.read<TrainingPackStorageService>().exportPack(pack);
     if (!mounted || file == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Файл сохранён: ${file.path}')),
-    );
+    SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path}');
   }
 
   Future<void> _renamePack(TrainingPack pack) async {
@@ -341,16 +339,15 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     if (confirm == true) {
       final result = await context.read<TrainingPackStorageService>().removePack(pack);
       if (result != null && mounted) {
-        final snack = SnackBar(
-          content: const Text('Пак удалён'),
+        SnackbarUtil.showMessage(
+          context,
+          'Пак удалён',
           action: SnackBarAction(
             label: 'Undo',
             onPressed: () =>
                 context.read<TrainingPackStorageService>().restorePack(result.\$1, result.\$2),
           ),
-          duration: const Duration(seconds: 5),
         );
-        ScaffoldMessenger.of(context).showSnackBar(snack);
       }
     }
   }

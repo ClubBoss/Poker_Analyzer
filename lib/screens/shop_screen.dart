@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/coins_service.dart';
 import '../shop/shop_items.dart';
 import '../shop/shop_item.dart';
+import '../utils/snackbar_util.dart';
 
 class ShopScreen extends StatelessWidget {
   const ShopScreen({super.key});
@@ -11,18 +12,14 @@ class ShopScreen extends StatelessWidget {
   Future<void> _buy(BuildContext context, ShopItem item) async {
     final coins = context.read<CoinsService>();
     if (coins.coins < item.price) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Недостаточно монет')),
-      );
+      SnackbarUtil.showMessage(context, 'Недостаточно монет');
       return;
     }
     final ok = await coins.spendCoins(item.price);
     if (!ok) return;
     await item.onPurchase(context);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Куплено: ${item.name}')),
-      );
+      SnackbarUtil.showMessage(context, 'Куплено: ${item.name}');
     }
   }
 

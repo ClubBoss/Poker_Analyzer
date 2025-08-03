@@ -18,6 +18,7 @@ import 'current_hand_context_service.dart';
 import 'player_manager_service.dart';
 import 'playback_manager_service.dart';
 import 'stack_manager_service.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingImportExportService {
   const TrainingImportExportService();
@@ -386,28 +387,24 @@ class TrainingImportExportService {
       final data = await Clipboard.getData('text/plain');
       if (data == null || data.text == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Неверный формат данных')));
+          SnackbarUtil.showMessage(context, 'Неверный формат данных');
         }
         return null;
       }
       final spot = deserializeSpot(data.text!);
       if (spot == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Неверный формат данных')));
+          SnackbarUtil.showMessage(context, 'Неверный формат данных');
         }
         return null;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Спот загружен из буфера')));
+        SnackbarUtil.showMessage(context, 'Спот загружен из буфера');
       }
       return spot;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка загрузки')));
+        SnackbarUtil.showMessage(context, 'Ошибка загрузки');
       }
       return null;
     }
@@ -418,8 +415,7 @@ class TrainingImportExportService {
     final jsonStr = serializeSpot(spot);
     await Clipboard.setData(ClipboardData(text: jsonStr));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Спот скопирован в буфер')));
+      SnackbarUtil.showMessage(context, 'Спот скопирован в буфер');
     }
   }
 
@@ -437,20 +433,17 @@ class TrainingImportExportService {
       final spot = deserializeSpot(content);
       if (spot == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Неверный формат файла')));
+          SnackbarUtil.showMessage(context, 'Неверный формат файла');
         }
         return null;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Файл загружен: ${file.path.split(Platform.pathSeparator).last}')));
+        SnackbarUtil.showMessage(context, 'Файл загружен: ${file.path.split(Platform.pathSeparator).last}');
       }
       return spot;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
+        SnackbarUtil.showMessage(context, 'Ошибка чтения файла');
       }
       return null;
     }
@@ -472,20 +465,14 @@ class TrainingImportExportService {
       await file.writeAsString(serializeSpot(spot));
       if (context.mounted) {
         final displayName = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Файл сохранён: $displayName'),
-            action: SnackBarAction(
+        SnackbarUtil.showMessage(context, 'Файл сохранён: $displayName', action: SnackBarAction(
               label: 'Открыть',
               onPressed: () => OpenFilex.open(file.path),
-            ),
-          ),
-        );
+            ));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка сохранения файла')));
+        SnackbarUtil.showMessage(context, 'Ошибка сохранения файла');
       }
     }
   }
@@ -494,8 +481,7 @@ class TrainingImportExportService {
       BuildContext context, List<TrainingSpot> spots) async {
     if (spots.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Нет спотов для экспорта')));
+        SnackbarUtil.showMessage(context, 'Нет спотов для экспорта');
       }
       return;
     }
@@ -519,13 +505,11 @@ class TrainingImportExportService {
       await file.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final displayName = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Архив сохранён: $displayName')));
+        SnackbarUtil.showMessage(context, 'Архив сохранён: $displayName');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка сохранения архива')));
+        SnackbarUtil.showMessage(context, 'Ошибка сохранения архива');
       }
     }
   }

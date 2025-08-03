@@ -11,6 +11,7 @@ import '../services/template_storage_service.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/template_selection_dialog.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingSpotBuilderScreen extends StatefulWidget {
   const TrainingSpotBuilderScreen({super.key});
@@ -140,8 +141,7 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Введите название')));
+      SnackbarUtil.showMessage(context, 'Введите название');
       return;
     }
     final stacks = [
@@ -170,9 +170,7 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
     );
     await _storage.addSpot(spot);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Spot saved')),
-    );
+    SnackbarUtil.showMessage(context, 'Spot saved');
     Navigator.pop(context, true);
   }
 

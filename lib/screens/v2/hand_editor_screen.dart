@@ -4,6 +4,7 @@ import '../../models/v2/training_pack_spot.dart';
 import 'hand_editor_controller.dart';
 import 'hand_editor_form.dart';
 import 'hand_editor_service.dart';
+import '../../utils/snackbar_util.dart';
 
 class HandEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -33,8 +34,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
     _controller.update();
     final err = _controller.validate();
     if (err != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(err)));
+      SnackbarUtil.showMessage(context, err);
       return;
     }
     widget.spot.editedAt = DateTime.now();

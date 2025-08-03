@@ -5,6 +5,7 @@ import '../models/goal_recommendation.dart';
 import '../models/user_goal.dart';
 import '../services/smart_mistake_goal_generator.dart';
 import '../services/user_goal_engine.dart';
+import '../utils/snackbar_util.dart';
 
 class SmartMistakeGoalBanner extends StatefulWidget {
   const SmartMistakeGoalBanner({super.key});
@@ -49,9 +50,7 @@ class _SmartMistakeGoalBannerState extends State<SmartMistakeGoalBanner> {
     );
     await context.read<UserGoalEngine>().addGoal(goal);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Цель добавлена!')),
-      );
+      SnackbarUtil.showMessage(context, 'Цель добавлена!');
     }
   }
 

@@ -10,6 +10,7 @@ import '../services/booster_cluster_engine.dart';
 import 'v2/training_pack_spot_editor_screen.dart';
 import '../theme/app_colors.dart';
 import '../core/training/engine/training_type_engine.dart';
+import '../utils/snackbar_util.dart';
 
 class BoosterVariationEditorScreen extends StatefulWidget {
   const BoosterVariationEditorScreen({super.key});
@@ -69,8 +70,7 @@ class _BoosterVariationEditorScreenState
     pack.spotCount = pack.spots.length;
     await file.writeAsString(pack.toYamlString());
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Сохранено')));
+    SnackbarUtil.showMessage(context, 'Сохранено');
   }
 
   Future<void> _editSpot(TrainingPackSpot spot) async {

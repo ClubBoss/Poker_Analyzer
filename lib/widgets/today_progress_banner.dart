@@ -8,6 +8,7 @@ import '../services/daily_target_service.dart';
 import '../services/streak_counter_service.dart';
 import 'package:intl/intl.dart';
 import 'confetti_overlay.dart';
+import '../utils/snackbar_util.dart';
 
 class TodayProgressBanner extends StatefulWidget {
   const TodayProgressBanner({super.key});
@@ -50,13 +51,7 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
     _recordSub =
         context.read<StreakCounterService>().recordStream.listen((_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🏆 New record!'),
-          duration: Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      SnackbarUtil.showMessage(context, '🏆 New record!');
     });
     SharedPreferences.getInstance().then((prefs) {
       final str = prefs.getString(_prefKey);

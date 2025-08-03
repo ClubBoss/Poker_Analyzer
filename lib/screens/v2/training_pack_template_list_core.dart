@@ -1,3 +1,4 @@
+import '../../utils/snackbar_util.dart';
 part of 'training_pack_template_list_screen.dart';
 
 class TrainingPackTemplatePrefs {
@@ -253,15 +254,10 @@ class _TrainingPackTemplateListScreenState
     if (street == null || best >= 0.7) return;
     final tpl = _suggestTemplate(street);
     if (tpl == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Low ${_streetName(street)} progress'),
-        action: SnackBarAction(
+    SnackbarUtil.showMessage(context, 'Low ${_streetName(street)} progress', action: SnackBarAction(
           label: 'Try Now',
           onPressed: () => _chooseVariant(tpl),
-        ),
-      ),
-    );
+        ));
   }
 
   Future<void> _maybeShowContinueReminder() async {
@@ -278,16 +274,10 @@ class _TrainingPackTemplateListScreenState
       final ratio = val / t.streetGoal;
       if (ratio >= 0.5 && ratio < 1.0 && !t.goalAchieved) {
         ScaffoldMessenger.of(context).removeCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(days: 1),
-            content: Text('${_streetName(street)} почти закрыт в ${t.name} — доиграем?'),
-            action: SnackBarAction(
+        SnackbarUtil.showMessage(context, '${_streetName(street)} почти закрыт в ${t.name} — доиграем?', action: SnackBarAction(
               label: 'Продолжить',
               onPressed: () => _chooseVariant(t),
-            ),
-          ),
-        );
+            ));
         await prefs.setInt(TrainingPackTemplatePrefs.continueLast,
             DateTime.now().millisecondsSinceEpoch);
         break;
@@ -1559,14 +1549,12 @@ class _TrainingPackTemplateListScreenState
     const service = TrainingPackTemplateUiService();
     final missing = await service.generateMissingSpotsWithProgress(context, t);
     if (missing.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All spots already present 🎉')));
+      SnackbarUtil.showMessage(context, 'All spots already present 🎉');
       return;
     }
     setState(() => t.spots.addAll(missing));
     TrainingPackStorage.save(_templates);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Added ${missing.length} spots')));
+    SnackbarUtil.showMessage(context, 'Added ${missing.length} spots');
   }
 
   Future<void> _delete(TrainingPackTemplate t) async {
@@ -1597,10 +1585,7 @@ class _TrainingPackTemplateListScreenState
       });
       TrainingPackStorage.save(_templates);
       _saveFavorites();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Deleted'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Deleted', action: SnackBarAction(
             label: 'UNDO',
             onPressed: () {
               if (_lastRemoved != null) {
@@ -1608,9 +1593,7 @@ class _TrainingPackTemplateListScreenState
                 TrainingPackStorage.save(_templates);
               }
             },
-          ),
-        ),
-      );
+          ));
     }
   }
 
@@ -1879,8 +1862,7 @@ class _TrainingPackTemplateListScreenState
     }
     if (hands.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('No favorites found')));
+        SnackbarUtil.showMessage(context, 'No favorites found');
       }
       return;
     }
@@ -1921,8 +1903,7 @@ class _TrainingPackTemplateListScreenState
       ..sort((a, b) => (a.evLoss ?? 0).compareTo(b.evLoss ?? 0));
     if (hands.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('No history')));
+        SnackbarUtil.showMessage(context, 'No history');
       }
       return;
     }
@@ -1934,8 +1915,7 @@ class _TrainingPackTemplateListScreenState
     }
     if (spots.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Недостаточно данных')));
+        SnackbarUtil.showMessage(context, 'Недостаточно данных');
       }
       return;
     }
@@ -1981,9 +1961,7 @@ class _TrainingPackTemplateListScreenState
     if (ok == true) {
       final range = PackGeneratorService.parseRangeString(ctrl.text).toList();
       if (range.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No valid hands found.')),
-        );
+        SnackbarUtil.showMessage(context, 'No valid hands found.');
       } else {
         final template = await PackGeneratorService.generatePushFoldPack(
           id: const Uuid().v4(),
@@ -2287,8 +2265,7 @@ class _TrainingPackTemplateListScreenState
         if (t.evCovered < t.totalWeight || t.icmCovered < t.totalWeight) t
     ];
     if (list.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Nothing to update')));
+      SnackbarUtil.showMessage(context, 'Nothing to update');
       return;
     }
     double progress = 0;
@@ -2874,8 +2851,7 @@ class _TrainingPackTemplateListScreenState
                             if (tpl != null) {
                               _edit(tpl);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Pack not found')));
+                              SnackbarUtil.showMessage(context, 'Pack not found');
                             }
                           },
                         )();
@@ -3183,9 +3159,7 @@ class _TrainingPackTemplateListScreenState
                   ),
                 );
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('No mistakes to review')),
-                );
+                SnackbarUtil.showMessage(context, 'No mistakes to review');
               }
             },
           ),

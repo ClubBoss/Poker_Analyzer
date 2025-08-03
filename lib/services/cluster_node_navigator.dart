@@ -4,6 +4,7 @@ import '../models/player_profile.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../screens/theory_lesson_preview_screen.dart';
+import '../utils/snackbar_util.dart';
 
 /// Handles navigation from cluster map nodes to lesson previews.
 class ClusterNodeNavigator {
@@ -17,9 +18,7 @@ class ClusterNodeNavigator {
   ) async {
     final unlocked = await _isUnlocked(node.id, profile);
     if (!unlocked) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Урок пока недоступен')),
-      );
+      SnackbarUtil.showMessage(context, 'Урок пока недоступен');
       return;
     }
 

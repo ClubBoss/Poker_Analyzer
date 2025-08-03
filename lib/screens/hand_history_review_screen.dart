@@ -22,6 +22,7 @@ import '../services/booster_recap_hook.dart';
 import '../helpers/mistake_advice.dart';
 import '../widgets/sync_status_widget.dart';
 import 'saved_hand_editor_screen.dart';
+import '../utils/snackbar_util.dart';
 
 /// Displays a saved hand with simple playback controls.
 /// Shows GTO recommendation and range group when available.
@@ -142,9 +143,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     await file.writeAsString(buffer.toString());
     await Share.shareXFiles([XFile(file.path)], text: 'hand_export.md');
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Файл сохранён: hand_export.md')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: hand_export.md');
     }
   }
 
@@ -201,9 +200,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     await file.writeAsBytes(bytes);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Файл сохранён: hand_export.pdf')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: hand_export.pdf');
     }
   }
 
@@ -303,8 +300,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     selected.spots.add(spot);
     await TrainingPackStorage.save(templates);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Spot added')));
+      SnackbarUtil.showMessage(context, 'Spot added');
     }
   }
 

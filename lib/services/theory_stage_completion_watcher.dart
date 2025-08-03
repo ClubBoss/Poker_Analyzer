@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'theory_stage_progress_tracker.dart';
+import '../utils/snackbar_util.dart';
 
 /// Watches scroll position and time spent on a theory stage
 /// to automatically mark it as completed.
@@ -63,9 +64,7 @@ class TheoryStageCompletionWatcher {
     tracker.markCompleted(id);
     _onCompleted?.call();
     if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✓ Completed')),
-      );
+      SnackbarUtil.showMessage(context, '✓ Completed');
     }
   }
 

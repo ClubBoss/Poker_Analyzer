@@ -15,6 +15,7 @@ import '../widgets/sync_status_widget.dart';
 import '../helpers/training_pack_storage.dart';
 import '../helpers/pack_spot_utils.dart';
 import 'package:collection/collection.dart';
+import '../utils/snackbar_util.dart';
 
 /// Simple screen that shows a single [TrainingSpot].
 class TrainingScreen extends StatefulWidget {
@@ -97,12 +98,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
       }
     });
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            isCorrect ? '✅ Correct!' : '❌ Correct was $expected'),
-      ),
-    );
+    SnackbarUtil.showMessage(context, isCorrect ? '✅ Correct!' : '❌ Correct was $expected');
     Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
       _next();

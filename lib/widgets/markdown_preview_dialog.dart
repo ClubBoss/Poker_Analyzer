@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/pack_export_service.dart';
+import '../utils/snackbar_util.dart';
 
 class MarkdownPreviewDialog extends StatelessWidget {
   final String? markdown;
@@ -23,9 +24,7 @@ class MarkdownPreviewDialog extends StatelessWidget {
         TextButton(
           onPressed: () {
             Clipboard.setData(ClipboardData(text: md));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Copied')),
-            );
+            SnackbarUtil.showMessage(context, 'Copied');
           },
           child: const Text('Copy'),
         ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/goals_service.dart';
 import '../screens/error_free_streak_screen.dart';
+import '../utils/snackbar_util.dart';
 
 /// Displays the current "Без ошибок подряд" streak as a small banner.
 /// Fades in and out when the value changes.
@@ -62,13 +63,7 @@ class _StreakBannerState extends State<StreakBanner>
       _motivationalShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content:
-                  Text('🔥 5 раздач без ошибок! Отличная серия!'),
-              duration: Duration(seconds: 3),
-            ),
-          );
+          SnackbarUtil.showMessage(context, '🔥 5 раздач без ошибок! Отличная серия!');
         }
       });
     }

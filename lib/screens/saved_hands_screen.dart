@@ -14,6 +14,7 @@ import '../widgets/saved_hand_viewer_dialog.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/sync_status_widget.dart';
 import '../services/user_preferences_service.dart';
+import '../utils/snackbar_util.dart';
 
 class SavedHandsScreen extends StatefulWidget {
   final String? initialTag;
@@ -262,8 +263,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
     if (context.mounted) {
       final name = path.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $name');
     }
   }
 }

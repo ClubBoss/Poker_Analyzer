@@ -9,6 +9,7 @@ import '../services/yaml_pack_conflict_detector.dart';
 import '../services/yaml_pack_merge_engine.dart';
 import '../theme/app_colors.dart';
 import '../ui/tools/training_pack_yaml_previewer.dart';
+import '../utils/snackbar_util.dart';
 
 class PackMergeDuplicatesScreen extends StatefulWidget {
   const PackMergeDuplicatesScreen({super.key});
@@ -61,9 +62,7 @@ class _PackMergeDuplicatesScreenState extends State<PackMergeDuplicatesScreen> {
     if (ok != true) return;
     await compute(_saveTask, merged.toJson());
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Шаблон сохранён')),
-    );
+    SnackbarUtil.showMessage(context, 'Шаблон сохранён');
   }
 
   @override

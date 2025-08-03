@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../services/template_storage_service.dart';
 import '../../core/training/engine/training_type_engine.dart';
+import '../../utils/snackbar_util.dart';
 
 class TrainingPackSpotEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -256,7 +257,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     widget.spot.title = normalized;
     _titleCtr.text = normalized;
     if (widget.spot.title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title is required')));
+      SnackbarUtil.showMessage(context, 'Title is required');
       return;
     }
     widget.spot.editedAt = DateTime.now();
@@ -279,12 +280,9 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
       final res = await context.read<EvaluationExecutorService>().evaluate(widget.spot);
       setState(() => widget.spot.evalResult = res);
       final ev = (res.expectedEquity * 100).toStringAsFixed(1);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('EV $ev% ${res.expectedAction}')),
-      );
+      SnackbarUtil.showMessage(context, 'EV $ev% ${res.expectedAction}');
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Evaluation failed')));
+      SnackbarUtil.showMessage(context, 'Evaluation failed');
     } finally {
       if (mounted) setState(() => _loading = false);
     }

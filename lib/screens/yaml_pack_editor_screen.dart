@@ -14,6 +14,7 @@ import 'package:open_filex/open_filex.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import 'v2/training_pack_spot_editor_screen.dart';
 import '../core/training/engine/training_type_engine.dart';
+import '../utils/snackbar_util.dart';
 
 class YamlPackEditorScreen extends StatefulWidget {
   const YamlPackEditorScreen({super.key});
@@ -106,8 +107,7 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
         .appendChangeLog(pack, 'ручное обновление');
     await file.writeAsString(pack.toYaml());
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Сохранено')));
+    SnackbarUtil.showMessage(context, 'Сохранено');
   }
 
   Future<void> _editSpot(TrainingPackSpot spot) async {
@@ -181,15 +181,10 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     if (format == null) return;
     final file = await const YamlPackExporterService().exportToTextFile(pack, format);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Файл сохранён: ${file.path}'),
-        action: SnackBarAction(
+    SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path}', action: SnackBarAction(
           label: '📂 Открыть',
           onPressed: () => OpenFilex.open(file.path),
-        ),
-      ),
-    );
+        ));
   }
 
   Future<void> _showHistory() async {
@@ -198,9 +193,7 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     final md = await const YamlPackChangelogService().loadChangeLog(pack.id);
     if (!mounted) return;
     if (md == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('История изменений отсутствует')),
-      );
+      SnackbarUtil.showMessage(context, 'История изменений отсутствует');
     } else {
       await showMarkdownPreviewDialog(context, md);
     }

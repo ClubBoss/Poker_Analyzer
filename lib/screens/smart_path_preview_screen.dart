@@ -5,6 +5,7 @@ import '../models/learning_path_stage_model.dart';
 import '../models/stage_type.dart';
 import '../services/theory_pack_library_service.dart';
 import '../ui/tools/theory_pack_quick_view.dart';
+import '../utils/snackbar_util.dart';
 
 /// Lightweight preview showing key details of a learning path.
 class SmartPathPreviewScreen extends StatelessWidget {
@@ -93,9 +94,7 @@ class SmartPathPreviewScreen extends StatelessWidget {
         if (pack != null) {
           await TheoryPackQuickView.launch(context, pack);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Pack not found: ${stage.packId}')),
-          );
+          SnackbarUtil.showMessage(context, 'Pack not found: ${stage.packId}');
         }
       },
     );

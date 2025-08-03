@@ -3,6 +3,7 @@ import '../services/decay_boosted_practice_queue.dart';
 import '../services/booster_queue_service.dart';
 import '../services/decay_booster_training_launcher.dart';
 import '../models/v2/training_spot_v2.dart';
+import '../utils/snackbar_util.dart';
 
 /// Banner prompting the user to refresh decayed skills.
 class DecayBoostedBanner extends StatefulWidget {
@@ -39,9 +40,7 @@ class _DecayBoostedBannerState extends State<DecayBoostedBanner> {
     await const DecayBoosterTrainingLauncher().launch();
     if (!mounted) return;
     setState(() => _visible = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Навык восстановлен')),
-    );
+    SnackbarUtil.showMessage(context, 'Навык восстановлен');
   }
 
   void _dismiss() {

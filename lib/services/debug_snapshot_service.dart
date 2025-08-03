@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
+import '../utils/snackbar_util.dart';
 
 /// Handles saving and loading of evaluation queue snapshots for debugging.
 class DebugSnapshotService {
@@ -183,16 +184,14 @@ class DebugSnapshotService {
       final dir = await _getDir(snapshotsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+          SnackbarUtil.showMessage(context, 'No snapshot files found');
         }
         return;
       }
       final files = await dir.list(recursive: true).whereType<File>().toList();
       if (files.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+          SnackbarUtil.showMessage(context, 'No snapshot files found');
         }
         return;
       }
@@ -215,13 +214,11 @@ class DebugSnapshotService {
       await zipFile.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+        SnackbarUtil.showMessage(context, 'Archive saved: $name');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to export snapshots')));
+        SnackbarUtil.showMessage(context, 'Failed to export snapshots');
       }
     }
   }

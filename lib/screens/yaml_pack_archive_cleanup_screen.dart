@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../theme/app_colors.dart';
+import '../utils/snackbar_util.dart';
 
 class YamlPackArchiveCleanupScreen extends StatefulWidget {
   const YamlPackArchiveCleanupScreen({super.key});
@@ -96,9 +97,7 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
     }
     if (!mounted) return;
     await _load();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Удалено файлов: $deleted')),
-    );
+    SnackbarUtil.showMessage(context, 'Удалено файлов: $deleted');
   }
 
   Future<void> _deletePack(String id) async {
@@ -125,9 +124,7 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
     }
     if (!mounted) return;
     await _load();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Удалено файлов: $deleted')),
-    );
+    SnackbarUtil.showMessage(context, 'Удалено файлов: $deleted');
   }
 
   Future<void> _clearAll() async {
@@ -156,9 +153,7 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
     }
     if (!mounted) return;
     await _load();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Удалено файлов: $deleted')),
-    );
+    SnackbarUtil.showMessage(context, 'Удалено файлов: $deleted');
   }
 
   @override

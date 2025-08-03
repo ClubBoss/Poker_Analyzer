@@ -14,6 +14,7 @@ import 'saved_hand_storage_service.dart';
 import 'cloud_sync_service.dart';
 
 import 'training_stats_service.dart';
+import '../utils/snackbar_util.dart';
 
 class SavedHandManagerService extends ChangeNotifier {
   static SavedHandManagerService? _instance;
@@ -422,9 +423,7 @@ class SavedHandManagerService extends ChangeNotifier {
                                     );
                                     await _storage.update(savedIndex, updated);
                                     setStateSheet(() {});
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Раздача обновлена')),
-                                    );
+                                    SnackbarUtil.showMessage(context, 'Раздача обновлена');
                                   }
 
                                   nameController.dispose();

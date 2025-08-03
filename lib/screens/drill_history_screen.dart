@@ -13,6 +13,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../helpers/pack_spot_utils.dart';
 import 'package:collection/collection.dart';
 import 'training_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class DrillHistoryScreen extends StatefulWidget {
   const DrillHistoryScreen({super.key});
@@ -162,8 +163,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       ids.addAll(r.wrongSpotIds.where((e) => e.isNotEmpty));
     }
     if (ids.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
+      SnackbarUtil.showMessage(context, 'Ошибок не найдено');
       return;
     }
     final packs = context.read<TrainingPackStorageService>().packs;
@@ -174,8 +174,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       }
     }
     if (hands.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
+      SnackbarUtil.showMessage(context, 'Ошибок не найдено');
       return;
     }
     await Navigator.push(
@@ -193,16 +192,14 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   Future<void> _repeatLast() async {
     final history = context.read<DrillHistoryService>().results;
     if (history.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('История пуста')));
+      SnackbarUtil.showMessage(context, 'История пуста');
       return;
     }
     final last = history.first;
     final packs = context.read<TrainingPackStorageService>().packs;
     final pack = packs.firstWhereOrNull((p) => p.id == last.templateId);
     if (pack == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Шаблон не найден')));
+      SnackbarUtil.showMessage(context, 'Шаблон не найден');
       return;
     }
     await Navigator.push(

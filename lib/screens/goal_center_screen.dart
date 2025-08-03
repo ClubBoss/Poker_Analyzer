@@ -12,6 +12,7 @@ import '../services/smart_goal_tracking_service.dart';
 import '../services/goal_completion_engine.dart';
 import '../services/goal_completion_event_service.dart';
 import '../widgets/training_goal_card.dart';
+import '../utils/snackbar_util.dart';
 
 class GoalCenterScreen extends StatefulWidget {
   static const route = '/goals';
@@ -70,9 +71,7 @@ class _GoalCenterScreenState extends State<GoalCenterScreen> {
     final pack = await PackLibraryService.instance.findByTag(goal.tag!);
     if (pack == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Тренировка не найдена')),
-      );
+      SnackbarUtil.showMessage(context, 'Тренировка не найдена');
       return;
     }
     await const TrainingSessionLauncher().launch(pack);

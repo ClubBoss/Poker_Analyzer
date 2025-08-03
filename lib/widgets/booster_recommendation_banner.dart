@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/theory_booster_recommender.dart';
 import '../services/booster_library_service.dart';
 import '../services/training_session_launcher.dart';
+import '../utils/snackbar_util.dart';
 
 /// Persistent banner recommending a booster pack after theory lessons.
 class BoosterRecommendationBanner extends StatefulWidget {
@@ -43,9 +44,7 @@ class _BoosterRecommendationBannerState
         .getById(widget.recommendation.boosterId);
     if (tpl == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Booster pack not found')),
-      );
+      SnackbarUtil.showMessage(context, 'Booster pack not found');
       return;
     }
     await const TrainingSessionLauncher().launch(tpl);

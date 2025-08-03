@@ -13,6 +13,7 @@ import '../helpers/training_pack_storage.dart';
 import '../services/template_storage_service.dart';
 import '../widgets/sync_status_widget.dart';
 import '../models/v2/training_pack_template.dart';
+import '../utils/snackbar_util.dart';
 
 class CreatePackFromHistoryScreen extends StatefulWidget {
   const CreatePackFromHistoryScreen({super.key});
@@ -70,8 +71,7 @@ class _CreatePackFromHistoryScreenState extends State<CreatePackFromHistoryScree
     context.read<TemplateStorageService>().addTemplate(tpl);
     if (!mounted) return;
     Navigator.pop(context);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Пак "${tpl.name}" создан')));
+    SnackbarUtil.showMessage(context, 'Пак "${tpl.name}" создан');
   }
 
   Future<void> _export() async {

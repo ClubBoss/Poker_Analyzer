@@ -20,6 +20,7 @@ import '../services/theme_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import 'training_session_screen.dart';
+import '../utils/snackbar_util.dart';
 
 enum _SortOption { name, category, difficulty, createdAt }
 
@@ -199,15 +200,11 @@ class _TrainingPackTemplateListScreenState
         jsonEncode([for (final t in service.templates) t.toJson()]),
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Файл экспортирован в Загрузки')),
-        );
+        SnackbarUtil.showMessage(context, 'Файл экспортирован в Загрузки');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('⚠️ Ошибка экспорта')),
-        );
+        SnackbarUtil.showMessage(context, '⚠️ Ошибка экспорта');
       }
     }
   }
@@ -242,11 +239,7 @@ class _TrainingPackTemplateListScreenState
       ok = false;
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(ok ? 'Шаблоны импортированы' : '⚠️ Ошибка импорта'),
-      ),
-    );
+    SnackbarUtil.showMessage(context, ok ? 'Шаблоны импортированы' : '⚠️ Ошибка импорта');
   }
 
   void _toggleSelection(String id) {
@@ -271,14 +264,11 @@ class _TrainingPackTemplateListScreenState
       final file = File('${dir.path}/selected_templates.json');
       await file.writeAsString(jsonEncode(list));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Файл экспортирован')),
-        );
+        SnackbarUtil.showMessage(context, 'Файл экспортирован');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('⚠️ Ошибка экспорта')));
+        SnackbarUtil.showMessage(context, '⚠️ Ошибка экспорта');
       }
     }
   }
@@ -319,13 +309,11 @@ class _TrainingPackTemplateListScreenState
       final file = File('${dir.path}/pack_template_${t.id}.json');
       await file.writeAsString(jsonEncode(t.toJson()));
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Файл сохранён')));
+        SnackbarUtil.showMessage(context, 'Файл сохранён');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('⚠️ Ошибка экспорта')));
+        SnackbarUtil.showMessage(context, '⚠️ Ошибка экспорта');
       }
     }
   }
@@ -339,9 +327,7 @@ class _TrainingPackTemplateListScreenState
       if (await file.exists()) await file.delete();
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('⚠️ Не удалось поделиться')),
-        );
+        SnackbarUtil.showMessage(context, '⚠️ Не удалось поделиться');
       }
     }
   }
@@ -411,9 +397,7 @@ class _TrainingPackTemplateListScreenState
     if (confirm != true) return;
     await context.read<TrainingPackTemplateStorageService>().clear();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Все шаблоны удалены')),
-    );
+    SnackbarUtil.showMessage(context, 'Все шаблоны удалены');
   }
 
   void _toggleAll(List<String> categories) {
@@ -853,8 +837,7 @@ class _TrainingPackTemplateListScreenState
                                     : (t.evCovered * 100 / total).round();
                                 final text =
                                     'EV calculated for $pct% of spots';
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(content: Text(text)));
+                                SnackbarUtil.showMessage(context, text);
                               },
                             ),
                             IconButton(
@@ -899,10 +882,7 @@ class _TrainingPackTemplateListScreenState
                                         ..clear()
                                         ..addAll(t.filters);
                                       _spotStorage.notifyListeners();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                              content:
-                                                  Text('Шаблон применён')));
+                                      SnackbarUtil.showMessage(context, 'Шаблон применён');
                                       break;
                                     case 'export':
                                       if (!t.isDraft) await _exportTemplate(t);

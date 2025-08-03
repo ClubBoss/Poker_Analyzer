@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/confetti_overlay.dart';
 import 'coins_service.dart';
 import 'decay_streak_tracker_service.dart';
+import '../utils/snackbar_util.dart';
 
 /// Shows a small celebration when the decay streak hits key milestones.
 class DecayMilestoneCelebrationService {
@@ -62,13 +63,7 @@ class DecayMilestoneCelebrationService {
 
     await prefs.setInt(_prefsKey, milestone);
     showConfettiOverlay(context, particlePath: _starPath);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '🧠 Your focus is paying off — $milestone days without decay!',
-        ),
-      ),
-    );
+    SnackbarUtil.showMessage(context, '🧠 Your focus is paying off — $milestone days without decay!',);
     unawaited(coins.addCoins(_coinBonus));
   }
 }

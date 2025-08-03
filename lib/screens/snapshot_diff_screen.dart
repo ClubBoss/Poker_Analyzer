@@ -7,6 +7,7 @@ import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
+import '../utils/snackbar_util.dart';
 
 class SnapshotDiffScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -104,11 +105,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
       _changed = true;
       _compute();
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Restored ${add.length + rem.length + mod.length} changes'),
-        action: SnackBarAction(
+    SnackbarUtil.showMessage(context, 'Restored ${add.length + rem.length + mod.length} changes', action: SnackBarAction(
           label: 'Undo',
           onPressed: () {
             service.applyDiff(
@@ -123,9 +120,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
               _compute();
             });
           },
-        ),
-      ),
-    );
+        ));
   }
 
   @override

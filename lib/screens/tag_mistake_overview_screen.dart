@@ -32,6 +32,7 @@ enum _ChartMode { daily, weekly }
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 /// Displays a list of tags sorted by mistake count.
 ///
@@ -327,8 +328,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           h
     ];
     if (hands.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет ошибок в этот день')));
+      SnackbarUtil.showMessage(context, 'Нет ошибок в этот день');
       return;
     }
     Navigator.push(

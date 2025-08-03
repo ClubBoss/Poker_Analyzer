@@ -8,6 +8,7 @@ import '../services/pinned_learning_service.dart';
 import '../services/user_progress_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/theory_track_resume_service.dart';
+import '../utils/snackbar_util.dart';
 
 /// Launches the next appropriate item within a [TheoryBlockModel].
 class TheoryBlockLauncher {
@@ -51,8 +52,7 @@ class TheoryBlockLauncher {
       }
     }
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Block Completed')));
+      SnackbarUtil.showMessage(context, 'Block Completed');
     }
   }
 }

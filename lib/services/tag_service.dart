@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/snackbar_util.dart';
 
 class TagService extends ChangeNotifier {
   static const _prefsKey = 'global_tags';
@@ -122,15 +123,11 @@ class TagService extends ChangeNotifier {
       await file.writeAsString(jsonStr);
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Файл сохранён: $name')),
-        );
+        SnackbarUtil.showMessage(context, 'Файл сохранён: $name');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось сохранить файл')),
-        );
+        SnackbarUtil.showMessage(context, 'Не удалось сохранить файл');
       }
     }
   }
@@ -184,15 +181,11 @@ class TagService extends ChangeNotifier {
       notifyListeners();
       if (context.mounted) {
         final name = path.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Импортировано из $name')),
-        );
+        SnackbarUtil.showMessage(context, 'Импортировано из $name');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка импорта файла')),
-        );
+        SnackbarUtil.showMessage(context, 'Ошибка импорта файла');
       }
     }
   }

@@ -10,6 +10,7 @@ import '../models/action_evaluation_request.dart';
 import 'evaluation_queue_service.dart';
 import 'backup_manager_service.dart';
 import 'debug_snapshot_service.dart';
+import '../utils/snackbar_util.dart';
 
 class EvaluationQueueImportExportService {
   EvaluationQueueImportExportService({
@@ -124,18 +125,14 @@ class EvaluationQueueImportExportService {
   Future<void> exportQueueToClipboard(BuildContext context) async {
     await _exportToClipboard();
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Queue copied to clipboard')),
-      );
+      SnackbarUtil.showMessage(context, 'Queue copied to clipboard');
     }
   }
 
   Future<void> importQueueFromClipboard(BuildContext context) async {
     await _importFromClipboard();
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Queue imported from clipboard')),
-      );
+      SnackbarUtil.showMessage(context, 'Queue imported from clipboard');
     }
     debugPanelCallback?.call();
   }
@@ -236,8 +233,7 @@ class EvaluationQueueImportExportService {
     if (dir == null) return;
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')));
+        SnackbarUtil.showMessage(context, 'No snapshot files found');
       }
       return;
     }
@@ -264,9 +260,7 @@ class EvaluationQueueImportExportService {
       ..addAll(queues['completed']!);
     await _persist();
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              'Imported ${queueService.pending.length} pending, ${queueService.failed.length} failed, ${queueService.completed.length} completed evaluations')));
+      SnackbarUtil.showMessage(context, 'Imported ${queueService.pending.length} pending, ${queueService.failed.length} failed, ${queueService.completed.length} completed evaluations');
     }
     debugPanelCallback?.call();
   }
@@ -276,8 +270,7 @@ class EvaluationQueueImportExportService {
     if (dir == null) return;
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')));
+        SnackbarUtil.showMessage(context, 'No snapshot files found');
       }
       return;
     }
@@ -320,7 +313,7 @@ class EvaluationQueueImportExportService {
         ? 'Imported $total evaluations from ${result.files.length} files'
         : 'Imported $total evaluations, $skipped files skipped';
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      SnackbarUtil.showMessage(context, msg);
     }
     debugPanelCallback?.call();
   }

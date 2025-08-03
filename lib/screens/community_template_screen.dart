@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_cloud_sync_service.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../utils/snackbar_util.dart';
 
 class CommunityTemplateScreen extends StatefulWidget {
   const CommunityTemplateScreen({super.key});
@@ -41,9 +42,7 @@ class _CommunityTemplateScreenState extends State<CommunityTemplateScreen> {
       await storage.add(tpl);
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(exists ? 'Обновлено' : 'Загружено')),
-    );
+    SnackbarUtil.showMessage(context, exists ? 'Обновлено' : 'Загружено');
   }
 
   Widget _rating(double value) {

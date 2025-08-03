@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../widgets/poker_table_view.dart';
 import '../models/table_state.dart';
 import '../services/table_edit_history.dart';
+import '../utils/snackbar_util.dart';
 
 class PokerTableDemoScreen extends StatefulWidget {
   const PokerTableDemoScreen({super.key});
@@ -118,9 +119,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
     final jsonStr = jsonEncode(_state.toJson());
     await Clipboard.setData(ClipboardData(text: jsonStr));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Table copied')),
-      );
+      SnackbarUtil.showMessage(context, 'Table copied');
     }
   }
 
@@ -133,18 +132,11 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
       final state = TableState.fromJson(Map<String, dynamic>.from(json as Map));
       _applyState(state);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Table pasted')),
-        );
+        SnackbarUtil.showMessage(context, 'Table pasted');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Invalid JSON'),
-          ),
-        );
+        SnackbarUtil.showMessage(context, 'Invalid JSON');
       }
     }
   }

@@ -6,6 +6,7 @@ import '../services/booster_pack_factory.dart';
 import '../screens/training_session_screen.dart';
 import '../services/user_goal_engine.dart';
 import '../models/user_goal.dart';
+import '../utils/snackbar_util.dart';
 
 /// Banner suggesting a quick recap for a recently completed goal.
 class SmartRecapSuggestionBanner extends StatefulWidget {
@@ -69,9 +70,7 @@ class _SmartRecapSuggestionBannerState
     final pack = await BoosterPackFactory.buildFromTags([tag]);
     if (pack == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет тренировок по тегу')),
-        );
+        SnackbarUtil.showMessage(context, 'Нет тренировок по тегу');
       }
       return;
     }

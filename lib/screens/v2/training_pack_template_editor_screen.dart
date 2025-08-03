@@ -8,6 +8,7 @@ import '../../models/v2/hand_data.dart';
 import 'spot_list_section.dart';
 import 'statistics_pane.dart';
 import 'actions_toolbar.dart';
+import '../../utils/snackbar_util.dart';
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -40,8 +41,7 @@ class _TrainingPackTemplateEditorScreenState
 
   void _save() {
     // Persistence layer is not yet implemented; show confirmation only.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Template saved')));
+    SnackbarUtil.showMessage(context, 'Template saved');
   }
 
   @override

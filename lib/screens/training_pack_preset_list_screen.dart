@@ -10,6 +10,7 @@ import '../services/pack_generator_service.dart';
 import '../repositories/training_pack_preset_repository.dart';
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingPackPresetListScreen extends StatefulWidget {
   const TrainingPackPresetListScreen({super.key});
@@ -56,9 +57,7 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
       await service.add(model);
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(exists ? 'Пак обновлён' : 'Пак создан')),
-    );
+    SnackbarUtil.showMessage(context, exists ? 'Пак обновлён' : 'Пак создан');
   }
 
   Future<void> _generateAll() async {
@@ -126,9 +125,7 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
       },
     );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Generated $done of $total packs')),
-    );
+    SnackbarUtil.showMessage(context, 'Generated $done of $total packs');
   }
 
   Future<void> _import() async {
@@ -159,9 +156,7 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
     }
     if (!mounted) return;
     if (ok) setState(() => _presets.addAll(list));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Импортировано ${list.length}' : '⚠️ Ошибка импорта')),
-    );
+    SnackbarUtil.showMessage(context, ok ? 'Импортировано ${list.length}' : '⚠️ Ошибка импорта');
   }
 
   @override

@@ -9,6 +9,7 @@ import 'package:open_filex/open_filex.dart';
 
 import 'player_profile_service.dart';
 import '../models/player_model.dart';
+import '../utils/snackbar_util.dart';
 
 class PlayerProfileImportExportService {
   PlayerProfileImportExportService(this.profile);
@@ -97,8 +98,7 @@ class PlayerProfileImportExportService {
   Future<void> exportToClipboard(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: serialize()));
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Profile copied to clipboard')));
+      SnackbarUtil.showMessage(context, 'Profile copied to clipboard');
     }
   }
 
@@ -107,19 +107,16 @@ class PlayerProfileImportExportService {
       final data = await Clipboard.getData('text/plain');
       if (data == null || data.text == null || !deserialize(data.text!)) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Invalid clipboard data')));
+          SnackbarUtil.showMessage(context, 'Invalid clipboard data');
         }
         return;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Profile loaded from clipboard')));
+        SnackbarUtil.showMessage(context, 'Profile loaded from clipboard');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to read clipboard')));
+        SnackbarUtil.showMessage(context, 'Failed to read clipboard');
       }
     }
   }
@@ -139,20 +136,14 @@ class PlayerProfileImportExportService {
       await file.writeAsString(serialize());
       if (context.mounted) {
         final displayName = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('File saved: $displayName'),
-            action: SnackBarAction(
+        SnackbarUtil.showMessage(context, 'File saved: $displayName', action: SnackBarAction(
               label: 'Open',
               onPressed: () => OpenFilex.open(file.path),
-            ),
-          ),
-        );
+            ));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to save file')));
+        SnackbarUtil.showMessage(context, 'Failed to save file');
       }
     }
   }
@@ -170,19 +161,16 @@ class PlayerProfileImportExportService {
       final content = await file.readAsString();
       if (!deserialize(content)) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Invalid file format')));
+          SnackbarUtil.showMessage(context, 'Invalid file format');
         }
         return;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('File loaded: ${file.path.split(Platform.pathSeparator).last}')));
+        SnackbarUtil.showMessage(context, 'File loaded: ${file.path.split(Platform.pathSeparator).last}');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to read file')));
+        SnackbarUtil.showMessage(context, 'Failed to read file');
       }
     }
   }
@@ -207,13 +195,11 @@ class PlayerProfileImportExportService {
       await file.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final displayName = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Archive saved: $displayName')));
+        SnackbarUtil.showMessage(context, 'Archive saved: $displayName');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to save archive')));
+        SnackbarUtil.showMessage(context, 'Failed to save archive');
       }
     }
   }

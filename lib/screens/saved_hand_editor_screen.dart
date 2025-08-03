@@ -11,6 +11,7 @@ import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/card_picker_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class SavedHandEditorScreen extends StatefulWidget {
   final SavedHand hand;
@@ -144,12 +145,7 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
       await context.read<SavedHandManagerService>().save(hand);
       final ev = spot.heroEv;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text('Saved ${ev != null ? ev.toStringAsFixed(2) : '--'} BB'),
-          ),
-        );
+        SnackbarUtil.showMessage(context, 'Saved ${ev != null ? ev.toStringAsFixed(2) : '--'} BB');
       }
       if (mounted) Navigator.pop(context, hand);
     } else {

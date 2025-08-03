@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../services/pack_matrix_config.dart';
 import '../theme/app_colors.dart';
+import '../utils/snackbar_util.dart';
 
 class PackMatrixConfigEditorScreen extends StatefulWidget {
   const PackMatrixConfigEditorScreen({super.key});
@@ -37,8 +38,7 @@ class _PackMatrixConfigEditorScreenState
   Future<void> _save() async {
     await const PackMatrixConfig().saveMatrix(_matrix);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Сохранено')));
+    SnackbarUtil.showMessage(context, 'Сохранено');
   }
 
   void _reorderAudience(int oldIndex, int newIndex) {

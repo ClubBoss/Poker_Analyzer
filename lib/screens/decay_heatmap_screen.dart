@@ -4,6 +4,7 @@ import '../models/tag_decay_entry.dart';
 import '../services/booster_path_history_service.dart';
 import '../services/decay_tag_retention_tracker_service.dart';
 import '../utils/responsive.dart';
+import '../utils/snackbar_util.dart';
 
 class DecayHeatmapScreen extends StatefulWidget {
   static const route = '/decay_heatmap';
@@ -75,9 +76,7 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
     final textColor = _textColor(color);
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected ${e.tag}')),
-        );
+        SnackbarUtil.showMessage(context, 'Selected ${e.tag}');
       },
       child: Container(
         decoration: BoxDecoration(

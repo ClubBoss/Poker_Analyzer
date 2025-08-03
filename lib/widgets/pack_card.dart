@@ -21,6 +21,7 @@ import '../services/mini_lesson_library_service.dart';
 import '../screens/mini_lesson_screen.dart';
 import 'pack_progress_summary_widget.dart';
 import 'unlock_tracker_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -353,9 +354,7 @@ class _PackCardState extends State<PackCard>
     return GestureDetector(
       onTap: () async {
         if (_locked) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_lockMsg ?? 'Пак заблокирован')),
-          );
+          SnackbarUtil.showMessage(context, _lockMsg ?? 'Пак заблокирован');
           return;
         }
         if (widget.template.id == TrainingPackLibraryV2.mvpPackId) {

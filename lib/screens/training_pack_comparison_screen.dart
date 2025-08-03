@@ -25,6 +25,7 @@ import '../widgets/color_picker_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 import 'training_pack_comparison/pack_comparison_filters.dart';
 import 'training_pack_comparison/pack_completion_bar_chart.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -327,16 +328,15 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 
   void _showUndoDelete(TrainingPack pack, int index) {
-    final snack = SnackBar(
-      content: const Text('Пакет удалён'),
+    SnackbarUtil.showMessage(
+      context,
+      'Пакет удалён',
       action: SnackBarAction(
         label: 'Отмена',
         onPressed: () =>
             context.read<TrainingPackStorageService>().restorePack(pack, index),
       ),
-      duration: const Duration(seconds: 5),
     );
-    ScaffoldMessenger.of(context).showSnackBar(snack);
   }
 
   Future<void> _showRowMenu(TrainingPackStats s) async {
@@ -470,14 +470,11 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     try {
       await Share.shareXFiles([XFile(file.path)], text: name);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('CSV экспортирован')),
-        );
+        SnackbarUtil.showMessage(context, 'CSV экспортирован');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта CSV');
       }
     }
   }
@@ -518,13 +515,11 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     try {
       await Share.shareXFiles([XFile(file.path)], text: name);
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Markdown экспортирован')));
+        SnackbarUtil.showMessage(context, 'Markdown экспортирован');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта Markdown')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта Markdown');
       }
     }
   }

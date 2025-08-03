@@ -52,6 +52,7 @@ import '../../models/v2/training_pack_template_v2.dart';
 import '../../services/training_session_launcher.dart';
 import '../../services/pinned_learning_service.dart';
 import 'training_pack_play_core.dart';
+import '../../utils/snackbar_util.dart';
 
 class TrainingPackPlayScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -489,9 +490,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen>
         .read<MistakeReviewPackService>()
         .addSpot(widget.original, _spots[_index]);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Сохранено в Повторы ошибок')),
-      );
+      SnackbarUtil.showMessage(context, 'Сохранено в Повторы ошибок');
     }
   }
 
@@ -508,9 +507,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen>
       for (final id in newly) {
         final pack = lib.firstWhereOrNull((p) => p.id == id);
         if (pack != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('\uD83D\uDD13 Новый пак разблокирован: ${pack.name}')),
-          );
+          SnackbarUtil.showMessage(context, '\uD83D\uDD13 Новый пак разблокирован: ${pack.name}');
         }
       }
     }
@@ -732,9 +729,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen>
             .read<MistakeReviewPackService>()
             .addSpot(widget.original, spot);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Сохранено в Повторы ошибок')),
-          );
+          SnackbarUtil.showMessage(context, 'Сохранено в Повторы ошибок');
         }
       }
       if (_autoAdvance && !incorrect) {

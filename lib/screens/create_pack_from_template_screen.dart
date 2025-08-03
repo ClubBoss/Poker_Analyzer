@@ -9,6 +9,7 @@ import '../services/training_pack_storage_service.dart';
 import 'training_pack_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
+import '../utils/snackbar_util.dart';
 
 class CreatePackFromTemplateScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -197,11 +198,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
 
   Future<void> _create() async {
     if (_selected.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Выберите хотя бы одну раздачу перед созданием пака'),
-        ),
-      );
+      SnackbarUtil.showMessage(context, 'Выберите хотя бы одну раздачу перед созданием пака');
       return;
     }
     final service = context.read<TrainingPackStorageService>();

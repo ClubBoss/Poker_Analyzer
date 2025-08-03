@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../core/training/export/training_pack_exporter_v2.dart';
+import '../utils/snackbar_util.dart';
 
 class YamlPackDiffScreen extends StatelessWidget {
   final TrainingPackTemplateV2 packA;
@@ -32,7 +33,7 @@ class YamlPackDiffScreen extends StatelessWidget {
             icon: const Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: yamlA));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied A')));
+              SnackbarUtil.showMessage(context, 'Copied A');
             },
           ),
           IconButton(
@@ -40,7 +41,7 @@ class YamlPackDiffScreen extends StatelessWidget {
             icon: const Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: yamlB));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied B')));
+              SnackbarUtil.showMessage(context, 'Copied B');
             },
           ),
         ],

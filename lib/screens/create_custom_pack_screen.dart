@@ -14,6 +14,7 @@ import '../services/training_pack_storage_service.dart';
 import '../widgets/color_picker_dialog.dart';
 import 'my_training_packs_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class CreateCustomPackScreen extends StatefulWidget {
   const CreateCustomPackScreen({super.key});
@@ -212,8 +213,7 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
       MaterialPageRoute(builder: (_) => const MyTrainingPacksScreen()),
       (r) => false,
     );
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Пак сохранён')));
+    SnackbarUtil.showMessage(context, 'Пак сохранён');
   }
 
   @override

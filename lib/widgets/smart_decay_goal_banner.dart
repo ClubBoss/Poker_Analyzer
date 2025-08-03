@@ -5,6 +5,7 @@ import '../models/goal_recommendation.dart';
 import '../models/user_goal.dart';
 import '../services/smart_decay_goal_generator.dart';
 import '../services/user_goal_engine.dart';
+import '../utils/snackbar_util.dart';
 
 class SmartDecayGoalBanner extends StatefulWidget {
   const SmartDecayGoalBanner({super.key});
@@ -49,9 +50,7 @@ class _SmartDecayGoalBannerState extends State<SmartDecayGoalBanner> {
     );
     await context.read<UserGoalEngine>().addGoal(goal);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Цель добавлена!')),
-      );
+      SnackbarUtil.showMessage(context, 'Цель добавлена!');
     }
   }
 

@@ -24,6 +24,7 @@ import 'saved_hands_screen.dart';
 import 'mistake_overview_screen.dart';
 import 'accuracy_mistake_overview_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class SessionStatsScreen extends StatefulWidget {
   const SessionStatsScreen({super.key});
@@ -636,9 +637,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     await file.writeAsString(buffer.toString());
     await Share.shareXFiles([XFile(file.path)], text: 'session_stats.md');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Файл сохранён: session_stats.md')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: session_stats.md');
     }
   }
 
@@ -732,9 +731,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     await file.writeAsBytes(bytes);
     await Share.shareXFiles([XFile(file.path)], text: 'session_stats.pdf');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Файл сохранён: session_stats.pdf')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: session_stats.pdf');
     }
   }
 
@@ -746,8 +743,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     await Share.shareXFiles([XFile(path)], text: 'training_summary.csv');
     if (context.mounted) {
       final name = path.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $name');
     }
   }
 
@@ -759,9 +755,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final file = await service.exportEvIcmCsv(hands);
     await Share.shareXFiles([XFile(file.path)], text: file.path.split('/').last);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
     }
   }
 
@@ -773,9 +767,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final file = await service.exportEvIcmPdf(hands);
     await Share.shareXFiles([XFile(file.path)], text: file.path.split('/').last);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
     }
   }
 

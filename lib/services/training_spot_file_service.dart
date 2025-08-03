@@ -11,6 +11,7 @@ import 'package:file_saver/file_saver.dart';
 
 import '../models/training_spot.dart';
 import 'training_import_export_service.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingSpotFileService {
   final TrainingImportExportService _importExport;
@@ -31,22 +32,17 @@ class TrainingSpotFileService {
       final spots = _importExport.importAllSpotsCsv(content);
       if (spots.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ошибка импорта CSV')),
-          );
+          SnackbarUtil.showMessage(context, 'Ошибка импорта CSV');
         }
         return [];
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Импортировано спотов: ${spots.length}')),
-        );
+        SnackbarUtil.showMessage(context, 'Импортировано спотов: ${spots.length}');
       }
       return spots;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
+        SnackbarUtil.showMessage(context, 'Ошибка чтения файла');
       }
       return [];
     }
@@ -63,9 +59,7 @@ class TrainingSpotFileService {
     await file.writeAsString(markdown);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: ${file.path}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path}');
     }
     return file.path;
   }
@@ -103,13 +97,11 @@ class TrainingSpotFileService {
       if (context.mounted) {
         final msg = successMessage ??
             'Экспортировано ${spots.length} спотов в CSV';
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(msg)));
+        SnackbarUtil.showMessage(context, msg);
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта CSV');
       }
     }
   }
@@ -122,8 +114,7 @@ class TrainingSpotFileService {
       final data = jsonDecode(content);
       if (data is! List) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
+          SnackbarUtil.showMessage(context, 'Неверный формат файла');
         }
         return [];
       }
@@ -137,21 +128,17 @@ class TrainingSpotFileService {
       }
       if (spots.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
+          SnackbarUtil.showMessage(context, 'Неверный формат файла');
         }
         return [];
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-                SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
+        SnackbarUtil.showMessage(context, 'Импортировано спотов: ${spots.length}');
       }
       return spots;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
+        SnackbarUtil.showMessage(context, 'Ошибка чтения файла');
       }
       return [];
     }
@@ -190,9 +177,7 @@ class TrainingSpotFileService {
     await file.writeAsString(jsonStr);
     await Share.shareXFiles([XFile(file.path)], text: '$safe.json');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Пакет "$name" создан, спотов: ${spots.length}')),
-      );
+      SnackbarUtil.showMessage(context, 'Пакет "$name" создан, спотов: ${spots.length}');
     }
   }
 

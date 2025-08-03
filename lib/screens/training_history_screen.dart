@@ -34,6 +34,7 @@ import '../widgets/sync_status_widget.dart';
 import 'training_history/average_accuracy_summary.dart';
 import 'training_history/filter_summary.dart';
 import 'training_history/streak_summary.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   final TutorialFlow? tutorial;
@@ -242,16 +243,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         mimeType: MimeType.other,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Экспортировано ${sessions.length} сессий в MD')),
-        );
+        SnackbarUtil.showMessage(context, 'Экспортировано ${sessions.length} сессий в MD');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта MD')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта MD');
       }
     }
   }
@@ -304,16 +300,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         mimeType: MimeType.other,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Экспортировано ${sessions.length} сессий в HTML')),
-        );
+        SnackbarUtil.showMessage(context, 'Экспортировано ${sessions.length} сессий в HTML');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта HTML')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта HTML');
       }
     }
   }
@@ -361,15 +352,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         mimeType: MimeType.other,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Экспортировано ${sessions.length} сессий в JSON')),
-        );
+        SnackbarUtil.showMessage(context, 'Экспортировано ${sessions.length} сессий в JSON');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-                const SnackBar(content: Text('Ошибка экспорта JSON')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта JSON');
       }
     }
   }
@@ -397,10 +384,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
     _lastCsvPath = file.path;
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Файл сохранён: ${file.path.split('/').last}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
     }
   }
 
@@ -421,9 +405,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
     await Clipboard.setData(ClipboardData(text: lines.join('\\n')));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Скопировано ${sessions.length} сессий')),
-      );
+      SnackbarUtil.showMessage(context, 'Скопировано ${sessions.length} сессий');
     }
   }
 
@@ -436,10 +418,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = await _exportService.exportVisibleCsv(sessions);
     _lastCsvPath = file.path;
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Файл сохранён: ${file.path.split('/').last}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
     }
   }
 
@@ -458,10 +437,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
     _lastPdfPath = file.path;
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Файл сохранён: ${file.path.split('/').last}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
     }
   }
 
@@ -471,9 +447,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = await service.exportCsv(weekly: weekly);
     _lastCsvPath = file.path;
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
     }
   }
 
@@ -483,18 +457,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = await service.exportPdf(weekly: weekly);
     _lastPdfPath = file.path;
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: ${file.path.split('/').last}');
     }
   }
 
   Future<void> _shareLatestExport() async {
     if (_lastCsvPath == null && _lastPdfPath == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет экспортированных файлов')),
-        );
+        SnackbarUtil.showMessage(context, 'Нет экспортированных файлов');
       }
       return;
     }
@@ -529,9 +499,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = File(selectedPath);
     if (!await file.exists()) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Файл не найден')),
-        );
+        SnackbarUtil.showMessage(context, 'Файл не найден');
       }
       return;
     }
@@ -542,9 +510,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   Future<void> _openLatestExport() async {
     if (_lastCsvPath == null && _lastPdfPath == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет экспортированных файлов')),
-        );
+        SnackbarUtil.showMessage(context, 'Нет экспортированных файлов');
       }
       return;
     }
@@ -579,9 +545,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = File(selectedPath);
     if (!await file.exists()) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Файл не найден')),
-        );
+        SnackbarUtil.showMessage(context, 'Файл не найден');
       }
       return;
     }
@@ -592,9 +556,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   Future<void> _deleteLatestExports() async {
     if (_lastCsvPath == null && _lastPdfPath == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет экспортированных файлов')),
-        );
+        SnackbarUtil.showMessage(context, 'Нет экспортированных файлов');
       }
       return;
     }
@@ -628,12 +590,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _lastPdfPath = null;
     });
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(deleted ? 'Файлы удалены' : 'Файлы не найдены'),
-        ),
-      );
+      SnackbarUtil.showMessage(context, deleted ? 'Файлы удалены' : 'Файлы не найдены');
     }
   }
 
@@ -650,9 +607,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final content = await file.readAsString();
       final data = jsonDecode(content);
       if (data is! List) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid file format')),
-        );
+        SnackbarUtil.showMessage(context, 'Invalid file format');
         return;
       }
       final List<TrainingSession> sessions = [];
@@ -665,22 +620,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         }
       }
       if (sessions.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid file format')),
-        );
+        SnackbarUtil.showMessage(context, 'Invalid file format');
         return;
       }
       setState(() {
         _history.addAll([for (final s in sessions) s.toTrainingResult()]);
       });
       await _saveHistory();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported ${sessions.length} sessions')),
-      );
+      SnackbarUtil.showMessage(context, 'Imported ${sessions.length} sessions');
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid file format')),
-      );
+      SnackbarUtil.showMessage(context, 'Invalid file format');
     }
   }
 

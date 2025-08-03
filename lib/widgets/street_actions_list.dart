@@ -8,6 +8,7 @@ import 'street_pot_widget.dart';
 import 'chip_stack_widget.dart';
 import 'package:provider/provider.dart';
 import '../services/user_preferences_service.dart';
+import '../utils/snackbar_util.dart';
 
 /// Список действий на конкретной улице
 class StreetActionsList extends StatelessWidget {
@@ -338,19 +339,14 @@ class StreetActionsList extends StatelessWidget {
                     final index = actions.indexOf(entry);
                     onDelete(index);
                     ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Действие удалено'),
-                        action: SnackBarAction(
+                    SnackbarUtil.showMessage(context, 'Действие удалено', action: SnackBarAction(
                           label: 'Отмена',
                           onPressed: () {
                             if (onInsert != null) {
                               onInsert!(index, entry);
                             }
                           },
-                        ),
-                      ),
-                    );
+                        ));
                   },
                   child: Column(
                     children: [

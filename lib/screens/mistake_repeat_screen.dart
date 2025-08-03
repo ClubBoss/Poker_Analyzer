@@ -17,6 +17,7 @@ import '../services/mistake_streak_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import 'training_session_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class MistakeRepeatScreen extends StatefulWidget {
   const MistakeRepeatScreen({super.key});
@@ -108,15 +109,10 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     await file.writeAsBytes(bytes);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $fileName'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName', action: SnackBarAction(
             label: 'Открыть',
             onPressed: () => OpenFilex.open(file.path),
-          ),
-        ),
-      );
+          ));
     }
   }
 
@@ -149,15 +145,10 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     await file.writeAsString(buffer.toString());
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $fileName'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName', action: SnackBarAction(
             label: 'Открыть',
             onPressed: () => OpenFilex.open(file.path),
-          ),
-        ),
-      );
+          ));
     }
   }
 

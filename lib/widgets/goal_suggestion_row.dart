@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/goal_recommendation.dart';
 import '../models/user_goal.dart';
 import '../services/user_goal_engine.dart';
+import '../utils/snackbar_util.dart';
 
 /// Horizontal list of goal recommendation cards.
 class GoalSuggestionRow extends StatelessWidget {
@@ -26,8 +27,7 @@ class GoalSuggestionRow extends StatelessWidget {
     );
     await engine.addGoal(goal);
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Цель добавлена!')));
+      SnackbarUtil.showMessage(context, 'Цель добавлена!');
     }
   }
 

@@ -40,6 +40,7 @@ import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
 import 'evaluation_queue.dart';
 import 'evaluation_cache.dart';
+import '../utils/snackbar_util.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
@@ -600,10 +601,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (spot.evalResult != null &&
         !spot.evalResult!.correct &&
         category != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Train this category?'),
-          action: SnackBarAction(
+      SnackbarUtil.showMessage(context, 'Train this category?', action: SnackBarAction(
             label: 'Train',
             onPressed: () async {
               final tpl = await TrainingPackService.createDrillFromCategory(
@@ -618,9 +616,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
                 );
               }
             },
-          ),
-        ),
-      );
+          ));
     }
   }
 

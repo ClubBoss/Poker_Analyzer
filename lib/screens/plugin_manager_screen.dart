@@ -9,6 +9,7 @@ import 'package:poker_analyzer/plugins/plugin_loader.dart';
 import 'package:poker_analyzer/plugins/plugin_manager.dart';
 import '../services/service_registry.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class PluginManagerScreen extends StatefulWidget {
   const PluginManagerScreen({super.key});
@@ -84,7 +85,7 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     final loader = PluginLoader();
     await loader.loadAll(registry, manager, context: context);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
+      SnackbarUtil.showMessage(context, 'Plugins reloaded');
     }
     await _load();
   }
@@ -96,7 +97,7 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     if (await config.exists()) await config.delete();
     if (await cache.exists()) await cache.delete();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin config reset')));
+      SnackbarUtil.showMessage(context, 'Plugin config reset');
     }
     await _load();
   }
@@ -149,11 +150,11 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
       manager.load(plugin);
       manager.initializeAll(registry);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin loaded')));
+        SnackbarUtil.showMessage(context, 'Plugin loaded');
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin failed')));
+        SnackbarUtil.showMessage(context, 'Plugin failed');
       }
     }
     await _load();
@@ -162,8 +163,7 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Future<void> _delete(String file) async {
     await PluginLoader().delete(file);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Plugin deleted')));
+      SnackbarUtil.showMessage(context, 'Plugin deleted');
     }
     await _load();
   }

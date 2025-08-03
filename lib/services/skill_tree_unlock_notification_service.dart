@@ -5,6 +5,7 @@ import '../models/skill_tree.dart';
 import 'skill_tree_unlock_evaluator.dart';
 import 'skill_tree_stage_gate_evaluator.dart';
 import 'skill_tree_node_progress_tracker.dart';
+import '../utils/snackbar_util.dart';
 
 /// Shows a toast when new skill tree nodes or stages become unlocked.
 class SkillTreeUnlockNotificationService {
@@ -45,17 +46,13 @@ class SkillTreeUnlockNotificationService {
 
     for (final level in newStages) {
       if (!context.mounted) break;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Открыт новый этап: $level')),
-      );
+      SnackbarUtil.showMessage(context, 'Открыт новый этап: $level');
     }
 
     for (final id in newNodes) {
       if (!context.mounted) break;
       final title = tree.nodes[id]?.title ?? id;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Открыт новый узел: $title')),
-      );
+      SnackbarUtil.showMessage(context, 'Открыт новый узел: $title');
     }
 
     await prefs.setStringList(_nodeKey(trackId), unlockedNodes.toList());

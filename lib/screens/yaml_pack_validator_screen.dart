@@ -11,6 +11,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../core/training/generation/yaml_writer.dart';
 import '../services/training_pack_template_validator.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../utils/snackbar_util.dart';
 
 class YamlPackValidatorScreen extends StatefulWidget {
   const YamlPackValidatorScreen({super.key});
@@ -69,8 +70,7 @@ class _YamlPackValidatorScreenState extends State<YamlPackValidatorScreen> {
     await const YamlPackHistoryService().saveSnapshot(pack, 'fix');
     await const YamlWriter().write(json, path);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Готово')));
+      SnackbarUtil.showMessage(context, 'Готово');
       _load();
     }
   }

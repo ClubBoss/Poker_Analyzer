@@ -30,6 +30,7 @@ import 'playback_manager_service.dart';
 import 'folded_players_service.dart';
 import 'all_in_players_service.dart';
 import 'action_tag_service.dart';
+import '../utils/snackbar_util.dart';
 
 class SavedHandImportExportService {
   SavedHandImportExportService(this.manager, {ServiceRegistry? registry})
@@ -171,9 +172,7 @@ class SavedHandImportExportService {
     if (hand == null) return;
     await Clipboard.setData(ClipboardData(text: serializeHand(hand)));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Раздача скопирована.')),
-      );
+      SnackbarUtil.showMessage(context, 'Раздача скопирована.');
     }
   }
 
@@ -183,9 +182,7 @@ class SavedHandImportExportService {
     final jsonStr = jsonEncode([for (final h in hands) h.toJson()]);
     await Clipboard.setData(ClipboardData(text: jsonStr));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${hands.length} hands exported to clipboard')),
-      );
+      SnackbarUtil.showMessage(context, '${hands.length} hands exported to clipboard');
     }
   }
 
@@ -193,9 +190,7 @@ class SavedHandImportExportService {
     final data = await Clipboard.getData('text/plain');
     if (data == null || data.text == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Неверный формат данных.')),
-        );
+        SnackbarUtil.showMessage(context, 'Неверный формат данных.');
       }
       return null;
     }
@@ -208,9 +203,7 @@ class SavedHandImportExportService {
     }
     hand ??= _tryInternal(data.text!);
     if (hand == null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Неверный формат данных.')),
-      );
+      SnackbarUtil.showMessage(context, 'Неверный формат данных.');
     }
     return hand;
   }
@@ -219,9 +212,7 @@ class SavedHandImportExportService {
     final data = await Clipboard.getData('text/plain');
     if (data == null || data.text == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid data format')),
-        );
+        SnackbarUtil.showMessage(context, 'Invalid data format');
       }
       return 0;
     }
@@ -242,8 +233,7 @@ class SavedHandImportExportService {
       }
       if (count > 0) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Imported $count hands')));
+          SnackbarUtil.showMessage(context, 'Imported $count hands');
         }
         return count;
       }
@@ -262,18 +252,14 @@ class SavedHandImportExportService {
       }
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          count > 0
-              ? SnackBar(content: Text('Imported $count hands'))
-              : const SnackBar(content: Text('Invalid data format')),
-        );
+        final message =
+            count > 0 ? 'Imported $count hands' : 'Invalid data format';
+        SnackbarUtil.showMessage(context, message);
       }
       return count;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid data format')),
-        );
+        SnackbarUtil.showMessage(context, 'Invalid data format');
       }
       return 0;
     }
@@ -289,8 +275,7 @@ class SavedHandImportExportService {
     final file = await _defaultFile(fileName);
     await file.writeAsString(jsonEncode(hand.toJson()));
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $fileName')));
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName');
       OpenFilex.open(file.path);
     }
   }
@@ -305,8 +290,7 @@ class SavedHandImportExportService {
           '${hand.name},${hand.heroPosition},${hand.date.toIso8601String()},${hand.isFavorite},"${hand.tags.join('|')}","${hand.comment ?? ''}","${hand.tournamentId ?? ''}",${hand.buyIn ?? ''},${hand.totalPrizePool ?? ''},${hand.numberOfEntrants ?? ''},"${hand.gameType ?? ''}"');
     await file.writeAsString(buffer.toString());
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $fileName')));
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName');
       OpenFilex.open(file.path);
     }
   }
@@ -315,8 +299,7 @@ class SavedHandImportExportService {
     final hands = manager.hands;
     if (hands.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('No saved hands to export')));
+        SnackbarUtil.showMessage(context, 'No saved hands to export');
       }
       return;
     }
@@ -339,8 +322,7 @@ class SavedHandImportExportService {
     await file.writeAsBytes(bytes, flush: true);
     if (context.mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+      SnackbarUtil.showMessage(context, 'Archive saved: $name');
     }
   }
 }

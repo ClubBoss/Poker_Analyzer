@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../services/booster_refiner_engine.dart';
 import '../../services/booster_similarity_pruner.dart';
 import '../../services/booster_tag_coverage_stats.dart';
+import '../../utils/snackbar_util.dart';
 
 class BoosterSection extends StatefulWidget {
   const BoosterSection({super.key});
@@ -45,8 +46,7 @@ class _BoosterSectionState extends State<BoosterSection> {
     final count = await const BoosterRefinerEngine().refineAll();
     if (!mounted) return;
     setState(() => _refineLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Обновлено: $count')));
+    SnackbarUtil.showMessage(context, 'Обновлено: $count');
   }
 
   Future<void> _pruneDuplicates() async {
@@ -55,8 +55,7 @@ class _BoosterSectionState extends State<BoosterSection> {
     final count = await const BoosterSimilarityPruner().pruneAndSaveAll();
     if (!mounted) return;
     setState(() => _pruneLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Обновлено: $count')));
+    SnackbarUtil.showMessage(context, 'Обновлено: $count');
   }
 
   @override

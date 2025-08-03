@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../models/learning_path_template_v2.dart';
 import '../models/learning_path_stage_model.dart';
+import '../utils/snackbar_util.dart';
 
 /// Button for copying or sharing a direct link to a learning path stage preview.
 class StageShareButton extends StatelessWidget {
@@ -22,15 +23,9 @@ class StageShareButton extends StatelessWidget {
   Future<void> _share(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: _link));
     await Share.share(_link);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          Localizations.localeOf(context).languageCode == 'ru'
+    SnackbarUtil.showMessage(context, Localizations.localeOf(context).languageCode == 'ru'
               ? 'Ссылка скопирована'
-              : 'Link copied',
-        ),
-      ),
-    );
+              : 'Link copied',);
   }
 
   @override

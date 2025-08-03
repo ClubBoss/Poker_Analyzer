@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/theory_lesson_feedback.dart';
 import '../services/theory_feedback_storage.dart';
+import '../utils/snackbar_util.dart';
 
 class TheoryLessonFeedbackBar extends StatefulWidget {
   final String lessonId;
@@ -32,9 +33,7 @@ class _TheoryLessonFeedbackBarState extends State<TheoryLessonFeedbackBar> {
     await TheoryFeedbackStorage.instance.record(widget.lessonId, choice);
     if (mounted) {
       setState(() => _choice = choice);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Спасибо за отзыв!')),
-      );
+      SnackbarUtil.showMessage(context, 'Спасибо за отзыв!');
     }
   }
 

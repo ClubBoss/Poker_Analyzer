@@ -24,6 +24,7 @@ import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:share_plus/share_plus.dart';
 import 'training_session_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class SessionAnalysisScreen extends StatefulWidget {
   final List<SavedHand> hands;
@@ -251,12 +252,10 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (!mounted) return;
       await PackExportService.exportSessionCsv(list, _evs, _icms);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('CSV exported')));
+      SnackbarUtil.showMessage(context, 'CSV exported');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+        SnackbarUtil.showMessage(context, 'Export failed: $e');
       }
     }
   }
@@ -267,12 +266,10 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (!mounted) return;
       await PackExportService.exportSessionPdf(list, _evs, _icms);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('PDF exported')));
+      SnackbarUtil.showMessage(context, 'PDF exported');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+        SnackbarUtil.showMessage(context, 'Export failed: $e');
       }
     }
   }

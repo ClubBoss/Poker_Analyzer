@@ -21,6 +21,7 @@ import '../models/training_pack.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'training_pack_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class CloudTrainingSessionDetailsScreen extends StatefulWidget {
   final CloudTrainingSession session;
@@ -196,9 +197,7 @@ class _CloudTrainingSessionDetailsScreenState
     await file.writeAsString(buffer.toString());
     await Share.shareXFiles([XFile(file.path)], text: 'cloud_session.md');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Файл сохранён: cloud_session.md')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: cloud_session.md');
     }
   }
 
@@ -257,9 +256,7 @@ class _CloudTrainingSessionDetailsScreenState
     await file.writeAsBytes(bytes);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Файл сохранён: cloud_session.pdf')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: cloud_session.pdf');
     }
   }
 
@@ -285,14 +282,11 @@ class _CloudTrainingSessionDetailsScreenState
         mimeType: MimeType.other,
       );
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Файл сохранён: $name.json')),
-        );
+        SnackbarUtil.showMessage(context, 'Файл сохранён: $name.json');
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ошибка экспорта JSON')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта JSON');
       }
     }
   }
@@ -309,9 +303,7 @@ class _CloudTrainingSessionDetailsScreenState
     }
     if (hands.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Раздачи не найдены')),
-        );
+        SnackbarUtil.showMessage(context, 'Раздачи не найдены');
       }
       return;
     }
@@ -345,9 +337,7 @@ class _CloudTrainingSessionDetailsScreenState
     }
     if (hands.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Раздачи не найдены')),
-        );
+        SnackbarUtil.showMessage(context, 'Раздачи не найдены');
       }
       return;
     }

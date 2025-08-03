@@ -5,6 +5,7 @@ import '../../services/training_coverage_service.dart';
 import '../pack_coverage_stats_screen.dart';
 import '../theory_coverage_dashboard.dart';
 import '../yaml_coverage_stats_screen.dart';
+import '../../utils/snackbar_util.dart';
 
 class CoverageSection extends StatefulWidget {
   const CoverageSection({super.key});
@@ -22,8 +23,7 @@ class _CoverageSectionState extends State<CoverageSection> {
     final ok = await compute(_coverageTask, '');
     if (!mounted) return;
     setState(() => _exporting = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+    SnackbarUtil.showMessage(context, ok ? 'Готово' : 'Ошибка');
   }
 
   @override

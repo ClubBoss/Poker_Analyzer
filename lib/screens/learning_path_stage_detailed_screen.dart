@@ -19,6 +19,7 @@ import '../models/mistake_tag_cluster.dart';
 import '../models/sub_stage_model.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../widgets/skill_card.dart';
+import '../utils/snackbar_util.dart';
 
 class LearningPathStageDetailedScreen extends StatefulWidget {
   final LearningPathTemplateV2 path;
@@ -177,9 +178,7 @@ class _LearningPathStageDetailedScreenState
         await PackLibraryService.instance.getById(widget.stage.packId);
     if (template == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Training pack not found')),
-      );
+      SnackbarUtil.showMessage(context, 'Training pack not found');
       return;
     }
     await const TrainingSessionLauncher().launch(template);
@@ -190,9 +189,7 @@ class _LearningPathStageDetailedScreenState
     final template = await PackLibraryService.instance.getById(sub.packId);
     if (template == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Training pack not found')),
-      );
+      SnackbarUtil.showMessage(context, 'Training pack not found');
       return;
     }
     final copy = TrainingPackTemplateV2.fromJson(template.toJson())

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/training/export/training_pack_exporter_v2.dart';
 import '../../models/v2/training_pack_template_v2.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/snackbar_util.dart';
 
 class TrainingPackYamlPreviewer extends StatelessWidget {
   final TrainingPackTemplateV2 pack;
@@ -20,9 +21,7 @@ class TrainingPackYamlPreviewer extends StatelessWidget {
             icon: const Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: yaml));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Copied')),
-              );
+              SnackbarUtil.showMessage(context, 'Copied');
             },
           ),
           IconButton(

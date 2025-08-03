@@ -23,6 +23,7 @@ import '../training_session_screen.dart';
 import '../../services/auto_mistake_tagger_engine.dart';
 import '../../models/training_spot_attempt.dart';
 import '../../models/mistake_tag.dart';
+import '../../utils/snackbar_util.dart';
 
 class TrainingPackResultScreenV2 extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -92,11 +93,7 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
       }
     }
     await prefs.setString(key, DateTime.now().toIso8601String());
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            'Want to improve your ${rec.position.label}? Try ${tpl.name}.'),
-        action: SnackBarAction(
+    SnackbarUtil.showMessage(context, 'Want to improve your ${rec.position.label}? Try ${tpl.name}.', action: SnackBarAction(
           label: 'Train',
           onPressed: () async {
             await context.read<TrainingSessionService>().startSession(tpl, persist: false);
@@ -106,10 +103,7 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
               MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
             );
           },
-        ),
-        duration: const Duration(seconds: 6),
-      ),
-    );
+        ));
   }
 
   String? _expected(TrainingPackSpot s) {

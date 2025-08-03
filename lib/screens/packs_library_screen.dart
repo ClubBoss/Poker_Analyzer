@@ -27,6 +27,7 @@ import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
 import '../widgets/combined_progress_bar.dart';
 import '../widgets/street_coverage_bar.dart';
+import '../utils/snackbar_util.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
 
@@ -377,8 +378,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       ),
     );
     final l = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l.packCreated(tpl.name))));
+    SnackbarUtil.showMessage(context, l.packCreated(tpl.name));
   }
 
   Future<void> _resetPack(TrainingPackTemplate pack) async {

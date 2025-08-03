@@ -3,6 +3,7 @@ import '../services/app_settings_service.dart';
 import '../services/mistake_hint_service.dart';
 import '../services/user_preferences_service.dart';
 import 'package:provider/provider.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
   final String title;
@@ -79,8 +80,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                   tooltip: 'Hint',
                   onPressed: () {
                     final hint = MistakeHintService.instance.getHint();
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text(hint)));
+                    SnackbarUtil.showMessage(context, hint);
                   },
                 ),
               IconButton(

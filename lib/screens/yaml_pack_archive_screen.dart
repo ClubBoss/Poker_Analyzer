@@ -12,6 +12,7 @@ import '../services/yaml_pack_diff_service.dart';
 import '../widgets/markdown_preview_dialog.dart';
 import '../services/yaml_pack_changelog_service.dart';
 import '../widgets/selectable_list_item.dart';
+import '../utils/snackbar_util.dart';
 
 class YamlPackArchiveScreen extends StatefulWidget {
   const YamlPackArchiveScreen({super.key});
@@ -64,9 +65,7 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
 
   void _toggleSelection(String id, File f) {
     if (_selectedPack != null && _selectedPack != id) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Выберите версии одного пака')),
-      );
+      SnackbarUtil.showMessage(context, 'Выберите версии одного пака');
       return;
     }
     setState(() {
@@ -89,9 +88,7 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
 
   Future<void> _compareSelected() async {
     if (_selected.length != 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нужно выбрать две версии')),
-      );
+      SnackbarUtil.showMessage(context, 'Нужно выбрать две версии');
       return;
     }
     final files = _selected.toList();
@@ -200,9 +197,7 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
           'восстановление из архива ${DateTime.now().toIso8601String()}',
         );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Пак успешно восстановлен из архива')),
-          );
+          SnackbarUtil.showMessage(context, 'Пак успешно восстановлен из архива');
         }
       }
     } else if (action == 'copy') {

@@ -12,6 +12,7 @@ import '../../models/v2/hand_data.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/training_pack_template_v2.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/snackbar_util.dart';
 
 class SpotDuplicationWizard extends StatefulWidget {
   const SpotDuplicationWizard({super.key});
@@ -46,9 +47,7 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
           ..addEntries(pack.spots.map((e) => MapEntry(e.id, false)));
       });
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ошибка чтения файла')),
-      );
+      SnackbarUtil.showMessage(context, 'Ошибка чтения файла');
     }
   }
 
@@ -147,8 +146,7 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
     if (path == null) return;
     await const YamlWriter().write(dup.toJson(), path);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Файл сохранён')));
+    SnackbarUtil.showMessage(context, 'Файл сохранён');
   }
 
   @override

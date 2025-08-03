@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import 'dart:math' as math;
+import '../utils/snackbar_util.dart';
 
 class ActionListWidget extends StatefulWidget {
   final int playerCount;
@@ -374,9 +375,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
       _recalcErrors();
     });
     _notify();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All actions cleared')),
-    );
+    SnackbarUtil.showMessage(context, 'All actions cleared');
   }
 
   @override

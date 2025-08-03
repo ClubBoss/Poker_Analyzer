@@ -38,6 +38,7 @@ import 'weekly_progress_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
 import '../widgets/xp_progress_card.dart';
+import '../utils/snackbar_util.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -808,7 +809,7 @@ class _ProgressScreenState extends State<ProgressScreen>
     final file = File(path);
     await file.writeAsBytes(bytes, flush: true);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Saved: $path')));
+    SnackbarUtil.showMessage(context, 'Saved: $path');
   }
 
   @override

@@ -15,6 +15,7 @@ import 'streak_service.dart';
 import 'user_action_logger.dart';
 import 'goal_persistence.dart';
 import 'achievement_manager.dart';
+import '../utils/snackbar_util.dart';
 
 class Goal {
   final String title;
@@ -280,10 +281,7 @@ class GoalsService extends ChangeNotifier {
       _hintShown = true;
       await _persistence.saveHintShown(true);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Вы завершили 5 раздач подряд!'),
-            action: SnackBarAction(
+        SnackbarUtil.showMessage(context, 'Вы завершили 5 раздач подряд!', action: SnackBarAction(
               label: 'Посмотреть прогресс',
               onPressed: () {
                 Navigator.push(
@@ -291,9 +289,7 @@ class GoalsService extends ChangeNotifier {
                   MaterialPageRoute(builder: (_) => const ProgressScreen()),
                 );
               },
-            ),
-          ),
-        );
+            ));
       }
     }
   }

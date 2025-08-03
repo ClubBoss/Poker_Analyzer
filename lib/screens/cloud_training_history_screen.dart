@@ -17,6 +17,7 @@ import 'training_pack_screen.dart';
 import '../widgets/history/accuracy_trend_chart.dart';
 import 'cloud_training_session_details_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   const TrainingHistoryScreen({super.key});
@@ -121,15 +122,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         mimeType: MimeType.other,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('История сохранена в training_history.md')),
-        );
+        SnackbarUtil.showMessage(context, 'История сохранена в training_history.md');
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
+        SnackbarUtil.showMessage(context, 'Ошибка экспорта');
       }
     }
   }
@@ -148,8 +145,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final hands = [for (final n in names) if (map[n] != null) map[n]!];
     if (hands.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Раздачи не найдены')));
+        SnackbarUtil.showMessage(context, 'Раздачи не найдены');
       }
       return;
     }

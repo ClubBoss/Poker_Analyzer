@@ -21,6 +21,7 @@ import '../services/png_exporter.dart';
 import '../helpers/date_utils.dart';
 import '../utils/responsive.dart';
 import 'mistake_review_screen.dart';
+import '../utils/snackbar_util.dart';
 
 class ProgressDashboardScreen extends StatefulWidget {
   const ProgressDashboardScreen({super.key});
@@ -72,8 +73,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(csvStr, encoding: utf8);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $fileName')));
+      SnackbarUtil.showMessage(context, 'Файл сохранён: $fileName');
     }
   }
 

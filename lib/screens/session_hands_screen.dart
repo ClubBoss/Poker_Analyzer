@@ -16,6 +16,7 @@ import '../theme/app_colors.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';
+import '../utils/snackbar_util.dart';
 
 class SessionHandsScreen extends StatefulWidget {
   final int sessionId;
@@ -175,9 +176,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     if (path == null) return;
     await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.md');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: session_${widget.sessionId}.md')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: session_${widget.sessionId}.md');
     }
   }
 
@@ -189,9 +188,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     if (path == null) return;
     await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.pdf');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: session_${widget.sessionId}.pdf')),
-      );
+      SnackbarUtil.showMessage(context, 'Файл сохранён: session_${widget.sessionId}.pdf');
     }
   }
 

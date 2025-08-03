@@ -77,6 +77,7 @@ import '../services/session_streak_overlay_prompt_service.dart';
 import '../services/overlay_decay_booster_orchestrator.dart';
 import '../services/decay_badge_banner_controller.dart';
 import 'dart:async';
+import '../utils/snackbar_util.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -372,14 +373,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           onLongPress: () {
             SmartInboxDebugService.instance.toggle();
             Navigator.of(context).pop();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Smart Inbox debug '
-                  '${SmartInboxDebugService.instance.enabled ? 'enabled' : 'disabled'}',
-                ),
-              ),
-            );
+            SnackbarUtil.showMessage(context, 'Smart Inbox debug '
+                  '${SmartInboxDebugService.instance.enabled ? 'enabled' : 'disabled'}',);
           },
           child: Text('Version ${info.version}'),
         ),

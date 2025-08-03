@@ -9,6 +9,7 @@ import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/user_progress_service.dart';
+import '../utils/snackbar_util.dart';
 
 /// Displays the same options sheet used by [TheoryBlockCardWidget] when long
 /// pressed. Allows pin/unpin and quick navigation to lessons or packs.
@@ -50,9 +51,7 @@ Future<void> showTheoryBlockContextSheet(
                 await PinnedLearningService.instance.toggleBlock(block);
                 pinned =
                     PinnedLearningService.instance.isPinned('block', block.id);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
-                );
+                SnackbarUtil.showMessage(context, pinned ? 'Pinned' : 'Unpinned');
               },
             ),
             if (lessons.isNotEmpty)
