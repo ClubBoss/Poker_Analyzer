@@ -129,8 +129,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       }
       boosterMap[stage.id] = boosterId;
     }
-    final skillMap =
-        LearningPathPersonalizationService.instance.getTagSkillMap();
+    final skillMap = LearningPathPersonalizationService.instance
+        .getTagSkillMap();
     final extra = _smartUnlock
         .getAdditionalUnlockedStageIds(
           skillMap: skillMap,
@@ -147,16 +147,18 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final accuracy = total == 0 ? 0.0 : correct / total * 100;
       final boosterOk = boosterMap[stage.id] == null;
       final theoryOk = boosterOk && (theoryMap[stage.id] ?? true);
-      final done = theoryOk &&
+      final done =
+          theoryOk &&
           total >= stage.requiredHands &&
           accuracy >= stage.requiredAccuracy;
       if (done) {
         states[stage.id] = LearningStageUIState.done;
       } else if (_gatekeeper.isStageUnlocked(
-          index: i,
-          path: widget.template,
-          logs: _logs,
-          additionalUnlockedStageIds: extra)) {
+        index: i,
+        path: widget.template,
+        logs: _logs,
+        additionalUnlockedStageIds: extra,
+      )) {
         states[stage.id] = LearningStageUIState.active;
       } else {
         states[stage.id] = LearningStageUIState.locked;
@@ -174,8 +176,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
     final justCompletedId = prefs.getString('justCompletedTheoryStageId');
     if (justCompletedId != null) {
-      final stage =
-          widget.template.stages.firstWhereOrNull((s) => s.id == justCompletedId);
+      final stage = widget.template.stages.firstWhereOrNull(
+        (s) => s.id == justCompletedId,
+      );
       final theoryOk = stage == null ? false : theoryMap[stage.id] ?? false;
       if (stage != null && theoryOk && mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -201,8 +204,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       });
     }
 
-    final completedAll = const LearningPathCompletionEngine()
-        .isCompleted(widget.template, aggregated);
+    final completedAll = const LearningPathCompletionEngine().isCompleted(
+      widget.template,
+      aggregated,
+    );
     if (completedAll && !_celebrationShown && mounted) {
       _celebrationShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -212,10 +217,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             builder: (_) => LearningPathCelebrationScreen(
               path: widget.template,
               onNext: () async {
-                await NextStepsModal.show(
-                  context,
-                  widget.template.id,
-                );
+                await NextStepsModal.show(context, widget.template.id);
               },
             ),
           ),
@@ -228,9 +230,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final template = await PackLibraryService.instance.getById(stage.packId);
     if (template == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Training pack not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Training pack not found')));
       return;
     }
     await const TrainingSessionLauncher().launch(template);
@@ -243,9 +245,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final template = await PackLibraryService.instance.getById(id);
     if (template == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Booster pack not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Booster pack not found')));
       return;
     }
     await const TrainingSessionLauncher().launch(template);
@@ -265,9 +267,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final template = await PackLibraryService.instance.getById(id);
     if (template == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Theory pack not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Theory pack not found')));
       return;
     }
     final tag = stage.tags.isNotEmpty ? stage.tags.first : null;
@@ -320,13 +322,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     return true;
   }
 
-  Future<bool> _handleStageTap(LearningPathStageModel stage,
-      {bool skipPreview = false}) async {
-    final wasDone =
-        _stageStates[stage.id] == LearningStageUIState.done;
+  Future<bool> _handleStageTap(
+    LearningPathStageModel stage, {
+    bool skipPreview = false,
+  }) async {
+    final wasDone = _stageStates[stage.id] == LearningStageUIState.done;
     if (_nextBooster[stage.id] != null) {
       await _startBooster(stage);
-    } else if (stage.theoryPackId != null && !(_theoryDone[stage.id] ?? false)) {
+    } else if (stage.theoryPackId != null &&
+        !(_theoryDone[stage.id] ?? false)) {
       await _startTheory(stage);
     } else if (_prefs.skipPreviewIfReady && await _isReadyForStage(stage)) {
       await _startStage(stage);
@@ -341,15 +345,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         await _startStage(stage);
       }
     }
-    final isDone =
-        _stageStates[stage.id] == LearningStageUIState.done;
+    final isDone = _stageStates[stage.id] == LearningStageUIState.done;
     return !wasDone && isDone;
   }
 
-  Future<void> _onStageSelected(LearningPathStageModel stage,
-      {bool skipPreview = false}) async {
-    final completed =
-        await _handleStageTap(stage, skipPreview: skipPreview);
+  Future<void> _onStageSelected(
+    LearningPathStageModel stage, {
+    bool skipPreview = false,
+  }) async {
+    final completed = await _handleStageTap(stage, skipPreview: skipPreview);
     if (completed && mounted) {
       await showDialog(
         context: context,
@@ -392,8 +396,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             as RenderBox;
     final offset =
         box.localToGlobal(Offset.zero, ancestor: listBox).dy +
-            _scrollController.offset -
-            16;
+        _scrollController.offset -
+        16;
     _scrollDone = true;
     _scrollController.animateTo(
       offset,
@@ -445,8 +449,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             ),
             const SizedBox(width: 8),
             ElevatedButton(
-              onPressed:
-                  active == null ? null : () => _onStageSelected(active),
+              onPressed: active == null ? null : () => _onStageSelected(active),
               child: const Text('Продолжить'),
             ),
           ],
@@ -510,27 +513,24 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             borderRadius: BorderRadius.circular(4),
           )
         : null;
-    final log = _logsByPack[stage.packId];
+    final stats = _logs.getStats(stage.packId);
     Widget? subtitle;
-    if (stage.description.isNotEmpty) {
-      subtitle = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(stage.description, style: TextStyle(color: grey)),
-          const SizedBox(height: 2),
-          StageProgressChip(
-            log: log,
-            requiredAccuracy: stage.requiredAccuracy,
-            requiredHands: stage.requiredHands,
-          ),
-        ],
-      );
-    } else {
-      subtitle = StageProgressChip(
-        log: log,
-        requiredAccuracy: stage.requiredAccuracy,
-        requiredHands: stage.requiredHands,
-      );
+    if (stats.handsPlayed > 0) {
+      final chip = StageProgressChip(stats: stats);
+      if (stage.description.isNotEmpty) {
+        subtitle = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(stage.description, style: TextStyle(color: grey)),
+            const SizedBox(height: 2),
+            chip,
+          ],
+        );
+      } else {
+        subtitle = chip;
+      }
+    } else if (stage.description.isNotEmpty) {
+      subtitle = Text(stage.description, style: TextStyle(color: grey));
     }
     final highlight = widget.highlightedStageId == stage.id;
     final key = _stageKeys.putIfAbsent(stage.id, () => GlobalKey());
@@ -541,8 +541,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       color: highlight
           ? Colors.amber.withOpacity(0.2)
           : state == LearningStageUIState.locked
-              ? Colors.grey.shade800
-              : null,
+          ? Colors.grey.shade800
+          : null,
       child: ListTile(
         leading: Text('${index + 1}.', style: TextStyle(color: grey)),
         title: Text(stage.title, style: TextStyle(color: grey)),
@@ -556,7 +556,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 child: Icon(Icons.star, color: Colors.orange),
               ),
             if (_reinforced.contains(stage.id)) const SizedBox(width: 4),
-            if (state == LearningStageUIState.active && !boosterPending && !theoryPending)
+            if (state == LearningStageUIState.active &&
+                !boosterPending &&
+                !theoryPending)
               IconButton(
                 icon: const Icon(Icons.visibility),
                 tooltip: 'Preview',
@@ -571,7 +573,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                   }
                 },
               ),
-            if (state == LearningStageUIState.active && !boosterPending && !theoryPending)
+            if (state == LearningStageUIState.active &&
+                !boosterPending &&
+                !theoryPending)
               const SizedBox(width: 4),
             iconWidget,
             const SizedBox(width: 4),
@@ -590,8 +594,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final template = widget.template;
     final tags = template.tags;
     final stages = template.stages;
-    final doneCount =
-        stages.where((s) => _stageStates[s.id] == LearningStageUIState.done).length;
+    final doneCount = stages
+        .where((s) => _stageStates[s.id] == LearningStageUIState.done)
+        .length;
     final totalCount = stages.length;
     final activeStage = stages.firstWhereOrNull(
       (s) => _stageStates[s.id] == LearningStageUIState.active,
@@ -652,11 +657,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                         onOpen: () async {
                           final start = await showDialog<bool>(
                             context: context,
-                            builder: (_) => StagePreviewDialog(stage: boosterStage),
+                            builder: (_) =>
+                                StagePreviewDialog(stage: boosterStage),
                           );
                           if (start == true) {
-                            await _onStageSelected(boosterStage,
-                                skipPreview: true);
+                            await _onStageSelected(
+                              boosterStage,
+                              skipPreview: true,
+                            );
                           }
                         },
                       ),
@@ -665,11 +673,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                         onOpen: () async {
                           final start = await showDialog<bool>(
                             context: context,
-                            builder: (_) => StagePreviewDialog(stage: pendingStage),
+                            builder: (_) =>
+                                StagePreviewDialog(stage: pendingStage),
                           );
                           if (start == true) {
-                            await _onStageSelected(pendingStage,
-                                skipPreview: true);
+                            await _onStageSelected(
+                              pendingStage,
+                              skipPreview: true,
+                            );
                           }
                         },
                       ),
@@ -682,11 +693,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                           if (template.description.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               child: Text(
                                 template.description,
-                                style:
-                                    const TextStyle(color: Colors.white70),
+                                style: const TextStyle(color: Colors.white70),
                               ),
                             ),
                           for (int i = 0; i < template.stages.length; i++)
