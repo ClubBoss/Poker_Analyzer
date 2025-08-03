@@ -127,7 +127,7 @@ import 'poker_analyzer/board_controls_widget.dart';
 import 'poker_analyzer/action_editor_widget.dart';
 import 'poker_analyzer/evaluation_panel_widget.dart';
 import 'poker_analyzer/action_controls_widget.dart';
-
+import 'poker_analyzer_screen_components.dart';
 part 'poker_analyzer/debug_dialog.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
@@ -5498,25 +5498,21 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
               final content = <Widget>[
-                _HandHeaderSection(
+                AnalyzerHUDPanel(
                   handName: _handContext.currentHandName ?? 'New Hand',
                   playerCount: numberOfPlayers,
                   streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
                   onEdit: loadHandByName,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: HandCompletionIndicator(progress: _handFillProgress()),
-                ),
-                _PlayerCountSelector(
+                  handCompletionProgress: _handFillProgress(),
                   numberOfPlayers: numberOfPlayers,
                   playerPositions: playerPositions,
                   playerTypes: playerTypes,
-                  onChanged: lockService.isLocked ? null : _onPlayerCountChanged,
+                  onPlayerCountChanged:
+                      lockService.isLocked ? null : _onPlayerCountChanged,
                   disabled: lockService.isLocked,
+                  handProgressStep: _handProgressStep(),
                 ),
-                _HandProgressIndicator(step: _handProgressStep()),
-                if (hint != null) _InfoBanner(message: hint),
+                SmartInboxContainer(message: hint),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: Text(
@@ -5524,37 +5520,13 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
-                Expanded(
-                  flex: 7,
-                  child: landscape
-                      ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Transform.scale(
-                                scale: _uiScale,
-                                alignment: Alignment.topCenter,
-                                child: const BoardControls(),
-                              ),
-                            ),
-                            const Expanded(child: ActionControls()),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            Transform.scale(
-                              scale: _uiScale,
-                              alignment: Alignment.topCenter,
-                              child: const BoardControls(),
-                            ),
-                            const Expanded(child: ActionControls()),
-                          ],
-                        ),
+                GameplayAreaWidget(
+                  landscape: landscape,
+                  uiScale: _uiScale,
                 ),
                 const Expanded(child: ActionEditor()),
                 const Expanded(child: EvaluationPanel()),
               ];
-
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 200),
                 padding: EdgeInsets.only(
