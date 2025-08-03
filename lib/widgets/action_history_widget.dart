@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import '../helpers/poker_street_helper.dart';
 
 class ActionHistoryWidget extends StatelessWidget {
   final List<ActionEntry> actions;
@@ -19,12 +20,11 @@ class ActionHistoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (int street = 0; street < 4; street++)
-          _buildStreetTile(context, street, streetNames[street]),
+        for (int street = 0; street < kStreetNames.length; street++)
+          _buildStreetTile(context, street, streetName(street)),
       ],
     );
   }

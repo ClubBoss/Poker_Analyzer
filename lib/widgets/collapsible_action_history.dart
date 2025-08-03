@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import '../helpers/action_utils.dart';
+import '../helpers/poker_street_helper.dart';
 import '../services/action_history_service.dart';
 import '../utils/responsive.dart';
 
@@ -45,7 +46,7 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
   @override
   void initState() {
     super.initState();
-    _controller = TabController(length: 4, vsync: this);
+    _controller = TabController(length: kStreetNames.length, vsync: this);
   }
 
   @override
@@ -130,11 +131,9 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.white70,
                   indicatorColor: Colors.white,
-                  tabs: const [
-                    Tab(text: 'Preflop'),
-                    Tab(text: 'Flop'),
-                    Tab(text: 'Turn'),
-                    Tab(text: 'River'),
+                  tabs: [
+                    for (int i = 0; i < kStreetNames.length; i++)
+                      Tab(text: streetName(i)),
                   ],
                 ),
                 const Divider(height: 1, color: Colors.white24),
@@ -142,10 +141,8 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
                   child: TabBarView(
                     controller: _controller,
                     children: [
-                      _buildList(0),
-                      _buildList(1),
-                      _buildList(2),
-                      _buildList(3),
+                      for (int i = 0; i < kStreetNames.length; i++)
+                        _buildList(i),
                     ],
                   ),
                 ),

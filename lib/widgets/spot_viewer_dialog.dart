@@ -6,6 +6,7 @@ import '../core/training/engine/training_type_engine.dart';
 import '../widgets/spot_quiz_widget.dart';
 import '../widgets/action_history_widget.dart';
 import '../models/action_entry.dart';
+import '../helpers/poker_street_helper.dart';
 import '../services/training_session_service.dart';
 import '../services/tag_service.dart';
 import 'share_dialog.dart';
@@ -67,13 +68,12 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       if (board.isNotEmpty) 'Board: $board',
       'Position: $pos'
     ];
-    const names = ['Preflop', 'Flop', 'Turn', 'River'];
-    for (int s = 0; s < 4; s++) {
+    for (int s = 0; s < kStreetNames.length; s++) {
       final acts = _actions()
           .where((a) => a.street == s && a.action != 'board' && !a.generated)
           .toList();
       if (acts.isEmpty) continue;
-      lines.add('${names[s]}:');
+      lines.add('${streetName(s)}:');
       for (final a in acts) {
         final posName = map[a.playerIndex] ?? 'P${a.playerIndex + 1}';
         final label =

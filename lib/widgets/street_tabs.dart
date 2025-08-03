@@ -1,6 +1,8 @@
 // lib/widgets/street_tabs.dart
 import 'package:flutter/material.dart';
 
+import '../helpers/poker_street_helper.dart';
+
 class StreetTabs extends StatelessWidget {
   final int currentStreet;
   final Function(int) onStreetChanged;
@@ -17,12 +19,10 @@ class StreetTabs extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildTab('Preflop', 0),
-          _buildTab('Flop', 1),
-          _buildTab('Turn', 2),
-          _buildTab('River', 3),
-        ],
+        children: List.generate(
+          kStreetNames.length,
+          (index) => _buildTab(streetName(index), index),
+        ),
       ),
     );
   }

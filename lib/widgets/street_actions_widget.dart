@@ -6,6 +6,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../helpers/poker_street_helper.dart';
+
 class StreetActionsWidget extends StatelessWidget {
   final int currentStreet;
   final Function(int) onStreetChanged;
@@ -22,8 +24,6 @@ class StreetActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const List<String> streets = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -34,7 +34,7 @@ class StreetActionsWidget extends StatelessWidget {
             color: Colors.white,
             onPressed: canGoPrev ? onPrevStreet : null,
           ),
-          ...List.generate(streets.length, (index) {
+          ...List.generate(kStreetNames.length, (index) {
             final isSelected = index == currentStreet;
             return ElevatedButton(
               onPressed: () => onStreetChanged(index),
@@ -47,7 +47,7 @@ class StreetActionsWidget extends StatelessWidget {
                 ),
               ),
               child: Text(
-                streets[index],
+                streetName(index),
                 style: const TextStyle(fontSize: 16),
               ),
             );

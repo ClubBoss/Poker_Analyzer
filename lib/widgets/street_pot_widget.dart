@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../helpers/poker_street_helper.dart';
 import 'chip_stack_widget.dart';
 
 /// Displays pot size for a specific street in the history panel.
@@ -15,13 +16,7 @@ class StreetPotWidget extends StatelessWidget {
     this.sprValue,
   });
 
-  String get _streetName {
-    const names = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
-    if (streetIndex >= 0 && streetIndex < names.length) {
-      return names[streetIndex];
-    }
-    return '';
-  }
+  String get _streetName => streetName(streetIndex);
 
   @override
   Widget build(BuildContext context) {

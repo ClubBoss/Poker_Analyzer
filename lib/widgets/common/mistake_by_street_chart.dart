@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
+import '../../helpers/poker_street_helper.dart';
 import '../../utils/responsive.dart';
 
 class MistakeByStreetChart extends StatelessWidget {
@@ -17,7 +18,7 @@ class MistakeByStreetChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    const labels = ['Preflop', 'Flop', 'Turn', 'River'];
+    final labels = kStreetNames;
     final values = [for (final l in labels) counts[l] ?? 0];
     final maxCount = values.reduce(max);
 
@@ -95,7 +96,7 @@ class MistakeByStreetChart extends StatelessWidget {
                     if (index < 0 || index >= labels.length) {
                       return const SizedBox.shrink();
                     }
-                    final text = '${labels[index]} (${values[index]})';
+                    final text = '${streetName(index)} (${values[index]})';
                     return Transform.rotate(
                       angle: -pi / 2,
                       child: Text(

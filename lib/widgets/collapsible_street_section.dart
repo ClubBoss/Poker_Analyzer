@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import '../helpers/poker_street_helper.dart';
 import 'street_actions_list.dart';
 
 /// Collapsible block showing actions for a specific street.
@@ -40,7 +41,7 @@ class CollapsibleStreetSection extends StatefulWidget {
 class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
   bool _open = false;
 
-  String get _streetName => ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][widget.street];
+  String get _streetName => streetName(widget.street);
 
   String _capitalize(String s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 

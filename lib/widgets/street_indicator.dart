@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../helpers/poker_street_helper.dart';
+
 /// Badge displaying the name of the current street.
 class StreetIndicator extends StatelessWidget {
   final int street;
   const StreetIndicator({Key? key, required this.street}) : super(key: key);
 
-  static const _names = ['Preflop', 'Flop', 'Turn', 'River'];
-
   @override
   Widget build(BuildContext context) {
-    final name = _names[street.clamp(0, _names.length - 1)];
+    final name = streetName(street);
     return Align(
       alignment: Alignment.topCenter,
       child: AnimatedSwitcher(

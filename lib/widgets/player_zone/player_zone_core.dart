@@ -38,6 +38,7 @@ import 'winner_flying_chip.dart';
 import 'action_tag_label.dart';
 import 'player_effective_stack_label.dart';
 import 'player_position_label.dart';
+import '../../helpers/poker_street_helper.dart';
 import 'player_zone_animations.dart';
 import 'player_zone_overlay.dart';
 import 'player_zone_animator.dart';
@@ -2659,18 +2660,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   }
 
   String _streetName(String street) {
-    switch (street) {
-      case 'Preflop':
-        return 'Префлоп';
-      case 'Flop':
-        return 'Флоп';
-      case 'Turn':
-        return 'Тёрн';
-      case 'River':
-        return 'Ривер';
-      default:
-        return street;
-    }
+    final index = kStreetNames.indexOf(street);
+    return index == -1 ? street : streetName(index);
   }
 
   String _capitalize(String s) =>

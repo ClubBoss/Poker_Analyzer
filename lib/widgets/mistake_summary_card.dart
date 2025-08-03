@@ -10,15 +10,19 @@ class MistakeSummaryCard extends StatelessWidget {
   const MistakeSummaryCard({super.key});
 
   IconData _streetIcon(String street) {
-    switch (street) {
-      case 'Preflop':
+    final index = List.generate(kStreetNames.length, (i) => i)
+        .firstWhere((i) => streetName(i) == street, orElse: () => -1);
+    switch (index) {
+      case 0:
         return Icons.filter_1;
-      case 'Flop':
+      case 1:
         return Icons.filter_2;
-      case 'Turn':
+      case 2:
         return Icons.filter_3;
-      default:
+      case 3:
         return Icons.filter_4;
+      default:
+        return Icons.filter_1;
     }
   }
 

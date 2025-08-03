@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import '../helpers/poker_street_helper.dart';
 import 'street_actions_list.dart';
 
 class CollapsibleStreetSummary extends StatefulWidget {
@@ -78,9 +79,8 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
 
   @override
   Widget build(BuildContext context) {
-    const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
     return Column(
-      children: List.generate(4, (i) {
+      children: List.generate(kStreetNames.length, (i) {
         final expanded = _expandedStreet == i;
         final streetActions =
             widget.actions.where((a) => a.street == i).toList(growable: false);
@@ -106,7 +106,7 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          streetNames[i],
+                          streetName(i),
                           style: const TextStyle(color: Colors.white),
                         ),
                         const SizedBox(height: 4),

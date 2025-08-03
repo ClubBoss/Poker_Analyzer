@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/app_settings_service.dart';
 import '../services/mistake_hint_service.dart';
 import '../user_preferences.dart';
+import '../helpers/poker_street_helper.dart';
 
 class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
   final String title;
@@ -63,7 +64,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
-                          ['Preflop', 'Flop', 'Turn', 'River'][streetIndex!],
+                          streetName(streetIndex!),
                           style: textStyle.copyWith(fontSize: mini ? 10 : 12),
                         ),
                       ),

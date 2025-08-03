@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/action_entry.dart';
 import '../helpers/action_formatting_helper.dart';
+import '../helpers/poker_street_helper.dart';
 import '../services/action_history_service.dart';
 import 'edit_action_dialog.dart';
 
@@ -34,7 +35,6 @@ class ActionHistoryOverlay extends StatelessWidget {
     final Map<int, List<ActionEntry>> grouped = actionHistory.hudView();
     final screenWidth = MediaQuery.of(context).size.width;
     final double scale = screenWidth < 350 ? 0.8 : 1.0;
-    const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
 
     Widget buildChip(ActionEntry a, int index) {
       final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
@@ -153,7 +153,7 @@ class ActionHistoryOverlay extends StatelessWidget {
         height: 70 * scale,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: 4,
+          itemCount: kStreetNames.length,
           itemBuilder: (context, index) {
             final list = grouped[index] ?? [];
             if (list.isEmpty) {
@@ -174,7 +174,7 @@ class ActionHistoryOverlay extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      streetNames[index],
+                      streetName(index),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12 * scale,

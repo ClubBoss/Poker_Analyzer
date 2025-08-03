@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/action_entry.dart';
+import '../helpers/poker_street_helper.dart';
 import 'street_actions_list.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
@@ -45,7 +46,7 @@ class _ActionHistoryExpansionTileState
   @override
   void initState() {
     super.initState();
-    _streetExpanded = List<bool>.filled(4, true);
+    _streetExpanded = List<bool>.filled(kStreetNames.length, true);
   }
 
   void _toggleAll() {
@@ -59,7 +60,6 @@ class _ActionHistoryExpansionTileState
 
   @override
   Widget build(BuildContext context) {
-    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -100,7 +100,7 @@ class _ActionHistoryExpansionTileState
         backgroundColor: Colors.black54,
         childrenPadding: const EdgeInsets.only(bottom: 8),
         children: [
-          for (int i = 0; i < 4; i++)
+          for (int i = 0; i < kStreetNames.length; i++)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
               child: StickyHeader(
@@ -113,7 +113,7 @@ class _ActionHistoryExpansionTileState
                     child: Row(
                       children: [
                         Text(
-                          streetNames[i],
+                          streetName(i),
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
