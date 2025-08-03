@@ -197,6 +197,27 @@
     }
   },
   {
+    "id": "push_fold_btn_cash",
+    "name": "BTN Push/Fold Cash 10bb",
+    "description": "Short stack BTN shove or fold decisions",
+    "type": "cash",
+    "gameType": "cash",
+    "bb": 10,
+    "spotCount": 8,
+    "positions": [
+      "btn"
+    ],
+    "tags": [
+      "pushFold",
+      "btn",
+      "cash",
+      "beginner"
+    ],
+    "meta": {
+      "icon": "cash"
+    }
+  },
+  {
     "id": "open_fold_mid_cash",
     "name": "Open/Fold Mid Cash",
     "description": "Open or fold from LJ, HJ and CO in cash games",
