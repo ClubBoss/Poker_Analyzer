@@ -79,6 +79,7 @@ import 'services/decay_booster_notification_service.dart';
 import 'services/decay_booster_cron_job.dart';
 import 'services/theory_lesson_notification_scheduler.dart';
 import 'services/booster_recall_decay_cleaner.dart';
+import 'services/pinned_comeback_nudge_service.dart';
 import 'route_observer.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -136,6 +137,7 @@ Future<void> main() async {
   unawaited(DecayReminderScheduler.instance.register());
   unawaited(DecayReminderScheduler.instance.runIfNeeded());
   unawaited(DecayBoosterCronJob.instance.start());
+  unawaited(PinnedComebackNudgeService.instance.start());
   await BoosterRecallDecayCleaner.instance.init();
   await AppInitService.instance.init();
   runApp(
