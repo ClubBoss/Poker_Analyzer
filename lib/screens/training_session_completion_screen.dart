@@ -18,17 +18,20 @@ class TrainingSessionCompletionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final total = template.spots.length;
     return Scaffold(
-      appBar: AppBar(title: const Text('Training Complete')),
+      appBar: AppBar(title: const Text('Тренировка завершена')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'You completed $hands hands!',
+              'Вы завершили тренировку!',
               style: theme.textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 8),
+            Text('$hands / $total пройдено'),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
@@ -43,7 +46,7 @@ class TrainingSessionCompletionScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('Try Again'),
+              child: const Text('Повторить'),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
@@ -55,14 +58,14 @@ class TrainingSessionCompletionScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('Choose Another Pack'),
+              child: const Text('Выбрать другой пак'),
             ),
             const SizedBox(height: 12),
             TextButton(
               onPressed: () {
                 Navigator.popUntil(context, (route) => route.isFirst);
               },
-              child: const Text('Exit'),
+              child: const Text('Домой'),
             ),
           ],
         ),

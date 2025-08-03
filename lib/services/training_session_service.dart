@@ -8,6 +8,7 @@ import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../screens/training_session_summary_screen.dart';
+import '../screens/training_session_completion_screen.dart';
 import 'mistake_review_pack_service.dart';
 import 'smart_review_service.dart';
 import 'learning_path_progress_service.dart';
@@ -38,6 +39,7 @@ import 'gift_drop_service.dart';
 import 'session_streak_tracker_service.dart';
 import 'smart_recap_banner_controller.dart';
 import 'training_progress_tracker_service.dart';
+import 'training_progress_logger.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -644,8 +646,19 @@ class TrainingSessionService extends ChangeNotifier {
       if (ctx != null) {
         unawaited(
             ctx.read<SmartRecapBannerController>().triggerBannerIfNeeded());
+        if (_template != null) {
+          final totalHands = _spots.length;
+          unawaited(
+              TrainingProgressLogger.completeSession(_template!.id, totalHands));
+          unawaited(complete(
+            ctx,
+            resultBuilder: (_) => TrainingSessionCompletionScreen(
+              template: _template!,
+              hands: totalHands,
+            ),
+          ));
+        }
       }
-      unawaited(_clearIndex());
     }
     if (_box != null) _box!.put(_session!.id, _session!.toJson());
     _saveActive();

@@ -29,7 +29,6 @@ import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
 import 'booster_recap_screen.dart';
-import '../services/training_gap_notification_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/user_goal_engine.dart';
 import '../services/goal_toast_service.dart';
@@ -255,6 +254,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           ),
         );
         unawaited(context.read<DailyLearningGoalService>().markCompleted());
+        return;
       } else {
         await prefs.setInt(
           'progress_tpl_${tpl.id}',
@@ -269,42 +269,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         _continue = true;
         Navigator.pop(context);
         widget.onSessionEnd!();
-      } else {
-        final suggestion = await const TrainingGapNotificationService()
-            .suggestNextPack(excludeId: tpl?.id);
-        if (suggestion != null) {
-          final start = await showDialog<bool>(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: const Text('🎯 Рекомендовано продолжение:'),
-              content: Text('[${suggestion.name}] – слабая зона'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Закрыть'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Начать следующую тренировку'),
-                ),
-              ],
-            ),
-          );
-          if (start == true) {
-            await context.read<TrainingSessionService>().startSession(
-              suggestion,
-            );
-            if (!context.mounted) return;
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-            );
-            return;
-          }
-        }
-        _summaryShown = true;
-        _showSummary(service);
       }
+      return;
     } else {
       setState(() {
         _selected = null;
@@ -662,9 +628,6 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               service.template != null &&
               service.session!.index >= service.template!.spots.length) {
             _summaryShown = true;
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) => _showSummary(service),
-            );
           }
           final spot = service.currentSpot;
           if (spot == null) {
