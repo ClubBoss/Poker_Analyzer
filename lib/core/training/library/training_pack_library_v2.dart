@@ -7,6 +7,9 @@ import '../../../asset_manifest.dart';
 
 class TrainingPackLibraryV2 {
   static const packsDir = 'assets/packs/v2/';
+  static const mvpPacksDir = 'assets/training_packs/';
+  static const mvpPackId = 'push_fold_mvp';
+
   TrainingPackLibraryV2._();
   static final instance = TrainingPackLibraryV2._();
 
@@ -28,18 +31,32 @@ class TrainingPackLibraryV2 {
 
   Future<void> loadFromFolder([String path = packsDir]) async {
     final manifest = await AssetManifest.instance;
-    final paths = manifest.keys.where(
+    Iterable<String> paths = manifest.keys.where(
       (p) => p.startsWith(path) && p.endsWith('.yaml'),
     );
+    if (path == packsDir) {
+      final extra = manifest.keys.where(
+        (p) => p.startsWith(mvpPacksDir) && p.endsWith('.yaml'),
+      );
+      paths = [...paths, ...extra];
+    }
     if (paths.isEmpty) return;
     clear();
     for (final p in paths) {
       try {
         final yaml = await rootBundle.loadString(p);
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
-        addPack(tpl);
+        final version = tpl.meta['schemaVersion']?.toString();
+        if (version == null || version.startsWith('2.')) {
+          addPack(tpl);
+        }
       } catch (_) {}
     }
+    _packs.sort((a, b) {
+      if (a.id == mvpPackId) return -1;
+      if (b.id == mvpPackId) return 1;
+      return a.name.compareTo(b.name);
+    });
   }
 
   Future<void> reload() => loadFromFolder();
