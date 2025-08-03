@@ -47,6 +47,10 @@ class TrainingPackTemplateSetGenerator {
         map['id'] = '${map['id']}_${_slug(entry.name)}';
       }
       final tpl = TrainingPackTemplateV2.fromJson(map);
+      if (entry.tags.isNotEmpty) {
+        final tagSet = {...tpl.tags, ...entry.tags};
+        tpl.tags = tagSet.toList()..sort();
+      }
       final spots = <TrainingPackSpot>[];
       for (final s in set.template.spots) {
         final candidate = _toSeed(s);

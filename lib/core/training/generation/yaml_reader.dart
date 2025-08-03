@@ -34,7 +34,8 @@ class YamlReader {
         : await File(path).readAsString();
     final map = read(source);
     if ((map['template'] is Map && map['variants'] is List) ||
-        map['templateSet'] is List) {
+        map['templateSet'] is List ||
+        (map['base'] is Map && map['variations'] is List)) {
       final set = TrainingPackTemplateSet.fromJson(map);
       return const TrainingPackTemplateSetGenerator().generate(set);
     }
