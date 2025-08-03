@@ -26,6 +26,7 @@ import '../helpers/training_onboarding.dart';
 import 'package:provider/provider.dart';
 import '../services/hand_history_file_service.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_export_service.dart';
 import '../services/training_spot_of_day_service.dart';
 import '../models/training_spot.dart';
 import '../user_preferences.dart';
@@ -968,10 +969,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () async {
-                        final manager = Provider.of<SavedHandManagerService>(
-                            context,
-                            listen: false);
-                        final path = await manager.exportAllHandsMarkdown();
+                        final exporter =
+                            Provider.of<SavedHandExportService>(context,
+                                listen: false);
+                        final path = await exporter.exportAllHandsMarkdown();
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -986,10 +987,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () async {
-                        final manager = Provider.of<SavedHandManagerService>(
-                            context,
-                            listen: false);
-                        final path = await manager.exportAllHandsPdf();
+                        final exporter =
+                            Provider.of<SavedHandExportService>(context,
+                                listen: false);
+                        final path = await exporter.exportAllHandsPdf();
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

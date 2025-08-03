@@ -16,6 +16,7 @@ import '../services/streak_reminder_service.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_export_service.dart';
 import '../services/session_note_service.dart';
 import '../widgets/sync_status_widget.dart';
 import 'notification_settings_screen.dart';
@@ -61,8 +62,8 @@ class SettingsPlaceholderScreen extends StatelessWidget {
   }
 
   Future<void> _exportHands(BuildContext context) async {
-    final manager = context.read<SavedHandManagerService>();
-    final path = await manager.exportSessionsArchive();
+    final exporter = context.read<SavedHandExportService>();
+    final path = await exporter.exportSessionsArchive();
     if (path == null) return;
     await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
     if (!context.mounted) return;

@@ -11,6 +11,8 @@ import 'services/training_spot_storage_service.dart';
 import 'services/training_stats_service.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
+import 'services/saved_hand_stats_service.dart';
+import 'services/saved_hand_export_service.dart';
 import 'services/training_pack_suggestion_service.dart';
 import 'services/player_progress_service.dart';
 import 'services/player_style_service.dart';
@@ -183,6 +185,17 @@ List<SingleChildWidget> buildTrainingProviders() {
         storage: context.read<SavedHandStorageService>(),
         cloud: context.read<CloudSyncService>(),
         stats: context.read<TrainingStatsService>(),
+      ),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => SavedHandStatsService(
+        manager: context.read<SavedHandManagerService>(),
+      ),
+    ),
+    Provider(
+      create: (context) => SavedHandExportService(
+        manager: context.read<SavedHandManagerService>(),
+        stats: context.read<SavedHandStatsService>(),
       ),
     ),
     ChangeNotifierProvider(
@@ -469,6 +482,7 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) => SuggestedPackService(
         logs: context.read<SessionLogService>(),
         hands: context.read<SavedHandManagerService>(),
+        stats: context.read<SavedHandStatsService>(),
       )..load(),
     ),
     ChangeNotifierProvider(

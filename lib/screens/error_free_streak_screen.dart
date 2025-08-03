@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/saved_hand.dart';
-import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_stats_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import 'streak_history_screen.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
@@ -15,7 +15,7 @@ class ErrorFreeStreakScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<SavedHand> hands =
-        context.watch<SavedHandManagerService>().currentErrorFreeStreak();
+        context.watch<SavedHandStatsService>().currentErrorFreeStreak();
 
     return Scaffold(
       appBar: AppBar(

@@ -5,6 +5,7 @@ import '../models/saved_hand.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_stats_service.dart';
 import 'training_session_screen.dart';
 import '../theme/app_colors.dart';
 import '../screens/saved_hand_editor_screen.dart';
@@ -166,7 +167,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
 
   Future<void> _offerSimilarDrill() async {
     if (!_isMistake) return;
-    if (!context.read<SavedHandManagerService>().hasSimilarMistakes(_hand)) {
+    if (!context.read<SavedHandStatsService>().hasSimilarMistakes(_hand)) {
       return;
     }
     final start = await showDialog<bool>(
@@ -204,7 +205,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final similarCount = context.select<SavedHandManagerService, int>((s) {
+    final similarCount = context.select<SavedHandStatsService, int>((s) {
       final cat = _hand.category;
       final pos = _hand.heroPosition;
       final stack = _hand.stackSizes[_hand.heroIndex];
@@ -223,7 +224,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
           )
           .length;
     });
-    final hasSimilar = context.select<SavedHandManagerService, bool>(
+    final hasSimilar = context.select<SavedHandStatsService, bool>(
       (s) => s.hasSimilarMistakes(_hand),
     );
     final showReplay = _isMistake;

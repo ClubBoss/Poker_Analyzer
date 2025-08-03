@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_stats_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../helpers/category_translations.dart';
@@ -12,8 +12,9 @@ class TopCategoriesDrillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final list =
-        context.watch<SavedHandManagerService>().getTopMistakeCategories(limit: 3);
+    final list = context
+        .watch<SavedHandStatsService>()
+        .getTopMistakeCategories(limit: 3);
     if (list.isEmpty) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
