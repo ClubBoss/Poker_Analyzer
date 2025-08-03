@@ -15,14 +15,6 @@ class PinnedLearningService extends ChangeNotifier {
 
   List<PinnedLearningItem> get items => List.unmodifiable(_items);
 
-  void _sort() {
-    _items.sort((a, b) {
-      final seen = (b.lastSeen ?? 0).compareTo(a.lastSeen ?? 0);
-      if (seen != 0) return seen;
-      return b.openCount.compareTo(a.openCount);
-    });
-  }
-
   PinnedLearningItem? _find(String type, String id) {
     for (final e in _items) {
       if (e.type == type && e.id == id) return e;
@@ -47,7 +39,6 @@ class PinnedLearningService extends ChangeNotifier {
         }
       } catch (_) {}
     }
-    _sort();
     notifyListeners();
   }
 
@@ -65,31 +56,25 @@ class PinnedLearningService extends ChangeNotifier {
     if (isPinned(type, id)) {
       _items.removeWhere((e) => e.type == type && e.id == id);
     } else {
-      _items.add(PinnedLearningItem(type: type, id: id));
+      _items.insert(0, PinnedLearningItem(type: type, id: id));
     }
-    _sort();
     await _save();
     notifyListeners();
   }
 
   Future<void> unpin(String type, String id) async {
     _items.removeWhere((e) => e.type == type && e.id == id);
-    _sort();
     await _save();
     notifyListeners();
   }
 
   Future<void> moveToTop(String type, String id) async {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    for (var i = 0; i < _items.length; i++) {
-      final e = _items[i];
-      if (e.type == type && e.id == id) {
-        _items[i] = e.copyWith(lastSeen: now);
-        _sort();
-        await _save();
-        notifyListeners();
-        break;
-      }
+    final index = _items.indexWhere((e) => e.type == type && e.id == id);
+    if (index >= 0) {
+      final item = _items.removeAt(index);
+      _items.insert(0, item);
+      await _save();
+      notifyListeners();
     }
   }
 
@@ -100,7 +85,6 @@ class PinnedLearningService extends ChangeNotifier {
       final e = _items[i];
       if (e.type == type && e.id == id) {
         _items[i] = e.copyWith(lastPosition: position);
-        _sort();
         await _save();
         notifyListeners();
         break;
@@ -117,11 +101,18 @@ class PinnedLearningService extends ChangeNotifier {
           lastSeen: now,
           openCount: e.openCount + 1,
         );
-        _sort();
         await _save();
         notifyListeners();
         break;
       }
     }
+  }
+
+  Future<void> reorder(int oldIndex, int newIndex) async {
+    final item = _items.removeAt(oldIndex);
+    if (newIndex > oldIndex) newIndex--;
+    _items.insert(newIndex, item);
+    await _save();
+    notifyListeners();
   }
 }
