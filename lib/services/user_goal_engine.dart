@@ -86,26 +86,38 @@ class UserGoalEngine extends ChangeNotifier {
 
   int progress(UserGoal g) => _statValue(g.type) - g.base;
 
-  void _update() {
-    for (var i = 0; i < _goals.length; i++) {
-      final g = _goals[i];
-      if (!g.completed && progress(g) >= g.target) {
-        _goals[i] = g.copyWith(completedAt: DateTime.now());
-        _save();
-        unawaited(GoalAnalyticsService.instance.logGoalCompleted(_goals[i]));
-        final ctx = navigatorKey.currentContext;
-        if (ctx != null) {
-          showConfettiOverlay(ctx);
-          ScaffoldMessenger.of(
-            ctx,
-          ).showSnackBar(SnackBar(content: Text('Goal completed: ${g.title}')));
-          unawaited(
-            ctx.read<XPTrackerService>().add(
+  void _completeGoal(UserGoal g) {
+    unawaited(_save());
+    unawaited(GoalAnalyticsService.instance.logGoalCompleted(g));
+    final ctx = navigatorKey.currentContext;
+    if (ctx != null) {
+      showConfettiOverlay(ctx);
+      ScaffoldMessenger.of(ctx)
+          .showSnackBar(SnackBar(content: Text('Goal completed: ${g.title}')));
+      unawaited(
+        ctx.read<XPTrackerService>().add(
               xp: XPTrackerService.achievementXp,
               source: 'goal',
             ),
-          );
-        }
+      );
+    }
+  }
+
+  void _update() {
+    final sessions = stats.sessionsCompleted;
+    final hands = stats.handsReviewed;
+    final mistakes = stats.mistakesFixed;
+    for (var i = 0; i < _goals.length; i++) {
+      final g = _goals[i];
+      if (g.completed) continue;
+      final current = switch (g.type) {
+        'sessions' => sessions,
+        'hands' => hands,
+        _ => mistakes,
+      };
+      if (current - g.base >= g.target) {
+        _goals[i] = g.copyWith(completedAt: DateTime.now());
+        _completeGoal(_goals[i]);
       }
     }
     notifyListeners();
