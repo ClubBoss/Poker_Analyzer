@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/date_utils.dart';
 import '../services/session_log_service.dart';
+import 'session_log_detail_screen.dart';
 
 class StageSessionHistoryScreen extends StatefulWidget {
   final String stageId;
@@ -73,6 +74,14 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
                         ),
                     ],
                   ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SessionDetailScreen(logId: log.sessionId),
+                      ),
+                    );
+                  },
                 ),
               );
             },
