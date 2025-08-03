@@ -8,6 +8,14 @@ class TrainingPackOverlay extends StatelessWidget {
 
   const TrainingPackOverlay({super.key, required this.pack});
 
+  Widget _buildFab(String heroTag, IconData icon, VoidCallback onPressed) {
+    return FloatingActionButton(
+      heroTag: heroTag,
+      onPressed: onPressed,
+      child: Icon(icon),
+    );
+  }
+
   Future<void> _export(BuildContext context) async {
     // TODO: implement export logic
   }
@@ -25,23 +33,11 @@ class TrainingPackOverlay extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FloatingActionButton(
-          heroTag: 'export',
-          onPressed: () => _export(context),
-          child: const Icon(Icons.save),
-        ),
+        _buildFab('export', Icons.save, () => _export(context)),
         const SizedBox(height: 8),
-        FloatingActionButton(
-          heroTag: 'share',
-          onPressed: () => _share(context),
-          child: const Icon(Icons.share),
-        ),
+        _buildFab('share', Icons.share, () => _share(context)),
         const SizedBox(height: 8),
-        FloatingActionButton(
-          heroTag: 'print',
-          onPressed: () => _print(context),
-          child: const Icon(Icons.print),
-        ),
+        _buildFab('print', Icons.print, () => _print(context)),
       ],
     );
   }
