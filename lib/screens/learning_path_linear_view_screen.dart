@@ -5,6 +5,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../services/learning_graph_engine.dart';
 import '../services/learning_path_loader.dart';
 import '../services/mini_lesson_library_service.dart';
+import '../services/training_pack_launcher_service.dart';
 import '../services/skill_tree_node_detail_unlock_hint_service.dart';
 import '../widgets/path_node_tile.dart';
 import '../widgets/path_node_unlock_hint_overlay.dart';
@@ -66,16 +67,22 @@ class _LearningPathLinearViewScreenState
         _refresh();
       }
     } else {
-      final pack = _packs[node.trainingPackTemplateId];
-      if (pack != null) {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TrainingPackPreviewScreen(template: pack),
-          ),
-        );
+      if (node.dynamicPackId != null) {
+        await const TrainingPackLauncherService().launch(node);
         await LearningPathEngine.instance.markStageCompleted(node.id);
         _refresh();
+      } else {
+        final pack = _packs[node.trainingPackTemplateId];
+        if (pack != null) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TrainingPackPreviewScreen(template: pack),
+            ),
+          );
+          await LearningPathEngine.instance.markStageCompleted(node.id);
+          _refresh();
+        }
       }
     }
   }
@@ -107,7 +114,8 @@ class _LearningPathLinearViewScreenState
                       !isCurrent &&
                       nodeIndex > currentIndex &&
                       currentIndex >= 0;
-                  final pack = _packs[node.trainingPackTemplateId];
+                  final pack =
+                      _packs[node.trainingPackTemplateId ?? node.dynamicPackId];
                   final key = GlobalKey();
                   return PathNodeTile(
                     key: key,
