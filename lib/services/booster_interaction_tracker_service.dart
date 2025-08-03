@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'user_action_logger.dart';
+import '../utils/shared_prefs_keys.dart';
 
 /// Records when booster banners are opened or dismissed per tag.
 class BoosterInteractionTrackerService {
@@ -8,13 +9,10 @@ class BoosterInteractionTrackerService {
   static final BoosterInteractionTrackerService instance =
       BoosterInteractionTrackerService._();
 
-  static const String _openedPrefix = 'booster_opened_';
-  static const String _dismissedPrefix = 'booster_dismissed_';
-
   Future<void> logOpened(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
-      '$_openedPrefix$tag',
+      SharedPrefsKeys.boosterOpened(tag),
       DateTime.now().millisecondsSinceEpoch,
     );
     await UserActionLogger.instance.logEvent({
@@ -26,7 +24,7 @@ class BoosterInteractionTrackerService {
   Future<void> logDismissed(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
-      '$_dismissedPrefix$tag',
+      SharedPrefsKeys.boosterDismissed(tag),
       DateTime.now().millisecondsSinceEpoch,
     );
     await UserActionLogger.instance.logEvent({
@@ -37,14 +35,14 @@ class BoosterInteractionTrackerService {
 
   Future<DateTime?> getLastOpened(String tag) async {
     final prefs = await SharedPreferences.getInstance();
-    final ts = prefs.getInt('$_openedPrefix$tag');
+    final ts = prefs.getInt(SharedPrefsKeys.boosterOpened(tag));
     if (ts == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(ts);
   }
 
   Future<DateTime?> getLastDismissed(String tag) async {
     final prefs = await SharedPreferences.getInstance();
-    final ts = prefs.getInt('$_dismissedPrefix$tag');
+    final ts = prefs.getInt(SharedPrefsKeys.boosterDismissed(tag));
     if (ts == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(ts);
   }
@@ -54,15 +52,16 @@ class BoosterInteractionTrackerService {
     final prefs = await SharedPreferences.getInstance();
     final result = <String, Map<String, DateTime?>>{};
     for (final key in prefs.getKeys()) {
-      if (key.startsWith(_openedPrefix)) {
-        final tag = key.substring(_openedPrefix.length);
+      if (key.startsWith(SharedPrefsKeys.boosterOpenedPrefix)) {
+        final tag = key.substring(SharedPrefsKeys.boosterOpenedPrefix.length);
         final ts = prefs.getInt(key);
         final map = result.putIfAbsent(tag, () => {});
         if (ts != null) {
           map['opened'] = DateTime.fromMillisecondsSinceEpoch(ts);
         }
-      } else if (key.startsWith(_dismissedPrefix)) {
-        final tag = key.substring(_dismissedPrefix.length);
+      } else if (key.startsWith(SharedPrefsKeys.boosterDismissedPrefix)) {
+        final tag =
+            key.substring(SharedPrefsKeys.boosterDismissedPrefix.length);
         final ts = prefs.getInt(key);
         final map = result.putIfAbsent(tag, () => {});
         if (ts != null) {
@@ -73,4 +72,3 @@ class BoosterInteractionTrackerService {
     return result;
   }
 }
-

@@ -1,15 +1,15 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/shared_prefs_keys.dart';
+
 /// Limits how often booster inbox banners can be shown per tag and per day.
 class SmartBoosterInboxLimiterService {
   SmartBoosterInboxLimiterService();
 
   static const int maxPerDay = 2;
   static const Duration tagCooldown = Duration(hours: 48);
-
-  static String _tagKey(String tag) => 'booster_inbox_last_$tag';
-  static const String _totalDateKey = 'booster_inbox_total_date';
-  static const String _totalCountKey = 'booster_inbox_total_count';
+  static const String _totalDateKey = SharedPrefsKeys.boosterInboxTotalDate;
+  static const String _totalCountKey = SharedPrefsKeys.boosterInboxTotalCount;
 
   String _todayKey(DateTime dt) =>
       '${dt.year.toString().padLeft(4, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
@@ -27,7 +27,8 @@ class SmartBoosterInboxLimiterService {
     }
     if (count >= maxPerDay) return false;
 
-    final lastMillis = prefs.getInt(_tagKey(tag));
+    final lastMillis =
+        prefs.getInt(SharedPrefsKeys.boosterInboxLast(tag));
     if (lastMillis != null) {
       final last = DateTime.fromMillisecondsSinceEpoch(lastMillis);
       if (now.difference(last) < tagCooldown) {
@@ -41,7 +42,10 @@ class SmartBoosterInboxLimiterService {
   Future<void> recordShown(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    await prefs.setInt(_tagKey(tag), now.millisecondsSinceEpoch);
+    await prefs.setInt(
+      SharedPrefsKeys.boosterInboxLast(tag),
+      now.millisecondsSinceEpoch,
+    );
 
     final dateKey = _todayKey(now);
     final storedDate = prefs.getString(_totalDateKey);
