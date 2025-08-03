@@ -1,0 +1,132 @@
+id: push_fold_mvp
+name: Push/Fold Beginner Pack
+audience: Beginner
+trainingType: mtt
+bb: 10
+gameType: tournament
+positions:
+  - sb
+  - btn
+  - co
+tags:
+  - beginner
+  - push-fold
+  - mtt
+spots:
+  - id: pf1
+    title: SB shove KQo 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: push
+    hand:
+      heroCards: Kc Qd
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: pf2
+    title: SB shove J4o 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: fold
+    hand:
+      heroCards: Jd 4c
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: pf3
+    title: BTN shove A5s 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: push
+    hand:
+      heroCards: As 5s
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: pf4
+    title: BTN shove Q8o 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: fold
+    hand:
+      heroCards: Qh 8d
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: pf5
+    title: CO shove 55 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: push
+    hand:
+      heroCards: 5c 5d
+      position: co
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+  - id: pf6
+    title: CO shove J9o 10bb?
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    correctAction: fold
+    hand:
+      heroCards: Jc 9d
+      position: co
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 10
+        '1': 10
+        '2': 10
+        '3': 10
+        '4': 10
+        '5': 10
+spotCount: 6
+meta:
+  schemaVersion: 2.0.0
