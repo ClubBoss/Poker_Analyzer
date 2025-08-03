@@ -1,158 +1,43 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../models/training_spot.dart';
-import '../../models/action_entry.dart';
-import '../../models/card_model.dart';
-import '../../models/player_model.dart';
-import '../../services/evaluation_executor_service.dart';
-
-import '../../helpers/hand_utils.dart';
-import '../../helpers/hand_type_utils.dart';
-
-import '../../models/v2/training_pack_template.dart';
-import '../../models/v2/training_pack_spot.dart';
-import '../../models/v2/training_pack_variant.dart';
-import '../../widgets/spot_quiz_widget.dart';
-import '../../widgets/common/explanation_text.dart';
-import '../../widgets/dynamic_progress_row.dart';
-import '../../theme/app_colors.dart';
-import '../../services/streak_service.dart';
-import '../../services/streak_tracker_service.dart';
-import '../../services/notification_service.dart';
-import '../../services/mistake_review_pack_service.dart';
+import 'training_pack_play_base.dart';
 import 'training_pack_result_screen_v2.dart';
-import '../../services/mistake_categorization_engine.dart';
-import '../../models/mistake.dart';
-import '../../widgets/poker_table_view.dart' show PlayerAction;
-import 'package:uuid/uuid.dart';
-import '../../helpers/mistake_advice.dart';
-import '../../services/learning_path_progress_service.dart';
-import '../../services/learning_path_service.dart';
-import '../../services/smart_review_service.dart';
-import '../../services/tag_mastery_service.dart';
-import '../../services/training_pack_template_builder.dart';
-import '../../services/achievement_service.dart';
-import '../../services/achievement_trigger_engine.dart';
-import '../../services/training_session_service.dart';
-import '../training_recommendation_screen.dart';
-import '../../services/pack_dependency_map.dart';
-import '../../services/pack_library_loader_service.dart';
-import '../../services/smart_stage_unlock_engine.dart';
-import '../../services/mistake_tag_classifier.dart';
-import '../../services/mistake_tag_cluster_service.dart';
-import '../../core/training/library/training_pack_library_v2.dart';
-import '../../models/v2/training_pack_template_v2.dart';
-import '../../services/training_session_launcher.dart';
-import '../../services/pinned_learning_service.dart';
-import 'training_pack_play_core.dart';
 
-class TrainingPackPlayScreen extends StatefulWidget {
-  final TrainingPackTemplate template;
-  final TrainingPackTemplate original;
-  final TrainingPackVariant? variant;
-  final List<TrainingPackSpot>? spots;
+class TrainingPackPlayScreen extends TrainingPackPlayBase {
   const TrainingPackPlayScreen({
     super.key,
-    required this.template,
-    this.variant,
-    this.spots,
+    required super.template,
+    super.variant,
+    super.spots,
     TrainingPackTemplate? original,
-  }) : original = original ?? template;
+  }) : super(original: original);
 
   @override
   State<TrainingPackPlayScreen> createState() => _TrainingPackPlayScreenState();
 }
 
-class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen>
-    with TrainingPackPlayCore<TrainingPackPlayScreen> {
-  late List<TrainingPackSpot> _spots;
-  Map<String, String> _results = {};
-  int _index = 0;
-  bool _loading = true;
-  PlayOrder _order = PlayOrder.sequential;
-  int _streetCount = 0;
-  final Map<String, int> _handCounts = {};
-  final Map<String, int> _handTotals = {};
-  bool _summaryShown = false;
-  bool _autoAdvance = false;
-  SpotFeedback? _feedback;
-  Timer? _feedbackTimer;
-
-  @override
-  TrainingPackTemplate get template => widget.template;
-
-  @override
-  List<TrainingPackSpot> get spots => _spots;
-
-  @override
-  set spots(List<TrainingPackSpot> value) => _spots = value;
-
-  @override
-  Map<String, String> get results => _results;
-
-  @override
-  set results(Map<String, String> value) => _results = value;
-
-  @override
-  int get index => _index;
-
-  @override
-  set index(int value) => _index = value;
-
-  @override
-  bool get loading => _loading;
-
-  @override
-  set loading(bool value) => _loading = value;
-
-  @override
-  PlayOrder get order => _order;
-
-  @override
-  set order(PlayOrder value) => _order = value;
-
-  @override
-  int get streetCount => _streetCount;
-
-  @override
-  set streetCount(int value) => _streetCount = value;
-
-  @override
-  Map<String, int> get handCounts => _handCounts;
-
-  @override
-  Map<String, int> get handTotals => _handTotals;
-
-  @override
-  bool get summaryShown => _summaryShown;
-
-  @override
-  set summaryShown(bool value) => _summaryShown = value;
-
-  @override
-  bool get autoAdvance => _autoAdvance;
-
-  @override
-  set autoAdvance(bool value) => _autoAdvance = value;
-
-  @override
-  SpotFeedback? get feedback => _feedback;
-
-  @override
-  set feedback(SpotFeedback? value) => _feedback = value;
-
-  @override
-  Timer? get feedbackTimer => _feedbackTimer;
-
-  @override
-  set feedbackTimer(Timer? value) => _feedbackTimer = value;
+class _TrainingPackPlayScreenState
+    extends TrainingPackPlayBaseState<TrainingPackPlayScreen> {
+  List<TrainingPackSpot> get _spots => spots;
+  set _spots(List<TrainingPackSpot> value) => spots = value;
+  Map<String, String> get _results => results;
+  set _results(Map<String, String> value) => results = value;
+  int get _index => index;
+  set _index(int value) => index = value;
+  bool get _loading => loading;
+  set _loading(bool value) => loading = value;
+  PlayOrder get _order => order;
+  set _order(PlayOrder value) => order = value;
+  int get _streetCount => streetCount;
+  set _streetCount(int value) => streetCount = value;
+  Map<String, int> get _handCounts => handCounts;
+  Map<String, int> get _handTotals => handTotals;
+  bool get _summaryShown => summaryShown;
+  set _summaryShown(bool value) => summaryShown = value;
+  bool get _autoAdvance => autoAdvance;
+  set _autoAdvance(bool value) => autoAdvance = value;
+  SpotFeedback? get _feedback => feedback;
+  set _feedback(SpotFeedback? value) => feedback = value;
+  Timer? get _feedbackTimer => feedbackTimer;
+  set _feedbackTimer(Timer? value) => feedbackTimer = value;
 
   @override
   void initState() {
