@@ -61,15 +61,19 @@ class TrainingSpotStorageService extends ChangeNotifier {
     await save(spots);
   }
 
+  Future<List<TrainingSpot>> _filteredSpots(
+      Map<String, dynamic> filters) async {
+    final spots = await load();
+    return [
+      for (final s in spots)
+        if (_matchesFilters(s, filters)) s,
+    ];
+  }
+
   Future<int?> evaluateFilterCount(Map<String, dynamic> filters) async {
     try {
-      final spots = await load();
-      int count = 0;
-      for (final s in spots) {
-        if (!_matchesFilters(s, filters)) continue;
-        count++;
-      }
-      return count;
+      final spots = await _filteredSpots(filters);
+      return spots.length;
     } catch (_) {
       return null;
     }
@@ -77,11 +81,9 @@ class TrainingSpotStorageService extends ChangeNotifier {
 
   Future<bool?> filterAllHaveEv(Map<String, dynamic> filters) async {
     try {
-      final spots = await load();
-      bool any = false;
+      final spots = await _filteredSpots(filters);
+      if (spots.isEmpty) return false;
       for (final s in spots) {
-        if (!_matchesFilters(s, filters)) continue;
-        any = true;
         bool hasEv = false;
         for (final a in s.actions) {
           if (a.playerIndex == s.heroIndex && a.ev != null) {
@@ -91,7 +93,7 @@ class TrainingSpotStorageService extends ChangeNotifier {
         }
         if (!hasEv) return false;
       }
-      return any;
+      return true;
     } catch (_) {
       return null;
     }
@@ -99,12 +101,10 @@ class TrainingSpotStorageService extends ChangeNotifier {
 
   Future<double?> filterEvCoverage(Map<String, dynamic> filters) async {
     try {
-      final spots = await load();
-      int total = 0;
+      final spots = await _filteredSpots(filters);
+      final total = spots.length;
       int covered = 0;
       for (final s in spots) {
-        if (!_matchesFilters(s, filters)) continue;
-        total++;
         for (final a in s.actions) {
           if (a.playerIndex == s.heroIndex && a.action == 'push') {
             if (a.ev != null) covered++;
