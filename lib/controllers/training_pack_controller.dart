@@ -98,40 +98,30 @@ class TrainingPackController extends ChangeNotifier {
   }
 
   void reorder(int oldIndex, int newIndex) {
-    // Remove the spot from the filtered list and keep a reference to it.
-    final item = _removeFromVisible(oldIndex);
-    // Insert the spot into the filtered list at its new position.
-    _insertIntoVisible(newIndex, item);
-    // Remove the corresponding spot from the base list.
-    final baseItem = _removeFromBase(item);
-    // Determine the insertion index within the base list.
-    final baseIndex = _findBaseInsertionIndex(newIndex);
-    // Insert the spot into the base list at the computed position.
-    _insertIntoBase(baseIndex, baseItem);
+    _moveSpot(oldIndex, newIndex);
     saveSpots();
     notifyListeners();
   }
 
-  /// Removes the spot from the currently filtered list.
-  TrainingSpot _removeFromVisible(int index) => _spots.removeAt(index);
+  /// Moves a spot within the filtered list and keeps the base list in sync.
+  ///
+  /// [oldIndex] and [newIndex] refer to positions in the filtered list. This
+  /// method removes the spot from both the filtered and base lists and
+  /// reinserts it at the desired location using built-in list operations.
+  void _moveSpot(int oldIndex, int newIndex) {
+    // Remove the spot from the filtered list and from the full list.
+    final spot = _spots.removeAt(oldIndex);
+    _allSpots.remove(spot);
 
-  /// Inserts the spot into the currently filtered list.
-  void _insertIntoVisible(int index, TrainingSpot spot) =>
-      _spots.insert(index, spot);
+    // Determine the position in the base list based on the new filtered index.
+    final baseIndex = newIndex >= _spots.length
+        ? _allSpots.length
+        : _allSpots.indexOf(_spots[newIndex]);
 
-  /// Removes the spot from the full list of spots.
-  TrainingSpot _removeFromBase(TrainingSpot spot) =>
-      _allSpots.removeAt(_allSpots.indexOf(spot));
-
-  /// Computes the index where the spot should be inserted in the base list.
-  int _findBaseInsertionIndex(int newIndex) {
-    final target = newIndex >= _spots.length ? null : _spots[newIndex];
-    return target == null ? _allSpots.length : _allSpots.indexOf(target);
+    // Insert the spot into both lists at their respective positions.
+    _spots.insert(newIndex, spot);
+    _allSpots.insert(baseIndex, spot);
   }
-
-  /// Inserts the spot into the full list of spots.
-  void _insertIntoBase(int index, TrainingSpot spot) =>
-      _allSpots.insert(index, spot);
 
   void clearFilters() {
     _stackFilter = null;
