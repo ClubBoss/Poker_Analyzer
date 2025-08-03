@@ -39,6 +39,8 @@ class PokerAnalyzerController extends ChangeNotifier {
 
   Map<int, String> get playerPositions => Map.unmodifiable(_playerPositions);
   void setPlayerPosition(int index, String position) {
+    final current = _playerPositions[index];
+    if (current == position) return;
     _update(() {
       _playerPositions[index] = position;
     });
@@ -46,6 +48,8 @@ class PokerAnalyzerController extends ChangeNotifier {
 
   Map<int, PlayerType> get playerTypes => Map.unmodifiable(_playerTypes);
   void setPlayerType(int index, PlayerType type) {
+    final current = _playerTypes[index];
+    if (current == type) return;
     _update(() {
       _playerTypes[index] = type;
     });
