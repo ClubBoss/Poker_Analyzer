@@ -21,17 +21,44 @@ class NudgeFatigueDetectorService {
   ///   5 impressions.
   Future<bool> isFatigued(PinnedLearningItem item) async {
     final stats = await _logger.getStatsFor(item.id);
+    final now = DateTime.now();
     final impressions = (stats['impressions'] as int?) ?? 0;
     final opens = (stats['opens'] as int?) ?? 0;
     final dismissals = (stats['dismissals'] as int?) ?? 0;
+    final lastOpenedMillis = stats['lastOpened'] as int?;
+    final lastDismissedMillis = stats['lastDismissed'] as int?;
 
-    if (dismissals >= 3 && opens == 0) return true;
-
-    if (impressions > 5 && dismissals > 0) {
-      final ratio = opens / dismissals;
-      if (ratio < 0.2) return true;
+    if (lastOpenedMillis != null) {
+      final lastOpened =
+          DateTime.fromMillisecondsSinceEpoch(lastOpenedMillis);
+      if (now.difference(lastOpened) < const Duration(days: 7)) {
+        return false;
+      }
     }
 
-    return false;
+    var fatigued = false;
+
+    if (dismissals >= 3 && opens == 0) {
+      fatigued = true;
+    } else if (impressions > 5 && dismissals > 0) {
+      final ratio = opens / dismissals;
+      if (ratio < 0.2) fatigued = true;
+    }
+
+    if (!fatigued) return false;
+
+    if (lastDismissedMillis == null) return false;
+    final lastDismissed =
+        DateTime.fromMillisecondsSinceEpoch(lastDismissedMillis);
+    final sinceDismiss = now.difference(lastDismissed);
+    if (sinceDismiss < const Duration(days: 3)) return true;
+    if (sinceDismiss >= const Duration(days: 7)) return false;
+
+    return true;
+  }
+
+  /// Clears any recorded fatigue for the given [id].
+  Future<void> clearFatigueFor(String id) async {
+    await _logger.clearFatigueFor(id);
   }
 }
