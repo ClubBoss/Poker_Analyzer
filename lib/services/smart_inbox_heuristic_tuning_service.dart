@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'booster_exclusion_analytics_dashboard_service.dart';
 
 /// Dynamically tunes Smart Inbox delivery heuristics based on exclusion analytics.
@@ -34,8 +36,7 @@ class SmartInboxHeuristicTuningService {
 
       if (total > overuseThreshold) {
         cooldownOverrides[tag] = const Duration(hours: 12);
-        // ignore: avoid_print
-        print(
+        developer.log(
             'SmartInboxHeuristicTuningService: increased cooldown for $tag due to $total exclusions');
       }
 
@@ -43,16 +44,14 @@ class SmartInboxHeuristicTuningService {
       if (dedup > reasonThreshold) {
         priorityAdjustments[tag] =
             (priorityAdjustments[tag] ?? 0) - 0.5; // lower priority
-        // ignore: avoid_print
-        print(
+        developer.log(
             'SmartInboxHeuristicTuningService: lowered priority for $tag due to $dedup deduplications');
       }
 
       final rateLimited = reasons['rateLimited'] ?? 0;
       if (rateLimited > reasonThreshold) {
         dailyLimitAdjustments[tag] = (dailyLimitAdjustments[tag] ?? 0) + 1;
-        // ignore: avoid_print
-        print(
+        developer.log(
             'SmartInboxHeuristicTuningService: increased daily limit for $tag due to $rateLimited rate limits');
       }
     }
@@ -61,14 +60,12 @@ class SmartInboxHeuristicTuningService {
     const globalThreshold = 10;
     final dedupTotal = data.exclusionsByReason['deduplicated'] ?? 0;
     if (dedupTotal > globalThreshold) {
-      // ignore: avoid_print
-      print(
+      developer.log(
           'SmartInboxHeuristicTuningService: high global deduplicated count ($dedupTotal), consider relaxing dedupe rules');
     }
     final rateLimitTotal = data.exclusionsByReason['rateLimited'] ?? 0;
     if (rateLimitTotal > globalThreshold) {
-      // ignore: avoid_print
-      print(
+      developer.log(
           'SmartInboxHeuristicTuningService: high global rateLimited count ($rateLimitTotal), consider adjusting rate limits');
     }
   }
