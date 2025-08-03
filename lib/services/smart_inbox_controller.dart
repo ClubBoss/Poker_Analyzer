@@ -5,6 +5,7 @@ import 'smart_booster_diversity_scheduler_service.dart';
 import 'smart_booster_inbox_limiter_service.dart';
 import 'smart_pinned_block_booster_provider.dart';
 import 'smart_inbox_item_deduplication_service.dart';
+import 'smart_inbox_priority_scorer_service.dart';
 
 /// Aggregates smart inbox items for the user.
 class SmartInboxController {
@@ -13,17 +14,21 @@ class SmartInboxController {
     SmartBoosterInboxLimiterService? inboxLimiter,
     SmartBoosterDiversitySchedulerService? diversityScheduler,
     SmartInboxItemDeduplicationService? deduplicator,
+    SmartInboxPriorityScorerService? priorityScorer,
   })  : boosterProvider = boosterProvider ?? SmartPinnedBlockBoosterProvider(),
         inboxLimiter = inboxLimiter ?? SmartBoosterInboxLimiterService(),
         diversityScheduler =
             diversityScheduler ?? SmartBoosterDiversitySchedulerService(),
         deduplicator =
-            deduplicator ?? SmartInboxItemDeduplicationService();
+            deduplicator ?? SmartInboxItemDeduplicationService(),
+        priorityScorer =
+            priorityScorer ?? SmartInboxPriorityScorerService();
 
   final SmartPinnedBlockBoosterProvider boosterProvider;
   final SmartBoosterInboxLimiterService inboxLimiter;
   final SmartBoosterDiversitySchedulerService diversityScheduler;
   final SmartInboxItemDeduplicationService deduplicator;
+  final SmartInboxPriorityScorerService priorityScorer;
 
   /// Returns widgets to display in the smart inbox.
   Future<List<Widget>> getInboxItems() async {
@@ -32,8 +37,9 @@ class SmartInboxController {
     if (boosters.isNotEmpty) {
       final scheduled = await diversityScheduler.schedule(boosters);
       final deduped = await deduplicator.deduplicate(scheduled);
+      final sorted = await priorityScorer.sort(deduped);
       final allowed = <PinnedBlockBoosterSuggestion>[];
-      for (final b in deduped) {
+      for (final b in sorted) {
         if (await inboxLimiter.canShow(b.tag)) {
           await inboxLimiter.recordShown(b.tag);
           allowed.add(b);
