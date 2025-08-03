@@ -7,14 +7,17 @@ class StackRangeFilter {
 
   static (int?, int?) _parseRange(String raw) {
     if (raw.endsWith('+')) {
-      return (int.tryParse(raw.substring(0, raw.length - 1)) ?? 0, null);
+      final min = int.tryParse(raw.substring(0, raw.length - 1));
+      if (min == null || min < 0) return (null, null);
+      return (min, null);
     }
     final parts = raw.split('-');
     if (parts.length == 2) {
-      return (
-        int.tryParse(parts[0]) ?? 0,
-        int.tryParse(parts[1]) ?? 0,
-      );
+      final min = int.tryParse(parts[0]);
+      final max = int.tryParse(parts[1]);
+      if (min == null || max == null) return (null, null);
+      if (min < 0 || max < 0 || min > max) return (null, null);
+      return (min, max);
     }
     return (null, null);
   }
