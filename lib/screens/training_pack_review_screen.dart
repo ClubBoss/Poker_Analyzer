@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -58,7 +59,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final sortIndex = prefs.getInt(_sortKey) ?? 0;
     setState(() {
       _prefs = prefs;
@@ -69,7 +70,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
   }
 
   Future<void> _savePrefs() async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     await prefs.setBool(_mistakesKey, _onlyMistakes);
     await prefs.setInt(_sortKey, _sort.index);
     await prefs.setString(_searchKey, _searchController.text);
@@ -563,7 +564,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                 : (v) async {
                     setState(() => _onlyMistakes = v);
                     final prefs =
-                        _prefs ?? await SharedPreferences.getInstance();
+                        _prefs ?? await PreferencesService.getInstance();
                     await prefs.setBool(_mistakesKey, v);
                   },
             activeColor: Colors.orange,
@@ -582,7 +583,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                         onPressed: () async {
                           _searchController.clear();
                           final prefs =
-                              _prefs ?? await SharedPreferences.getInstance();
+                              _prefs ?? await PreferencesService.getInstance();
                           await prefs.setString(_searchKey, '');
                           setState(() {});
                         },
@@ -591,7 +592,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
               onChanged: (_) async {
                 setState(() {});
                 final prefs =
-                    _prefs ?? await SharedPreferences.getInstance();
+                    _prefs ?? await PreferencesService.getInstance();
                 await prefs.setString(_searchKey, _searchController.text);
               },
             ),
@@ -619,7 +620,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                     if (value == null) return;
                     setState(() => _sort = value);
                     final prefs =
-                        _prefs ?? await SharedPreferences.getInstance();
+                        _prefs ?? await PreferencesService.getInstance();
                     await prefs.setInt(_sortKey, value.index);
                   },
                 ),

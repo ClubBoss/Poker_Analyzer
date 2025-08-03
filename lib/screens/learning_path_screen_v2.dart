@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -104,7 +105,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     setState(() => _loading = true);
     final aggregated = _progressTracker.aggregateLogsByPack(_logs.logs);
     final mastery = await _mastery.computeMastery();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final theoryMap = <String, bool>{};
     final boosterMap = <String, String?>{};
     for (final stage in widget.template.stages) {
@@ -252,7 +253,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     }
     await const TrainingSessionLauncher().launch(template);
     if (mounted) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final completed = prefs.getBool('completed_tpl_${template.id}') ?? false;
       if (completed) {
         await prefs.setBool('completed_booster_$id', true);
@@ -292,7 +293,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     }
     await const TrainingSessionLauncher().launch(template);
     if (mounted) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final completed = prefs.getBool('completed_tpl_${template.id}') ?? false;
       if (completed) {
         await prefs.setString('justCompletedTheoryStageId', stage.id);

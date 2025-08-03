@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -77,7 +78,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   }
 
   Future<void> _loadFilters() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final tags = prefs.getStringList(_tagsKey);
     if (tags != null) _activeTags.addAll(tags);
     final levels = prefs.getStringList(_levelsKey);
@@ -123,7 +124,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   }
 
   Future<void> _saveTags() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_activeTags.isEmpty) {
       await prefs.remove(_tagsKey);
     } else {
@@ -132,12 +133,12 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   }
 
   Future<void> _saveLevels() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(_levelsKey, _levels.map((e) => e.name).toList());
   }
 
   Future<void> _saveRange() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_range == null) {
       await prefs.remove(_startKey);
       await prefs.remove(_endKey);
@@ -148,7 +149,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   }
 
   Future<void> _saveCompareRange() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_compareRange == null) {
       await prefs.remove(_cmpStartKey);
       await prefs.remove(_cmpEndKey);
@@ -160,7 +161,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   }
 
   Future<void> _saveComparePrevious() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_prevKey, _comparePrevious);
   }
 
@@ -189,7 +190,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
 
   Future<void> _setChartMode(_ChartMode mode) async {
     setState(() => _chartMode = mode);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_chartModeKey, mode.name);
   }
 

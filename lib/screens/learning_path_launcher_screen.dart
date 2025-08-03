@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,7 +28,7 @@ class _LearningPathLauncherScreenState
   }
 
   Future<void> _loadMode() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stored = prefs.getString(_prefsKey);
     setState(() {
       if (stored == 'linear') {
@@ -40,7 +41,7 @@ class _LearningPathLauncherScreenState
   }
 
   Future<void> _setMode(LearningPathViewMode mode) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsKey, mode == LearningPathViewMode.linear ? 'linear' : 'horizontal');
     setState(() {
       _mode = mode;

@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
@@ -34,7 +35,7 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
   }
 
   Future<void> _maybeShowOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final seen = prefs.getBool('lesson_onboarding_seen') ?? false;
     if (seen) return;
     final trackId = prefs.getString('lesson_selected_track');
@@ -50,7 +51,7 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
     if (!isFirst) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showLessonOnboardingOverlay(context, onDismiss: () async {
-        final p = await SharedPreferences.getInstance();
+        final p = await PreferencesService.getInstance();
         await p.setBool('lesson_onboarding_seen', true);
       });
     });

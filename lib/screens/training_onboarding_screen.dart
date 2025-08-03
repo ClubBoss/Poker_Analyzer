@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
@@ -21,7 +22,7 @@ class _TrainingOnboardingScreenState extends State<TrainingOnboardingScreen> {
   }
 
   Future<void> _finish() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool('seen_training_onboarding', true);
     if (!mounted) return;
     Navigator.pushReplacement(

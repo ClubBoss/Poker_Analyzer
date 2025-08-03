@@ -1,5 +1,5 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'player_input_screen.dart';
 import 'saved_hands_screen.dart';
@@ -180,8 +180,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   Future<void> _loadDismissed() async {
-    final prefs = await SharedPreferences.getInstance();
-    final str = prefs.getString(_dismissedKey);
+    final str = await PreferencesService.getString(_dismissedKey);
     if (!mounted) return;
     if (str != null) {
       final dt = DateTime.tryParse(str);
@@ -191,7 +190,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           _dismissedDate = dt;
         });
       } else {
-        await prefs.remove(_dismissedKey);
+        await PreferencesService.remove(_dismissedKey);
       }
     }
   }
@@ -217,13 +216,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       _suggestedDismissed = true;
       _dismissedDate = now;
     });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_dismissedKey, now.toIso8601String());
+    await PreferencesService.setString(
+        _dismissedKey, now.toIso8601String());
   }
 
   Future<void> _clearDismissed() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_dismissedKey);
+    await PreferencesService.remove(_dismissedKey);
     if (!mounted) return;
     setState(() {
       _suggestedDismissed = false;

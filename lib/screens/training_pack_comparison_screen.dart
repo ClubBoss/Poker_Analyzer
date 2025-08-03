@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
@@ -250,7 +251,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
+    PreferencesService.getInstance().then((p) {
       if (mounted) {
         setState(() {
           _prefs = p;
@@ -539,7 +540,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 
   Future<void> _setColorTag() async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     final color = await showColorPickerDialog(
       context,
       initialColor: _lastColor,
@@ -720,7 +721,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                 onChanged: (v) async {
                   final value = v ?? 0;
                   setState(() => _diffFilter = value);
-                  final prefs = _prefs ?? await SharedPreferences.getInstance();
+                  final prefs = _prefs ?? await PreferencesService.getInstance();
                   if (value == 0) {
                     await prefs.remove('pack_diff_filter');
                   } else {
@@ -749,7 +750,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                 style: const TextStyle(color: Colors.white),
                 onChanged: (v) async {
                   final value = v ?? 'All';
-                  final prefs = _prefs ?? await SharedPreferences.getInstance();
+                  final prefs = _prefs ?? await PreferencesService.getInstance();
                   if (value == 'Custom') {
                     final color = await showColorPickerDialog(
                       context,

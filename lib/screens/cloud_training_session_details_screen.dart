@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -65,7 +66,7 @@ class _CloudTrainingSessionDetailsScreenState
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
       _prefs = prefs;
       _onlyErrors = prefs.getBool(_mistakesKey) ?? false;
@@ -73,7 +74,7 @@ class _CloudTrainingSessionDetailsScreenState
   }
 
   Future<void> _setMistakesOnly(bool v) async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     await prefs.setBool(_mistakesKey, v);
     setState(() => _onlyErrors = v);
   }

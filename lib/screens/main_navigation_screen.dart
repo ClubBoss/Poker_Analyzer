@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -114,14 +115,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   Future<void> _loadIndex() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     var idx = prefs.getInt(_indexKey) ?? 0;
     if (_simpleNavigation && idx > 3) idx = 0;
     setState(() => _currentIndex = idx);
   }
 
   Future<void> _saveIndex(int value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_indexKey, value);
   }
 

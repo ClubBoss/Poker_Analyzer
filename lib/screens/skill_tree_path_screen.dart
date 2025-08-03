@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 
 import '../models/skill_tree.dart';
@@ -77,7 +78,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final hasNewTheory = newTheoryNodeIds.isNotEmpty;
     final hasNewPractice = newPracticeNodeIds.isNotEmpty;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final blocks = _listBuilder.stageMarker.build(nodes);
     final folded = <int>{};
     _stageKeys.clear();
@@ -220,7 +221,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   String _foldKey(int stage) => 'stage_fold_${widget.trackId}_$stage';
 
   Future<void> _toggleStageFold(int stage) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
       if (_foldedStages.contains(stage)) {
         _foldedStages.remove(stage);

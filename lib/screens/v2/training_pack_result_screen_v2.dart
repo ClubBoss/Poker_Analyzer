@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:math';
 import 'dart:io';
 import 'dart:convert';
@@ -82,7 +83,7 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
     final tpl = await weak.buildPack();
     final rec = weak.recommendation;
     if (tpl == null || rec == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'weak_tip_${rec.position.name}';
     final lastStr = prefs.getString(key);
     if (lastStr != null) {
@@ -162,7 +163,7 @@ class _TrainingPackResultScreenV2State extends State<TrainingPackResultScreenV2>
   }
 
   Future<void> _repeat(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.remove('tpl_seq_${widget.original.id}');
     await prefs.remove('tpl_prog_${widget.original.id}');
     await prefs.remove('tpl_res_${widget.original.id}');

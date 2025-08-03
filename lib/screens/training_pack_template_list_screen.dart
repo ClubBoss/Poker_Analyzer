@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -57,7 +58,7 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _loadSort() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final name = prefs.getString(_prefsSortKey);
     if (name != null) {
       try {
@@ -68,7 +69,7 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _loadCollapsed() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = prefs.getStringList(_prefsCollapsedKey) ?? [];
     if (list.isNotEmpty && mounted) {
       setState(() {
@@ -80,37 +81,37 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _loadShowFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final value = prefs.getBool(_prefsFavKey) ?? false;
     if (mounted) setState(() => _showFavoritesOnly = value);
   }
 
   Future<void> _loadGroupByStreet() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final value = prefs.getBool(_prefsGroupKey) ?? false;
     if (mounted) setState(() => _groupByStreet = value);
   }
 
   Future<void> _setSort(_SortOption value) async {
     setState(() => _sort = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString(_prefsSortKey, value.name);
   }
 
   Future<void> _setShowFavoritesOnly(bool value) async {
     setState(() => _showFavoritesOnly = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_prefsFavKey, value);
   }
 
   Future<void> _setGroupByStreet(bool value) async {
     setState(() => _groupByStreet = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setBool(_prefsGroupKey, value);
   }
 
   Future<void> _saveCollapsed() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList(
       _prefsCollapsedKey,
       [

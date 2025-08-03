@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,7 +42,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
     final tracks = await const TrackVisibilityFilterEngine()
         .filterUnlockedTracks(allTracks, profile);
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final selected = prefs.getString('lesson_selected_track');
     final progress =
         await LessonPathProgressService.instance.computeTrackProgress();
@@ -104,7 +105,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
           false;
     }
     if (!ok) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('lesson_selected_track', track.id);
     if (!mounted) return;
     setState(() => _future = _load());

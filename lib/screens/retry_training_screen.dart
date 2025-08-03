@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -38,7 +39,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
       tags: const [],
       notes: null,
     );
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final history = prefs.getStringList('training_history') ?? [];
     history.add(jsonEncode(result.toJson()));
     await prefs.setStringList('training_history', history);

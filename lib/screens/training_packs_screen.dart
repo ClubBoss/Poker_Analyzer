@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -129,7 +130,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
       _prefs = prefs;
       _hideCompleted = prefs.getBool(_hideKey) ?? false;
@@ -145,13 +146,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
   Future<void> _toggleHideCompleted(bool value) async {
     setState(() => _hideCompleted = value);
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     await prefs.setBool(_hideKey, value);
   }
 
   Future<void> _setTypeFilter(GameType? value) async {
     setState(() => _typeFilter = value);
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     if (value == null) {
       await prefs.remove(_typeKey);
     } else {
@@ -161,7 +162,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
   Future<void> _setDiffFilter(int value) async {
     setState(() => _diffFilter = value);
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     if (value == 0) {
       await prefs.remove(_diffKey);
     } else {
@@ -170,7 +171,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   }
 
   Future<void> _setColorFilter(String value) async {
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     if (value == 'Custom') {
       final color = await showColorPickerDialog(
         context,
@@ -603,7 +604,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           value: _groupByColor,
           onChanged: (v) async {
             setState(() => _groupByColor = v);
-            final prefs = _prefs ?? await SharedPreferences.getInstance();
+            final prefs = _prefs ?? await PreferencesService.getInstance();
             await prefs.setBool(_groupKey, v);
           },
           activeColor: Colors.orange,

@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,7 +79,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final sortVal = prefs.getInt(_sortPrefKey);
     if (sortVal != null && sortVal >= 0 && sortVal < _SortOption.values.length) {
       _sort = _SortOption.values[sortVal];
@@ -114,7 +115,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Future<void> _setSort(_SortOption value) async {
     if (_sort == value) return;
     setState(() => _sort = value);
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setInt(_sortPrefKey, value.index);
   }
 

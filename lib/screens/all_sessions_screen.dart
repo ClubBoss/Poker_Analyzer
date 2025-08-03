@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -73,7 +74,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   }
 
   Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final startStr = prefs.getString('sessions_date_start');
     final endStr = prefs.getString('sessions_date_end');
     DateTimeRange? range;
@@ -118,7 +119,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   }
 
   Future<void> _savePreferences() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('sessions_filter', _filter);
     await prefs.setString('sessions_sortMode', _sortMode);
     await prefs.setBool('sessions_show_summary', _showSummary);

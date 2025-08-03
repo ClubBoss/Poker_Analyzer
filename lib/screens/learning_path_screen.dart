@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_pack_template_service.dart';
@@ -43,7 +44,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   }
 
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stored = prefs.getString(_prefsKey);
     if (stored != null) {
       for (final entry in _paths.entries) {
@@ -187,7 +188,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               value: _selected,
               onChanged: (v) async {
                 if (v == null) return;
-                final prefs = await SharedPreferences.getInstance();
+                final prefs = await PreferencesService.getInstance();
                 final file = _paths[v]!.split('/').last;
                 await prefs.setString(_prefsKey, file);
                 setState(() => _selected = v);

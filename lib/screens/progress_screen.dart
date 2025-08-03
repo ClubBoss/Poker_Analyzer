@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -183,7 +184,7 @@ class _ProgressScreenState extends State<ProgressScreen>
   }
 
   Future<void> _loadDailySpot() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final dateStr = prefs.getString('daily_spot_date');
     if (dateStr == null) return;
     final date = DateTime.tryParse(dateStr);

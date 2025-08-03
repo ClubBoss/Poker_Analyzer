@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -237,7 +238,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     await _checkGoalProgress();
     final tpl = service.template;
     if (tpl != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       if (next == null) {
         await prefs.remove('progress_tpl_${tpl.id}');
         await prefs.setBool('completed_tpl_${tpl.id}', true);
@@ -355,7 +356,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           ),
         );
       }
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       final acc = total == 0 ? 0.0 : correct * 100 / total;
       await prefs.setBool('completed_tpl_${tpl.id}', true);
       await LearningPathProgressService.instance.markCompleted(tpl.id);

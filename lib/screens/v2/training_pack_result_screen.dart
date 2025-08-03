@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -240,7 +241,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       });
     }
     final achieved = _correct == _total;
-    SharedPreferences.getInstance()
+    PreferencesService.getInstance()
         .then((p) => p.setBool('tpl_goal_${widget.original.id}', achieved));
     final storage = context.read<TrainingPackTemplateStorageService>();
     if (widget.original.focusHandTypes.isNotEmpty) {
@@ -301,7 +302,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       correct: _correct,
       total: _total,
     ));
-    SharedPreferences.getInstance().then((p) =>
+    PreferencesService.getInstance().then((p) =>
         p.setString('last_trained_tpl_${widget.original.id}', DateTime.now().toIso8601String()));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _firstKey.currentContext;
@@ -490,7 +491,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
               onPressed: _mistakes == 0
                   ? null
                   : () async {
-                      final prefs = await SharedPreferences.getInstance();
+                      final prefs = await PreferencesService.getInstance();
                       await prefs.remove('tpl_seq_${widget.original.id}');
                       await prefs.remove('tpl_prog_${widget.original.id}');
                       await prefs.remove('tpl_res_${widget.original.id}');
@@ -556,7 +557,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     final tpl = await weak.buildPack();
     final rec = weak.recommendation;
     if (tpl == null || rec == null) return;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final key = 'weak_tip_${rec.position.name}';
     final lastStr = prefs.getString(key);
     if (lastStr != null) {

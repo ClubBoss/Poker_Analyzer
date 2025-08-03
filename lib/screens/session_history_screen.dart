@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,7 +40,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final stats = context.read<TrainingStatsService>();
     final startStr = prefs.getString(_startKey);
     final endStr = prefs.getString(_endKey);
@@ -56,7 +57,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   }
 
   Future<void> _savePrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     if (_startDate != null) {
       await prefs.setString(_startKey, _startDate!.toIso8601String());
     } else {

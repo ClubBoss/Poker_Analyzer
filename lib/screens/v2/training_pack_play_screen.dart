@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -109,7 +110,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   }
 
   Future<void> _prepare() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
       _autoAdvance = prefs.getBool('auto_adv_${widget.template.id}') ?? false;
     });
@@ -123,7 +124,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final seqKey = 'tpl_seq_${widget.template.id}';
     final progKey = 'tpl_prog_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
@@ -209,7 +210,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   }
 
   Future<void> _save({bool ts = true}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setStringList('tpl_seq_${widget.template.id}', [for (final s in _spots) s.id]);
     await prefs.setInt('tpl_prog_${widget.template.id}', _index);
     await prefs.setString('tpl_res_${widget.template.id}', jsonEncode(_results));
@@ -510,7 +511,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     );
     final ctx = navigatorKey.currentContext;
     if (ctx != null && isFinalStep) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       if (!prefs.containsKey('post_starter_path_choice')) {
         final choice = await showDialog<String>(
           context: ctx,
@@ -580,7 +581,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           .markActiveToday(context);
       await NotificationService.cancel(101);
       await NotificationService.cancel(102);
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setString('last_training_day',
           DateTime.now().toIso8601String().split('T').first);
       await NotificationService.scheduleDailyReminder(context);
@@ -859,7 +860,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                     : Colors.white70),
             onPressed: () async {
               setState(() => _autoAdvance = !_autoAdvance);
-              final prefs = await SharedPreferences.getInstance();
+              final prefs = await PreferencesService.getInstance();
               prefs.setBool('auto_adv_${widget.template.id}', _autoAdvance);
             },
           ),
@@ -873,7 +874,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                     _index = 0;
                     _results.clear();
                   });
-                  final prefs = await SharedPreferences.getInstance();
+                  final prefs = await PreferencesService.getInstance();
                   prefs
                     ..remove('tpl_seq_${widget.template.id}')
                     ..remove('tpl_res_${widget.template.id}')

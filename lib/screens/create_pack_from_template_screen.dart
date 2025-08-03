@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,7 +72,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     setState(() {
       _prefs = prefs;
       _color = colorFromHex(prefs.getString(_colorKey) ?? widget.template.defaultColor);
@@ -205,7 +206,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
       return;
     }
     final service = context.read<TrainingPackStorageService>();
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     await prefs.setString(_colorKey, colorToHex(_color));
     await prefs.setBool(_tagsKey, _addTags);
     await prefs.setString(_lastPositionKey, _positionFilter);
@@ -279,7 +280,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
                         onSelected: (s) async {
                           if (!s) return;
                           final prefs = _prefs ??
-                              await SharedPreferences.getInstance();
+                              await PreferencesService.getInstance();
                           await prefs.setString(_lastPositionKey, p);
                           setState(() => _positionFilter = p);
                         },

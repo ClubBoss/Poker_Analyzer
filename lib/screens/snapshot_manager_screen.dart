@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +57,7 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
             ),
             confirmDismiss: (dir) async {
               if (dir == DismissDirection.startToEnd) {
-                final prefs = await SharedPreferences.getInstance();
+                final prefs = await PreferencesService.getInstance();
                 final last =
                     prefs.getString('pack_editor_last_snapshot_restored');
                 if (last == s.id) {

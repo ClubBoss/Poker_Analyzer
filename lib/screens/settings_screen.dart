@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 
 import '../user_preferences.dart';
@@ -120,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialTime: _challengeTime,
     );
     if (picked != null) {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await PreferencesService.getInstance();
       await prefs.setInt('daily_challenge_reminder_hour', picked.hour);
       await prefs.setInt('daily_challenge_reminder_minute', picked.minute);
       await DailyChallengeNotificationService.scheduleDailyReminder(

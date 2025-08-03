@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/training_pack_template_service.dart';
@@ -42,7 +43,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
+    PreferencesService.getInstance().then((p) {
       _showCompleted = p.getBool('show_completed_packs') ?? false;
       if (mounted) _load();
     });
@@ -71,7 +72,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     final similar = last != null
         ? await TrainingPackService.createSimilarMistakeDrill(last)
         : null;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = [
       ...builtIn.where(
         (t) =>
@@ -133,7 +134,7 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
   }
 
   Future<void> _toggle(bool value) async {
-    final p = await SharedPreferences.getInstance();
+    final p = await PreferencesService.getInstance();
     await p.setBool('show_completed_packs', value);
     setState(() => _showCompleted = value);
     _load();

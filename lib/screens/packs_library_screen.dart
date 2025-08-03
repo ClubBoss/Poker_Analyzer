@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
@@ -190,7 +191,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final list = TrainingPackAssetLoader.instance.getAll();
     list.sort((a, b) {
       final d1 = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -252,7 +253,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   }
 
   Future<void> _restoreState() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final data = prefs.getString(_PrefsKey);
     if (data != null) {
       try {
@@ -321,7 +322,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       groupByPosition: _currentGroupKey == 'position',
       groupByStack: _currentGroupKey == 'stack',
     );
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final json = jsonEncode({
       'query': _query,
       'status': _statusFilters.toList(),
@@ -762,7 +763,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       .read<TrainingSessionService>()
                       .startFromPastMistakes(t);
                   if (session == null) {
-                    final prefs = await SharedPreferences.getInstance();
+                    final prefs = await PreferencesService.getInstance();
                     await prefs.setBool('mistakes_tpl_${t.id}', false);
                     if (mounted) {
                       setState(() => _mistakePacks.remove(t.id));

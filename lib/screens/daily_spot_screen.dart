@@ -1,6 +1,6 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
@@ -20,7 +20,6 @@ class _DailySpotScreenState extends State<DailySpotScreen> {
   bool _show = false;
 
   Future<void> _finish() async {
-    final prefs = await SharedPreferences.getInstance();
     final packs = context.read<TrainingPackStorageService>().packs;
     String? id;
     for (int i = 0; i < packs.length; i++) {
@@ -31,11 +30,15 @@ class _DailySpotScreenState extends State<DailySpotScreen> {
       }
     }
     final now = DateTime.now();
-    await prefs.setString('daily_spot_date', now.toIso8601String());
-    final history = prefs.getStringList('daily_spot_history') ?? [];
+    await PreferencesService.setString(
+        'daily_spot_date', now.toIso8601String());
+    final history =
+        (await PreferencesService.getStringList('daily_spot_history')) ?? [];
     history.add(now.toIso8601String());
-    await prefs.setStringList('daily_spot_history', history);
-    if (id != null) await prefs.setString('daily_spot_id', id);
+    await PreferencesService.setStringList('daily_spot_history', history);
+    if (id != null) {
+      await PreferencesService.setString('daily_spot_id', id);
+    }
     if (mounted) {
       Navigator.pushReplacement(
         context,
@@ -81,9 +84,7 @@ class DailySpotDoneScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Спот дня')),
-      actions: [SyncStatusIcon.of(context)],
-      actions: [SyncStatusIcon.of(context)],
+      appBar: AppBar(title: const Text('Спот дня'), actions: [SyncStatusIcon.of(context)]),
       backgroundColor: const Color(0xFF121212),
       body: const Center(
         child: Text(

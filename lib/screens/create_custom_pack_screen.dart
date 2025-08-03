@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -40,7 +41,7 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final cat = prefs.getString(_lastCategoryKey);
     if (cat != null && cat.isNotEmpty) {
       _categoryController.text = cat;
@@ -203,7 +204,7 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
       history: const [],
     );
     await context.read<TrainingPackStorageService>().addCustomPack(pack);
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final prefs = _prefs ?? await PreferencesService.getInstance();
     final cat = _categoryController.text.trim();
     if (cat.isNotEmpty) await prefs.setString(_lastCategoryKey, cat);
     if (!mounted) return;

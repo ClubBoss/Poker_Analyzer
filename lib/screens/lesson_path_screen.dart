@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,7 +43,7 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
   }
 
   Future<List<dynamic>> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     final id = prefs.getString('lesson_selected_track');
     if (id == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

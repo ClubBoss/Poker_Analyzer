@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -99,7 +100,7 @@ class _TrackProgressDashboardScreenState
 
   Future<void> _continueTrack(LessonTrack track, Map<String, bool> completed,
       List<LessonStep> steps) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('lesson_selected_track', track.id);
     final id = track.stepIds.firstWhere((e) => completed[e] != true,
         orElse: () => track.stepIds.last);

@@ -1,3 +1,4 @@
+import 'package:poker_analyzer/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,7 +43,7 @@ class _TrackSelectorScreenState extends State<TrackSelectorScreen> {
   }
 
   Future<void> _select(BuildContext context, LessonTrack track) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferencesService.getInstance();
     await prefs.setString('lesson_selected_track', track.id);
     if (context.mounted) {
       Navigator.pushReplacement(
