@@ -1,26 +1,38 @@
 import 'package:intl/intl.dart';
 
 String? _locale;
+DateFormat? _dateTimeFmt;
+DateFormat? _dateFmt;
+DateFormat? _longDateFmt;
 
-String _currentLocale() => _locale ??= Intl.getCurrentLocale();
+String _currentLocale() {
+  final locale = Intl.getCurrentLocale();
+  if (_locale != locale) {
+    _locale = locale;
+    _dateTimeFmt = null;
+    _dateFmt = null;
+    _longDateFmt = null;
+  }
+  return locale;
+}
 
-late final DateFormat _dateTimeFmt =
-    DateFormat('dd.MM.yyyy HH:mm', _currentLocale());
-late final DateFormat _dateFmt =
-    DateFormat('dd.MM.yyyy', _currentLocale());
-late final DateFormat _longDateFmt =
-    DateFormat('d MMMM y', _currentLocale());
+DateFormat get _dateTimeFormat =>
+    _dateTimeFmt ??= DateFormat('dd.MM.yyyy HH:mm', _currentLocale());
+DateFormat get _dateFormat =>
+    _dateFmt ??= DateFormat('dd.MM.yyyy', _currentLocale());
+DateFormat get _longDateFormat =>
+    _longDateFmt ??= DateFormat('d MMMM y', _currentLocale());
 
 String formatDateTime(DateTime date) {
-  return _dateTimeFmt.format(date);
+  return _dateTimeFormat.format(date);
 }
 
 String formatDate(DateTime date) {
-  return _dateFmt.format(date);
+  return _dateFormat.format(date);
 }
 
 String formatLongDate(DateTime date) {
-  return _longDateFmt.format(date);
+  return _longDateFormat.format(date);
 }
 
 String formatDuration(Duration d) {
