@@ -81,8 +81,7 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
         final size = a.amount != null ? ' ${a.amount}' : '';
         final style = TextStyle(
           color: Colors.white,
-          fontWeight:
-              isHeroAction(a, widget.heroIndex) ? FontWeight.bold : null,
+          fontWeight: a.isHero(widget.heroIndex) ? FontWeight.bold : null,
         );
         return Row(
           children: [
