@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
+import '../services/shared_preferences_service.dart';
 
 import '../models/mistake_tag.dart';
 import '../models/mistake_tag_cluster.dart';
@@ -33,7 +33,8 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final cacheTimeStr = prefs.getString(_cacheTimeKey);
     final cacheId = prefs.getString(_cacheKey);
     final now = DateTime.now();

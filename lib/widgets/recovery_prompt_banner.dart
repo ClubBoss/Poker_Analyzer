@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/skill_recovery_pack_engine.dart';
 import '../services/training_history_service_v2.dart';
@@ -11,6 +10,7 @@ import '../services/suggested_training_packs_history_service.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../screens/v2/training_pack_play_screen.dart';
+import '../services/shared_preferences_service.dart';
 
 class RecoveryPromptBanner extends StatefulWidget {
   const RecoveryPromptBanner({super.key});
@@ -33,7 +33,8 @@ class _RecoveryPromptBannerState extends State<RecoveryPromptBanner> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final now = DateTime.now();
     final hideStr = prefs.getString(_hideKey);
     if (hideStr != null) {
@@ -68,7 +69,8 @@ class _RecoveryPromptBannerState extends State<RecoveryPromptBanner> {
   }
 
   Future<void> _dismiss() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.setString(
       _hideKey,
       DateTime.now().add(const Duration(hours: 48)).toIso8601String(),

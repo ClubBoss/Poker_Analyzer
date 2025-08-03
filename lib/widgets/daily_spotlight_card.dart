@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/daily_spotlight_service.dart';
 import '../screens/v2/training_pack_play_screen.dart';
+import '../services/shared_preferences_service.dart';
 
 class DailySpotlightCard extends StatefulWidget {
   const DailySpotlightCard({super.key});
@@ -17,14 +17,16 @@ class _DailySpotlightCardState extends State<DailySpotlightCard> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
+    SharedPreferencesService.instance.init().then((_) {
+      final p = SharedPreferencesService.instance;
       if (!mounted) return;
       setState(() => _hidden = p.getBool('hide_today_card') ?? false);
     });
   }
 
   Future<void> _hide() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.setBool('hide_today_card', true);
     if (mounted) setState(() => _hidden = true);
   }

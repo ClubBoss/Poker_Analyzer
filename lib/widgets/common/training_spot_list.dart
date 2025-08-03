@@ -8,10 +8,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../services/training_pack_tag_analytics_service.dart';
+import '../../services/shared_preferences_service.dart';
 
 import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
@@ -528,8 +528,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 
   Future<void> _loadPresets() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await _restoreOrderFromPrefs(prefs);
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
+    await _restoreOrderFromPrefs(prefs.prefs);
     final List<String> tags = prefs.getStringList(_prefsTagsKey) ?? <String>[];
     final String search = prefs.getString(_prefsSearchKey) ?? '';
     final bool expanded = prefs.getBool(_prefsExpandedKey) ?? true;
@@ -669,7 +670,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _savePresets() async {
     if (!_presetsLoaded) return;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.setStringList(_prefsTagsKey, _selectedTags.toList());
     await prefs.setString(_prefsSearchKey, _searchController.text);
     await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
@@ -727,7 +729,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _saveOrderToPrefs() async {
     if (!_presetsLoaded) return;
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.setStringList(
       _prefsOrderKey,
       [for (final s in widget.spots) jsonEncode(s.toJson())],
@@ -735,7 +738,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 
   Future<void> _saveSearchHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.setStringList(_prefsSearchHistoryKey, _searchHistory);
   }
 
@@ -752,7 +756,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _clearSearchHistory() async {
     _searchHistory.clear();
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.remove(_prefsSearchHistoryKey);
   }
 
@@ -2201,7 +2206,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   void didUpdateWidget(covariant TrainingSpotList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_orderRestored && widget.spots.isNotEmpty && _presetsLoaded) {
-      SharedPreferences.getInstance().then(_restoreOrderFromPrefs);
+      SharedPreferencesService.instance.init().then(
+          (_) => _restoreOrderFromPrefs(SharedPreferencesService.instance.prefs));
     }
   }
 

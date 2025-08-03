@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/lesson_streak_engine.dart';
 import 'confetti_overlay.dart';
+import '../services/shared_preferences_service.dart';
 
 /// Banner displaying current lesson streak.
 class StreakBannerWidget extends StatefulWidget {
@@ -36,7 +36,8 @@ class _StreakBannerWidgetState extends State<StreakBannerWidget>
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final disabled = prefs.getBool(_disabledKey) ?? false;
     final trackId = prefs.getString('lesson_selected_track');
     final value = await LessonStreakEngine.instance.getCurrentStreak();

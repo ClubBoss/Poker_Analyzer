@@ -7,7 +7,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/saved_hand.dart';
 import '../theme/constants.dart';
@@ -16,6 +15,7 @@ import '../helpers/mistake_advice.dart';
 import 'saved_hand_tile.dart';
 import '../helpers/date_utils.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+import '../services/shared_preferences_service.dart';
 
 /// Internal enum for accuracy filter options.
 enum _AccuracyFilter { all, errors, correct }
@@ -72,7 +72,8 @@ class _SavedHandListViewState extends State<SavedHandListView> {
   }
 
   Future<void> _loadAccuracy() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final stored = prefs.getString(_prefsAccuracyKey);
     if (stored != null && mounted) {
       setState(() => _accuracy = _parseAccuracy(stored));
@@ -80,7 +81,8 @@ class _SavedHandListViewState extends State<SavedHandListView> {
   }
 
   Future<void> _saveAccuracy(_AccuracyFilter value) async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.setString(_prefsAccuracyKey, _accuracyToString(value));
   }
 

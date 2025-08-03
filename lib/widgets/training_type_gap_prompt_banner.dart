@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_template.dart';
@@ -9,6 +8,7 @@ import '../services/pack_library_loader_service.dart';
 import '../services/training_session_service.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../screens/training_session_screen.dart';
+import '../services/shared_preferences_service.dart';
 
 /// Banner prompting the user to train the weakest [TrainingType].
 ///
@@ -46,7 +46,8 @@ class _TrainingTypeGapPromptBannerState extends State<TrainingTypeGapPromptBanne
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final hideStr = prefs.getString(_hideKey);
     final now = DateTime.now();
     if (hideStr != null) {
@@ -95,7 +96,8 @@ class _TrainingTypeGapPromptBannerState extends State<TrainingTypeGapPromptBanne
   }
 
   Future<void> _hide() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final until = DateTime.now().add(const Duration(days: 1));
     await prefs.setString(_hideKey, until.toIso8601String());
     if (mounted) setState(() => _pack = null);

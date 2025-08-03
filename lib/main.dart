@@ -53,7 +53,6 @@ import 'app_bootstrap.dart';
 import 'app_providers.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 import 'helpers/training_pack_storage.dart';
 import 'screens/v2/training_pack_play_screen.dart';
@@ -81,6 +80,7 @@ import 'services/theory_lesson_notification_scheduler.dart';
 import 'services/booster_recall_decay_cleaner.dart';
 import 'services/pinned_comeback_nudge_service.dart';
 import 'route_observer.dart';
+import 'services/shared_preferences_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -95,8 +95,9 @@ Future<void> main() async {
     if (!auth.isSignedIn) {
       final uid = await auth.signInAnonymously();
       if (uid != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('anon_uid_log', uid);
+        await SharedPreferencesService.instance.init();
+        await SharedPreferencesService.instance
+            .setString('anon_uid_log', uid);
       }
     }
   }

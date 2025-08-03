@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 
 import '../models/training_pack_template.dart';
@@ -8,6 +7,7 @@ import '../services/template_storage_service.dart';
 import '../services/training_session_service.dart';
 import '../services/training_topic_suggestion_engine.dart';
 import '../screens/training_session_screen.dart';
+import '../services/shared_preferences_service.dart';
 
 class SmartSuggestionBanner extends StatefulWidget {
   final Set<String> selectedTags;
@@ -34,7 +34,8 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final hideStr = prefs.getString(_hideKey);
     final now = DateTime.now();
     if (hideStr != null) {
@@ -81,7 +82,8 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
     }
     await prefs.setString(_packKey, tpl.id);
     await prefs.setString(_tagKey, tag);
-    await prefs.setString(_dateKey, DateTime(now.year, now.month, now.day).toIso8601String());
+    await prefs.setString(
+        _dateKey, DateTime(now.year, now.month, now.day).toIso8601String());
     if (mounted) {
       setState(() {
         _pack = tpl;
@@ -92,7 +94,8 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
   }
 
   Future<void> _hide() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final until = DateTime.now().add(const Duration(days: 1));
     await prefs.setString(_hideKey, until.toIso8601String());
     if (mounted) setState(() => _pack = null);

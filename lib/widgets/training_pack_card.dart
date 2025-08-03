@@ -5,10 +5,10 @@ import '../services/pinned_pack_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/mistake_category_translations.dart';
 import 'coverage_meter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/date_utils.dart';
 import '../services/training_pack_stats_service.dart';
 import 'package:intl/intl.dart';
+import '../services/shared_preferences_service.dart';
 
 class TrainingPackCard extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -54,7 +54,8 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   }
 
   Future<void> _resetProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.remove('progress_tpl_${widget.template.id}');
     await prefs.remove('completed_tpl_${widget.template.id}');
     await prefs.remove('completed_at_tpl_${widget.template.id}');
@@ -138,7 +139,8 @@ class _TrainingPackCardState extends State<TrainingPackCard> {
   }
 
   Future<void> _loadStats() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     final ts = DateTime.tryParse(
       prefs.getString('completed_at_tpl_${widget.template.id}') ?? '',
     );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../screens/lesson_path_screen.dart';
 import '../../services/track_unlock_reason_service.dart';
+import '../../services/shared_preferences_service.dart';
 
 /// A simple modal that explains how to unlock a learning track.
 class TrackUnlockHintDialog extends StatelessWidget {
@@ -53,7 +53,8 @@ class TrackUnlockHintDialog extends StatelessWidget {
         if (prerequisiteId != null && prerequisiteTitle != null)
           TextButton(
             onPressed: () async {
-              final prefs = await SharedPreferences.getInstance();
+              await SharedPreferencesService.instance.init();
+              final prefs = SharedPreferencesService.instance;
               await prefs.setString(
                   'lesson_selected_track', prerequisiteId!);
               Navigator.pushReplacement(

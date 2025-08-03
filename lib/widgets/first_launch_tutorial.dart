@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
+import '../services/shared_preferences_service.dart';
 
 class FirstLaunchTutorial extends StatefulWidget {
   final VoidCallback onComplete;
@@ -19,7 +19,8 @@ class _FirstLaunchTutorialState extends State<FirstLaunchTutorial> {
   int _index = 0;
 
   Future<void> _next() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     await prefs.setBool('intro_step_$_index', true);
     if (_index == _steps.length - 1) {
       widget.onComplete();
@@ -29,7 +30,8 @@ class _FirstLaunchTutorialState extends State<FirstLaunchTutorial> {
   }
 
   Future<void> _skip() async {
-    final prefs = await SharedPreferences.getInstance();
+    await SharedPreferencesService.instance.init();
+    final prefs = SharedPreferencesService.instance;
     for (int i = 0; i < _steps.length; i++) {
       await prefs.setBool('intro_step_$i', true);
     }
