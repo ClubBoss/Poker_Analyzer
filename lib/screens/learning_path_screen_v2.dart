@@ -513,7 +513,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             borderRadius: BorderRadius.circular(4),
           )
         : null;
-    final stats = _logs.getStats(stage.packId);
+    final stats = _logs.getStatsWithHistory(stage.packId);
     Widget? subtitle;
     if (stats.handsPlayed > 0) {
       final chip = StageProgressChip(stats: stats);

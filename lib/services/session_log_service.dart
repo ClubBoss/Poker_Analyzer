@@ -17,6 +17,23 @@ class StageStats {
   const StageStats({required this.handsPlayed, required this.accuracy});
 }
 
+/// Accuracy trend entry for a single session.
+class StageTrendPoint {
+  final DateTime date;
+  final double accuracy;
+  const StageTrendPoint({required this.date, required this.accuracy});
+}
+
+/// Extended stats including recent session history.
+class StageStatsWithHistory extends StageStats {
+  final List<StageTrendPoint> history;
+  const StageStatsWithHistory({
+    required int handsPlayed,
+    required double accuracy,
+    required this.history,
+  }) : super(handsPlayed: handsPlayed, accuracy: accuracy);
+}
+
 class SessionLogService extends ChangeNotifier {
   SessionLogService({required TrainingSessionService sessions, this.cloud})
       : _sessions = sessions {
@@ -45,6 +62,30 @@ class SessionLogService extends ChangeNotifier {
     }
     final acc = hands == 0 ? 0.0 : correct / hands * 100;
     return StageStats(handsPlayed: hands, accuracy: acc);
+  }
+
+  /// Returns aggregated stats along with recent session history for [templateId].
+  StageStatsWithHistory getStatsWithHistory(String templateId, [int recent = 7]) {
+    int hands = 0;
+    int correct = 0;
+    final history = <StageTrendPoint>[];
+    for (final log in _logs) {
+      if (log.templateId != templateId) continue;
+      final total = log.correctCount + log.mistakeCount;
+      hands += total;
+      correct += log.correctCount;
+      if (history.length < recent) {
+        final acc = total == 0 ? 0.0 : log.correctCount / total * 100;
+        history.add(StageTrendPoint(date: log.completedAt, accuracy: acc));
+      }
+    }
+    history.sort((a, b) => a.date.compareTo(b.date));
+    final acc = hands == 0 ? 0.0 : correct / hands * 100;
+    return StageStatsWithHistory(
+      handsPlayed: hands,
+      accuracy: acc,
+      history: history,
+    );
   }
 
   Future<void> load() async {
