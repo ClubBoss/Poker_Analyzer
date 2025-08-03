@@ -1,6 +1,12 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'reward_analytics_entry.g.dart';
+
+@JsonSerializable()
 class RewardAnalyticsEntry {
   final String tag;
   final String rewardType;
+  @JsonKey(fromJson: _dateFromJson, toJson: _dateToJson)
   final DateTime timestamp;
 
   const RewardAnalyticsEntry({
@@ -9,18 +15,12 @@ class RewardAnalyticsEntry {
     required this.timestamp,
   });
 
-  Map<String, dynamic> toJson() => {
-        'tag': tag,
-        'rewardType': rewardType,
-        'timestamp': timestamp.toIso8601String(),
-      };
+  factory RewardAnalyticsEntry.fromJson(Map<String, dynamic> json) =>
+      _$RewardAnalyticsEntryFromJson(json);
 
-  factory RewardAnalyticsEntry.fromJson(Map<String, dynamic> json) {
-    return RewardAnalyticsEntry(
-      tag: json['tag'] as String? ?? '',
-      rewardType: json['rewardType'] as String? ?? '',
-      timestamp:
-          DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
-    );
-  }
+  Map<String, dynamic> toJson() => _$RewardAnalyticsEntryToJson(this);
+
+  static DateTime _dateFromJson(String? date) =>
+      DateTime.tryParse(date ?? '') ?? DateTime.now();
+  static String _dateToJson(DateTime date) => date.toIso8601String();
 }
