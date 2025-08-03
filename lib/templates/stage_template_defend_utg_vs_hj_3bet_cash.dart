@@ -9,4 +9,5 @@ const LearningPathStageModel defendUtgVsHj3betCashStageTemplate = LearningPathSt
   requiredAccuracy: 80,
   minHands: 10,
   tags: ['threebetDefense', 'cash', 'preflop', 'level2', 'utg', 'vsHj'],
+  unlocks: ['postflop_utg_call_vs_hj_3bet_cash'],
 );

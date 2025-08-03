@@ -23,6 +23,7 @@ nodes:
   - type: stage
     stageId: threebet_hj_vs_utg_cash
     next: [defend_utg_vs_hj_3bet_cash]
+  # UTG choice: defend or fold versus Hijack 3-bet
   - type: stage
     stageId: defend_utg_vs_hj_3bet_cash
     next: [postflop_utg_call_vs_hj_3bet_cash]
