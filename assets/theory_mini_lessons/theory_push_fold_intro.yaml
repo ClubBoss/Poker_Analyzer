@@ -1,0 +1,23 @@
+id: lesson_push_fold_intro
+title: 'Push/Fold Basics'
+content: 'Core concepts of the push/fold strategy.'
+tags:
+  - pushFold
+  - beginner
+  - level1
+linkedPackIds:
+  - push_fold_mvp
+parts:
+  - title: 'What is push/fold?'
+    content: |
+      Push/fold is a short-stack strategy where you either move all-in or
+      fold before the flop. It simplifies decisions and maximizes fold equity.
+  - title: 'Why 10bb?'
+    content: |
+      Around ten big blinds, traditional raises commit a large portion of your
+      stack. Shoving avoids tough postflop spots and leverages fold equity.
+  - title: 'How to decide'
+    content: |
+      Compare your hand to recommended ranges, consider position and opponents,
+      then choose to push all-in or fold to preserve your stack.
+type: mini

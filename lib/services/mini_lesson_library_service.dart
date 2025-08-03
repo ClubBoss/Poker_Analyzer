@@ -9,7 +9,10 @@ class MiniLessonLibraryService {
   MiniLessonLibraryService._();
   static final MiniLessonLibraryService instance = MiniLessonLibraryService._();
 
-  static const String _dir = 'assets/mini_lessons/';
+  static const List<String> _dirs = [
+    'assets/mini_lessons/',
+    'assets/theory_mini_lessons/',
+  ];
 
   final List<TheoryMiniLessonNode> _lessons = [];
   final Map<String, TheoryMiniLessonNode> _byId = {};
@@ -30,7 +33,7 @@ class MiniLessonLibraryService {
     _byTag.clear();
     final manifest = await AssetManifest.instance;
     final paths = manifest.keys
-        .where((p) => p.startsWith(_dir) && p.endsWith('.yaml'))
+        .where((p) => _dirs.any((d) => p.startsWith(d)) && p.endsWith('.yaml'))
         .toList();
     for (final path in paths) {
       try {
