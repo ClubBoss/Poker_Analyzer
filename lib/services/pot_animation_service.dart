@@ -34,10 +34,11 @@ class PotAnimationService {
   String? _highlightedPlayer;
 
   void showWinnerHighlight(BuildContext context, String playerName) {
-    final state = playerZoneRegistry[playerName];
+    final registry = Provider.of<PlayerZoneRegistry>(context, listen: false);
+    final state = registry[playerName];
     if (state == null) return;
     if (_highlightedPlayer != null && _highlightedPlayer != playerName) {
-      final prev = playerZoneRegistry[_highlightedPlayer!];
+      final prev = registry[_highlightedPlayer!];
       prev?.clearWinnerHighlight();
     }
     _highlightedPlayer = playerName;
@@ -245,13 +246,14 @@ class PotAnimationService {
     });
   }
 
-  Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
+  Future<void> triggerRefundAnimations(
+      Map<int, int> refunds, PlayerZoneRegistry registry) async {
     for (final entry in refunds.entries) {
       final playerIndex = entry.key;
       final amount = entry.value;
       if (amount <= 0) continue;
       dynamic state;
-      for (final s in playerZoneRegistry.values) {
+      for (final s in registry.values) {
         if (s.widget.playerIndex == playerIndex) {
           state = s;
           break;
