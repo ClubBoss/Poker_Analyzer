@@ -13,41 +13,23 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen>
-    with TrainingPackTemplateIo, TrainingPackTemplateFilterPanel {
-  static const _prefsHideKey = 'tpl_hide_completed';
-  static const _prefsGroupKey = 'tpl_group_by_street';
-  static const _prefsTypeKey = 'tpl_group_by_type';
+    with
+        TrainingPackTemplateIo,
+        TrainingPackTemplateFilterPanel,
+        TrainingPackTemplateSortFilterController {
   static const _prefsMixedHandKey = 'tpl_mixed_handgoal_only';
   static const _prefsMixedCountKey = 'tpl_mixed_count';
   static const _prefsMixedStreetKey = 'tpl_mixed_street';
   static const _prefsMixedAutoKey = 'tpl_mixed_auto';
   static const _prefsEndlessKey = 'tpl_endless_drill';
   static const _prefsFavoritesKey = 'tpl_favorites';
-  static const _prefsShowFavOnlyKey = 'tpl_show_fav_only';
-  static const _prefsSortKey = 'tpl_sort_option';
-  static const _prefsStackKey = 'tpl_stack_filter';
-  static const _prefsPosKey = 'tpl_pos_filter';
-  static const _prefsDifficultyKey = 'tpl_diff_filter';
-  static const _prefsStreetKey = 'tpl_street_filter';
   static const _prefsRecentKey = 'tpl_recent_packs';
-  static const _prefsInProgressKey = 'tpl_in_progress';
   static const _stackRanges = ['0-9', '10-15', '16-25', '26+'];
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
-  String _query = '';
   late TextEditingController _searchCtrl;
-  final Set<String> _tagFilters = {};
   TrainingPackTemplate? _lastRemoved;
   int _lastIndex = 0;
-  GameType? _selectedType;
-  String? _selectedTag;
-  bool _filtersShown = false;
-  bool _completedOnly = false;
-  bool _hideCompleted = false;
-  bool _groupByStreet = false;
-  bool _groupByType = false;
-  bool _icmOnly = false;
-  String _sort = 'coverage';
   List<GeneratedPackInfo> _history = [];
   int _mixedCount = 20;
   bool _mixedAutoOnly = false;
@@ -62,38 +44,10 @@ class _TrainingPackTemplateListScreenState
   final Map<String, Map<String, int>> _handGoalTotal = {};
   final Map<String, TrainingPackStat?> _stats = {};
   final Set<String> _favorites = {};
-  bool _showFavoritesOnly = false;
-  bool _showNeedsEvalOnly = false;
-  bool _showInProgressOnly = false;
   bool _autoEvalRunning = false;
   Timer? _autoEvalTimer;
   bool _autoEvalQueued = false;
-  String? _stackFilter;
-  HeroPosition? _posFilter;
-  String? _difficultyFilter;
-  String? _streetFilter;
   final List<String> _recentIds = [];
-
-  Future<void> _loadSort() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_prefsSortKey);
-    if (mounted && value != null) {
-      setState(() {
-        _sort = value;
-        _sortTemplates();
-      });
-    }
-  }
-
-  Future<void> _setSort(String value) async {
-    setState(() {
-      _sort = value;
-      _sortTemplates();
-    });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsSortKey, value);
-  }
-
   Future<void> refreshFromStorage() async {
     final list = await TrainingPackStorage.load();
     if (!mounted) return;
@@ -103,19 +57,6 @@ class _TrainingPackTemplateListScreenState
         ..addAll(list);
       _sortTemplates();
     });
-  }
-
-  List<GeneratedPackInfo> _dedupHistory() {
-    final map = <String, GeneratedPackInfo>{};
-    for (final h in _history) {
-      final existing = map[h.id];
-      if (existing == null || h.ts.isAfter(existing.ts)) {
-        map[h.id] = h;
-      }
-    }
-    final list = map.values.toList()
-      ..sort((a, b) => b.ts.compareTo(a.ts));
-    return list;
   }
 
   void _sortTemplates() {
@@ -297,27 +238,6 @@ class _TrainingPackTemplateListScreenState
     if (mounted) setState(() {});
   }
 
-  Future<void> _loadHideCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() => _hideCompleted = prefs.getBool(_prefsHideKey) ?? false);
-    }
-  }
-
-  Future<void> _loadGroupByStreet() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() => _groupByStreet = prefs.getBool(_prefsGroupKey) ?? false);
-    }
-  }
-
-  Future<void> _loadGroupByType() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() => _groupByType = prefs.getBool(_prefsTypeKey) ?? false);
-    }
-  }
-
   Future<void> _loadMixedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -333,24 +253,6 @@ class _TrainingPackTemplateListScreenState
             : DateTime.fromMillisecondsSinceEpoch(ts);
       });
     }
-  }
-
-  Future<void> _setHideCompleted(bool value) async {
-    setState(() => _hideCompleted = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsHideKey, value);
-  }
-
-  Future<void> _setGroupByStreet(bool value) async {
-    setState(() => _groupByStreet = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsGroupKey, value);
-  }
-
-  Future<void> _setGroupByType(bool value) async {
-    setState(() => _groupByType = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsTypeKey, value);
   }
 
   Future<void> _setMixedHandGoalOnly(bool value) async {
@@ -378,37 +280,10 @@ class _TrainingPackTemplateListScreenState
     });
     await _saveMixedPrefs();
   }
-
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     final list = prefs.getStringList(_prefsFavoritesKey) ?? [];
     if (mounted) setState(() => _favorites.addAll(list));
-  }
-
-  Future<void> _loadShowFavoritesOnly() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() => _showFavoritesOnly = prefs.getBool(_prefsShowFavOnlyKey) ?? false);
-    }
-  }
-
-  Future<void> _loadShowInProgressOnly() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() => _showInProgressOnly = prefs.getBool(_prefsInProgressKey) ?? false);
-    }
-  }
-
-  Future<void> _setShowFavoritesOnly(bool value) async {
-    setState(() => _showFavoritesOnly = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsShowFavOnlyKey, value);
-  }
-
-  Future<void> _setShowInProgressOnly(bool value) async {
-    setState(() => _showInProgressOnly = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefsInProgressKey, value);
   }
 
   Future<void> _saveFavorites() async {
@@ -423,74 +298,6 @@ class _TrainingPackTemplateListScreenState
       }
     });
     await _saveFavorites();
-  }
-
-  Future<void> _loadStackFilter() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) setState(() => _stackFilter = prefs.getString(_prefsStackKey));
-  }
-
-  Future<void> _setStackFilter(String? value) async {
-    setState(() => _stackFilter = value);
-    final prefs = await SharedPreferences.getInstance();
-    if (value == null) {
-      await prefs.remove(_prefsStackKey);
-    } else {
-      await prefs.setString(_prefsStackKey, value);
-    }
-  }
-
-  Future<void> _loadPosFilter() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString(_prefsPosKey);
-    if (mounted) {
-      setState(() => _posFilter = name == null
-          ? null
-          : HeroPosition.values.firstWhere(
-              (e) => e.name == name,
-              orElse: () => HeroPosition.sb,
-            ));
-    }
-  }
-
-  Future<void> _loadDifficultyFilter() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) setState(() => _difficultyFilter = prefs.getString(_prefsDifficultyKey));
-  }
-
-  Future<void> _setPosFilter(HeroPosition? value) async {
-    setState(() => _posFilter = value);
-    final prefs = await SharedPreferences.getInstance();
-    if (value == null) {
-      await prefs.remove(_prefsPosKey);
-    } else {
-      await prefs.setString(_prefsPosKey, value.name);
-    }
-  }
-
-  Future<void> _setDifficultyFilter(String? value) async {
-    setState(() => _difficultyFilter = value);
-    final prefs = await SharedPreferences.getInstance();
-    if (value == null) {
-      await prefs.remove(_prefsDifficultyKey);
-    } else {
-      await prefs.setString(_prefsDifficultyKey, value);
-    }
-  }
-
-  Future<void> _loadStreetFilter() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) setState(() => _streetFilter = prefs.getString(_prefsStreetKey));
-  }
-
-  Future<void> _setStreetFilter(String? value) async {
-    setState(() => _streetFilter = value);
-    final prefs = await SharedPreferences.getInstance();
-    if (value == null) {
-      await prefs.remove(_prefsStreetKey);
-    } else {
-      await prefs.setString(_prefsStreetKey, value);
-    }
   }
 
   Future<void> _loadRecent() async {
@@ -520,23 +327,6 @@ class _TrainingPackTemplateListScreenState
     setState(() => _recentIds.clear());
     await prefs.remove(_prefsRecentKey);
   }
-
-  bool _matchStack(int stack) {
-    final r = _stackFilter;
-    if (r == null) return true;
-    if (r.endsWith('+')) {
-      final min = int.tryParse(r.substring(0, r.length - 1)) ?? 0;
-      return stack >= min;
-    }
-    final parts = r.split('-');
-    if (parts.length == 2) {
-      final min = int.tryParse(parts[0]) ?? 0;
-      final max = int.tryParse(parts[1]) ?? 0;
-      return stack >= min && stack <= max;
-    }
-    return true;
-  }
-
   String _streetLabel(String? street) {
     switch (street) {
       case 'preflop':
@@ -757,87 +547,6 @@ class _TrainingPackTemplateListScreenState
     );
   }
 
-  bool _isIcmTemplate(TrainingPackTemplate t) {
-    if (t.meta['icmType'] != null) return true;
-    if (t.spots.isEmpty) return false;
-    for (final s in t.spots) {
-      if (!s.tags.contains('icm')) return false;
-    }
-    return true;
-  }
-
-  List<TrainingPackTemplate> _visibleTemplates() {
-    final base = _showFavoritesOnly
-        ? [
-            for (final t in _templates)
-              if (_favorites.contains(t.id) ||
-                  FavoritePackService.instance.isFavorite(t.id))
-                t
-          ]
-        : _templates;
-    final byType = _selectedType == null
-        ? base
-        : [for (final t in base) if (t.gameType == _selectedType) t];
-    final filtered = _selectedTag == null
-        ? byType
-        : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
-    final icmFiltered = !_icmOnly
-        ? filtered
-        : [for (final t in filtered) if (_isIcmTemplate(t)) t];
-    final stackFiltered = _stackFilter == null
-        ? icmFiltered
-        : [for (final t in icmFiltered) if (_matchStack(t.heroBbStack)) t];
-    final posFiltered = _posFilter == null
-        ? stackFiltered
-        : [for (final t in stackFiltered) if (t.heroPos == _posFilter) t];
-    final diffFiltered = _difficultyFilter == null
-        ? posFiltered
-        : [
-            for (final t in posFiltered)
-              if (t.difficulty == _difficultyFilter ||
-                  t.tags.contains(_difficultyFilter!))
-                t
-          ];
-    final streetFiltered = _streetFilter == null
-        ? diffFiltered
-        : [for (final t in diffFiltered) if (t.targetStreet == _streetFilter) t];
-    final evalFiltered = !_showNeedsEvalOnly
-        ? streetFiltered
-        : [
-            for (final t in streetFiltered)
-              if (t.evCovered < t.totalWeight ||
-                  t.icmCovered < t.totalWeight)
-                t
-          ];
-    final completed = _completedOnly
-        ? [for (final t in evalFiltered) if (t.goalAchieved) t]
-        : evalFiltered;
-    final visible = _hideCompleted
-        ? [
-            for (final t in completed)
-              if ((t.spots.isEmpty
-                      ? 0.0
-                      : (_progress[t.id] ?? 0) / t.spots.length) < 1.0 ||
-                  !t.goalAchieved)
-                t
-          ]
-        : completed;
-    final inProgressFiltered = !_showInProgressOnly
-        ? visible
-        : [
-            for (final t in visible)
-              if ((_stats[t.id]?.lastIndex ?? 0) > 0 &&
-                  (_stats[t.id]?.accuracy ?? 1.0) < 1.0)
-                t
-          ];
-    return [
-      for (final t in inProgressFiltered)
-        if ((_query.isEmpty || t.name.toLowerCase().contains(_query)) &&
-            (_tagFilters.isEmpty ||
-                t.tags.any((tag) => _tagFilters.contains(tag))))
-          t
-    ];
-  }
 
   void _scheduleAutoEval() {
     if (_autoEvalQueued) return;
@@ -2584,82 +2293,10 @@ class _TrainingPackTemplateListScreenState
   @override
   Widget build(BuildContext context) {
     final narrow = MediaQuery.of(context).size.width < 400;
-    final tagCounts = <String, int>{};
-    for (final t in _templates) {
-      for (final tag in t.tags) {
-        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-      }
-    }
-    final topTags = tagCounts.keys.toList()
-      ..sort((a, b) => tagCounts[b]!.compareTo(tagCounts[a]!));
-    final tags = topTags.take(10).toList();
-    final base = _showFavoritesOnly
-        ? [
-            for (final t in _templates)
-              if (_favorites.contains(t.id) ||
-                  FavoritePackService.instance.isFavorite(t.id))
-                t
-          ]
-        : _templates;
-    final byType = _selectedType == null
-        ? base
-        : [for (final t in base) if (t.gameType == _selectedType) t];
-    final filtered = _selectedTag == null
-        ? byType
-        : [
-            for (final t in byType)
-              if (t.tags.contains(_selectedTag)) t
-          ];
-    final icmFiltered = !_icmOnly
-        ? filtered
-        : [
-            for (final t in filtered)
-              if (_isIcmTemplate(t)) t
-          ];
-    final stackFiltered = _stackFilter == null
-        ? icmFiltered
-        : [for (final t in icmFiltered) if (_matchStack(t.heroBbStack)) t];
-    final posFiltered = _posFilter == null
-        ? stackFiltered
-        : [for (final t in stackFiltered) if (t.heroPos == _posFilter) t];
-    final evalFiltered = !_showNeedsEvalOnly
-        ? posFiltered
-        : [
-            for (final t in posFiltered)
-              if (t.evCovered < t.totalWeight ||
-                  t.icmCovered < t.totalWeight)
-                t
-          ];
-    final completed = _completedOnly
-        ? [for (final t in evalFiltered) if (t.goalAchieved) t]
-        : evalFiltered;
-    final visible = _hideCompleted
-        ? [
-            for (final t in completed)
-              if ((t.spots.isEmpty
-                      ? 0.0
-                      : (_progress[t.id] ?? 0) / t.spots.length) < 1.0 ||
-                  !t.goalAchieved)
-                t
-          ]
-        : completed;
-    final shown = [
-      for (final t in visible)
-        if ((_query.isEmpty || t.name.toLowerCase().contains(_query)) &&
-            (_tagFilters.isEmpty ||
-                t.tags.any((tag) => _tagFilters.contains(tag))))
-          t
-    ];
-    final streetGroups = <String, List<TrainingPackTemplate>>{};
-    if (_groupByStreet) {
-      for (final t in shown) {
-        final key = t.targetStreet ?? 'any';
-        streetGroups.putIfAbsent(key, () => []).add(t);
-      }
-    } else {
-      streetGroups['all'] = shown;
-    }
-    final history = _dedupHistory();
+    final tags = topTags(_templates);
+    final shown = _visibleTemplates();
+    final streetGroups = groupByStreet(shown);
+    final history = GeneratedPackHistoryUtils.deduplicate(_history);
     final suggestion = _groupByStreet ? _suggestTemplate() : null;
     final recent = [
       for (final id in _recentIds)
