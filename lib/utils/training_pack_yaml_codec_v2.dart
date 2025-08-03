@@ -17,7 +17,8 @@ class TrainingPackYamlCodecV2 {
   /// `template` and `variants` fields. Returns all resulting templates.
   List<TrainingPackTemplateV2> decodeMany(String yaml) {
     final map = const YamlReader().read(yaml);
-    if (map['template'] is Map && map['variants'] is List) {
+    if ((map['template'] is Map && map['variants'] is List) ||
+        map['templateSet'] is List) {
       final set = TrainingPackTemplateSet.fromJson(map);
       return const TrainingPackTemplateSetGenerator().generate(set);
     }
