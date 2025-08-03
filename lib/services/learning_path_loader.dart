@@ -27,9 +27,13 @@ Future<LearningPathLoadResult> loadLearningPathData() async {
       LearningPathEngine.instance.getCurrentNode() as LearningPathNodeV2?;
   final packIds = <String>{};
   for (final n in nodes) {
-    if (n.type == LearningPathNodeType.training &&
-        n.trainingPackTemplateId != null) {
-      packIds.add(n.trainingPackTemplateId!);
+    if (n.type == LearningPathNodeType.training) {
+      if (n.trainingPackTemplateId != null) {
+        packIds.add(n.trainingPackTemplateId!);
+      }
+      if (n.dynamicPackId != null) {
+        packIds.add(n.dynamicPackId!);
+      }
     }
   }
   final packs = <String, TrainingPackTemplateV2>{};

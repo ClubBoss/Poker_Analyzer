@@ -8,6 +8,8 @@ class LearningPathNodeV2 implements LearningPathNode {
   final LearningPathNodeType type;
   final String? miniLessonId;
   final String? trainingPackTemplateId;
+  final String? dynamicPackId;
+  final Map<String, dynamic>? dynamicMeta;
 
   @override
   final bool recoveredFromMistake;
@@ -18,11 +20,15 @@ class LearningPathNodeV2 implements LearningPathNode {
     this.recoveredFromMistake = false,
   })  : type = LearningPathNodeType.theory,
         miniLessonId = miniLessonId,
-        trainingPackTemplateId = null;
+        trainingPackTemplateId = null,
+        dynamicPackId = null,
+        dynamicMeta = null;
 
   const LearningPathNodeV2.training({
     required this.id,
-    required String trainingPackTemplateId,
+    String? trainingPackTemplateId,
+    this.dynamicPackId,
+    this.dynamicMeta,
     this.recoveredFromMistake = false,
   })  : type = LearningPathNodeType.training,
         miniLessonId = null,
