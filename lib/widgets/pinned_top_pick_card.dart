@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
+import '../services/smart_pinned_recommender_service.dart';
 import '../screens/mini_lesson_screen.dart';
 import '../screens/training_pack_screen.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../models/pinned_learning_item.dart';
 
 class PinnedTopPickCard extends StatelessWidget {
   const PinnedTopPickCard({super.key});
@@ -18,49 +20,54 @@ class PinnedTopPickCard extends StatelessWidget {
       builder: (context, _) {
         final items = service.items;
         if (items.isEmpty) return const SizedBox.shrink();
-        final item = items.first;
-        if (item.type == 'lesson') {
-          return FutureBuilder<void>(
-            future: MiniLessonLibraryService.instance.loadAll(),
-            builder: (context, snapshot) {
-              final lesson =
-                  MiniLessonLibraryService.instance.getById(item.id);
-              if (lesson == null) return const SizedBox.shrink();
-              return _buildCard(
-                context,
-                title: lesson.title,
-                onTap: () {
-                  Navigator.push(
+        return FutureBuilder<PinnedLearningItem?>(
+          future: SmartPinnedRecommenderService().recommendNext(),
+          builder: (context, snapshot) {
+            final item = snapshot.data ?? items.first;
+            if (item.type == 'lesson') {
+              return FutureBuilder<void>(
+                future: MiniLessonLibraryService.instance.loadAll(),
+                builder: (context, snapshot) {
+                  final lesson =
+                      MiniLessonLibraryService.instance.getById(item.id);
+                  if (lesson == null) return const SizedBox.shrink();
+                  return _buildCard(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => MiniLessonScreen(
-                        lesson: lesson,
-                        initialPosition: item.lastPosition,
-                      ),
-                    ),
+                    title: lesson.title,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MiniLessonScreen(
+                            lesson: lesson,
+                            initialPosition: item.lastPosition,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               );
-            },
-          );
-        }
-        return FutureBuilder<TrainingPackTemplateV2?>(
-          future: PackLibraryService.instance.getById(item.id),
-          builder: (context, snapshot) {
-            final tpl = snapshot.data;
-            if (tpl == null) return const SizedBox.shrink();
-            return _buildCard(
-              context,
-              title: tpl.name,
-              onTap: () {
-                Navigator.push(
+            }
+            return FutureBuilder<TrainingPackTemplateV2?>(
+              future: PackLibraryService.instance.getById(item.id),
+              builder: (context, snapshot) {
+                final tpl = snapshot.data;
+                if (tpl == null) return const SizedBox.shrink();
+                return _buildCard(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => TrainingPackScreen(
-                      pack: tpl,
-                      initialPosition: item.lastPosition,
-                    ),
-                  ),
+                  title: tpl.name,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TrainingPackScreen(
+                          pack: tpl,
+                          initialPosition: item.lastPosition,
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             );
