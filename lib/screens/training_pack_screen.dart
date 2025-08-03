@@ -420,7 +420,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
     String userAct = '-';
     if (played != null) {
       for (final a in played.actions) {
-        if (isHeroAction(a, played.heroIndex)) {
+        if (a.isHero(played.heroIndex)) {
           userAct = a.action;
           break;
         }
