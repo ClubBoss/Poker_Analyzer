@@ -1,16 +1,16 @@
 import '../models/constraint_set.dart';
 import '../models/spot_seed_format.dart';
-import 'board_texture_filter_service.dart';
 import 'action_pattern_matcher.dart';
+import 'dynamic_board_tagger_service.dart';
 
 class ConstraintResolverEngine {
-  final BoardTextureFilterService _textureFilter;
+  final DynamicBoardTaggerService _tagger;
   final ActionPatternMatcher _actionMatcher;
 
   const ConstraintResolverEngine({
-    BoardTextureFilterService? textureFilter,
+    DynamicBoardTaggerService? tagger,
     ActionPatternMatcher? actionMatcher,
-  })  : _textureFilter = textureFilter ?? const BoardTextureFilterService(),
+  })  : _tagger = tagger ?? const DynamicBoardTaggerService(),
         _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
 
   bool isValid(SpotSeedFormat candidate, ConstraintSet constraints) {
@@ -28,8 +28,9 @@ class ConstraintResolverEngine {
     }
 
     if (constraints.boardTags.isNotEmpty) {
-      final board = candidate.board.map((c) => c.toString()).toList();
-      if (!_textureFilter.filter(board, constraints.boardTags)) {
+      final actualTags = _tagger.tag(candidate.board);
+      if (!constraints.boardTags
+          .every((tag) => actualTags.contains(tag))) {
         return false;
       }
     }
