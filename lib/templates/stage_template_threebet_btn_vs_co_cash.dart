@@ -9,4 +9,5 @@ const LearningPathStageModel threeBetBtnVsCoCashStageTemplate = LearningPathStag
   requiredAccuracy: 80,
   minHands: 10,
   tags: ['threebet', 'cash', 'preflop', 'level2', 'btn', 'vsCo'],
+  unlocks: ['threebet_co_vs_hj_cash'],
 );
