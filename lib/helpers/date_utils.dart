@@ -15,3 +15,12 @@ String formatDate(DateTime date) {
 String formatLongDate(DateTime date) {
   return DateFormat('d MMMM y', _currentLocale()).format(date);
 }
+
+String formatDuration(Duration d) {
+  final hours = d.inHours;
+  final minutes = d.inMinutes.remainder(60);
+  final parts = <String>[];
+  if (hours > 0) parts.add('${hours}ч');
+  parts.add('${minutes}м');
+  return parts.join(' ');
+}

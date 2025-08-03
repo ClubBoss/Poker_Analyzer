@@ -9,15 +9,6 @@ class PackHistoryScreen extends StatelessWidget {
   final String title;
   const PackHistoryScreen({super.key, required this.templateId, required this.title});
 
-  String _formatDuration(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes.remainder(60);
-    final parts = <String>[];
-    if (h > 0) parts.add('$hч');
-    parts.add('$mм');
-    return parts.join(' ');
-  }
-
   @override
   Widget build(BuildContext context) {
     final logs = context
@@ -55,7 +46,7 @@ class PackHistoryScreen extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
-                    '${acc.toStringAsFixed(1)}% • ${_formatDuration(duration)}',
+                    '${acc.toStringAsFixed(1)}% • ${formatDuration(duration)}',
                     style: const TextStyle(color: Colors.white70),
                   ),
                 );
