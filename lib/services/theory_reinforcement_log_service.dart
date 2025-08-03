@@ -55,7 +55,7 @@ class TheoryReinforcementLogService {
     final cutoff = DateTime.now().subtract(within);
     return [
       for (final l in list)
-        if (l.timestamp.isAfter(cutoff)) l,
+        if (l.timestamp != null && l.timestamp!.isAfter(cutoff)) l,
     ];
   }
 }

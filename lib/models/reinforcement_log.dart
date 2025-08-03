@@ -8,7 +8,7 @@ class ReinforcementLog {
   final String type;
   final String source;
   @JsonKey(fromJson: _dateFromJson, toJson: _dateToJson)
-  final DateTime timestamp;
+  final DateTime? timestamp;
 
   ReinforcementLog({
     required this.id,
@@ -22,7 +22,6 @@ class ReinforcementLog {
 
   Map<String, dynamic> toJson() => _$ReinforcementLogToJson(this);
 
-  static DateTime _dateFromJson(String? date) =>
-      DateTime.tryParse(date ?? '') ?? DateTime.now();
-  static String _dateToJson(DateTime date) => date.toIso8601String();
+  static DateTime? _dateFromJson(String? date) => DateTime.tryParse(date ?? '');
+  static String? _dateToJson(DateTime? date) => date?.toIso8601String();
 }
