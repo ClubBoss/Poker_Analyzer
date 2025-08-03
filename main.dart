@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:poker_analyzer/core/plugin_runtime.dart';
+import 'package:poker_analyzer/theme/app_colors.dart';
 
 import 'package:poker_analyzer/screens/poker_analyzer_screen.dart';
 import 'package:poker_analyzer/services/action_sync_service.dart';
@@ -155,12 +156,13 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
               title: 'Poker AI Analyzer Demo',
               debugShowCheckedModeBanner: false,
               theme: ThemeData.dark().copyWith(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-                scaffoldBackgroundColor: Colors.black,
+                colorScheme: ColorScheme.fromSeed(seedColor: AppColors.accent),
+                scaffoldBackgroundColor: AppColors.background,
+                cardColor: AppColors.cardBackground,
                 textTheme: ThemeData.dark().textTheme.apply(
                       fontFamily: 'Roboto',
-                      bodyColor: Colors.white,
-                      displayColor: Colors.white,
+                      bodyColor: AppColors.textPrimaryDark,
+                      displayColor: AppColors.textPrimaryDark,
                     ),
               ),
               builder: (context, child) {
@@ -177,13 +179,13 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: AppColors.textPrimaryDark.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               'Demo Mode Active',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: AppColors.textPrimaryDark.withOpacity(0.8),
                                 fontSize: 12,
                               ),
                             ),

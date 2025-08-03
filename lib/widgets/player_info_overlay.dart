@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/theme/app_colors.dart';
 
 /// Small tooltip overlay showing a player's stack, position and strategy advice.
 class PlayerInfoOverlay extends StatefulWidget {
@@ -29,19 +30,19 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
   late final Animation<double> _opacity;
 
   Color _actionColor(String action) {
-    if (action.isEmpty) return Colors.white;
+    if (action.isEmpty) return AppColors.textPrimaryDark;
     final type = action.split(' ').first.toUpperCase();
     switch (type) {
       case 'PUSH':
-        return Colors.green;
+        return AppColors.success;
       case 'FOLD':
-        return Colors.red;
+        return AppColors.error;
       case 'CALL':
-        return Colors.blue;
+        return AppColors.info;
       case 'RAISE':
-        return Colors.yellow;
+        return AppColors.warning;
       default:
-        return Colors.white;
+        return AppColors.textPrimaryDark;
     }
   }
 
@@ -90,13 +91,13 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
       child: FadeTransition(
         opacity: _opacity,
         child: Material(
-          color: Colors.transparent,
+          color: AppColors.transparent,
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.8),
+              color: AppColors.overlay,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+              boxShadow: const [BoxShadow(color: AppColors.shadow, blurRadius: 4)],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -105,7 +106,7 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
                 Text(
                   'Stack: ${widget.stack}',
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimaryDark,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -113,7 +114,7 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
                 Text(
                   'Pos: ${widget.positionName}',
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimaryDark,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -122,7 +123,7 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
                   Text(
                     'EQ: ${widget.equity!.round()}%',
                     style: const TextStyle(
-                      color: Colors.grey,
+                      color: AppColors.neutral,
                       fontSize: 10,
                     ),
                   ),
