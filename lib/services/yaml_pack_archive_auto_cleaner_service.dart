@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../app_config.dart';
 import 'dev_console_log_service.dart';
+import '../utils/app_logger.dart';
 
 class YamlPackArchiveAutoCleanerService {
   const YamlPackArchiveAutoCleanerService();
@@ -29,11 +30,11 @@ class YamlPackArchiveAutoCleanerService {
       }
       if (deleted > 0) {
         final msg = 'Archive auto-clean removed $deleted files';
-        debugPrint(msg);
+        AppLogger.log(msg);
         DevConsoleLogService.instance.log(msg);
       }
-    } catch (e) {
-      debugPrint('Archive auto-clean failed: $e');
+    } catch (e, stack) {
+      AppLogger.error('Archive auto-clean failed', e, stack);
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 import '../models/learning_path_node.dart';
 import 'learning_graph_engine.dart';
@@ -16,6 +15,7 @@ import 'theory_pack_library_service.dart';
 import 'smart_booster_summary_engine.dart';
 import 'session_log_service.dart';
 import 'training_session_service.dart';
+import '../utils/app_logger.dart';
 
 /// Background service that injects weak theory lessons before the next node.
 class AutoTheoryReviewEngine {
@@ -108,8 +108,8 @@ class AutoTheoryReviewEngine {
               .logInjection(id, 'mini', 'auto');
         }
       }
-    } catch (e) {
-      debugPrint('AutoTheoryReviewEngine error: $e');
+    } catch (e, stack) {
+      AppLogger.error('AutoTheoryReviewEngine error', e, stack);
     } finally {
       _lastRun = DateTime.now();
     }

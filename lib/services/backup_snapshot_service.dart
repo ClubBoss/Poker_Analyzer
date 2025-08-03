@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,6 +10,7 @@ import '../models/action_evaluation_request.dart';
 import 'backup_file_manager.dart';
 import 'evaluation_queue_serializer.dart';
 import 'evaluation_queue_service.dart';
+import '../utils/app_logger.dart';
 
 /// Handles snapshot creation, loading and import/export utilities for the
 /// evaluation queue.
@@ -53,12 +53,12 @@ class BackupSnapshotService {
       if (snapshotRetentionEnabled) {
         await cleanupOldEvaluationSnapshots();
       }
-      if (showNotification && kDebugMode) {
-        debugPrint('Snapshot saved: ${file.path}');
+      if (showNotification) {
+        AppLogger.log('Snapshot saved: ${file.path}');
       }
-    } catch (e) {
-      if (showNotification && kDebugMode) {
-        debugPrint('Failed to export snapshot: $e');
+    } catch (e, stack) {
+      if (showNotification) {
+        AppLogger.error('Failed to export snapshot', e, stack);
       }
     }
   }
@@ -86,10 +86,8 @@ class BackupSnapshotService {
       entries.sort((a, b) => b.value.compareTo(a.value));
       final file = entries.first.key;
       return await fileManager.readJsonFile(file);
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Failed to load snapshot: $e');
-      }
+    } catch (e, stack) {
+      AppLogger.error('Failed to load snapshot', e, stack);
       return null;
     }
   }

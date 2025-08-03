@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,6 +9,7 @@ import '../models/action_evaluation_request.dart';
 import 'evaluation_queue_service.dart';
 import 'backup_manager_service.dart';
 import 'debug_snapshot_service.dart';
+import '../utils/app_logger.dart';
 
 class EvaluationQueueImportExportService {
   EvaluationQueueImportExportService({
@@ -102,13 +102,11 @@ class EvaluationQueueImportExportService {
           ..clear()
           ..addAll(queues['completed']!);
         await _persist();
-      } else if (kDebugMode) {
-        debugPrint('Invalid clipboard data format');
+      } else {
+        AppLogger.warn('Invalid clipboard data format');
       }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Failed to import from clipboard: $e');
-      }
+    } catch (e, stack) {
+      AppLogger.error('Failed to import from clipboard', e, stack);
     }
   }
 
