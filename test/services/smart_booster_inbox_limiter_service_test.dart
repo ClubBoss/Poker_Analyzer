@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/services/smart_booster_inbox_limiter_service.dart';
+import 'package:poker_analyzer/utils/date_key_formatter.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -30,8 +31,7 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     // Simulate yesterday to reset daily count
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    final dateKey =
-        '${yesterday.year.toString().padLeft(4, '0')}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
+    final dateKey = DateKeyFormatter.format(yesterday);
     await prefs.setString('booster_inbox_total_date', dateKey);
     await prefs.setInt('booster_inbox_last_t1',
         DateTime.now().subtract(const Duration(hours: 49)).millisecondsSinceEpoch);

@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/date_key_formatter.dart';
+
 /// Limits how often booster inbox banners can be shown per tag and per day.
 class SmartBoosterInboxLimiterService {
   SmartBoosterInboxLimiterService();
@@ -11,15 +13,12 @@ class SmartBoosterInboxLimiterService {
   static const String _totalDateKey = 'booster_inbox_total_date';
   static const String _totalCountKey = 'booster_inbox_total_count';
 
-  String _todayKey(DateTime dt) =>
-      '${dt.year.toString().padLeft(4, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
-
   /// Whether a booster banner for [tag] can be shown now.
   Future<bool> canShow(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
 
-    final dateKey = _todayKey(now);
+    final dateKey = DateKeyFormatter.format(now);
     final storedDate = prefs.getString(_totalDateKey);
     var count = prefs.getInt(_totalCountKey) ?? 0;
     if (storedDate != dateKey) {
@@ -43,7 +42,7 @@ class SmartBoosterInboxLimiterService {
     final now = DateTime.now();
     await prefs.setInt(_tagKey(tag), now.millisecondsSinceEpoch);
 
-    final dateKey = _todayKey(now);
+    final dateKey = DateKeyFormatter.format(now);
     final storedDate = prefs.getString(_totalDateKey);
     var count = prefs.getInt(_totalCountKey) ?? 0;
     if (storedDate != dateKey) {
@@ -57,7 +56,7 @@ class SmartBoosterInboxLimiterService {
   /// Returns total boosters shown today.
   Future<int> getTotalBoostersShownToday() async {
     final prefs = await SharedPreferences.getInstance();
-    final dateKey = _todayKey(DateTime.now());
+    final dateKey = DateKeyFormatter.format(DateTime.now());
     final storedDate = prefs.getString(_totalDateKey);
     if (storedDate != dateKey) return 0;
     return prefs.getInt(_totalCountKey) ?? 0;
