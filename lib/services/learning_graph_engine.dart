@@ -87,6 +87,9 @@ class LearningPathEngine {
   bool isCompleted(String nodeId) =>
       LearningPathNodeHistory.instance.isCompleted(nodeId);
 
+  /// Returns all nodes in the active learning path.
+  List<LearningPathNode> getAllNodes() => _engine?.allNodes ?? const [];
+
   /// Returns a snapshot of the current session state.
   LearningPathSessionState? getSessionState() => _engine?.getState();
 
