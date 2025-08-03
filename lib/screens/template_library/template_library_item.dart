@@ -1,4 +1,4 @@
-part of '../template_library_screen.dart';
+part of '../template_library_core.dart';
 
 extension TemplateLibraryItem on _TemplateLibraryScreenState {
   Widget _item(TrainingPackTemplate t, [String? note]) {

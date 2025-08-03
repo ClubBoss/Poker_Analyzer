@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_colors.dart';
-import 'template_library_screen.dart';
+import 'template_library_core.dart';
 
 class TrainingOnboardingScreen extends StatefulWidget {
   const TrainingOnboardingScreen({super.key});
