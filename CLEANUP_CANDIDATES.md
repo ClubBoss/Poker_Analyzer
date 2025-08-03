@@ -12,7 +12,6 @@ This document lists files and directories that appear unused in production code 
 - `flutter_08.png` — not referenced anywhere in the repository.
 - `flutter_09.png` — not referenced anywhere in the repository.
 - `flutter_11.png` — not referenced anywhere in the repository.
-- `assets/images/` — empty directory; no referenced images.
 
 ## Mocks / Test Data
 - `tool/example_spots/btn_10bb.json` — sample spot file not referenced in production code.
