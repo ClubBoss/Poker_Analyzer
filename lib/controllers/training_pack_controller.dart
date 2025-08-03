@@ -46,8 +46,7 @@ class TrainingPackController extends ChangeNotifier {
 
   void setStackFilter(String? value) {
     _stackFilter = value;
-    _applyStackFilter();
-    notifyListeners();
+    _commit();
   }
   void _applyStackFilter() {
     final filter = StackRangeFilter(_stackFilter);
