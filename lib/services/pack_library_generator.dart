@@ -49,11 +49,14 @@ class PackLibraryGenerator {
                   actionType: type,
                   withIcm: icm,
                 );
-                tpl.slug = _uniqueSlug(
-                  _buildSlug(type, hero, vill, r, icm),
+                _createPack(
+                  tpl,
+                  type,
+                  hero,
+                  vill,
+                  r,
+                  icm,
                 );
-                _autoTagSpots(tpl);
-                _packs.add(tpl);
               }
             }
           }
@@ -76,14 +79,17 @@ class PackLibraryGenerator {
         withIcm: t.icm,
         name: t.name,
       );
-      tpl.slug = _uniqueSlug(
-        _buildSlug(t.action, t.hero, t.villain, t.stacks, t.icm),
+      _createPack(
+        tpl,
+        t.action,
+        t.hero,
+        t.villain,
+        t.stacks,
+        t.icm,
+        tags: t.tags,
+        trending: t.trending,
+        recommended: t.recommended,
       );
-      tpl.tags = [for (final tag in t.tags) if (tag.trim().isNotEmpty) tag];
-      tpl.trending = t.trending;
-      tpl.recommended = t.recommended;
-      _autoTagSpots(tpl);
-      _packs.add(tpl);
     }
   }
 
@@ -94,6 +100,29 @@ class PackLibraryGenerator {
       jsonEncode([for (final p in _packs) p.toJson()]),
       flush: true,
     );
+  }
+
+  void _createPack(
+    TrainingPackTemplate tpl,
+    String action,
+    HeroPosition hero,
+    HeroPosition villain,
+    List<int> stacks,
+    bool icm, {
+    List<String>? tags,
+    bool trending = false,
+    bool recommended = false,
+  }) {
+    tpl.slug = _uniqueSlug(
+      _buildSlug(action, hero, villain, stacks, icm),
+    );
+    if (tags != null) {
+      tpl.tags = [for (final tag in tags) if (tag.trim().isNotEmpty) tag];
+    }
+    tpl.trending = trending;
+    tpl.recommended = recommended;
+    _autoTagSpots(tpl);
+    _packs.add(tpl);
   }
 
   void _autoTagSpots(TrainingPackTemplate tpl) {
