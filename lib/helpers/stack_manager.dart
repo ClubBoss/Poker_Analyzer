@@ -22,18 +22,26 @@ class StackManager {
 
   /// Replays [actions] from the beginning and updates current stacks.
   void applyActions(List<ActionEntry> actions) {
+    _resetInvestments();
+    for (final ActionEntry a in actions) {
+      _applyInvestment(a);
+    }
+  }
+
+  void _resetInvestments() {
     for (final StackWithInvestments sw in _currentStacks.values) {
       sw.clear();
     }
-    for (final ActionEntry a in actions) {
-      if (investmentActions.contains(a.action)) {
-        final double? amount = a.amount;
-        if (amount != null) {
-          _currentStacks[a.playerIndex]?.addInvestment(
-            a.street,
-            amount.round(),
-          );
-        }
+  }
+
+  void _applyInvestment(ActionEntry a) {
+    if (investmentActions.contains(a.action)) {
+      final double? amount = a.amount;
+      if (amount != null) {
+        _currentStacks[a.playerIndex]?.addInvestment(
+          a.street,
+          amount.round(),
+        );
       }
     }
   }
