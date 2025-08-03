@@ -7,6 +7,7 @@ import '../widgets/training_spot_diagram.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/sync_status_widget.dart';
 import '../models/training_spot.dart';
+import '../services/inline_theory_linker.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   const TrainingPlayScreen({super.key});
@@ -17,6 +18,7 @@ class TrainingPlayScreen extends StatefulWidget {
 
 class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
   EvaluationResult? _result;
+  InlineTheoryLink? _theoryLink;
 
   Future<void> _choose(String action) async {
     final controller = context.read<TrainingSessionController>();
@@ -31,6 +33,7 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     final spot = controller.currentSpot!;
     final correct = _result?.correct ?? false;
     final expected = _result?.expectedAction;
+    _theoryLink ??= InlineTheoryLinker().getLink(spot.tags);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training'),
@@ -89,6 +92,14 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
                 onPressed: () => setState(() => _result = null),
                 child: const Text('Try Again'),
               ),
+              if (_theoryLink != null) ...[
+                const SizedBox(height: 8),
+                ActionChip(
+                  avatar: const Icon(Icons.school, size: 16),
+                  label: Text('Theory: ${_theoryLink!.title}'),
+                  onPressed: _theoryLink!.onTap,
+                ),
+              ],
               if (spot.actions.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
