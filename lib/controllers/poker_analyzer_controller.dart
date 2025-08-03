@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/foundation.dart';
 
 import '../models/player_model.dart';
@@ -26,42 +24,53 @@ class PokerAnalyzerController extends ChangeNotifier {
   /// Flag controlling display of debug information in the overlay.
   bool _debugMode = false;
 
+  void _update(void Function() action) {
+    action();
+    notifyListeners();
+  }
+
   int get numberOfPlayers => _numberOfPlayers;
   set numberOfPlayers(int value) {
     if (_numberOfPlayers == value) return;
-    _numberOfPlayers = value;
-    notifyListeners();
+    _update(() {
+      _numberOfPlayers = value;
+    });
   }
 
   Map<int, String> get playerPositions => Map.unmodifiable(_playerPositions);
   void setPlayerPosition(int index, String position) {
-    _playerPositions[index] = position;
-    notifyListeners();
+    _update(() {
+      _playerPositions[index] = position;
+    });
   }
 
   Map<int, PlayerType> get playerTypes => Map.unmodifiable(_playerTypes);
   void setPlayerType(int index, PlayerType type) {
-    _playerTypes[index] = type;
-    notifyListeners();
+    _update(() {
+      _playerTypes[index] = type;
+    });
   }
 
   List<PlayerModel> get players => List.unmodifiable(_players);
   void addPlayer(PlayerModel player) {
-    _players.add(player);
-    notifyListeners();
+    _update(() {
+      _players.add(player);
+    });
   }
 
   void removePlayer(PlayerModel player) {
-    _players.remove(player);
-    notifyListeners();
+    _update(() {
+      _players.remove(player);
+    });
   }
 
   bool get debugMode => _debugMode;
 
   /// Toggles [debugMode] and notifies listeners.
   void toggleDebug() {
-    _debugMode = !_debugMode;
-    notifyListeners();
+    _update(() {
+      _debugMode = !_debugMode;
+    });
   }
 
   /// Convenience getter for the current player count.
