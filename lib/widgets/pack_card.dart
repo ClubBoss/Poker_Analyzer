@@ -32,6 +32,7 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
   bool _locked = false;
   String? _lockMsg;
   double? _accuracy;
+  int _handsCompleted = 0;
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -68,8 +69,13 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
       _maybeShowReward();
     }
     final stat = await TrainingPackStatsService.getStats(widget.template.id);
-    if (mounted && stat != null) {
-      setState(() => _accuracy = stat.accuracy);
+    final hands =
+        await TrainingPackStatsService.getHandsCompleted(widget.template.id);
+    if (mounted) {
+      setState(() {
+        if (stat != null) _accuracy = stat.accuracy;
+        _handsCompleted = hands;
+      });
     }
     await _checkPerformance();
   }
@@ -164,6 +170,62 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
     );
   }
 
+  Color _progressColor(double value, double target) {
+    if (value >= target) return Colors.green;
+    if (value >= target * 0.5) return Colors.yellow;
+    return Colors.red;
+  }
+
+  Widget _unlockProgress() {
+    final reqAcc = widget.template.requiredAccuracy;
+    final minHands = widget.template.minHands;
+    final widgets = <Widget>[];
+    if (reqAcc != null) {
+      final accPct = (_accuracy ?? 0) * 100;
+      final target = reqAcc * 100;
+      final color = _progressColor(accPct, target);
+      widgets.add(LinearProgressIndicator(
+        value: (_accuracy ?? 0) / reqAcc,
+        backgroundColor: Colors.white24,
+        valueColor: AlwaysStoppedAnimation<Color>(color),
+      ));
+      widgets.add(Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Text(
+          'Точность: ${accPct.toStringAsFixed(0)}% / ≥${target.toStringAsFixed(0)}%',
+          style: TextStyle(color: color, fontSize: 12),
+        ),
+      ));
+    }
+    if (minHands != null) {
+      final hands = _handsCompleted;
+      final color =
+          _progressColor(hands.toDouble(), minHands.toDouble());
+      widgets.add(Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: LinearProgressIndicator(
+          value: hands / minHands,
+          backgroundColor: Colors.white24,
+          valueColor: AlwaysStoppedAnimation<Color>(color),
+        ),
+      ));
+      widgets.add(Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Text(
+          'Руки: $hands / ≥$minHands',
+          style: TextStyle(color: color, fontSize: 12),
+        ),
+      ));
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: widgets,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final accText = _accuracy != null
@@ -203,6 +265,10 @@ class _PackCardState extends State<PackCard> with SingleTickerProviderStateMixin
                   child: Text(widget.template.trainingType.name,
                       style: const TextStyle(color: Colors.white70)),
                 ),
+                if (_locked &&
+                    (widget.template.requiredAccuracy != null ||
+                        widget.template.minHands != null))
+                  _unlockProgress(),
                 if (widget.template.tags.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
