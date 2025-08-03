@@ -29,7 +29,7 @@ class PokerAnalyzerController extends ChangeNotifier {
   /// Flag controlling display of debug information in the overlay.
   bool _debugMode = false;
 
-  void _update(void Function() action) {
+  void _update(VoidCallback action) {
     action();
     notifyListeners();
   }
