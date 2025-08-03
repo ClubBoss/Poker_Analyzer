@@ -1,31 +1,27 @@
 import 'package:flutter/widgets.dart';
 
+import 'context_extensions.dart';
+
 bool isCompactWidth(BuildContext context) {
-  final mq = MediaQuery.of(context);
-  return mq.size.width < 360;
+  return context.mediaQuery.size.width < 360;
 }
 
 double responsiveSize(BuildContext context, double value) {
-  final mq = MediaQuery.of(context);
-  return mq.size.width < 360 ? value / 2 : value;
+  return isCompactWidth(context) ? value / 2 : value;
 }
 
 EdgeInsets responsiveAll(BuildContext context, double value) {
-  final mq = MediaQuery.of(context);
-  return EdgeInsets.all(mq.size.width < 360 ? value / 2 : value);
+  return EdgeInsets.all(isCompactWidth(context) ? value / 2 : value);
 }
 
 Orientation currentOrientation(BuildContext context) {
-  final mq = MediaQuery.of(context);
-  return mq.orientation;
+  return context.mediaQuery.orientation;
 }
 
 bool isPortrait(BuildContext context) {
-  final mq = MediaQuery.of(context);
-  return mq.orientation == Orientation.portrait;
+  return context.mediaQuery.orientation == Orientation.portrait;
 }
 
 bool isLandscape(BuildContext context) {
-  final mq = MediaQuery.of(context);
-  return mq.orientation == Orientation.landscape;
+  return context.mediaQuery.orientation == Orientation.landscape;
 }
