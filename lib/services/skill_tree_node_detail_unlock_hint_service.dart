@@ -1,6 +1,10 @@
 import '../models/skill_tree.dart';
 import '../models/skill_tree_node_model.dart';
+import 'skill_tree_library_service.dart';
+import 'skill_tree_node_progress_tracker.dart';
 import 'skill_tree_stage_gate_evaluator.dart';
+import 'skill_tree_track_resolver.dart';
+import 'skill_tree_unlock_evaluator.dart';
 
 /// Provides hints explaining how to unlock a skill tree node on the detail page.
 class SkillTreeNodeDetailUnlockHintService {
@@ -9,6 +13,37 @@ class SkillTreeNodeDetailUnlockHintService {
   });
 
   final SkillTreeStageGateEvaluator stageEvaluator;
+
+  /// Returns a human‑readable hint for [nodeId] by resolving the node's
+  /// containing track and current progress state.
+  Future<String?> getHint(String nodeId) async {
+    final trackId =
+        await SkillTreeTrackResolver.instance.getTrackIdForNode(nodeId);
+    if (trackId == null) return null;
+
+    final track = SkillTreeLibraryService.instance.getTrack(trackId)?.tree;
+    if (track == null) return null;
+
+    final progress = SkillTreeNodeProgressTracker.instance;
+    // Ensure progress is loaded.
+    await progress.isCompleted('');
+    final completed = progress.completedNodeIds.value;
+
+    final unlockedEval =
+        SkillTreeUnlockEvaluator(progress: progress);
+    final unlocked =
+        unlockedEval.getUnlockedNodes(track).map((n) => n.id).toSet();
+
+    final node = track.nodes[nodeId];
+    if (node == null) return null;
+
+    return getUnlockHint(
+      node: node,
+      unlocked: unlocked,
+      completed: completed,
+      track: track,
+    );
+  }
 
   /// Returns a human‑readable hint describing how to unlock [node].
   ///
