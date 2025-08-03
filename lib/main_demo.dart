@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/poker_analyzer_screen.dart';
+import 'demo_controllable.dart';
 import 'services/action_sync_service.dart';
 import 'services/all_in_players_service.dart';
 import 'services/board_editing_service.dart';
@@ -266,11 +267,11 @@ class _DemoLauncherState extends State<DemoLauncher> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = context.read<DemoPlaybackController>();
       final state = analyzerKey.currentState;
-      if (state != null) {
+      if (state is DemoControllable) {
         controller.startDemo(
-          loadSpot: (spot) => (state as dynamic).loadTrainingSpot(spot),
-          playAll: () => (state as dynamic).playAll(),
-          announceWinner: (w) => (state as dynamic).resolveWinner(w),
+          loadSpot: state.loadTrainingSpot,
+          playAll: state.playAll,
+          announceWinner: state.resolveWinner,
         );
       }
     });
