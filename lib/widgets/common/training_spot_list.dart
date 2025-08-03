@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:convert';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:csv/csv.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +15,9 @@ import '../../models/training_pack.dart';
 import '../../theme/app_colors.dart';
 import '../../screens/training_spot_analysis_screen.dart';
 import 'training_spot_list_models.dart';
+import 'training_spot_filters.dart';
+import 'tag_preset_dialog.dart';
+import '../../utils/training_spot_io.dart';
 
 class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
@@ -78,130 +77,50 @@ class TrainingSpotListState extends State<TrainingSpotList>
   List<String> _searchHistory = [];
 
   String? _selectedPreset;
-  String? _activeQuickPreset;
   Set<String>? _prevQuickTags;
 
-  final Set<String> _selectedTags = {};
+  late TrainingSpotFilters _filters;
   final Set<TrainingSpot> _selectedSpots = {};
-  bool _tagFiltersExpanded = true;
-  SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
-  bool _icmOnly = false;
-  bool _ratedOnly = false;
-  bool _hideCompleted = false;
   bool _manualOrder = true;
-  bool _listVisible = true;
-  final Set<int> _difficultyFilters = {};
-  final Set<int> _ratingFilters = {};
   final Set<String> _mistakeIds = {};
-  RatingSortOrder? _ratingSort;
-  SimpleSortField? _simpleSortField;
-  SimpleSortOrder _simpleSortOrder = SimpleSortOrder.ascending;
-  ListSortOption? _listSort;
-  QuickSortOption? _quickSort;
-  bool _mistakesOnly = false;
 
   FilterState? _lastFilterState;
 
   void _restoreFilterState(FilterState state) {
     setState(() {
       _searchController.text = state.searchText;
-      _selectedTags
+      _filters.selectedTags
         ..clear()
         ..addAll(state.selectedTags);
-      _activeQuickPreset = null;
+      _filters.activeQuickPreset = null;
       _prevQuickTags = null;
-      _difficultyFilters
+      _filters.difficultyFilters
         ..clear()
         ..addAll(state.difficultyFilters);
-      _ratingFilters
+      _filters.ratingFilters
         ..clear()
         ..addAll(state.ratingFilters);
-      _icmOnly = state.icmOnly;
-      _ratedOnly = state.ratedOnly;
+      _filters.icmOnly = state.icmOnly;
+      _filters.ratedOnly = state.ratedOnly;
     });
-    _savePresets();
+    _saveFilters();
   }
 
-  Future<MapEntry<String, List<String>>?> _editTagPreset(
-      {String? initialName, List<String>? initialTags}) async {
-    final controller = TextEditingController(text: initialName ?? '');
-    final local = <String>{...(initialTags ?? [])};
+  Future<MapEntry<String, List<String>>?> _openTagPresetDialog(
+      {String? initialName, List<String>? initialTags}) {
     final suggestions = <String>{
       ..._availableTags,
       for (final list in _tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
-    final result = await showDialog<MapEntry<String, List<String>>>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: Text(
-            initialName == null ? 'Новый пресет' : 'Редактировать пресет',
-            style: const TextStyle(color: Colors.white),
-          ),
-          content: StatefulBuilder(
-            builder: (context, setStateDialog) {
-              return SizedBox(
-                width: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: controller,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Название',
-                        labelStyle: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          for (final tag in suggestions)
-                            CheckboxListTile(
-                              value: local.contains(tag),
-                              title: Text(tag,
-                                  style: const TextStyle(color: Colors.white)),
-                              onChanged: (v) {
-                                setStateDialog(() {
-                                  if (v ?? false) {
-                                    local.add(tag);
-                                  } else {
-                                    local.remove(tag);
-                                  }
-                                });
-                              },
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(
-                  context, MapEntry(controller.text.trim(), local.toList())),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+    return showTagPresetDialog(
+      context,
+      initialName: initialName,
+      initialTags: initialTags,
+      suggestions: suggestions,
     );
-    if (result == null || result.key.isEmpty) return null;
-    return result;
   }
 
   Future<void> _manageTagPresets() async {
@@ -272,7 +191,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                     icon: const Icon(Icons.edit,
                                         color: Colors.white),
                                     onPressed: () async {
-                                      final result = await _editTagPreset(
+                                      final result = await _openTagPresetDialog(
                                           initialName: entry.key,
                                           initialTags: entry.value);
                                       if (result != null) {
@@ -325,7 +244,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                       alignment: Alignment.centerLeft,
                       child: ElevatedButton(
                         onPressed: () async {
-                          final result = await _editTagPreset();
+                          final result = await _openTagPresetDialog();
                           if (result != null &&
                               !_customTagPresets.containsKey(result.key)) {
                             setStateDialog(() {
@@ -351,7 +270,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       },
     );
     setState(() {});
-    _savePresets();
+    _saveFilters();
   }
 
   List<TrainingSpot> _currentFilteredSpots() {
@@ -376,17 +295,17 @@ class TrainingSpotListState extends State<TrainingSpotList>
             actions.contains(query);
       }
       final matchesTags =
-          _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
-      final matchesIcm = !_icmOnly || spot.tags.contains('ICM');
+          _filters.selectedTags.isEmpty || _filters.selectedTags.every(spot.tags.contains);
+      final matchesIcm = !_filters.icmOnly || spot.tags.contains('ICM');
       final matchesDifficulty =
-          _difficultyFilters.isEmpty ||
-              _difficultyFilters.contains(spot.difficulty);
+          _filters.difficultyFilters.isEmpty ||
+              _filters.difficultyFilters.contains(spot.difficulty);
       final matchesRating =
-          _ratingFilters.isEmpty || _ratingFilters.contains(spot.rating);
-      final matchesRated = !_ratedOnly || spot.userAction != null;
+          _filters.ratingFilters.isEmpty || _filters.ratingFilters.contains(spot.rating);
+      final matchesRated = !_filters.ratedOnly || spot.userAction != null;
       final matchesCompleted =
-          !_hideCompleted || spot.userAction == null || spot.correct == null;
-      final matchesMistake = !_mistakesOnly ||
+          !_filters.hideCompleted || spot.userAction == null || spot.correct == null;
+      final matchesMistake = !_filters.mistakesOnly ||
           (spot.tournamentId != null &&
               _mistakeIds.contains(spot.tournamentId!));
       return
@@ -432,26 +351,26 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   String getActiveFilterSummary() {
     final search = _searchController.text.trim();
-    final tags = _selectedTags.join(', ');
+    final tags = _filters.selectedTags.join(', ');
     var summary = '';
     if (tags.isNotEmpty) summary += tags;
     if (search.isNotEmpty) {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'поиск: $search';
     }
-    if (_difficultyFilters.isNotEmpty) {
+    if (_filters.difficultyFilters.isNotEmpty) {
       if (summary.isNotEmpty) summary += ' + ';
-      summary += 'сложность: ${_difficultyFilters.join(', ')}';
+      summary += 'сложность: ${_filters.difficultyFilters.join(', ')}';
     }
-    if (_ratingFilters.isNotEmpty) {
+    if (_filters.ratingFilters.isNotEmpty) {
       if (summary.isNotEmpty) summary += ' + ';
-      summary += 'рейтинг: ${_ratingFilters.join(', ')}';
+      summary += 'рейтинг: ${_filters.ratingFilters.join(', ')}';
     }
-    if (_ratedOnly) {
+    if (_filters.ratedOnly) {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'только с оценкой';
     }
-    if (_mistakesOnly) {
+    if (_filters.mistakesOnly) {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'ошибки';
     }
@@ -460,35 +379,20 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   bool get _hasActiveFilters {
     return _searchController.text.trim().isNotEmpty ||
-        _selectedTags.isNotEmpty ||
-        _difficultyFilters.isNotEmpty ||
-        _ratingFilters.isNotEmpty ||
-        _icmOnly ||
-        _ratedOnly ||
-        _mistakesOnly;
+        _filters.selectedTags.isNotEmpty ||
+        _filters.difficultyFilters.isNotEmpty ||
+        _filters.ratingFilters.isNotEmpty ||
+        _filters.icmOnly ||
+        _filters.ratedOnly ||
+        _filters.mistakesOnly;
   }
 
   Future<void> _loadPresets() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await _restoreOrderFromPrefs(prefs);
-    final List<String> tags = prefs.getStringList(SharedPrefsKeys.trainingPresetTags) ?? <String>[];
-    final String search = prefs.getString(SharedPrefsKeys.trainingPresetSearch) ?? '';
-    final bool expanded = prefs.getBool(SharedPrefsKeys.trainingPresetExpanded) ?? true;
-    final bool listVisible = prefs.getBool(SharedPrefsKeys.trainingSpotListVisible) ?? true;
-    final String? sortName = prefs.getString(SharedPrefsKeys.trainingPresetSort);
-    final String? ratingSortName = prefs.getString(SharedPrefsKeys.trainingPresetRatingSort);
-    final String? simpleFieldName = prefs.getString(SharedPrefsKeys.trainingSimpleSortField);
-    final String? simpleOrderName = prefs.getString(SharedPrefsKeys.trainingSimpleSortOrder);
-    final String? listSortName = prefs.getString(SharedPrefsKeys.trainingSpotListSort);
-    final String? quickSortName = prefs.getString(SharedPrefsKeys.trainingQuickSortOption);
-    final bool icmOnly = prefs.getBool(SharedPrefsKeys.trainingPresetIcmOnly) ?? widget.icmOnly;
-    final bool ratedOnly = prefs.getBool(SharedPrefsKeys.trainingPresetRatedOnly) ?? false;
-    final bool hideCompleted = prefs.getBool(SharedPrefsKeys.trainingHideCompleted) ?? false;
-    final bool mistakesOnly = prefs.getBool(SharedPrefsKeys.trainingMistakesOnly) ?? false;
-    final List<String>? diffs = prefs.getStringList(SharedPrefsKeys.trainingPresetDifficulties);
-    final List<String>? ratings = prefs.getStringList(SharedPrefsKeys.trainingPresetRatings);
-    final String? customJson = prefs.getString(SharedPrefsKeys.trainingCustomTagPresets);
-    final String? quickPreset = prefs.getString(SharedPrefsKeys.trainingQuickPreset);
+    _filters = await TrainingSpotFilters.load(defaultIcmOnly: widget.icmOnly);
+    final String? customJson =
+        prefs.getString(SharedPrefsKeys.trainingCustomTagPresets);
     _searchHistory =
         prefs.getStringList(SharedPrefsKeys.trainingSearchHistory) ?? <String>[];
     if (customJson != null && customJson.isNotEmpty) {
@@ -498,170 +402,54 @@ class TrainingSpotListState extends State<TrainingSpotList>
       };
     }
 
-    _searchController.text = search;
-    _selectedTags
-      ..clear()
-      ..addAll(tags);
-    _activeQuickPreset = quickPreset;
-    if (_activeQuickPreset != null) {
-      _prevQuickTags = Set<String>.from(_selectedTags);
-      final tag = _quickFilterPresets[_activeQuickPreset!];
+    _searchController.text = _filters.searchText;
+    if (_filters.activeQuickPreset != null) {
+      _prevQuickTags = Set<String>.from(_filters.selectedTags);
+      final tag = _quickFilterPresets[_filters.activeQuickPreset!];
       if (tag != null) {
-        _selectedTags
+        _filters.selectedTags
           ..clear()
           ..add(tag);
       } else {
-        _activeQuickPreset = null;
+        _filters.activeQuickPreset = null;
       }
     }
-    _tagFiltersExpanded = expanded;
-    _listVisible = listVisible;
-    _icmOnly = icmOnly;
-    _ratedOnly = ratedOnly;
-    _hideCompleted = hideCompleted;
-    _mistakesOnly = mistakesOnly;
-    _difficultyFilters
-      ..clear()
-      ..addAll(diffs == null
-          ? []
-          : diffs
-              .map(int.tryParse)
-              .whereType<int>()
-              .where((d) => d >= 1 && d <= 5));
-    _ratingFilters
-      ..clear()
-      ..addAll(ratings == null
-          ? []
-          : ratings
-              .map(int.tryParse)
-              .whereType<int>()
-              .where((r) => r >= 1 && r <= 5));
-    if (sortName != null && sortName.isNotEmpty) {
-      try {
-        _sortOption = SortOption.values.byName(sortName);
-      } catch (_) {
-        _sortOption = null;
-      }
-    }
-    if (ratingSortName != null && ratingSortName.isNotEmpty) {
-      try {
-        _ratingSort = RatingSortOrder.values.byName(ratingSortName);
-      } catch (_) {
-        _ratingSort = null;
-      }
-    }
-    if (simpleFieldName != null && simpleFieldName.isNotEmpty) {
-      try {
-        _simpleSortField = SimpleSortField.values.byName(simpleFieldName);
-      } catch (_) {
-        _simpleSortField = null;
-      }
-    }
-    if (simpleOrderName != null && simpleOrderName.isNotEmpty) {
-      try {
-        _simpleSortOrder = SimpleSortOrder.values.byName(simpleOrderName);
-      } catch (_) {
-        _simpleSortOrder = SimpleSortOrder.ascending;
-      }
-    }
-    if (listSortName != null && listSortName.isNotEmpty) {
-      try {
-        _listSort = ListSortOption.values.byName(listSortName);
-      } catch (_) {
-        _listSort = null;
-      }
-    }
-    if (quickSortName != null && quickSortName.isNotEmpty) {
-      try {
-        _quickSort = QuickSortOption.values.byName(quickSortName);
-      } catch (_) {
-        _quickSort = null;
-      }
-    }
-    _manualOrder = _sortOption == null &&
-        _ratingSort == null &&
-        _simpleSortField == null &&
-        _listSort == null &&
-        _quickSort == null;
+    _manualOrder = _filters.sortOption == null &&
+        _filters.ratingSort == null &&
+        _filters.simpleSortField == null &&
+        _filters.listSort == null &&
+        _filters.quickSort == null;
     _presetsLoaded = true;
     final filtered = _currentFilteredSpots();
-    if (_sortOption != null) {
-      _sortFiltered(filtered, _sortOption!);
-    } else if (_ratingSort != null) {
-      _sortByRating(filtered, _ratingSort!);
-    } else if (_simpleSortField != null) {
+    if (_filters.sortOption != null) {
+      _sortFiltered(filtered, _filters.sortOption!);
+    } else if (_filters.ratingSort != null) {
+      _sortByRating(filtered, _filters.ratingSort!);
+    } else if (_filters.simpleSortField != null) {
       _applySimpleSort(filtered);
-    } else if (_listSort != null) {
+    } else if (_filters.listSort != null) {
       _applyListSort(filtered);
-    } else if (_quickSort != null) {
+    } else if (_filters.quickSort != null) {
       _applyQuickSort(filtered);
     } else {
       setState(() {});
     }
     _searchController.addListener(() {
       if (_presetsLoaded) {
+        _filters.searchText = _searchController.text;
         setState(() {});
-        _savePresets();
+        _saveFilters();
       } else {
         setState(() {});
       }
     });
   }
 
-  Future<void> _savePresets() async {
+  Future<void> _saveFilters() async {
     if (!_presetsLoaded) return;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(SharedPrefsKeys.trainingPresetTags, _selectedTags.toList());
-    await prefs.setString(SharedPrefsKeys.trainingPresetSearch, _searchController.text);
-    await prefs.setBool(SharedPrefsKeys.trainingPresetExpanded, _tagFiltersExpanded);
-    await prefs.setBool(SharedPrefsKeys.trainingPresetIcmOnly, _icmOnly);
-    await prefs.setBool(SharedPrefsKeys.trainingPresetRatedOnly, _ratedOnly);
-    await prefs.setBool(SharedPrefsKeys.trainingHideCompleted, _hideCompleted);
-    await prefs.setBool(SharedPrefsKeys.trainingMistakesOnly, _mistakesOnly);
-    await prefs.setBool(SharedPrefsKeys.trainingSpotListVisible, _listVisible);
-    if (_difficultyFilters.isNotEmpty) {
-      await prefs.setStringList(SharedPrefsKeys.trainingPresetDifficulties,
-          _difficultyFilters.map((e) => e.toString()).toList());
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingPresetDifficulties);
-    }
-    if (_ratingFilters.isNotEmpty) {
-      await prefs.setStringList(SharedPrefsKeys.trainingPresetRatings,
-          _ratingFilters.map((e) => e.toString()).toList());
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingPresetRatings);
-    }
-    if (_ratingSort != null) {
-      await prefs.setString(SharedPrefsKeys.trainingPresetRatingSort, _ratingSort!.name);
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingPresetRatingSort);
-    }
-    if (_simpleSortField != null) {
-      await prefs.setString(SharedPrefsKeys.trainingSimpleSortField, _simpleSortField!.name);
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingSimpleSortField);
-    }
-    await prefs.setString(SharedPrefsKeys.trainingSimpleSortOrder, _simpleSortOrder.name);
-    if (_listSort != null) {
-      await prefs.setString(SharedPrefsKeys.trainingSpotListSort, _listSort!.name);
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingSpotListSort);
-    }
-    if (_quickSort != null) {
-      await prefs.setString(SharedPrefsKeys.trainingQuickSortOption, _quickSort!.name);
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingQuickSortOption);
-    }
-    if (_sortOption != null) {
-      await prefs.setString(SharedPrefsKeys.trainingPresetSort, _sortOption!.name);
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingPresetSort);
-    }
-    if (_activeQuickPreset != null) {
-      await prefs.setString(SharedPrefsKeys.trainingQuickPreset, _activeQuickPreset!);
-    } else {
-      await prefs.remove(SharedPrefsKeys.trainingQuickPreset);
-    }
+    _filters.searchText = _searchController.text;
+    await _filters.save();
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
         SharedPrefsKeys.trainingCustomTagPresets, jsonEncode(_customTagPresets));
   }
@@ -1374,8 +1162,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   void _applyActiveFiltersToFiltered(List<TrainingSpot> filtered) {
     if (filtered.isEmpty) return;
-    final diff = _difficultyFilters.length == 1 ? _difficultyFilters.first : null;
-    final rate = _ratingFilters.length == 1 ? _ratingFilters.first : null;
+    final diff = _filters.difficultyFilters.length == 1 ? _filters.difficultyFilters.first : null;
+    final rate = _filters.ratingFilters.length == 1 ? _filters.ratingFilters.first : null;
     if (diff == null && rate == null) return;
     setState(() {
       for (final spot in filtered) {
@@ -1905,7 +1693,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
     if (name == null || name.isEmpty) return;
 
-    await _exportNamedPack(filtered, name);
+    await exportNamedPack(context, filtered, name);
   }
 
   Widget _buildRatingStars(TrainingSpot spot, {bool highlight = false}) {
@@ -2125,7 +1913,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Future<void> _exportSelected() async {
     final spots = _selectedSpots.toList();
     if (spots.isEmpty) return;
-    await _exportCsv(
+    await exportCsv(
+      context,
       spots,
       successMessage: 'Экспортировано ${spots.length} выбранных спотов в CSV',
     );
@@ -2170,29 +1959,29 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 _buildSearchField(),
                 const SizedBox(height: 4),
                 _QuickPresetRow(
-                  active: _activeQuickPreset,
+                  active: _filters.activeQuickPreset,
                   onChanged: (value) {
                     setState(() {
                       if (value != null) {
-                        if (_activeQuickPreset == null) {
-                          _prevQuickTags = Set<String>.from(_selectedTags);
+                        if (_filters.activeQuickPreset == null) {
+                          _prevQuickTags = Set<String>.from(_filters.selectedTags);
                         }
-                        _activeQuickPreset = value;
+                        _filters.activeQuickPreset = value;
                         final tag = _quickFilterPresets[value];
                         if (tag != null) {
-                          _selectedTags
+                          _filters.selectedTags
                             ..clear()
                             ..add(tag);
                         }
-                      } else if (_activeQuickPreset != null) {
-                        _selectedTags
+                      } else if (_filters.activeQuickPreset != null) {
+                        _filters.selectedTags
                           ..clear()
                           ..addAll(_prevQuickTags ?? {});
-                        _activeQuickPreset = null;
+                        _filters.activeQuickPreset = null;
                         _prevQuickTags = null;
                       }
                     });
-                    _savePresets();
+                    _saveFilters();
                   },
                 ),
                 _buildFilterSummary(),
@@ -2277,27 +2066,27 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 _buildMistakeSwitch(),
                 const SizedBox(height: 8),
                 _buildFilterToggleButton(),
-                if (_tagFiltersExpanded) ...[
+                if (_filters.tagFiltersExpanded) ...[
                   const SizedBox(height: 8),
                   _TagFilterSection(
                     filtered: filtered,
-                    selectedTags: _selectedTags,
-                    expanded: _tagFiltersExpanded,
+                    selectedTags: _filters.selectedTags,
+                    expanded: _filters.tagFiltersExpanded,
                     selectedPreset: _selectedPreset,
                     customPresets: _customTagPresets,
                     onExpanded: (v) {
-                      setState(() => _tagFiltersExpanded = v);
-                      _savePresets();
+                      setState(() => _filters.tagFiltersExpanded = v);
+                      _saveFilters();
                     },
                     onTagToggle: (tag, selected) {
                       setState(() {
                         if (selected) {
-                          _selectedTags.add(tag);
+                          _filters.selectedTags.add(tag);
                         } else {
-                          _selectedTags.remove(tag);
+                          _filters.selectedTags.remove(tag);
                         }
                       });
-                      _savePresets();
+                      _saveFilters();
                     },
                     onPresetSelected: (value) {
                       if (value == null) return;
@@ -2349,22 +2138,22 @@ class TrainingSpotListState extends State<TrainingSpotList>
                               if (v) {
                                 _resetSort();
                               } else {
-                                if (_sortOption != null) {
+                                if (_filters.sortOption != null) {
                                   _sortFiltered(
-                                      _currentFilteredSpots(), _sortOption!);
-                                } else if (_ratingSort != null) {
+                                      _currentFilteredSpots(), _filters.sortOption!);
+                                } else if (_filters.ratingSort != null) {
                                   _sortByRating(
-                                      _currentFilteredSpots(), _ratingSort!);
-                                } else if (_simpleSortField != null) {
+                                      _currentFilteredSpots(), _filters.ratingSort!);
+                                } else if (_filters.simpleSortField != null) {
                                   _applySimpleSort(_currentFilteredSpots());
-                                } else if (_listSort != null) {
+                                } else if (_filters.listSort != null) {
                                   _applyListSort(_currentFilteredSpots());
-                                } else if (_quickSort != null) {
+                                } else if (_filters.quickSort != null) {
                                   _applyQuickSort(_currentFilteredSpots());
                                 } else {
-                                  _sortOption = SortOption.buyInAsc;
+                                  _filters.sortOption = SortOption.buyInAsc;
                                   _sortFiltered(
-                                      _currentFilteredSpots(), _sortOption!);
+                                      _currentFilteredSpots(), _filters.sortOption!);
                                 }
                               }
                             },
@@ -2380,7 +2169,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                       ),
                       const SizedBox(width: 8),
                       _SortDropdown(
-                        sortOption: _sortOption,
+                        sortOption: _filters.sortOption,
                         filtered: filtered,
                         manualOrder: _manualOrder,
                         onChanged: (value, spots) {
@@ -2421,62 +2210,62 @@ class TrainingSpotListState extends State<TrainingSpotList>
             delegate: _SliverFilterBarDelegate(
               height: 140,
               child: _FilterBar(
-                selectedTags: _selectedTags,
+                selectedTags: _filters.selectedTags,
                 onTagToggle: (tag, selected) {
                   setState(() {
                     if (selected) {
-                      _selectedTags.add(tag);
+                      _filters.selectedTags.add(tag);
                     } else {
-                      _selectedTags.remove(tag);
+                      _filters.selectedTags.remove(tag);
                     }
                   });
-                  _savePresets();
+                  _saveFilters();
                 },
-                difficultyFilters: _difficultyFilters,
+                difficultyFilters: _filters.difficultyFilters,
                 onDifficultyChanged: (value) {
                   setState(() {
-                    if (_difficultyFilters.contains(value)) {
-                      _difficultyFilters.remove(value);
+                    if (_filters.difficultyFilters.contains(value)) {
+                      _filters.difficultyFilters.remove(value);
                     } else {
-                      _difficultyFilters.add(value);
+                      _filters.difficultyFilters.add(value);
                     }
                   });
-                  _savePresets();
+                  _saveFilters();
                 },
                 onDifficultyToggleAll: () {
                   setState(() {
-                    if (_difficultyFilters.length == 5) {
-                      _difficultyFilters.clear();
+                    if (_filters.difficultyFilters.length == 5) {
+                      _filters.difficultyFilters.clear();
                     } else {
-                      _difficultyFilters
+                      _filters.difficultyFilters
                         ..clear()
                         ..addAll({1, 2, 3, 4, 5});
                     }
                   });
-                  _savePresets();
+                  _saveFilters();
                 },
-                ratingFilters: _ratingFilters,
+                ratingFilters: _filters.ratingFilters,
                 onRatingChanged: (value) {
                   setState(() {
-                    if (_ratingFilters.contains(value)) {
-                      _ratingFilters.remove(value);
+                    if (_filters.ratingFilters.contains(value)) {
+                      _filters.ratingFilters.remove(value);
                     } else {
-                      _ratingFilters.add(value);
+                      _filters.ratingFilters.add(value);
                     }
                   });
-                  _savePresets();
+                  _saveFilters();
                 },
                 onRatingToggleAll: () {
                   setState(() {
-                    if (_ratingFilters.length == 5) {
-                      _ratingFilters.clear();
+                    if (_filters.ratingFilters.length == 5) {
+                      _filters.ratingFilters.clear();
                     } else {
-                      _ratingFilters
+                      _filters.ratingFilters
                         ..clear()
                         ..addAll({1, 2, 3, 4, 5});
                     }
                   });
-                  _savePresets();
+                  _saveFilters();
                 },
               ),
             ),
@@ -2492,34 +2281,34 @@ class TrainingSpotListState extends State<TrainingSpotList>
             child: AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              child: _listVisible
+              child: _filters.listVisible
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                 _QuickSortSegment(
-                  value: _quickSort,
+                  value: _filters.quickSort,
                   onChanged: (v) {
-                    setState(() => _quickSort = v);
+                    setState(() => _filters.quickSort = v);
                     _applyQuickSort(filtered);
                   },
                 ),
                 const SizedBox(height: 8),
                 _ListSortDropdown(
-                  value: _listSort,
+                  value: _filters.listSort,
                   filtered: filtered,
                   manualOrder: _manualOrder,
                   onChanged: (value, spots) {
                     if (value == null) {
                       _resetSort();
                     } else {
-                      setState(() => _listSort = value);
+                      setState(() => _filters.listSort = value);
                       _applyListSort(spots);
                     }
                   },
                 ),
                 const SizedBox(height: 8),
                 _RatingSortDropdown(
-                  order: _ratingSort,
+                  order: _filters.ratingSort,
                   filtered: filtered,
                   manualOrder: _manualOrder,
                   onChanged: (value, spots) {
@@ -2532,11 +2321,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 ),
                 const SizedBox(height: 8),
                 _SimpleSortRow(
-                  field: _simpleSortField,
-                  order: _simpleSortOrder,
+                  field: _filters.simpleSortField,
+                  order: _filters.simpleSortOrder,
                   onFieldChanged: (value) {
                     setState(() {
-                      _simpleSortField = value;
+                      _filters.simpleSortField = value;
                       _manualOrder = value == null;
                     });
                     if (value == null) {
@@ -2546,8 +2335,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     }
                   },
                   onOrderChanged: (order) {
-                    setState(() => _simpleSortOrder = order);
-                    if (_simpleSortField != null) {
+                    setState(() => _filters.simpleSortOrder = order);
+                    if (_filters.simpleSortField != null) {
                       _applySimpleSort(filtered);
                     }
                   },
@@ -2571,7 +2360,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   },
                 ),
                 const SizedBox(height: 8),
-                if (_listVisible)
+                if (_filters.listVisible)
                   if (filtered.isEmpty)
                     SizedBox(
                       height: 150,
@@ -2655,7 +2444,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                         child: Text.rich(
                                                           _highlightSpan(
                                                               'ID: ${spot.tournamentId}'),
-                                                          style: _quickSort ==
+                                                          style: _filters.quickSort ==
                                                                   QuickSortOption.id
                                                               ? const TextStyle(
                                                                   fontWeight:
@@ -2667,7 +2456,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                       const SizedBox(width: 4),
                                                       _buildDifficultyDropdown(
                                                           spot,
-                                                          highlight: _quickSort ==
+                                                          highlight: _filters.quickSort ==
                                                               QuickSortOption.difficulty),
                                                     ],
                                                   ),
@@ -2675,7 +2464,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                               else
                                                 _buildDifficultyDropdown(
                                                     spot,
-                                                    highlight: _quickSort ==
+                                                    highlight: _filters.quickSort ==
                                                         QuickSortOption.difficulty),
                                               if (spot.buyIn != null)
                                                 Text('Buy-In: ${spot.buyIn}',
@@ -2763,7 +2552,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                 ),
                                                 _buildRatingStars(
                                                     spot,
-                                                    highlight: _quickSort ==
+                                                    highlight: _filters.quickSort ==
                                                         QuickSortOption.rating),
                                               IconButton(
                                                 icon: const Icon(Icons.label_outline,
@@ -2883,7 +2672,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                         child: Text.rich(
                                                           _highlightSpan(
                                                               'ID: ${spot.tournamentId}'),
-                                                          style: _quickSort ==
+                                                          style: _filters.quickSort ==
                                                                   QuickSortOption.id
                                                               ? const TextStyle(
                                                                   fontWeight:
@@ -2895,7 +2684,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                       const SizedBox(width: 4),
                                                       _buildDifficultyDropdown(
                                                           spot,
-                                                          highlight: _quickSort ==
+                                                          highlight: _filters.quickSort ==
                                                               QuickSortOption.difficulty),
                                                   ],
                                                 ),
@@ -2903,7 +2692,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                               else
                                                 _buildDifficultyDropdown(
                                                     spot,
-                                                    highlight: _quickSort ==
+                                                    highlight: _filters.quickSort ==
                                                         QuickSortOption.difficulty),
                                             if (spot.buyIn != null)
                                               Text('Buy-In: ${spot.buyIn}',
@@ -2991,7 +2780,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                               _buildRatingStars(
                                                   spot,
                                                   highlight:
-                                                      _quickSort == QuickSortOption.rating),
+                                                      _filters.quickSort == QuickSortOption.rating),
                                             IconButton(
                                               icon: const Icon(Icons.label_outline,
                                                   color: Colors.white70),
@@ -3072,14 +2861,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   child: Row(
                     children: [
                       ElevatedButton(
-                        onPressed:
-                            filtered.isEmpty ? null : () => _exportPack(filtered),
+                        onPressed: filtered.isEmpty
+                            ? null
+                            : () => exportPack(context, filtered),
                         child: const Text('Экспортировать пакет'),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed:
-                            filtered.isEmpty ? null : () => _exportCsv(filtered),
+                        onPressed: filtered.isEmpty
+                            ? null
+                            : () => exportCsv(context, filtered),
                         child: const Text('Скачать CSV'),
                       ),
                     ],
@@ -3092,7 +2883,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     child: ElevatedButton(
                       onPressed: filtered.isEmpty
                           ? null
-                          : () => _exportPackSummary(filtered),
+                          : () => exportPackSummary(context, filtered),
                       child: const Text('Export Spot Summary'),
                     ),
                   ),
@@ -3101,7 +2892,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 Align(
                   alignment: Alignment.centerLeft,
                   child: ElevatedButton(
-                    onPressed: _importPack,
+                    onPressed: () async {
+                      final imported = await importPack(context);
+                      if (imported.isNotEmpty) {
+                        setState(() => widget.spots.addAll(imported));
+                        widget.onChanged?.call();
+                      }
+                    },
                     child: const Text('Импортировать пакет'),
                   ),
                 ),
@@ -3112,7 +2909,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       ),
     );
         _RatingSortDropdown(
-          order: _ratingSort,
+          order: _filters.ratingSort,
           filtered: filtered,
           manualOrder: _manualOrder,
           onChanged: (value, spots) {
@@ -3142,7 +2939,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
           },
         ),
         const SizedBox(height: 8),
-        if (_listVisible)
+        if (_filters.listVisible)
           if (filtered.isEmpty)
             SizedBox(
               height: 150,
@@ -3219,7 +3016,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                       Expanded(
                                         child: Text.rich(
                                           _highlightSpan('ID: ${spot.tournamentId}'),
-                                          style: _quickSort == QuickSortOption.id
+                                          style: _filters.quickSort == QuickSortOption.id
                                               ? const TextStyle(fontWeight: FontWeight.bold)
                                               : null,
                                         ),
@@ -3228,7 +3025,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                       _buildDifficultyDropdown(
                                           spot,
                                           highlight:
-                                              _quickSort == QuickSortOption.difficulty),
+                                              _filters.quickSort == QuickSortOption.difficulty),
                                   ],
                                 ),
                               ),
@@ -3236,7 +3033,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                 _buildDifficultyDropdown(
                                     spot,
                                     highlight:
-                                        _quickSort == QuickSortOption.difficulty),
+                                        _filters.quickSort == QuickSortOption.difficulty),
                             if (spot.buyIn != null)
                               Text('Buy-In: ${spot.buyIn}',
                                   style: const TextStyle(color: Colors.white)),
@@ -3264,7 +3061,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                               _buildRatingStars(
                                   spot,
                                   highlight:
-                                      _quickSort == QuickSortOption.rating),
+                                      _filters.quickSort == QuickSortOption.rating),
                             IconButton(
                               icon: const Icon(Icons.label_outline,
                                   color: Colors.white70),
@@ -3357,7 +3154,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                           Expanded(
                                             child: Text.rich(
                                               _highlightSpan('ID: ${spot.tournamentId}'),
-                                              style: _quickSort == QuickSortOption.id
+                                              style: _filters.quickSort == QuickSortOption.id
                                                   ? const TextStyle(fontWeight: FontWeight.bold)
                                                   : null,
                                             ),
@@ -3366,7 +3163,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                             _buildDifficultyDropdown(
                                                 spot,
                                                 highlight:
-                                                    _quickSort == QuickSortOption.difficulty),
+                                                    _filters.quickSort == QuickSortOption.difficulty),
                                         ],
                                       ),
                                     )
@@ -3374,7 +3171,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                       _buildDifficultyDropdown(
                                           spot,
                                           highlight:
-                                              _quickSort == QuickSortOption.difficulty),
+                                              _filters.quickSort == QuickSortOption.difficulty),
                                   if (spot.buyIn != null)
                                     Text('Buy-In: ${spot.buyIn}',
                                         style: const TextStyle(color: Colors.white)),
@@ -3402,7 +3199,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                     _buildRatingStars(
                                         spot,
                                         highlight:
-                                            _quickSort == QuickSortOption.rating),
+                                            _filters.quickSort == QuickSortOption.rating),
                                   IconButton(
                                   icon: const Icon(Icons.label_outline,
                                       color: Colors.white70),
@@ -3451,14 +3248,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
           child: Row(
             children: [
               ElevatedButton(
-                onPressed:
-                    filtered.isEmpty ? null : () => _exportPack(filtered),
+                onPressed: filtered.isEmpty
+                    ? null
+                    : () => exportPack(context, filtered),
                 child: const Text('Экспортировать пакет'),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                onPressed:
-                    filtered.isEmpty ? null : () => _exportCsv(filtered),
+                onPressed: filtered.isEmpty
+                    ? null
+                    : () => exportCsv(context, filtered),
                 child: const Text('Скачать CSV'),
               ),
             ],
@@ -3471,7 +3270,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
             child: ElevatedButton(
               onPressed: filtered.isEmpty
                   ? null
-                  : () => _exportPackSummary(filtered),
+                  : () => exportPackSummary(context, filtered),
               child: const Text('Export Spot Summary'),
             ),
           ),
@@ -3480,7 +3279,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
         Align(
           alignment: Alignment.centerLeft,
           child: ElevatedButton(
-            onPressed: _importPack,
+            onPressed: () async {
+              final imported = await importPack(context);
+              if (imported.isNotEmpty) {
+                setState(() => widget.spots.addAll(imported));
+                widget.onChanged?.call();
+              }
+            },
             child: const Text('Импортировать пакет'),
           ),
         ),
@@ -3585,10 +3390,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Widget _buildIcmSwitch() {
     return SwitchListTile(
-      value: _icmOnly,
+      value: _filters.icmOnly,
       onChanged: (v) {
-        setState(() => _icmOnly = v);
-        _savePresets();
+        setState(() => _filters.icmOnly = v);
+        _saveFilters();
       },
       title: const Text('Только ICM', style: TextStyle(color: Colors.white)),
       activeColor: Colors.orange,
@@ -3598,10 +3403,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Widget _buildRatedSwitch() {
     return SwitchListTile(
-      value: _ratedOnly,
+      value: _filters.ratedOnly,
       onChanged: (v) {
-        setState(() => _ratedOnly = v);
-        _savePresets();
+        setState(() => _filters.ratedOnly = v);
+        _saveFilters();
       },
       title: const Text('Только с оценкой',
           style: TextStyle(color: Colors.white)),
@@ -3612,10 +3417,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Widget _buildHideCompletedSwitch() {
     return SwitchListTile(
-      value: _hideCompleted,
+      value: _filters.hideCompleted,
       onChanged: (v) {
-        setState(() => _hideCompleted = v);
-        _savePresets();
+        setState(() => _filters.hideCompleted = v);
+        _saveFilters();
       },
       title:
           const Text('Скрыть завершённые', style: TextStyle(color: Colors.white)),
@@ -3626,10 +3431,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Widget _buildMistakeSwitch() {
     return SwitchListTile(
-      value: _mistakesOnly,
+      value: _filters.mistakesOnly,
       onChanged: (v) {
-        setState(() => _mistakesOnly = v);
-        _savePresets();
+        setState(() => _filters.mistakesOnly = v);
+        _saveFilters();
       },
       title:
           const Text('Повторить ошибки', style: TextStyle(color: Colors.white)),
@@ -3643,14 +3448,14 @@ class TrainingSpotListState extends State<TrainingSpotList>
       alignment: Alignment.centerLeft,
       child: TextButton(
         onPressed: () {
-          setState(() => _tagFiltersExpanded = !_tagFiltersExpanded);
-          _savePresets();
+          setState(() => _filters.tagFiltersExpanded = !_filters.tagFiltersExpanded);
+          _saveFilters();
         },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _tagFiltersExpanded ? 'Скрыть фильтры' : 'Показать фильтры',
+              _filters.tagFiltersExpanded ? 'Скрыть фильтры' : 'Показать фильтры',
             ),
             if (_hasActiveFilters)
               const Padding(
@@ -3666,8 +3471,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   Widget _buildListHeader() {
     return InkWell(
       onTap: () {
-        setState(() => _listVisible = !_listVisible);
-        _savePresets();
+        setState(() => _filters.listVisible = !_filters.listVisible);
+        _saveFilters();
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -3679,7 +3484,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
               style: TextStyle(color: Colors.white),
             ),
             Icon(
-              _listVisible ? Icons.expand_less : Icons.expand_more,
+              _filters.listVisible ? Icons.expand_less : Icons.expand_more,
               color: Colors.white,
             ),
           ],
@@ -3689,8 +3494,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 
   String _currentSortFieldLabel() {
-    if (_quickSort != null) {
-      switch (_quickSort!) {
+    if (_filters.quickSort != null) {
+      switch (_filters.quickSort!) {
         case QuickSortOption.id:
           return 'ID';
         case QuickSortOption.difficulty:
@@ -3699,8 +3504,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
           return 'Рейтинг';
       }
     }
-    if (_listSort != null) {
-      switch (_listSort!) {
+    if (_filters.listSort != null) {
+      switch (_filters.listSort!) {
         case ListSortOption.dateNew:
         case ListSortOption.dateOld:
           return 'Дата';
@@ -3712,8 +3517,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
           return 'Комментарий';
       }
     }
-    if (_simpleSortField != null) {
-      switch (_simpleSortField!) {
+    if (_filters.simpleSortField != null) {
+      switch (_filters.simpleSortField!) {
         case SimpleSortField.createdAt:
           return 'Дата';
         case SimpleSortField.difficulty:
@@ -3722,11 +3527,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
           return 'Рейтинг';
       }
     }
-    if (_ratingSort != null) {
+    if (_filters.ratingSort != null) {
       return 'Рейтинг';
     }
-    if (_sortOption != null) {
-      switch (_sortOption!) {
+    if (_filters.sortOption != null) {
+      switch (_filters.sortOption!) {
         case SortOption.buyInAsc:
         case SortOption.buyInDesc:
           return 'Buy-In';
@@ -3743,16 +3548,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 
   SimpleSortOrder? _currentSortOrder() {
-    if (_simpleSortField != null) {
-      return _simpleSortOrder;
+    if (_filters.simpleSortField != null) {
+      return _filters.simpleSortOrder;
     }
-    if (_ratingSort != null) {
-      return _ratingSort == RatingSortOrder.highFirst
+    if (_filters.ratingSort != null) {
+      return _filters.ratingSort == RatingSortOrder.highFirst
           ? SimpleSortOrder.descending
           : SimpleSortOrder.ascending;
     }
-    if (_listSort != null) {
-      switch (_listSort!) {
+    if (_filters.listSort != null) {
+      switch (_filters.listSort!) {
         case ListSortOption.dateNew:
         case ListSortOption.rating:
         case ListSortOption.difficulty:
@@ -3762,8 +3567,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
           return SimpleSortOrder.ascending;
       }
     }
-    if (_quickSort != null) {
-      switch (_quickSort!) {
+    if (_filters.quickSort != null) {
+      switch (_filters.quickSort!) {
         case QuickSortOption.rating:
           return SimpleSortOrder.descending;
         case QuickSortOption.id:
@@ -3771,8 +3576,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
           return SimpleSortOrder.ascending;
       }
     }
-    if (_sortOption != null) {
-      switch (_sortOption!) {
+    if (_filters.sortOption != null) {
+      switch (_filters.sortOption!) {
         case SortOption.buyInAsc:
         case SortOption.gameType:
         case SortOption.tournamentId:
@@ -3818,27 +3623,27 @@ class TrainingSpotListState extends State<TrainingSpotList>
   void clearFilters() {
     _lastFilterState = FilterState(
       searchText: _searchController.text,
-      selectedTags: Set<String>.from(_selectedTags),
-      difficultyFilters: Set<int>.from(_difficultyFilters),
-      ratingFilters: Set<int>.from(_ratingFilters),
-      icmOnly: _icmOnly,
-      ratedOnly: _ratedOnly,
+      selectedTags: Set<String>.from(_filters.selectedTags),
+      difficultyFilters: Set<int>.from(_filters.difficultyFilters),
+      ratingFilters: Set<int>.from(_filters.ratingFilters),
+      icmOnly: _filters.icmOnly,
+      ratedOnly: _filters.ratedOnly,
     );
     setState(() {
       _searchController.clear();
-      _selectedTags.clear();
+      _filters.selectedTags.clear();
       _selectedPreset = null;
-      _activeQuickPreset = null;
+      _filters.activeQuickPreset = null;
       _prevQuickTags = null;
-      _icmOnly = false;
-      _ratedOnly = false;
-      _difficultyFilters.clear();
-      _ratingFilters.clear();
+      _filters.icmOnly = false;
+      _filters.ratedOnly = false;
+      _filters.difficultyFilters.clear();
+      _filters.ratingFilters.clear();
     });
-    final bool hadSort = _sortOption != null;
+    final bool hadSort = _filters.sortOption != null;
     _resetSort();
     if (!hadSort) widget.onChanged?.call();
-    _savePresets();
+    _saveFilters();
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -3860,16 +3665,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   void _clearTagFilters() {
     setState(() {
-      _selectedTags.clear();
+      _filters.selectedTags.clear();
       _selectedPreset = null;
-      _activeQuickPreset = null;
+      _filters.activeQuickPreset = null;
       _prevQuickTags = null;
     });
-    _savePresets();
+    _saveFilters();
   }
 
   Future<void> _showTagSelector() async {
-    final local = Set<String>.from(_selectedTags);
+    final local = Set<String>.from(_filters.selectedTags);
     String? selectedPreset;
     final analytics = context.read<TrainingPackTagAnalyticsService>();
     final popular = [for (final a in analytics.getPopularTags()) a.tag];
@@ -4093,12 +3898,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
     if (result != null) {
       setState(() {
-        _selectedTags
+        _filters.selectedTags
           ..clear()
           ..addAll(result);
       });
     }
-    _savePresets();
+    _saveFilters();
   }
 
   void _handleReorder(
@@ -4149,150 +3954,15 @@ class TrainingSpotListState extends State<TrainingSpotList>
     widget.onChanged?.call();
   }
 
-  Future<void> _exportPack(List<TrainingSpot> spots) async {
-    if (spots.isEmpty) return;
-    const encoder = JsonEncoder.withIndent('  ');
-    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/training_spots_${DateTime.now().millisecondsSinceEpoch}.json');
-    await file.writeAsString(jsonStr);
-    await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
-  }
-
-  Future<void> _exportNamedPack(List<TrainingSpot> spots, String name) async {
-    if (spots.isEmpty) return;
-    const encoder = JsonEncoder.withIndent('  ');
-    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
-    final dir = await getTemporaryDirectory();
-    final safe = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
-    final file = File('${dir.path}/$safe.json');
-    await file.writeAsString(jsonStr);
-    await Share.shareXFiles([XFile(file.path)], text: '$safe.json');
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Пакет "$name" создан, спотов: ${spots.length}')),
-      );
-    }
-  }
-
-  Future<void> _exportPackSummary(List<TrainingSpot> spots) async {
-    if (spots.isEmpty) return;
-    final buffer = StringBuffer();
-    for (final spot in spots) {
-      buffer.writeln(
-          'ID: ${spot.tournamentId ?? '-'}, Buy-In: ${spot.buyIn ?? '-'}, Game: ${spot.gameType ?? '-'}, Tags: ${spot.tags.length}');
-    }
-    final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/spot_summary_${DateTime.now().millisecondsSinceEpoch}.txt');
-    await file.writeAsString(buffer.toString());
-    await Share.shareXFiles([XFile(file.path)], text: 'spot_summary.txt');
-  }
-
-  Future<void> _exportCsv(List<TrainingSpot> spots,
-      {String? successMessage}) async {
-    if (spots.isEmpty) return;
-
-    final rows = <List<dynamic>>[];
-    rows.add(['ID', 'Difficulty', 'Rating', 'Tags', 'Buy-in', 'ICM', 'Date']);
-    final today = DateTime.now();
-    final dateStr =
-        '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    for (final s in spots) {
-      rows.add([
-        s.tournamentId ?? '',
-        s.difficulty,
-        s.rating,
-        s.tags.join(';'),
-        s.buyIn ?? '',
-        s.tags.contains('ICM') ? '1' : '0',
-        dateStr,
-      ]);
-    }
-
-    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
-    final bytes = Uint8List.fromList(utf8.encode(csvStr));
-    final name = 'training_spots_${DateTime.now().millisecondsSinceEpoch}';
-    try {
-      await FileSaver.instance.saveAs(
-        name: name,
-        bytes: bytes,
-        ext: 'csv',
-        mimeType: MimeType.csv,
-      );
-      if (mounted) {
-        final msg = successMessage ??
-            'Экспортировано ${spots.length} спотов в CSV';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
-      }
-    }
-  }
-
-  Future<void> _importFromFile(String path) async {
-    final file = File(path);
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      if (data is! List) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      final spots = <TrainingSpot>[];
-      for (final e in data) {
-        if (e is Map) {
-          try {
-            spots.add(TrainingSpot.fromJson(Map<String, dynamic>.from(e)));
-          } catch (_) {}
-        }
-      }
-      if (spots.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      setState(() => widget.spots.addAll(spots));
-      widget.onChanged?.call();
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
-      }
-    }
-  }
-
-  Future<void> _importPack() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
-    if (result == null || result.files.isEmpty) return;
-    final path = result.files.single.path;
-    if (path == null) return;
-    await _importFromFile(path);
-  }
-
   Future<void> _handleDrop(DropDoneDetails details) async {
     for (final item in details.files) {
       final path = item.path;
       if (path.toLowerCase().endsWith('.json')) {
-        await _importFromFile(path);
+        final imported = await importFromFile(context, path);
+        if (imported.isNotEmpty) {
+          setState(() => widget.spots.addAll(imported));
+          widget.onChanged?.call();
+        }
       }
     }
   }
@@ -4330,11 +4000,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
       for (int i = 0; i < indices.length; i++) {
         widget.spots[indices[i]] = sorted[i];
       }
-      _sortOption = option;
+      _filters.sortOption = option;
       _manualOrder = false;
     });
     widget.onChanged?.call();
-    _savePresets();
+    _saveFilters();
   }
 
   void _sortByRating(List<TrainingSpot> filtered, RatingSortOrder order) {
@@ -4353,22 +4023,22 @@ class TrainingSpotListState extends State<TrainingSpotList>
       for (int i = 0; i < indices.length; i++) {
         widget.spots[indices[i]] = sorted[i];
       }
-      _ratingSort = order;
-      _sortOption = null;
+      _filters.ratingSort = order;
+      _filters.sortOption = null;
       _manualOrder = false;
     });
     widget.onChanged?.call();
-    _savePresets();
+    _saveFilters();
   }
 
   void _applySimpleSort(List<TrainingSpot> filtered) {
-    if (_simpleSortField == null) return;
+    if (_filters.simpleSortField == null) return;
     final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
     final sorted = List<TrainingSpot>.from(filtered);
     _originalOrder ??= List<TrainingSpot>.from(widget.spots);
     int compare(TrainingSpot a, TrainingSpot b) {
       int result;
-      switch (_simpleSortField!) {
+      switch (_filters.simpleSortField!) {
         case SimpleSortField.createdAt:
           result = a.createdAt.compareTo(b.createdAt);
           break;
@@ -4379,28 +4049,28 @@ class TrainingSpotListState extends State<TrainingSpotList>
           result = a.rating.compareTo(b.rating);
           break;
       }
-      return _simpleSortOrder == SimpleSortOrder.ascending ? result : -result;
+      return _filters.simpleSortOrder == SimpleSortOrder.ascending ? result : -result;
     }
     sorted.sort(compare);
     setState(() {
       for (int i = 0; i < indices.length; i++) {
         widget.spots[indices[i]] = sorted[i];
       }
-      _sortOption = null;
-      _ratingSort = null;
+      _filters.sortOption = null;
+      _filters.ratingSort = null;
       _manualOrder = false;
     });
     widget.onChanged?.call();
-    _savePresets();
+    _saveFilters();
   }
 
   void _applyListSort(List<TrainingSpot> filtered) {
-    if (_listSort == null) return;
+    if (_filters.listSort == null) return;
     final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
     final sorted = List<TrainingSpot>.from(filtered);
     _originalOrder ??= List<TrainingSpot>.from(widget.spots);
     int compare(TrainingSpot a, TrainingSpot b) {
-      switch (_listSort!) {
+      switch (_filters.listSort!) {
         case ListSortOption.dateNew:
           return b.createdAt.compareTo(a.createdAt);
         case ListSortOption.dateOld:
@@ -4419,22 +4089,22 @@ class TrainingSpotListState extends State<TrainingSpotList>
       for (int i = 0; i < indices.length; i++) {
         widget.spots[indices[i]] = sorted[i];
       }
-      _sortOption = null;
-      _ratingSort = null;
-      _simpleSortField = null;
+      _filters.sortOption = null;
+      _filters.ratingSort = null;
+      _filters.simpleSortField = null;
       _manualOrder = false;
     });
     widget.onChanged?.call();
-    _savePresets();
+    _saveFilters();
   }
 
   void _applyQuickSort(List<TrainingSpot> filtered) {
-    if (_quickSort == null) return;
+    if (_filters.quickSort == null) return;
     final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
     final sorted = List<TrainingSpot>.from(filtered);
     _originalOrder ??= List<TrainingSpot>.from(widget.spots);
     int compare(TrainingSpot a, TrainingSpot b) {
-      switch (_quickSort!) {
+      switch (_filters.quickSort!) {
         case QuickSortOption.id:
           return (a.tournamentId ?? '').compareTo(b.tournamentId ?? '');
         case QuickSortOption.difficulty:
@@ -4448,40 +4118,40 @@ class TrainingSpotListState extends State<TrainingSpotList>
       for (int i = 0; i < indices.length; i++) {
         widget.spots[indices[i]] = sorted[i];
       }
-      _sortOption = null;
-      _ratingSort = null;
-      _simpleSortField = null;
-      _listSort = null;
+      _filters.sortOption = null;
+      _filters.ratingSort = null;
+      _filters.simpleSortField = null;
+      _filters.listSort = null;
       _manualOrder = false;
     });
     widget.onChanged?.call();
-    _savePresets();
+    _saveFilters();
   }
 
   void _saveCurrentOrder() {
     setState(() {
       _originalOrder = List<TrainingSpot>.from(widget.spots);
-      _sortOption = null;
-      _ratingSort = null;
-      _simpleSortField = null;
-      _listSort = null;
-      _quickSort = null;
+      _filters.sortOption = null;
+      _filters.ratingSort = null;
+      _filters.simpleSortField = null;
+      _filters.listSort = null;
+      _filters.quickSort = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Порядок сохранён')),
     );
-    _savePresets();
+    _saveFilters();
     _saveOrderToPrefs();
   }
 
   void _resetSort() {
-    if (_sortOption == null &&
-        _ratingSort == null &&
-        _simpleSortField == null &&
-        _listSort == null &&
-        _quickSort == null) {
+    if (_filters.sortOption == null &&
+        _filters.ratingSort == null &&
+        _filters.simpleSortField == null &&
+        _filters.listSort == null &&
+        _filters.quickSort == null) {
       return;
     }
     setState(() {
@@ -4490,15 +4160,15 @@ class TrainingSpotListState extends State<TrainingSpotList>
         widget.spots.setAll(0, _originalOrder!);
       }
       _originalOrder = null;
-      _sortOption = null;
-      _ratingSort = null;
-      _simpleSortField = null;
-      _listSort = null;
-      _quickSort = null;
+      _filters.sortOption = null;
+      _filters.ratingSort = null;
+      _filters.simpleSortField = null;
+      _filters.listSort = null;
+      _filters.quickSort = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
-    _savePresets();
+    _saveFilters();
     _saveOrderToPrefs();
   }
 }
