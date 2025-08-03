@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
@@ -96,7 +97,7 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Padding(
-        padding: EdgeInsets.all(16),
+        padding: kScreenPadding,
         child: Center(child: CircularProgressIndicator()),
       );
     }
@@ -141,7 +142,7 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
         : null;
     return Container(
       width: 180,
-      padding: const EdgeInsets.all(8),
+      padding: kCardPadding,
       decoration: BoxDecoration(
         color: Colors.grey[800],
         borderRadius: BorderRadius.circular(8),

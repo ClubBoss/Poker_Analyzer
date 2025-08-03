@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/padding_constants.dart';
 
 /// Small HUD overlay showing current street, pot and effective stack.
 class HudOverlay extends StatelessWidget {
@@ -21,8 +22,8 @@ class HudOverlay extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       child: Container(
         key: ValueKey('$streetName-$potText-$stackText-${sprText ?? ''}'),
-        margin: const EdgeInsets.all(8),
-        padding: const EdgeInsets.all(8),
+        margin: kCardPadding,
+        padding: kCardPadding,
         decoration: BoxDecoration(
           color: Colors.black54,
           borderRadius: BorderRadius.circular(8),
