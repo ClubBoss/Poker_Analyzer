@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/category_translations.dart';
-import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_stats_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../screens/training_session_screen.dart';
@@ -13,7 +13,7 @@ class PrimaryWeaknessDrillCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final list = context
-        .watch<SavedHandManagerService>()
+        .watch<SavedHandStatsService>()
         .getTopMistakeCategories(limit: 1);
     if (list.isEmpty) return const SizedBox.shrink();
     final entry = list.first;

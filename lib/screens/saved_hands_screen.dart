@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_stats_service.dart';
+import '../services/saved_hand_export_service.dart';
 import '../services/saved_hand_import_export_service.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/constants.dart';
@@ -83,11 +85,12 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   @override
   Widget build(BuildContext context) {
     final handManager = context.watch<SavedHandManagerService>();
+    final stats = context.watch<SavedHandStatsService>();
     final allHands = handManager.hands;
     final tags = <String>{for (final h in allHands) ...h.tags};
     final positions = <String>{for (final h in allHands) h.heroPosition};
 
-    final filtered = handManager.filtered(
+    final filtered = stats.filtered(
       tag: _tagFilter == 'Все' ? null : _tagFilter,
       position: _positionFilter == 'Все' ? null : _positionFilter,
       range: _currentRange(),
@@ -253,8 +256,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   }
 
   Future<void> _exportArchive() async {
-    final manager = context.read<SavedHandManagerService>();
-    final path = await manager.exportSessionsArchive();
+    final exporter = context.read<SavedHandExportService>();
+    final path = await exporter.exportSessionsArchive();
     if (path == null) return;
     await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
     if (context.mounted) {

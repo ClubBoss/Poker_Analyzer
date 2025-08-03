@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_stats_service.dart';
 import '../services/training_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../services/training_stats_service.dart';
@@ -595,7 +596,9 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
                         TextButton(
                           onPressed: () {
                             final manager = context.read<SavedHandManagerService>();
-                            final list = manager.filterByCategory(e.key);
+                            final stats =
+                                context.read<SavedHandStatsService>();
+                            final list = stats.filterByCategory(e.key);
                         if (list.isEmpty) return;
                         final tpl = manager.createPack('Ошибки', list);
                         Navigator.push(

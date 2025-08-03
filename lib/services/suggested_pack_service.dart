@@ -6,6 +6,7 @@ import '../helpers/training_pack_storage.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/saved_hand.dart';
 import 'saved_hand_manager_service.dart';
+import 'saved_hand_stats_service.dart';
 import 'session_log_service.dart';
 
 class SuggestedPackService extends ChangeNotifier {
@@ -14,12 +15,17 @@ class SuggestedPackService extends ChangeNotifier {
 
   final SessionLogService logs;
   final SavedHandManagerService hands;
+  final SavedHandStatsService stats;
 
   TrainingPackTemplate? _template;
   DateTime? _date;
   Timer? _timer;
 
-  SuggestedPackService({required this.logs, required this.hands});
+  SuggestedPackService({
+    required this.logs,
+    required this.hands,
+    required this.stats,
+  });
 
   TrainingPackTemplate? get template => _template;
   DateTime? get date => _date;
@@ -55,7 +61,7 @@ class SuggestedPackService extends ChangeNotifier {
     if (cats.isEmpty) return;
     final selected = <SavedHand>[];
     for (final e in cats.entries) {
-      final list = hands.filterByCategory(e.key);
+      final list = stats.filterByCategory(e.key);
       for (final h in list) {
         selected.add(h);
         if (selected.length >= 10) break;
