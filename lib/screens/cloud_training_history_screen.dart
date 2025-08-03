@@ -14,7 +14,7 @@ import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'training_pack_screen.dart';
-import '../widgets/common/accuracy_trend_chart.dart';
+import '../widgets/history/accuracy_trend_chart.dart';
 import 'cloud_training_session_details_screen.dart';
 import '../widgets/sync_status_widget.dart';
 

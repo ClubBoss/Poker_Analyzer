@@ -18,12 +18,13 @@ import 'package:pdf/pdf.dart';
 import '../services/progress_export_service.dart';
 
 import '../theme/app_colors.dart';
-import '../widgets/common/accuracy_chart.dart';
-import '../widgets/common/average_accuracy_chart.dart';
-import '../widgets/common/accuracy_trend_chart.dart';
+import '../widgets/history/accuracy_chart.dart';
+import '../widgets/history/average_accuracy_chart.dart';
+import '../widgets/history/accuracy_trend_chart.dart';
 import '../widgets/common/history_list_item.dart';
-import '../widgets/common/session_accuracy_bar_chart.dart';
-import '../widgets/common/accuracy_distribution_chart.dart';
+import '../widgets/history/session_accuracy_bar_chart.dart';
+import '../widgets/history/accuracy_distribution_chart.dart';
+import 'training_history/training_history_controller.dart';
 import 'training_detail_screen.dart';
 
 import '../models/training_result.dart';
@@ -172,18 +173,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     _loadHistory();
   }
 
+  final TrainingHistoryController _controller =
+      TrainingHistoryController.instance;
+
   Future<void> _loadHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getStringList('training_history') ?? [];
-    final List<TrainingResult> loaded = [];
-    for (final item in stored) {
-      try {
-        final data = jsonDecode(item);
-        if (data is Map<String, dynamic>) {
-          loaded.add(TrainingResult.fromJson(Map<String, dynamic>.from(data)));
-        }
-      } catch (_) {}
-    }
+    final loaded = await _controller.loadHistory();
     setState(() {
       _history
         ..clear()
@@ -192,8 +186,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _clearHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('training_history');
+    await _controller.clearHistory();
     setState(() {
       _history.clear();
     });

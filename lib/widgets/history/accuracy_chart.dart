@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'animated_line_chart.dart';
+import '../common/animated_line_chart.dart';
 import '../../models/training_result.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/responsive.dart';

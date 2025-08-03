@@ -1,29 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'animated_line_chart.dart';
+import '../common/animated_line_chart.dart';
 
 import '../../models/training_result.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/responsive.dart';
 
-enum ChartMode { daily, weekly, monthly }
-
-class AccuracyTrendChart extends StatelessWidget {
+class AverageAccuracyChart extends StatelessWidget {
   final List<TrainingResult> sessions;
-  final ChartMode mode;
 
-  const AccuracyTrendChart({super.key, required this.sessions, required this.mode});
-
-  String _formatLabel(DateTime d) {
-    switch (mode) {
-      case ChartMode.monthly:
-        return '${d.month.toString().padLeft(2, '0')}.${d.year}';
-      case ChartMode.weekly:
-      case ChartMode.daily:
-      default:
-        return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-    }
-  }
+  const AverageAccuracyChart({super.key, required this.sessions});
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +19,18 @@ class AccuracyTrendChart extends StatelessWidget {
 
     final sorted = [...sessions]..sort((a, b) => a.date.compareTo(b.date));
     final spots = <FlSpot>[];
+    double sum = 0;
     for (var i = 0; i < sorted.length; i++) {
-      spots.add(FlSpot(i.toDouble(), sorted[i].accuracy));
+      sum += sorted[i].accuracy;
+      final avg = sum / (i + 1);
+      spots.add(FlSpot(i.toDouble(), avg));
     }
     final step = (sorted.length / 6).ceil();
 
     final line = LineChartBarData(
       spots: spots,
       isCurved: true,
-      color: AppColors.accent,
+      color: Colors.blueAccent,
       barWidth: 2,
       dotData: const FlDotData(show: false),
     );
@@ -93,7 +82,8 @@ class AccuracyTrendChart extends StatelessWidget {
                       return const SizedBox.shrink();
                     }
                     final d = sorted[index].date;
-                    final label = _formatLabel(d);
+                    final label =
+                        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
                     return Text(
                       label,
                       style: const TextStyle(color: Colors.white, fontSize: 10),
