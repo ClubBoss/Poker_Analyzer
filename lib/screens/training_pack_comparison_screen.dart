@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../widgets/progress_chip.dart';
 import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
@@ -26,6 +23,8 @@ import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
 import '../widgets/color_picker_dialog.dart';
 import '../widgets/sync_status_widget.dart';
+import 'training_pack_comparison/pack_comparison_filters.dart';
+import 'training_pack_comparison/pack_completion_bar_chart.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -659,152 +658,52 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       ),
       body: Column(
         children: [
-          SwitchListTile(
-            title: const Text('Давно не повторял'),
-            value: _forgottenOnly,
-            onChanged: (v) => setState(() => _forgottenOnly = v),
-            activeColor: Colors.orange,
+          PackComparisonFilters(
+            forgottenOnly: _forgottenOnly,
+            onForgottenChanged: (v) => setState(() => _forgottenOnly = v),
+            chartSort: _chartSort,
+            onSortChanged: (v) {
+              if (v != null) setState(() => _chartSort = v);
+            },
+            typeFilter: _typeFilter,
+            onTypeChanged: (v) => setState(() => _typeFilter = v),
+            diffFilter: _diffFilter,
+            onDiffChanged: (value) async {
+              setState(() => _diffFilter = value);
+              final prefs = _prefs ?? await SharedPreferences.getInstance();
+              if (value == 0) {
+                await prefs.remove('pack_diff_filter');
+              } else {
+                await prefs.setInt('pack_diff_filter', value);
+              }
+            },
+            colorFilter: _colorFilter,
+            onColorChanged: (value) async {
+              final val = value ?? 'All';
+              final prefs = _prefs ?? await SharedPreferences.getInstance();
+              if (val == 'Custom') {
+                final color = await showColorPickerDialog(
+                  context,
+                  initialColor: _lastColor,
+                );
+                if (color == null) return;
+                final hex = colorToHex(color);
+                setState(() {
+                  _colorFilter = hex;
+                  _lastColor = color;
+                });
+                await prefs.setString(_lastColorKey, hex);
+                await prefs.setString('pack_color_filter', hex);
+                return;
+              }
+              setState(() => _colorFilter = val);
+              if (val == 'All') {
+                await prefs.remove('pack_color_filter');
+              } else {
+                await prefs.setString('pack_color_filter', val);
+              }
+            },
           ),
-          Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const Text('Сортировка',
-                  style: TextStyle(color: Colors.white)),
-              const SizedBox(width: 8),
-              DropdownButton<PackChartSort>(
-                value: _chartSort,
-                dropdownColor: AppColors.cardBackground,
-                style: const TextStyle(color: Colors.white),
-                items: [
-                  for (final s in PackChartSort.values)
-                    DropdownMenuItem(value: s, child: Text(s.label))
-                ],
-                onChanged: (v) {
-                  if (v != null) setState(() => _chartSort = v);
-                },
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const Text('Тип', style: TextStyle(color: Colors.white)),
-              const SizedBox(width: 8),
-              DropdownButton<GameType?>(
-                value: _typeFilter,
-                dropdownColor: AppColors.cardBackground,
-                style: const TextStyle(color: Colors.white),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('Все')),
-                  DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
-                  DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
-                ],
-                onChanged: (v) => setState(() => _typeFilter = v),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              const Text('Difficulty', style: TextStyle(color: Colors.white)),
-              const SizedBox(width: 8),
-              DropdownButton<int>(
-                value: _diffFilter,
-                dropdownColor: AppColors.cardBackground,
-                style: const TextStyle(color: Colors.white),
-                onChanged: (v) async {
-                  final value = v ?? 0;
-                  setState(() => _diffFilter = value);
-                  final prefs = _prefs ?? await SharedPreferences.getInstance();
-                  if (value == 0) {
-                    await prefs.remove('pack_diff_filter');
-                  } else {
-                    await prefs.setInt('pack_diff_filter', value);
-                  }
-                },
-                items: const [
-                  DropdownMenuItem(value: 0, child: Text('All')),
-                  DropdownMenuItem(value: 1, child: Text('Beginner')),
-                  DropdownMenuItem(value: 2, child: Text('Intermediate')),
-                  DropdownMenuItem(value: 3, child: Text('Advanced')),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              const Text('Color', style: TextStyle(color: Colors.white)),
-              const SizedBox(width: 8),
-              DropdownButton<String>(
-                value: _colorFilter,
-                dropdownColor: AppColors.cardBackground,
-                style: const TextStyle(color: Colors.white),
-                onChanged: (v) async {
-                  final value = v ?? 'All';
-                  final prefs = _prefs ?? await SharedPreferences.getInstance();
-                  if (value == 'Custom') {
-                    final color = await showColorPickerDialog(
-                      context,
-                      initialColor: _lastColor,
-                    );
-                    if (color == null) return;
-                    final hex = colorToHex(color);
-                    setState(() {
-                      _colorFilter = hex;
-                      _lastColor = color;
-                    });
-                    await prefs.setString(_lastColorKey, hex);
-                    await prefs.setString('pack_color_filter', hex);
-                    return;
-                  }
-                  setState(() => _colorFilter = value);
-                  if (value == 'All') {
-                    await prefs.remove('pack_color_filter');
-                  } else {
-                    await prefs.setString('pack_color_filter', value);
-                  }
-                },
-                items: [
-                  const DropdownMenuItem(value: 'All', child: Text('All')),
-                  const DropdownMenuItem(value: 'Red', child: Text('Red')),
-                  const DropdownMenuItem(value: 'Blue', child: Text('Blue')),
-                  const DropdownMenuItem(value: 'Orange', child: Text('Orange')),
-                  const DropdownMenuItem(value: 'Green', child: Text('Green')),
-                  const DropdownMenuItem(value: 'Purple', child: Text('Purple')),
-                  const DropdownMenuItem(value: 'Grey', child: Text('Grey')),
-                  const DropdownMenuItem(value: 'None', child: Text('None')),
-                  const DropdownMenuItem(value: 'Custom', child: Text('Custom...')),
-                  if (_colorFilter.startsWith('#'))
-                    DropdownMenuItem(
-                      value: _colorFilter,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: colorFromHex(_colorFilter),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(_colorFilter),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
         PackCompletionBarChart(
           stats: stats,
           hideCompleted: false,
@@ -1058,255 +957,3 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 }
 
-class PackCompletionBarChart extends StatefulWidget {
-  final List<TrainingPackStats> stats;
-  final bool hideCompleted;
-  final bool forgottenOnly;
-  final PackChartSort sort;
-
-  const PackCompletionBarChart({
-    super.key,
-    required this.stats,
-    required this.hideCompleted,
-    required this.forgottenOnly,
-    required this.sort,
-  });
-
-  @override
-  State<PackCompletionBarChart> createState() => _PackCompletionBarChartState();
-}
-
-class _PackCompletionBarChartState extends State<PackCompletionBarChart>
-    with SingleTickerProviderStateMixin {
-  int? _index;
-  Offset? _pos;
-  Timer? _timer;
-  late final AnimationController _anim;
-
-  @override
-  void initState() {
-    super.initState();
-    _anim = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _anim.dispose();
-    super.dispose();
-  }
-
-  void _show(int index, Offset pos) {
-    if (_index == index) {
-      _hide();
-      return;
-    }
-    _timer?.cancel();
-    setState(() {
-      _index = index;
-      _pos = pos;
-    });
-    _anim.forward(from: 0);
-    _timer = Timer(const Duration(seconds: 2), _hide);
-  }
-
-  void _hide() {
-    _timer?.cancel();
-    if (_index != null) {
-      setState(() => _index = null);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final filtered = stats.where((s) {
-      final progress = s.total > 0 ? (s.total - s.mistakes) / s.total : 0.0;
-      final completed = progress >= 1.0;
-      final forgotten =
-          s.lastSession == null || now.difference(s.lastSession!).inDays >= 7;
-      if (hideCompleted && completed) return false;
-      if (forgottenOnly && !forgotten) return false;
-      return true;
-    }).toList();
-
-    filtered.sort((a, b) {
-      switch (widget.sort) {
-        case PackChartSort.lastSession:
-          final da = a.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0);
-          final db = b.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0);
-          return db.compareTo(da);
-        case PackChartSort.handsPlayed:
-          return b.total.compareTo(a.total);
-        case PackChartSort.progress:
-        default:
-          final pa = a.total > 0 ? (a.total - a.mistakes) * 100 / a.total : 0.0;
-          final pb = b.total > 0 ? (b.total - b.mistakes) * 100 / b.total : 0.0;
-          return pb.compareTo(pa);
-      }
-    });
-
-    if (filtered.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final groups = <BarChartGroupData>[];
-    for (var i = 0; i < filtered.length; i++) {
-      final stat = filtered[i];
-      final percent =
-          stat.total > 0 ? (stat.total - stat.mistakes) * 100 / stat.total : 0.0;
-      groups.add(
-        BarChartGroupData(
-          x: i,
-          barRods: [
-            BarChartRodData(
-              toY: percent,
-              width: 14,
-              borderRadius: BorderRadius.circular(4),
-              gradient: const LinearGradient(
-                colors: [Colors.lightGreenAccent, Colors.green],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return AspectRatio(
-      aspectRatio: 1.7,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          BarChart(
-            BarChartData(
-              maxY: 100,
-              minY: 0,
-              barGroups: groups,
-              gridData: const FlGridData(show: false),
-              borderData: FlBorderData(show: false),
-              barTouchData: BarTouchData(
-                handleBuiltInTouches: false,
-                touchCallback: (event, response) {
-                  if (!event.isInterestedForInteractions ||
-                      response?.spot == null) {
-                    return;
-                  }
-                  _show(
-                    response!.spot!.touchedBarGroupIndex,
-                    response.touchLocation,
-                  );
-                },
-              ),
-              titlesData: FlTitlesData(
-                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 1,
-                    getTitlesWidget: (value, _) {
-                      final idx = value.toInt();
-                      if (idx < 0 || idx >= filtered.length) {
-                        return const SizedBox.shrink();
-                      }
-                      return Transform.rotate(
-                        angle: -1.5708,
-                        child: Text(
-                          filtered[idx].pack.name,
-                          style: const TextStyle(fontSize: 10),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              ),
-            ),
-          ),
-          if (_index != null && _pos != null && _index! < filtered.length)
-            _BarTooltip(
-              position: (context.findRenderObject() as RenderBox)
-                      .globalToLocal(_pos!) -
-                  const Offset(40, 60),
-              stats: filtered[_index!],
-              animation: _anim,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BarTooltip extends StatefulWidget {
-  final Offset position;
-  final TrainingPackStats stats;
-  final Animation<double> animation;
-
-  const _BarTooltip({
-    required this.position,
-    required this.stats,
-    required this.animation,
-  });
-
-  @override
-  State<_BarTooltip> createState() => _BarTooltipState();
-}
-
-class _BarTooltipState extends State<_BarTooltip> {
-  @override
-  Widget build(BuildContext context) {
-    final s = widget.stats;
-    final completed = s.total - s.mistakes;
-    final percent = s.total > 0 ? completed * 100 / s.total : 0.0;
-    final remain = s.total - completed;
-    final last = s.lastSession != null
-        ? formatDate(s.lastSession!)
-        : 'нет данных';
-    return Positioned(
-      left: widget.position.dx,
-      top: widget.position.dy,
-      child: FadeTransition(
-        opacity: widget.animation,
-        child: ScaleTransition(
-          scale: Tween(begin: 0.8, end: 1.0).animate(widget.animation),
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${percent.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '$completed/${s.total} (осталось $remain)',
-                    style: const TextStyle(color: Colors.white, fontSize: 11),
-                  ),
-                  Text(
-                    last,
-                    style: const TextStyle(color: Colors.white70, fontSize: 10),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

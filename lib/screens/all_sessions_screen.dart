@@ -12,6 +12,8 @@ import 'package:printing/printing.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../helpers/date_utils.dart';
 import '../helpers/accuracy_utils.dart';
+import 'all_sessions/session_filter_bar.dart';
+import 'all_sessions/session_list_item.dart';
 
 import '../models/training_pack.dart';
 import '../models/game_type.dart';
@@ -1125,89 +1127,27 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           if (_allEntries.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: _filter,
-                      dropdownColor: const Color(0xFF2A2B2E),
-                      style: const TextStyle(color: Colors.white),
-                    onChanged: (value) {
-                      if (value != null) {
-                        _filter = value;
-                        _savePreferences();
-                        _applyFilter();
-                      }
-                    },
-                      items: [
-                        const DropdownMenuItem(
-                          value: 'all',
-                          child: Text('Все сессии'),
-                        ),
-                        const DropdownMenuItem(
-                          value: 'success',
-                          child: Text('Только успешные (>70%)'),
-                        ),
-                        const DropdownMenuItem(
-                          value: 'fail',
-                          child: Text('Только неуспешные (<70%)'),
-                        ),
-                        if (_packNames.length > 1)
-                          ...[
-                            for (final name in _packNames)
-                              DropdownMenuItem(
-                                value: 'pack:$name',
-                                child: Text('Пакет: $name'),
-                              )
-                          ]
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton(
-                    onPressed: _pickDateRange,
-                    child: Text(_dateFilterText),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('Сортировка:',
-                      style: TextStyle(color: Colors.white)),
-                  const SizedBox(width: 8),
-                  DropdownButton<String>(
-                    value: _sortMode,
-                    dropdownColor: const Color(0xFF2A2B2E),
-                    style: const TextStyle(color: Colors.white),
-                    onChanged: (value) {
-                      if (value != null) {
-                        _sortMode = value;
-                        _savePreferences();
-                        _applyFilter();
-                      }
-                    },
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'date_desc',
-                        child: Text('по дате (новые)'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'date_asc',
-                        child: Text('по дате (старые)'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'accuracy_desc',
-                        child: Text('по точности (высокая)'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'accuracy_asc',
-                        child: Text('по точности (низкая)'),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    onPressed: _resetFilters,
-                    icon: const Icon(Icons.clear),
-                    tooltip: 'Сбросить',
-                  )
-                ],
+              child: SessionFilterBar(
+                filter: _filter,
+                packNames: _packNames,
+                onFilterChanged: (value) {
+                  if (value != null) {
+                    setState(() => _filter = value);
+                    _savePreferences();
+                    _applyFilter();
+                  }
+                },
+                onPickDateRange: _pickDateRange,
+                dateFilterText: _dateFilterText,
+                sortMode: _sortMode,
+                onSortChanged: (value) {
+                  if (value != null) {
+                    setState(() => _sortMode = value);
+                    _savePreferences();
+                    _applyFilter();
+                  }
+                },
+                onReset: _resetFilters,
               ),
             ),
           if (_allEntries.isNotEmpty)
@@ -1406,77 +1346,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     itemCount: _entries.length,
                     itemBuilder: (context, index) {
                       final e = _entries[index];
-                      return GestureDetector(
+                      return SessionListItem(
+                        packName: e.packName,
+                        description: e.description,
+                        result: e.result,
                         onTap: () => _showPackPreview(e),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2A2B2E),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                  Expanded(
-                                        child: GestureDetector(
-                                          onLongPress: () => _showPackOptions(e.packName),
-                                          child: Text(
-                                            e.packName,
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onLongPress: () => _showPackOptions(e.packName),
-                                        child: const Icon(
-                                          Icons.edit,
-                                          color: Colors.white70,
-                                          size: 16,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (e.description.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      e.description,
-                                      style: const TextStyle(color: Colors.white70),
-                                    ),
-                                  ],
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    formatDateTime(e.result.date),
-                                    style: const TextStyle(color: Colors.white70),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '${e.result.correct}/${e.result.total}',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  e.result.total > 0
-                                      ? '${(calculateAccuracy(e.result.correct, e.result.total)).toStringAsFixed(0)}%'
-                                      : '0%',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                        onShowOptions: () => _showPackOptions(e.packName),
                       );
                     },
                   ),
