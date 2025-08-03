@@ -7,6 +7,7 @@ import '../core/training/library/training_pack_library_v2.dart';
 import '../services/training_session_launcher.dart';
 import '../services/training_progress_logger.dart';
 import '../services/mini_lesson_completion_tracker_service.dart';
+import '../services/training_progress_tracker_service.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -20,12 +21,30 @@ class PackCard extends StatefulWidget {
 class _PackCardState extends State<PackCard> {
   late bool _favorite;
   bool _theoryCompleted = false;
+  int _completed = 0;
+  late int _total;
 
   @override
   void initState() {
     super.initState();
     _favorite = PackFavoriteService.instance.isFavorite(widget.template.id);
+    _total =
+        widget.template.spots.isNotEmpty ? widget.template.spots.length : widget.template.spotCount;
+    _loadProgress();
+    TrainingProgressTrackerService.instance.addListener(_loadProgress);
     _checkTheory();
+  }
+
+  @override
+  void dispose() {
+    TrainingProgressTrackerService.instance.removeListener(_loadProgress);
+    super.dispose();
+  }
+
+  Future<void> _loadProgress() async {
+    final ids = await TrainingProgressTrackerService.instance
+        .getCompletedSpotIds(widget.template.id);
+    if (mounted) setState(() => _completed = ids.length);
   }
 
   Future<void> _toggleFavorite() async {
@@ -92,6 +111,23 @@ class _PackCardState extends State<PackCard> {
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 12)),
                   ),
+                if (_total > 0) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: LinearProgressIndicator(
+                      value: _completed / _total,
+                      backgroundColor: Colors.white24,
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(Colors.green),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text('$_completed / $_total завершено',
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
+                  ),
+                ],
               ],
             ),
           ),
@@ -114,6 +150,15 @@ class _PackCardState extends State<PackCard> {
               onPressed: _toggleFavorite,
             ),
           ),
+          if (_total > 0 && _completed >= _total)
+            const Positioned(
+              bottom: 0,
+              right: 0,
+              child: Tooltip(
+                message: 'Пак завершен',
+                child: Icon(Icons.emoji_events, color: Colors.amber),
+              ),
+            ),
         ],
       ),
     );

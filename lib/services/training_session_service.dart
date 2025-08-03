@@ -37,6 +37,7 @@ import 'smart_spot_injector.dart';
 import 'gift_drop_service.dart';
 import 'session_streak_tracker_service.dart';
 import 'smart_recap_banner_controller.dart';
+import 'training_progress_tracker_service.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -604,6 +605,10 @@ class TrainingSessionService extends ChangeNotifier {
           }
         }
       }
+    }
+    if (first && _template != null) {
+      unawaited(TrainingProgressTrackerService.instance
+          .recordSpotCompleted(_template!.id, spotId));
     }
     if (first && _focusHandTypes.isNotEmpty) {
       if (spot.id.isNotEmpty) {
