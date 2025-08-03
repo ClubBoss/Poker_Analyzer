@@ -127,12 +127,17 @@ class _PackCardState extends State<PackCard>
   Future<void> _checkTheory() async {
     final lessonId = _linkedLessonId();
     if (lessonId == null) {
+      final wasLocked = _locked;
       if (mounted) {
         setState(() {
           _locked = false;
           _lockMsg = null;
         });
+      } else {
+        _locked = false;
+        _lockMsg = null;
       }
+      await _logUnlockEventIfNeeded(wasLocked);
       await _checkPerformance();
       return;
     }
@@ -140,12 +145,14 @@ class _PackCardState extends State<PackCard>
       lessonId,
     );
     if (mounted) {
+      final wasLocked = _locked;
       setState(() {
         _theoryCompleted = done;
         _locked =
             widget.template.requiresTheoryCompleted && !done && !kDebugMode;
         _lockMsg = _locked ? 'Сначала пройдите теорию' : null;
       });
+      await _logUnlockEventIfNeeded(wasLocked);
       _maybeShowReward();
     }
     await _checkPerformance();
@@ -162,8 +169,27 @@ class _PackCardState extends State<PackCard>
           requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
           minHands: minHands,
         );
-    if (!ok && mounted && !kDebugMode) {
+    final wasLocked = _locked;
+    if (mounted) {
       setState(() {
+        if (!kDebugMode && !ok) {
+          _locked = true;
+          if (reqAcc != null && minHands != null) {
+            _lockMsg =
+                'Достигните точности ${reqAcc.toStringAsFixed(0)}% и сыграйте $minHands рук, чтобы открыть';
+          } else if (reqAcc != null) {
+            _lockMsg =
+                'Достигните точности ${reqAcc.toStringAsFixed(0)}%, чтобы открыть';
+          } else if (minHands != null) {
+            _lockMsg = 'Сыграйте $minHands рук, чтобы открыть';
+          }
+        } else {
+          _locked = false;
+          _lockMsg = null;
+        }
+      });
+    } else {
+      if (!kDebugMode && !ok) {
         _locked = true;
         if (reqAcc != null && minHands != null) {
           _lockMsg =
@@ -174,8 +200,29 @@ class _PackCardState extends State<PackCard>
         } else if (minHands != null) {
           _lockMsg = 'Сыграйте $minHands рук, чтобы открыть';
         }
-      });
+      } else {
+        _locked = false;
+        _lockMsg = null;
+      }
     }
+    await _logUnlockEventIfNeeded(wasLocked);
+  }
+
+  Future<void> _logUnlockEventIfNeeded(bool wasLocked) async {
+    if (!wasLocked || _locked) return;
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'unlock_logged_${widget.template.id}';
+    if (prefs.getBool(key) == true) return;
+    await prefs.setBool(key, true);
+    unawaited(
+      AnalyticsService.instance.logEvent('locked_pack_unlocked', {
+        'pack_id': widget.template.id,
+        'accuracy': _accuracy,
+        'hands_completed': _handsCompleted,
+        'required_accuracy': widget.template.requiredAccuracy,
+        'min_hands': widget.template.minHands,
+      }),
+    );
   }
 
   Future<void> _maybeShowReward() async {
