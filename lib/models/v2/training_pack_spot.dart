@@ -6,6 +6,7 @@ import '../training_spot.dart';
 import 'hero_position.dart';
 import '../card_model.dart';
 import 'package:uuid/uuid.dart';
+import '../../services/inline_theory_linker.dart';
 
 class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   final String id;
@@ -38,6 +39,12 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   String? villainAction;
   List<String> heroOptions;
   Map<String, dynamic> meta;
+
+  /// Ephemeral link to a related theory lesson.
+  ///
+  /// This field is populated at runtime by [AutoSpotTheoryInjectorService]
+  /// and is never serialized.
+  InlineTheoryLink? theoryLink;
 
   TrainingPackSpot({
     required this.id,
