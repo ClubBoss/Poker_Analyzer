@@ -5,7 +5,9 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../services/learning_graph_engine.dart';
 import '../services/learning_path_loader.dart';
 import '../services/mini_lesson_library_service.dart';
+import '../services/skill_tree_node_detail_unlock_hint_service.dart';
 import '../widgets/path_node_tile.dart';
+import '../widgets/path_node_unlock_hint_overlay.dart';
 import 'mini_lesson_screen.dart';
 import 'training_pack_preview_screen.dart';
 
@@ -106,13 +108,28 @@ class _LearningPathLinearViewScreenState
                       nodeIndex > currentIndex &&
                       currentIndex >= 0;
                   final pack = _packs[node.trainingPackTemplateId];
+                  final key = GlobalKey();
                   return PathNodeTile(
+                    key: key,
                     node: node,
                     pack: pack,
                     isCurrent: isCurrent,
                     isCompleted: isCompleted,
                     isBlocked: isBlocked,
                     onTap: () async {
+                      if (isBlocked) {
+                        final hint = await const
+                            SkillTreeNodeDetailUnlockHintService()
+                                .getHint(node.id);
+                        if (hint != null) {
+                          PathNodeUnlockHintOverlay.show(
+                            context: context,
+                            targetKey: key,
+                            message: hint,
+                          );
+                        }
+                        return;
+                      }
                       await LearningPathEngine.instance
                           .markStageCompleted(node.id);
                       _refresh();
