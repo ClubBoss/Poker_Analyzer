@@ -38,18 +38,24 @@ class SmartInboxController {
       final scheduled = await diversityScheduler.schedule(boosters);
       final deduped = await deduplicator.deduplicate(scheduled);
       final sorted = await priorityScorer.sort(deduped);
-      final allowed = <PinnedBlockBoosterSuggestion>[];
-      for (final b in sorted) {
-        if (await inboxLimiter.canShow(b.tag)) {
-          await inboxLimiter.recordShown(b.tag);
-          allowed.add(b);
-        }
-        if (allowed.length >= SmartBoosterInboxLimiterService.maxPerDay) break;
-      }
+      final allowed = await _buildAllowedInboxBoosters(sorted);
       if (allowed.isNotEmpty) {
         items.add(InboxPinnedBlockBoosterBanner(suggestions: allowed));
       }
     }
     return items;
+  }
+
+  Future<List<PinnedBlockBoosterSuggestion>> _buildAllowedInboxBoosters(
+      List<PinnedBlockBoosterSuggestion> suggestions) async {
+    final allowed = <PinnedBlockBoosterSuggestion>[];
+    for (final b in suggestions) {
+      if (await inboxLimiter.canShow(b.tag)) {
+        await inboxLimiter.recordShown(b.tag);
+        allowed.add(b);
+      }
+      if (allowed.length >= SmartBoosterInboxLimiterService.maxPerDay) break;
+    }
+    return allowed;
   }
 }
