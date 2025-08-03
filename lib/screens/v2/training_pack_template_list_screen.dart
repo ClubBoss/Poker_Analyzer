@@ -56,7 +56,10 @@ import '../../services/training_pack_service.dart';
 import '../../services/favorite_pack_service.dart';
 import 'new_training_pack_template_dialog.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'training_pack_template_prefs.dart';
+import '../../widgets/v2/recent_training_pack_section.dart';
 
 part 'training_pack_template_list_core.dart';
 part 'training_pack_template_io.dart';
 part 'training_pack_template_filter_panel.dart';
+part 'training_pack_template_sort_filter.dart';
