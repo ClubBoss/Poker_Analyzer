@@ -25,6 +25,10 @@ import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
+import '../controllers/training_pack_controller.dart';
+import '../widgets/pack_summary_header.dart';
+import '../widgets/pack_spot_list.dart';
+import '../widgets/pack_action_toolbar.dart';
 import '../services/training_pack_storage_service.dart';
 import '../widgets/color_picker_dialog.dart';
 import '../services/action_sync_service.dart';
@@ -134,9 +138,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   static const _stackRanges = ['10-15', '15-20', '20-25', '25+'];
   static const _prefsStackKey = 'training_stack_range';
 
-  String? _stackFilter;
   late List<SavedHand> _allHands;
-  late List<TrainingSpot> _allSpots;
+  late TrainingPackController _controller;
 
   late TrainingPack _pack;
   bool _pinned = false;
@@ -144,8 +147,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   /// Hands that are currently used in the session. By default it contains
   /// all hands from the training pack, but when the user chooses to repeat
   /// mistakes it becomes a filtered subset.
-  late List<SavedHand> _sessionHands;
-
   /// Whether we are currently reviewing only the mistaken hands.
   bool _isMistakeReviewMode = false;
 
@@ -161,7 +162,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   final TrainingSpotFileService _spotFileService =
       const TrainingSpotFileService();
   late TrainingSpotStorageService _spotStorageService;
-  List<TrainingSpot> _spots = [];
 
   @override
   void initState() {
@@ -178,12 +178,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
       PinnedLearningService.instance.recordOpen('pack', _pack.id),
     );
     _allHands = widget.hands ?? _pack.hands;
-    _sessionHands = List.from(_allHands);
-    _allSpots = List.from(_pack.spots);
-    _spots = List.from(_allSpots);
+    _controller = TrainingPackController(
+      pack: _pack,
+      allHands: _allHands,
+      storage: _spotStorageService,
+    )..addListener(() => setState(() {}));
     _isMistakeReviewMode = widget.mistakeReviewMode;
     _loadProgress();
-    _loadSpots();
+    _controller.loadSpots();
     _loadSavedResults();
     _loadStackFilter();
   }
@@ -231,71 +233,22 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
         .setLastPosition('pack', _pack.id, _currentIndex);
   }
 
-  Future<void> _loadSpots() async {
-    final loaded = await _spotStorageService.load();
-    if (mounted && loaded.isNotEmpty) {
-      setState(() {
-        _allSpots = loaded;
-        _applyStackFilter();
-      });
-    }
-  }
-
-  Future<void> _saveSpots() async {
-    await _spotStorageService.save(_spots);
-  }
-
-  bool _matchStack(int stack) {
-    final r = _stackFilter;
-    if (r == null) return true;
-    if (r.endsWith('+')) {
-      final min = int.tryParse(r.substring(0, r.length - 1)) ?? 0;
-      return stack >= min;
-    }
-    final parts = r.split('-');
-    if (parts.length == 2) {
-      final min = int.tryParse(parts[0]) ?? 0;
-      final max = int.tryParse(parts[1]) ?? 0;
-      return stack >= min && stack <= max;
-    }
-    return true;
-  }
-
-  void _applyStackFilter() {
-    final hands = [
-      for (final h in _allHands)
-        if (_matchStack(h.stackSizes[h.heroIndex] ?? 0)) h
-    ];
-    final spots = [
-      for (final s in _allSpots)
-        if (_matchStack(s.stacks[s.heroIndex])) s
-    ];
-    _sessionHands = hands;
-    _spots = spots;
-    _currentIndex = _currentIndex.clamp(0, _sessionHands.isEmpty ? 0 : _sessionHands.length - 1);
-  }
+  // Spot and hand filtering logic now lives in [TrainingPackController].
 
   Future<void> _loadStackFilter() async {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
+    final value = prefs.getString(_prefsStackKey);
+    _controller.setStackFilter(value);
     setState(() {
-      _stackFilter = prefs.getString(_prefsStackKey);
-      _applyStackFilter();
+      _currentIndex = _currentIndex.clamp(
+          0,
+          _controller.sessionHands.isEmpty
+              ? 0
+              : _controller.sessionHands.length - 1);
     });
   }
 
-  Future<void> _setStackFilter(String? value) async {
-    setState(() {
-      _stackFilter = value;
-      _applyStackFilter();
-    });
-    final prefs = await SharedPreferences.getInstance();
-    if (value == null) {
-      await prefs.remove(_prefsStackKey);
-    } else {
-      await prefs.setString(_prefsStackKey, value);
-    }
-  }
 
   Future<void> _loadSavedResults() async {
     final prefs = await SharedPreferences.getInstance();
@@ -416,7 +369,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
             .logError('Failed to capture played hand', e, st);
       }
     }
-    final original = _sessionHands[_currentIndex];
+    final original = _controller.sessionHands[_currentIndex];
     String userAct = '-';
     if (played != null) {
       for (final a in played.actions) {
@@ -560,9 +513,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
                         rating: rating,
                         tags: tags.toList(),
                       );
-                      final index = _sessionHands.indexOf(original);
+                      final index = _controller.sessionHands.indexOf(original);
                       if (index != -1) {
-                        _sessionHands[index] = updated;
+                        _controller.sessionHands[index] = updated;
                       }
                       final packIndex = _pack.hands.indexOf(original);
                       if (packIndex != -1) {
@@ -726,7 +679,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
     if (!_isMistakeReviewMode) {
       _saveProgress();
     }
-    if (_currentIndex >= _sessionHands.length && !_isMistakeReviewMode) {
+    if (_currentIndex >= _controller.sessionHands.length && !_isMistakeReviewMode) {
       await _completeSession();
     }
   }
@@ -736,8 +689,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
       _currentIndex = 0;
       _results.clear();
       _allHands = _pack.hands;
+      _controller.updateHands(_allHands);
       _isMistakeReviewMode = false;
-      _applyStackFilter();
     });
     _saveProgress();
   }
@@ -1096,19 +1049,16 @@ body { font-family: sans-serif; padding: 16px; }
   Future<void> _importSpotsCsv() async {
     final spots = await _spotFileService.importSpotsCsv(context);
     if (spots.isNotEmpty && mounted) {
-      setState(() {
-        _allSpots = spots;
-        _applyStackFilter();
-      });
-      await _saveSpots();
+      _controller.setSpots(spots);
     }
   }
+
   Future<void> _exportSpotsMarkdown() async {
-    await _spotFileService.exportSpotsMarkdown(context, _spots);
+    await _spotFileService.exportSpotsMarkdown(context, _controller.spots);
   }
 
   Future<void> _exportSpotsPdf() async {
-    if (_spots.isEmpty) return;
+    if (_controller.spots.isEmpty) return;
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -1121,26 +1071,26 @@ body { font-family: sans-serif; padding: 16px; }
           return [
             pw.Text('Training Spots', style: pw.TextStyle(font: boldFont, fontSize: 24)),
             pw.SizedBox(height: 16),
-            for (int i = 0; i < _spots.length; i++)
+            for (int i = 0; i < _controller.spots.length; i++)
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text('Spot ${i + 1}', style: pw.TextStyle(font: boldFont, fontSize: 18)),
                   pw.Bullet(
-                    text: 'Hero index: ${_spots[i].heroIndex}',
+                    text: 'Hero index: ${_controller.spots[i].heroIndex}',
                     style: pw.TextStyle(font: regularFont),
                   ),
                   pw.Bullet(
-                    text: 'Stacks: ${_spots[i].stacks.join(', ')}',
+                    text: 'Stacks: ${_controller.spots[i].stacks.join(', ')}',
                     style: pw.TextStyle(font: regularFont),
                   ),
                   pw.Bullet(
-                    text: 'Actions: ${_spots[i].actions.map((a) => "${a.playerIndex}:${a.action}${a.amount != null ? ' ${a.amount}' : ''}").join(', ')}',
+                    text: 'Actions: ${_controller.spots[i].actions.map((a) => "${a.playerIndex}:${a.action}${a.amount != null ? ' ${a.amount}' : ''}").join(', ')}',
                     style: pw.TextStyle(font: regularFont),
                   ),
-                  if (_spots[i].strategyAdvice != null && _spots[i].strategyAdvice!.isNotEmpty)
+                  if (_controller.spots[i].strategyAdvice != null && _controller.spots[i].strategyAdvice!.isNotEmpty)
                     pw.Bullet(
-                      text: 'Advice: ${_spots[i].strategyAdvice!.join(', ')}',
+                      text: 'Advice: ${_controller.spots[i].strategyAdvice!.join(', ')}',
                       style: pw.TextStyle(font: regularFont),
                     ),
                   pw.SizedBox(height: 8),
@@ -1203,12 +1153,12 @@ body { font-family: sans-serif; padding: 16px; }
     final count = await service.importFromJson(file);
     if (!mounted) return;
     if (count > 0) {
-      await _loadSpots();
-      if (_spots.isNotEmpty) {
+      await _controller.loadSpots();
+      if (_controller.spots.isNotEmpty) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => TrainingSpotDetailScreen(spot: _spots.last),
+            builder: (_) => TrainingSpotDetailScreen(spot: _controller.spots.last),
           ),
         );
       }
@@ -1315,12 +1265,12 @@ body { font-family: sans-serif; padding: 16px; }
 
     setState(() {
       _allHands = mistakeHands;
+      _controller.updateHands(_allHands);
       _results
         ..clear()
         ..addAll(mistakes);
       _currentIndex = 0;
       _isMistakeReviewMode = true;
-      _applyStackFilter();
     });
   }
 
@@ -1411,10 +1361,10 @@ body { font-family: sans-serif; padding: 16px; }
       if (icm != null) icms.add(icm);
     }
     if (evs.isEmpty && icms.isEmpty) {
-      evs.addAll([for (final h in _sessionHands) if (h.heroEv != null) h.heroEv!]);
-      icms.addAll([for (final h in _sessionHands) if (h.heroIcmEv != null) h.heroIcmEv!]);
+      evs.addAll([for (final h in _controller.sessionHands) if (h.heroEv != null) h.heroEv!]);
+      icms.addAll([for (final h in _controller.sessionHands) if (h.heroIcmEv != null) h.heroIcmEv!]);
     }
-    final avgPair = context.read<TrainingStatsService>().sessionEvIcmAvg(_sessionHands);
+    final avgPair = context.read<TrainingStatsService>().sessionEvIcmAvg(_controller.sessionHands);
     final evAvg = evs.isNotEmpty ? evs.reduce((a, b) => a + b) / evs.length : avgPair.key;
     final icmAvg = icms.isNotEmpty ? icms.reduce((a, b) => a + b) / icms.length : avgPair.value;
 
@@ -1573,21 +1523,14 @@ body { font-family: sans-serif; padding: 16px; }
                 child: const Text('Import JSON'),
               ),
               const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _importSpotsCsv,
-                child: const Text('Импорт из CSV'),
-              ),
-              const SizedBox(height: 12),
               _buildImportedSpotsList(),
               const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _spots.isEmpty ? null : _exportSpotsMarkdown,
-                child: const Text('Экспортировать в Markdown'),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _spots.isEmpty ? null : _exportSpotsPdf,
-                child: const Text('Экспорт в PDF'),
+              PackActionToolbar(
+                onImportCsv: _importSpotsCsv,
+                onExportMarkdown: _controller.spots.isEmpty
+                    ? null
+                    : _exportSpotsMarkdown,
+                onExportPdf: _controller.spots.isEmpty ? null : _exportSpotsPdf,
               ),
             ],
             const SizedBox(height: 24),
@@ -1598,184 +1541,24 @@ body { font-family: sans-serif; padding: 16px; }
       );
   }
 
-  Widget _buildInfoCard() {
-    final subtitleCount = _pack.spots.isNotEmpty
-        ? '${_pack.spots.length} spots'
-        : '${_pack.hands.length} hands';
-    final leading = _pack.isBuiltIn
-        ? const Text('📦')
-        : InfoTooltip(
-            message: _pack.colorTag.isEmpty
-                ? 'No color tag'
-                : 'Color tag ${_pack.colorTag} (tap to edit)',
-            child: _pack.colorTag.isEmpty
-                ? const Icon(Icons.circle_outlined, color: Colors.white24)
-                : Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: colorFromHex(_pack.colorTag),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-          );
-    final pct = _pack.pctComplete;
-    return Card(
-      color: AppColors.cardBackground,
-      margin: const EdgeInsets.all(16),
-      child: ListTile(
-        leading: leading,
-        trailing: DropdownButton<String>(
-          value: _stackFilter ?? 'any',
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          onChanged: (v) => _setStackFilter(v == 'any' ? null : v),
-          items: [
-            const DropdownMenuItem(value: 'any', child: Text('Any Stack')),
-            for (final r in _stackRanges)
-              DropdownMenuItem(value: r, child: Text('$r BB')),
-          ],
-        ),
-        title: Row(
-          children: [
-            Expanded(child: Text(_pack.name)),
-            const SizedBox(width: 4),
-            DifficultyChip(_pack.difficulty),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                InfoTooltip(
-                  message: _pack.gameType == GameType.tournament
-                      ? 'Blind levels, ICM pressure.'
-                      : '100 BB deep, no blind escalation.',
-                  child: Text(_pack.gameType.label),
-                ),
-                const Text(' • '),
-                Text(subtitleCount),
-              ],
-            ),
-            const SizedBox(height: 4),
-            LinearProgressIndicator(
-              value: pct,
-              backgroundColor: Colors.white12,
-              color: pct >= 1
-                  ? Colors.green
-                  : pct >= .5
-                      ? Colors.amber
-                      : Colors.red,
-              minHeight: 6,
-            ),
-            const SizedBox(height: 4),
-            ValueListenableBuilder<DateTime?>(
-              valueListenable:
-                  context.read<TrainingPackCloudSyncService>().lastSync,
-              builder: (context, value, child) {
-                final t = value == null
-                    ? '-'
-                    : formatDateTime(value.toLocal());
-                return Text('Синхр.: $t',
-                    style: const TextStyle(fontSize: 12, color: Colors.white70));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildImportedSpotsList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ElevatedButton(
-            onPressed: () =>
-                _spotListKey.currentState?.clearFilters(),
-            child: const Text('Очистить фильтры'),
-          ),
-        ),
-        const SizedBox(height: 12),
-        TrainingSpotList(
-          key: _spotListKey,
-          spots: _spots,
-          onEdit: (index) async {
-            final spot = _spots[index];
-            final baseIndex = _allSpots.indexOf(spot);
-            final updated = await Navigator.push<TrainingSpot>(
-              context,
-              MaterialPageRoute(builder: (_) => SpotEditorScreen(initial: spot)),
-            );
-            if (updated == null) return;
-            if (baseIndex != -1) _allSpots[baseIndex] = updated;
-            setState(() {
-              _applyStackFilter();
-            });
-            await _saveSpots();
-            final newPack = TrainingPack(
-              name: _pack.name,
-              description: _pack.description,
-              category: _pack.category,
-              gameType: _pack.gameType,
-              colorTag: _pack.colorTag,
-              isBuiltIn: _pack.isBuiltIn,
-              tags: _pack.tags,
-              hands: _pack.hands,
-              spots: _spots,
-              difficulty: _pack.difficulty,
-              history: _pack.history,
-            );
-            await context
-                .read<TrainingPackStorageService>()
-                .updatePack(_pack, newPack);
-            setState(() => _pack = newPack);
-          },
-          onRemove: (index) async {
-            final spot = _spots.removeAt(index);
-            _allSpots.remove(spot);
-            setState(() {
-              _applyStackFilter();
-            });
-            await _saveSpots();
-            final newPack = TrainingPack(
-              name: _pack.name,
-              description: _pack.description,
-              category: _pack.category,
-              gameType: _pack.gameType,
-              colorTag: _pack.colorTag,
-              isBuiltIn: _pack.isBuiltIn,
-              tags: _pack.tags,
-              hands: _pack.hands,
-              spots: _spots,
-              difficulty: _pack.difficulty,
-              history: _pack.history,
-            );
-            await context
-                .read<TrainingPackStorageService>()
-                .updatePack(_pack, newPack);
-            setState(() => _pack = newPack);
-          },
-          onChanged: _saveSpots,
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              final item = _spots.removeAt(oldIndex);
-              _spots.insert(newIndex, item);
-              final baseItem = _allSpots.removeAt(_allSpots.indexOf(item));
-              final target = newIndex >= _spots.length
-                  ? null
-                  : _spots[newIndex];
-              final baseIndex =
-                  target == null ? _allSpots.length : _allSpots.indexOf(target);
-              _allSpots.insert(baseIndex, baseItem);
-            });
-            _saveSpots();
-          },
-        ),
-      ],
+    return PackSpotList(
+      controller: _controller,
+      listKey: _spotListKey,
+      onEdit: (index) async {
+        final spot = _controller.spots[index];
+        final updated = await Navigator.push<TrainingSpot>(
+          context,
+          MaterialPageRoute(builder: (_) => SpotEditorScreen(initial: spot)),
+        );
+        if (updated == null) return;
+        _controller.updateSpot(index, updated);
+        final newPack = _pack.copyWith(spots: _controller.spots);
+        await context
+            .read<TrainingPackStorageService>()
+            .updatePack(_pack, newPack);
+        setState(() => _pack = newPack);
+      },
     );
   }
 
@@ -1942,7 +1725,7 @@ body { font-family: sans-serif; padding: 16px; }
 
   @override
   Widget build(BuildContext context) {
-    final hands = _sessionHands;
+    final hands = _controller.sessionHands;
     final bool completed = _currentIndex >= hands.length;
 
     Widget content;
@@ -2222,7 +2005,7 @@ body { font-family: sans-serif; padding: 16px; }
                     _currentIndex =
                         _pack.history.isNotEmpty ? _pack.history.last.total : 0;
                     _allHands = _pack.hands;
-                    _applyStackFilter();
+                    _controller.updateHands(_allHands);
                     _isMistakeReviewMode = false;
                   });
                 },
@@ -2304,7 +2087,7 @@ body { font-family: sans-serif; padding: 16px; }
           children: [
             Column(
               children: [
-                _buildInfoCard(),
+                PackSummaryHeader(pack: _pack),
                 Expanded(child: content),
               ],
             ),
