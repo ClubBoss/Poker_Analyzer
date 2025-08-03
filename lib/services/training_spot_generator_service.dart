@@ -6,6 +6,7 @@ import '../models/action_entry.dart';
 import '../models/player_model.dart';
 import 'hand_range_library.dart';
 import 'full_board_generator_service.dart';
+import 'constraint_resolver_engine.dart';
 
 class SpotGenerationParams {
   final String position;
@@ -51,7 +52,8 @@ class TrainingSpotGeneratorService {
   final FullBoardGeneratorService _boardGenerator;
   static const List<String> _positions6max = ['utg', 'hj', 'co', 'btn', 'sb', 'bb'];
 
-  List<TrainingSpot> generate(SpotGenerationParams params) {
+  List<TrainingSpot> generate(SpotGenerationParams params,
+      {Map<String, dynamic>? dynamicParams}) {
     final pool = <String>{};
     for (final g in params.handGroup) {
       pool.addAll(HandRangeLibrary.getGroup(g));
@@ -63,7 +65,12 @@ class TrainingSpotGeneratorService {
     for (final h in hands) {
       if (spots.length >= params.count) break;
       if (!used.add(h)) continue;
-      spots.add(_buildSpot(h, params));
+      final spot = _buildSpot(h, params);
+      if (dynamicParams != null &&
+          !ConstraintResolverEngine.isValidSpot(spot, dynamicParams)) {
+        continue;
+      }
+      spots.add(spot);
     }
     return spots;
   }

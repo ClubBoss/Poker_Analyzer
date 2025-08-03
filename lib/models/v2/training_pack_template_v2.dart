@@ -12,6 +12,7 @@ import 'unlock_rules.dart';
 import 'hero_position.dart';
 import 'training_pack_template.dart' show TrainingPackTemplate;
 import '../../services/training_spot_generator_service.dart';
+import '../../services/constraint_resolver_engine.dart';
 
 class TrainingPackTemplateV2 {
   final String id;
@@ -94,9 +95,11 @@ class TrainingPackTemplateV2 {
 
   List<TrainingPackSpot> generateDynamicSpotSamples() {
     if (meta['dynamicParams'] is Map) {
-      final m = Map<String, dynamic>.from(meta['dynamicParams']);
-      final boardFilter =
-          m['boardFilter'] is Map ? Map<String, dynamic>.from(m['boardFilter']) : null;
+      final m = ConstraintResolverEngine.normalizeParams(
+          Map<String, dynamic>.from(meta['dynamicParams']));
+      final boardFilter = m['boardFilter'] is Map
+          ? Map<String, dynamic>.from(m['boardFilter'])
+          : null;
       final params = SpotGenerationParams(
         position: m['position']?.toString() ?? 'btn',
         villainAction: m['villainAction']?.toString() ?? '',
@@ -108,7 +111,8 @@ class TrainingPackTemplateV2 {
         targetStreet: m['targetStreet']?.toString() ?? 'flop',
         boardStages: (m['boardStages'] as num?)?.toInt(),
       );
-      final gen = TrainingSpotGeneratorService().generate(params);
+      final gen = TrainingSpotGeneratorService()
+          .generate(params, dynamicParams: m);
       return [
         for (final s in gen)
           TrainingPackSpot.fromTrainingSpot(
@@ -138,22 +142,25 @@ class TrainingPackTemplateV2 {
     var spots = <TrainingPackSpot>[];
 
     if (dynParams is Map) {
-      final boardFilter = dynParams['boardFilter'] is Map
-          ? Map<String, dynamic>.from(dynParams['boardFilter'])
+      final norm = ConstraintResolverEngine
+          .normalizeParams(Map<String, dynamic>.from(dynParams));
+      final boardFilter = norm['boardFilter'] is Map
+          ? Map<String, dynamic>.from(norm['boardFilter'])
           : null;
       final params = SpotGenerationParams(
-        position: dynParams['position']?.toString() ?? 'btn',
-        villainAction: dynParams['villainAction']?.toString() ?? '',
+        position: norm['position']?.toString() ?? 'btn',
+        villainAction: norm['villainAction']?.toString() ?? '',
         handGroup: [
-          for (final g in (dynParams['handGroup'] as List? ?? [])) g.toString()
+          for (final g in (norm['handGroup'] as List? ?? [])) g.toString()
         ],
-        count: (dynParams['count'] as num?)?.toInt() ?? 0,
+        count: (norm['count'] as num?)?.toInt() ?? 0,
         boardFilter: boardFilter,
-        targetStreet: dynParams['targetStreet']?.toString() ?? 'flop',
-        boardStages: (dynParams['boardStages'] as num?)?.toInt(),
+        targetStreet: norm['targetStreet']?.toString() ?? 'flop',
+        boardStages: (norm['boardStages'] as num?)?.toInt(),
       );
       final generator = TrainingSpotGeneratorService();
-      final genSpots = generator.generate(params);
+      final genSpots =
+          generator.generate(params, dynamicParams: norm);
       spots = [
         for (final s in genSpots)
           TrainingPackSpot.fromTrainingSpot(
