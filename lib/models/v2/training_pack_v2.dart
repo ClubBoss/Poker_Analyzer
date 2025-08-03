@@ -81,20 +81,23 @@ class TrainingPackV2 {
     if (meta.isNotEmpty) 'meta': meta,
   };
 
-  factory TrainingPackV2.fromTemplate(TrainingPackTemplateV2 t, String id) =>
-      TrainingPackV2(
-        id: id,
-        sourceTemplateId: t.id,
-        name: t.name,
-        description: t.description,
-        tags: List<String>.from(t.tags),
-        type: t.trainingType,
-        spots: [for (final s in t.spots) TrainingPackSpot.fromJson(s.toJson())],
-        spotCount: t.spotCount,
-        generatedAt: DateTime.now(),
-        gameType: t.gameType,
-        bb: t.bb,
-        positions: List<String>.from(t.positions),
-        meta: Map<String, dynamic>.from(t.meta),
-      );
+  factory TrainingPackV2.fromTemplate(TrainingPackTemplateV2 t, String id) {
+    final spotList =
+        t.dynamicSpots.isNotEmpty ? t.generateDynamicSpotSamples() : t.spots;
+    return TrainingPackV2(
+      id: id,
+      sourceTemplateId: t.id,
+      name: t.name,
+      description: t.description,
+      tags: List<String>.from(t.tags),
+      type: t.trainingType,
+      spots: [for (final s in spotList) TrainingPackSpot.fromJson(s.toJson())],
+      spotCount: spotList.length,
+      generatedAt: DateTime.now(),
+      gameType: t.gameType,
+      bb: t.bb,
+      positions: List<String>.from(t.positions),
+      meta: Map<String, dynamic>.from(t.meta),
+    );
+  }
 }
