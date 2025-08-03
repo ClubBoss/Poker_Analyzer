@@ -62,6 +62,12 @@ class TrainingPackController extends ChangeNotifier {
     ];
   }
 
+  void _commit() {
+    _applyStackFilter();
+    saveSpots();
+    notifyListeners();
+  }
+
   void updateHands(List<SavedHand> hands) {
     allHands = hands;
     _applyStackFilter();
@@ -72,25 +78,19 @@ class TrainingPackController extends ChangeNotifier {
     final baseIndex = _allSpots.indexOf(_spots[index]);
     if (baseIndex != -1) {
       _allSpots[baseIndex] = updated;
-      _applyStackFilter();
-      saveSpots();
-      notifyListeners();
+      _commit();
     }
   }
 
   void removeSpot(int index) {
     final spot = _spots.removeAt(index);
     _allSpots.remove(spot);
-    saveSpots();
-    _applyStackFilter();
-    notifyListeners();
+    _commit();
   }
 
   void setSpots(List<TrainingSpot> spots) {
     _allSpots = List.from(spots);
-    _applyStackFilter();
-    saveSpots();
-    notifyListeners();
+    _commit();
   }
 
   void reorder(int oldIndex, int newIndex) {
