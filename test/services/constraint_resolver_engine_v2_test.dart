@@ -71,13 +71,33 @@ void main() {
     expect(engine.isValid(candidate, constraints), isFalse);
   });
 
+  test('matches villain actions using first word only', () {
+    final candidate = buildCandidate(villainActions: ['bet 50', 'check 100']);
+    final constraints = ConstraintSet(villainActions: ['bet', 'check']);
+    expect(engine.isValid(candidate, constraints), isTrue);
+  });
+
+  test('board tag comparison is case-insensitive', () {
+    final candidate = buildCandidate(
+      board: [
+        CardModel(rank: '2', suit: 'h'),
+        CardModel(rank: '2', suit: 'c'),
+        CardModel(rank: '9', suit: 'd'),
+      ],
+    );
+    final constraints = ConstraintSet(boardTags: ['PAIRED']);
+    expect(engine.isValid(candidate, constraints), isTrue);
+  });
+
   test('rejects when street mismatch', () {
-    final candidate = buildCandidate(board: [
-      CardModel(rank: '2', suit: 'h'),
-      CardModel(rank: '2', suit: 'c'),
-      CardModel(rank: '9', suit: 'd'),
-      CardModel(rank: 'K', suit: 's'),
-    ]);
+    final candidate = buildCandidate(
+      board: [
+        CardModel(rank: '2', suit: 'h'),
+        CardModel(rank: '2', suit: 'c'),
+        CardModel(rank: '9', suit: 'd'),
+        CardModel(rank: 'K', suit: 's'),
+      ],
+    );
     final constraints = ConstraintSet(targetStreet: 'flop');
     expect(engine.isValid(candidate, constraints), isFalse);
   });

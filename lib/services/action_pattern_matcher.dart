@@ -5,7 +5,9 @@ class ActionPatternMatcher {
     if (pattern.isEmpty) return true;
     if (actions.length != pattern.length) return false;
     for (var i = 0; i < pattern.length; i++) {
-      if (actions[i].toLowerCase() != pattern[i].toLowerCase()) {
+      final actual = actions[i].split(' ').first.toLowerCase();
+      final expected = pattern[i].split(' ').first.toLowerCase();
+      if (actual != expected) {
         return false;
       }
     }
