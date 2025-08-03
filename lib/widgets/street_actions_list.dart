@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import 'edit_action_dialog.dart';
 import 'package:intl/intl.dart';
+import '../helpers/action_evaluation_styles.dart';
 
 import 'street_pot_widget.dart';
 import 'chip_stack_widget.dart';
@@ -47,26 +48,14 @@ class StreetActionsList extends StatelessWidget {
 
   Widget _buildTile(
       BuildContext context, ActionEntry a, int globalIndex, int index) {
-    Color color;
-    switch (a.action) {
-      case 'fold':
-        color = Colors.red;
-        break;
-      case 'call':
-        color = Colors.blue;
-        break;
-      case 'raise':
-        color = Colors.green;
-        break;
-      case 'check':
-        color = Colors.grey;
-        break;
-      case 'custom':
-        color = Colors.purple;
-        break;
-      default:
-        color = Colors.white;
-    }
+    const actionColors = {
+      'fold': Colors.red,
+      'call': Colors.blue,
+      'raise': Colors.green,
+      'check': Colors.grey,
+      'custom': Colors.purple,
+    };
+    final color = actionColors[a.action] ?? Colors.white;
     final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
     final actLabel = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
     final baseTitle = '$pos — $actLabel';
@@ -76,19 +65,10 @@ class StreetActionsList extends StatelessWidget {
     String? qualityLabel;
     if (evaluateActionQuality != null && visibleCount != null) {
       final q = a.manualEvaluation ?? evaluateActionQuality!(a);
-      switch (q) {
-        case 'Лучшая линия':
-          qualityColor = Colors.green;
-          qualityLabel = q;
-          break;
-        case 'Нормальная линия':
-          qualityColor = Colors.yellow;
-          qualityLabel = q;
-          break;
-        case 'Ошибка':
-          qualityColor = Colors.red;
-          qualityLabel = q;
-          break;
+      final qc = evaluationStyles[q];
+      if (qc != null) {
+        qualityColor = qc;
+        qualityLabel = q;
       }
     }
     final tile = ListTile(
