@@ -19,3 +19,6 @@ nodes:
     next: [threebet_co_vs_hj_cash]
   - type: stage
     stageId: threebet_co_vs_hj_cash
+    next: [threebet_hj_vs_utg_cash]
+  - type: stage
+    stageId: threebet_hj_vs_utg_cash
