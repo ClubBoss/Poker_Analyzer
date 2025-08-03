@@ -4,8 +4,11 @@ import '../models/v2/training_pack_v2.dart';
 import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
 import '../services/training_pack_comments_service.dart';
+import '../services/mini_lesson_library_service.dart';
 import '../widgets/pack_insights_banner.dart';
 import '../widgets/pack_recommendation_section.dart';
+import 'mini_lesson_screen.dart';
+import '../models/theory_mini_lesson_node.dart';
 import 'training_session_screen.dart';
 
 class TrainingPackPreviewScreen extends StatefulWidget {
@@ -22,6 +25,7 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
   int? _userRating;
   double? _average;
   String? _comment;
+  TheoryMiniLessonNode? _lesson;
 
   @override
   void initState() {
@@ -29,6 +33,7 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
     _favorite = PackFavoriteService.instance.isFavorite(widget.template.id);
     _loadRating();
     _loadComment();
+    _loadLesson();
   }
 
   Future<void> _loadRating() async {
@@ -36,9 +41,9 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
     final avg = await PackRatingService.instance.getAverageRating(widget.template.id);
     if (mounted) {
       setState(() {
-      _userRating = r;
-      _average = avg;
-    });
+        _userRating = r;
+        _average = avg;
+      });
     }
   }
 
@@ -58,9 +63,9 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
     final avg = await PackRatingService.instance.getAverageRating(widget.template.id);
     if (mounted) {
       setState(() {
-      _userRating = r;
-      _average = avg;
-    });
+        _userRating = r;
+        _average = avg;
+      });
     }
   }
 
@@ -91,6 +96,16 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
       await TrainingPackCommentsService.instance
           .saveComment(widget.template.id, result);
       if (mounted) setState(() => _comment = result);
+    }
+  }
+
+  Future<void> _loadLesson() async {
+    await MiniLessonLibraryService.instance.loadAll();
+    for (final l in MiniLessonLibraryService.instance.all) {
+      if (l.linkedPackIds.contains(widget.template.id)) {
+        if (mounted) setState(() => _lesson = l);
+        break;
+      }
     }
   }
 
@@ -175,6 +190,21 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
           ],
           PackInsightsBanner(templateId: widget.template.id),
           const SizedBox(height: 24),
+          if (_lesson != null) ...[
+            ElevatedButton(
+              onPressed: () {
+                final lesson = _lesson!;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MiniLessonScreen(lesson: lesson),
+                  ),
+                );
+              },
+              child: const Text('Повторить теорию'),
+            ),
+            const SizedBox(height: 12),
+          ],
           ElevatedButton(
             onPressed: () {
               final pack = TrainingPackV2.fromTemplate(

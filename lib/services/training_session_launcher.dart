@@ -15,6 +15,7 @@ import 'pack_recall_stats_service.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import 'mini_lesson_library_service.dart';
 import '../screens/mini_lesson_screen.dart';
+import 'mini_lesson_completion_tracker_service.dart';
 
 /// Helper to start a training session from a pack template.
 class TrainingSessionLauncher {
@@ -39,12 +40,16 @@ class TrainingSessionLauncher {
 
     if (lessonId != null) {
       await MiniLessonLibraryService.instance.loadAll();
-      final lesson = MiniLessonLibraryService.instance.getById(lessonId);
-      if (lesson != null) {
-        await Navigator.push(
-          ctx,
-          MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
-        );
+      final completed =
+          await MiniLessonCompletionTrackerService.instance.isCompleted(lessonId);
+      if (!completed) {
+        final lesson = MiniLessonLibraryService.instance.getById(lessonId);
+        if (lesson != null) {
+          await Navigator.push(
+            ctx,
+            MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+          );
+        }
       }
     }
 
