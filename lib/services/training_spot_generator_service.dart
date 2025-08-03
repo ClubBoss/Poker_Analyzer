@@ -13,6 +13,7 @@ class SpotGenerationParams {
   final List<String> handGroup;
   final int count;
   final Map<String, dynamic>? boardFilter;
+  final String targetStreet;
 
   SpotGenerationParams({
     required this.position,
@@ -20,6 +21,7 @@ class SpotGenerationParams {
     required this.handGroup,
     required this.count,
     this.boardFilter,
+    this.targetStreet = 'flop',
   });
 }
 
@@ -52,7 +54,12 @@ class TrainingSpotGeneratorService {
     final playerCards = List.generate(6, (_) => <CardModel>[]);
     playerCards[idx] = _cardsForHand(hand);
 
-    final board = generateRandomFlop(boardFilter: params.boardFilter);
+    final allPlayerCards = playerCards.expand((e) => e).toList();
+    final board = generateRandomBoard(
+      street: params.targetStreet,
+      boardFilter: params.boardFilter,
+      excludedCards: allPlayerCards,
+    );
 
     final villain = (idx + 1) % 6;
     final parts = params.villainAction.split(' ');
@@ -101,36 +108,47 @@ class TrainingSpotGeneratorService {
     return [CardModel(rank: r1, suit: s1), CardModel(rank: r2, suit: s2)];
   }
 
-  List<CardModel> generateRandomFlop({Map<String, dynamic>? boardFilter}) {
-    if (boardFilter == null) return const [];
+  List<CardModel> generateRandomBoard({
+    required String street,
+    Map<String, dynamic>? boardFilter,
+    List<CardModel> excludedCards = const [],
+  }) {
+    final cardsNeeded = street == 'river'
+        ? 5
+        : street == 'turn'
+            ? 4
+            : 3;
 
     const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
     const suits = ['♠', '♥', '♦', '♣'];
 
-    final excluded = <String>{
-      for (final r in (boardFilter['excludedRanks'] as List? ?? []))
-        r.toString().toUpperCase()
+    final excludedRanks = <String>{
+      for (final r in (boardFilter?['excludedRanks'] as List? ?? []))
+        r.toString().toUpperCase(),
     };
 
     final requiredRanks = <String>[...
-      (boardFilter['requiredRanks'] as List? ?? [])
+      (boardFilter?['requiredRanks'] as List? ?? [])
           .map((e) => e.toString().toUpperCase())
     ];
     final requiredSuits = <String>[...
-      (boardFilter['requiredSuits'] as List? ?? [])
+      (boardFilter?['requiredSuits'] as List? ?? [])
           .map((e) => e.toString())
     ];
 
     final deck = <CardModel>[
       for (final r in ranks)
-        if (!excluded.contains(r))
-          for (final s in suits) CardModel(rank: r, suit: s)
+        if (!excludedRanks.contains(r))
+          for (final s in suits) CardModel(rank: r, suit: s),
     ];
+
+    deck.removeWhere((c) =>
+        excludedCards.any((e) => e.rank == c.rank && e.suit == c.suit));
 
     final svc = const BoardTextureFilterService();
     for (var i = 0; i < 10000; i++) {
       deck.shuffle(_random);
-      final board = deck.take(3).toList();
+      final board = deck.take(cardsNeeded).toList();
       if (requiredRanks.any((r) => !board.any((c) => c.rank == r))) {
         continue;
       }
@@ -141,7 +159,17 @@ class TrainingSpotGeneratorService {
         return board;
       }
     }
-    throw StateError('Unable to generate flop with given filter');
+    throw StateError('Unable to generate board with given filter');
   }
+
+  List<CardModel> generateRandomFlop({
+    Map<String, dynamic>? boardFilter,
+    List<CardModel> excludedCards = const [],
+  }) =>
+      generateRandomBoard(
+        street: 'flop',
+        boardFilter: boardFilter,
+        excludedCards: excludedCards,
+      );
 }
 
