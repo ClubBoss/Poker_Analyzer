@@ -20,8 +20,9 @@ class PokerAnalyzerOverlay extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _HudHeader(
-            playerCount:
-                context.watch<PokerAnalyzerController>().players.length,
+            playerCount: context
+                .watch<PokerAnalyzerController>()
+                .playerCount,
             handName: 'Hand',
           ),
           const Spacer(),

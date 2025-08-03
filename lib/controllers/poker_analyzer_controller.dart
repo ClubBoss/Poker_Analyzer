@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/player_model.dart';
@@ -10,24 +12,59 @@ import '../models/player_model.dart';
 /// grows.
 class PokerAnalyzerController extends ChangeNotifier {
   /// Number of players at the table.
-  int numberOfPlayers = 2;
+  int _numberOfPlayers = 2;
 
   /// Mapping from player index to their table position (e.g. "BTN").
-  final Map<int, String> playerPositions = {};
+  final Map<int, String> _playerPositions = {};
 
   /// Player type metadata keyed by player index.
-  final Map<int, PlayerType> playerTypes = {};
+  final Map<int, PlayerType> _playerTypes = {};
 
   /// List of current players.
-  final List<PlayerModel> players = [];
+  final List<PlayerModel> _players = [];
 
   /// Flag controlling display of debug information in the overlay.
-  bool debugMode = false;
+  bool _debugMode = false;
+
+  int get numberOfPlayers => _numberOfPlayers;
+  set numberOfPlayers(int value) {
+    if (_numberOfPlayers == value) return;
+    _numberOfPlayers = value;
+    notifyListeners();
+  }
+
+  Map<int, String> get playerPositions => Map.unmodifiable(_playerPositions);
+  void setPlayerPosition(int index, String position) {
+    _playerPositions[index] = position;
+    notifyListeners();
+  }
+
+  Map<int, PlayerType> get playerTypes => Map.unmodifiable(_playerTypes);
+  void setPlayerType(int index, PlayerType type) {
+    _playerTypes[index] = type;
+    notifyListeners();
+  }
+
+  List<PlayerModel> get players => List.unmodifiable(_players);
+  void addPlayer(PlayerModel player) {
+    _players.add(player);
+    notifyListeners();
+  }
+
+  void removePlayer(PlayerModel player) {
+    _players.remove(player);
+    notifyListeners();
+  }
+
+  bool get debugMode => _debugMode;
 
   /// Toggles [debugMode] and notifies listeners.
   void toggleDebug() {
-    debugMode = !debugMode;
+    _debugMode = !_debugMode;
     notifyListeners();
   }
+
+  /// Convenience getter for the current player count.
+  int get playerCount => _players.length;
 }
 
