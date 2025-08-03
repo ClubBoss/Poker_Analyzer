@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/services/smart_booster_diversity_scheduler_service.dart';
 import 'package:poker_analyzer/services/smart_pinned_block_booster_provider.dart';
+import 'package:poker_analyzer/services/smart_booster_exclusion_tracker_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -10,7 +11,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('prioritizes old or unseen boosters and mixes tags', () async {
+  test('prioritizes old or unseen boosters and logs filtered items', () async {
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
     // Tag B shown yesterday
@@ -40,6 +41,12 @@ void main() {
     ];
 
     final scheduled = await scheduler.schedule(suggestions);
-    expect(scheduled.map((s) => s.tag).toList(), ['a', 'b', 'a']);
+    expect(scheduled.map((s) => s.tag).toList(), ['a', 'b']);
+
+    final log =
+        await SmartBoosterExclusionTrackerService().exportLog();
+    expect(log.length, 1);
+    expect(log.first['tag'], 'a');
+    expect(log.first['reason'], 'filteredByType');
   });
 }

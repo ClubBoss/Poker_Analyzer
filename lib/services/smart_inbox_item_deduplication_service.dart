@@ -1,5 +1,6 @@
 import 'booster_interaction_tracker_service.dart';
 import 'smart_pinned_block_booster_provider.dart';
+import 'smart_booster_exclusion_tracker_service.dart';
 
 /// Removes redundant smart inbox boosters targeting the same tag or block.
 class SmartInboxItemDeduplicationService {
@@ -52,6 +53,8 @@ class SmartInboxItemDeduplicationService {
       final tag = s.suggestion.tag;
       final block = s.suggestion.blockId;
       if (byTag.containsKey(tag) || byBlock.containsKey(block)) {
+        await SmartBoosterExclusionTrackerService()
+            .logExclusion(tag, 'deduplicated');
         continue;
       }
       byTag[tag] = s.suggestion;

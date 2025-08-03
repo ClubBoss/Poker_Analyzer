@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/shared_prefs_keys.dart';
+import 'smart_booster_exclusion_tracker_service.dart';
 
 /// Limits how often booster inbox banners can be shown per tag and per day.
 class SmartBoosterInboxLimiterService {
@@ -25,13 +26,19 @@ class SmartBoosterInboxLimiterService {
     if (storedDate != dateKey) {
       count = 0;
     }
-    if (count >= maxPerDay) return false;
+    if (count >= maxPerDay) {
+      await SmartBoosterExclusionTrackerService()
+          .logExclusion(tag, 'rateLimited');
+      return false;
+    }
 
     final lastMillis =
         prefs.getInt(SharedPrefsKeys.boosterInboxLast(tag));
     if (lastMillis != null) {
       final last = DateTime.fromMillisecondsSinceEpoch(lastMillis);
       if (now.difference(last) < tagCooldown) {
+        await SmartBoosterExclusionTrackerService()
+            .logExclusion(tag, 'rateLimited');
         return false;
       }
     }
