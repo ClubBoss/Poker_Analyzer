@@ -6,6 +6,7 @@ import '../services/pack_favorite_service.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import '../services/training_session_launcher.dart';
 import '../services/training_progress_logger.dart';
+import '../services/mini_lesson_completion_tracker_service.dart';
 
 class PackCard extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -18,11 +19,13 @@ class PackCard extends StatefulWidget {
 
 class _PackCardState extends State<PackCard> {
   late bool _favorite;
+  bool _theoryCompleted = false;
 
   @override
   void initState() {
     super.initState();
     _favorite = PackFavoriteService.instance.isFavorite(widget.template.id);
+    _checkTheory();
   }
 
   Future<void> _toggleFavorite() async {
@@ -30,6 +33,26 @@ class _PackCardState extends State<PackCard> {
     if (mounted) {
       setState(() => _favorite = !_favorite);
     }
+  }
+
+  String? _linkedLessonId() {
+    final metaId = widget.template.meta['lessonId'] as String?;
+    if (metaId != null && metaId.isNotEmpty) return metaId;
+    if (widget.template.id == TrainingPackLibraryV2.mvpPackId) {
+      return 'lesson_push_fold_intro';
+    }
+    if (widget.template.id == 'push_fold_btn_cash') {
+      return 'lesson_push_fold_btn_cash';
+    }
+    return null;
+  }
+
+  Future<void> _checkTheory() async {
+    final lessonId = _linkedLessonId();
+    if (lessonId == null) return;
+    final done =
+        await MiniLessonCompletionTrackerService.instance.isCompleted(lessonId);
+    if (mounted) setState(() => _theoryCompleted = done);
   }
 
   @override
@@ -72,6 +95,15 @@ class _PackCardState extends State<PackCard> {
               ],
             ),
           ),
+          if (_theoryCompleted)
+            const Positioned(
+              left: 0,
+              top: 0,
+              child: Tooltip(
+                message: 'Теория пройдена',
+                child: Icon(Icons.check_circle, color: Colors.green),
+              ),
+            ),
           Positioned(
             top: 0,
             right: 0,
