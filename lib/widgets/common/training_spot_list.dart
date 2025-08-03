@@ -17,6 +17,7 @@ import '../../models/training_spot.dart';
 import '../../models/training_pack.dart';
 import '../../theme/app_colors.dart';
 import '../../screens/training_spot_analysis_screen.dart';
+import 'tag_presets.dart';
 
 enum SortOption {
   buyInAsc,
@@ -107,29 +108,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
-  static const List<String> _availableTags = [
-    '3бет пот',
-    'Фиш',
-    'Рег',
-    'ICM',
-    'vs агро',
-  ];
 
-  static const Map<String, List<String>> _tagPresets = {
-    '3бет пот': ['3бет пот'],
-    'Фиш': ['Фиш'],
-    'Рег': ['Рег'],
-    'ICM': ['ICM'],
-    'vs агро': ['vs агро'],
-  };
-
-  static const Map<String, String> _quickFilterPresets = {
-    'ICM': 'ICM',
-    'Push/Fold': 'Push/Fold',
-    'Postflop': 'Postflop',
-    '3-bet': '3-bet',
-    'Bubble': 'Bubble',
-  };
+  // Tag and filter presets are defined in `tag_presets.dart`.
 
   Map<String, List<String>> _customTagPresets = {};
 
@@ -187,8 +167,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final controller = TextEditingController(text: initialName ?? '');
     final local = <String>{...(initialTags ?? [])};
     final suggestions = <String>{
-      ..._availableTags,
-      for (final list in _tagPresets.values) ...list,
+      ...availableTags,
+      for (final list in tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -269,7 +249,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
-            final staticEntries = _tagPresets.entries.toList();
+            final staticEntries = tagPresets.entries.toList();
             final customEntries = _customTagPresets.entries.toList();
             return AlertDialog(
               backgroundColor: AppColors.cardBackground,
@@ -564,7 +544,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _activeQuickPreset = quickPreset;
     if (_activeQuickPreset != null) {
       _prevQuickTags = Set<String>.from(_selectedTags);
-      final tag = _quickFilterPresets[_activeQuickPreset!];
+      final tag = quickFilterPresets[_activeQuickPreset!];
       if (tag != null) {
         _selectedTags
           ..clear()
@@ -898,7 +878,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     Wrap(
                       spacing: 4,
                       children: [
-                        for (final tag in _availableTags)
+                        for (final tag in availableTags)
                           FilterChip(
                             label: Text(tag),
                             selected: localTags.contains(tag),
@@ -1228,7 +1208,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    for (final tag in _availableTags)
+                    for (final tag in availableTags)
                       CheckboxListTile(
                         value: localTags.contains(tag),
                         title:
@@ -1278,8 +1258,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   Future<void> _quickAddTagsForSpot(TrainingSpot spot) async {
     final suggestions = <String>{
-      ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      ...availableTags,
+      for (final list in tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -1500,8 +1480,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     if (count == 0) return;
 
     final suggestions = <String>{
-      ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      ...availableTags,
+      for (final list in tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -2045,8 +2025,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     }
 
     final suggestions = <String>{
-      ...TrainingSpotListState._availableTags,
-      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      ...availableTags,
+      for (final list in tagPresets.values) ...list,
       for (final list in _customTagPresets.values) ...list,
       for (final s in widget.spots) ...s.tags,
     }..removeWhere((e) => e.isEmpty);
@@ -2237,7 +2217,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                           _prevQuickTags = Set<String>.from(_selectedTags);
                         }
                         _activeQuickPreset = value;
-                        final tag = _quickFilterPresets[value];
+                        final tag = quickFilterPresets[value];
                         if (tag != null) {
                           _selectedTags
                             ..clear()
@@ -2360,7 +2340,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     },
                     onPresetSelected: (value) {
                       if (value == null) return;
-                      final tags = TrainingSpotListState._tagPresets[value] ??
+                      final tags = tagPresets[value] ??
                           _customTagPresets[value];
                       if (tags == null) return;
                       setState(() {
@@ -3934,9 +3914,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final popular = [for (final a in analytics.getPopularTags()) a.tag];
     final tags = [
       for (final t in popular)
-        if (_availableTags.contains(t)) t,
+        if (availableTags.contains(t)) t,
       ...[
-        for (final t in _availableTags)
+        for (final t in availableTags)
           if (!popular.contains(t)) t
       ]
     ];
@@ -4680,7 +4660,7 @@ class _TagFilterSection extends StatelessWidget {
           dropdownColor: AppColors.cardBackground,
           style: const TextStyle(color: Colors.white),
           items: [
-            for (final entry in TrainingSpotListState._tagPresets.entries)
+            for (final entry in tagPresets.entries)
               DropdownMenuItem(
                 value: entry.key,
                 child: Text(entry.key),
@@ -5312,7 +5292,7 @@ class _QuickPresetRow extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          for (final entry in TrainingSpotListState._quickFilterPresets.entries)
+          for (final entry in quickFilterPresets.entries)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: ChoiceChip(
