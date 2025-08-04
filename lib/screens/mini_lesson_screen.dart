@@ -9,6 +9,7 @@ import '../services/theory_streak_service.dart';
 import '../services/theory_booster_recall_engine.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/theory_lesson_completion_logger.dart';
+import '../services/review_completion_logger.dart';
 
 /// Simple viewer for a [TheoryMiniLessonNode].
 class MiniLessonScreen extends StatefulWidget {
@@ -30,6 +31,7 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
   late DateTime _started;
   late final ScrollController _controller;
   bool _pinned = false;
+  bool _isReview = false;
 
   @override
   void initState() {
@@ -67,6 +69,17 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is bool && args) {
+      _isReview = true;
+    } else if (args is Map && args['isReview'] == true) {
+      _isReview = true;
+    }
+  }
+
+  @override
   void dispose() {
     final tag = widget.recapTag;
     if (tag != null) {
@@ -83,6 +96,10 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
     PinnedLearningService.instance.removeListener(_updatePinned);
     unawaited(
         TheoryLessonCompletionLogger.instance.markCompleted(widget.lesson.id));
+    if (_isReview) {
+      unawaited(
+          ReviewCompletionLogger.instance.logReview(widget.lesson.id));
+    }
     super.dispose();
   }
 
