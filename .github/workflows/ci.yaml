@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Precompile training packs
+        run: dart tools/precompile_all_packs.dart
+
       - name: Validate training content
         run: dart tools/validate_training_content.dart --ci
       # TODO: Re-enable after packs are fixed
