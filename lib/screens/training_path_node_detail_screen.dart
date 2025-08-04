@@ -6,6 +6,8 @@ import '../services/pack_library_template_loader.dart';
 import '../services/training_path_breadcrumb_service.dart';
 import '../services/training_path_node_launcher_service.dart';
 import '../services/training_path_progress_tracker_service.dart';
+import '../services/node_recommendation_service.dart';
+import '../widgets/node_recommendation_section_widget.dart';
 import '../widgets/training_pack_template_card.dart';
 
 class TrainingPathNodeDetailScreen extends StatefulWidget {
@@ -22,6 +24,8 @@ class _TrainingPathNodeDetailScreenState
   final _tracker = const TrainingPathProgressTrackerService();
   final _launcher = const TrainingPathNodeLauncherService();
   final _breadcrumbService = const TrainingPathBreadcrumbService();
+  late final NodeRecommendationService _recommendationService =
+      NodeRecommendationService(progress: _tracker);
 
   late Future<_NodeDetailData> _future;
 
@@ -42,6 +46,8 @@ class _TrainingPathNodeDetailScreenState
     final isCompleted = completed.contains(widget.node.id);
     final isUnlocked = unlocked.contains(widget.node.id);
     final breadcrumb = _breadcrumbService.getBreadcrumb(widget.node);
+    final recommendations =
+        await _recommendationService.getRecommendations(widget.node);
     return _NodeDetailData(
       templates: templates,
       isCompleted: isCompleted,
@@ -49,6 +55,7 @@ class _TrainingPathNodeDetailScreenState
       breadcrumb: breadcrumb,
       unlockedNodeIds: unlocked,
       completedNodeIds: completed,
+      recommendations: recommendations,
     );
   }
 
@@ -89,6 +96,14 @@ class _TrainingPathNodeDetailScreenState
                         ),
                     ] else
                       const Text('No training packs found'),
+                    const SizedBox(height: 24),
+                    NodeRecommendationSectionWidget(
+                      nodes: data.recommendations,
+                      unlockedNodeIds: data.unlockedNodeIds,
+                      completedNodeIds: data.completedNodeIds,
+                      title: 'Recommended Next Steps',
+                      onNodeTap: _openNode,
+                    ),
                   ],
                 ),
           bottomNavigationBar:
@@ -191,7 +206,7 @@ class _TrainingPathNodeDetailScreenState
       child: Chip(label: Text(label), backgroundColor: color),
     );
   }
-}
+  }
 
 class _NodeDetailData {
   final List<TrainingPackTemplate> templates;
@@ -200,6 +215,7 @@ class _NodeDetailData {
   final List<TrainingPathNode> breadcrumb;
   final Set<String> unlockedNodeIds;
   final Set<String> completedNodeIds;
+  final List<TrainingPathNode> recommendations;
 
   const _NodeDetailData({
     required this.templates,
@@ -208,5 +224,6 @@ class _NodeDetailData {
     required this.breadcrumb,
     required this.unlockedNodeIds,
     required this.completedNodeIds,
+    required this.recommendations,
   });
 }
