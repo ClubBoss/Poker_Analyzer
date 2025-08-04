@@ -10,17 +10,15 @@ void main() {
   test('expands board constraints with tag filters to river', () {
     final base = TrainingPackSpot(id: 'base');
     final variation = ConstraintSet(
-      overrides: {
-        'boardConstraints': [
-          {
-            'targetStreet': 'river',
-            'requiredTextures': ['rainbow'],
-            'requiredRanks': ['A', 'K', 'Q', 'J', 'T'],
-            'requiredTags': ['broadwayHeavy'],
-            'excludedTags': ['paired'],
-          }
-        ]
-      },
+      boardConstraints: [
+        {
+          'targetStreet': 'river',
+          'requiredTextures': ['rainbow'],
+          'requiredRanks': ['A', 'K', 'Q', 'J', 'T'],
+          'requiredTags': ['broadwayHeavy'],
+          'excludedTags': ['paired'],
+        }
+      ],
     );
     final set = TrainingPackTemplateSet(baseSpot: base, variations: [variation]);
     final svc = TrainingPackTemplateExpanderService();
