@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 
 import '../models/training_path_node.dart';
 import '../services/training_path_node_definition_service.dart';
-import '../services/training_path_node_launcher_service.dart';
 import '../services/training_path_progress_tracker_service.dart';
+import '../screens/training_path_node_detail_screen.dart';
 
 /// Displays the list of training path nodes with visual lock/unlock state.
 ///
@@ -22,7 +21,6 @@ class _TrainingPathNodeListWidgetState
     extends State<TrainingPathNodeListWidget> {
   final _definitions = const TrainingPathNodeDefinitionService();
   final _progress = const TrainingPathProgressTrackerService();
-  final _launcher = const TrainingPathNodeLauncherService();
 
   late Future<_NodeStatusData> _future;
 
@@ -81,8 +79,15 @@ class _TrainingPathNodeListWidgetState
     return ListTile(
       leading: icon,
       title: Text(node.title),
-      enabled: isUnlocked,
-      onTap: isUnlocked ? () => _launcher.launchNode(context, node) : null,
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingPathNodeDetailScreen(node: node),
+          ),
+        );
+        _refresh();
+      },
     );
   }
 }
