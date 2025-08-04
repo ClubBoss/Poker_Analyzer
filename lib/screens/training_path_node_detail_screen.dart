@@ -48,6 +48,7 @@ class _TrainingPathNodeDetailScreenState
       isUnlocked: isUnlocked,
       breadcrumb: breadcrumb,
       unlockedNodeIds: unlocked,
+      completedNodeIds: completed,
     );
   }
 
@@ -117,12 +118,29 @@ class _TrainingPathNodeDetailScreenState
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ActionChip(
-                label: Text(
-                  node.title,
-                  style: node.id == widget.node.id
-                      ? const TextStyle(fontWeight: FontWeight.bold)
-                      : null,
-                ),
+                label: data.completedNodeIds.contains(node.id)
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            node.title,
+                            style: node.id == widget.node.id
+                                ? const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.check,
+                              size: 16, color: Colors.green),
+                        ],
+                      )
+                    : Text(
+                        node.title,
+                        style: node.id == widget.node.id
+                            ? const TextStyle(fontWeight: FontWeight.bold)
+                            : null,
+                      ),
                 onPressed:
                     node.id == widget.node.id ||
                         !data.unlockedNodeIds.contains(node.id)
@@ -181,6 +199,7 @@ class _NodeDetailData {
   final bool isUnlocked;
   final List<TrainingPathNode> breadcrumb;
   final Set<String> unlockedNodeIds;
+  final Set<String> completedNodeIds;
 
   const _NodeDetailData({
     required this.templates,
@@ -188,5 +207,6 @@ class _NodeDetailData {
     required this.isUnlocked,
     required this.breadcrumb,
     required this.unlockedNodeIds,
+    required this.completedNodeIds,
   });
 }
