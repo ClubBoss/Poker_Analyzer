@@ -29,11 +29,8 @@ import '../widgets/auto_mistake_drill_banner_widget.dart';
 import '../widgets/streak_chart.dart';
 import '../widgets/continue_training_button.dart';
 import '../widgets/spot_of_the_day_card.dart';
-import '../widgets/decay_booster_dashboard_banner.dart';
-import '../widgets/decay_booster_reminder_banner.dart';
-import '../widgets/decay_booster_shortcut_banner.dart';
-import '../widgets/decay_booster_queue_indicator.dart';
 import '../widgets/decay_boosted_banner.dart';
+import '../widgets/decay_booster_shortcut_consolidator_widget.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
@@ -308,20 +305,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         ab.isVariant('resume_card', 'B')
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),
-        Stack(
-          children: const [
-            ContinueTrainingButton(),
-            Positioned(
-              right: 24,
-              top: 8,
-              child: DecayBoosterQueueIndicator(),
-            ),
-          ],
-        ),
-        const DecayBoosterDashboardBanner(),
+        const ContinueTrainingButton(),
+        const DecayBoosterShortcutConsolidatorWidget(),
         const DecayBoostedBanner(),
-        const DecayBoosterReminderBanner(),
-        const DecayBoosterShortcutBanner(),
         const GoalReminderBanner(),
         const AutoMistakeDrillBannerWidget(),
         const SmartGoalBanner(),
