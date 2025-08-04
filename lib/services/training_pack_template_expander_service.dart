@@ -135,6 +135,7 @@ class TrainingPackTemplateExpanderService {
           position: result.heroPosition,
           board: board,
           villainActions: villainActions,
+          tags: result.tags,
         ),
       );
     }

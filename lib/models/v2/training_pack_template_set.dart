@@ -2,6 +2,7 @@ import 'package:yaml/yaml.dart';
 
 import '../../utils/yaml_utils.dart';
 import '../constraint_set.dart';
+import '../line_pattern.dart';
 import 'training_pack_template_v2.dart';
 
 /// Defines a template with variant parameters that can be expanded into
@@ -16,18 +17,27 @@ class TrainingPackTemplateSet {
   /// template.
   List<TemplateSetEntry> entries;
 
+  /// Optional action line patterns describing multi-street sequences.
+  List<LinePattern> linePatterns;
+
   TrainingPackTemplateSet({
     required this.template,
     List<Map<String, dynamic>>? variants,
     List<TemplateSetEntry>? entries,
+    List<LinePattern>? linePatterns,
   }) : variants = variants ?? [],
-       entries = entries ?? [];
+       entries = entries ?? [],
+       linePatterns = linePatterns ?? [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     // Support multiple input structures:
     // 1) Legacy format with `template` + `variants` or `templateSet`.
     // 2) Simplified format with `base` + `variations` fields.
     final map = Map<String, dynamic>.from(json);
+    final patterns = <LinePattern>[
+      for (final p in (map['linePatterns'] as List? ?? []))
+        LinePattern.fromJson(Map<String, dynamic>.from(p as Map)),
+    ];
 
     // New `base` + `variations` structure.
     if (map['base'] is Map && map['variations'] is List) {
@@ -63,7 +73,11 @@ class TrainingPackTemplateSet {
           ),
         );
       }
-      return TrainingPackTemplateSet(template: tpl, entries: entries);
+      return TrainingPackTemplateSet(
+        template: tpl,
+        entries: entries,
+        linePatterns: patterns,
+      );
     }
 
     // Legacy structures.
@@ -86,6 +100,7 @@ class TrainingPackTemplateSet {
         for (final e in (json['templateSet'] as List? ?? []))
           TemplateSetEntry.fromJson(Map<String, dynamic>.from(e as Map)),
       ],
+      linePatterns: patterns,
     );
   }
 
