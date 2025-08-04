@@ -1,11 +1,26 @@
 import '../core/training/library/training_pack_library_v2.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../generated/pack_library.g.dart';
 import 'package:collection/collection.dart';
 
 class PackLibraryService {
   PackLibraryService._();
   static final instance = PackLibraryService._();
+
+  /// Returns spots for the pack identified by [id].
+  ///
+  /// If the [id] is unknown, an empty list is returned.
+  List<TrainingPackSpot> getPack(String id) {
+    final spots = packLibrary[id];
+    return spots == null ? const [] : List<TrainingPackSpot>.unmodifiable(spots);
+  }
+
+  /// Lists all pack ids available in the precompiled [packLibrary].
+  List<String> getAvailablePackIds() {
+    return List<String>.unmodifiable(packLibrary.keys);
+  }
 
   Future<TrainingPackTemplateV2?> recommendedStarter() async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
