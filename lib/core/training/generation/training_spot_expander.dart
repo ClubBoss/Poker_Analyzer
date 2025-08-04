@@ -42,8 +42,11 @@ class TrainingSpotExpander {
     final copy = spot.copyWith(
       id: _uuid.v4(),
       hand: hand,
+      meta: {
+        ...spot.meta,
+        'variation': true,
+      },
     );
-    copy.isGenerated = true;
     return copy;
   }
 

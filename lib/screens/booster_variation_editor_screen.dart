@@ -96,7 +96,6 @@ class _BoosterVariationEditorScreenState
   Future<void> _cloneVariation(TrainingPackSpot spot) async {
     final copy = spot.copyWith(
       id: const Uuid().v4(),
-      isGenerated: true,
       meta: {
         ...spot.meta,
         'variation': true,
@@ -109,7 +108,6 @@ class _BoosterVariationEditorScreenState
   Future<void> _addVariation(TrainingPackSpot original) async {
     final copy = original.copyWith(
       id: const Uuid().v4(),
-      isGenerated: true,
       meta: {
         ...original.meta,
         'variation': true,
@@ -120,7 +118,7 @@ class _BoosterVariationEditorScreenState
   }
 
   bool _isVariation(TrainingPackSpot s) =>
-      s.isGenerated || s.meta['variation'] == true || s.id.contains('_var');
+      s.meta['variation'] == true || s.id.contains('_var');
 
   String _spotTitle(TrainingPackSpot s) {
     return s.title.isNotEmpty ? s.title : s.hand.heroCards;

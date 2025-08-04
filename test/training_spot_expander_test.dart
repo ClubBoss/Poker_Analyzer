@@ -19,7 +19,7 @@ void main() {
     expect(list.length > 1, true);
     expect(list.first.id, 's1');
     final generated = list.where((s) => s.id != 's1');
-    expect(generated.every((s) => s.isGenerated), true);
+    expect(generated.every((s) => s.meta['variation'] == true), true);
     final boards = generated.map((s) => s.hand.board.take(3).toList());
     expect(boards.any((b) => !const ListEquality().equals(b, ['Kh', 'Qd', '2c'])),
         true);

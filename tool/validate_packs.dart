@@ -64,16 +64,10 @@ void main(List<String> args) {
     final total = tpl.spots.length;
     final ev = total == 0
         ? 0.0
-        : tpl.spots
-                .where((s) => s.heroEv != null && !s.dirty)
-                .length /
-            total;
+        : tpl.spots.where((s) => s.heroEv != null).length / total;
     final icm = total == 0
         ? 0.0
-        : tpl.spots
-                .where((s) => s.heroIcmEv != null && !s.dirty)
-                .length /
-            total;
+        : tpl.spots.where((s) => s.heroIcmEv != null).length / total;
     String status;
     String icon;
     if (issues.isEmpty && ev >= 0.9 && icm >= 0.9) {

@@ -24,8 +24,8 @@ class TemplateCoverageUtils {
     for (final s in list) {
       final w = s.priority;
       total += w;
-      if (!s.dirty && s.heroEv != null) ev += w;
-      if (!s.dirty && s.heroIcmEv != null) icm += w;
+      if (s.heroEv != null) ev += w;
+      if (s.heroIcmEv != null) icm += w;
     }
     return CoverageSummary(ev: ev, icm: icm, total: total);
   }

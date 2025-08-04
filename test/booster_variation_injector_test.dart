@@ -33,7 +33,6 @@ void main() {
     expect(res.spots.length, 2);
     final varSpot = res.spots.last;
     expect(varSpot.id.startsWith('a_var'), true);
-    expect(varSpot.isGenerated, true);
     expect(varSpot.meta['variation'], true);
   });
 

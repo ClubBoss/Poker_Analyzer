@@ -24,6 +24,6 @@ void main() {
     final generated = res.last;
     expect(generated.name.contains('Extended'), true);
     expect(generated.isGeneratedPack, true);
-    expect(generated.spots.every((s) => s.isGenerated), true);
+    expect(generated.spots.every((s) => s.meta['variation'] == true), true);
   });
 }

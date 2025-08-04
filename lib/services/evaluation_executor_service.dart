@@ -501,7 +501,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     }
     if ((prevEv == null && spot.heroEv != null) ||
         (prevIcm == null && spot.heroIcmEv != null)) {
-      spot.dirty = true;
+      // no-op marker removed
     }
     final prev = spot.evalResult;
     final prevAction = spot.correctAction;

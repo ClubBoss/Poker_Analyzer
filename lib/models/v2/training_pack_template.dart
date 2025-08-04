@@ -359,7 +359,7 @@ extension TrainingPackTemplateStreetCoverage on TrainingPackTemplate {
   List<int> streetCovered() {
     final covered = List<int>.filled(4, 0);
     for (final s in spots) {
-      if (!s.dirty && s.heroEv != null && s.heroIcmEv != null) {
+      if (s.heroEv != null && s.heroIcmEv != null) {
         covered[s.street]++;
       }
     }

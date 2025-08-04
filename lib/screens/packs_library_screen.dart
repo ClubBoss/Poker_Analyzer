@@ -410,7 +410,6 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       s.evalResult = null;
       s.correctAction = null;
       s.explanation = null;
-      s.dirty = false;
     }
     pack.lastTrainedAt = null;
     TemplateCoverageUtils.recountAll(pack).applyTo(pack.meta);
@@ -504,11 +503,10 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     final trained = _trainedHands[t.id] ?? 0;
     final done = trained.clamp(0, total);
     final ratio = total == 0 ? 0.0 : done / total;
-    final evDone = t.spots
-        .where((s) => s.heroEv != null && !s.dirty)
-        .fold(0, (a, b) => a + b.priority);
+    final evDone =
+        t.spots.where((s) => s.heroEv != null).fold(0, (a, b) => a + b.priority);
     final icmDone = t.spots
-        .where((s) => s.heroIcmEv != null && !s.dirty)
+        .where((s) => s.heroIcmEv != null)
         .fold(0, (a, b) => a + b.priority);
     final solvedAll =
         t.spots.every((s) => s.heroEv != null && s.heroIcmEv != null);

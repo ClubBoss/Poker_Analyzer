@@ -56,7 +56,7 @@ class BoosterVariationInjector {
             counter++;
             newId = '${orig.id}_var$counter';
           }
-          final copy = cand.copyWith(id: newId, isGenerated: true, meta: {
+          final copy = cand.copyWith(id: newId, meta: {
             ...cand.meta,
             'variation': true,
           });
