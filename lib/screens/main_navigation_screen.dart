@@ -18,18 +18,14 @@ import '../widgets/feedback_banner.dart';
 import '../widgets/recent_unlocks_banner.dart';
 import '../widgets/today_progress_banner.dart';
 import '../widgets/pack_suggestion_banner.dart';
-import '../widgets/broken_streak_banner.dart';
 import '../widgets/smart_goal_banner.dart';
-import '../widgets/goal_reminder_banner.dart';
 import '../widgets/ev_goal_banner.dart';
 import '../widgets/repeat_last_corrected_card.dart';
 import '../widgets/repeat_corrected_drill_card.dart';
 import '../widgets/streak_mini_card.dart';
-import '../widgets/auto_mistake_drill_banner_widget.dart';
 import '../widgets/streak_chart.dart';
 import '../widgets/continue_training_button.dart';
 import '../widgets/spot_of_the_day_card.dart';
-import '../widgets/decay_boosted_banner.dart';
 import '../widgets/decay_booster_shortcut_consolidator_widget.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
@@ -74,6 +70,10 @@ import '../services/gift_drop_service.dart';
 import '../services/session_streak_overlay_prompt_service.dart';
 import '../services/overlay_decay_booster_orchestrator.dart';
 import '../services/decay_badge_banner_controller.dart';
+import '../services/training_reminder_banner_engine.dart';
+import '../services/session_log_service.dart';
+import '../services/mistake_review_pack_service.dart';
+import '../services/template_storage_service.dart';
 import 'dart:async';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -90,6 +90,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   bool _simpleNavigation = false;
   bool _tutorialCompleted = false;
   late final Future<LearningPathTemplateV2> _pathFuture;
+  late final TrainingReminderBannerEngine _reminderEngine;
+  Future<ReminderBanner?>? _bannerFuture;
 
   @override
   void initState() {
@@ -99,6 +101,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     _simpleNavigation = prefs.simpleNavigation;
     _tutorialCompleted = prefs.tutorialCompleted;
     _pathFuture = _loadLearningPath();
+    _reminderEngine = TrainingReminderBannerEngine(sources: [
+      DailyGoalReminder(logs: context.read<SessionLogService>()),
+      AutoMistakeDrillReminder(
+        review: context.read<MistakeReviewPackService>(),
+        templates: context.read<TemplateStorageService>(),
+      ),
+      DecayBoosterReminder(),
+      StreakBrokenReminder(),
+    ]);
+    _bannerFuture = _reminderEngine.getNextReminderBanner();
     _loadIndex();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeShowOnboarding();
@@ -307,9 +319,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             : const SizedBox.shrink(),
         const ContinueTrainingButton(),
         const DecayBoosterShortcutConsolidatorWidget(),
-        const DecayBoostedBanner(),
-        const GoalReminderBanner(),
-        const AutoMistakeDrillBannerWidget(),
+        FutureBuilder<ReminderBanner?>(
+          future: _bannerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+            final banner = snapshot.data;
+            return banner?.widget ?? const SizedBox.shrink();
+          },
+        ),
         const SmartGoalBanner(),
         const NextBestStepBanner(),
         const SpotOfTheDayCard(),
