@@ -2,6 +2,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../services/decay_tag_retention_tracker_service.dart';
 import '../services/inline_theory_linker_service.dart';
 import '../services/theory_mini_lesson_usage_tracker.dart';
+import '../services/theory_auto_injection_logger_service.dart';
 import '../models/theory_mini_lesson_usage_event.dart';
 
 /// Injects dynamic theory lesson links into decayed review spots.
@@ -9,14 +10,17 @@ class TheoryRecallAutoLinkInjector {
   final DecayTagRetentionTrackerService retention;
   final InlineTheoryLinkerService linker;
   final TheoryMiniLessonUsageTracker usageTracker;
+  final TheoryAutoInjectionLoggerService logger;
 
   TheoryRecallAutoLinkInjector({
     DecayTagRetentionTrackerService? retention,
     InlineTheoryLinkerService? linker,
     TheoryMiniLessonUsageTracker? usageTracker,
-  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
-       linker = linker ?? InlineTheoryLinkerService(),
-       usageTracker = usageTracker ?? TheoryMiniLessonUsageTracker.instance;
+    TheoryAutoInjectionLoggerService? logger,
+  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
+        linker = linker ?? InlineTheoryLinkerService(),
+        usageTracker = usageTracker ?? TheoryMiniLessonUsageTracker.instance,
+        logger = logger ?? TheoryAutoInjectionLoggerService.instance;
 
   /// Attaches a [`linkedTheoryId`] to [spot] when its tags are decayed and
   /// the corresponding lesson hasn't been opened manually before.
@@ -31,6 +35,11 @@ class TheoryRecallAutoLinkInjector {
     if (logs.any((e) => e.lessonId == lessonId)) return spot;
 
     spot.meta['linkedTheoryId'] = lessonId;
+    await logger.logAutoInjection(
+      spotId: spot.id,
+      lessonId: lessonId,
+      timestamp: DateTime.now(),
+    );
     return spot;
   }
 
