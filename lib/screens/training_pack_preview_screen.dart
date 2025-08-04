@@ -5,6 +5,7 @@ import '../services/pack_favorite_service.dart';
 import '../services/pack_rating_service.dart';
 import '../services/training_pack_comments_service.dart';
 import '../services/mini_lesson_library_service.dart';
+import '../services/inline_theory_linker_service.dart';
 import '../widgets/pack_insights_banner.dart';
 import '../widgets/pack_recommendation_section.dart';
 import 'mini_lesson_screen.dart';
@@ -26,6 +27,7 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
   double? _average;
   String? _comment;
   TheoryMiniLessonNode? _lesson;
+  final _linker = InlineTheoryLinkerService();
 
   @override
   void initState() {
@@ -152,8 +154,15 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
           ],
           if (widget.template.description.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(widget.template.description,
-                style: const TextStyle(color: Colors.white70)),
+            _linker
+                .link(
+                  widget.template.description,
+                  contextTags: widget.template.tags,
+                )
+                .toRichText(
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  linkStyle: const TextStyle(color: Colors.lightBlueAccent),
+                ),
           ],
           if (widget.template.goal.isNotEmpty) ...[
             const SizedBox(height: 8),
