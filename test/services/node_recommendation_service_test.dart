@@ -69,11 +69,13 @@ void main() {
 
   test('recommends sibling nodes with same prerequisites', () async {
     final recs = await service.getRecommendations(nodes[1]); // node b
-    expect(recs.map((e) => e.id), ['c']);
+    expect(recs.map((e) => e.node.id), ['c']);
+    expect(recs.first.reason, 'parallel topic');
   });
 
   test('recommends unmet prerequisite nodes', () async {
     final recs = await service.getRecommendations(nodes[3]); // node d
-    expect(recs.map((e) => e.id), ['b']);
+    expect(recs.map((e) => e.node.id), ['b']);
+    expect(recs.first.reason, 'unmet prerequisite');
   });
 }
