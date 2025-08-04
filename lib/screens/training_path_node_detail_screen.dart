@@ -76,8 +76,10 @@ class _TrainingPathNodeDetailScreenState
                     _buildStatusChip(data),
                     const SizedBox(height: 16),
                     if (data.templates.isNotEmpty) ...[
-                      const Text('Паки',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Паки',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 8),
                       for (final tpl in data.templates)
                         Padding(
@@ -88,8 +90,8 @@ class _TrainingPathNodeDetailScreenState
                       const Text('No training packs found'),
                   ],
                 ),
-          bottomNavigationBar: snapshot.connectionState !=
-                      ConnectionState.done ||
+          bottomNavigationBar:
+              snapshot.connectionState != ConnectionState.done ||
                   !(data?.isUnlocked ?? false)
               ? null
               : SafeArea(
@@ -115,16 +117,28 @@ class _TrainingPathNodeDetailScreenState
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ActionChip(
-                label: Text(node.title),
-                onPressed: node.id == widget.node.id ||
+                label: Text(
+                  node.title,
+                  style: node.id == widget.node.id
+                      ? const TextStyle(fontWeight: FontWeight.bold)
+                      : null,
+                ),
+                onPressed:
+                    node.id == widget.node.id ||
                         !data.unlockedNodeIds.contains(node.id)
                     ? null
                     : () => _openNode(node),
                 backgroundColor: node.id == widget.node.id
-                    ? Colors.blue.shade200
+                    ? Colors.blue.shade300
                     : data.unlockedNodeIds.contains(node.id)
-                        ? null
-                        : Colors.grey.shade300,
+                    ? null
+                    : Colors.grey.shade300,
+                shape: node.id == widget.node.id
+                    ? RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.blue.shade700),
+                        borderRadius: BorderRadius.circular(20),
+                      )
+                    : null,
               ),
             ),
         ],
@@ -156,10 +170,7 @@ class _TrainingPathNodeDetailScreenState
     }
     return Align(
       alignment: Alignment.centerLeft,
-      child: Chip(
-        label: Text(label),
-        backgroundColor: color,
-      ),
+      child: Chip(label: Text(label), backgroundColor: color),
     );
   }
 }
@@ -179,4 +190,3 @@ class _NodeDetailData {
     required this.unlockedNodeIds,
   });
 }
-
