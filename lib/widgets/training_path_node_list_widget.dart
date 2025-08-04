@@ -4,6 +4,7 @@ import '../models/training_path_node.dart';
 import '../services/training_path_node_definition_service.dart';
 import '../services/training_path_progress_tracker_service.dart';
 import '../screens/training_path_node_detail_screen.dart';
+import 'training_node_summary_card.dart';
 
 /// Displays the list of training path nodes with visual lock/unlock state.
 ///
@@ -32,12 +33,12 @@ class _TrainingPathNodeListWidgetState
 
   Future<_NodeStatusData> _load() async {
     final nodes = _definitions.getPath();
-    final completed = await _progress.getCompletedNodeIds();
-    final unlocked = await _progress.getUnlockedNodeIds();
+    final completedNodeIds = await _progress.getCompletedNodeIds();
+    final unlockedNodeIds = await _progress.getUnlockedNodeIds();
     return _NodeStatusData(
       nodes: nodes,
-      completed: completed,
-      unlocked: unlocked,
+      completedNodeIds: completedNodeIds,
+      unlockedNodeIds: unlockedNodeIds,
     );
   }
 
@@ -60,33 +61,27 @@ class _TrainingPathNodeListWidgetState
           onRefresh: _refresh,
           child: ListView(
             children: [
-              for (final node in data.nodes) _buildTile(node, data),
+              for (final node in data.nodes)
+                TrainingNodeSummaryCard(
+                  node: node,
+                  isUnlocked: data.unlockedNodeIds.contains(node.id),
+                  isCompleted: data.completedNodeIds.contains(node.id),
+                  onTap: data.unlockedNodeIds.contains(node.id)
+                      ? () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  TrainingPathNodeDetailScreen(node: node),
+                            ),
+                          );
+                          _refresh();
+                        }
+                      : null,
+                ),
             ],
           ),
         );
-      },
-    );
-  }
-
-  Widget _buildTile(TrainingPathNode node, _NodeStatusData data) {
-    final isCompleted = data.completed.contains(node.id);
-    final isUnlocked = data.unlocked.contains(node.id);
-    final icon = isCompleted
-        ? const Icon(Icons.check, color: Colors.green)
-        : isUnlocked
-            ? const Icon(Icons.lock_open)
-            : const Icon(Icons.lock);
-    return ListTile(
-      leading: icon,
-      title: Text(node.title),
-      onTap: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TrainingPathNodeDetailScreen(node: node),
-          ),
-        );
-        _refresh();
       },
     );
   }
@@ -94,12 +89,12 @@ class _TrainingPathNodeListWidgetState
 
 class _NodeStatusData {
   final List<TrainingPathNode> nodes;
-  final Set<String> completed;
-  final Set<String> unlocked;
+  final Set<String> completedNodeIds;
+  final Set<String> unlockedNodeIds;
 
   const _NodeStatusData({
     required this.nodes,
-    required this.completed,
-    required this.unlocked,
+    required this.completedNodeIds,
+    required this.unlockedNodeIds,
   });
 }
