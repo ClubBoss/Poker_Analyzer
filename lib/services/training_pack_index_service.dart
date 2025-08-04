@@ -14,6 +14,20 @@ class TrainingPackIndexService {
       tags: ['starter', 'pushfold'],
       trainingType: TrainingType.pushFold,
     ),
+    'starter_postflop_basics': const TrainingPackMeta(
+      id: 'starter_postflop_basics',
+      title: 'Starter Postflop Basics',
+      skillLevel: 'beginner',
+      tags: ['starter', 'postflop'],
+      trainingType: TrainingType.postflop,
+    ),
+    'advanced_pushfold_15bb': const TrainingPackMeta(
+      id: 'advanced_pushfold_15bb',
+      title: 'Advanced Push/Fold 15bb',
+      skillLevel: 'advanced',
+      tags: ['advanced', 'pushfold'],
+      trainingType: TrainingType.pushFold,
+    ),
   };
 
   TrainingPackMeta? getMeta(String id) {
