@@ -106,4 +106,57 @@ void main() {
     final result = await service.getLinkedLessonIdsForSpot(spot);
     expect(result, ['l1', 'l3', 'l2']);
   });
+
+  test('injectInlineLessons matches by tags and street', () async {
+    final lessons = [
+      const TheoryMiniLessonNode(
+        id: 'l1',
+        title: 'Turn CBet',
+        content: '',
+        tags: ['cbet', 'turn'],
+        targetStreet: 'turn',
+      ),
+      const TheoryMiniLessonNode(
+        id: 'l2',
+        title: 'Flop CBet',
+        content: '',
+        tags: ['cbet'],
+        targetStreet: 'flop',
+      ),
+      const TheoryMiniLessonNode(
+        id: 'l3',
+        title: 'Flop Probe',
+        content: '',
+        tags: ['probe'],
+        targetStreet: 'flop',
+      ),
+    ];
+    final service = InlineTheoryLinkerService(library: _FakeLibrary(lessons));
+    final spots = [
+      TrainingPackSpot(
+        id: 's1',
+        hand: HandData(),
+        tags: ['cbet', 'turn'],
+        street: 2,
+      ),
+      TrainingPackSpot(
+        id: 's2',
+        hand: HandData(),
+        tags: ['cbet'],
+        street: 1,
+      ),
+      TrainingPackSpot(
+        id: 's3',
+        hand: HandData(),
+        tags: ['probe'],
+        street: 1,
+      ),
+    ];
+
+    await service.injectInlineLessons(spots);
+
+    expect(spots[0].inlineLessonId, 'l1');
+    expect(spots[1].inlineLessonId, 'l2');
+    expect(spots[2].inlineLessonId, 'l3');
+  });
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/inline_theory_linked_text.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../models/spot_model.dart';
+import '../models/v2/training_pack_spot.dart';
 import 'mini_lesson_library_service.dart';
 import 'theory_mini_lesson_navigator.dart';
 import 'theory_engagement_analytics_service.dart';
@@ -127,6 +128,53 @@ class InlineTheoryLinkerService {
     });
 
     return lessons.take(3).map((l) => l.id).toList();
+  }
+
+  /// Injects [inlineLessonId] into each [spot] based on matching tags and
+  /// street. Spots that already have an [inlineLessonId] are left unchanged.
+  Future<void> injectInlineLessons(List<TrainingPackSpot> spots) async {
+    if (spots.isEmpty) return;
+    await _library.loadAll();
+    final lessons = _library.all;
+    for (final spot in spots) {
+      if (spot.inlineLessonId != null && spot.inlineLessonId!.isNotEmpty) {
+        continue;
+      }
+      final spotTags =
+          spot.tags.map((t) => t.trim().toLowerCase()).toSet()
+            ..removeWhere((t) => t.isEmpty);
+      if (spotTags.isEmpty) continue;
+      final streetName = _streetName(spot.street).toLowerCase();
+
+      TheoryMiniLessonNode? best;
+      int bestOverlap = 0;
+      for (final lesson in lessons) {
+        if (lesson.tags.isEmpty) continue;
+        if (lesson.targetStreet != null &&
+            lesson.targetStreet!.isNotEmpty &&
+            lesson.targetStreet!.toLowerCase() != streetName) {
+          continue;
+        }
+        final overlap = lesson.tags
+            .map((t) => t.toLowerCase())
+            .toSet()
+            .intersection(spotTags)
+            .length;
+        if (overlap > bestOverlap) {
+          bestOverlap = overlap;
+          best = lesson;
+        }
+      }
+      if (best != null && bestOverlap > 0) {
+        spot.inlineLessonId = best.id;
+      }
+    }
+  }
+
+  String _streetName(int street) {
+    const names = ['preflop', 'flop', 'turn', 'river'];
+    if (street >= 0 && street < names.length) return names[street];
+    return '';
   }
 }
 

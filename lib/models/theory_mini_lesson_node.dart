@@ -21,6 +21,12 @@ class TheoryMiniLessonNode implements LearningPathNode {
   /// Tags associated with this mini lesson.
   final List<String> tags;
 
+  /// Optional poker street this lesson targets such as `flop` or `turn`.
+  ///
+  /// When provided, linking services may use this to match lessons to training
+  /// spots on the same street.
+  final String? targetStreet;
+
   /// Optional stage identifier like `level2`.
   final String? stage;
 
@@ -36,6 +42,7 @@ class TheoryMiniLessonNode implements LearningPathNode {
     required this.title,
     required this.content,
     this.stage,
+    this.targetStreet,
     List<String>? tags,
     List<String>? nextIds,
     List<String>? linkedPackIds,
@@ -77,6 +84,7 @@ class TheoryMiniLessonNode implements LearningPathNode {
       title: yaml['title']?.toString() ?? '',
       content: yaml['content']?.toString() ?? '',
       tags: tags,
+      targetStreet: yaml['targetStreet']?.toString(),
       stage: yaml['stage']?.toString(),
       nextIds: nextIds,
       linkedPackIds: linked,
