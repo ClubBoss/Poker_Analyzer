@@ -45,34 +45,46 @@ class TrainingPackTemplateExpanderService {
   }
 
   ConstraintSet _expandBoards(ConstraintSet set) {
-    final constraintKey = 'boardConstraints';
-    if (!set.overrides.containsKey(constraintKey)) {
+    if (set.boardConstraints.isEmpty &&
+        !set.overrides.containsKey('boardConstraints')) {
       return set;
     }
+
     final overrides = Map<String, List<dynamic>>.from(set.overrides);
-    final constraintValues = overrides.remove(constraintKey)!;
-    final boards = <List<String>>[];
-    String? streetOverride = set.targetStreet;
-    for (final c in constraintValues) {
-      if (c is Map<String, dynamic>) {
-        final params = Map<String, dynamic>.from(c);
-        final street = params.remove('targetStreet')?.toString().toLowerCase();
-        if (street != null) streetOverride = street;
-        final generated = _boardGenerator.generate(params);
-        if (street == 'turn') {
-          final seen = <String>{};
-          for (final b in generated) {
-            final combo = [...b.flop, b.turn];
-            final key = combo.join(',');
-            if (seen.add(key)) boards.add(combo);
-          }
-        } else {
-          for (final b in generated) {
-            boards.add([...b.flop, b.turn, b.river]);
-          }
+    final constraints = <Map<String, dynamic>>[];
+
+    if (set.boardConstraints.isNotEmpty) {
+      constraints.addAll(set.boardConstraints);
+    }
+    if (overrides.containsKey('boardConstraints')) {
+      for (final c in overrides.remove('boardConstraints')!) {
+        if (c is Map<String, dynamic>) {
+          constraints.add(Map<String, dynamic>.from(c));
         }
       }
     }
+
+    final boards = <List<String>>[];
+    String? streetOverride = set.targetStreet;
+    for (final params in constraints) {
+      final map = Map<String, dynamic>.from(params);
+      final street = map.remove('targetStreet')?.toString().toLowerCase();
+      if (street != null) streetOverride = street;
+      final generated = _boardGenerator.generate(map);
+      if (street == 'turn') {
+        final seen = <String>{};
+        for (final b in generated) {
+          final combo = [...b.flop, b.turn];
+          final key = combo.join(',');
+          if (seen.add(key)) boards.add(combo);
+        }
+      } else {
+        for (final b in generated) {
+          boards.add([...b.flop, b.turn, b.river]);
+        }
+      }
+    }
+
     overrides['board'] = boards;
     return ConstraintSet(
       boardTags: set.boardTags,
@@ -86,6 +98,7 @@ class TrainingPackTemplateExpanderService {
       metadata: set.metadata,
       metaMergeMode: set.metaMergeMode,
       theoryLink: set.theoryLink,
+      linePattern: set.linePattern,
     );
   }
 

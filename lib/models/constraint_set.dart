@@ -1,4 +1,5 @@
 import '../services/inline_theory_linker.dart';
+import 'line_pattern.dart';
 
 /// Describes a set of constraints and mutation rules that can be applied to a
 /// base [TrainingPackSpot] to produce variations.
@@ -13,6 +14,14 @@ class ConstraintSet {
   final List<String> handGroup;
   final List<String> villainActions;
   final String? targetStreet;
+
+  /// Optional list of board generation constraints to expand into concrete
+  /// boards for this variation.
+  final List<Map<String, dynamic>> boardConstraints;
+
+  /// Optional action line pattern that should be applied to each generated
+  /// variation.
+  final LinePattern? linePattern;
 
   /// Property overrides where each key maps to a list of possible values. The
   /// resolver engine will expand the cartesian product of these lists.
@@ -42,6 +51,8 @@ class ConstraintSet {
     this.handGroup = const [],
     this.villainActions = const [],
     this.targetStreet,
+    this.boardConstraints = const [],
+    this.linePattern,
     this.overrides = const {},
     this.tags = const [],
     this.tagMergeMode = MergeMode.add,
@@ -73,6 +84,14 @@ class ConstraintSet {
         for (final a in (json['villainActions'] as List? ?? [])) a.toString(),
       ],
       targetStreet: json['targetStreet']?.toString(),
+      boardConstraints: [
+        if (json['boardConstraints'] is List)
+          for (final c in (json['boardConstraints'] as List))
+            Map<String, dynamic>.from(c as Map),
+      ],
+      linePattern: json['linePattern'] is Map
+          ? LinePattern.fromJson(Map<String, dynamic>.from(json['linePattern']))
+          : null,
       overrides: overrides,
       tags: [
         for (final t in (json['tags'] as List? ?? [])) t.toString(),
@@ -95,6 +114,8 @@ class ConstraintSet {
         if (handGroup.isNotEmpty) 'handGroup': handGroup,
         if (villainActions.isNotEmpty) 'villainActions': villainActions,
         if (targetStreet != null) 'targetStreet': targetStreet,
+        if (boardConstraints.isNotEmpty) 'boardConstraints': boardConstraints,
+        if (linePattern != null) 'linePattern': linePattern!.toJson(),
         if (overrides.isNotEmpty) 'overrides': overrides,
         if (tags.isNotEmpty) 'tags': tags,
         if (tagMergeMode == MergeMode.override) 'tagMergeMode': 'override',
