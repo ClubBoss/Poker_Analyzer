@@ -55,8 +55,8 @@ class TrainingPackGeneratorEngine {
     for (final s in pack.spots) {
       final w = s.priority;
       total += w;
-      if (!s.dirty && s.heroEv != null) ev += w;
-      if (!s.dirty && s.heroIcmEv != null) icm += w;
+      if (s.heroEv != null) ev += w;
+      if (s.heroIcmEv != null) icm += w;
     }
     pack.meta['evCovered'] = ev;
     pack.meta['icmCovered'] = icm;

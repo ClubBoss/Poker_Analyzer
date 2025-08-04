@@ -189,7 +189,7 @@ class _TrainingPackSpotPreviewCardState
       }
     }
     final needsWarning =
-        spot.heroEv == null || spot.heroIcmEv == null || spot.dirty;
+        spot.heroEv == null || spot.heroIcmEv == null;
     final recent = DateTime.now().difference(spot.editedAt) <
         const Duration(minutes: 5);
 
@@ -200,17 +200,7 @@ class _TrainingPackSpotPreviewCardState
       ),
       child: Row(
         children: [
-          if (spot.dirty)
-            Container(
-              width: 4,
-              decoration: const BoxDecoration(
-                color: Colors.amber,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  bottomLeft: Radius.circular(8),
-                ),
-              ),
-            ),
+          // removed outdated marker
           if (widget.isMistake)
             Container(
               width: 4,
@@ -542,26 +532,7 @@ class _TrainingPackSpotPreviewCardState
                     const Icon(Icons.error_outline, color: Colors.redAccent),
               ),
             ),
-          if (spot.dirty)
-            Positioned(
-              top: 4,
-              left: 4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.amber,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  '⚠️ Outdated',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+          // removed outdated badge
           Positioned(
             bottom: 4,
             left: 4,

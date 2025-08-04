@@ -36,7 +36,6 @@ class BulkEvaluatorService {
         }
         if ((hadEv == null && spot.heroEv != null) ||
             (hadIcm == null && spot.heroIcmEv != null)) {
-          spot.dirty = true;
           updated.add(spot);
         }
         done++;
@@ -62,7 +61,6 @@ class BulkEvaluatorService {
       onProgress?.call(1.0);
       if ((hadEv == null && spot.heroEv != null) ||
           (hadIcm == null && spot.heroIcmEv != null)) {
-        spot.dirty = true;
         return [spot];
       }
       return [];
@@ -80,7 +78,7 @@ class BulkEvaluatorService {
 
   int countMissing(TrainingPackTemplate template) {
     return template.spots
-        .where((s) => s.heroEv == null || s.heroIcmEv == null || s.dirty)
+        .where((s) => s.heroEv == null || s.heroIcmEv == null)
         .length;
   }
 }

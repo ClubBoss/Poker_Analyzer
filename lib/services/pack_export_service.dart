@@ -262,9 +262,8 @@ class PackExportService {
   static String toMarkdown(TrainingPackTemplate tpl) {
     final spots = tpl.spots;
     final total = spots.length;
-    final evCovered = spots.where((s) => s.heroEv != null && !s.dirty).length;
-    final icmCovered =
-        spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+    final evCovered = spots.where((s) => s.heroEv != null).length;
+    final icmCovered = spots.where((s) => s.heroIcmEv != null).length;
     final buffer = StringBuffer()
       ..writeln('# ${tpl.name}')
       ..writeln('- **ID:** ${tpl.id}')
@@ -277,7 +276,7 @@ class PackExportService {
           '- **Created:** ${DateFormat('yyyy-MM-dd').format(tpl.createdAt)}');
     final tags = tpl.tags.toSet().where((e) => e.isNotEmpty).toList();
     if (tags.isNotEmpty) buffer.writeln('- **Tags:** ${tags.join(', ')}');
-    final preview = spots.where((s) => s.heroEv != null && !s.dirty).take(5);
+    final preview = spots.where((s) => s.heroEv != null).take(5);
     if (preview.isNotEmpty) {
       buffer
         ..writeln()

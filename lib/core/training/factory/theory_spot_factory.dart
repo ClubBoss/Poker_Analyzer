@@ -9,7 +9,6 @@ class TheorySpotFactory {
       type: 'theory',
       title: yaml['title']?.toString() ?? '',
       explanation: yaml['explanation']?.toString() ?? '',
-      image: yaml['image']?.toString(),
       tags: [for (final t in (yaml['tags'] as List? ?? [])) t.toString()],
     );
   }

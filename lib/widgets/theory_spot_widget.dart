@@ -53,10 +53,6 @@ class TheorySpotWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (_spot.image != null) ...[
-                Image.asset(_spot.image!, fit: BoxFit.contain),
-                const SizedBox(height: 16),
-              ],
               Text(
                 _spot.explanation ?? '',
                 style: const TextStyle(fontSize: 16),

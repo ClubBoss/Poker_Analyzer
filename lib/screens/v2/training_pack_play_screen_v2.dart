@@ -574,11 +574,10 @@ class _TrainingPackPlayScreenV2State
   Future<void> _choose(String? act) async {
     final spot = _spots[_index];
     if (act != null) {
-      final key = spot.streetMode ? '${spot.id}_street\$_street' : spot.id;
+      final key = spot.id;
       final first = !_results.containsKey(key);
       _results[key] = act.toLowerCase();
-      if (first && (!spot.streetMode || _street == spot.street) &&
-          matchStreet(spot)) {
+      if (first && matchStreet(spot)) {
         _streetCount++;
       }
       if (first) {
@@ -589,18 +588,7 @@ class _TrainingPackPlayScreenV2State
         }
       }
 
-      if (spot.streetMode &&
-          widget.template.targetStreet == null &&
-          _currentStreet < spot.street) {
-        _streetAnswered = true;
-        save();
-        if (_autoAdvance) {
-          await Future.delayed(const Duration(seconds: 1));
-          if (!mounted) return;
-          _nextStreet();
-        }
-        return;
-      }
+      // Street-based progression removed
 
       final evalSpot = _toSpot(spot);
       final evaluation = context
@@ -733,9 +721,7 @@ class _TrainingPackPlayScreenV2State
     final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _spots[_index];
     final progress = (_index + 1) / _spots.length;
-    final actions = spot.streetMode
-        ? _heroActionsStreet(spot, _currentStreet)
-        : _heroActions(spot);
+    final actions = _heroActions(spot);
     final pushAction = actions.isEmpty ? 'push' : actions.first;
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),
@@ -766,7 +752,7 @@ class _TrainingPackPlayScreenV2State
                 title: widget.template.name,
                 index: _index,
                 total: _spots.length,
-                streetIndex: spot.streetMode ? _currentStreet : null,
+                streetIndex: null,
                 onExit: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
@@ -928,9 +914,7 @@ class _TrainingPackPlayScreenV2State
                   ),
                 ),
               ),
-            if (hint.isNotEmpty &&
-                _results[spot.streetMode ? '${spot.id}_street\$_street' : spot.id] ==
-                    null)
+            if (hint.isNotEmpty && _results[spot.id] == null)
               Positioned(
                 bottom: 72,
                 left: 16,
@@ -944,21 +928,7 @@ class _TrainingPackPlayScreenV2State
                             const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
                   ),
                 ),
-            if (widget.template.targetStreet == null &&
-                spot.streetMode &&
-                _streetAnswered &&
-                _currentStreet < spot.street)
-              Positioned(
-                bottom: 120,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: ElevatedButton(
-                    onPressed: _nextStreet,
-                    child: const Text('Next Street'),
-                  ),
-                ),
-              ),
+            // Street-specific controls removed
             if (_showActionHints)
               Positioned(
                 bottom: 32,

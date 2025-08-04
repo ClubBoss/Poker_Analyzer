@@ -33,14 +33,6 @@ class TheoryPackPreviewScreen extends StatelessWidget {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (spot.image != null) ...[
-                SizedBox(
-                  width: 64,
-                  height: 64,
-                  child: Image.asset(spot.image!, fit: BoxFit.cover),
-                ),
-                const SizedBox(width: 12),
-              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -94,7 +94,7 @@ class BoosterPackDiffReporter {
   }
 
   bool _isVariation(TrainingPackSpot s) =>
-      s.isGenerated || s.meta['variation'] == true || s.id.contains('_var');
+      s.meta['variation'] == true || s.id.contains('_var');
 
   String _normCards(String cards) {
     final parts = cards

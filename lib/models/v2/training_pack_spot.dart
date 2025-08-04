@@ -19,21 +19,15 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   DateTime editedAt;
   DateTime createdAt;
   bool pinned;
-  bool dirty;
   int priority;
 
   /// Ephemeral flag — used only in RAM to highlight freshly imported spots.
   /// Never written to / read from JSON.
   bool isNew;
 
-  /// Ephemeral flag – marks automatically generated variations.
-  /// Never written to / read from JSON.
-  bool isGenerated;
   EvaluationResult? evalResult;
   String? correctAction;
   String? explanation;
-  String? image;
-  bool streetMode;
   List<String> board;
   int street;
   String? villainAction;
@@ -63,16 +57,12 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     this.type = 'quiz',
     this.title = '',
     this.note = '',
-    this.image,
-    this.dirty = false,
     this.isNew = false,
-    this.isGenerated = false,
     this.pinned = false,
     this.priority = 3,
     this.evalResult,
     this.correctAction,
     this.explanation,
-    this.streetMode = false,
     List<String>? board,
     this.street = 0,
     this.villainAction,
@@ -107,8 +97,6 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     type: j['type']?.toString() ?? 'quiz',
     title: j['title']?.toString() ?? '',
     note: j['note']?.toString() ?? '',
-    image: j['image']?.toString(),
-    dirty: j['dirty'] == true,
     pinned: j['pinned'] == true,
     priority: (j['priority'] as num?)?.toInt() ?? 3,
     evalResult: j['evalResult'] != null
@@ -116,7 +104,6 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
         : null,
     correctAction: j['correctAction']?.toString(),
     explanation: j['explanation']?.toString(),
-    streetMode: j['streetMode'] == true,
     board: (j['board'] as List?)?.map((c) => c.toString()).toList(),
     street: (j['street'] as num?)?.toInt(),
     villainAction: j['villainAction']?.toString(),
@@ -169,32 +156,45 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'type': type,
-    'title': title,
-    'note': note,
-    'hand': hand.toJson(),
-    if (tags.isNotEmpty) 'tags': tags,
-    if (categories.isNotEmpty) 'categories': categories,
-    'editedAt': editedAt.toIso8601String(),
-    'createdAt': createdAt.toIso8601String(),
-    if (pinned) 'pinned': true,
-    if (dirty) 'dirty': true,
-    if (priority != 3) 'priority': priority,
-    if (evalResult != null) 'evalResult': evalResult!.toJson(),
-    if (correctAction != null) 'correctAction': correctAction,
-    if (explanation != null) 'explanation': explanation,
-    if (image != null) 'image': image,
-    if (streetMode) 'streetMode': true,
-    if (board.isNotEmpty) 'board': board,
-    if (street > 0) 'street': street,
-    if (villainAction != null) 'villainAction': villainAction,
-    if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
-    if (meta.isNotEmpty) 'meta': meta,
-    if (templateSourceId != null) 'templateSourceId': templateSourceId,
-    if (inlineTheoryId != null) 'inlineTheoryId': inlineTheoryId,
-  };
+  Map<String, dynamic> _serialize({bool includeInlineTheoryId = false}) => {
+        'id': id,
+        'type': type,
+        'title': title,
+        'note': note,
+        'hand': hand.toJson(),
+        if (tags.isNotEmpty) 'tags': tags,
+        if (categories.isNotEmpty) 'categories': categories,
+        'editedAt': editedAt.toIso8601String(),
+        'createdAt': createdAt.toIso8601String(),
+        if (pinned) 'pinned': true,
+        if (priority != 3) 'priority': priority,
+        if (evalResult != null) 'evalResult': evalResult!.toJson(),
+        if (correctAction != null) 'correctAction': correctAction,
+        if (explanation != null) 'explanation': explanation,
+        if (board.isNotEmpty) 'board': board,
+        if (street > 0) 'street': street,
+        if (villainAction != null) 'villainAction': villainAction,
+        if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
+        if (meta.isNotEmpty) 'meta': meta,
+        if (templateSourceId != null) 'templateSourceId': templateSourceId,
+        if (includeInlineTheoryId && inlineTheoryId != null)
+          'inlineTheoryId': inlineTheoryId,
+      };
+
+  @override
+  Map<String, dynamic> toJson() => _serialize();
+
+  /// Converts this spot to a YAML-compatible map.
+  ///
+  /// The returned map omits empty or null values, mirroring [toJson].
+  Map<String, dynamic> toYaml() => _serialize(includeInlineTheoryId: true);
+
+  @override
+  TrainingPackSpot copyWith(Map<String, dynamic> changes) {
+    final data = _serialize(includeInlineTheoryId: true);
+    data.addAll(changes);
+    return TrainingPackSpot.fromJson(data);
+  }
 
   @override
   TrainingPackSpot Function(Map<String, dynamic> json) get fromJson =>
@@ -278,14 +278,11 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
           const ListEquality().equals(tags, other.tags) &&
           const ListEquality().equals(categories, other.categories) &&
           pinned == other.pinned &&
-          dirty == other.dirty &&
           priority == other.priority &&
           isNew == other.isNew &&
           evalResult == other.evalResult &&
           correctAction == other.correctAction &&
           explanation == other.explanation &&
-          image == other.image &&
-          streetMode == other.streetMode &&
           const ListEquality().equals(board, other.board) &&
           street == other.street &&
           villainAction == other.villainAction &&
@@ -304,14 +301,11 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     const ListEquality().hash(tags),
     const ListEquality().hash(categories),
     pinned,
-    dirty,
     priority,
     isNew,
     evalResult,
     correctAction,
     explanation,
-    image,
-    streetMode,
     const ListEquality().hash(board),
     street,
     villainAction,

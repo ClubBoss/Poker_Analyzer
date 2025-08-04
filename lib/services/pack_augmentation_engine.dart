@@ -27,7 +27,7 @@ class PackAugmentationEngine {
         Map<String, dynamic>.from(map),
       );
       for (final s in extended.spots) {
-        s.isGenerated = true;
+        s.meta['variation'] = true;
       }
       extended.isGeneratedPack = true;
       result.add(extended);
