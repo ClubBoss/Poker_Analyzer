@@ -7,6 +7,7 @@ import '../services/training_path_breadcrumb_service.dart';
 import '../services/training_path_node_launcher_service.dart';
 import '../services/training_path_progress_tracker_service.dart';
 import '../services/node_recommendation_service.dart';
+import '../services/inline_theory_linker_service.dart';
 import '../widgets/node_recommendation_section_widget.dart';
 import '../widgets/training_pack_template_card.dart';
 
@@ -26,6 +27,7 @@ class _TrainingPathNodeDetailScreenState
   final _breadcrumbService = const TrainingPathBreadcrumbService();
   late final NodeRecommendationService _recommendationService =
       NodeRecommendationService(progress: _tracker);
+  final _linker = InlineTheoryLinkerService();
 
   late Future<_NodeDetailData> _future;
 
@@ -83,6 +85,20 @@ class _TrainingPathNodeDetailScreenState
                     const SizedBox(height: 16),
                     _buildStatusChip(data),
                     const SizedBox(height: 16),
+                    if (widget.node.description.isNotEmpty) ...[
+                      _linker
+                          .link(
+                            widget.node.description,
+                            contextTags: widget.node.tags,
+                          )
+                          .toRichText(
+                            style:
+                                Theme.of(context).textTheme.bodyMedium,
+                            linkStyle:
+                                const TextStyle(color: Colors.blue),
+                          ),
+                      const SizedBox(height: 16),
+                    ],
                     if (data.templates.isNotEmpty) ...[
                       const Text(
                         'Паки',
