@@ -38,6 +38,8 @@ import 'mistake_repeat_screen.dart';
 import 'goals_overview_screen.dart';
 import 'spot_of_the_day_screen.dart';
 import 'weakness_overview_screen.dart';
+import '../services/training_path_progress_tracker_service.dart';
+import '../services/training_path_node_definition_service.dart';
 import 'next_step_suggestion_dialog.dart';
 import '../widgets/mistake_review_button.dart';
 import '../services/streak_tracker_service.dart';
@@ -92,6 +94,14 @@ class _TrainingSessionSummaryScreenState extends State<TrainingSessionSummaryScr
   }
 
   Future<void> _finish() async {
+    final tracker = const TrainingPathProgressTrackerService();
+    final node = const TrainingPathNodeDefinitionService()
+        .getPath()
+        .firstWhereOrNull((n) => n.packIds.contains(widget.template.id));
+    if (node != null) {
+      await tracker.markCompleted(node.id);
+    }
+
     final registry = LearningPathRegistryService.instance;
     final templates = await registry.loadAll();
     final logs = context.read<SessionLogService>();
