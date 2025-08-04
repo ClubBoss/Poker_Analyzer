@@ -24,11 +24,11 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
 
   /// Ephemeral flag — used only in RAM to highlight freshly imported spots.
   /// Never written to / read from JSON.
-  bool isNew = false;
+  bool isNew;
 
   /// Ephemeral flag – marks automatically generated variations.
   /// Never written to / read from JSON.
-  bool isGenerated = false;
+  bool isGenerated;
   EvaluationResult? evalResult;
   String? correctAction;
   String? explanation;
@@ -57,77 +57,75 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
 
   TrainingPackSpot({
     required this.id,
-    this.type = 'quiz',
-    this.title = '',
-    this.note = '',
     HandData? hand,
     List<String>? tags,
     List<String>? categories,
-    DateTime? editedAt,
-    DateTime? createdAt,
-    this.pinned = false,
+    this.type = 'quiz',
+    this.title = '',
+    this.note = '',
+    this.image,
     this.dirty = false,
+    this.isNew = false,
+    this.isGenerated = false,
+    this.pinned = false,
     this.priority = 3,
-    bool? isNew,
-    bool? isGenerated,
     this.evalResult,
     this.correctAction,
     this.explanation,
-    this.image,
     this.streetMode = false,
     List<String>? board,
     this.street = 0,
     this.villainAction,
     List<String>? heroOptions,
     Map<String, dynamic>? meta,
+    DateTime? editedAt,
+    DateTime? createdAt,
     this.templateSourceId,
     this.inlineTheoryId,
-  }) : isNew = isNew ?? false,
-       isGenerated = isGenerated ?? false,
-       hand = hand ?? HandData(),
-       board = board ?? const [],
-       heroOptions = heroOptions ?? const [],
-       meta = meta ?? {},
-       tags = tags ?? [],
-       categories = categories ?? [],
+  }) : hand = hand ?? HandData(),
+       tags = tags != null ? List<String>.from(tags) : <String>[],
+       categories = categories != null
+           ? List<String>.from(categories)
+           : <String>[],
+       board = board != null ? List<String>.from(board) : <String>[],
+       heroOptions = heroOptions != null
+           ? List<String>.from(heroOptions)
+           : <String>[],
+       meta = meta != null
+           ? Map<String, dynamic>.from(meta)
+           : <String, dynamic>{},
        editedAt = editedAt ?? DateTime.now(),
        createdAt = createdAt ?? DateTime.now();
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
-    id: j['id'] as String? ?? '',
-    type: j['type'] as String? ?? 'quiz',
-    title: j['title'] as String? ?? '',
-    note: j['note'] as String? ?? '',
+    id: j['id']?.toString() ?? '',
     hand: j['hand'] != null
         ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
-        : HandData(),
-    tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
-    categories: [for (final t in (j['categories'] as List? ?? [])) t as String],
-    editedAt:
-        DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
-    createdAt:
-        DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
-    pinned: j['pinned'] == true,
+        : null,
+    tags: (j['tags'] as List?)?.map((e) => e.toString()).toList(),
+    categories: (j['categories'] as List?)?.map((e) => e.toString()).toList(),
+    type: j['type']?.toString() ?? 'quiz',
+    title: j['title']?.toString() ?? '',
+    note: j['note']?.toString() ?? '',
+    image: j['image']?.toString(),
     dirty: j['dirty'] == true,
+    pinned: j['pinned'] == true,
     priority: (j['priority'] as num?)?.toInt() ?? 3,
-    // `isNew` never restored from disk
-    isNew: false,
     evalResult: j['evalResult'] != null
         ? EvaluationResult.fromJson(Map<String, dynamic>.from(j['evalResult']))
         : null,
-    correctAction: j['correctAction'] as String?,
-    explanation: j['explanation'] as String?,
-    image: j['image'] as String?,
+    correctAction: j['correctAction']?.toString(),
+    explanation: j['explanation']?.toString(),
     streetMode: j['streetMode'] == true,
-    board: [for (final c in (j['board'] as List? ?? [])) c.toString()],
-    street: (j['street'] as num?)?.toInt() ?? 0,
-    villainAction: j['villainAction'] as String?,
-    heroOptions: [
-      for (final a in (j['heroOptions'] as List? ?? [])) a.toString(),
-    ],
-    meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
-    templateSourceId: j['templateSourceId'] as String?,
-    inlineTheoryId: j['inlineTheoryId'] as String?,
+    board: (j['board'] as List?)?.map((c) => c.toString()).toList(),
+    street: (j['street'] as num?)?.toInt(),
+    villainAction: j['villainAction']?.toString(),
+    heroOptions: (j['heroOptions'] as List?)?.map((a) => a.toString()).toList(),
+    meta: j['meta'] is Map ? Map<String, dynamic>.from(j['meta']) : null,
+    editedAt: DateTime.tryParse(j['editedAt']?.toString() ?? ''),
+    createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? ''),
+    templateSourceId: j['templateSourceId']?.toString(),
+    inlineTheoryId: j['inlineTheoryId']?.toString(),
   );
 
   factory TrainingPackSpot.fromTrainingSpot(
@@ -167,7 +165,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
       hand: handData,
       board: boardList,
       villainAction: villainAction,
-      heroOptions: heroOptions ?? const [],
+      heroOptions: heroOptions,
     );
   }
 
@@ -217,30 +215,34 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
 
     map['type'] = yaml['type']?.toString() ?? 'quiz';
 
-    final board = <String>[
-      for (final c in (yaml['board'] as List? ?? [])) c.toString(),
-    ];
-    if (board.length >= 3 && board.length <= 5) map['board'] = board;
+    final board = (yaml['board'] as List?)?.map((c) => c.toString()).toList();
+    if (board != null && board.length >= 3 && board.length <= 5) {
+      map['board'] = board;
+    }
 
-    final street = (yaml['street'] as num?)?.toInt() ?? 0;
-    if (street >= 1 && street <= 3) map['street'] = street;
+    final street = (yaml['street'] as num?)?.toInt();
+    if (street != null && street >= 1 && street <= 3) {
+      map['street'] = street;
+    }
 
     final villain = yaml['villainAction']?.toString();
     if (villain != null && ['none', 'check', 'bet'].contains(villain)) {
       map['villainAction'] = villain;
     }
 
-    final heroOptions = <String>[
-      for (final o in (yaml['heroOptions'] as List? ?? [])) o.toString(),
-    ];
-    if (heroOptions.isNotEmpty) map['heroOptions'] = heroOptions;
+    final heroOptions = (yaml['heroOptions'] as List?)
+        ?.map((o) => o.toString())
+        .toList();
+    if (heroOptions != null && heroOptions.isNotEmpty) {
+      map['heroOptions'] = heroOptions;
+    }
 
     if (yaml['meta'] is Map) {
       map['meta'] = Map<String, dynamic>.from(yaml['meta']);
     }
 
     final inlineId = yaml['inlineTheoryId']?.toString();
-    if (inlineId != null && inlineId.isNotEmpty) {
+    if (inlineId?.isNotEmpty == true) {
       map['inlineTheoryId'] = inlineId;
     }
 
