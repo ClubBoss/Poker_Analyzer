@@ -69,6 +69,52 @@ class TheoryAutoInjectionLoggerService {
     return List.unmodifiable(_logs.take(limit));
   }
 
+  /// Returns the total number of logged injections.
+  Future<int> getTotalInjectionCount() async {
+    await _load();
+    return _logs.length;
+  }
+
+  /// Returns the number of injections per day for the last [days] days.
+  ///
+  /// Keys are ISO-8601 date strings (YYYY-MM-DD) ordered chronologically.
+  Future<Map<String, int>> getDailyInjectionCounts({int days = 7}) async {
+    await _load();
+    final now = DateTime.now();
+    final counts = <DateTime, int>{};
+
+    for (final log in _logs) {
+      final date = DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
+      if (now.difference(date).inDays >= days) {
+        break;
+      }
+      counts[date] = (counts[date] ?? 0) + 1;
+    }
+
+    final entries = counts.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    return {
+      for (final e in entries) e.key.toIso8601String().split('T').first: e.value
+    };
+  }
+
+  /// Returns the most injected lessons limited by [limit].
+  ///
+  /// Map keys are lesson ids ordered by descending injection count.
+  Future<Map<String, int>> getTopLessonInjections({int limit = 5}) async {
+    await _load();
+    final counts = <String, int>{};
+    for (final log in _logs) {
+      counts[log.lessonId] = (counts[log.lessonId] ?? 0) + 1;
+    }
+    final entries = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return {
+      for (final e in entries.take(limit)) e.key: e.value
+    };
+  }
+
   /// Resets in-memory cache for testing.
   void resetForTest() {
     _loaded = false;
