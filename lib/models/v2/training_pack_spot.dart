@@ -43,6 +43,12 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   /// Optional reference to the template spot that produced this variation.
   String? templateSourceId;
 
+  /// Optional reference to a theory lesson matched by tags.
+  ///
+  /// When present, this value is serialized to `inlineTheoryId` in YAML and
+  /// links the spot to a [TheoryMiniLessonNode].
+  String? inlineTheoryId;
+
   /// Ephemeral link to a related theory lesson.
   ///
   /// This field is populated at runtime by [AutoSpotTheoryInjectorService]
@@ -75,55 +81,54 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     List<String>? heroOptions,
     Map<String, dynamic>? meta,
     this.templateSourceId,
-  })  : isNew = isNew ?? false,
-        isGenerated = isGenerated ?? false,
-        hand = hand ?? HandData(),
-        board = board ?? const [],
-        heroOptions = heroOptions ?? const [],
-        meta = meta ?? {},
-        tags = tags ?? [],
-        categories = categories ?? [],
-        editedAt = editedAt ?? DateTime.now(),
-        createdAt = createdAt ?? DateTime.now();
+    this.inlineTheoryId,
+  }) : isNew = isNew ?? false,
+       isGenerated = isGenerated ?? false,
+       hand = hand ?? HandData(),
+       board = board ?? const [],
+       heroOptions = heroOptions ?? const [],
+       meta = meta ?? {},
+       tags = tags ?? [],
+       categories = categories ?? [],
+       editedAt = editedAt ?? DateTime.now(),
+       createdAt = createdAt ?? DateTime.now();
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
-        id: j['id'] as String? ?? '',
-        type: j['type'] as String? ?? 'quiz',
-        title: j['title'] as String? ?? '',
-        note: j['note'] as String? ?? '',
-        hand: j['hand'] != null
-            ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
-            : HandData(),
-        tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
-        categories: [
-          for (final t in (j['categories'] as List? ?? [])) t as String
-        ],
-        editedAt:
-            DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
-        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ??
-            DateTime.now(),
-        pinned: j['pinned'] == true,
-        dirty: j['dirty'] == true,
-        priority: (j['priority'] as num?)?.toInt() ?? 3,
-        // `isNew` never restored from disk
-        isNew: false,
-        evalResult: j['evalResult'] != null
-            ? EvaluationResult.fromJson(
-                Map<String, dynamic>.from(j['evalResult']))
-            : null,
-        correctAction: j['correctAction'] as String?,
-        explanation: j['explanation'] as String?,
-        image: j['image'] as String?,
-        streetMode: j['streetMode'] == true,
-        board: [for (final c in (j['board'] as List? ?? [])) c.toString()],
-        street: (j['street'] as num?)?.toInt() ?? 0,
-        villainAction: j['villainAction'] as String?,
-        heroOptions: [
-          for (final a in (j['heroOptions'] as List? ?? [])) a.toString()
-        ],
-        meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
-        templateSourceId: j['templateSourceId'] as String?,
-      );
+    id: j['id'] as String? ?? '',
+    type: j['type'] as String? ?? 'quiz',
+    title: j['title'] as String? ?? '',
+    note: j['note'] as String? ?? '',
+    hand: j['hand'] != null
+        ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
+        : HandData(),
+    tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
+    categories: [for (final t in (j['categories'] as List? ?? [])) t as String],
+    editedAt:
+        DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt:
+        DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
+    pinned: j['pinned'] == true,
+    dirty: j['dirty'] == true,
+    priority: (j['priority'] as num?)?.toInt() ?? 3,
+    // `isNew` never restored from disk
+    isNew: false,
+    evalResult: j['evalResult'] != null
+        ? EvaluationResult.fromJson(Map<String, dynamic>.from(j['evalResult']))
+        : null,
+    correctAction: j['correctAction'] as String?,
+    explanation: j['explanation'] as String?,
+    image: j['image'] as String?,
+    streetMode: j['streetMode'] == true,
+    board: [for (final c in (j['board'] as List? ?? [])) c.toString()],
+    street: (j['street'] as num?)?.toInt() ?? 0,
+    villainAction: j['villainAction'] as String?,
+    heroOptions: [
+      for (final a in (j['heroOptions'] as List? ?? [])) a.toString(),
+    ],
+    meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
+    templateSourceId: j['templateSourceId'] as String?,
+    inlineTheoryId: j['inlineTheoryId'] as String?,
+  );
 
   factory TrainingPackSpot.fromTrainingSpot(
     TrainingSpot spot, {
@@ -137,7 +142,9 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     final cardStr = heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
     final actions = <int, List<ActionEntry>>{};
     for (final a in spot.actions) {
-      actions.putIfAbsent(a.street, () => []).add(
+      actions
+          .putIfAbsent(a.street, () => [])
+          .add(
             ActionEntry(a.street, a.playerIndex, a.action, amount: a.amount),
           );
     }
@@ -165,30 +172,31 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'type': type,
-        'title': title,
-        'note': note,
-        'hand': hand.toJson(),
-        if (tags.isNotEmpty) 'tags': tags,
-        if (categories.isNotEmpty) 'categories': categories,
-        'editedAt': editedAt.toIso8601String(),
-        'createdAt': createdAt.toIso8601String(),
-        if (pinned) 'pinned': true,
-        if (dirty) 'dirty': true,
-        if (priority != 3) 'priority': priority,
-        if (evalResult != null) 'evalResult': evalResult!.toJson(),
-        if (correctAction != null) 'correctAction': correctAction,
-        if (explanation != null) 'explanation': explanation,
-        if (image != null) 'image': image,
-        if (streetMode) 'streetMode': true,
-        if (board.isNotEmpty) 'board': board,
-        if (street > 0) 'street': street,
-        if (villainAction != null) 'villainAction': villainAction,
-        if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
-        if (meta.isNotEmpty) 'meta': meta,
-        if (templateSourceId != null) 'templateSourceId': templateSourceId,
-      };
+    'id': id,
+    'type': type,
+    'title': title,
+    'note': note,
+    'hand': hand.toJson(),
+    if (tags.isNotEmpty) 'tags': tags,
+    if (categories.isNotEmpty) 'categories': categories,
+    'editedAt': editedAt.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    if (pinned) 'pinned': true,
+    if (dirty) 'dirty': true,
+    if (priority != 3) 'priority': priority,
+    if (evalResult != null) 'evalResult': evalResult!.toJson(),
+    if (correctAction != null) 'correctAction': correctAction,
+    if (explanation != null) 'explanation': explanation,
+    if (image != null) 'image': image,
+    if (streetMode) 'streetMode': true,
+    if (board.isNotEmpty) 'board': board,
+    if (street > 0) 'street': street,
+    if (villainAction != null) 'villainAction': villainAction,
+    if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
+    if (meta.isNotEmpty) 'meta': meta,
+    if (templateSourceId != null) 'templateSourceId': templateSourceId,
+    if (inlineTheoryId != null) 'inlineTheoryId': inlineTheoryId,
+  };
 
   @override
   TrainingPackSpot Function(Map<String, dynamic> json) get fromJson =>
@@ -210,7 +218,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     map['type'] = yaml['type']?.toString() ?? 'quiz';
 
     final board = <String>[
-      for (final c in (yaml['board'] as List? ?? [])) c.toString()
+      for (final c in (yaml['board'] as List? ?? [])) c.toString(),
     ];
     if (board.length >= 3 && board.length <= 5) map['board'] = board;
 
@@ -223,12 +231,17 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
     }
 
     final heroOptions = <String>[
-      for (final o in (yaml['heroOptions'] as List? ?? [])) o.toString()
+      for (final o in (yaml['heroOptions'] as List? ?? [])) o.toString(),
     ];
     if (heroOptions.isNotEmpty) map['heroOptions'] = heroOptions;
 
     if (yaml['meta'] is Map) {
       map['meta'] = Map<String, dynamic>.from(yaml['meta']);
+    }
+
+    final inlineId = yaml['inlineTheoryId']?.toString();
+    if (inlineId != null && inlineId.isNotEmpty) {
+      map['inlineTheoryId'] = inlineId;
     }
 
     return TrainingPackSpot.fromJson(Map<String, dynamic>.from(map));
@@ -276,33 +289,35 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
           villainAction == other.villainAction &&
           const ListEquality().equals(heroOptions, other.heroOptions) &&
           const DeepCollectionEquality().equals(meta, other.meta) &&
-          templateSourceId == other.templateSourceId;
+          templateSourceId == other.templateSourceId &&
+          inlineTheoryId == other.inlineTheoryId;
 
   @override
   int get hashCode => Object.hashAll([
-        id,
-        type,
-        title,
-        note,
-        hand,
-        const ListEquality().hash(tags),
-        const ListEquality().hash(categories),
-        pinned,
-        dirty,
-        priority,
-        isNew,
-        evalResult,
-        correctAction,
-        explanation,
-        image,
-        streetMode,
-        const ListEquality().hash(board),
-        street,
-        villainAction,
-        const ListEquality().hash(heroOptions),
-        const DeepCollectionEquality().hash(meta),
-        templateSourceId,
-      ]);
+    id,
+    type,
+    title,
+    note,
+    hand,
+    const ListEquality().hash(tags),
+    const ListEquality().hash(categories),
+    pinned,
+    dirty,
+    priority,
+    isNew,
+    evalResult,
+    correctAction,
+    explanation,
+    image,
+    streetMode,
+    const ListEquality().hash(board),
+    street,
+    villainAction,
+    const ListEquality().hash(heroOptions),
+    const DeepCollectionEquality().hash(meta),
+    templateSourceId,
+    inlineTheoryId,
+  ]);
 }
 
 extension TrainingPackSpotStreet on TrainingPackSpot {
