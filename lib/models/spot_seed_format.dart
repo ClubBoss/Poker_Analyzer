@@ -6,6 +6,7 @@ class SpotSeedFormat {
   final String position;
   final List<CardModel> board;
   final List<String> villainActions;
+  final List<String> tags;
 
   SpotSeedFormat({
     required this.player,
@@ -13,18 +14,22 @@ class SpotSeedFormat {
     required this.position,
     List<CardModel>? board,
     List<String>? villainActions,
+    List<String>? tags,
   })  : board = board ?? [],
-        villainActions = villainActions ?? [];
+        villainActions = villainActions ?? [],
+        tags = tags ?? [];
 
   SpotSeedFormat copyWith({
     List<CardModel>? board,
     List<String>? villainActions,
+    List<String>? tags,
   }) => SpotSeedFormat(
         player: player,
         handGroup: handGroup,
         position: position,
         board: board ?? this.board,
         villainActions: villainActions ?? this.villainActions,
+        tags: tags ?? this.tags,
       );
 
   /// Returns the street name based on current board length.

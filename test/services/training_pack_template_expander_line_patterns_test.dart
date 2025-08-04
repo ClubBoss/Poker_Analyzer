@@ -25,5 +25,6 @@ void main() {
     expect(seed.position, 'btn');
     expect(seed.villainActions, ['villainBet', 'villainBet']);
     expect(seed.currentStreet, 'turn');
+    expect(seed.tags, ['flopVillainBet', 'flopHeroCall', 'turnVillainBet']);
   });
 }

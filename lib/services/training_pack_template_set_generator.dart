@@ -83,6 +83,7 @@ class TrainingPackTemplateSetGenerator {
       position: heroPos,
       board: board,
       villainActions: actions,
+      tags: spot.tags,
     );
   }
 
