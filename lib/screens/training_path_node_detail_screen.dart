@@ -47,6 +47,7 @@ class _TrainingPathNodeDetailScreenState
       isCompleted: isCompleted,
       isUnlocked: isUnlocked,
       breadcrumb: breadcrumb,
+      unlockedNodeIds: unlocked,
     );
   }
 
@@ -70,7 +71,7 @@ class _TrainingPathNodeDetailScreenState
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    _buildBreadcrumb(data!.breadcrumb),
+                    _buildBreadcrumb(data!),
                     const SizedBox(height: 16),
                     _buildStatusChip(data),
                     const SizedBox(height: 16),
@@ -105,21 +106,37 @@ class _TrainingPathNodeDetailScreenState
     );
   }
 
-  Widget _buildBreadcrumb(List<TrainingPathNode> nodes) {
+  Widget _buildBreadcrumb(_NodeDetailData data) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          for (final node in nodes)
+          for (final node in data.breadcrumb)
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: Chip(
+              child: ActionChip(
                 label: Text(node.title),
-                backgroundColor:
-                    node.id == widget.node.id ? Colors.blue.shade200 : null,
+                onPressed: node.id == widget.node.id ||
+                        !data.unlockedNodeIds.contains(node.id)
+                    ? null
+                    : () => _openNode(node),
+                backgroundColor: node.id == widget.node.id
+                    ? Colors.blue.shade200
+                    : data.unlockedNodeIds.contains(node.id)
+                        ? null
+                        : Colors.grey.shade300,
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  void _openNode(TrainingPathNode node) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TrainingPathNodeDetailScreen(node: node),
       ),
     );
   }
@@ -152,12 +169,14 @@ class _NodeDetailData {
   final bool isCompleted;
   final bool isUnlocked;
   final List<TrainingPathNode> breadcrumb;
+  final Set<String> unlockedNodeIds;
 
   const _NodeDetailData({
     required this.templates,
     required this.isCompleted,
     required this.isUnlocked,
     required this.breadcrumb,
+    required this.unlockedNodeIds,
   });
 }
 
