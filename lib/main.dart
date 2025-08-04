@@ -17,6 +17,7 @@ import 'screens/decay_heatmap_screen.dart';
 import 'screens/decay_stats_dashboard_screen.dart';
 import 'screens/decay_analytics_screen.dart';
 import 'screens/decay_adaptation_insight_screen.dart';
+import 'screens/recall_hotspot_examples_screen.dart';
 import 'screens/skill_tree_learning_map_screen.dart';
 import 'screens/skill_tree_track_map_screen.dart';
 import 'screens/skill_tree_track_list_screen.dart';
@@ -411,6 +412,8 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
               SkillTreeTrackListScreen.route: (_) =>
                   const SkillTreeTrackListScreen(),
               RewardGalleryScreen.route: (_) => const RewardGalleryScreen(),
+              RecallHotspotExamplesScreen.route: (_) =>
+                  const RecallHotspotExamplesScreen(),
             },
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) return const Locale('ru');
