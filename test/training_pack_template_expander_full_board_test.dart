@@ -14,6 +14,7 @@ void main() {
         'boardConstraints': [
           {
             'targetStreet': 'river',
+            'requiredTextures': ['rainbow'],
             'requiredRanks': ['A', 'K', 'Q', 'J', 'T'],
             'requiredTags': ['broadwayHeavy'],
             'excludedTags': ['paired'],
@@ -39,6 +40,8 @@ void main() {
       );
       final ranks = s.board.map((c) => c[0]).toSet();
       expect(ranks.containsAll({'A', 'K', 'Q', 'J', 'T'}), isTrue);
+      final suits = s.board.take(3).map((c) => c[1]).toSet();
+      expect(suits.length, 3);
     }
   });
 }

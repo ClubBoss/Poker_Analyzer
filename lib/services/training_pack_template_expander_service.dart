@@ -6,7 +6,7 @@ import '../models/card_model.dart';
 import '../models/inline_theory_entry.dart';
 import 'constraint_resolver_engine_v2.dart';
 import 'auto_spot_theory_injector_service.dart';
-import 'full_board_generator.dart';
+import 'full_board_generator_v2.dart';
 import 'line_graph_engine.dart';
 import 'inline_theory_node_linker.dart';
 
@@ -20,19 +20,19 @@ import 'inline_theory_node_linker.dart';
 class TrainingPackTemplateExpanderService {
   final ConstraintResolverEngine _engine;
   final AutoSpotTheoryInjectorService _injector;
-  final FullBoardGenerator _boardGenerator;
+  final FullBoardGeneratorV2 _boardGenerator;
   final LineGraphEngine _lineEngine;
   final InlineTheoryNodeLinker _theoryLinker;
 
   TrainingPackTemplateExpanderService({
     ConstraintResolverEngine? engine,
     AutoSpotTheoryInjectorService? injector,
-    FullBoardGenerator? boardGenerator,
+    FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     InlineTheoryNodeLinker? theoryLinker,
   }) : _engine = engine ?? const ConstraintResolverEngine(),
        _injector = injector ?? AutoSpotTheoryInjectorService(),
-       _boardGenerator = boardGenerator ?? const FullBoardGenerator(),
+       _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
        _lineEngine = lineEngine ?? const LineGraphEngine(),
        _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
 
