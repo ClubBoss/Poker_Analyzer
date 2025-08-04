@@ -100,4 +100,20 @@ class DecayTagRetentionTrackerService {
     }
     return entries;
   }
+
+  /// Returns tags whose decay in days exceeds [threshold].
+  ///
+  /// The decay score is computed using [getDecayScore] for each tag stored.
+  Future<List<String>> getDecayedTags({
+    double threshold = 30,
+    DateTime? now,
+  }) async {
+    final scores = await getAllDecayScores(now: now);
+    final result = <String>[];
+    for (final tag in scores.keys) {
+      final days = await getDecayScore(tag, now: now);
+      if (days > threshold) result.add(tag);
+    }
+    return result;
+  }
 }
