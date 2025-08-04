@@ -10,6 +10,8 @@ import '../services/skill_tree_category_banner_service.dart';
 import '../services/skill_tree_node_progress_tracker.dart';
 import '../services/training_progress_service.dart';
 import '../services/skill_tree_node_celebration_service.dart';
+import '../services/learning_path_entry_group_builder.dart';
+import '../services/learning_path_node_renderer_service.dart';
 import '../widgets/tag_badge.dart';
 import '../widgets/skill_tree_node_detail_hint_widget.dart';
 import 'theory_lesson_viewer_screen.dart';
@@ -40,6 +42,7 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
   TheoryMiniLessonNode? _lesson;
   double _progress = 0.0;
   bool _loading = true;
+  List<LearningPathEntryGroup> _groups = [];
 
   @override
   void initState() {
@@ -61,6 +64,7 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
           .isCompleted(widget.node.id);
       if (done) _progress = 1.0;
     }
+    _groups = await LearningPathEntryGroupBuilder().build(widget.node);
     if (mounted) setState(() => _loading = false);
   }
 
@@ -185,6 +189,12 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                         track: widget.track!,
                         unlocked: widget.unlockedNodeIds!,
                         completed: widget.completedNodeIds!,
+                      ),
+                    if (_groups.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: LearningPathNodeRendererService()
+                            .build(context, _groups),
                       ),
                     const Spacer(),
                     Tooltip(
