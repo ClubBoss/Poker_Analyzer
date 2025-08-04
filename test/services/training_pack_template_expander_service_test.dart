@@ -53,4 +53,35 @@ variations:
     final stacks = spots.map((s) => s.hand.stacks['0']).toSet();
     expect(stacks, {10.0, 20.0});
   });
+
+  test('expands board preset and merges overrides', () {
+    const yaml = '''
+baseSpot:
+  id: base
+  hand:
+    heroCards: Ah Kh
+    position: btn
+    heroIndex: 0
+    playerCount: 2
+    board: []
+variations:
+  - boardConstraints:
+      - preset: lowPaired
+        requiredTextures: [paired, low, monotone]
+''';
+
+    final set = TrainingPackTemplateSet.fromYaml(yaml);
+    final svc = TrainingPackTemplateExpanderService();
+    final spots = svc.expand(set);
+    expect(spots, isNotEmpty);
+    const lowRanks = {'2', '3', '4', '5', '6', '7', '8'};
+    for (final s in spots) {
+      expect(s.board.length, 5);
+      final suits = s.board.take(3).map((c) => c[1]).toSet();
+      expect(suits.length, 1); // monotone override applied
+      final ranks = s.board.take(2).map((c) => c[0]).toSet();
+      expect(ranks.length, 1); // paired
+      expect(lowRanks.containsAll(s.board.take(3).map((c) => c[0])), isTrue);
+    }
+  });
 }

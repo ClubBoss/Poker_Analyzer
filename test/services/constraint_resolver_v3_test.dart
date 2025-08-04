@@ -37,4 +37,30 @@ void main() {
     expect(spot.board.length, 5);
     expect(spot.tags, containsAll(['base', 'extra', 'flopVillainBet']));
   });
+
+  test('expands board presets with overrides', () {
+    final base = TrainingPackSpot(id: 'base');
+    final set = ConstraintSet(
+      boardConstraints: [
+        {
+          'preset': 'lowPaired',
+          'requiredTextures': ['paired', 'low', 'monotone'],
+          'targetStreet': 'flop',
+        }
+      ],
+    );
+
+    final engine = ConstraintResolverV3();
+    final spots = engine.apply(base, [set]);
+    expect(spots, isNotEmpty);
+    const lowRanks = {'2', '3', '4', '5', '6', '7', '8'};
+    for (final s in spots) {
+      expect(s.board.length, 5);
+      final suits = s.board.take(3).map((c) => c[1]).toSet();
+      expect(suits.length, 1);
+      final ranks = s.board.take(2).map((c) => c[0]).toSet();
+      expect(ranks.length, 1);
+      expect(lowRanks.containsAll(s.board.take(3).map((c) => c[0])), isTrue);
+    }
+  });
 }
