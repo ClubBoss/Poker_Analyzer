@@ -56,6 +56,7 @@ import '../services/training_progress_logger.dart';
 import 'training_session_completion_screen.dart';
 import '../services/inline_theory_linker_service.dart';
 import '../widgets/theory_quick_access_banner.dart';
+import '../widgets/inline_theory_recall_banner.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -751,6 +752,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                               orElse: () => spot.tags.first,
                             ),
                           ),
+                        InlineTheoryRecallBanner(spot: spot),
                         TheoryQuickAccessBannerWidget(tags: spot.tags),
                       ],
                       Text(
