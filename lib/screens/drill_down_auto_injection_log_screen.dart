@@ -20,11 +20,17 @@ class DrillDownAutoInjectionLogScreen extends StatefulWidget {
       _DrillDownAutoInjectionLogScreenState();
 }
 
+enum _SortOrder { newestFirst, oldestFirst }
+
 class _DrillDownAutoInjectionLogScreenState
     extends State<DrillDownAutoInjectionLogScreen> {
   bool _loading = true;
   final List<TheoryAutoInjectionLogEntry> _logs = [];
+  final List<TheoryAutoInjectionLogEntry> _filtered = [];
   final Map<String, String> _titles = {};
+  final TextEditingController _spotIdController = TextEditingController();
+  _SortOrder _sortOrder = _SortOrder.newestFirst;
+  bool _groupByLesson = false;
 
   @override
   void initState() {
@@ -55,7 +61,28 @@ class _DrillDownAutoInjectionLogScreenState
       }
     }
     _logs.addAll(logs);
+    _applyFilters();
     if (mounted) setState(() => _loading = false);
+  }
+
+  void _applyFilters() {
+    var logs = List<TheoryAutoInjectionLogEntry>.from(_logs);
+    final query = _spotIdController.text.trim();
+    if (query.isNotEmpty) {
+      logs = logs.where((l) => l.spotId.contains(query)).toList();
+    }
+    logs.sort((a, b) => _sortOrder == _SortOrder.newestFirst
+        ? b.timestamp.compareTo(a.timestamp)
+        : a.timestamp.compareTo(b.timestamp));
+    _filtered
+      ..clear()
+      ..addAll(logs);
+  }
+
+  @override
+  void dispose() {
+    _spotIdController.dispose();
+    super.dispose();
   }
 
   @override
@@ -68,28 +95,123 @@ class _DrillDownAutoInjectionLogScreenState
       backgroundColor: const Color(0xFF121212),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _logs.isEmpty
+          : _filtered.isEmpty
               ? const Center(child: Text('No injections'))
-              : ListView.builder(
-                  itemCount: _logs.length,
-                  itemBuilder: (context, index) {
-                    final log = _logs[index];
-                    final lessonTitle = _titles[log.lessonId] ?? log.lessonId;
-                    return ListTile(
-                      title: Text(lessonTitle),
-                      subtitle: Text('Spot: ${log.spotId}'),
-                      trailing: Text(
-                        timeago.format(
-                          log.timestamp,
-                          allowFromNow: true,
-                          locale: 'en_short',
-                        ),
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.white70),
+              : Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _spotIdController,
+                              decoration: const InputDecoration(
+                                hintText: 'Filter by spotId',
+                                isDense: true,
+                              ),
+                              onChanged: (_) {
+                                setState(_applyFilters);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          DropdownButton<_SortOrder>(
+                            value: _sortOrder,
+                            items: const [
+                              DropdownMenuItem(
+                                value: _SortOrder.newestFirst,
+                                child: Text('Newest First'),
+                              ),
+                              DropdownMenuItem(
+                                value: _SortOrder.oldestFirst,
+                                child: Text('Oldest First'),
+                              ),
+                            ],
+                            onChanged: (v) {
+                              if (v != null) {
+                                setState(() {
+                                  _sortOrder = v;
+                                  _applyFilters();
+                                });
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          Row(
+                            children: [
+                              const Text('Group by lesson'),
+                              Switch(
+                                value: _groupByLesson,
+                                onChanged: (v) {
+                                  setState(() => _groupByLesson = v);
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: _groupByLesson
+                          ? _buildGroupedList()
+                          : _buildList(),
+                    ),
+                  ],
                 ),
+    );
+  }
+
+  Widget _buildList() {
+    return ListView.builder(
+      itemCount: _filtered.length,
+      itemBuilder: (context, index) {
+        final log = _filtered[index];
+        final lessonTitle = _titles[log.lessonId] ?? log.lessonId;
+        return ListTile(
+          title: Text(lessonTitle),
+          subtitle: Text('Spot: ${log.spotId}'),
+          trailing: Text(
+            timeago.format(
+              log.timestamp,
+              allowFromNow: true,
+              locale: 'en_short',
+            ),
+            style: const TextStyle(fontSize: 12, color: Colors.white70),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGroupedList() {
+    final Map<String, List<TheoryAutoInjectionLogEntry>> grouped = {};
+    for (final log in _filtered) {
+      grouped.putIfAbsent(log.lessonId, () => []).add(log);
+    }
+    return ListView(
+      children: [
+        for (final entry in grouped.entries)
+          ExpansionTile(
+            title: Text(_titles[entry.key] ?? entry.key),
+            children: [
+              for (final log in entry.value)
+                ListTile(
+                  title: Text('Spot: ${log.spotId}'),
+                  trailing: Text(
+                    timeago.format(
+                      log.timestamp,
+                      allowFromNow: true,
+                      locale: 'en_short',
+                    ),
+                    style:
+                        const TextStyle(fontSize: 12, color: Colors.white70),
+                  ),
+                ),
+            ],
+          ),
+      ],
     );
   }
 }
