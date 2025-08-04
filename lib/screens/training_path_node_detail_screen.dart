@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/training_path_node.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/pack_library_template_loader.dart';
+import '../services/training_path_breadcrumb_service.dart';
 import '../services/training_path_node_launcher_service.dart';
 import '../services/training_path_progress_tracker_service.dart';
 import '../widgets/training_pack_template_card.dart';
@@ -20,6 +21,7 @@ class _TrainingPathNodeDetailScreenState
     extends State<TrainingPathNodeDetailScreen> {
   final _tracker = const TrainingPathProgressTrackerService();
   final _launcher = const TrainingPathNodeLauncherService();
+  final _breadcrumbService = const TrainingPathBreadcrumbService();
 
   late Future<_NodeDetailData> _future;
 
@@ -39,10 +41,12 @@ class _TrainingPathNodeDetailScreenState
     final unlocked = await _tracker.getUnlockedNodeIds();
     final isCompleted = completed.contains(widget.node.id);
     final isUnlocked = unlocked.contains(widget.node.id);
+    final breadcrumb = _breadcrumbService.getBreadcrumb(widget.node);
     return _NodeDetailData(
       templates: templates,
       isCompleted: isCompleted,
       isUnlocked: isUnlocked,
+      breadcrumb: breadcrumb,
     );
   }
 
@@ -66,7 +70,9 @@ class _TrainingPathNodeDetailScreenState
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    _buildStatusChip(data!),
+                    _buildBreadcrumb(data!.breadcrumb),
+                    const SizedBox(height: 16),
+                    _buildStatusChip(data),
                     const SizedBox(height: 16),
                     if (data.templates.isNotEmpty) ...[
                       const Text('Паки',
@@ -99,6 +105,25 @@ class _TrainingPathNodeDetailScreenState
     );
   }
 
+  Widget _buildBreadcrumb(List<TrainingPathNode> nodes) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final node in nodes)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Chip(
+                label: Text(node.title),
+                backgroundColor:
+                    node.id == widget.node.id ? Colors.blue.shade200 : null,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatusChip(_NodeDetailData data) {
     String label;
     Color color;
@@ -126,11 +151,13 @@ class _NodeDetailData {
   final List<TrainingPackTemplate> templates;
   final bool isCompleted;
   final bool isUnlocked;
+  final List<TrainingPathNode> breadcrumb;
 
   const _NodeDetailData({
     required this.templates,
     required this.isCompleted,
     required this.isUnlocked,
+    required this.breadcrumb,
   });
 }
 
