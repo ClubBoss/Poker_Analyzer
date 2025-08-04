@@ -98,7 +98,7 @@ class _TrainingPathNodeDetailScreenState
                       const Text('No training packs found'),
                     const SizedBox(height: 24),
                     NodeRecommendationSectionWidget(
-                      nodes: data.recommendations,
+                      recommendations: data.recommendations,
                       unlockedNodeIds: data.unlockedNodeIds,
                       completedNodeIds: data.completedNodeIds,
                       title: 'Recommended Next Steps',
@@ -215,7 +215,7 @@ class _NodeDetailData {
   final List<TrainingPathNode> breadcrumb;
   final Set<String> unlockedNodeIds;
   final Set<String> completedNodeIds;
-  final List<TrainingPathNode> recommendations;
+  final List<NodeRecommendation> recommendations;
 
   const _NodeDetailData({
     required this.templates,
