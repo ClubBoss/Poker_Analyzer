@@ -1,0 +1,135 @@
+import '../models/board_stages.dart';
+import '../models/card_model.dart';
+import '../helpers/board_filtering_params_builder.dart';
+import 'board_texture_filter_service.dart';
+import 'card_deck_service.dart';
+import 'board_filtering_service_v2.dart';
+
+class FullBoardGeneratorV2 {
+  const FullBoardGeneratorV2({
+    CardDeckService? deckService,
+    BoardTextureFilterService? textureFilter,
+    BoardFilteringServiceV2? boardFilter,
+  })  : _deckService = deckService ?? const CardDeckService(),
+        _textureFilter = textureFilter ?? const BoardTextureFilterService(),
+        _boardFilter = boardFilter ?? const BoardFilteringServiceV2();
+
+  final CardDeckService _deckService;
+  final BoardTextureFilterService _textureFilter;
+  final BoardFilteringServiceV2 _boardFilter;
+
+  List<BoardStages> generate(Map<String, dynamic> constraints) {
+    final textures = <String>[
+      for (final t in (constraints['requiredTextures'] as List? ?? []))
+        t.toString(),
+    ];
+    final requiredRanks = <String>[
+      for (final r in (constraints['requiredRanks'] as List? ?? []))
+        r.toString().toUpperCase(),
+    ];
+    final excludedRanks = <String>[
+      for (final r in (constraints['excludedRanks'] as List? ?? []))
+        r.toString().toUpperCase(),
+    ];
+    final requiredSuits = <String>[
+      for (final s in (constraints['requiredSuits'] as List? ?? []))
+        _normalizeSuit(s.toString()),
+    ];
+    final excludedSuits = <String>[
+      for (final s in (constraints['excludedSuits'] as List? ?? []))
+        _normalizeSuit(s.toString()),
+    ];
+
+    final flopFilter = BoardFilteringParamsBuilder.build(textures);
+    final boardRequiredTags = <String>{
+      for (final t in (flopFilter['boardTexture'] as List? ?? []))
+        if (t == 'broadway') 'broadwayHeavy' else t.toString(),
+    };
+
+    final requiredTags = <String>{
+      ...boardRequiredTags,
+      for (final t in (constraints['requiredTags'] as List? ?? []))
+        t.toString(),
+    };
+    final excludedTags = <String>{
+      for (final t in (constraints['excludedTags'] as List? ?? []))
+        t.toString(),
+    };
+
+    final deck = _deckService.buildDeck(
+      excludedRanks: excludedRanks.toSet(),
+    );
+    final usableDeck = [
+      for (final c in deck)
+        if (!excludedSuits.contains(c.suit)) c,
+    ];
+
+    final results = <BoardStages>[];
+
+    for (var i = 0; i < usableDeck.length - 2; i++) {
+      for (var j = i + 1; j < usableDeck.length - 1; j++) {
+        for (var k = j + 1; k < usableDeck.length; k++) {
+          final flop = [usableDeck[i], usableDeck[j], usableDeck[k]];
+          if (!_textureFilter.isMatch(flop, flopFilter)) {
+            continue;
+          }
+          final remaining = [
+            for (final c in usableDeck)
+              if (!flop.contains(c)) c,
+          ];
+          for (var t = 0; t < remaining.length - 1; t++) {
+            for (var r = t + 1; r < remaining.length; r++) {
+              final turn = remaining[t];
+              final river = remaining[r];
+              final all = [...flop, turn, river];
+              if (requiredRanks.any((rr) =>
+                  !all.any((c) => c.rank.toUpperCase() == rr))) {
+                continue;
+              }
+              if (requiredSuits.any((ss) =>
+                  !all.any((c) => c.suit == ss))) {
+                continue;
+              }
+              if (excludedSuits.any((ss) =>
+                  all.any((c) => c.suit == ss))) {
+                continue;
+              }
+              final board = BoardStages(
+                flop: flop.map((c) => c.toString()).toList(),
+                turn: turn.toString(),
+                river: river.toString(),
+              );
+              if (!_boardFilter.isMatch(board, requiredTags,
+                  excludedTags: excludedTags)) {
+                continue;
+              }
+              results.add(board);
+            }
+          }
+        }
+      }
+    }
+
+    return results;
+  }
+
+  static String _normalizeSuit(String suit) {
+    switch (suit.toLowerCase()) {
+      case 's':
+      case '♠':
+        return '♠';
+      case 'h':
+      case '♥':
+        return '♥';
+      case 'd':
+      case '♦':
+        return '♦';
+      case 'c':
+      case '♣':
+        return '♣';
+      default:
+        return suit;
+    }
+  }
+}
+
