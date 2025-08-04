@@ -5,18 +5,22 @@ import 'package:flutter/material.dart';
 import 'learning_path_entry_group_builder.dart';
 import 'learning_path_entry_renderer.dart';
 import 'learning_path_node_analytics_logger.dart';
+import 'theory_auto_recall_injector.dart';
 
 /// Renders groups of learning path entries into titled sections.
 class LearningPathNodeRendererService {
   final LearningPathEntryRenderer entryRenderer;
   final LearningPathNodeAnalyticsLogger analyticsLogger;
+  final TheoryAutoRecallInjector autoRecall;
 
   const LearningPathNodeRendererService({
     LearningPathEntryRenderer? entryRenderer,
     LearningPathNodeAnalyticsLogger? analyticsLogger,
+    TheoryAutoRecallInjector? autoRecall,
   })  : entryRenderer = entryRenderer ?? const LearningPathEntryRenderer(),
         analyticsLogger =
-            analyticsLogger ?? const LearningPathNodeAnalyticsLogger();
+            analyticsLogger ?? const LearningPathNodeAnalyticsLogger(),
+        autoRecall = autoRecall ?? const TheoryAutoRecallInjector();
 
   /// Builds a column widget displaying [groups] with headers and entry cards.
   Widget build(
@@ -47,8 +51,10 @@ class LearningPathNodeRendererService {
             ),
           ),
         ),
-        for (final entry in group.entries)
+        for (final entry in group.entries) ...[
           entryRenderer.build(context, entry),
+          autoRecall.build(context, entry),
+        ],
       ],
     );
   }

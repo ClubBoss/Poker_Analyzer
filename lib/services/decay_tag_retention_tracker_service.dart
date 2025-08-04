@@ -116,4 +116,10 @@ class DecayTagRetentionTrackerService {
     }
     return result;
   }
+
+  /// Returns `true` if the [tag]'s decay in days exceeds [threshold].
+  Future<bool> isDecayed(String tag, {double threshold = 30}) async {
+    final days = await getDecayScore(tag);
+    return days > threshold;
+  }
 }
