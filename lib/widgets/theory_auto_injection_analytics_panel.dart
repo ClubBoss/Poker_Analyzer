@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../services/theory_auto_injection_logger_service.dart';
 import '../services/mini_lesson_library_service.dart';
+import '../screens/drill_down_auto_injection_log_screen.dart';
 
 /// Displays analytics for automatic theory injections.
 class TheoryAutoInjectionAnalyticsPanel extends StatefulWidget {
@@ -106,6 +107,24 @@ class _TheoryAutoInjectionAnalyticsPanelState
             height: 150,
             child: LineChart(
               LineChartData(
+                lineTouchData: LineTouchData(
+                  touchCallback: (event, response) {
+                    if (event is FlTapUpEvent &&
+                        response?.lineBarSpots != null &&
+                        response!.lineBarSpots!.isNotEmpty) {
+                      final index = response.lineBarSpots!.first.x.toInt();
+                      if (index >= 0 && index < _daily.length) {
+                        final date = _daily[index].date;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                DrillDownAutoInjectionLogScreen.date(date),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
                 minY: 0,
                 maxY: (maxY < 1 ? 1 : maxY).toDouble(),
                 gridData: const FlGridData(show: false),
@@ -207,6 +226,23 @@ class _TheoryAutoInjectionAnalyticsPanelState
             height: 200,
             child: BarChart(
               BarChartData(
+                barTouchData: BarTouchData(
+                  touchCallback: (event, response) {
+                    final spot = response?.spot;
+                    if (event is FlTapUpEvent && spot != null) {
+                      final index = spot.touchedBarGroupIndex;
+                      if (index >= 0 && index < _topLessons.length) {
+                        final lessonId = _topLessons[index].id;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                DrillDownAutoInjectionLogScreen.lesson(lessonId),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
                 maxY: (maxY < 1 ? 1 : maxY).toDouble(),
                 gridData: const FlGridData(show: false),
                 titlesData: FlTitlesData(
