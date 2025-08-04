@@ -4,6 +4,7 @@ import '../models/v2/hero_position.dart';
 import 'full_board_generator_v2.dart';
 import 'line_graph_engine.dart';
 import 'package:uuid/uuid.dart';
+import 'board_texture_preset_library.dart';
 
 /// Resolves [ConstraintSet] variations against a base [TrainingPackSpot]
 /// producing fully realized training spots. Supports hybrid line pattern and
@@ -143,7 +144,13 @@ class ConstraintResolverV3 {
     final boards = <List<String>>[];
     String? streetOverride = set.targetStreet;
     for (final params in set.boardConstraints) {
-      final map = Map<String, dynamic>.from(params);
+      var map = Map<String, dynamic>.from(params);
+      final preset = map.remove('preset');
+      if (preset != null) {
+        final expanded =
+            BoardTexturePresetLibrary.get(preset.toString());
+        map = {...expanded, ...map};
+      }
       final street = map.remove('targetStreet')?.toString().toLowerCase();
       if (street != null) streetOverride = street;
       final generated = _boardGenerator.generate(map);

@@ -9,6 +9,7 @@ import 'auto_spot_theory_injector_service.dart';
 import 'full_board_generator_v2.dart';
 import 'line_graph_engine.dart';
 import 'inline_theory_node_linker.dart';
+import 'board_texture_preset_library.dart';
 
 /// Expands a [TrainingPackTemplateSet] into concrete [TrainingPackSpot]s using
 /// [ConstraintResolverEngine].
@@ -67,7 +68,13 @@ class TrainingPackTemplateExpanderService {
     final boards = <List<String>>[];
     String? streetOverride = set.targetStreet;
     for (final params in constraints) {
-      final map = Map<String, dynamic>.from(params);
+      var map = Map<String, dynamic>.from(params);
+      final preset = map.remove('preset');
+      if (preset != null) {
+        final expanded =
+            BoardTexturePresetLibrary.get(preset.toString());
+        map = {...expanded, ...map};
+      }
       final street = map.remove('targetStreet')?.toString().toLowerCase();
       if (street != null) streetOverride = street;
       final generated = _boardGenerator.generate(map);
