@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/thumbnail_cache_service.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/inline_theory_linker_service.dart';
 
 class TrainingPackTemplateCard extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -19,6 +20,7 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
   bool inProgress = false;
   TrainingPackStat? _stat;
   double _progress = 0;
+  final _linker = InlineTheoryLinkerService();
   @override
   void initState() {
     super.initState();
@@ -62,6 +64,22 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     ];
+    if (widget.template.description.isNotEmpty) {
+      lines.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: _linker
+              .link(
+                widget.template.description,
+                contextTags: widget.template.tags,
+              )
+              .toRichText(
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+                linkStyle: const TextStyle(color: Colors.lightBlueAccent),
+              ),
+        ),
+      );
+    }
     if (_stat != null && _progress > 0) {
       final ev = _stat!.postEvPct > 0 ? _stat!.postEvPct : _stat!.preEvPct;
       final icm = _stat!.postIcmPct > 0 ? _stat!.postIcmPct : _stat!.preIcmPct;
