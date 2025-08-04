@@ -38,11 +38,11 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
   /// Optional reference to the template spot that produced this variation.
   String? templateSourceId;
 
-  /// Optional reference to a theory lesson matched by tags.
+  /// Optional reference to a mini lesson matched by tags.
   ///
-  /// When present, this value is serialized to `inlineTheoryId` in YAML and
+  /// When present, this value is serialized to `inlineLessonId` in YAML and
   /// links the spot to a [TheoryMiniLessonNode].
-  String? inlineTheoryId;
+  String? inlineLessonId;
 
   /// Ephemeral link to a related theory lesson.
   ///
@@ -72,7 +72,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
     DateTime? editedAt,
     DateTime? createdAt,
     this.templateSourceId,
-    this.inlineTheoryId,
+    this.inlineLessonId,
   }) : hand = hand ?? HandData(),
        tags = tags != null ? List<String>.from(tags) : <String>[],
        categories = categories != null
@@ -113,7 +113,8 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
     editedAt: DateTime.tryParse(j['editedAt']?.toString() ?? ''),
     createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? ''),
     templateSourceId: j['templateSourceId']?.toString(),
-    inlineTheoryId: j['inlineTheoryId']?.toString(),
+    inlineLessonId:
+        j['inlineLessonId']?.toString() ?? j['inlineTheoryId']?.toString(),
   );
 
   factory TrainingPackSpot.fromTrainingSpot(
@@ -157,7 +158,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
     );
   }
 
-  Map<String, dynamic> _serialize({bool includeInlineTheoryId = false}) => {
+  Map<String, dynamic> _serialize({bool includeInlineLessonId = false}) => {
         'id': id,
         'type': type,
         'title': title,
@@ -178,8 +179,8 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
         if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
         if (meta.isNotEmpty) 'meta': meta,
         if (templateSourceId != null) 'templateSourceId': templateSourceId,
-        if (includeInlineTheoryId && inlineTheoryId != null)
-          'inlineTheoryId': inlineTheoryId,
+        if (includeInlineLessonId && inlineLessonId != null)
+          'inlineLessonId': inlineLessonId,
       };
 
   @override
@@ -188,11 +189,11 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
   /// Converts this spot to a YAML-compatible map.
   ///
   /// The returned map omits empty or null values, mirroring [toJson].
-  Map<String, dynamic> toYaml() => _serialize(includeInlineTheoryId: true);
+  Map<String, dynamic> toYaml() => _serialize(includeInlineLessonId: true);
 
   @override
   TrainingPackSpot copyWith(Map<String, dynamic> changes) {
-    final data = _serialize(includeInlineTheoryId: true);
+    final data = _serialize(includeInlineLessonId: true);
     data.addAll(changes);
     return TrainingPackSpot.fromJson(data);
   }
@@ -242,9 +243,10 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
       map['meta'] = Map<String, dynamic>.from(yaml['meta']);
     }
 
-    final inlineId = yaml['inlineTheoryId']?.toString();
+    final inlineId =
+        yaml['inlineLessonId']?.toString() ?? yaml['inlineTheoryId']?.toString();
     if (inlineId?.isNotEmpty == true) {
-      map['inlineTheoryId'] = inlineId;
+      map['inlineLessonId'] = inlineId;
     }
 
     return TrainingPackSpot.fromJson(Map<String, dynamic>.from(map));
@@ -290,7 +292,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
           const ListEquality().equals(heroOptions, other.heroOptions) &&
           const DeepCollectionEquality().equals(meta, other.meta) &&
           templateSourceId == other.templateSourceId &&
-          inlineTheoryId == other.inlineTheoryId;
+          inlineLessonId == other.inlineLessonId;
 
   @override
   int get hashCode => Object.hashAll([
@@ -313,7 +315,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
     const ListEquality().hash(heroOptions),
     const DeepCollectionEquality().hash(meta),
     templateSourceId,
-    inlineTheoryId,
+    inlineLessonId,
   ]);
 }
 

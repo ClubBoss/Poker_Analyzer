@@ -8,7 +8,7 @@ import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 import 'package:poker_analyzer/services/inline_theory_linker.dart';
 
 void main() {
-  test('linkPack adds inlineTheoryId based on tags', () {
+  test('linkPack adds inlineLessonId based on tags', () {
     final pack = TrainingPackTemplateV2(
       id: 'p1',
       name: 'Pack',
@@ -20,7 +20,7 @@ void main() {
           id: 's3',
           hand: HandData(),
           tags: ['cbet'],
-          inlineTheoryId: 'existing',
+          inlineLessonId: 'existing',
         ),
       ],
     );
@@ -42,9 +42,9 @@ void main() {
 
     InlineTheoryLinker.linkPack(pack, lessons);
 
-    expect(pack.spots[0].inlineTheoryId, 'l1');
-    expect(pack.spots[1].inlineTheoryId, 'l2');
+    expect(pack.spots[0].inlineLessonId, 'l1');
+    expect(pack.spots[1].inlineLessonId, 'l2');
     // Existing ID should remain untouched
-    expect(pack.spots[2].inlineTheoryId, 'existing');
+    expect(pack.spots[2].inlineLessonId, 'existing');
   });
 }

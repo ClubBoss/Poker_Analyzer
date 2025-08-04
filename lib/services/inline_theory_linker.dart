@@ -56,7 +56,7 @@ class InlineTheoryLinker {
   /// matching tags.
   ///
   /// For each spot, the first matching lesson's id is written to the
-  /// `inlineTheoryId` field. Spots that already contain an `inlineTheoryId`
+  /// `inlineLessonId` field. Spots that already contain an `inlineLessonId`
   /// are left untouched.
   static void linkPack(
     TrainingPackTemplateV2 pack,
@@ -73,13 +73,13 @@ class InlineTheoryLinker {
     }
 
     for (final TrainingPackSpot spot in pack.spots) {
-      if (spot.inlineTheoryId != null && spot.inlineTheoryId!.isNotEmpty) {
+      if (spot.inlineLessonId != null && spot.inlineLessonId!.isNotEmpty) {
         continue;
       }
       for (final tag in spot.tags.map((e) => e.toLowerCase())) {
         final lesson = byTag[tag];
         if (lesson != null) {
-          spot.inlineTheoryId = lesson.id;
+          spot.inlineLessonId = lesson.id;
           break;
         }
       }
