@@ -11,6 +11,7 @@ import '../widgets/pack_recommendation_section.dart';
 import 'mini_lesson_screen.dart';
 import '../models/theory_mini_lesson_node.dart';
 import 'training_session_screen.dart';
+import 'training_pack_theory_screen.dart';
 
 class TrainingPackPreviewScreen extends StatefulWidget {
   final TrainingPackTemplateV2 template;
@@ -164,6 +165,21 @@ class _TrainingPackPreviewScreenState extends State<TrainingPackPreviewScreen> {
                   linkStyle: const TextStyle(color: Colors.lightBlueAccent),
                 ),
           ],
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      TrainingPackTheoryScreen(template: widget.template),
+                ),
+              );
+            },
+            icon: const Icon(Icons.menu_book, color: Colors.lightBlueAccent),
+            label: const Text('Теория пака',
+                style: TextStyle(color: Colors.lightBlueAccent)),
+          ),
           if (widget.template.goal.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text('Goal: ${widget.template.goal}',
