@@ -23,13 +23,12 @@ class LearningPathNodeRendererService {
         autoRecall = autoRecall ?? const TheoryAutoRecallInjector();
 
   /// Builds a column widget displaying [groups] with headers and entry cards.
-  Widget build(
-      BuildContext context, String nodeId, List<LearningPathEntryGroup> groups) {
+  Widget build(BuildContext context, String nodeId,
+      List<LearningPathEntryGroup> groups) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final group in groups)
-          _buildGroup(context, nodeId, group),
+        for (final group in groups) _buildGroup(context, nodeId, group),
       ],
     );
   }
@@ -53,10 +52,9 @@ class LearningPathNodeRendererService {
         ),
         for (final entry in group.entries) ...[
           entryRenderer.build(context, entry),
-          autoRecall.build(context, entry),
+          autoRecall.build(context, nodeId, entry),
         ],
       ],
     );
   }
 }
-
