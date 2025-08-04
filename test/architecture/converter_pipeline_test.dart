@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import '../../import_export/converter_pipeline.dart';
+import 'package:poker_analyzer/import_export/converter_pipeline.dart';
 import 'package:poker_analyzer/plugins/converter_registry.dart';
 import 'package:poker_analyzer/plugins/converter_plugin.dart';
 import 'package:poker_analyzer/plugins/converter_format_capabilities.dart';
