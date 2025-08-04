@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../../services/learning_path_node_graph_snapshot_service.dart';
 import '../../services/learning_graph_engine.dart';
+import '../recent_auto_injections_screen.dart';
 
 class DebugToolsSection extends StatefulWidget {
   const DebugToolsSection({super.key});
@@ -20,8 +21,9 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
     final engine = LearningPathEngine.instance.engine;
     if (engine == null) return;
     setState(() => _dumping = true);
-    final text =
-        LearningPathNodeGraphSnapshotService(engine: engine).debugSnapshot();
+    final text = LearningPathNodeGraphSnapshotService(
+      engine: engine,
+    ).debugSnapshot();
     if (!mounted) return;
     setState(() => _dumping = false);
     await showDialog(
@@ -29,9 +31,7 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF121212),
         title: const Text('Learning Path Graph'),
-        content: SingleChildScrollView(
-          child: SelectableText(text),
-        ),
+        content: SingleChildScrollView(child: SelectableText(text)),
         actions: [
           TextButton(
             onPressed: () {
@@ -58,8 +58,18 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
             title: const Text('🧠 Dump Learning Path Graph'),
             onTap: _dumping ? null : _dumpGraph,
           ),
+        ListTile(
+          title: const Text('Recent Auto Theory Injections'),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const RecentAutoInjectionsScreen(),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
 }
-
