@@ -85,6 +85,14 @@ class InlineTheoryLinkerService {
     }
     return InlineTheoryLinkedText(chunks);
   }
+
+  /// Returns lessons related to the provided [tags].
+  Future<List<TheoryMiniLessonNode>> extractRelevantLessons(
+    List<String> tags,
+  ) async {
+    await _library.loadAll();
+    return _library.findByTags(tags);
+  }
 }
 
 class _Match {
