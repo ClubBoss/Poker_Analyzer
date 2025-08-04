@@ -53,4 +53,98 @@ void main() {
     expect(logs.length, 1);
     expect(logs.first.spotId, 'b');
   });
+
+  test('getTotalInjectionCount returns number of logs', () async {
+    final now = DateTime.now();
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's1',
+      lessonId: 'l1',
+      timestamp: now.subtract(const Duration(minutes: 2)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's2',
+      lessonId: 'l2',
+      timestamp: now.subtract(const Duration(minutes: 1)),
+    );
+    final count =
+        await TheoryAutoInjectionLoggerService.instance.getTotalInjectionCount();
+    expect(count, 2);
+  });
+
+  test('getDailyInjectionCounts groups by day', () async {
+    final now = DateTime.now();
+    final format = (DateTime d) =>
+        DateTime(d.year, d.month, d.day).toIso8601String().split('T').first;
+
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's1',
+      lessonId: 'l1',
+      timestamp: now.subtract(const Duration(days: 2)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's2',
+      lessonId: 'l2',
+      timestamp: now.subtract(const Duration(days: 1, hours: 2)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's3',
+      lessonId: 'l3',
+      timestamp: now.subtract(const Duration(days: 1)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's4',
+      lessonId: 'l4',
+      timestamp: now,
+    );
+
+    final counts = await TheoryAutoInjectionLoggerService.instance
+        .getDailyInjectionCounts(days: 3);
+
+    expect(
+      counts,
+      {
+        format(now.subtract(const Duration(days: 2))): 1,
+        format(now.subtract(const Duration(days: 1))): 2,
+        format(now): 1,
+      },
+    );
+  });
+
+  test('getTopLessonInjections returns most frequent lessons', () async {
+    final base = DateTime.now().subtract(const Duration(minutes: 5));
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's1',
+      lessonId: 'l1',
+      timestamp: base,
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's2',
+      lessonId: 'l2',
+      timestamp: base.add(const Duration(minutes: 1)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's3',
+      lessonId: 'l1',
+      timestamp: base.add(const Duration(minutes: 2)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's4',
+      lessonId: 'l3',
+      timestamp: base.add(const Duration(minutes: 3)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's5',
+      lessonId: 'l1',
+      timestamp: base.add(const Duration(minutes: 4)),
+    );
+    await TheoryAutoInjectionLoggerService.instance.logAutoInjection(
+      spotId: 's6',
+      lessonId: 'l2',
+      timestamp: base.add(const Duration(minutes: 5)),
+    );
+
+    final top = await TheoryAutoInjectionLoggerService.instance
+        .getTopLessonInjections(limit: 2);
+    expect(top, {'l1': 3, 'l2': 2});
+  });
 }
