@@ -15,7 +15,8 @@ Poker Analyzer aims to be a universal tool for improving decision making at the 
 1. Install Flutter 3.0 or higher.
 2. Run `flutter pub get` to install dependencies.
 3. Run `flutter gen-l10n` to generate localization files.
-4. Launch with `flutter run`.
+4. Precompile training packs with `dart tools/precompile_all_packs.dart`.
+5. Launch with `flutter run`.
 
 ## Demo Build
 
@@ -140,6 +141,14 @@ dart tools/validate_training_content.dart --fix
 ```
 
 Use `--ci` to exit with a non-zero code on errors.
+
+## Precompile Training Packs
+
+Regenerate the precompiled YAML packs before running the app or building a release:
+
+```bash
+dart tools/precompile_all_packs.dart
+```
 
 ## Path YAML Visualizer
 
