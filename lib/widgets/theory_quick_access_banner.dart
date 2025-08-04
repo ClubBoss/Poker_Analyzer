@@ -5,6 +5,7 @@ import '../models/theory_mini_lesson_node.dart';
 import '../services/inline_theory_linker_service.dart';
 import '../services/theory_lesson_completion_logger.dart';
 import '../screens/mini_lesson_screen.dart';
+import '../services/review_scheduler_service.dart';
 
 class TheoryQuickAccessBannerWidget extends StatefulWidget {
   final List<String> tags;
@@ -20,6 +21,7 @@ class _TheoryQuickAccessBannerWidgetState
   final _linker = InlineTheoryLinkerService();
   TheoryMiniLessonNode? _lesson;
   bool _loading = true;
+  bool _isReview = false;
 
   @override
   void initState() {
@@ -39,6 +41,7 @@ class _TheoryQuickAccessBannerWidgetState
     setState(() {
       _loading = true;
       _lesson = null;
+      _isReview = false;
     });
     final lessons = await _linker.extractRelevantLessons(widget.tags);
     for (final l in lessons) {
@@ -46,6 +49,14 @@ class _TheoryQuickAccessBannerWidgetState
           await TheoryLessonCompletionLogger.instance.isCompleted(l.id);
       if (!completed) {
         _lesson = l;
+        _isReview = false;
+        break;
+      }
+      final due =
+          await ReviewSchedulerService.instance.isDueForReview(l.id);
+      if (due) {
+        _lesson = l;
+        _isReview = true;
         break;
       }
     }
@@ -92,9 +103,9 @@ class _TheoryQuickAccessBannerWidgetState
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Новая концепция',
-                  style: TextStyle(color: Colors.white70),
+                Text(
+                  _isReview ? 'Повторение' : 'Новая концепция',
+                  style: const TextStyle(color: Colors.white70),
                 ),
               ],
             ),
