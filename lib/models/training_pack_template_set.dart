@@ -3,6 +3,7 @@ import 'package:yaml/yaml.dart';
 import '../utils/yaml_utils.dart';
 import 'constraint_set.dart';
 import 'v2/training_pack_spot.dart';
+import 'line_pattern.dart';
 
 /// Defines a base spot and a list of variation rules that can be expanded
 /// into multiple [TrainingPackSpot]s.
@@ -29,15 +30,20 @@ class TrainingPackTemplateSet {
   /// list. When empty, the original stack depth is used.
   final List<int> stackDepthMods;
 
+  /// Optional action line patterns describing multi-street sequences.
+  final List<LinePattern> linePatterns;
+
   const TrainingPackTemplateSet({
     required this.baseSpot,
     List<ConstraintSet>? variations,
     List<String>? playerTypeVariations,
     this.suitAlternation = false,
     List<int>? stackDepthMods,
-  })  : variations = variations ?? const [],
-        playerTypeVariations = playerTypeVariations ?? const [],
-        stackDepthMods = stackDepthMods ?? const [];
+    List<LinePattern>? linePatterns,
+  }) : variations = variations ?? const [],
+       playerTypeVariations = playerTypeVariations ?? const [],
+       stackDepthMods = stackDepthMods ?? const [],
+       linePatterns = linePatterns ?? const [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     final baseMap = Map<String, dynamic>.from(
@@ -57,12 +63,17 @@ class TrainingPackTemplateSet {
       for (final m in (json['stackDepthMods'] as List? ?? []))
         (m as num).toInt(),
     ];
+    final patterns = <LinePattern>[
+      for (final p in (json['linePatterns'] as List? ?? []))
+        LinePattern.fromJson(Map<String, dynamic>.from(p as Map)),
+    ];
     return TrainingPackTemplateSet(
       baseSpot: base,
       variations: vars,
       playerTypeVariations: pTypes,
       suitAlternation: suitAlt,
       stackDepthMods: depthMods,
+      linePatterns: patterns,
     );
   }
 
@@ -72,13 +83,14 @@ class TrainingPackTemplateSet {
   }
 
   Map<String, dynamic> toJson() => {
-        'baseSpot': baseSpot.toJson(),
-        if (variations.isNotEmpty)
-          'variations': [for (final v in variations) v.toJson()],
-        if (playerTypeVariations.isNotEmpty)
-          'playerTypeVariations': playerTypeVariations,
-        if (suitAlternation) 'suitAlternation': true,
-        if (stackDepthMods.isNotEmpty) 'stackDepthMods': stackDepthMods,
-      };
+    'baseSpot': baseSpot.toJson(),
+    if (variations.isNotEmpty)
+      'variations': [for (final v in variations) v.toJson()],
+    if (playerTypeVariations.isNotEmpty)
+      'playerTypeVariations': playerTypeVariations,
+    if (suitAlternation) 'suitAlternation': true,
+    if (stackDepthMods.isNotEmpty) 'stackDepthMods': stackDepthMods,
+    if (linePatterns.isNotEmpty)
+      'linePatterns': [for (final p in linePatterns) p.toJson()],
+  };
 }
-
