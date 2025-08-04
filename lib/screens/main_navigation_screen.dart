@@ -25,6 +25,7 @@ import '../widgets/ev_goal_banner.dart';
 import '../widgets/repeat_last_corrected_card.dart';
 import '../widgets/repeat_corrected_drill_card.dart';
 import '../widgets/streak_mini_card.dart';
+import '../widgets/auto_mistake_drill_banner_widget.dart';
 import '../widgets/streak_chart.dart';
 import '../widgets/continue_training_button.dart';
 import '../widgets/spot_of_the_day_card.dart';
@@ -322,6 +323,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         const DecayBoosterReminderBanner(),
         const DecayBoosterShortcutBanner(),
         const GoalReminderBanner(),
+        const AutoMistakeDrillBannerWidget(),
         const SmartGoalBanner(),
         const NextBestStepBanner(),
         const SpotOfTheDayCard(),
