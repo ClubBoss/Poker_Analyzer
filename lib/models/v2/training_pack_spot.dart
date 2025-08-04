@@ -3,12 +3,13 @@ import '../evaluation_result.dart';
 import '../copy_with_mixin.dart';
 import '../action_entry.dart';
 import '../training_spot.dart';
+import '../spot_model.dart';
 import 'hero_position.dart';
 import '../card_model.dart';
 import 'package:uuid/uuid.dart';
 import '../../services/inline_theory_linker.dart';
 
-class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> {
+class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel {
   final String id;
   String type;
   String title;

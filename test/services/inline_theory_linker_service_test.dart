@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:poker_analyzer/models/theory_lesson_engagement_stats.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
-import 'package:poker_analyzer/models/inline_theory_linked_text.dart';
+import 'package:poker_analyzer/models/v2/hand_data.dart';
+import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/services/inline_theory_linker_service.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
-import 'package:poker_analyzer/services/theory_mini_lesson_navigator.dart';
+import 'package:poker_analyzer/services/theory_engagement_analytics_service.dart';
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final List<TheoryMiniLessonNode> lessons;
@@ -14,83 +15,95 @@ class _FakeLibrary implements MiniLessonLibraryService {
   List<TheoryMiniLessonNode> get all => lessons;
 
   @override
-  TheoryMiniLessonNode? getById(String id) =>
-      lessons.firstWhere((e) => e.id == id, orElse: () => null);
-
-  @override
   Future<void> loadAll() async {}
 
   @override
   Future<void> reload() async {}
 
   @override
-  List<TheoryMiniLessonNode> findByTags(List<String> tags) => [];
+  TheoryMiniLessonNode? getById(String id) =>
+      lessons.firstWhere((l) => l.id == id, orElse: () => null);
 
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [];
+  List<TheoryMiniLessonNode> findByTags(List<String> tags) {
+    final tagSet = tags.toSet();
+    final seen = <String>{};
+    final result = <TheoryMiniLessonNode>[];
+    for (final l in lessons) {
+      if (l.tags.any(tagSet.contains)) {
+        if (seen.add(l.id)) result.add(l);
+      }
+    }
+    return result;
+  }
+
+  @override
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
+
+  @override
+  List<String> linkedPacksFor(String lessonId) => const [];
 }
 
-class _FakeNavigator extends TheoryMiniLessonNavigator {
-  String? openedTag;
+class _FakeAnalytics extends TheoryEngagementAnalyticsService {
+  final Map<String, double> rates;
+  const _FakeAnalytics(this.rates);
 
   @override
-  Future<void> openLessonByTag(String tag, [context]) async {
-    openedTag = tag;
-  }
+  Future<List<TheoryLessonEngagementStats>> getAllStats() async => [
+        for (final e in rates.entries)
+          TheoryLessonEngagementStats(
+            lessonId: e.key,
+            manualOpens: 0,
+            reviewViews: 0,
+            successRate: e.value,
+          )
+      ];
 }
 
 void main() {
-  test('links keywords in description and opens lesson', () {
-    final library = _FakeLibrary([
-      const TheoryMiniLessonNode(
+  test('getLinkedLessonIdsForSpot ranks by overlap then success', () async {
+    const lessons = [
+      TheoryMiniLessonNode(
         id: 'l1',
-        title: 'CBet',
+        title: 'A',
+        content: '',
+        tags: ['cbet', 'turn'],
+      ),
+      TheoryMiniLessonNode(
+        id: 'l2',
+        title: 'B',
         content: '',
         tags: ['cbet'],
       ),
-      const TheoryMiniLessonNode(
-        id: 'l2',
-        title: 'Probe',
+      TheoryMiniLessonNode(
+        id: 'l3',
+        title: 'C',
+        content: '',
+        tags: ['turn'],
+      ),
+      TheoryMiniLessonNode(
+        id: 'l4',
+        title: 'D',
         content: '',
         tags: ['probe'],
       ),
-    ]);
-    final navigator = _FakeNavigator();
-    final service = InlineTheoryLinkerService(
-      library: library,
-      navigator: navigator,
-    );
-    final linked = service.link(
-      'Study cbet and probe strategies.',
-      contextTags: ['cbet', 'probe'],
-    );
-    expect(linked.chunks.length, 5);
-    expect(linked.chunks[1].text.toLowerCase(), 'cbet');
-    expect(linked.chunks[1].isLink, isTrue);
-    linked.chunks[1].onTap?.call();
-    expect(navigator.openedTag, 'cbet');
-    linked.chunks[3].onTap?.call();
-    expect(navigator.openedTag, 'probe');
-  });
+    ];
 
-  test('respects context tags', () {
-    final library = _FakeLibrary([
-      const TheoryMiniLessonNode(
-        id: 'l1',
-        title: 'CBet',
-        content: '',
-        tags: ['cbet'],
-      ),
-      const TheoryMiniLessonNode(
-        id: 'l2',
-        title: 'Probe',
-        content: '',
-        tags: ['probe'],
-      ),
-    ]);
-    final service = InlineTheoryLinkerService(library: library);
-    final linked = service.link('cbet and probe', contextTags: ['cbet']);
-    expect(linked.chunks.where((c) => c.isLink).length, 1);
-    expect(linked.chunks[1].text.toLowerCase(), 'cbet');
+    final service = InlineTheoryLinkerService(
+      library: _FakeLibrary(lessons),
+      analytics: const _FakeAnalytics({
+        'l1': 0.9,
+        'l2': 0.8,
+        'l3': 0.95,
+        'l4': 0.7,
+      }),
+    );
+
+    final spot =
+        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['cbet', 'turn']);
+
+    final result = await service.getLinkedLessonIdsForSpot(spot);
+    expect(result, ['l1', 'l3', 'l2']);
   });
 }
