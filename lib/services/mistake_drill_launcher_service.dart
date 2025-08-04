@@ -35,6 +35,15 @@ class MistakeDrillLauncherService {
     return true;
   }
 
+  /// Marks the auto drill as shown to enforce cooldown without launching.
+  Future<void> markShown() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(
+      _cooldownKey,
+      DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
   /// Generates a drill from recent mistakes and launches training if possible.
   Future<void> maybeLaunch() async {
     if (!await shouldTriggerAutoDrill()) return;
