@@ -140,4 +140,14 @@ class TrainingPackTemplateExpanderService {
     }
     return seeds;
   }
+
+  /// Alias for [expandLinePatterns] kept for backwards compatibility.
+  ///
+  /// Delegates to [expandLinePatterns] and exists to provide a more
+  /// descriptive method name for line-based expansions.
+  List<SpotSeedFormat> expandLines(
+    TrainingPackTemplateSet set, {
+    Map<String, InlineTheoryEntry> theoryIndex = const {},
+  }) =>
+      expandLinePatterns(set, theoryIndex: theoryIndex);
 }
