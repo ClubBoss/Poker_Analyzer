@@ -194,7 +194,7 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
                         child: LearningPathNodeRendererService()
-                            .build(context, _groups),
+                            .build(context, widget.node.id, _groups),
                       ),
                     const Spacer(),
                     Tooltip(
