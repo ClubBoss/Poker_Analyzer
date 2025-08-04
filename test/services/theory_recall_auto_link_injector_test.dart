@@ -5,6 +5,8 @@ import 'package:poker_analyzer/services/decay_tag_retention_tracker_service.dart
 import 'package:poker_analyzer/services/inline_theory_linker_service.dart';
 import 'package:poker_analyzer/services/theory_mini_lesson_usage_tracker.dart';
 import 'package:poker_analyzer/services/theory_recall_auto_link_injector.dart';
+import 'package:poker_analyzer/services/theory_auto_injection_logger_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeRetention extends DecayTagRetentionTrackerService {
   final bool decayed;
@@ -33,6 +35,11 @@ class _FakeUsageTracker implements TheoryMiniLessonUsageTracker {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    TheoryAutoInjectionLoggerService.instance.resetForTest();
+  });
+
   test('injects linkedTheoryId for decayed spot', () async {
     final spot = TrainingPackSpot(id: 's1', tags: ['push']);
     final service = TheoryRecallAutoLinkInjector(
@@ -42,6 +49,10 @@ void main() {
     );
     await service.inject(spot);
     expect(spot.meta['linkedTheoryId'], 'l1');
+    final logs = await TheoryAutoInjectionLoggerService.instance.getRecentLogs();
+    expect(logs.length, 1);
+    expect(logs.first.lessonId, 'l1');
+    expect(logs.first.spotId, 's1');
   });
 
   test('skips when lesson already opened', () async {
