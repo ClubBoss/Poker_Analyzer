@@ -54,6 +54,7 @@ import '../services/booster_auto_retry_suggester.dart';
 import '../services/mistake_booster_progress_tracker.dart';
 import '../services/training_progress_logger.dart';
 import 'training_session_completion_screen.dart';
+import '../services/inline_theory_linker_service.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -97,6 +98,7 @@ class TrainingSessionScreen extends StatefulWidget {
 
 class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   static final _EndlessStats _endlessStats = _EndlessStats();
+  final _linker = InlineTheoryLinkerService();
   String? _selected;
   bool? _correct;
   Timer? _timer;
@@ -203,6 +205,21 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       }
     }
     return best;
+  }
+
+  Widget _linkedText(String text, TrainingPackSpot spot, TrainingPackTemplate tpl) {
+    final tags = spot.tags.isNotEmpty ? spot.tags : tpl.tags;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 80),
+      child: SingleChildScrollView(
+        child: _linker
+            .link(text, contextTags: tags)
+            .toRichText(
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+              linkStyle: const TextStyle(color: Colors.lightBlueAccent),
+            ),
+      ),
+    );
   }
 
   double? _calcEvDiff(
@@ -677,14 +694,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      if (service.session != null &&
-                          service.template != null) ...[
+                      if (service.session != null && tpl != null) ...[
                         Text(
-                          service.template!.name,
+                          tpl.name,
                           style: const TextStyle(color: Colors.white70),
                           textAlign: TextAlign.center,
                         ),
-                        if (service.template!.meta['samplePreview'] == true)
+                        if (tpl.meta['samplePreview'] == true)
                           Container(
                             margin: const EdgeInsets.only(top: 4),
                             padding: const EdgeInsets.symmetric(
@@ -701,13 +717,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                               textAlign: TextAlign.center,
                             ),
                           ),
-                        if (service.template!.description.isNotEmpty) ...[
+                        if (tpl != null && tpl.description.isNotEmpty) ...[
                           const SizedBox(height: 4),
-                          Text(
-                            service.template!.description,
-                            style: const TextStyle(color: Colors.white70),
-                            textAlign: TextAlign.center,
-                          ),
+                          _linkedText(tpl.description, spot, tpl),
+                        ],
+                        if (tpl != null && tpl.goal.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          _linkedText(tpl.goal, spot, tpl),
                         ],
                         const SizedBox(height: 4),
                         _progressBar(service),
@@ -723,7 +739,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${service.session!.index + 1} / ${service.template!.spots.length}',
+                          '${service.session!.index + 1} / ${tpl.spots.length}',
                           style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 4),
@@ -743,6 +759,10 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                       const StyleHintBar(),
                       const StackRangeBar(),
                       const DynamicProgressRow(),
+                      if (tpl != null && spot.note.trim().isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        _linkedText(spot.note, spot, tpl),
+                      ],
                       Expanded(child: SpotQuizWidget(spot: spot)),
                       if (service.focusHandTypes.isNotEmpty)
                         Padding(
