@@ -57,6 +57,7 @@ import 'training_session_completion_screen.dart';
 import '../services/inline_theory_linker_service.dart';
 import '../widgets/theory_quick_access_banner.dart';
 import '../widgets/inline_theory_recall_banner.dart';
+import '../widgets/inline_theory_booster_display.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -884,6 +885,16 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                               child: const Text('Next'),
                             ),
                           ],
+                        ),
+                        Builder(
+                          builder: (context) {
+                            final tag = spot.tags.firstWhere(
+                              (t) => !t.startsWith('cat:'),
+                              orElse: () => '',
+                            );
+                            if (tag.isEmpty) return const SizedBox.shrink();
+                            return InlineTheoryBoosterDisplay(tag: tag);
+                          },
                         ),
                         if (showCategory)
                           Padding(
