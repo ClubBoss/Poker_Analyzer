@@ -1,6 +1,9 @@
 import 'package:test/test.dart';
 
 import 'package:poker_analyzer/models/training_pack_template_set.dart';
+import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/models/v2/hand_data.dart';
+import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/services/auto_spot_theory_injector_service.dart';
 import 'package:poker_analyzer/services/inline_theory_linker.dart';
 import 'package:poker_analyzer/services/training_pack_template_expander_service.dart';
@@ -103,6 +106,44 @@ variations:
 ''';
 
     final set = TrainingPackTemplateSet.fromYaml(yaml);
+    final svc = TrainingPackTemplateExpanderService();
+    final spots = svc.expand(set);
+    expect(spots, isEmpty);
+  });
+
+  test('retains base spot when board cluster matches', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'Ah Kh',
+        position: HeroPosition.btn,
+        board: ['As', 'Kd', 'Qc'],
+      ),
+      board: ['As', 'Kd', 'Qc'],
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      requiredBoardClusters: ['broadway-heavy'],
+    );
+    final svc = TrainingPackTemplateExpanderService();
+    final spots = svc.expand(set);
+    expect(spots, hasLength(1));
+  });
+
+  test('drops base spot when board cluster excluded', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'Ah Kh',
+        position: HeroPosition.btn,
+        board: ['As', 'Kd', 'Qc'],
+      ),
+      board: ['As', 'Kd', 'Qc'],
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      excludedBoardClusters: ['broadway-heavy'],
+    );
     final svc = TrainingPackTemplateExpanderService();
     final spots = svc.expand(set);
     expect(spots, isEmpty);
