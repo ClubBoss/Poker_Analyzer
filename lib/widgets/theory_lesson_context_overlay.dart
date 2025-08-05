@@ -4,7 +4,7 @@ import '../models/theory_lesson_cluster.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/mini_lesson_progress_tracker.dart';
-import '../services/theory_lesson_navigator_service.dart';
+import '../services/theory_lesson_graph_navigator_service.dart';
 import '../services/theory_lesson_review_queue.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 
@@ -53,7 +53,7 @@ class _TheoryLessonContextOverlayState
   late final MiniLessonLibraryService _library;
   late final MiniLessonProgressTracker _progress;
   late final TheoryLessonReviewQueue _review;
-  late final TheoryLessonNavigatorService _nav;
+  late final TheoryLessonGraphNavigatorService _nav;
 
   bool _loading = true;
   int _completed = 0;
@@ -69,7 +69,7 @@ class _TheoryLessonContextOverlayState
     _library = widget.library ?? MiniLessonLibraryService.instance;
     _progress = widget.progress ?? MiniLessonProgressTracker.instance;
     _review = widget.review ?? TheoryLessonReviewQueue.instance;
-    _nav = TheoryLessonNavigatorService(
+    _nav = TheoryLessonGraphNavigatorService(
       library: _library,
       cluster: widget.cluster,
       tagFilter: widget.tags,
