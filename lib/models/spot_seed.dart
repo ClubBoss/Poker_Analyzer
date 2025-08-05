@@ -6,6 +6,7 @@ class SpotSeed {
   final String position;
   final List<String> previousActions;
   final String targetStreet;
+  final List<String> tags;
 
   SpotSeed({
     required this.board,
@@ -13,5 +14,6 @@ class SpotSeed {
     required this.position,
     required this.previousActions,
     required this.targetStreet,
-  });
+    List<String>? tags,
+  }) : tags = tags ?? [];
 }

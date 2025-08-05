@@ -23,13 +23,14 @@ void main() {
     expect(result.tags, containsAll(['flopCbet', 'turnCheck', 'riverShove']));
   });
 
-  test('expandLine generates spot seeds across streets', () {
+  test('expandLine generates tagged spot seeds across streets', () {
     final engine = const LineGraphEngine();
     final board = [
       CardModel(rank: 'A', suit: 's'),
       CardModel(rank: 'K', suit: 'd'),
       CardModel(rank: 'Q', suit: 'h'),
       CardModel(rank: 'J', suit: 'c'),
+      CardModel(rank: 'T', suit: 'd'),
     ];
     final hand = [
       CardModel(rank: 'T', suit: 's'),
@@ -38,18 +39,27 @@ void main() {
 
     final seeds = engine.expandLine(
       preflopAction: 'raise-call',
-      line: 'check-check-bet',
+      line: 'cbet-check-shove',
       board: board,
       hand: hand,
       position: 'btn',
     );
 
-    expect(seeds.length, 2);
+    expect(seeds.length, 3);
     expect(seeds[0].targetStreet, 'flop');
     expect(seeds[0].board.length, 3);
     expect(seeds[0].previousActions, ['raise-call']);
+    expect(seeds[0].tags, contains('flopCbet'));
+
     expect(seeds[1].targetStreet, 'turn');
     expect(seeds[1].board.length, 4);
-    expect(seeds[1].previousActions, ['raise-call', 'check', 'check']);
+    expect(seeds[1].previousActions, ['raise-call', 'cbet']);
+    expect(seeds[1].tags, containsAll(['flopCbet', 'turnCheck']));
+
+    expect(seeds[2].targetStreet, 'river');
+    expect(seeds[2].board.length, 5);
+    expect(seeds[2].previousActions, ['raise-call', 'cbet', 'check']);
+    expect(
+        seeds[2].tags, containsAll(['flopCbet', 'turnCheck', 'riverShove']));
   });
 }

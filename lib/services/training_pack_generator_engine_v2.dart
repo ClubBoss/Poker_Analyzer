@@ -78,15 +78,7 @@ class TrainingPackGeneratorEngineV2 {
     // Postflop shorthand line expansion.
     if (set.postflopLine != null && set.postflopLine!.isNotEmpty) {
       final lineSeeds = _expander.expandPostflopLine(set);
-      final actions = set.postflopLine!
-          .split('-')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList();
-      final groups = _groupActions(actions, lineSeeds.length);
-      final accumulated = <String>[];
-      for (var i = 0; i < lineSeeds.length; i++) {
-        final seed = lineSeeds[i];
+      for (final seed in lineSeeds) {
         final copy = _cloneBase(baseSpot);
 
         copy.hand.position = parseHeroPosition(seed.position);
@@ -96,12 +88,9 @@ class TrainingPackGeneratorEngineV2 {
         copy.street = _streetFromBoard(board.length);
         copy.meta['previousActions'] = List<String>.from(seed.previousActions);
 
-        for (final act in groups[i]) {
-          accumulated.add('${seed.targetStreet}${_capitalize(act)}');
-        }
         final tags = {
           ...baseSpot.tags,
-          ...accumulated,
+          ...seed.tags,
           ..._autoTags(copy),
         };
         copy.tags = tags.toList()..sort();
@@ -161,22 +150,4 @@ class TrainingPackGeneratorEngineV2 {
     return list;
   }
 
-  List<List<String>> _groupActions(List<String> actions, int streetCount) {
-    final groups = <List<String>>[];
-    var index = 0;
-    var remaining = actions.length;
-    for (var remainingStreets = streetCount; remainingStreets > 0; remainingStreets--) {
-      final minForRest = remainingStreets - 1;
-      var size = remaining - minForRest;
-      if (size < 0) size = 0;
-      final end = index + size;
-      groups.add(actions.sublist(index, end));
-      index = end;
-      remaining -= size;
-    }
-    return groups;
-  }
-
-  String _capitalize(String value) =>
-      value.isEmpty ? value : value[0].toUpperCase() + value.substring(1);
 }

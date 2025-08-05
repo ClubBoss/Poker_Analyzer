@@ -63,17 +63,24 @@ class LineGraphEngine {
 
     final seeds = <SpotSeed>[];
     final history = <String>[];
+    final accumulatedTags = <String>[];
     if (preflopAction.isNotEmpty) {
       history.add(preflopAction);
     }
     for (var i = 0; i < streets.length; i++) {
+      final street = streets[i];
+      final tags = grouped[i]
+          .map((act) => '${street}${_capitalize(act)}')
+          .toList();
+      accumulatedTags.addAll(tags);
       seeds.add(
         SpotSeed(
           board: _boardUpTo(split, i),
           hand: hand,
           position: position,
           previousActions: List<String>.from(history),
-          targetStreet: streets[i],
+          targetStreet: street,
+          tags: List<String>.from(accumulatedTags),
         ),
       );
       history.addAll(grouped[i]);
