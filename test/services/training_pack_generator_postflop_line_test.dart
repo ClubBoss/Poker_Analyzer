@@ -40,4 +40,61 @@ void main() {
     expect(turn.tags, containsAll(['flopCbet', 'turnCheck']));
     expect(turn.meta['previousActions'], ['raise-call', 'cbet']);
   });
+
+  test('skips postflop line when board preset mismatches', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'AhKh',
+        position: HeroPosition.btn,
+        board: ['As', 'Kd', 'Qc'],
+        actions: {
+          0: [
+            ActionEntry(0, 0, 'raise'),
+            ActionEntry(0, 1, 'call'),
+          ],
+        },
+      ),
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      postflopLine: 'cbet-check',
+      boardTexturePreset: 'lowPaired',
+    );
+
+    final engine = TrainingPackGeneratorEngineV2();
+    final spots = engine.generate(set);
+
+    // Only the base spot should remain; line expansion is filtered out.
+    expect(spots, hasLength(1));
+    expect(spots.first.id, isNotEmpty);
+  });
+
+  test('expands postflop line when board preset matches', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'AhKh',
+        position: HeroPosition.btn,
+        board: ['As', '9d', '4c'],
+        actions: {
+          0: [
+            ActionEntry(0, 0, 'raise'),
+            ActionEntry(0, 1, 'call'),
+          ],
+        },
+      ),
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      postflopLine: 'cbet-check',
+      boardTexturePreset: 'dryAceHigh',
+    );
+
+    final engine = TrainingPackGeneratorEngineV2();
+    final spots = engine.generate(set);
+
+    // Base + two street expansions (flop & turn)
+    expect(spots, hasLength(3));
+  });
 }

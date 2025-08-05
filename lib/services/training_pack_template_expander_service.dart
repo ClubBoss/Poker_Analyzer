@@ -193,6 +193,13 @@ class TrainingPackTemplateExpanderService {
         CardModel(rank: c[0], suit: c.length > 1 ? c[1] : ''),
     ];
 
+    final preset = set.boardTexturePreset;
+    if (preset != null && preset.isNotEmpty) {
+      if (!BoardTexturePresetLibrary.matches(board, preset)) {
+        return [];
+      }
+    }
+
     final preActions = set.baseSpot.hand.actions[0] ?? [];
     final preflopAction = preActions.map((a) => a.action).join('-');
 
