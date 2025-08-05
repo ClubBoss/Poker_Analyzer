@@ -43,13 +43,24 @@ class TrainingPackTemplateExpanderService {
 
   /// Generates all spots described by [set] and injects theory links.
   List<TrainingPackSpot> expand(TrainingPackTemplateSet set) {
-    final processed = [for (final v in set.variations) _expandBoards(v)];
+    final processed = [
+      for (final v in set.variations)
+        _expandBoards(
+          v,
+          requiredBoardClusters: set.requiredBoardClusters,
+          excludedBoardClusters: set.excludedBoardClusters,
+        )
+    ];
     final spots = _engine.apply(set.baseSpot, processed);
     _injector.injectAll(spots);
     return spots;
   }
 
-  ConstraintSet _expandBoards(ConstraintSet set) {
+  ConstraintSet _expandBoards(
+    ConstraintSet set, {
+    List<String> requiredBoardClusters = const [],
+    List<String> excludedBoardClusters = const [],
+  }) {
     if (set.boardConstraints.isEmpty &&
         !set.overrides.containsKey('boardConstraints')) {
       return set;
@@ -80,7 +91,25 @@ class TrainingPackTemplateExpanderService {
       }
       final street = map.remove('targetStreet')?.toString().toLowerCase();
       if (street != null) streetOverride = street;
-      final generated = _boardGenerator.generate(map);
+      final paramRequired = <String>[
+        for (final c in (map.remove('requiredBoardClusters') as List? ?? []))
+          c.toString(),
+      ];
+      final paramExcluded = <String>[
+        for (final c in (map.remove('excludedBoardClusters') as List? ?? []))
+          c.toString(),
+      ];
+      final generated = _boardGenerator.generate(
+        map,
+        requiredBoardClusters: [
+          ...requiredBoardClusters,
+          ...paramRequired,
+        ],
+        excludedBoardClusters: [
+          ...excludedBoardClusters,
+          ...paramExcluded,
+        ],
+      );
       if (street == 'turn') {
         final seen = <String>{};
         for (final b in generated) {

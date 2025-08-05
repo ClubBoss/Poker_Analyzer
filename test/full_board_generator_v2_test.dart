@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/services/full_board_generator_v2.dart';
 import 'package:poker_analyzer/services/board_filtering_service_v2.dart';
+import 'package:poker_analyzer/services/board_cluster_library.dart';
+import 'package:poker_analyzer/models/card_model.dart';
 
 void main() {
   test('supports texture and suit/rank filters', () {
@@ -38,5 +40,36 @@ void main() {
         isTrue,
       );
     }
+  });
+
+  test('supports cluster-based filters', () {
+    const generator = FullBoardGeneratorV2();
+    final boards = generator.generate(
+      {
+        'requiredRanks': ['A', 'K', 'Q', 'J', 'T'],
+      },
+      requiredBoardClusters: ['broadway-heavy'],
+      excludedBoardClusters: ['trap'],
+    );
+    expect(boards, isNotEmpty);
+    for (final b in boards) {
+      final cards = [
+        ...b.flop,
+        b.turn,
+        b.river,
+      ].map((c) => CardModel(rank: c[0], suit: c[1])).toList();
+      final clusters = BoardClusterLibrary.getClusters(cards)
+          .map((c) => c.toLowerCase())
+          .toSet();
+      expect(clusters.contains('broadway-heavy'), isTrue);
+      expect(clusters.contains('trap'), isFalse);
+    }
+    final none = generator.generate(
+      {
+        'requiredRanks': ['A', 'K', 'Q', 'J', 'T'],
+      },
+      excludedBoardClusters: ['broadway-heavy'],
+    );
+    expect(none, isEmpty);
   });
 }
