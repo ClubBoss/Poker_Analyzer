@@ -47,6 +47,7 @@ import '../services/streak_milestone_queue_service.dart';
 import '../widgets/confetti_overlay.dart';
 import '../services/overlay_booster_manager.dart';
 import '../widgets/decay_recall_stats_card.dart';
+import '../widgets/decay_review_recap_banner.dart';
 import '../services/decay_session_tag_impact_recorder.dart';
 import '../widgets/booster_completion_banner.dart';
 import '../models/training_pack.dart';
@@ -405,6 +406,7 @@ class _TrainingSessionSummaryScreenState
                   tagDeltas: widget.tagDeltas,
                   spotCount: widget.session.results.length,
                 ),
+              const DecayReviewRecapBanner(),
               const SizedBox(height: 16),
               if (widget.tagDeltas.isNotEmpty) ...[
                 const Text(

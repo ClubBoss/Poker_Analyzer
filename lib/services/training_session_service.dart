@@ -140,6 +140,7 @@ class TrainingSessionService extends ChangeNotifier {
   }
 
   List<TrainingAction> get actionLog => List.unmodifiable(_actions);
+  List<TrainingAction> get completedAttempts => List.unmodifiable(_actions);
   List<TrainingPackSpot> get spots => List.unmodifiable(_spots);
   TrainingPackTemplate? get template => _template;
 
