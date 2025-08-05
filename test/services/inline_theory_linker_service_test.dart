@@ -11,6 +11,7 @@ import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/services/inline_theory_linker_service.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/theory_engagement_analytics_service.dart';
+import 'package:poker_analyzer/services/theory_suggestion_engagement_tracker_service.dart';
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final List<TheoryMiniLessonNode> lessons;
@@ -66,6 +67,25 @@ class _FakeAnalytics extends TheoryEngagementAnalyticsService {
       ];
 }
 
+class _FakeTracker implements TheorySuggestionEngagementTrackerService {
+  final Map<String, Map<String, int>> counts;
+  _FakeTracker(this.counts);
+
+  @override
+  Future<void> lessonSuggested(String lessonId) async {}
+
+  @override
+  Future<void> lessonExpanded(String lessonId) async {}
+
+  @override
+  Future<void> lessonOpened(String lessonId) async {}
+
+  @override
+  Future<Map<String, int>> countByAction(String action) async {
+    return counts[action] ?? {};
+  }
+}
+
 void main() {
   test('findSuggestedLessonForSpot picks best matching lesson', () async {
     const lessons = [
@@ -99,6 +119,41 @@ void main() {
     );
     final lesson = await service.findSuggestedLessonForSpot(spot);
     expect(lesson?.id, 'l1');
+  });
+
+  test('findSuggestedLessonForSpot uses engagement score tie breaker', () async {
+    const lessons = [
+      TheoryMiniLessonNode(
+        id: 'l1',
+        title: 'BTN Flop CBet A',
+        content: '',
+        tags: ['btn', 'cbet', 'flop'],
+      ),
+      TheoryMiniLessonNode(
+        id: 'l2',
+        title: 'BTN Flop CBet B',
+        content: '',
+        tags: ['btn', 'cbet', 'flop'],
+      ),
+    ];
+    final service = InlineTheoryLinkerService(
+      library: _FakeLibrary(lessons),
+      tracker: _FakeTracker({
+        'suggested': {'l1': 1, 'l2': 3},
+        'expanded': {'l1': 1},
+        'opened': {'l2': 2},
+      }),
+    );
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData(position: HeroPosition.btn),
+      street: 1,
+      meta: {
+        'actionTags': {0: 'cbet'},
+      },
+    );
+    final lesson = await service.findSuggestedLessonForSpot(spot);
+    expect(lesson?.id, 'l2');
   });
   test('getLinkedLessonIdsForSpot ranks by overlap then success', () async {
     const lessons = [
