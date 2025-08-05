@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -58,8 +60,8 @@ class _TheoryRecallStatsDashboardScreenState
     });
   }
 
-  void _reset() {
-    TheoryRecallImpactTracker.instance.reset();
+  Future<void> _reset() async {
+    await TheoryRecallImpactTracker.instance.clear();
     _load();
   }
 

@@ -42,10 +42,11 @@ class TheoryRecallImpactTracker {
     if (_logs.length > maxEntries) {
       _logs.removeRange(0, _logs.length - maxEntries);
     }
-    await _persist();
+    await persist();
   }
 
-  Future<void> _persist() async {
+  /// Persists [_logs] to [SharedPreferences].
+  Future<void> persist() async {
     if (_prefs == null) return;
     final data = _logs.map((e) => e.toJson()).toList();
     await _prefs!.setString(_prefsKey, json.encode(data));
@@ -64,12 +65,15 @@ class TheoryRecallImpactTracker {
   List<TheoryRecallImpactEntry> get entries =>
       _logs.map(TheoryRecallImpactEntry.fromEntry).toList();
 
-  /// Clears recorded data. Intended for testing.
-  void reset({bool clearPrefs = true}) {
+  /// Clears in-memory recorded data.
+  void reset() {
     _logs.clear();
-    if (clearPrefs) {
-      _prefs?.remove(_prefsKey);
-    }
+  }
+
+  /// Clears all recorded data including persisted storage.
+  Future<void> clear() async {
+    reset();
+    await _prefs?.remove(_prefsKey);
   }
 }
 
@@ -102,13 +106,12 @@ class _Entry {
   factory _Entry.fromJson(Map<String, dynamic> json) => _Entry(
         tag: json['tag'] as String,
         lessonId: json['lessonId'] as String,
-        timestamp:
-            DateTime.fromMillisecondsSinceEpoch(json['timestamp'] as int),
+        timestamp: DateTime.parse(json['timestamp'] as String),
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'tag': tag,
         'lessonId': lessonId,
-        'timestamp': timestamp.millisecondsSinceEpoch,
+        'timestamp': timestamp.toIso8601String(),
       };
 }

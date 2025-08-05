@@ -28,12 +28,20 @@ void main() {
   test('persists logs across sessions', () async {
     final tracker = TheoryRecallImpactTracker.instance;
     await tracker.record('tag', 'l1');
-    tracker.reset(clearPrefs: false);
+    tracker.reset();
     await tracker.init();
     expect(tracker.entries.length, 1);
     final entry = tracker.entries.first;
     expect(entry.tag, 'tag');
     expect(entry.lessonId, 'l1');
+  });
+
+  test('clear removes persisted logs', () async {
+    final tracker = TheoryRecallImpactTracker.instance;
+    await tracker.record('tag', 'l1');
+    await tracker.clear();
+    await tracker.init();
+    expect(tracker.entries, isEmpty);
   });
 
   testWidgets('MiniLessonScreen logs lesson', (tester) async {
