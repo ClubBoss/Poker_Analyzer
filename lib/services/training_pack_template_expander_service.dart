@@ -199,6 +199,12 @@ class TrainingPackTemplateExpanderService {
       }
     }
 
+    for (final ex in set.excludeBoardTexturePresets) {
+      if (BoardTexturePresetLibrary.matches(board, ex)) {
+        return [];
+      }
+    }
+
     final preActions = set.baseSpot.hand.actions[0] ?? [];
     final preflopAction = preActions.map((a) => a.action).join('-');
 
