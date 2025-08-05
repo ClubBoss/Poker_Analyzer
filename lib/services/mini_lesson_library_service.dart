@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../asset_manifest.dart';
 import '../core/training/generation/yaml_reader.dart';
 import '../models/theory_mini_lesson_node.dart';
+import 'theory_mini_lesson_factory_service.dart';
 
 /// Loads and indexes mini lesson blocks stored as YAML files.
 class MiniLessonLibraryService {
@@ -40,11 +41,12 @@ class MiniLessonLibraryService {
     final paths = manifest.keys
         .where((p) => _dirs.any((d) => p.startsWith(d)) && p.endsWith('.yaml'))
         .toList();
+    final factory = const TheoryMiniLessonFactoryService();
     for (final path in paths) {
       try {
         final raw = await rootBundle.loadString(path);
         final map = const YamlReader().read(raw);
-        final node = TheoryMiniLessonNode.fromYaml(
+        final node = factory.fromYaml(
           Map<String, dynamic>.from(map),
         );
         if (node.id.isEmpty) continue;
