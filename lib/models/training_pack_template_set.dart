@@ -33,6 +33,12 @@ class TrainingPackTemplateSet {
   /// Optional action line patterns describing multi-street sequences.
   final List<LinePattern> linePatterns;
 
+  /// Optional shorthand postflop action line applied to the base spot.
+  ///
+  /// When provided, this string is expanded via [LineGraphEngine.expandLine]
+  /// to generate multiple street-specific training spots.
+  final String? postflopLine;
+
   const TrainingPackTemplateSet({
     required this.baseSpot,
     List<ConstraintSet>? variations,
@@ -40,6 +46,7 @@ class TrainingPackTemplateSet {
     this.suitAlternation = false,
     List<int>? stackDepthMods,
     List<LinePattern>? linePatterns,
+    this.postflopLine,
   }) : variations = variations ?? const [],
        playerTypeVariations = playerTypeVariations ?? const [],
        stackDepthMods = stackDepthMods ?? const [],
@@ -67,6 +74,7 @@ class TrainingPackTemplateSet {
       for (final p in (json['linePatterns'] as List? ?? []))
         LinePattern.fromJson(Map<String, dynamic>.from(p as Map)),
     ];
+    final postLine = json['postflopLine']?.toString();
     return TrainingPackTemplateSet(
       baseSpot: base,
       variations: vars,
@@ -74,6 +82,7 @@ class TrainingPackTemplateSet {
       suitAlternation: suitAlt,
       stackDepthMods: depthMods,
       linePatterns: patterns,
+      postflopLine: postLine,
     );
   }
 
@@ -92,5 +101,7 @@ class TrainingPackTemplateSet {
     if (stackDepthMods.isNotEmpty) 'stackDepthMods': stackDepthMods,
     if (linePatterns.isNotEmpty)
       'linePatterns': [for (final p in linePatterns) p.toJson()],
+    if (postflopLine != null && postflopLine!.isNotEmpty)
+      'postflopLine': postflopLine,
   };
 }

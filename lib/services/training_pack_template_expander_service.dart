@@ -2,6 +2,7 @@ import '../models/training_pack_template_set.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/constraint_set.dart';
 import '../models/spot_seed_format.dart';
+import '../models/spot_seed.dart';
 import '../models/card_model.dart';
 import '../models/inline_theory_entry.dart';
 import 'constraint_resolver_engine_v2.dart';
@@ -171,4 +172,36 @@ class TrainingPackTemplateExpanderService {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
   }) =>
       expandLinePatterns(set, theoryIndex: theoryIndex);
+
+  /// Generates [SpotSeed]s from [TrainingPackTemplateSet.postflopLine].
+  ///
+  /// When the template defines a `postflopLine`, it is expanded into one seed
+  /// per street using [LineGraphEngine.expandLine]. Each seed contains the
+  /// accumulated action history up to that street.
+  List<SpotSeed> expandPostflopLine(TrainingPackTemplateSet set) {
+    final line = set.postflopLine;
+    if (line == null || line.isEmpty) return [];
+
+    final handCards = <CardModel>[];
+    for (final token in set.baseSpot.hand.heroCards.split(RegExp(r'\s+'))) {
+      if (token.length >= 2) {
+        handCards.add(CardModel(rank: token[0], suit: token[1]));
+      }
+    }
+    final board = <CardModel>[
+      for (final c in set.baseSpot.hand.board)
+        CardModel(rank: c[0], suit: c.length > 1 ? c[1] : ''),
+    ];
+
+    final preActions = set.baseSpot.hand.actions[0] ?? [];
+    final preflopAction = preActions.map((a) => a.action).join('-');
+
+    return _lineEngine.expandLine(
+      preflopAction: preflopAction,
+      line: line,
+      board: board,
+      hand: handCards,
+      position: set.baseSpot.hand.position.name,
+    );
+  }
 }
