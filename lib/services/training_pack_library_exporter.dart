@@ -38,6 +38,7 @@ class TrainingPackLibraryExporter {
         'id': pack.id,
         'title': pack.title,
         if (pack.tags.isNotEmpty) 'tags': pack.tags,
+        if (pack.metadata.isNotEmpty) 'metadata': pack.metadata,
         'spots': [for (final s in pack.spots) s.toYaml()],
       };
 }

@@ -5,11 +5,14 @@ class TrainingPackModel {
   final String title;
   final List<TrainingPackSpot> spots;
   final List<String> tags;
+  final Map<String, dynamic> metadata;
 
   TrainingPackModel({
     required this.id,
     required this.title,
     required this.spots,
     List<String>? tags,
-  }) : tags = tags ?? const [];
+    Map<String, dynamic>? metadata,
+  })  : tags = tags ?? const [],
+        metadata = metadata ?? const {};
 }
