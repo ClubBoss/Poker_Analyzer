@@ -72,8 +72,7 @@ class TrainingPackTemplateExpanderService {
       var map = Map<String, dynamic>.from(params);
       final preset = map.remove('preset');
       if (preset != null) {
-        final expanded =
-            BoardTexturePresetLibrary.get(preset.toString());
+        final expanded = BoardTexturePresetLibrary.get(preset.toString());
         map = {...expanded, ...map};
       }
       final street = map.remove('targetStreet')?.toString().toLowerCase();
@@ -170,17 +169,15 @@ class TrainingPackTemplateExpanderService {
   List<SpotSeedFormat> expandLines(
     TrainingPackTemplateSet set, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
-  }) =>
-      expandLinePatterns(set, theoryIndex: theoryIndex);
+  }) => expandLinePatterns(set, theoryIndex: theoryIndex);
 
-  /// Generates [SpotSeed]s from [TrainingPackTemplateSet.postflopLine].
+  /// Generates [SpotSeed]s from [TrainingPackTemplateSet.postflopLines].
   ///
-  /// When the template defines a `postflopLine`, it is expanded into one seed
-  /// per street using [LineGraphEngine.expandLine]. Each seed contains the
-  /// accumulated action history up to that street.
-  List<SpotSeed> expandPostflopLine(TrainingPackTemplateSet set) {
-    final line = set.postflopLine;
-    if (line == null || line.isEmpty) return [];
+  /// When the template defines one or more `postflopLines`, each is expanded
+  /// into seeds per street using [LineGraphEngine.expandLine]. Each seed
+  /// contains the accumulated action history up to that street.
+  List<SpotSeed> expandPostflopLines(TrainingPackTemplateSet set) {
+    if (set.postflopLines.isEmpty) return [];
 
     final handCards = <CardModel>[];
     for (final token in set.baseSpot.hand.heroCards.split(RegExp(r'\s+'))) {
@@ -203,12 +200,23 @@ class TrainingPackTemplateExpanderService {
     final preActions = set.baseSpot.hand.actions[0] ?? [];
     final preflopAction = preActions.map((a) => a.action).join('-');
 
-    return _lineEngine.expandLine(
-      preflopAction: preflopAction,
-      line: line,
-      board: board,
-      hand: handCards,
-      position: set.baseSpot.hand.position.name,
-    );
+    final seeds = <SpotSeed>[];
+    for (final line in set.postflopLines) {
+      if (line.isEmpty) continue;
+      seeds.addAll(
+        _lineEngine.expandLine(
+          preflopAction: preflopAction,
+          line: line,
+          board: board,
+          hand: handCards,
+          position: set.baseSpot.hand.position.name,
+        ),
+      );
+    }
+    return seeds;
   }
+
+  /// Backwards compatible alias for [expandPostflopLines].
+  List<SpotSeed> expandPostflopLine(TrainingPackTemplateSet set) =>
+      expandPostflopLines(set);
 }

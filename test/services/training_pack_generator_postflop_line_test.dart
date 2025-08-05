@@ -15,16 +15,13 @@ void main() {
         position: HeroPosition.btn,
         board: ['As', 'Kd', 'Qc', '2h'],
         actions: {
-          0: [
-            ActionEntry(0, 0, 'raise'),
-            ActionEntry(0, 1, 'call'),
-          ],
+          0: [ActionEntry(0, 0, 'raise'), ActionEntry(0, 1, 'call')],
         },
       ),
     );
     final set = TrainingPackTemplateSet(
       baseSpot: base,
-      postflopLine: 'cbet-check',
+      postflopLines: ['cbet-check'],
     );
 
     final engine = TrainingPackGeneratorEngineV2();
@@ -49,16 +46,13 @@ void main() {
         position: HeroPosition.btn,
         board: ['As', 'Kd', 'Qc'],
         actions: {
-          0: [
-            ActionEntry(0, 0, 'raise'),
-            ActionEntry(0, 1, 'call'),
-          ],
+          0: [ActionEntry(0, 0, 'raise'), ActionEntry(0, 1, 'call')],
         },
       ),
     );
     final set = TrainingPackTemplateSet(
       baseSpot: base,
-      postflopLine: 'cbet-check',
+      postflopLines: ['cbet-check'],
       boardTexturePreset: 'lowPaired',
     );
 
@@ -78,16 +72,13 @@ void main() {
         position: HeroPosition.btn,
         board: ['As', '9d', '4c'],
         actions: {
-          0: [
-            ActionEntry(0, 0, 'raise'),
-            ActionEntry(0, 1, 'call'),
-          ],
+          0: [ActionEntry(0, 0, 'raise'), ActionEntry(0, 1, 'call')],
         },
       ),
     );
     final set = TrainingPackTemplateSet(
       baseSpot: base,
-      postflopLine: 'cbet-check',
+      postflopLines: ['cbet-check'],
       boardTexturePreset: 'dryAceHigh',
     );
 
@@ -96,5 +87,34 @@ void main() {
 
     // Base + two street expansions (flop & turn)
     expect(spots, hasLength(3));
+  });
+
+  test('expands multiple postflop lines into combined spots', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'AhKh',
+        position: HeroPosition.btn,
+        board: ['As', 'Kd', 'Qc', '2h'],
+        actions: {
+          0: [ActionEntry(0, 0, 'raise'), ActionEntry(0, 1, 'call')],
+        },
+      ),
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      postflopLines: ['cbet-check', 'check'],
+    );
+
+    final engine = TrainingPackGeneratorEngineV2();
+    final spots = engine.generate(set);
+
+    // Base + three expansions (two from first line, one from second)
+    expect(spots, hasLength(4));
+
+    final altFlop = spots.where(
+      (s) => s.street == 1 && s.tags.contains('flopCheck'),
+    );
+    expect(altFlop.length, 1);
   });
 }
