@@ -44,6 +44,8 @@ import 'session_streak_tracker_service.dart';
 import 'smart_recap_banner_controller.dart';
 import 'training_progress_tracker_service.dart';
 import 'training_progress_logger.dart';
+import '../app_bootstrap.dart';
+import 'training_session_context_service.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -368,6 +370,15 @@ class TrainingSessionService extends ChangeNotifier {
     if (template.tags.contains('customPath')) {
       unawaited(LearningPathProgressService.instance.markCustomPathStarted());
     }
+    AppBootstrap.registry.get<TrainingSessionContextService>().start(
+      packId: template.id,
+      trainingType: 'standard',
+      includedTags: [
+        ...template.tags,
+        ...?sessionTags,
+      ],
+      source: 'manual',
+    );
     _template = template;
     _sessionTags
       ..clear()
