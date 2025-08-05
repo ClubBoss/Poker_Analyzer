@@ -8,6 +8,7 @@ import '../theme/app_colors.dart';
 import '../widgets/theory_lesson_context_overlay.dart';
 import '../widgets/theory_path_map_toggle_button.dart';
 import '../widgets/theory_lesson_feedback_bar.dart';
+import '../widgets/theory_lesson_cluster_navigation_widget.dart';
 
 /// Inline markdown syntax for ==highlight== spans.
 class _HighlightSyntax extends md.InlineSyntax {
@@ -85,39 +86,46 @@ class TheoryLessonViewerScreen extends StatelessWidget {
         children: [
           Column(
             children: [
-          StickyHeader(
-            header: Container(
-              color: AppColors.cardBackground,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      lesson.resolvedTitle,
-                      style: const TextStyle(
-                        color: AppColors.textPrimaryDark,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Expanded(
+                child: StickyHeader(
+                  header: Container(
+                    color: AppColors.cardBackground,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            lesson.resolvedTitle,
+                            style: const TextStyle(
+                              color: AppColors.textPrimaryDark,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '$currentIndex/$totalCount',
+                          style: const TextStyle(
+                              color: AppColors.textSecondaryDark),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    '$currentIndex/$totalCount',
-                    style: const TextStyle(color: AppColors.textSecondaryDark),
+                  content: Markdown(
+                    data: lesson.resolvedContent,
+                    styleSheet: style,
+                    extensionSet: md.ExtensionSet.gitHubFlavored,
+                    inlineSyntaxes: [_HighlightSyntax()],
+                    builders: {'highlight': _HighlightBuilder()},
                   ),
-                ],
+                ),
               ),
-            ),
-            content: Expanded(
-              child: Markdown(
-                data: lesson.resolvedContent,
-                styleSheet: style,
-                extensionSet: md.ExtensionSet.gitHubFlavored,
-                inlineSyntaxes: [ _HighlightSyntax() ],
-                builders: { 'highlight': _HighlightBuilder() },
+              TheoryLessonClusterNavigationWidget(
+                currentLessonId: lesson.id,
               ),
-            ),
+            ],
           ),
           TheoryLessonFeedbackBar(lessonId: lesson.id),
           SafeArea(
@@ -129,7 +137,8 @@ class TheoryLessonViewerScreen extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: onContinue,
-                      style: ElevatedButton.styleFrom(backgroundColor: accent),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: accent),
                       child: const Text('Continue'),
                     ),
                   ),
