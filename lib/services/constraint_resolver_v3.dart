@@ -153,7 +153,19 @@ class ConstraintResolverV3 {
       }
       final street = map.remove('targetStreet')?.toString().toLowerCase();
       if (street != null) streetOverride = street;
-      final generated = _boardGenerator.generate(map);
+      final paramRequired = <String>[
+        for (final c in (map.remove('requiredBoardClusters') as List? ?? []))
+          c.toString(),
+      ];
+      final paramExcluded = <String>[
+        for (final c in (map.remove('excludedBoardClusters') as List? ?? []))
+          c.toString(),
+      ];
+      final generated = _boardGenerator.generate(
+        map,
+        requiredBoardClusters: paramRequired,
+        excludedBoardClusters: paramExcluded,
+      );
       if (street == 'turn') {
         final seen = <String>{};
         for (final b in generated) {

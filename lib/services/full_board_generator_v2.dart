@@ -4,6 +4,7 @@ import '../helpers/board_filtering_params_builder.dart';
 import 'board_texture_filter_service.dart';
 import 'card_deck_service.dart';
 import 'board_filtering_service_v2.dart';
+import 'board_cluster_library.dart';
 
 class FullBoardGeneratorV2 {
   const FullBoardGeneratorV2({
@@ -18,7 +19,11 @@ class FullBoardGeneratorV2 {
   final BoardTextureFilterService _textureFilter;
   final BoardFilteringServiceV2 _boardFilter;
 
-  List<BoardStages> generate(Map<String, dynamic> constraints) {
+  List<BoardStages> generate(
+    Map<String, dynamic> constraints, {
+    List<String> requiredBoardClusters = const [],
+    List<String> excludedBoardClusters = const [],
+  }) {
     final textures = <String>[
       for (final t in (constraints['requiredTextures'] as List? ?? []))
         t.toString(),
@@ -65,6 +70,12 @@ class FullBoardGeneratorV2 {
     ];
 
     final results = <BoardStages>[];
+    final requiredClusterSet = {
+      for (final c in requiredBoardClusters) c.toLowerCase(),
+    };
+    final excludedClusterSet = {
+      for (final c in excludedBoardClusters) c.toLowerCase(),
+    };
 
     for (var i = 0; i < usableDeck.length - 2; i++) {
       for (var j = i + 1; j < usableDeck.length - 1; j++) {
@@ -92,6 +103,15 @@ class FullBoardGeneratorV2 {
               }
               if (excludedSuits.any((ss) =>
                   all.any((c) => c.suit == ss))) {
+                continue;
+              }
+              final clusters = BoardClusterLibrary.getClusters(all)
+                  .map((c) => c.toLowerCase())
+                  .toSet();
+              if (requiredClusterSet.any((c) => !clusters.contains(c))) {
+                continue;
+              }
+              if (excludedClusterSet.any(clusters.contains)) {
                 continue;
               }
               final board = BoardStages(
