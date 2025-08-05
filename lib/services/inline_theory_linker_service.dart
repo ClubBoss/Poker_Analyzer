@@ -8,19 +8,23 @@ import '../models/training_spot.dart';
 import 'mini_lesson_library_service.dart';
 import 'theory_mini_lesson_navigator.dart';
 import 'theory_engagement_analytics_service.dart';
+import 'theory_suggestion_engagement_tracker_service.dart';
 
 class InlineTheoryLinkerService {
   InlineTheoryLinkerService({
     MiniLessonLibraryService? library,
     TheoryMiniLessonNavigator? navigator,
     TheoryEngagementAnalyticsService? analytics,
+    TheorySuggestionEngagementTrackerService? tracker,
   }) : _library = library ?? MiniLessonLibraryService.instance,
        _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
-       _analytics = analytics ?? const TheoryEngagementAnalyticsService();
+       _analytics = analytics ?? const TheoryEngagementAnalyticsService(),
+       _tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
 
   final MiniLessonLibraryService _library;
   final TheoryMiniLessonNavigator _navigator;
   final TheoryEngagementAnalyticsService _analytics;
+  final TheorySuggestionEngagementTrackerService _tracker;
 
   /// Parses [description] and converts matching keywords to inline links.
   ///
@@ -101,6 +105,19 @@ class InlineTheoryLinkerService {
     return _library.findByTags(tags);
   }
 
+  /// Computes engagement score for the lesson with [lessonId].
+  ///
+  /// The score is a weighted sum of suggestion, expansion and open counts.
+  Future<double> getEngagementScore(String lessonId) async {
+    final suggested = await _tracker.countByAction('suggested');
+    final expanded = await _tracker.countByAction('expanded');
+    final opened = await _tracker.countByAction('opened');
+    final s = suggested[lessonId] ?? 0;
+    final e = expanded[lessonId] ?? 0;
+    final o = opened[lessonId] ?? 0;
+    return s * 0.2 + e * 0.3 + o * 0.5;
+  }
+
   /// Finds the most relevant [TheoryMiniLessonNode] for the given [spot].
   ///
   /// The match score prioritizes:
@@ -140,6 +157,7 @@ class InlineTheoryLinkerService {
 
     TheoryMiniLessonNode? best;
     int bestScore = 0;
+    final top = <TheoryMiniLessonNode>[];
 
     for (final lesson in _library.all) {
       final tags = lesson.tags.map((t) => t.toLowerCase()).toSet();
@@ -161,13 +179,29 @@ class InlineTheoryLinkerService {
         }
       }
 
-      if (score > bestScore) {
+      if (best == null || score > bestScore) {
         bestScore = score;
         best = lesson;
+        top
+          ..clear()
+          ..add(lesson);
+      } else if (score == bestScore && bestScore > 0) {
+        top.add(lesson);
       }
     }
 
-    return best;
+    if (best == null) return null;
+    if (top.length == 1) return best;
+
+    final engagement = <TheoryMiniLessonNode, double>{};
+    for (final l in top) {
+      engagement[l] = await getEngagementScore(l.id);
+    }
+    final hasNonZero = engagement.values.any((v) => v > 0);
+    if (!hasNonZero) return best;
+
+    top.sort((a, b) => engagement[b]!.compareTo(engagement[a]!));
+    return top.first;
   }
 
   /// Returns up to 3 lesson ids that best match [spot] based on tag overlap
