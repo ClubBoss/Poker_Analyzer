@@ -84,4 +84,27 @@ variations:
       expect(lowRanks.containsAll(s.board.take(3).map((c) => c[0])), isTrue);
     }
   });
+
+  test('filters out spots that fail constraint checks', () {
+    const yaml = '''
+baseSpot:
+  id: base
+  hand:
+    heroCards: Ah Kh
+    position: btn
+    heroIndex: 0
+    playerCount: 2
+    board: []
+variations:
+  - positions: [co]
+    overrides:
+      heroStack: [20]
+    minStack: 25
+''';
+
+    final set = TrainingPackTemplateSet.fromYaml(yaml);
+    final svc = TrainingPackTemplateExpanderService();
+    final spots = svc.expand(set);
+    expect(spots, isEmpty);
+  });
 }

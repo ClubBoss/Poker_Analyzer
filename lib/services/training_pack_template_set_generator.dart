@@ -77,10 +77,12 @@ class TrainingPackTemplateSetGenerator {
     if (spot.villainAction != null && spot.villainAction!.isNotEmpty) {
       actions.add(spot.villainAction!.split(' ').first);
     }
+    final stack = spot.hand.stacks['0'];
     return SpotSeedFormat(
       player: 'hero',
       handGroup: const [],
       position: heroPos,
+      heroStack: stack,
       board: board,
       villainActions: actions,
       tags: spot.tags,
