@@ -33,15 +33,15 @@ class TrainingPackTemplateSet {
   /// Optional action line patterns describing multi-street sequences.
   final List<LinePattern> linePatterns;
 
-  /// Optional shorthand postflop action line applied to the base spot.
+  /// Optional shorthand postflop action lines applied to the base spot.
   ///
-  /// When provided, this string is expanded via [LineGraphEngine.expandLine]
+  /// When provided, each string is expanded via [LineGraphEngine.expandLine]
   /// to generate multiple street-specific training spots.
-  final String? postflopLine;
+  final List<String> postflopLines;
 
-  /// Optional board texture preset used to filter `postflopLine` expansions.
+  /// Optional board texture preset used to filter `postflopLines` expansions.
   ///
-  /// When set, the `postflopLine` is only expanded if the base spot's board
+  /// When set, the `postflopLines` are only expanded if the base spot's board
   /// matches the named preset via [BoardTexturePresetLibrary.matches].
   final String? boardTexturePreset;
 
@@ -52,12 +52,13 @@ class TrainingPackTemplateSet {
     this.suitAlternation = false,
     List<int>? stackDepthMods,
     List<LinePattern>? linePatterns,
-    this.postflopLine,
+    List<String>? postflopLines,
     this.boardTexturePreset,
   }) : variations = variations ?? const [],
        playerTypeVariations = playerTypeVariations ?? const [],
        stackDepthMods = stackDepthMods ?? const [],
-       linePatterns = linePatterns ?? const [];
+       linePatterns = linePatterns ?? const [],
+       postflopLines = postflopLines ?? const [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     final baseMap = Map<String, dynamic>.from(
@@ -81,7 +82,15 @@ class TrainingPackTemplateSet {
       for (final p in (json['linePatterns'] as List? ?? []))
         LinePattern.fromJson(Map<String, dynamic>.from(p as Map)),
     ];
+
+    final postLines = <String>[
+      for (final l in (json['postflopLines'] as List? ?? [])) l.toString(),
+    ];
     final postLine = json['postflopLine']?.toString();
+    if (postLine != null && postLine.isNotEmpty) {
+      postLines.add(postLine);
+    }
+
     final preset = json['boardTexturePreset']?.toString();
     return TrainingPackTemplateSet(
       baseSpot: base,
@@ -90,7 +99,7 @@ class TrainingPackTemplateSet {
       suitAlternation: suitAlt,
       stackDepthMods: depthMods,
       linePatterns: patterns,
-      postflopLine: postLine,
+      postflopLines: postLines,
       boardTexturePreset: preset,
     );
   }
@@ -110,8 +119,10 @@ class TrainingPackTemplateSet {
     if (stackDepthMods.isNotEmpty) 'stackDepthMods': stackDepthMods,
     if (linePatterns.isNotEmpty)
       'linePatterns': [for (final p in linePatterns) p.toJson()],
-    if (postflopLine != null && postflopLine!.isNotEmpty)
-      'postflopLine': postflopLine,
+    if (postflopLines.length == 1)
+      'postflopLine': postflopLines.first
+    else if (postflopLines.length > 1)
+      'postflopLines': postflopLines,
     if (boardTexturePreset != null && boardTexturePreset!.isNotEmpty)
       'boardTexturePreset': boardTexturePreset,
   };

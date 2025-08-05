@@ -27,10 +27,10 @@ class TrainingPackGeneratorEngineV2 {
     AutoSpotTheoryInjectorService? injector,
     LineGraphEngine? lineEngine,
     Uuid? uuid,
-  })  : _expander = expander ?? TrainingPackTemplateExpanderService(),
-        _injector = injector ?? AutoSpotTheoryInjectorService(),
-        _lineEngine = lineEngine ?? const LineGraphEngine(),
-        _uuid = uuid ?? const Uuid();
+  }) : _expander = expander ?? TrainingPackTemplateExpanderService(),
+       _injector = injector ?? AutoSpotTheoryInjectorService(),
+       _lineEngine = lineEngine ?? const LineGraphEngine(),
+       _uuid = uuid ?? const Uuid();
 
   /// Generates all spots defined by [set].
   ///
@@ -66,18 +66,14 @@ class TrainingPackGeneratorEngineV2 {
       }
       copy.street = _streetFromBoard(board.length);
 
-      final tags = {
-        ...baseSpot.tags,
-        ...lineTags,
-        ..._autoTags(copy),
-      };
+      final tags = {...baseSpot.tags, ...lineTags, ..._autoTags(copy)};
       copy.tags = tags.toList()..sort();
       spots.add(copy);
     }
 
-    // Postflop shorthand line expansion.
-    if (set.postflopLine != null && set.postflopLine!.isNotEmpty) {
-      final lineSeeds = _expander.expandPostflopLine(set);
+    // Postflop shorthand line expansions.
+    if (set.postflopLines.isNotEmpty) {
+      final lineSeeds = _expander.expandPostflopLines(set);
       for (final seed in lineSeeds) {
         final copy = _cloneBase(baseSpot);
 
@@ -88,11 +84,7 @@ class TrainingPackGeneratorEngineV2 {
         copy.street = _streetFromBoard(board.length);
         copy.meta['previousActions'] = List<String>.from(seed.previousActions);
 
-        final tags = {
-          ...baseSpot.tags,
-          ...seed.tags,
-          ..._autoTags(copy),
-        };
+        final tags = {...baseSpot.tags, ...seed.tags, ..._autoTags(copy)};
         copy.tags = tags.toList()..sort();
         spots.add(copy);
       }
@@ -149,5 +141,4 @@ class TrainingPackGeneratorEngineV2 {
     list.sort();
     return list;
   }
-
 }
