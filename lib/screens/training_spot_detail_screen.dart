@@ -8,6 +8,7 @@ import '../services/training_session_controller.dart';
 import 'training_play_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../services/theory_mini_lesson_navigator.dart';
 
 class TrainingSpotDetailScreen extends StatelessWidget {
   final TrainingSpot spot;
@@ -34,7 +35,15 @@ class TrainingSpotDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(l.spotDetails),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context)],
+        actions: [
+          if (spot.inlineLessons.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.menu_book),
+              onPressed: () => TheoryMiniLessonNavigator.instance
+                  .openLessonById(spot.inlineLessons.first),
+            ),
+          SyncStatusIcon.of(context)
+        ],
       ),
       backgroundColor: Colors.black,
       body: ListView(
