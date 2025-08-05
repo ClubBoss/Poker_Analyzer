@@ -101,4 +101,24 @@ void main() {
     final constraints = ConstraintSet(targetStreet: 'flop');
     expect(engine.isValid(candidate, constraints), isFalse);
   });
+
+  test('enforces required and excluded spot tags', () {
+    final candidate = buildCandidate().copyWith(tags: ['a', 'b']);
+    final ok = ConstraintSet(requiredTags: ['a'], excludedTags: ['c']);
+    final failReq = ConstraintSet(requiredTags: ['c']);
+    final failExcl = ConstraintSet(excludedTags: ['b']);
+    expect(engine.isValid(candidate, ok), isTrue);
+    expect(engine.isValid(candidate, failReq), isFalse);
+    expect(engine.isValid(candidate, failExcl), isFalse);
+  });
+
+  test('validates stack range when provided', () {
+    final candidate = buildCandidate().copyWith(heroStack: 20);
+    final ok = ConstraintSet(minStack: 10, maxStack: 25);
+    final low = ConstraintSet(minStack: 30);
+    final high = ConstraintSet(maxStack: 10);
+    expect(engine.isValid(candidate, ok), isTrue);
+    expect(engine.isValid(candidate, low), isFalse);
+    expect(engine.isValid(candidate, high), isFalse);
+  });
 }

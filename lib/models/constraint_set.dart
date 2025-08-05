@@ -15,6 +15,28 @@ class ConstraintSet {
   final List<String> villainActions;
   final String? targetStreet;
 
+  /// Optional tag requirements for the generated spot.
+  final List<String> requiredTags;
+
+  /// Tags that must not be present on the generated spot.
+  final List<String> excludedTags;
+
+  /// Specific hero position requirement. Takes precedence over [positions]
+  /// when provided.
+  final String? position;
+
+  /// Optional opponent position requirement.
+  final String? opponentPosition;
+
+  /// Board texture constraints expressed as required/excluded tags.
+  final Map<String, dynamic>? boardTexture;
+
+  /// Minimum allowed hero stack size (in BB).
+  final double? minStack;
+
+  /// Maximum allowed hero stack size (in BB).
+  final double? maxStack;
+
   /// Optional list of board generation constraints to expand into concrete
   /// boards for this variation.
   final List<Map<String, dynamic>> boardConstraints;
@@ -51,6 +73,13 @@ class ConstraintSet {
     this.handGroup = const [],
     this.villainActions = const [],
     this.targetStreet,
+    this.requiredTags = const [],
+    this.excludedTags = const [],
+    this.position,
+    this.opponentPosition,
+    this.boardTexture,
+    this.minStack,
+    this.maxStack,
     this.boardConstraints = const [],
     this.linePattern,
     this.overrides = const {},
@@ -84,6 +113,19 @@ class ConstraintSet {
         for (final a in (json['villainActions'] as List? ?? [])) a.toString(),
       ],
       targetStreet: json['targetStreet']?.toString(),
+      requiredTags: [
+        for (final t in (json['requiredTags'] as List? ?? [])) t.toString(),
+      ],
+      excludedTags: [
+        for (final t in (json['excludedTags'] as List? ?? [])) t.toString(),
+      ],
+      position: json['position']?.toString(),
+      opponentPosition: json['opponentPosition']?.toString(),
+      boardTexture: json['boardTexture'] is Map
+          ? Map<String, dynamic>.from(json['boardTexture'])
+          : null,
+      minStack: (json['minStack'] as num?)?.toDouble(),
+      maxStack: (json['maxStack'] as num?)?.toDouble(),
       boardConstraints: [
         if (json['boardConstraints'] is List)
           for (final c in (json['boardConstraints'] as List))
@@ -114,6 +156,14 @@ class ConstraintSet {
         if (handGroup.isNotEmpty) 'handGroup': handGroup,
         if (villainActions.isNotEmpty) 'villainActions': villainActions,
         if (targetStreet != null) 'targetStreet': targetStreet,
+        if (requiredTags.isNotEmpty) 'requiredTags': requiredTags,
+        if (excludedTags.isNotEmpty) 'excludedTags': excludedTags,
+        if (position != null) 'position': position,
+        if (opponentPosition != null) 'opponentPosition': opponentPosition,
+        if (boardTexture != null && boardTexture!.isNotEmpty)
+          'boardTexture': boardTexture,
+        if (minStack != null) 'minStack': minStack,
+        if (maxStack != null) 'maxStack': maxStack,
         if (boardConstraints.isNotEmpty) 'boardConstraints': boardConstraints,
         if (linePattern != null) 'linePattern': linePattern!.toJson(),
         if (overrides.isNotEmpty) 'overrides': overrides,

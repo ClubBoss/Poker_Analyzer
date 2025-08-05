@@ -1,27 +1,37 @@
 import '../models/constraint_set.dart';
 import '../models/spot_seed_format.dart';
+import '../models/card_model.dart';
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../utils/board_analyzer_utils.dart';
+import '../utils/stack_utils.dart';
 import 'action_pattern_matcher.dart';
-import 'dynamic_board_tagger_service.dart';
 import 'package:uuid/uuid.dart';
 
 class ConstraintResolverEngine {
-  final DynamicBoardTaggerService _tagger;
   final ActionPatternMatcher _actionMatcher;
 
   const ConstraintResolverEngine({
-    DynamicBoardTaggerService? tagger,
     ActionPatternMatcher? actionMatcher,
-  })  : _tagger = tagger ?? const DynamicBoardTaggerService(),
-        _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
+  }) : _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
 
   bool isValid(SpotSeedFormat candidate, ConstraintSet constraints) {
-    if (constraints.positions.isNotEmpty &&
+    final posReq = constraints.position?.toLowerCase();
+    if (posReq != null && candidate.position.toLowerCase() != posReq) {
+      return false;
+    }
+    if (posReq == null &&
+        constraints.positions.isNotEmpty &&
         !constraints.positions
             .map((e) => e.toLowerCase())
             .contains(candidate.position.toLowerCase())) {
       return false;
+    }
+
+    final oppReq = constraints.opponentPosition?.toLowerCase();
+    if (oppReq != null) {
+      final opp = candidate.opponentPosition?.toLowerCase();
+      if (opp != oppReq) return false;
     }
 
     if (constraints.handGroup.isNotEmpty &&
@@ -33,14 +43,36 @@ class ConstraintResolverEngine {
       return false;
     }
 
+    final boardTags = BoardAnalyzerUtils.tags(candidate.board)
+        .map((t) => t.toLowerCase())
+        .toSet();
     if (constraints.boardTags.isNotEmpty) {
-      final actualTags =
-          _tagger.tag(candidate.board).map((t) => t.toLowerCase()).toSet();
       final required =
           constraints.boardTags.map((t) => t.toLowerCase()).toList();
-      if (!required.every(actualTags.contains)) {
+      if (!required.every(boardTags.contains)) {
         return false;
       }
+    }
+    if (constraints.boardTexture != null) {
+      final req = (constraints.boardTexture!['requiredTags'] as List? ?? [])
+          .map((e) => e.toString().toLowerCase());
+      if (!req.every(boardTags.contains)) return false;
+      final excl = (constraints.boardTexture!['excludedTags'] as List? ?? [])
+          .map((e) => e.toString().toLowerCase());
+      if (excl.any(boardTags.contains)) return false;
+    }
+
+    if (constraints.requiredTags.isNotEmpty) {
+      final tags = candidate.tags.map((t) => t.toLowerCase()).toSet();
+      final req =
+          constraints.requiredTags.map((t) => t.toLowerCase()).toList();
+      if (!req.every(tags.contains)) return false;
+    }
+    if (constraints.excludedTags.isNotEmpty) {
+      final tags = candidate.tags.map((t) => t.toLowerCase()).toSet();
+      final excl =
+          constraints.excludedTags.map((t) => t.toLowerCase()).toList();
+      if (excl.any(tags.contains)) return false;
     }
 
     if (constraints.villainActions.isNotEmpty &&
@@ -56,6 +88,15 @@ class ConstraintResolverEngine {
         candidate.currentStreet.toLowerCase() !=
             constraints.targetStreet!.toLowerCase()) {
       return false;
+    }
+
+    if (constraints.minStack != null || constraints.maxStack != null) {
+      final stack = candidate.heroStack;
+      if (stack == null ||
+          !StackUtils.inRange(stack,
+              min: constraints.minStack, max: constraints.maxStack)) {
+        return false;
+      }
     }
 
     return true;
@@ -111,7 +152,10 @@ class ConstraintResolverEngine {
           spot.theoryLink = set.theoryLink;
         }
 
-        results.add(spot);
+        final seed = _toSeed(spot);
+        if (isValid(seed, set)) {
+          results.add(spot);
+        }
       }
     }
 
@@ -167,5 +211,28 @@ class ConstraintResolverEngine {
       return Map<String, dynamic>.from(updates);
     }
     return {...base, ...updates};
+  }
+
+  SpotSeedFormat _toSeed(TrainingPackSpot spot) {
+    final board = [
+      for (final c in spot.board)
+        CardModel(rank: c[0], suit: c.length > 1 ? c[1] : ''),
+    ];
+    final heroPos = spot.hand.position.name;
+    final stack = spot.hand.stacks['0'];
+    final actions = <String>[];
+    if (spot.villainAction != null && spot.villainAction!.isNotEmpty) {
+      actions.add(spot.villainAction!.split(' ').first);
+    }
+    return SpotSeedFormat(
+      player: 'hero',
+      handGroup: const [],
+      position: heroPos,
+      opponentPosition: null,
+      heroStack: stack,
+      board: board,
+      villainActions: actions,
+      tags: spot.tags,
+    );
   }
 }
