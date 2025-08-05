@@ -20,11 +20,12 @@ class TheoryMiniLessonContentTemplateService {
     if (node.content.isNotEmpty) return node;
     final template = _matchTemplate(node);
     if (template == null) return node;
+    final filled = _fillPlaceholders(template, node);
     return TheoryMiniLessonNode(
       id: node.id,
       refId: node.refId,
       title: node.title,
-      content: template,
+      content: filled,
       tags: List<String>.from(node.tags),
       stage: node.stage,
       targetStreet: node.targetStreet,
@@ -66,5 +67,42 @@ class TheoryMiniLessonContentTemplateService {
     if (street != null) yield street;
   }
 
-}
+  String _fillPlaceholders(String template, TheoryMiniLessonNode node) {
+    var result = template;
 
+    final posTag =
+        node.tags.firstWhere((t) => t.contains(' vs '), orElse: () => '');
+    if (posTag.isNotEmpty) {
+      final parts = posTag.split(' vs ');
+      final hero = parts.first;
+      final villain = parts.length > 1 ? parts[1] : '';
+      result = result.replaceAll('{position}', hero);
+      result = result.replaceAll('{villainPosition}', villain);
+    } else {
+      result = result.replaceAll('{position}', '');
+      result = result.replaceAll('{villainPosition}', '');
+    }
+
+    final boardTexture = _extractBoardTexture(node.tags);
+    result = result.replaceAll('{boardTexture}', boardTexture);
+
+    result = result.replaceAll('{stage}', node.stage ?? '');
+    result = result.replaceAll('{targetStreet}', node.targetStreet ?? '');
+
+    return result;
+  }
+
+  String _extractBoardTexture(List<String> tags) {
+    const textures = {
+      'Wet Board',
+      'Dry Board',
+      'Paired',
+      'Monotone',
+      'Rainbow',
+    };
+    for (final t in tags) {
+      if (textures.contains(t)) return t;
+    }
+    return '';
+  }
+}
