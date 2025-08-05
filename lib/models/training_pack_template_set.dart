@@ -63,6 +63,14 @@ class TrainingPackTemplateSet {
   /// [BoardTexturePresetLibrary.matches], the postflop lines are skipped.
   final List<String> excludeBoardTexturePresets;
 
+  /// Board clusters that must be present on the base board for
+  /// `postflopLines` to expand.
+  final List<String> requiredBoardClusters;
+
+  /// Board clusters that must not be present on the base board for
+  /// `postflopLines` to expand.
+  final List<String> excludedBoardClusters;
+
   const TrainingPackTemplateSet({
     required this.baseSpot,
     List<ConstraintSet>? variations,
@@ -73,6 +81,8 @@ class TrainingPackTemplateSet {
     List<PostflopLine>? postflopLines,
     this.boardTexturePreset,
     List<String>? excludeBoardTexturePresets,
+    List<String>? requiredBoardClusters,
+    List<String>? excludedBoardClusters,
     this.expandAllLines = false,
     this.postflopLineSeed,
   }) : variations = variations ?? const [],
@@ -80,7 +90,9 @@ class TrainingPackTemplateSet {
        stackDepthMods = stackDepthMods ?? const [],
        linePatterns = linePatterns ?? const [],
        postflopLines = postflopLines ?? const [],
-       excludeBoardTexturePresets = excludeBoardTexturePresets ?? const [];
+       excludeBoardTexturePresets = excludeBoardTexturePresets ?? const [],
+       requiredBoardClusters = requiredBoardClusters ?? const [],
+       excludedBoardClusters = excludedBoardClusters ?? const [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     final baseMap = Map<String, dynamic>.from(
@@ -119,6 +131,14 @@ class TrainingPackTemplateSet {
       for (final p in (json['excludeBoardTexturePresets'] as List? ?? []))
         p.toString(),
     ];
+    final requiredClusters = <String>[
+      for (final c in (json['requiredBoardClusters'] as List? ?? []))
+        c.toString(),
+    ];
+    final excludedClusters = <String>[
+      for (final c in (json['excludedBoardClusters'] as List? ?? []))
+        c.toString(),
+    ];
     final expandAll = json['expandAllLines'] == true;
     final seed = json['postflopLineSeed'];
     return TrainingPackTemplateSet(
@@ -131,6 +151,8 @@ class TrainingPackTemplateSet {
       postflopLines: postLines,
       boardTexturePreset: preset,
       excludeBoardTexturePresets: excluded,
+      requiredBoardClusters: requiredClusters,
+      excludedBoardClusters: excludedClusters,
       expandAllLines: expandAll,
       postflopLineSeed: seed is num ? seed.toInt() : null,
     );
@@ -161,6 +183,10 @@ class TrainingPackTemplateSet {
       'boardTexturePreset': boardTexturePreset,
     if (excludeBoardTexturePresets.isNotEmpty)
       'excludeBoardTexturePresets': excludeBoardTexturePresets,
+    if (requiredBoardClusters.isNotEmpty)
+      'requiredBoardClusters': requiredBoardClusters,
+    if (excludedBoardClusters.isNotEmpty)
+      'excludedBoardClusters': excludedBoardClusters,
     if (expandAllLines) 'expandAllLines': true,
     if (postflopLineSeed != null) 'postflopLineSeed': postflopLineSeed,
   };

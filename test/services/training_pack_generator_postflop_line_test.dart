@@ -116,6 +116,78 @@ void main() {
     expect(spots.first.id, isNotEmpty);
   });
 
+  test('skips postflop line when required cluster mismatches', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'AhKh',
+        position: HeroPosition.btn,
+        board: ['As', '9d', '4c'],
+        actions: {
+          0: [ActionEntry(0, 0, 'raise'), ActionEntry(0, 1, 'call')],
+        },
+      ),
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      postflopLines: [PostflopLine(line: 'cbet-check')],
+      requiredBoardClusters: ['wet'],
+    );
+
+    final engine = TrainingPackGeneratorEngineV2();
+    final spots = engine.generate(set);
+
+    expect(spots, hasLength(1));
+  });
+
+  test('expands postflop line when required cluster matches', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'AhKh',
+        position: HeroPosition.btn,
+        board: ['As', 'Kd', 'Qc'],
+        actions: {
+          0: [ActionEntry(0, 0, 'raise'), ActionEntry(0, 1, 'call')],
+        },
+      ),
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      postflopLines: [PostflopLine(line: 'cbet-check')],
+      requiredBoardClusters: ['wet'],
+    );
+
+    final engine = TrainingPackGeneratorEngineV2();
+    final spots = engine.generate(set);
+
+    expect(spots, hasLength(3));
+  });
+
+  test('skips postflop line when board matches excluded cluster', () {
+    final base = TrainingPackSpot(
+      id: 'base',
+      hand: HandData(
+        heroCards: 'AhKh',
+        position: HeroPosition.btn,
+        board: ['As', 'Kd', 'Qc'],
+        actions: {
+          0: [ActionEntry(0, 0, 'raise'), ActionEntry(0, 1, 'call')],
+        },
+      ),
+    );
+    final set = TrainingPackTemplateSet(
+      baseSpot: base,
+      postflopLines: [PostflopLine(line: 'cbet-check')],
+      excludedBoardClusters: ['wet'],
+    );
+
+    final engine = TrainingPackGeneratorEngineV2();
+    final spots = engine.generate(set);
+
+    expect(spots, hasLength(1));
+  });
+
   test('expands multiple postflop lines into combined spots', () {
     final base = TrainingPackSpot(
       id: 'base',

@@ -12,6 +12,7 @@ import 'full_board_generator_v2.dart';
 import 'line_graph_engine.dart';
 import 'inline_theory_node_linker.dart';
 import 'board_texture_preset_library.dart';
+import 'board_cluster_library.dart';
 import 'dart:math';
 
 /// Expands a [TrainingPackTemplateSet] into concrete [TrainingPackSpot]s using
@@ -201,6 +202,20 @@ class TrainingPackTemplateExpanderService {
 
     for (final ex in set.excludeBoardTexturePresets) {
       if (BoardTexturePresetLibrary.matches(board, ex)) {
+        return [];
+      }
+    }
+
+    final clusters = BoardClusterLibrary.getClusters(board)
+        .map((c) => c.toLowerCase())
+        .toSet();
+    for (final req in set.requiredBoardClusters) {
+      if (!clusters.contains(req.toLowerCase())) {
+        return [];
+      }
+    }
+    for (final ex in set.excludedBoardClusters) {
+      if (clusters.contains(ex.toLowerCase())) {
         return [];
       }
     }
