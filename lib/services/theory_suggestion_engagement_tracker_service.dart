@@ -64,4 +64,11 @@ class TheorySuggestionEngagementTrackerService {
     }
     return counts;
   }
+
+  /// Returns all events matching [action].
+  Future<List<TheorySuggestionEngagementEvent>> eventsByAction(
+      String action) async {
+    await _load();
+    return _events.where((e) => e.action == action).toList(growable: false);
+  }
 }
