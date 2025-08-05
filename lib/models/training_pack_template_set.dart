@@ -39,6 +39,12 @@ class TrainingPackTemplateSet {
   /// to generate multiple street-specific training spots.
   final String? postflopLine;
 
+  /// Optional board texture preset used to filter `postflopLine` expansions.
+  ///
+  /// When set, the `postflopLine` is only expanded if the base spot's board
+  /// matches the named preset via [BoardTexturePresetLibrary.matches].
+  final String? boardTexturePreset;
+
   const TrainingPackTemplateSet({
     required this.baseSpot,
     List<ConstraintSet>? variations,
@@ -47,6 +53,7 @@ class TrainingPackTemplateSet {
     List<int>? stackDepthMods,
     List<LinePattern>? linePatterns,
     this.postflopLine,
+    this.boardTexturePreset,
   }) : variations = variations ?? const [],
        playerTypeVariations = playerTypeVariations ?? const [],
        stackDepthMods = stackDepthMods ?? const [],
@@ -75,6 +82,7 @@ class TrainingPackTemplateSet {
         LinePattern.fromJson(Map<String, dynamic>.from(p as Map)),
     ];
     final postLine = json['postflopLine']?.toString();
+    final preset = json['boardTexturePreset']?.toString();
     return TrainingPackTemplateSet(
       baseSpot: base,
       variations: vars,
@@ -83,6 +91,7 @@ class TrainingPackTemplateSet {
       stackDepthMods: depthMods,
       linePatterns: patterns,
       postflopLine: postLine,
+      boardTexturePreset: preset,
     );
   }
 
@@ -103,5 +112,7 @@ class TrainingPackTemplateSet {
       'linePatterns': [for (final p in linePatterns) p.toJson()],
     if (postflopLine != null && postflopLine!.isNotEmpty)
       'postflopLine': postflopLine,
+    if (boardTexturePreset != null && boardTexturePreset!.isNotEmpty)
+      'boardTexturePreset': boardTexturePreset,
   };
 }
