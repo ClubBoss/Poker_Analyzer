@@ -2,10 +2,11 @@ import 'action_entry.dart';
 import 'card_model.dart';
 import 'player_model.dart';
 import 'saved_hand.dart';
+import 'spot_model.dart';
 
 enum SpotActionType { pushFold, callPush }
 
-class TrainingSpot {
+class TrainingSpot implements SpotModel {
   final List<List<CardModel>> playerCards;
   final List<CardModel> boardCards;
   final List<ActionEntry> actions;
@@ -31,6 +32,7 @@ class TrainingSpot {
   final int anteBb;
   final String? category;
   final List<String> tags;
+  final List<String> inlineLessons;
   final int difficulty;
   final int rating;
   final String? userAction;
@@ -79,8 +81,10 @@ class TrainingSpot {
     this.expectedValue,
     this.difficulty = 3,
     this.rating = 0,
+    List<String>? inlineLessons,
     DateTime? createdAt,
   })  : tags = tags ?? [],
+        inlineLessons = inlineLessons ?? [],
         createdAt = createdAt ?? DateTime.now();
 
   factory TrainingSpot.fromSavedHand(SavedHand hand) {
@@ -164,6 +168,7 @@ class TrainingSpot {
         'anteBb': anteBb,
         if (category != null) 'category': category,
         if (tags.isNotEmpty) 'tags': tags,
+        if (inlineLessons.isNotEmpty) 'inlineLessons': inlineLessons,
         if (strategyAdvice != null) 'strategyAdvice': strategyAdvice,
         'difficulty': difficulty,
         'rating': rating,
@@ -283,6 +288,9 @@ class TrainingSpot {
       anteBb: json['anteBb'] as int? ?? 0,
       category: json['category'] as String?,
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
+      inlineLessons: [
+        for (final t in (json['inlineLessons'] as List? ?? [])) t as String
+      ],
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
       rating: (json['rating'] as num?)?.toInt() ?? 0,
       userAction: json['userAction'] as String?,
@@ -325,6 +333,7 @@ class TrainingSpot {
     List<List<double>>? rangeMatrix,
     DateTime? createdAt,
     int? anteBb,
+    List<String>? inlineLessons,
   }) {
     return TrainingSpot(
       playerCards: [for (final list in playerCards) List<CardModel>.from(list)],
@@ -346,6 +355,7 @@ class TrainingSpot {
       anteBb: anteBb ?? this.anteBb,
       category: category ?? this.category,
       tags: tags ?? List<String>.from(this.tags),
+      inlineLessons: inlineLessons ?? List<String>.from(this.inlineLessons),
       difficulty: difficulty ?? this.difficulty,
       rating: rating ?? this.rating,
       userAction: userAction ?? this.userAction,

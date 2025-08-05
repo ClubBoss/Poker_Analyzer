@@ -3,6 +3,10 @@ import 'package:poker_analyzer/models/theory_lesson_engagement_stats.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/models/training_spot.dart';
+import 'package:poker_analyzer/models/player_model.dart';
+import 'package:poker_analyzer/models/card_model.dart';
+import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/services/inline_theory_linker_service.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/theory_engagement_analytics_service.dart';
@@ -158,5 +162,56 @@ void main() {
     expect(spots[0].inlineLessonId, 'l1');
     expect(spots[1].inlineLessonId, 'l2');
     expect(spots[2].inlineLessonId, 'l3');
+  });
+
+  test('attachInlineLessonsToSpot filters by street and stage', () async {
+    final lessons = [
+      const TheoryMiniLessonNode(
+        id: 'l1',
+        title: 'Flop CBet',
+        content: '',
+        tags: ['cbet'],
+        targetStreet: 'flop',
+        stage: 'basic',
+      ),
+      const TheoryMiniLessonNode(
+        id: 'l2',
+        title: 'Turn CBet',
+        content: '',
+        tags: ['cbet', 'turn'],
+        targetStreet: 'turn',
+        stage: 'basic',
+      ),
+      const TheoryMiniLessonNode(
+        id: 'l3',
+        title: 'Flop Probe',
+        content: '',
+        tags: ['probe'],
+        targetStreet: 'flop',
+        stage: 'basic',
+      ),
+    ];
+    final service = InlineTheoryLinkerService(library: _FakeLibrary(lessons));
+    final spot = TrainingSpot(
+      playerCards: [<CardModel>[], <CardModel>[]],
+      boardCards: [
+        CardModel(rank: 'A', suit: 'h'),
+        CardModel(rank: 'K', suit: 'd'),
+        CardModel(rank: 'Q', suit: 'c'),
+      ],
+      actions: <ActionEntry>[],
+      heroIndex: 0,
+      numberOfPlayers: 2,
+      playerTypes: const [PlayerType.unknown, PlayerType.unknown],
+      positions: const ['UTG', 'BB'],
+      stacks: const [100, 100],
+      tags: ['cbet'],
+      category: 'basic',
+      anteBb: 0,
+      createdAt: DateTime(2024),
+    );
+
+    await service.attachInlineLessonsToSpot(spot);
+    expect(spot.inlineLessons, ['l1']);
   });
 }

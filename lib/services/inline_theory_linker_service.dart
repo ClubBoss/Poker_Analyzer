@@ -4,6 +4,7 @@ import '../models/inline_theory_linked_text.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../models/spot_model.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../models/training_spot.dart';
 import 'mini_lesson_library_service.dart';
 import 'theory_mini_lesson_navigator.dart';
 import 'theory_engagement_analytics_service.dart';
@@ -128,6 +129,67 @@ class InlineTheoryLinkerService {
     });
 
     return lessons.take(3).map((l) => l.id).toList();
+  }
+
+  /// Populates [spot.inlineLessons] with up to [maxCount] lesson ids matched
+  /// by tags, target street and stage.
+  Future<void> attachInlineLessonsToSpot(
+    TrainingSpot spot, {
+    int maxCount = 3,
+  }) async {
+    await _library.loadAll();
+    final spotTags =
+        spot.tags.map((t) => t.trim().toLowerCase()).toSet()
+          ..removeWhere((t) => t.isEmpty);
+    if (spotTags.isEmpty) return;
+    final lessons = _library.findByTags(spotTags.toList());
+    if (lessons.isEmpty) return;
+    final street = _spotStreetName(spot).toLowerCase();
+    final stage = spot.category?.toLowerCase();
+
+    final filtered = <TheoryMiniLessonNode>[];
+    for (final lesson in lessons) {
+      if (lesson.targetStreet != null &&
+          lesson.targetStreet!.isNotEmpty &&
+          lesson.targetStreet!.toLowerCase() != street) {
+        continue;
+      }
+      if (lesson.stage != null &&
+          lesson.stage!.isNotEmpty &&
+          stage != null &&
+          lesson.stage!.toLowerCase() != stage) {
+        continue;
+      }
+      filtered.add(lesson);
+    }
+
+    filtered.sort((a, b) {
+      final tagsA = a.tags.map((t) => t.toLowerCase()).toSet();
+      final tagsB = b.tags.map((t) => t.toLowerCase()).toSet();
+      final overlapA = tagsA.intersection(spotTags).length;
+      final overlapB = tagsB.intersection(spotTags).length;
+      return overlapB - overlapA;
+    });
+
+    spot.inlineLessons
+      ..clear()
+      ..addAll(filtered.take(maxCount).map((l) => l.id));
+  }
+
+  String _spotStreetName(TrainingSpot spot) {
+    final count = spot.boardCards.length;
+    switch (count) {
+      case 0:
+        return 'preflop';
+      case 3:
+        return 'flop';
+      case 4:
+        return 'turn';
+      case 5:
+        return 'river';
+      default:
+        return 'preflop';
+    }
   }
 
   /// Injects [inlineLessonId] into each [spot] based on matching tags and

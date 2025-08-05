@@ -39,5 +39,22 @@ class TheoryMiniLessonNavigator {
       MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
     );
   }
+
+  /// Opens a lesson directly by its [id].
+  Future<void> openLessonById(String id, [BuildContext? context]) async {
+    await _library.loadAll();
+    final lesson = _library.getById(id);
+    if (lesson == null) return;
+
+    BuildContext? ctx = context;
+    if (ctx == null || !(ctx.mounted)) {
+      ctx = _navigation.context;
+    }
+    if (ctx == null || !(ctx.mounted)) return;
+
+    await Navigator.of(ctx).push(
+      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
+    );
+  }
 }
 
