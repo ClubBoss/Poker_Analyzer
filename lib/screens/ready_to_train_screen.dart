@@ -5,6 +5,8 @@ import '../services/training_pack_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_session_service.dart';
 import '../services/pinned_pack_service.dart';
+import '../services/weak_tag_booster_generator_service.dart';
+import '../services/training_session_launcher.dart';
 import '../models/saved_hand.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
@@ -59,15 +61,15 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
         .hands
         .reversed
         .firstWhereOrNull((h) {
-      final exp = h.expectedAction?.trim().toLowerCase();
-      final gto = h.gtoAction?.trim().toLowerCase();
-      final ev = h.evLoss ?? 0.0;
-      return ev.abs() >= 1.0 &&
-          !h.corrected &&
-          exp != null &&
-          gto != null &&
-          exp != gto;
-    });
+          final exp = h.expectedAction?.trim().toLowerCase();
+          final gto = h.gtoAction?.trim().toLowerCase();
+          final ev = h.evLoss ?? 0.0;
+          return ev.abs() >= 1.0 &&
+              !h.corrected &&
+              exp != null &&
+              gto != null &&
+              exp != gto;
+        });
     final similar = last != null
         ? await TrainingPackService.createSimilarMistakeDrill(last)
         : null;
@@ -132,6 +134,40 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
     }
   }
 
+  Future<void> _trainWeakSpots() async {
+    final generator = WeakTagBoosterGeneratorService();
+    final template = await generator.generateWeakTagBooster();
+    if (template.spots.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No weak tags found yet')));
+      return;
+    }
+    if (!mounted) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Train Weak Spots'),
+        content: Text(
+          'Tags: ${template.tags.join(', ')}\nSpots: ${template.spots.length}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    await const TrainingSessionLauncher().launch(template);
+  }
+
   Future<void> _toggle(bool value) async {
     final p = await SharedPreferences.getInstance();
     await p.setBool('show_completed_packs', value);
@@ -145,6 +181,11 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
       appBar: AppBar(
         title: const Text('Ready to Train'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.flash_on),
+            tooltip: 'Train Weak Spots',
+            onPressed: _trainWeakSpots,
+          ),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
@@ -178,43 +219,47 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: Builder(builder: (context) {
-                final completedList = [
-                  for (final t in _templates)
-                    if (_completed[t.id] ?? false) t
-                ];
-                final todoList = [
-                  for (final t in _templates)
-                    if (!(_completed[t.id] ?? false)) t
-                ];
-                return ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    for (final t in todoList)
-                      TrainingPackCard(
-                        template: t,
-                        onTap: () => _start(t),
-                        progress: _progress[t.id],
-                        onRefresh: _load,
-                      ),
-                    if (_showCompleted && completedList.isNotEmpty) ...[
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
-                        child: Text('Завершённые',
-                            style: TextStyle(color: Colors.white70)),
-                      ),
-                      for (final t in completedList)
+              child: Builder(
+                builder: (context) {
+                  final completedList = [
+                    for (final t in _templates)
+                      if (_completed[t.id] ?? false) t,
+                  ];
+                  final todoList = [
+                    for (final t in _templates)
+                      if (!(_completed[t.id] ?? false)) t,
+                  ];
+                  return ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      for (final t in todoList)
                         TrainingPackCard(
                           template: t,
                           onTap: () => _start(t),
                           progress: _progress[t.id],
                           onRefresh: _load,
-                          dimmed: true,
                         ),
+                      if (_showCompleted && completedList.isNotEmpty) ...[
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
+                          child: Text(
+                            'Завершённые',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ),
+                        for (final t in completedList)
+                          TrainingPackCard(
+                            template: t,
+                            onTap: () => _start(t),
+                            progress: _progress[t.id],
+                            onRefresh: _load,
+                            dimmed: true,
+                          ),
+                      ],
                     ],
-                  ],
-                );
-              }),
+                  );
+                },
+              ),
             ),
     );
   }
