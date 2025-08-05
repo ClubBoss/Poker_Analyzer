@@ -12,7 +12,7 @@ import 'full_board_generator_v2.dart';
 import 'line_graph_engine.dart';
 import 'inline_theory_node_linker.dart';
 import 'board_texture_preset_library.dart';
-import 'board_cluster_library.dart';
+import 'board_cluster_constraint_engine.dart';
 import 'dart:math';
 
 /// Expands a [TrainingPackTemplateSet] into concrete [TrainingPackSpot]s using
@@ -59,20 +59,11 @@ class TrainingPackTemplateExpanderService {
           for (final c in s.board)
             CardModel(rank: c[0], suit: c.length > 1 ? c[1] : ''),
         ];
-        final clusters = BoardClusterLibrary.getClusters(
-          cards,
-        ).map((c) => c.toLowerCase()).toSet();
-        for (final req in set.requiredBoardClusters) {
-          if (!clusters.contains(req.toLowerCase())) {
-            return false;
-          }
-        }
-        for (final ex in set.excludedBoardClusters) {
-          if (clusters.contains(ex.toLowerCase())) {
-            return false;
-          }
-        }
-        return true;
+        return BoardClusterConstraintEngine.matches(
+          board: cards,
+          requiredClusters: set.requiredBoardClusters,
+          excludedClusters: set.excludedBoardClusters,
+        );
       });
     }
     _injector.injectAll(spots);
@@ -252,18 +243,12 @@ class TrainingPackTemplateExpanderService {
       }
     }
 
-    final clusters = BoardClusterLibrary.getClusters(
-      board,
-    ).map((c) => c.toLowerCase()).toSet();
-    for (final req in set.requiredBoardClusters) {
-      if (!clusters.contains(req.toLowerCase())) {
-        return [];
-      }
-    }
-    for (final ex in set.excludedBoardClusters) {
-      if (clusters.contains(ex.toLowerCase())) {
-        return [];
-      }
+    if (!BoardClusterConstraintEngine.matches(
+      board: board,
+      requiredClusters: set.requiredBoardClusters,
+      excludedClusters: set.excludedBoardClusters,
+    )) {
+      return [];
     }
 
     final preActions = set.baseSpot.hand.actions[0] ?? [];
