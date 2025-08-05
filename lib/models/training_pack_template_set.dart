@@ -57,6 +57,12 @@ class TrainingPackTemplateSet {
   /// matches the named preset via [BoardTexturePresetLibrary.matches].
   final String? boardTexturePreset;
 
+  /// Optional board texture presets that exclude `postflopLines` expansions.
+  ///
+  /// If any preset in this list matches the base spot's board via
+  /// [BoardTexturePresetLibrary.matches], the postflop lines are skipped.
+  final List<String> excludeBoardTexturePresets;
+
   const TrainingPackTemplateSet({
     required this.baseSpot,
     List<ConstraintSet>? variations,
@@ -66,13 +72,15 @@ class TrainingPackTemplateSet {
     List<LinePattern>? linePatterns,
     List<PostflopLine>? postflopLines,
     this.boardTexturePreset,
+    List<String>? excludeBoardTexturePresets,
     this.expandAllLines = false,
     this.postflopLineSeed,
   }) : variations = variations ?? const [],
        playerTypeVariations = playerTypeVariations ?? const [],
        stackDepthMods = stackDepthMods ?? const [],
        linePatterns = linePatterns ?? const [],
-       postflopLines = postflopLines ?? const [];
+       postflopLines = postflopLines ?? const [],
+       excludeBoardTexturePresets = excludeBoardTexturePresets ?? const [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     final baseMap = Map<String, dynamic>.from(
@@ -107,6 +115,10 @@ class TrainingPackTemplateSet {
     }
 
     final preset = json['boardTexturePreset']?.toString();
+    final excluded = <String>[
+      for (final p in (json['excludeBoardTexturePresets'] as List? ?? []))
+        p.toString(),
+    ];
     final expandAll = json['expandAllLines'] == true;
     final seed = json['postflopLineSeed'];
     return TrainingPackTemplateSet(
@@ -118,6 +130,7 @@ class TrainingPackTemplateSet {
       linePatterns: patterns,
       postflopLines: postLines,
       boardTexturePreset: preset,
+      excludeBoardTexturePresets: excluded,
       expandAllLines: expandAll,
       postflopLineSeed: seed is num ? seed.toInt() : null,
     );
@@ -146,6 +159,8 @@ class TrainingPackTemplateSet {
       ],
     if (boardTexturePreset != null && boardTexturePreset!.isNotEmpty)
       'boardTexturePreset': boardTexturePreset,
+    if (excludeBoardTexturePresets.isNotEmpty)
+      'excludeBoardTexturePresets': excludeBoardTexturePresets,
     if (expandAllLines) 'expandAllLines': true,
     if (postflopLineSeed != null) 'postflopLineSeed': postflopLineSeed,
   };
