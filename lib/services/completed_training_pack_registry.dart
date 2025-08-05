@@ -68,4 +68,10 @@ class CompletedTrainingPackRegistry {
     }
     return list;
   }
+
+  /// Deletes the stored data for [fingerprint] if it exists.
+  Future<void> deleteCompletedPack(String fingerprint) async {
+    final prefs = await _sp;
+    await prefs.remove('$_prefix$fingerprint');
+  }
 }

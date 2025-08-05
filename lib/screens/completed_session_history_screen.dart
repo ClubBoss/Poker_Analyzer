@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:poker_analyzer/presenters/completed_session_history_presenter.dart';
 import 'package:poker_analyzer/services/completed_session_summary_service.dart';
 
+import 'completed_session_detail_screen.dart';
+
 class CompletedSessionHistoryScreen extends StatefulWidget {
   const CompletedSessionHistoryScreen({super.key});
 
@@ -52,6 +54,16 @@ class _CompletedSessionHistoryScreenState
                   ),
                   subtitle: Text(item.subtitle),
                   trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CompletedSessionDetailScreen(
+                          fingerprint: item.fingerprint,
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),

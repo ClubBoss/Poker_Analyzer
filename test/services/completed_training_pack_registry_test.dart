@@ -42,5 +42,9 @@ void main() {
 
     final all = await registry.listCompletedFingerprints();
     expect(all, contains(fp));
+
+    await registry.deleteCompletedPack(fp);
+    final afterDelete = await registry.getCompletedPackData(fp);
+    expect(afterDelete, isNull);
   });
 }
