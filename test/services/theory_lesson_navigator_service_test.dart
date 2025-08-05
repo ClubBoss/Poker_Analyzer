@@ -1,19 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_analyzer/models/theory_lesson_cluster.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
-import 'package:poker_analyzer/services/theory_lesson_navigator_service.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
+import 'package:poker_analyzer/services/theory_lesson_cluster_linker_service.dart';
+import 'package:poker_analyzer/services/theory_lesson_navigator_service.dart';
+import 'package:poker_analyzer/services/theory_suggestion_engagement_tracker_service.dart';
+import 'package:poker_analyzer/models/theory_suggestion_engagement_event.dart';
 
 class _FakeLibrary implements MiniLessonLibraryService {
-  final List<TheoryMiniLessonNode> items;
-  _FakeLibrary(this.items);
+  final List<TheoryMiniLessonNode> lessons;
+  _FakeLibrary(this.lessons);
 
   @override
-  List<TheoryMiniLessonNode> get all => items;
+  List<TheoryMiniLessonNode> get all => lessons;
 
   @override
   TheoryMiniLessonNode? getById(String id) =>
-      items.firstWhere((e) => e.id == id, orElse: () => null);
+      lessons.firstWhere((e) => e.id == id, orElse: () => null);
 
   @override
   Future<void> loadAll() async {}
@@ -26,64 +28,50 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) => const [];
+
+  @override
+  List<String> linkedPacksFor(String lessonId) => const [];
+}
+
+class _FakeTracker implements TheorySuggestionEngagementTrackerService {
+  @override
+  Future<void> lessonSuggested(String lessonId) async {}
+
+  @override
+  Future<void> lessonExpanded(String lessonId) async {}
+
+  @override
+  Future<void> lessonOpened(String lessonId) async {}
+
+  @override
+  Future<Map<String, int>> countByAction(String action) async => const {};
+
+  @override
+  Future<List<TheorySuggestionEngagementEvent>> eventsByAction(String action) async =>
+      const [];
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('navigation uses nextIds then cluster order', () async {
-    final a = TheoryMiniLessonNode(
-      id: 'a',
-      title: 'A',
-      content: '',
-      nextIds: const ['b'],
+  test('navigates within cluster alphabetically', () async {
+    final lessons = [
+      TheoryMiniLessonNode(id: 'a', title: 'Alpha', content: '', tags: const ['x']),
+      TheoryMiniLessonNode(id: 'b', title: 'Beta', content: '', tags: const ['x']),
+      TheoryMiniLessonNode(id: 'c', title: 'Gamma', content: '', tags: const ['x']),
+      TheoryMiniLessonNode(id: 'd', title: 'Delta', content: '', tags: const ['y']),
+    ];
+    final linker = TheoryLessonClusterLinkerService(
+      library: _FakeLibrary(lessons),
+      tracker: _FakeTracker(),
     );
-    final b = TheoryMiniLessonNode(id: 'b', title: 'B', content: '');
-    final c = TheoryMiniLessonNode(id: 'c', title: 'C', content: '');
-    final cluster = TheoryLessonCluster(lessons: [a, b, c], tags: const {});
-    final nav = TheoryLessonNavigatorService(
-      library: _FakeLibrary([a, b, c]),
-      cluster: cluster,
-    );
-    await nav.initialize();
+    final nav = TheoryLessonNavigatorService(linker: linker);
 
-    expect(nav.getNext('a')?.id, 'b');
-    expect(nav.getNext('b')?.id, 'c');
-    expect(nav.getNext('c'), isNull);
-
-    expect(nav.getPrevious('c')?.id, 'b');
-    expect(nav.getPrevious('b')?.id, 'a');
-    expect(nav.getPrevious('a'), isNull);
-  });
-
-  test('getSiblings returns lessons from same cluster and tags', () async {
-    final a = TheoryMiniLessonNode(
-      id: 'a',
-      title: 'A',
-      content: '',
-      tags: const ['x'],
-    );
-    final b = TheoryMiniLessonNode(
-      id: 'b',
-      title: 'B',
-      content: '',
-      tags: const ['y', 'x'],
-    );
-    final c = TheoryMiniLessonNode(
-      id: 'c',
-      title: 'C',
-      content: '',
-      tags: const ['y'],
-    );
-    final cluster = TheoryLessonCluster(lessons: [a, b, c], tags: const {});
-    final nav = TheoryLessonNavigatorService(
-      library: _FakeLibrary([a, b, c]),
-      cluster: cluster,
-    );
-    await nav.initialize();
-
-    final sibs = nav.getSiblings('b').map((e) => e.id).toSet();
-    expect(sibs, {'a', 'c'});
+    expect(await nav.getNextLessonId('a'), 'b');
+    expect(await nav.getPreviousLessonId('a'), isNull);
+    expect(await nav.getNextLessonId('b'), 'c');
+    expect(await nav.getPreviousLessonId('c'), 'b');
+    expect(await nav.getNextLessonId('c'), isNull);
+    expect(await nav.getNextLessonId('d'), isNull);
   });
 }
-

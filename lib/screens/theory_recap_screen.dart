@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import '../models/theory_cluster_summary.dart';
-import '../services/theory_lesson_navigator_service.dart';
+import '../services/theory_lesson_graph_navigator_service.dart';
 import '../services/tag_mastery_service.dart';
 import '../widgets/tag_badge.dart';
 import '../widgets/booster_recommendation_banner.dart';
@@ -12,7 +12,7 @@ import '../services/theory_booster_recommender.dart';
 class TheoryRecapScreen extends StatefulWidget {
   final TheoryMiniLessonNode lesson;
   final TheoryClusterSummary? cluster;
-  final TheoryLessonNavigatorService? navigator;
+  final TheoryLessonGraphNavigatorService? navigator;
   final TagMasteryService? masteryService;
   final VoidCallback? onContinue;
   final VoidCallback? onReviewAgain;
