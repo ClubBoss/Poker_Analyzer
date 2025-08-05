@@ -31,6 +31,7 @@ class CompletedTrainingPackRegistry {
     TrainingPackTemplateV2 pack, {
     DateTime? completedAt,
     double? accuracy,
+    Duration? duration,
   }) async {
     final prefs = await _sp;
     final fingerprint = _fingerprintGenerator.generate(pack);
@@ -39,6 +40,7 @@ class CompletedTrainingPackRegistry {
       'timestamp': (completedAt ?? DateTime.now()).toIso8601String(),
       'type': pack.trainingType.name,
       if (accuracy != null) 'accuracy': accuracy,
+      if (duration != null) 'durationMs': duration.inMilliseconds,
     };
     await prefs.setString('$_prefix$fingerprint', jsonEncode(data));
   }

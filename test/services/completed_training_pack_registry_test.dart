@@ -30,6 +30,7 @@ void main() {
       pack,
       completedAt: completedAt,
       accuracy: 0.85,
+      duration: const Duration(seconds: 30),
     );
 
     final fp = const TrainingPackFingerprintGenerator().generate(pack);
@@ -39,6 +40,7 @@ void main() {
     expect(DateTime.parse(data['timestamp'] as String), completedAt);
     expect(data['type'], equals('quiz'));
     expect((data['accuracy'] as num).toDouble(), closeTo(0.85, 1e-9));
+    expect(data['durationMs'], 30000);
 
     final all = await registry.listCompletedFingerprints();
     expect(all, contains(fp));
