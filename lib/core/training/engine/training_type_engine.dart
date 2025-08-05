@@ -13,6 +13,7 @@ enum TrainingType {
   quiz,
   openingMTT,
   theory,
+  booster,
 }
 
 abstract class TrainingPackBuilder {
@@ -111,6 +112,8 @@ extension TrainingTypeInfo on TrainingType {
         return 'Opening MTT';
       case TrainingType.theory:
         return 'Theory';
+      case TrainingType.booster:
+        return 'Booster';
       case TrainingType.custom:
       default:
         return 'Custom';
@@ -133,6 +136,8 @@ extension TrainingTypeInfo on TrainingType {
         return Icons.play_circle_outline;
       case TrainingType.theory:
         return Icons.book;
+      case TrainingType.booster:
+        return Icons.flash_on;
       case TrainingType.custom:
       default:
         return Icons.extension;
