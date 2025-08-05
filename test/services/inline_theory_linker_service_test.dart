@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/theory_lesson_engagement_stats.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 import 'package:poker_analyzer/models/v2/hand_data.dart';
+import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/training_spot.dart';
 import 'package:poker_analyzer/models/player_model.dart';
@@ -66,6 +67,39 @@ class _FakeAnalytics extends TheoryEngagementAnalyticsService {
 }
 
 void main() {
+  test('findSuggestedLessonForSpot picks best matching lesson', () async {
+    const lessons = [
+      TheoryMiniLessonNode(
+        id: 'l1',
+        title: 'BTN Flop CBet',
+        content: '',
+        tags: ['btn', 'cbet', 'flop'],
+      ),
+      TheoryMiniLessonNode(
+        id: 'l2',
+        title: 'BTN Probe',
+        content: '',
+        tags: ['btn', 'probe'],
+      ),
+      TheoryMiniLessonNode(
+        id: 'l3',
+        title: 'UTG Flop CBet',
+        content: '',
+        tags: ['utg', 'cbet', 'flop'],
+      ),
+    ];
+    final service = InlineTheoryLinkerService(library: _FakeLibrary(lessons));
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData(position: HeroPosition.btn),
+      street: 1,
+      meta: {
+        'actionTags': {0: 'cbet'},
+      },
+    );
+    final lesson = await service.findSuggestedLessonForSpot(spot);
+    expect(lesson?.id, 'l1');
+  });
   test('getLinkedLessonIdsForSpot ranks by overlap then success', () async {
     const lessons = [
       TheoryMiniLessonNode(
