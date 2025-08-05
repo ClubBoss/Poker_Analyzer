@@ -94,7 +94,9 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
         }
       }
       if (tag != null) {
-        TheoryRecallImpactTracker.instance.record(tag, widget.lesson.id);
+        unawaited(
+          TheoryRecallImpactTracker.instance.record(tag, widget.lesson.id),
+        );
       }
       _tracked = true;
     }
