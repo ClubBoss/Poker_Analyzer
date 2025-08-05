@@ -1,4 +1,5 @@
 import '../models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/constants/theory_lesson_template_map.dart';
 
 /// Generates placeholder content for [TheoryMiniLessonNode]s based on tags and
 /// metadata such as `stage` or `targetStreet`.
@@ -10,7 +11,7 @@ class TheoryMiniLessonContentTemplateService {
   final Map<String, String> templateMap;
 
   TheoryMiniLessonContentTemplateService({Map<String, String>? templateMap})
-      : templateMap = templateMap ?? _defaultTemplates;
+      : templateMap = templateMap ?? theoryLessonTemplateMap;
 
   /// Returns a new [TheoryMiniLessonNode] with its `content` field populated
   /// using a matching template. If no template is found or [node.content] is
@@ -65,9 +66,5 @@ class TheoryMiniLessonContentTemplateService {
     if (street != null) yield street;
   }
 
-  static const Map<String, String> _defaultTemplates = {
-    'BTN vs BB, Flop CBet':
-        "In this spot, you're playing BTN against BB on the flop. Your goal is to decide whether to continuation bet...",
-  };
 }
 
