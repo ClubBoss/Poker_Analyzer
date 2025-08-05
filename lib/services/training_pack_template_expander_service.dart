@@ -5,12 +5,14 @@ import '../models/spot_seed_format.dart';
 import '../models/spot_seed.dart';
 import '../models/card_model.dart';
 import '../models/inline_theory_entry.dart';
+import '../models/postflop_line.dart';
 import 'constraint_resolver_engine_v2.dart';
 import 'auto_spot_theory_injector_service.dart';
 import 'full_board_generator_v2.dart';
 import 'line_graph_engine.dart';
 import 'inline_theory_node_linker.dart';
 import 'board_texture_preset_library.dart';
+import 'dart:math';
 
 /// Expands a [TrainingPackTemplateSet] into concrete [TrainingPackSpot]s using
 /// [ConstraintResolverEngine].
@@ -201,12 +203,31 @@ class TrainingPackTemplateExpanderService {
     final preflopAction = preActions.map((a) => a.action).join('-');
 
     final seeds = <SpotSeed>[];
-    for (final line in set.postflopLines) {
-      if (line.isEmpty) continue;
+    final lines = set.postflopLines;
+    Iterable<PostflopLine> chosen;
+    if (set.expandAllLines) {
+      chosen = lines;
+    } else {
+      final total = lines.fold<int>(0, (s, l) => s + l.weight);
+      final rng = Random(set.postflopLineSeed);
+      final roll = rng.nextInt(total);
+      var acc = 0;
+      PostflopLine selected = lines.first;
+      for (final l in lines) {
+        acc += l.weight;
+        if (roll < acc) {
+          selected = l;
+          break;
+        }
+      }
+      chosen = [selected];
+    }
+    for (final entry in chosen) {
+      if (entry.line.isEmpty) continue;
       seeds.addAll(
         _lineEngine.expandLine(
           preflopAction: preflopAction,
-          line: line,
+          line: entry.line,
           board: board,
           hand: handCards,
           position: set.baseSpot.hand.position.name,
