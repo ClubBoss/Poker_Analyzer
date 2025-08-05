@@ -47,6 +47,7 @@ import 'services/ab_test_engine.dart';
 import 'services/suggestion_banner_ab_test_service.dart';
 import 'services/asset_sync_service.dart';
 import 'services/evaluation_settings_service.dart';
+import 'services/theory_recall_impact_tracker.dart';
 import 'widgets/sync_status_widget.dart';
 import 'widgets/first_launch_tutorial.dart';
 import 'onboarding/onboarding_flow_manager.dart';
@@ -133,6 +134,7 @@ Future<void> main() async {
   await SuggestionBannerABTestService.instance.init();
   tagCache = TagCacheService();
   await tagCache.load();
+  await TheoryRecallImpactTracker.instance.init();
   unawaited(SuggestedPackPushService.instance.schedulePushReminder());
   unawaited(DecayBoosterNotificationService.instance.init());
   unawaited(DecayReminderScheduler.instance.register());

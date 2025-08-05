@@ -9,19 +9,31 @@ import 'package:poker_analyzer/services/theory_recall_impact_tracker.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    await TheoryRecallImpactTracker.instance.init();
     TheoryRecallImpactTracker.instance.reset();
   });
 
-  test('records lessons and groups by tag', () {
+  test('records lessons and groups by tag', () async {
     final tracker = TheoryRecallImpactTracker.instance;
-    tracker.record('a', 'l1');
-    tracker.record('a', 'l2');
-    tracker.record('b', 'l3');
+    await tracker.record('a', 'l1');
+    await tracker.record('a', 'l2');
+    await tracker.record('b', 'l3');
     final map = tracker.tagToLessons;
     expect(map['a'], ['l1', 'l2']);
     expect(map['b'], ['l3']);
+  });
+
+  test('persists logs across sessions', () async {
+    final tracker = TheoryRecallImpactTracker.instance;
+    await tracker.record('tag', 'l1');
+    tracker.reset(clearPrefs: false);
+    await tracker.init();
+    expect(tracker.entries.length, 1);
+    final entry = tracker.entries.first;
+    expect(entry.tag, 'tag');
+    expect(entry.lessonId, 'l1');
   });
 
   testWidgets('MiniLessonScreen logs lesson', (tester) async {
