@@ -35,11 +35,12 @@ class TrainingPackTemplateExpanderService {
     FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     InlineTheoryNodeLinker? theoryLinker,
-  }) : _engine = engine ?? const ConstraintResolverEngine(),
-       _injector = injector ?? AutoSpotTheoryInjectorService(),
-       _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
-       _lineEngine = lineEngine ?? const LineGraphEngine(),
-       _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
+  })
+      : _engine = engine ?? const ConstraintResolverEngine(),
+        _injector = injector ?? AutoSpotTheoryInjectorService(),
+        _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
+        _lineEngine = lineEngine ?? LineGraphEngine(),
+        _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
 
   /// Generates all spots described by [set] and injects theory links.
   List<TrainingPackSpot> expand(TrainingPackTemplateSet set) {
