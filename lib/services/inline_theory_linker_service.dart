@@ -101,6 +101,75 @@ class InlineTheoryLinkerService {
     return _library.findByTags(tags);
   }
 
+  /// Finds the most relevant [TheoryMiniLessonNode] for the given [spot].
+  ///
+  /// The match score prioritizes:
+  /// - exact position and street matches
+  /// - presence of keywords from [actionTags]
+  Future<TheoryMiniLessonNode?> findSuggestedLessonForSpot(
+    TrainingPackSpot spot,
+  ) async {
+    await _library.loadAll();
+
+    final position = spot.hand.position.name.toLowerCase();
+    final street = _streetName(spot.street).toLowerCase();
+
+    final actionKeywords = <String>{};
+    final rawActions = spot.meta['actionTags'];
+    if (rawActions is Map) {
+      for (final v in rawActions.values) {
+        if (v is String) {
+          final parts = v
+              .toLowerCase()
+              .split(RegExp(r'[^a-z0-9]+'))
+            ..removeWhere((e) => e.isEmpty);
+          actionKeywords.addAll(parts);
+        }
+      }
+    } else if (rawActions is List) {
+      for (final v in rawActions) {
+        if (v is String) {
+          final parts = v
+              .toLowerCase()
+              .split(RegExp(r'[^a-z0-9]+'))
+            ..removeWhere((e) => e.isEmpty);
+          actionKeywords.addAll(parts);
+        }
+      }
+    }
+
+    TheoryMiniLessonNode? best;
+    int bestScore = 0;
+
+    for (final lesson in _library.all) {
+      final tags = lesson.tags.map((t) => t.toLowerCase()).toSet();
+      final title = lesson.title.toLowerCase();
+
+      var score = 0;
+      if (position.isNotEmpty && (tags.contains(position) || title.contains(position))) {
+        score += 4;
+      }
+      if (street.isNotEmpty &&
+          ((lesson.targetStreet?.toLowerCase() == street) ||
+              tags.contains(street) ||
+              title.contains(street))) {
+        score += 4;
+      }
+      for (final k in actionKeywords) {
+        if (tags.contains(k) || title.contains(k)) {
+          score += 1;
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        best = lesson;
+      }
+    }
+
+    return best;
+  }
+
   /// Returns up to 3 lesson ids that best match [spot] based on tag overlap
   /// and success rate analytics.
   Future<List<String>> getLinkedLessonIdsForSpot(SpotModel spot) async {
