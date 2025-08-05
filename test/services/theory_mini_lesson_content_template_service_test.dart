@@ -53,5 +53,25 @@ void main() {
     final result = service.withGeneratedContent(node);
     expect(result.content, theoryLessonTemplateMap['BTN vs BB, Flop CBet']);
   });
+
+  test('replaces placeholders with metadata', () {
+    final service = TheoryMiniLessonContentTemplateService(templateMap: {
+      'BTN vs BB, Flop CBet':
+          '{position} vs {villainPosition} on {targetStreet} {stage} {boardTexture}',
+    });
+    final node = TheoryMiniLessonNode(
+      id: 'n1',
+      title: 'T',
+      content: '',
+      tags: ['BTN vs BB', 'Flop CBet', 'Wet Board'],
+      stage: 'Level1',
+      targetStreet: 'Flop',
+    );
+    final result = service.withGeneratedContent(node);
+    expect(
+      result.content,
+      'BTN vs BB on Flop Level1 Wet Board',
+    );
+  });
 }
 
