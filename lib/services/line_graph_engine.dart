@@ -104,6 +104,10 @@ class LineGraphEngine {
   List<TheoryMiniLessonNode> findLinkedLessons(LineGraphNode node) =>
       List.unmodifiable(_lessonLinks[node] ?? const []);
 
+  /// Returns training spots linked to [node].
+  List<TrainingPackSpot> findLinkedPacks(LineGraphNode node) =>
+      List.unmodifiable(_spotLinks[node] ?? const []);
+
   /// Returns next possible nodes reachable from [node].
   List<LineGraphNode> findNextOptions(LineGraphNode node) => [
         for (final e in _edges)

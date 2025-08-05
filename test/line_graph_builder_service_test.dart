@@ -31,6 +31,7 @@ void main() {
     expect(line.length, 2);
     final start = line.first;
     expect(engine.findLinkedLessons(start).map((l) => l.id), contains('l1'));
+    expect(engine.findLinkedPacks(start).map((s) => s.id), contains('s1'));
     final next = engine.findNextOptions(start);
     expect(next.length, 1);
     expect(engine.findLinkedLessons(next.first).map((l) => l.id), contains('l2'));
