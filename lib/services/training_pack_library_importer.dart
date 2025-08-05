@@ -61,8 +61,17 @@ class TrainingPackLibraryImporter {
         }
         final tags =
             (map['tags'] as List?)?.map((e) => e.toString()).toList() ?? [];
+        final meta = map['metadata'] is Map
+            ? Map<String, dynamic>.from(map['metadata'] as Map)
+            : <String, dynamic>{};
         packs.add(
-          TrainingPackModel(id: id, title: title, spots: spots, tags: tags),
+          TrainingPackModel(
+            id: id,
+            title: title,
+            spots: spots,
+            tags: tags,
+            metadata: meta,
+          ),
         );
       } catch (e) {
         errors.add('$name: $e');

@@ -69,6 +69,7 @@ class TrainingPackLibraryDiffer {
     'id': pack.id,
     'title': pack.title,
     if (pack.tags.isNotEmpty) 'tags': List.of(pack.tags),
+    if (pack.metadata.isNotEmpty) 'metadata': Map.of(pack.metadata),
     'spots': [for (final s in pack.spots) s.toYaml()],
   };
 }
