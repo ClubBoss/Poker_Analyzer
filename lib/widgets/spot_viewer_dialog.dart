@@ -10,6 +10,9 @@ import '../services/training_session_service.dart';
 import '../services/tag_service.dart';
 import 'share_dialog.dart';
 import '../screens/v2/training_pack_spot_editor_screen.dart';
+import '../services/inline_theory_linker_service.dart';
+import '../models/theory_mini_lesson_node.dart';
+import '../services/theory_mini_lesson_navigator.dart';
 
 class SpotViewerDialog extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -30,11 +33,20 @@ class SpotViewerDialog extends StatefulWidget {
 
 class _SpotViewerDialogState extends State<SpotViewerDialog> {
   late TrainingPackSpot spot;
+  final _linker = InlineTheoryLinkerService();
+  TheoryMiniLessonNode? _lesson;
 
   @override
   void initState() {
     super.initState();
     spot = widget.spot;
+    _loadLesson();
+  }
+
+  Future<void> _loadLesson() async {
+    final res = await _linker.findSuggestedLessonForSpot(spot);
+    if (!mounted) return;
+    setState(() => _lesson = res);
   }
 
   Map<int, String> _posMap() {
@@ -246,6 +258,46 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
             const SizedBox(height: 8),
             ActionHistoryWidget(actions: _actions(), playerPositions: _posMap()),
             _evCard(),
+            if (_lesson != null) ...[
+              const SizedBox(height: 8),
+              ExpansionTile(
+                title: Text(
+                  _lesson!.title,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                textColor: Colors.white,
+                collapsedTextColor: Colors.white,
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _lesson!.content
+                              .trim()
+                              .split(RegExp(r'\n\n+'))
+                              .first,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () =>
+                                TheoryMiniLessonNavigator.instance
+                                    .openLessonById(_lesson!.id, context),
+                            child: const Text('Read full'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
