@@ -36,6 +36,11 @@ class TheoryMiniLessonNode implements LearningPathNode {
   /// Ids of training packs linked to this lesson.
   List<String> linkedPackIds;
 
+  /// Whether the lesson's content was generated automatically. When true,
+  /// regeneration should not overwrite manually edited text unless explicitly
+  /// requested.
+  final bool autoContent;
+
   const TheoryMiniLessonNode({
     required this.id,
     this.refId,
@@ -47,6 +52,7 @@ class TheoryMiniLessonNode implements LearningPathNode {
     List<String>? nextIds,
     List<String>? linkedPackIds,
     this.recoveredFromMistake = false,
+    this.autoContent = false,
   })  : tags = tags ?? const [],
         nextIds = nextIds ?? const [],
         linkedPackIds = linkedPackIds ?? const [];
@@ -89,6 +95,7 @@ class TheoryMiniLessonNode implements LearningPathNode {
       nextIds: nextIds,
       linkedPackIds: linked,
       recoveredFromMistake: yaml['recoveredFromMistake'] as bool? ?? false,
+      autoContent: yaml['autoContent'] as bool? ?? false,
     );
   }
 }

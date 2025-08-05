@@ -24,6 +24,7 @@ class MiniLessonNodeBuilder {
     required String title,
     required String content,
     List<String>? nextIds,
+    bool autoContent = false,
   }) {
     return TheoryMiniLessonNode(
       id: _generateId(tag),
@@ -31,6 +32,7 @@ class MiniLessonNodeBuilder {
       content: content,
       tags: [tag],
       nextIds: nextIds ?? const [],
+      autoContent: autoContent,
     );
   }
 
@@ -42,12 +44,14 @@ class MiniLessonNodeBuilder {
     List<String>? nextIds,
     int? priority,
     List<String>? examples,
+    bool autoContent = false,
   }) {
     final node = build(
       tag: tag,
       title: title,
       content: content,
       nextIds: nextIds,
+      autoContent: autoContent,
     );
     final map = <String, dynamic>{
       'id': node.id,
@@ -59,6 +63,7 @@ class MiniLessonNodeBuilder {
     };
     if (priority != null) map['priority'] = priority;
     if (examples != null && examples.isNotEmpty) map['examples'] = examples;
+    if (autoContent) map['autoContent'] = true;
     return map;
   }
 
@@ -70,6 +75,7 @@ class MiniLessonNodeBuilder {
     List<String>? nextIds,
     int? priority,
     List<String>? examples,
+    bool autoContent = false,
   }) {
     final map = toYamlMap(
       tag: tag,
@@ -78,6 +84,7 @@ class MiniLessonNodeBuilder {
       nextIds: nextIds,
       priority: priority,
       examples: examples,
+      autoContent: autoContent,
     );
     return const YamlEncoder().convert(map);
   }
@@ -90,6 +97,7 @@ class MiniLessonNodeBuilder {
     List<String>? nextIds,
     int? priority,
     List<String>? examples,
+    bool autoContent = false,
   }) {
     final map = toYamlMap(
       tag: tag,
@@ -98,6 +106,7 @@ class MiniLessonNodeBuilder {
       nextIds: nextIds,
       priority: priority,
       examples: examples,
+      autoContent: autoContent,
     );
     return jsonEncode(map);
   }
