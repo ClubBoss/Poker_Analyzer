@@ -6,6 +6,7 @@ import '../../services/learning_path_node_graph_snapshot_service.dart';
 import '../../services/learning_graph_engine.dart';
 import '../recent_auto_injections_screen.dart';
 import '../theory_recall_stats_dashboard_screen.dart';
+import '../training_pack_import_validator_screen.dart';
 
 class DebugToolsSection extends StatefulWidget {
   const DebugToolsSection({super.key});
@@ -82,6 +83,18 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
             );
           },
         ),
+        if (kDebugMode)
+          ListTile(
+            title: const Text('🧪 Pack Import Validator'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const TrainingPackImportValidatorScreen(),
+                ),
+              );
+            },
+          ),
       ],
     );
   }
