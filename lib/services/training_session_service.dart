@@ -8,7 +8,9 @@ import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../screens/training_session_summary_screen.dart';
-import '../screens/training_session_completion_screen.dart';
+import '../screens/pack_review_summary_screen.dart';
+import '../models/session_task_result.dart';
+import '../models/training_pack.dart';
 import 'mistake_review_pack_service.dart';
 import 'smart_review_service.dart';
 import 'training_progress_logger.dart';
@@ -662,11 +664,34 @@ class TrainingSessionService extends ChangeNotifier {
             requiredAccuracy: _template!.requiredAccuracy,
             minHands: _template!.minHands,
           ));
+          final correctHands =
+              _session!.results.values.where((e) => e).length;
+          final tasks = [
+            for (final a in _actions)
+              (() {
+                final spot = _spots.firstWhere(
+                    (s) => s.id == a.spotId,
+                    orElse: () => TrainingPackSpot(id: ''));
+                return SessionTaskResult(
+                  question: spot.title.isNotEmpty ? spot.title : spot.id,
+                  selectedAnswer: a.chosenAction,
+                  correctAnswer: _expectedAction(spot) ?? '',
+                  correct: a.isCorrect,
+                );
+              })(),
+          ];
+          final result = TrainingSessionResult(
+            date: DateTime.now(),
+            total: totalHands,
+            correct: correctHands,
+            tasks: tasks,
+          );
           unawaited(complete(
             ctx,
-            resultBuilder: (_) => TrainingSessionCompletionScreen(
+            resultBuilder: (_) => PackReviewSummaryScreen(
               template: _template!,
-              hands: totalHands,
+              result: result,
+              elapsed: elapsedTime,
             ),
           ));
         }
