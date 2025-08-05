@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../../services/learning_path_node_graph_snapshot_service.dart';
 import '../../services/learning_graph_engine.dart';
 import '../recent_auto_injections_screen.dart';
+import '../theory_recall_stats_dashboard_screen.dart';
 
 class DebugToolsSection extends StatefulWidget {
   const DebugToolsSection({super.key});
@@ -57,6 +58,18 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
           ListTile(
             title: const Text('🧠 Dump Learning Path Graph'),
             onTap: _dumping ? null : _dumpGraph,
+          ),
+        if (kDebugMode)
+          ListTile(
+            title: const Text('Theory Recall Stats'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const TheoryRecallStatsDashboardScreen(),
+                ),
+              );
+            },
           ),
         ListTile(
           title: const Text('Recent Auto Theory Injections'),
