@@ -7,6 +7,10 @@ import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:poker_analyzer/services/training_session_launcher.dart';
+
+class MockLauncher extends Mock implements TrainingSessionLauncher {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -36,9 +40,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: TrainingPackHistoryListWidget()),
-      ),
+      const MaterialApp(home: Scaffold(body: TrainingPackHistoryListWidget())),
     );
     await tester.pumpAndSettle();
 
@@ -49,12 +51,33 @@ void main() {
 
   testWidgets('shows placeholder when no history', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: TrainingPackHistoryListWidget()),
-      ),
+      const MaterialApp(home: Scaffold(body: TrainingPackHistoryListWidget())),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('No completed packs yet'), findsOneWidget);
+  });
+
+  testWidgets('tapping history item replays pack', (tester) async {
+    final registry = CompletedTrainingPackRegistry();
+    final pack = buildPack('p1');
+    await registry.storeCompletedPack(pack);
+
+    final launcher = MockLauncher();
+    when(() => launcher.launchFromYaml(any())).thenAnswer((_) async {});
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: TrainingPackHistoryListWidget(launcher: launcher)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Pack p1'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Replay'));
+    await tester.pumpAndSettle();
+
+    verify(() => launcher.launchFromYaml(any())).called(1);
   });
 }

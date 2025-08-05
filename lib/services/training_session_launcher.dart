@@ -45,8 +45,9 @@ class TrainingSessionLauncher {
 
     if (lessonId != null) {
       await MiniLessonLibraryService.instance.loadAll();
-      final completed =
-          await TheoryLessonCompletionLogger.instance.isCompleted(lessonId);
+      final completed = await TheoryLessonCompletionLogger.instance.isCompleted(
+        lessonId,
+      );
       if (!completed) {
         final lesson = MiniLessonLibraryService.instance.getById(lessonId);
         if (lesson != null) {
@@ -74,7 +75,9 @@ class TrainingSessionLauncher {
     }
 
     final statBefore = await TrainingPackStatsService.getStats(template.id);
-    final handsBefore = await TrainingPackStatsService.getHandsCompleted(template.id);
+    final handsBefore = await TrainingPackStatsService.getHandsCompleted(
+      template.id,
+    );
 
     if (!kDebugMode) {
       final unmet = <String>[];
@@ -90,8 +93,9 @@ class TrainingSessionLauncher {
       }
 
       if (template.requiresTheoryCompleted && lessonId != null) {
-        final done =
-            await TheoryLessonCompletionLogger.instance.isCompleted(lessonId);
+        final done = await TheoryLessonCompletionLogger.instance.isCompleted(
+          lessonId,
+        );
         if (!done) {
           unmet.add('пройти теорию');
         }
@@ -126,7 +130,9 @@ class TrainingSessionLauncher {
     unawaited(AchievementsEngine.instance.checkAll());
 
     final statAfter = await TrainingPackStatsService.getStats(template.id);
-    final handsAfter = await TrainingPackStatsService.getHandsCompleted(template.id);
+    final handsAfter = await TrainingPackStatsService.getHandsCompleted(
+      template.id,
+    );
     if (template.requiredAccuracy != null || template.minHands != null) {
       await showUnlockProgressDialog(
         ctx,
@@ -138,6 +144,16 @@ class TrainingSessionLauncher {
         minHands: template.minHands,
       );
     }
+  }
+
+  /// Parses a YAML string and launches a session for the resulting pack.
+  Future<void> launchFromYaml(
+    String yaml, {
+    int startIndex = 0,
+    List<String>? sessionTags,
+  }) async {
+    final tpl = TrainingPackTemplateV2.fromYamlString(yaml);
+    await launch(tpl, startIndex: startIndex, sessionTags: sessionTags);
   }
 
   /// Finds and launches a booster drill relevant to [lesson].
