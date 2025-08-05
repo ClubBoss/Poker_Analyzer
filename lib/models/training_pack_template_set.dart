@@ -4,6 +4,7 @@ import '../utils/yaml_utils.dart';
 import 'constraint_set.dart';
 import 'v2/training_pack_spot.dart';
 import 'line_pattern.dart';
+import 'postflop_line.dart';
 
 /// Defines a base spot and a list of variation rules that can be expanded
 /// into multiple [TrainingPackSpot]s.
@@ -35,9 +36,20 @@ class TrainingPackTemplateSet {
 
   /// Optional shorthand postflop action lines applied to the base spot.
   ///
-  /// When provided, each string is expanded via [LineGraphEngine.expandLine]
-  /// to generate multiple street-specific training spots.
-  final List<String> postflopLines;
+  /// Each entry may include an optional [PostflopLine.weight] controlling
+  /// its selection frequency during expansion. When provided, a single line is
+  /// chosen based on weighted probability unless [expandAllLines] is `true`.
+  /// Each selected line is expanded via [LineGraphEngine.expandLine] to
+  /// generate street-specific training spots.
+  final List<PostflopLine> postflopLines;
+
+  /// When `true`, all [postflopLines] are expanded regardless of their
+  /// [PostflopLine.weight].
+  final bool expandAllLines;
+
+  /// Optional deterministic seed used when randomly selecting among
+  /// [postflopLines].
+  final int? postflopLineSeed;
 
   /// Optional board texture preset used to filter `postflopLines` expansions.
   ///
@@ -52,8 +64,10 @@ class TrainingPackTemplateSet {
     this.suitAlternation = false,
     List<int>? stackDepthMods,
     List<LinePattern>? linePatterns,
-    List<String>? postflopLines,
+    List<PostflopLine>? postflopLines,
     this.boardTexturePreset,
+    this.expandAllLines = false,
+    this.postflopLineSeed,
   }) : variations = variations ?? const [],
        playerTypeVariations = playerTypeVariations ?? const [],
        stackDepthMods = stackDepthMods ?? const [],
@@ -83,15 +97,18 @@ class TrainingPackTemplateSet {
         LinePattern.fromJson(Map<String, dynamic>.from(p as Map)),
     ];
 
-    final postLines = <String>[
-      for (final l in (json['postflopLines'] as List? ?? [])) l.toString(),
+    final postLines = <PostflopLine>[
+      for (final l in (json['postflopLines'] as List? ?? []))
+        PostflopLine.fromJson(l),
     ];
-    final postLine = json['postflopLine']?.toString();
-    if (postLine != null && postLine.isNotEmpty) {
-      postLines.add(postLine);
+    final postLine = json['postflopLine'];
+    if (postLine != null && postLine.toString().isNotEmpty) {
+      postLines.add(PostflopLine.fromJson(postLine));
     }
 
     final preset = json['boardTexturePreset']?.toString();
+    final expandAll = json['expandAllLines'] == true;
+    final seed = json['postflopLineSeed'];
     return TrainingPackTemplateSet(
       baseSpot: base,
       variations: vars,
@@ -101,6 +118,8 @@ class TrainingPackTemplateSet {
       linePatterns: patterns,
       postflopLines: postLines,
       boardTexturePreset: preset,
+      expandAllLines: expandAll,
+      postflopLineSeed: seed is num ? seed.toInt() : null,
     );
   }
 
@@ -119,11 +138,15 @@ class TrainingPackTemplateSet {
     if (stackDepthMods.isNotEmpty) 'stackDepthMods': stackDepthMods,
     if (linePatterns.isNotEmpty)
       'linePatterns': [for (final p in linePatterns) p.toJson()],
-    if (postflopLines.length == 1)
-      'postflopLine': postflopLines.first
-    else if (postflopLines.length > 1)
-      'postflopLines': postflopLines,
+    if (postflopLines.length == 1 && postflopLines.first.weight == 1)
+      'postflopLine': postflopLines.first.line
+    else if (postflopLines.isNotEmpty)
+      'postflopLines': [
+        for (final l in postflopLines) l.weight == 1 ? l.line : l.toJson(),
+      ],
     if (boardTexturePreset != null && boardTexturePreset!.isNotEmpty)
       'boardTexturePreset': boardTexturePreset,
+    if (expandAllLines) 'expandAllLines': true,
+    if (postflopLineSeed != null) 'postflopLineSeed': postflopLineSeed,
   };
 }
