@@ -21,6 +21,8 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
   List<String> tags;
   List<String> focusTags;
   List<FocusGoal> focusHandTypes;
+  List<String> requiredBoardClusters;
+  List<String> excludedBoardClusters;
   String? difficulty;
   int get difficultyLevel => int.tryParse(difficulty ?? '') ?? 0;
   int heroBbStack;
@@ -60,6 +62,8 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
     List<String>? tags,
     List<String>? focusTags,
     List<FocusGoal>? focusHandTypes,
+    List<String>? requiredBoardClusters,
+    List<String>? excludedBoardClusters,
     this.difficulty,
     this.heroBbStack = 10,
     List<int>? playerStacksBb,
@@ -85,13 +89,15 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
     this.isPinned = false,
     this.trending = false,
     this.recommended = false,
-  })  : spots = spots ?? [],
-        tags = tags ?? [],
-        focusTags = focusTags ?? [],
-        focusHandTypes = focusHandTypes ?? [],
-        playerStacksBb = playerStacksBb ?? const [10, 10],
-        meta = meta ?? {},
-        createdAt = createdAt ?? DateTime.now() {
+  }) : spots = spots ?? [],
+       tags = tags ?? [],
+       focusTags = focusTags ?? [],
+       focusHandTypes = focusHandTypes ?? [],
+       requiredBoardClusters = requiredBoardClusters ?? [],
+       excludedBoardClusters = excludedBoardClusters ?? [],
+       playerStacksBb = playerStacksBb ?? const [10, 10],
+       meta = meta ?? {},
+       createdAt = createdAt ?? DateTime.now() {
     TemplateCoverageUtils.recountAll(this).applyTo(this.meta);
   }
 
@@ -106,21 +112,29 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
       gameType: parseGameType(json['gameType']),
       spots: [
         for (final s in (json['spots'] as List? ?? []))
-          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
+          TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
       focusTags: [
-        for (final t in (json['focusTags'] as List? ?? [])) t as String
+        for (final t in (json['focusTags'] as List? ?? [])) t as String,
       ],
       focusHandTypes: [
         for (final t in (json['focusHandTypes'] as List? ?? []))
-          FocusGoal.fromJson(t)
+          FocusGoal.fromJson(t),
+      ],
+      requiredBoardClusters: [
+        for (final c in (json['requiredBoardClusters'] as List? ?? []))
+          c as String,
+      ],
+      excludedBoardClusters: [
+        for (final c in (json['excludedBoardClusters'] as List? ?? []))
+          c as String,
       ],
       difficulty: json['difficulty'] as String?,
       heroBbStack: json['heroBbStack'] as int? ?? 10,
       playerStacksBb: [
         for (final v in (json['playerStacksBb'] as List? ?? [10, 10]))
-          (v as num).toInt()
+          (v as num).toInt(),
       ],
       heroPos: HeroPosition.values.firstWhere(
         (e) => e.name == json['heroPos'],
@@ -131,12 +145,13 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
       anteBb: json['anteBb'] as int? ?? 0,
       minEvForCorrect: (json['minEvForCorrect'] as num?)?.toDouble() ?? 0.01,
       heroRange: (json['heroRange'] as List?)?.map((e) => e as String).toList(),
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
-      lastGeneratedAt:
-          DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
-      lastTrainedAt:
-          DateTime.tryParse(json['lastTrainedAt'] as String? ?? ''),
+      lastGeneratedAt: DateTime.tryParse(
+        json['lastGeneratedAt'] as String? ?? '',
+      ),
+      lastTrainedAt: DateTime.tryParse(json['lastTrainedAt'] as String? ?? ''),
       meta: json['meta'] != null ? Map<String, dynamic>.from(json['meta']) : {},
       goalAchieved: json['goalAchieved'] as bool? ?? false,
       goalTarget: json['goalTarget'] as int? ?? 0,
@@ -159,46 +174,50 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'slug': slug,
-        'name': name,
-        'description': description,
-        if (goal.isNotEmpty) 'goal': goal,
-        'category': category,
-        'gameType': gameType.name,
-        if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
-        if (tags.isNotEmpty) 'tags': tags,
-        if (focusTags.isNotEmpty) 'focusTags': focusTags,
-        if (focusHandTypes.isNotEmpty)
-          'focusHandTypes': [for (final g in focusHandTypes) g.toString()],
-        if (heroRange != null) 'heroRange': heroRange,
-        if (difficulty != null) 'difficulty': difficulty,
-        'heroBbStack': heroBbStack,
-        'playerStacksBb': playerStacksBb,
-        'heroPos': heroPos.name,
-        'spotCount': spotCount,
-        'bbCallPct': bbCallPct,
-        'anteBb': anteBb,
-        'minEvForCorrect': minEvForCorrect,
-        'createdAt': createdAt.toIso8601String(),
-        if (lastGeneratedAt != null)
-          'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
-        if (lastTrainedAt != null)
-          'lastTrainedAt': lastTrainedAt!.toIso8601String(),
-        if (meta.isNotEmpty) 'meta': meta,
-        if (goalAchieved) 'goalAchieved': true,
-        if (goalTarget > 0) 'goalTarget': goalTarget,
-        if (goalProgress > 0) 'goalProgress': goalProgress,
-        if (targetStreet != null) 'targetStreet': targetStreet,
-        if (streetGoal > 0) 'streetGoal': streetGoal,
-        if (isDraft) 'isDraft': true,
-        if (isBuiltIn) 'isBuiltIn': true,
-        if (png != null) 'png': png,
-        if (isFavorite == true) 'isFavorite': true,
-        if (isPinned) 'isPinned': true,
-        if (trending) 'trending': true,
-        if (recommended) 'recommended': true,
-      };
+    'id': id,
+    'slug': slug,
+    'name': name,
+    'description': description,
+    if (goal.isNotEmpty) 'goal': goal,
+    'category': category,
+    'gameType': gameType.name,
+    if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
+    if (tags.isNotEmpty) 'tags': tags,
+    if (focusTags.isNotEmpty) 'focusTags': focusTags,
+    if (focusHandTypes.isNotEmpty)
+      'focusHandTypes': [for (final g in focusHandTypes) g.toString()],
+    if (requiredBoardClusters.isNotEmpty)
+      'requiredBoardClusters': requiredBoardClusters,
+    if (excludedBoardClusters.isNotEmpty)
+      'excludedBoardClusters': excludedBoardClusters,
+    if (heroRange != null) 'heroRange': heroRange,
+    if (difficulty != null) 'difficulty': difficulty,
+    'heroBbStack': heroBbStack,
+    'playerStacksBb': playerStacksBb,
+    'heroPos': heroPos.name,
+    'spotCount': spotCount,
+    'bbCallPct': bbCallPct,
+    'anteBb': anteBb,
+    'minEvForCorrect': minEvForCorrect,
+    'createdAt': createdAt.toIso8601String(),
+    if (lastGeneratedAt != null)
+      'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
+    if (lastTrainedAt != null)
+      'lastTrainedAt': lastTrainedAt!.toIso8601String(),
+    if (meta.isNotEmpty) 'meta': meta,
+    if (goalAchieved) 'goalAchieved': true,
+    if (goalTarget > 0) 'goalTarget': goalTarget,
+    if (goalProgress > 0) 'goalProgress': goalProgress,
+    if (targetStreet != null) 'targetStreet': targetStreet,
+    if (streetGoal > 0) 'streetGoal': streetGoal,
+    if (isDraft) 'isDraft': true,
+    if (isBuiltIn) 'isBuiltIn': true,
+    if (png != null) 'png': png,
+    if (isFavorite == true) 'isFavorite': true,
+    if (isPinned) 'isPinned': true,
+    if (trending) 'trending': true,
+    if (recommended) 'recommended': true,
+  };
 
   @override
   TrainingPackTemplate Function(Map<String, dynamic> json) get fromJson =>
@@ -234,8 +253,10 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
     }
     List<HeroPosition> sort(Set<HeroPosition> set) {
       final list = set.toList();
-      list.sort((a, b) =>
-          kPositionOrder.indexOf(a).compareTo(kPositionOrder.indexOf(b)));
+      list.sort(
+        (a, b) =>
+            kPositionOrder.indexOf(a).compareTo(kPositionOrder.indexOf(b)),
+      );
       return list;
     }
 
@@ -269,12 +290,13 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
 
   String handTypeSummary() {
     const ranks = '23456789TJQKA';
-    final List<String> hands = heroRange ??
+    final List<String> hands =
+        heroRange ??
         [
           for (final s in spots)
             s.hand.heroCards.length >= 4
                 ? '${s.hand.heroCards[0]}${s.hand.heroCards[2]}'
-                : ''
+                : '',
         ].where((e) => e.isNotEmpty).toList();
     final set = <String>{};
     for (final h in hands) {
@@ -326,7 +348,7 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
   Set<String> playableRangeIds() {
     return {
       for (final v in playableVariants())
-        if (v.rangeId != null) v.rangeId!
+        if (v.rangeId != null) v.rangeId!,
     };
   }
 

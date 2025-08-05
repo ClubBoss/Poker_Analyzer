@@ -49,9 +49,32 @@ class TrainingPackTemplateExpanderService {
           v,
           requiredBoardClusters: set.requiredBoardClusters,
           excludedBoardClusters: set.excludedBoardClusters,
-        )
+        ),
     ];
     final spots = _engine.apply(set.baseSpot, processed);
+    if (set.requiredBoardClusters.isNotEmpty ||
+        set.excludedBoardClusters.isNotEmpty) {
+      spots.retainWhere((s) {
+        final cards = [
+          for (final c in s.board)
+            CardModel(rank: c[0], suit: c.length > 1 ? c[1] : ''),
+        ];
+        final clusters = BoardClusterLibrary.getClusters(
+          cards,
+        ).map((c) => c.toLowerCase()).toSet();
+        for (final req in set.requiredBoardClusters) {
+          if (!clusters.contains(req.toLowerCase())) {
+            return false;
+          }
+        }
+        for (final ex in set.excludedBoardClusters) {
+          if (clusters.contains(ex.toLowerCase())) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
     _injector.injectAll(spots);
     return spots;
   }
@@ -101,14 +124,8 @@ class TrainingPackTemplateExpanderService {
       ];
       final generated = _boardGenerator.generate(
         map,
-        requiredBoardClusters: [
-          ...requiredBoardClusters,
-          ...paramRequired,
-        ],
-        excludedBoardClusters: [
-          ...excludedBoardClusters,
-          ...paramExcluded,
-        ],
+        requiredBoardClusters: [...requiredBoardClusters, ...paramRequired],
+        excludedBoardClusters: [...excludedBoardClusters, ...paramExcluded],
       );
       if (street == 'turn') {
         final seen = <String>{};
@@ -235,9 +252,9 @@ class TrainingPackTemplateExpanderService {
       }
     }
 
-    final clusters = BoardClusterLibrary.getClusters(board)
-        .map((c) => c.toLowerCase())
-        .toSet();
+    final clusters = BoardClusterLibrary.getClusters(
+      board,
+    ).map((c) => c.toLowerCase()).toSet();
     for (final req in set.requiredBoardClusters) {
       if (!clusters.contains(req.toLowerCase())) {
         return [];
