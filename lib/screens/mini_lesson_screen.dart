@@ -10,6 +10,7 @@ import '../services/theory_booster_recall_engine.dart';
 import '../services/pinned_learning_service.dart';
 import '../services/theory_lesson_completion_logger.dart';
 import '../services/review_completion_logger.dart';
+import '../services/theory_recall_impact_tracker.dart';
 
 /// Simple viewer for a [TheoryMiniLessonNode].
 class MiniLessonScreen extends StatefulWidget {
@@ -32,6 +33,7 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
   late final ScrollController _controller;
   bool _pinned = false;
   bool _isReview = false;
+  bool _tracked = false;
 
   @override
   void initState() {
@@ -40,8 +42,10 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
     _controller = ScrollController(
       initialScrollOffset: (widget.initialPosition ?? 0).toDouble(),
     );
-    _pinned =
-        PinnedLearningService.instance.isPinned('lesson', widget.lesson.id);
+    _pinned = PinnedLearningService.instance.isPinned(
+      'lesson',
+      widget.lesson.id,
+    );
     PinnedLearningService.instance.addListener(_updatePinned);
     unawaited(
       PinnedLearningService.instance.recordOpen('lesson', widget.lesson.id),
@@ -52,20 +56,23 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
   }
 
   void _updatePinned() {
-    final pinned =
-        PinnedLearningService.instance.isPinned('lesson', widget.lesson.id);
+    final pinned = PinnedLearningService.instance.isPinned(
+      'lesson',
+      widget.lesson.id,
+    );
     if (pinned != _pinned) setState(() => _pinned = pinned);
   }
 
   Future<void> _togglePinned() async {
-    await PinnedLearningService.instance
-        .toggle('lesson', widget.lesson.id);
-    final pinned =
-        PinnedLearningService.instance.isPinned('lesson', widget.lesson.id);
-    setState(() => _pinned = pinned);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
+    await PinnedLearningService.instance.toggle('lesson', widget.lesson.id);
+    final pinned = PinnedLearningService.instance.isPinned(
+      'lesson',
+      widget.lesson.id,
     );
+    setState(() => _pinned = pinned);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')));
   }
 
   @override
@@ -77,6 +84,20 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
     } else if (args is Map && args['isReview'] == true) {
       _isReview = true;
     }
+    if (!_tracked) {
+      String? tag = widget.recapTag;
+      if (tag == null) {
+        if (args is String) {
+          tag = args;
+        } else if (args is Map && args['tag'] is String) {
+          tag = args['tag'] as String;
+        }
+      }
+      if (tag != null) {
+        TheoryRecallImpactTracker.instance.record(tag, widget.lesson.id);
+      }
+      _tracked = true;
+    }
   }
 
   @override
@@ -85,20 +106,26 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
     if (tag != null) {
       final duration = DateTime.now().difference(_started);
       unawaited(
-        RecapCompletionTracker.instance
-            .logCompletion(widget.lesson.id, tag, duration),
+        RecapCompletionTracker.instance.logCompletion(
+          widget.lesson.id,
+          tag,
+          duration,
+        ),
       );
       unawaited(TheoryStreakService.instance.recordToday());
     }
-    PinnedLearningService.instance
-        .setLastPosition('lesson', widget.lesson.id, _controller.offset.round());
+    PinnedLearningService.instance.setLastPosition(
+      'lesson',
+      widget.lesson.id,
+      _controller.offset.round(),
+    );
     _controller.dispose();
     PinnedLearningService.instance.removeListener(_updatePinned);
     unawaited(
-        TheoryLessonCompletionLogger.instance.markCompleted(widget.lesson.id));
+      TheoryLessonCompletionLogger.instance.markCompleted(widget.lesson.id),
+    );
     if (_isReview) {
-      unawaited(
-          ReviewCompletionLogger.instance.logReview(widget.lesson.id));
+      unawaited(ReviewCompletionLogger.instance.logReview(widget.lesson.id));
     }
     super.dispose();
   }
@@ -110,8 +137,7 @@ class _MiniLessonScreenState extends State<MiniLessonScreen> {
         title: Text(widget.lesson.resolvedTitle),
         actions: [
           IconButton(
-            icon: Icon(
-                _pinned ? Icons.push_pin : Icons.push_pin_outlined),
+            icon: Icon(_pinned ? Icons.push_pin : Icons.push_pin_outlined),
             onPressed: _togglePinned,
           ),
         ],
