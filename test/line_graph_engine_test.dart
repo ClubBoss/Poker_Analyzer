@@ -14,7 +14,7 @@ void main() {
       },
     );
 
-    final engine = const LineGraphEngine();
+    final engine = LineGraphEngine();
     final result = engine.build(pattern);
 
     expect(result.heroPosition, 'btn');
@@ -24,7 +24,7 @@ void main() {
   });
 
   test('expandLine generates tagged spot seeds across streets', () {
-    final engine = const LineGraphEngine();
+    final engine = LineGraphEngine();
     final board = [
       CardModel(rank: 'A', suit: 's'),
       CardModel(rank: 'K', suit: 'd'),

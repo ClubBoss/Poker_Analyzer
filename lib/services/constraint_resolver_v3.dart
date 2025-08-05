@@ -18,8 +18,9 @@ class ConstraintResolverV3 {
     FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     Uuid? uuid,
-  })  : _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
-        _lineEngine = lineEngine ?? const LineGraphEngine(),
+  })
+      : _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
+        _lineEngine = lineEngine ?? LineGraphEngine(),
         _uuid = uuid ?? const Uuid();
 
   /// Applies [sets] to [base] producing all valid [TrainingPackSpot]

@@ -27,10 +27,11 @@ class TrainingPackGeneratorEngineV2 {
     AutoSpotTheoryInjectorService? injector,
     LineGraphEngine? lineEngine,
     Uuid? uuid,
-  }) : _expander = expander ?? TrainingPackTemplateExpanderService(),
-       _injector = injector ?? AutoSpotTheoryInjectorService(),
-       _lineEngine = lineEngine ?? const LineGraphEngine(),
-       _uuid = uuid ?? const Uuid();
+  })
+      : _expander = expander ?? TrainingPackTemplateExpanderService(),
+        _injector = injector ?? AutoSpotTheoryInjectorService(),
+        _lineEngine = lineEngine ?? LineGraphEngine(),
+        _uuid = uuid ?? const Uuid();
 
   /// Generates all spots defined by [set].
   ///
