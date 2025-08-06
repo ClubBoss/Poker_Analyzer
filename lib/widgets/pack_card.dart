@@ -341,6 +341,28 @@ class _PackCardState extends State<PackCard>
     await const TrainingSessionLauncher().launch(widget.template);
   }
 
+  String? _goalLabel() {
+    final raw = widget.template.meta['goal'];
+    if (raw is! String || raw.trim().isEmpty) return null;
+    return _humanizeGoal(raw.trim());
+  }
+
+  String _humanizeGoal(String raw) {
+    final words = raw
+        .replaceAllMapped(RegExp(r'(?<=[a-z])(?=[A-Z])'), (m) => ' ')
+        .split(RegExp(r'[\s_]+'));
+    const uppers = {'btn', 'bb', 'sb', 'utg', 'mp', 'co', 'hj'};
+    return words
+        .where((w) => w.isNotEmpty)
+        .map((w) {
+          final lower = w.toLowerCase();
+          if (lower == 'vs') return 'vs';
+          if (uppers.contains(lower)) return lower.toUpperCase();
+          return lower[0].toUpperCase() + lower.substring(1);
+        })
+        .join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     unawaited(_logLockedViewEventIfNeeded());
@@ -412,9 +434,7 @@ class _PackCardState extends State<PackCard>
           break;
       }
     }
-    final goalText = widget.template.goal.isNotEmpty
-        ? widget.template.goal
-        : (widget.template.meta['goal']?.toString() ?? '').trim();
+    final goalLabel = _goalLabel();
     return GestureDetector(
       onTap: () async {
         if (_locked) {
@@ -488,16 +508,16 @@ class _PackCardState extends State<PackCard>
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ),
-                if (goalText.isNotEmpty)
+                if (goalLabel != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      goalText,
+                      goalLabel,
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
