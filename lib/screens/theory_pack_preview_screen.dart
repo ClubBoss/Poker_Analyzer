@@ -54,6 +54,16 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
     setState(() {});
   }
 
+  Future<int> _completedLessonCount(TheoryLessonCluster cluster) async {
+    var done = 0;
+    for (final l in cluster.lessons) {
+      if (await MiniLessonLibraryService.instance.isLessonCompleted(l.id)) {
+        done++;
+      }
+    }
+    return done;
+  }
+
   Widget _clusterPreview() {
     return FutureBuilder<TheoryLessonCluster?>(
       future: _clusterFuture,
@@ -71,30 +81,46 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
                     child: Text('No related theory cluster available'),
                   ),
                 ]
-              : cluster.lessons
-                  .map(
-                    (l) => FutureBuilder<bool>(
-                      future: MiniLessonLibraryService.instance
-                          .isLessonCompleted(l.id),
-                      builder: (context, doneSnap) {
-                        final done = doneSnap.data ?? false;
-                        return ListTile(
-                          leading: done
-                              ? const Icon(Icons.check_circle,
-                                  color: Colors.green)
-                              : null,
-                          title: Text(
-                            l.resolvedTitle,
-                            style: TextStyle(
-                              color: done ? Colors.green : null,
-                            ),
-                          ),
-                          onTap: () => _openLesson(l),
-                        );
-                      },
-                    ),
-                  )
-                  .toList(),
+              : [
+                  FutureBuilder<int>(
+                    future: _completedLessonCount(cluster),
+                    builder: (context, countSnap) {
+                      final count = countSnap.data ?? 0;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Text(
+                          '$count of ${cluster.lessons.length} lessons complete',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      );
+                    },
+                  ),
+                  ...cluster.lessons
+                      .map(
+                        (l) => FutureBuilder<bool>(
+                          future: MiniLessonLibraryService.instance
+                              .isLessonCompleted(l.id),
+                          builder: (context, doneSnap) {
+                            final done = doneSnap.data ?? false;
+                            return ListTile(
+                              leading: done
+                                  ? const Icon(Icons.check_circle,
+                                      color: Colors.green)
+                                  : null,
+                              title: Text(
+                                l.resolvedTitle,
+                                style: TextStyle(
+                                  color: done ? Colors.green : null,
+                                ),
+                              ),
+                              onTap: () => _openLesson(l),
+                            );
+                          },
+                        ),
+                      )
+                      .toList(),
+                ],
         );
       },
     );
