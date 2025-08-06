@@ -3,6 +3,7 @@ import '../core/training/library/training_pack_library_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../widgets/pack_card.dart';
+import '../widgets/training_pack_template_tooltip_widget.dart';
 import '../widgets/training_pack_library_metadata_filter_bar.dart';
 import '../widgets/training_pack_library_sort_bar.dart';
 import '../models/v2/pack_ux_metadata.dart';
@@ -145,9 +146,12 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final tpl = _results[index];
-                return PackCard(
+                return TrainingPackTemplateTooltipWidget(
                   template: tpl,
-                  onTap: () => _open(tpl),
+                  child: PackCard(
+                    template: tpl,
+                    onTap: () => _open(tpl),
+                  ),
                 );
               },
             ),
