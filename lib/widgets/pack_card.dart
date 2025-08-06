@@ -19,6 +19,7 @@ import '../services/training_pack_stats_service.dart';
 import '../services/training_pack_performance_tracker_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../screens/mini_lesson_screen.dart';
+import '../models/v2/pack_ux_metadata.dart';
 import 'pack_progress_summary_widget.dart';
 import 'unlock_tracker_widget.dart';
 
@@ -350,6 +351,26 @@ class _PackCardState extends State<PackCard>
     final accText = _accuracy != null
         ? ', точность ${(_accuracy! * 100).toStringAsFixed(0)}%'
         : '';
+    IconData? topicIcon;
+    final topicStr = widget.template.meta['topic'];
+    if (topicStr is String) {
+      try {
+        switch (TrainingPackTopic.values.byName(topicStr)) {
+          case TrainingPackTopic.openFold:
+            topicIcon = Icons.call_made;
+            break;
+          case TrainingPackTopic.threeBet:
+            topicIcon = Icons.trending_up;
+            break;
+          case TrainingPackTopic.postflop:
+            topicIcon = Icons.blur_on;
+            break;
+          case TrainingPackTopic.pushFold:
+            topicIcon = Icons.flash_on;
+            break;
+        }
+      } catch (_) {}
+    }
     return GestureDetector(
       onTap: () async {
         if (_locked) {
@@ -376,12 +397,28 @@ class _PackCardState extends State<PackCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  widget.template.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (topicIcon != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Icon(
+                          topicIcon,
+                          size: 16,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    Expanded(
+                      child: Text(
+                        widget.template.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
