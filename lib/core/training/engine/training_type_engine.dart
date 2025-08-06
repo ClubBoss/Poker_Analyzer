@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 enum TrainingType {
   pushFold,
   postflop,
+  postflopJamDecision,
   icm,
   bounty,
   custom,
@@ -77,6 +78,9 @@ class TrainingTypeEngine {
     if (tags.contains('quiz')) return TrainingType.quiz;
     if (tags.contains('bounty')) return TrainingType.bounty;
     if (tags.contains('icm')) return TrainingType.icm;
+    if (tags.contains('jam') || tags.contains('jamdecision')) {
+      return TrainingType.postflopJamDecision;
+    }
     final hasPostflop = pack.spots.any((s) {
       if (s.hand.board.isNotEmpty) return true;
       return s.hand.actions.entries.any((e) => e.key > 0 && e.value.isNotEmpty);
@@ -102,6 +106,8 @@ extension TrainingTypeInfo on TrainingType {
         return 'Push/Fold';
       case TrainingType.postflop:
         return 'Postflop';
+      case TrainingType.postflopJamDecision:
+        return 'Postflop Jam';
       case TrainingType.icm:
         return 'ICM';
       case TrainingType.bounty:
@@ -125,6 +131,8 @@ extension TrainingTypeInfo on TrainingType {
       case TrainingType.pushFold:
         return Icons.swap_vert;
       case TrainingType.postflop:
+        return Icons.timeline;
+      case TrainingType.postflopJamDecision:
         return Icons.timeline;
       case TrainingType.icm:
         return Icons.pie_chart;
