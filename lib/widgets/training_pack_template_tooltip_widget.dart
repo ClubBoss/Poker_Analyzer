@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/v2/pack_ux_metadata.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../services/training_pack_progress_service.dart';
 
 /// Displays a tooltip with basic metadata for a [TrainingPackTemplateV2].
 ///
@@ -36,9 +37,19 @@ class TrainingPackTemplateTooltipWidget extends StatelessWidget {
     if (topic != null) buffer.writeln('Topic: ${_topicLabel(topic)}');
     if (format != null) buffer.writeln('Format: ${_formatLabel(format)}');
 
-    final message = buffer.toString().trim();
+    final baseMessage = buffer.toString().trim();
 
-    return Tooltip(message: message, child: child);
+    return FutureBuilder<TrainingPackProgressStats?>(
+      future: TrainingPackProgressService.instance.getStatsForPack(template.id),
+      builder: (context, snapshot) {
+        var msg = baseMessage;
+        final stats = snapshot.data;
+        if (stats != null) {
+          msg += '\nCompleted: ${stats.completedCount} / ${stats.totalCount}';
+        }
+        return Tooltip(message: msg, child: child);
+      },
+    );
   }
 
   T? _tryParse<T>(dynamic value, T Function(String) parser) {

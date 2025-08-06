@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'training_pack_stats_service.dart';
+import 'training_pack_progress_service.dart';
 import 'training_progress_notifier.dart';
 import 'training_progress_storage_service.dart';
 
@@ -23,6 +24,7 @@ class TrainingProgressTrackerService {
     if (ids.add(spotId)) {
       await _storage.saveCompletedSpotIds(packId, ids);
       notifier.notifyProgressChanged();
+      TrainingPackProgressService.instance.invalidate(packId);
     }
   }
 
