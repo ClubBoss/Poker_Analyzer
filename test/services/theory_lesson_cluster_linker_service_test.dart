@@ -4,6 +4,7 @@ import 'package:poker_analyzer/models/theory_suggestion_engagement_event.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/theory_lesson_cluster_linker_service.dart';
 import 'package:poker_analyzer/services/theory_suggestion_engagement_tracker_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final List<TheoryMiniLessonNode> lessons;
@@ -57,6 +58,7 @@ class _FakeTracker implements TheorySuggestionEngagementTrackerService {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
 
   test('clusters lessons by tags, packs and co-suggestions', () async {
     final lessons = [
@@ -123,5 +125,37 @@ void main() {
     final cluster = await service.getCluster('l5');
     expect(cluster, isNotNull);
     expect(cluster!.lessons.map((e) => e.id).toSet(), {'l4', 'l5'});
+  });
+
+  test('loads clusters from cache when available', () async {
+    final lessons = [
+      TheoryMiniLessonNode(
+        id: 'a',
+        title: 'A',
+        content: '',
+        tags: const ['x'],
+      ),
+      TheoryMiniLessonNode(
+        id: 'b',
+        title: 'B',
+        content: '',
+        tags: const ['x'],
+      ),
+    ];
+
+    final tracker = _FakeTracker([]);
+    final service = TheoryLessonClusterLinkerService(
+      library: _FakeLibrary(lessons),
+      tracker: tracker,
+    );
+    final first = await service.clusters();
+    expect(first.length, 1);
+
+    final emptyService = TheoryLessonClusterLinkerService(
+      library: _FakeLibrary([]),
+      tracker: tracker,
+    );
+    final cached = await emptyService.clusters();
+    expect(cached.length, 1);
   });
 }
