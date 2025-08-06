@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/training/library/training_pack_library_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 import '../widgets/pack_card.dart';
@@ -8,6 +7,7 @@ import '../widgets/training_pack_library_metadata_filter_bar.dart';
 import '../widgets/training_pack_library_sort_bar.dart';
 import '../models/v2/pack_ux_metadata.dart';
 import 'training_pack_preview_screen.dart';
+import '../services/lazy_pack_loader_service.dart';
 
 class PackLibrarySearchScreen extends StatefulWidget {
   const PackLibrarySearchScreen({super.key});
@@ -33,8 +33,8 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
   }
 
   Future<void> _load() async {
-    await TrainingPackLibraryV2.instance.loadFromFolder();
-    _all = TrainingPackLibraryV2.instance.packs;
+    await LazyPackLoaderService.instance.preloadMetadata();
+    _all = LazyPackLoaderService.instance.templates;
     _topics = _availableTopics();
     _applyFilters();
     setState(() {
@@ -106,10 +106,12 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
   }
 
   Future<void> _open(TrainingPackTemplateV2 tpl) async {
+    final loader = LazyPackLoaderService.instance;
+    final full = await loader.loadFullPack(tpl.id) ?? tpl;
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackPreviewScreen(template: tpl),
+        builder: (_) => TrainingPackPreviewScreen(template: full),
       ),
     );
   }
