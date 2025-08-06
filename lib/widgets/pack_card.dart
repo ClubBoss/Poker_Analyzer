@@ -46,8 +46,7 @@ class _PackCardState extends State<PackCard>
 
   double? get _requiredAccuracy =>
       (widget.template.meta['requiredAccuracy'] as num?)?.toDouble();
-  int? get _minHands =>
-      (widget.template.meta['minHands'] as num?)?.toInt();
+  int? get _minHands => (widget.template.meta['minHands'] as num?)?.toInt();
 
   bool _showReward = false;
   late final AnimationController _rewardController;
@@ -105,8 +104,7 @@ class _PackCardState extends State<PackCard>
         if (minHands != null && minHands > 0) {
           handsRatio = hands / minHands;
         }
-        _almostUnlocked =
-            (accRatio >= 0.5 && accRatio < 1) ||
+        _almostUnlocked = (accRatio >= 0.5 && accRatio < 1) ||
             (handsRatio >= 0.5 && handsRatio < 1);
       });
     }
@@ -171,12 +169,12 @@ class _PackCardState extends State<PackCard>
     final reqAcc = _requiredAccuracy;
     final minHands = _minHands;
     if (reqAcc == null && minHands == null) return;
-    final ok = await TrainingPackPerformanceTrackerService.instance
-        .meetsRequirements(
-          widget.template.id,
-          requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
-          minHands: minHands,
-        );
+    final ok =
+        await TrainingPackPerformanceTrackerService.instance.meetsRequirements(
+      widget.template.id,
+      requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
+      minHands: minHands,
+    );
     final wasLocked = _locked;
     if (mounted) {
       setState(() {
@@ -321,11 +319,9 @@ class _PackCardState extends State<PackCard>
   String? get _ctaText {
     final reqAcc = _requiredAccuracy;
     final minHands = _minHands;
-    final accShort =
-        reqAcc != null && (_accuracy ?? 0) * 100 < reqAcc;
+    final accShort = reqAcc != null && (_accuracy ?? 0) * 100 < reqAcc;
     if (accShort) return 'Улучшить точность';
-    final handsShort =
-        minHands != null && _handsCompleted < minHands;
+    final handsShort = minHands != null && _handsCompleted < minHands;
     if (handsShort) return 'Сыграть руки';
     return null;
   }
@@ -370,6 +366,32 @@ class _PackCardState extends State<PackCard>
             break;
         }
       } catch (_) {}
+    }
+
+    TrainingPackLevel? level;
+    String? levelLabel;
+    Color? levelColor;
+    final levelStr = widget.template.meta['level'];
+    if (levelStr is String) {
+      try {
+        level = TrainingPackLevel.values.byName(levelStr);
+      } catch (_) {}
+    }
+    if (level != null) {
+      switch (level) {
+        case TrainingPackLevel.beginner:
+          levelLabel = 'Beginner';
+          levelColor = Colors.green;
+          break;
+        case TrainingPackLevel.intermediate:
+          levelLabel = 'Intermediate';
+          levelColor = Colors.amber;
+          break;
+        case TrainingPackLevel.advanced:
+          levelLabel = 'Advanced';
+          levelColor = Colors.red;
+          break;
+      }
     }
     return GestureDetector(
       onTap: () async {
@@ -418,6 +440,24 @@ class _PackCardState extends State<PackCard>
                         ),
                       ),
                     ),
+                    if (levelLabel != null)
+                      Container(
+                        margin: const EdgeInsets.only(left: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: levelColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          levelLabel!,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 Padding(
@@ -428,8 +468,7 @@ class _PackCardState extends State<PackCard>
                   ),
                 ),
                 if (!_locked &&
-                    ((_requiredAccuracy ?? 0) > 0 ||
-                        (_minHands ?? 0) > 0))
+                    ((_requiredAccuracy ?? 0) > 0 || (_minHands ?? 0) > 0))
                   PackProgressSummaryWidget(
                     accuracy: _accuracy,
                     handsCompleted: _handsCompleted,
@@ -539,8 +578,7 @@ class _PackCardState extends State<PackCard>
                       ),
                     ),
                   ),
-                  if ((_requiredAccuracy ?? 0) > 0 ||
-                      (_minHands ?? 0) > 0)
+                  if ((_requiredAccuracy ?? 0) > 0 || (_minHands ?? 0) > 0)
                     Container(
                       width: double.infinity,
                       color: Colors.black87,
