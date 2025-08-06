@@ -4,6 +4,7 @@ import '../asset_manifest.dart';
 import '../core/training/generation/yaml_reader.dart';
 import '../models/theory_mini_lesson_node.dart';
 import 'theory_mini_lesson_factory_service.dart';
+import 'theory_lesson_completion_logger.dart';
 
 /// Loads and indexes mini lesson blocks stored as YAML files.
 class MiniLessonLibraryService {
@@ -76,4 +77,18 @@ class MiniLessonLibraryService {
   /// Returns lessons matching any of [tags]. Convenience for Set input.
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
       findByTags(tags.toList());
+}
+
+extension MiniLessonLibraryProgress on MiniLessonLibraryService {
+  Future<int> getTotalLessonCount() async {
+    await loadAll();
+    return all.length;
+  }
+
+  Future<int> getCompletedLessonCount() async {
+    await loadAll();
+    final completed =
+        await TheoryLessonCompletionLogger.instance.getCompletedLessons();
+    return completed.keys.where((id) => getById(id) != null).length;
+  }
 }

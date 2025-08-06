@@ -52,7 +52,10 @@ void main() {
     await service.checkAndNotify(['a', 'b'], ctx);
     await tester.pump();
     expect(find.byType(SnackBar), findsOneWidget);
-    expect(find.text('New lesson unlocked: B'), findsOneWidget);
+    expect(
+      find.text('New lesson unlocked: B\n(0 of 2 lessons complete)'),
+      findsOneWidget,
+    );
     expect(find.text('View'), findsOneWidget);
   });
 

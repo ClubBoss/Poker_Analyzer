@@ -31,13 +31,17 @@ class TheoryLessonUnlockNotificationService {
     }
 
     await _library.loadAll();
+    final total = await _library.getTotalLessonCount();
+    final completed = await _library.getCompletedLessonCount();
     for (final id in newIds) {
       if (!context.mounted) break;
       final lesson = _library.getById(id);
       final title = lesson?.title ?? id;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('New lesson unlocked: $title'),
+          content: Text(
+            'New lesson unlocked: $title\n($completed of $total lessons complete)',
+          ),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
