@@ -7,6 +7,7 @@ class AutoDeduplicationEngine {
   final SpotFingerprintGenerator _fingerprint;
   final Set<String> _seen = <String>{};
   final IOSink _log;
+  int _skipped = 0;
 
   AutoDeduplicationEngine({
     SpotFingerprintGenerator? fingerprint,
@@ -25,12 +26,15 @@ class AutoDeduplicationEngine {
   bool isDuplicate(TrainingPackSpot spot, {String? source}) {
     final fp = _fingerprint.generate(spot);
     if (_seen.contains(fp)) {
+      _skipped++;
       _log.writeln('Skipped duplicate from ${source ?? 'unknown'}: ${spot.id}');
       return true;
     }
     _seen.add(fp);
     return false;
   }
+
+  int get skippedCount => _skipped;
 
   /// Closes the underlying log sink.
   Future<void> dispose() => _log.close();

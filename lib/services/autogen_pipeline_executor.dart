@@ -10,6 +10,7 @@ import 'auto_deduplication_engine.dart';
 import 'training_pack_auto_generator.dart';
 import 'yaml_pack_exporter.dart';
 import 'skill_tag_coverage_tracker.dart';
+import 'autogen_status_dashboard_service.dart';
 import 'theory_link_auto_injector.dart';
 import 'board_texture_classifier.dart';
 import 'skill_tree_auto_linker.dart';
@@ -26,6 +27,7 @@ class AutogenPipelineExecutor {
   final SkillTreeAutoLinker skillLinker;
   final TrainingPackFingerprintGenerator fingerprintGenerator;
   final IOSink _fingerprintLog;
+  final AutogenStatusDashboardService dashboard;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -37,6 +39,7 @@ class AutogenPipelineExecutor {
     SkillTreeAutoLinker? skillLinker,
     TrainingPackFingerprintGenerator? fingerprintGenerator,
     IOSink? fingerprintLog,
+    AutogenStatusDashboardService? dashboard,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
@@ -47,7 +50,8 @@ class AutogenPipelineExecutor {
             fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
         _fingerprintLog = fingerprintLog ??
             File('generated_pack_fingerprints.log')
-                .openWrite(mode: FileMode.append) {
+                .openWrite(mode: FileMode.append),
+        dashboard = dashboard ?? AutogenStatusDashboardService() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -58,6 +62,7 @@ class AutogenPipelineExecutor {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
   }) async {
     // Load existing YAMLs to prime deduplication engine.
+    dashboard.start();
     if (existingYamlPath.isNotEmpty) {
       final dir = Directory(existingYamlPath);
       if (await dir.exists()) {
@@ -103,14 +108,18 @@ class AutogenPipelineExecutor {
       final file = await exporter.export(pack);
       files.add(file);
 
+      dashboard.recordPack(spots.length);
       final fp = fingerprintGenerator.generate(pack);
+      dashboard.recordFingerprint(fp);
       _fingerprintLog.writeln(fp);
     }
 
+    dashboard.recordSkipped(dedup.skippedCount);
     await dedup.dispose();
     await coverage.logSummary();
     await _fingerprintLog.flush();
     await _fingerprintLog.close();
+    await dashboard.logFinalStats(coverage, yamlFiles: files.length);
     return files;
   }
 }
