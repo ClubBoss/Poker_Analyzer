@@ -1,45 +1,68 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Logs completion timestamps for theory mini lessons.
+import '../models/lesson_completion_entry.dart';
+
 class TheoryLessonCompletionLogger {
-  TheoryLessonCompletionLogger._();
-  static final TheoryLessonCompletionLogger instance =
-      TheoryLessonCompletionLogger._();
+  static const _key = 'lesson_completion_log';
 
-  static const String _prefix = 'lesson_completed_at_';
-
-  /// Marks [lessonId] as completed with current timestamp.
-  Future<void> markCompleted(String lessonId) async {
+  Future<void> logCompletion(String lessonId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      '$_prefix$lessonId',
-      DateTime.now().toIso8601String(),
-    );
-  }
-
-  /// Returns true if [lessonId] was previously completed.
-  Future<bool> isCompleted(String lessonId) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey('$_prefix$lessonId');
-  }
-
-  /// Returns map of completed lesson ids and their completion timestamps.
-  Future<Map<String, DateTime>> getCompletedLessons() async {
-    final prefs = await SharedPreferences.getInstance();
-    final result = <String, DateTime>{};
-    for (final key in prefs.getKeys()) {
-      if (key.startsWith(_prefix)) {
-        final id = key.substring(_prefix.length);
-        final ts = prefs.getString(key);
-        if (ts != null) {
-          final time = DateTime.tryParse(ts);
-          if (time != null) {
-            result[id] = time;
-          }
-        }
-      }
+    final now = DateTime.now().toUtc();
+    final entries = await _load(prefs);
+    final exists = entries.any((e) =>
+        e.lessonId == lessonId && _isSameDay(e.timestamp, now));
+    if (!exists) {
+      entries.add(LessonCompletionEntry(lessonId: lessonId, timestamp: now));
+      await _save(prefs, entries);
     }
-    return result;
   }
-}
 
+  Future<List<LessonCompletionEntry>> getCompletions({DateTime? since}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final entries = await _load(prefs);
+    entries.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    if (since != null) {
+      final s = since.toUtc();
+      return entries
+          .where((e) =>
+              !e.timestamp.isBefore(s))
+          .toList();
+    }
+    return entries;
+  }
+
+  Future<int> getCompletionsCountFor(DateTime day) async {
+    final start = DateTime.utc(day.year, day.month, day.day);
+    final end = start.add(const Duration(days: 1));
+    final entries = await getCompletions();
+    return entries
+        .where((e) => !e.timestamp.isBefore(start) && e.timestamp.isBefore(end))
+        .length;
+  }
+
+  Future<List<LessonCompletionEntry>> _load(SharedPreferences prefs) async {
+    final raw = prefs.getString(_key);
+    if (raw == null) return [];
+    try {
+      final data = jsonDecode(raw);
+      if (data is List) {
+        return data
+            .map((e) => LessonCompletionEntry.fromJson(
+                Map<String, dynamic>.from(e as Map)))
+            .toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  Future<void> _save(
+      SharedPreferences prefs, List<LessonCompletionEntry> entries) async {
+    await prefs.setString(
+        _key, jsonEncode([for (final e in entries) e.toJson()]));
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+}
