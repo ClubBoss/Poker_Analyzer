@@ -7,6 +7,7 @@ class PackFilterService {
 
   List<TrainingPackTemplateV2> filter({
     required List<TrainingPackTemplateV2> templates,
+    Set<String>? themes,
     Set<String>? tags,
     Set<TrainingType>? types,
     Set<int>? difficulties,
@@ -14,6 +15,8 @@ class PackFilterService {
     TrainingPackLevel? level,
     String? goal,
   }) {
+    final themeSet =
+        themes?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
     final tagSet = tags?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
     final typeSet = types ?? {};
     final diffSet = difficulties ?? {};
@@ -22,12 +25,23 @@ class PackFilterService {
 
     return [
       for (final t in templates)
-        if (_matches(t, tagSet, typeSet, diffSet, audSet, level, goalStr)) t
+        if (_matches(
+          t,
+          themeSet,
+          tagSet,
+          typeSet,
+          diffSet,
+          audSet,
+          level,
+          goalStr,
+        ))
+          t
     ];
   }
 
   bool _matches(
     TrainingPackTemplateV2 tpl,
+    Set<String> themes,
     Set<String> tags,
     Set<TrainingType> types,
     Set<int> diffs,
@@ -36,6 +50,19 @@ class PackFilterService {
     String? goal,
   ) {
     if (types.isNotEmpty && !types.contains(tpl.trainingType)) return false;
+
+    if (themes.isNotEmpty) {
+      final tplThemes = <String>{};
+      final raw = tpl.meta['theme'];
+      if (raw is String) {
+        tplThemes.add(raw.trim().toLowerCase());
+      } else if (raw is List) {
+        for (final t in raw) {
+          tplThemes.add(t.toString().trim().toLowerCase());
+        }
+      }
+      if (tplThemes.intersection(themes).isEmpty) return false;
+    }
 
     if (tags.isNotEmpty) {
       final tplTags = {for (final t in tpl.tags) t.trim().toLowerCase()};

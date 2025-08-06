@@ -66,15 +66,18 @@ class TrainingPackLibraryV2 {
     GameType? gameType,
     TrainingType? type,
     List<String>? tags,
+    List<String>? themes,
     TrainingPackLevel? level,
     String? goal,
   }) {
     final goalStr = goal?.trim().toLowerCase();
+    final themeSet = themes?.map((e) => e.trim().toLowerCase()).toSet();
     return [
       for (final p in _packs)
         if ((gameType == null || p.gameType == gameType) &&
             (type == null || p.trainingType == type) &&
             (tags == null || tags.every((t) => p.tags.contains(t))) &&
+            (themeSet == null || _themeMatches(p, themeSet)) &&
             (level == null || p.meta['level']?.toString() == level.name) &&
             (goalStr == null ||
                 ((p.goal.isNotEmpty
@@ -85,6 +88,20 @@ class TrainingPackLibraryV2 {
                     goalStr)))
           p
     ];
+  }
+
+  bool _themeMatches(TrainingPackTemplateV2 p, Set<String> themes) {
+    final raw = p.meta['theme'];
+    final set = <String>{};
+    if (raw is String) {
+      set.add(raw.trim().toLowerCase());
+    } else if (raw is List) {
+      for (final t in raw) {
+        set.add(t.toString().trim().toLowerCase());
+      }
+    }
+    if (set.isEmpty) return false;
+    return set.intersection(themes).isNotEmpty;
   }
 
   TrainingPackTemplateV2? getById(String id) => _index[id];
