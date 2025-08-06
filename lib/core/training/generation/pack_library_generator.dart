@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'pack_yaml_config_parser.dart';
 import 'push_fold_pack_generator.dart';
 import 'training_pack_generator_engine.dart';
@@ -9,6 +11,7 @@ import '../../../models/v2/training_pack_v2.dart';
 import '../../../models/v2/training_pack_spot.dart';
 import '../../../models/v2/hero_position.dart';
 import '../engine/training_type_engine.dart';
+import '../../../services/level_tag_auto_assigner.dart';
 
 class PackLibraryGenerator {
   final PackYamlConfigParser parser;
@@ -16,17 +19,20 @@ class PackLibraryGenerator {
   final TrainingPackGeneratorEngine engine;
   final TrainingPackSourceTagger tagger;
   final TrainingPackTagsEngine tagsEngine;
+  final LevelTagAutoAssigner levelAssigner;
   const PackLibraryGenerator({
     PackYamlConfigParser? yamlParser,
     PushFoldPackGenerator? pushFoldGenerator,
     TrainingPackGeneratorEngine? packEngine,
     TrainingPackSourceTagger? sourceTagger,
     TrainingPackTagsEngine? tagsEngine,
+    LevelTagAutoAssigner? levelAssigner,
   }) : parser = yamlParser ?? const PackYamlConfigParser(),
        generator = pushFoldGenerator ?? const PushFoldPackGenerator(),
        engine = packEngine ?? const TrainingPackGeneratorEngine(),
        tagger = sourceTagger ?? const TrainingPackSourceTagger(),
-       tagsEngine = tagsEngine ?? const TrainingPackTagsEngine();
+       tagsEngine = tagsEngine ?? const TrainingPackTagsEngine(),
+       levelAssigner = levelAssigner ?? const LevelTagAutoAssigner();
 
   List<String> autoTags(TrainingPackTemplate template) {
     final set = <String>{};
@@ -40,7 +46,9 @@ class PackLibraryGenerator {
     var river = false;
     for (final s in template.spots) {
       positions.add(s.hand.position);
-      maxPlayers = s.hand.playerCount > maxPlayers ? s.hand.playerCount : maxPlayers;
+      maxPlayers = s.hand.playerCount > maxPlayers
+          ? s.hand.playerCount
+          : maxPlayers;
       final st = s.hand.stacks['${s.hand.heroIndex}']?.round();
       if (st != null) {
         stacks.add(st);
@@ -80,13 +88,18 @@ class PackLibraryGenerator {
       id: t.id,
       name: t.name,
       spots: [for (final s in t.spots) TrainingPackSpot.fromJson(s.toJson())],
-      heroPos: t.positions.isNotEmpty ? parseHeroPosition(t.positions.first) : HeroPosition.unknown,
+      heroPos: t.positions.isNotEmpty
+          ? parseHeroPosition(t.positions.first)
+          : HeroPosition.unknown,
       heroBbStack: t.bb,
     );
     return autoTags(tmp);
   }
 
-  String generateTitle(TrainingPackTemplate template, [TrainingType type = TrainingType.pushFold]) {
+  String generateTitle(
+    TrainingPackTemplate template, [
+    TrainingType type = TrainingType.pushFold,
+  ]) {
     final pos = template.heroPos.label;
     final bb = template.heroBbStack;
     final game = template.gameType.label;
@@ -98,7 +111,9 @@ class PackLibraryGenerator {
   }
 
   String _generateTitleV2(TrainingPackTemplateV2 t) {
-    final pos = t.positions.isNotEmpty ? parseHeroPosition(t.positions.first).label : HeroPosition.unknown.label;
+    final pos = t.positions.isNotEmpty
+        ? parseHeroPosition(t.positions.first).label
+        : HeroPosition.unknown.label;
     final bb = t.bb;
     final game = t.gameType.label;
     if (t.trainingType == TrainingType.pushFold) {
@@ -144,7 +159,9 @@ class PackLibraryGenerator {
       id: t.id,
       name: t.name,
       spots: [for (final s in t.spots) TrainingPackSpot.fromJson(s.toJson())],
-      heroPos: t.positions.isNotEmpty ? parseHeroPosition(t.positions.first) : HeroPosition.unknown,
+      heroPos: t.positions.isNotEmpty
+          ? parseHeroPosition(t.positions.first)
+          : HeroPosition.unknown,
       heroBbStack: t.bb,
       gameType: t.gameType,
     );
@@ -172,9 +189,11 @@ class PackLibraryGenerator {
     return 1;
   }
 
-  int estimateDifficulty(TrainingPackTemplate template) => _estimateDifficultyFromSpots(template.spots);
+  int estimateDifficulty(TrainingPackTemplate template) =>
+      _estimateDifficultyFromSpots(template.spots);
 
-  int estimateDifficultyV2(TrainingPackTemplateV2 template) => _estimateDifficultyFromSpots(template.spots);
+  int estimateDifficultyV2(TrainingPackTemplateV2 template) =>
+      _estimateDifficultyFromSpots(template.spots);
 
   List<TrainingPackTemplate> generateFromYaml(String yaml) {
     final config = parser.parse(yaml);
@@ -208,7 +227,10 @@ class PackLibraryGenerator {
       if (r.goal.isNotEmpty) tpl.goal = r.goal;
       if (r.audience.isNotEmpty) tpl.meta['audience'] = r.audience;
       final tags = List<String>.from(r.tags);
-      if (config.rangeTags && r.rangeGroup != null && r.rangeGroup!.isNotEmpty && !tags.contains(r.rangeGroup)) {
+      if (config.rangeTags &&
+          r.rangeGroup != null &&
+          r.rangeGroup!.isNotEmpty &&
+          !tags.contains(r.rangeGroup)) {
         tags.add(r.rangeGroup!);
       }
       if (tags.isNotEmpty) tpl.tags = tags;
@@ -234,9 +256,13 @@ class PackLibraryGenerator {
     return list;
   }
 
-  Future<List<TrainingPackV2>> generateFromTemplates(List<TrainingPackTemplateV2> templates) async {
+  Future<List<TrainingPackV2>> generateFromTemplates(
+    List<TrainingPackTemplateV2> templates,
+  ) async {
     final list = <TrainingPackV2>[];
-    for (final t in templates) {
+    final assigned = levelAssigner.assign(templates);
+    for (final t in assigned) {
+      developer.log('Assigned level ${t.meta['level']} to ${t.id}');
       tagger.tag(t, source: PackSource.auto.name);
       if (t.spots.isEmpty) continue;
       if (t.meta['enabled'] == false) continue;
@@ -253,7 +279,7 @@ class PackLibraryGenerator {
       t.tags = {
         ...t.tags,
         ..._autoTagsV2(t),
-        ...tagsEngine.generate(t)
+        ...tagsEngine.generate(t),
       }.toList();
       if (t.description.isEmpty) {
         t.description = _generateDescriptionV2(t);
@@ -266,9 +292,8 @@ class PackLibraryGenerator {
       list.add(pack);
     }
     list.sort(
-      (a, b) => ((a.meta['priority'] as num?)?.toInt() ?? a.difficulty).compareTo(
-        (b.meta['priority'] as num?)?.toInt() ?? b.difficulty,
-      ),
+      (a, b) => ((a.meta['priority'] as num?)?.toInt() ?? a.difficulty)
+          .compareTo((b.meta['priority'] as num?)?.toInt() ?? b.difficulty),
     );
     return list;
   }
