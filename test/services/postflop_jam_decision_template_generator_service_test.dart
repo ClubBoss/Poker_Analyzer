@@ -32,4 +32,28 @@ void main() {
       ),
     );
   });
+
+  test('generates delayed turn jam decision templates with metadata', () {
+    final service =
+        PostflopJamDecisionTemplateGeneratorService(random: Random(2));
+    final templates = service.generate(
+      boardTexture: 'wet',
+      heroHandGroup: 'broadways',
+      villainLine: 'check bet jam',
+      effectiveStack: 40,
+      potSize: 20,
+      delayedTurn: true,
+    );
+    expect(templates.length, inInclusiveRange(5, 10));
+    final tpl = templates.first;
+    expect(tpl.tags,
+        containsAll(['turn', 'jam', 'delayCbet', 'call', 'fold']));
+    expect(tpl.meta['goal'], 'turnDecision');
+    final spot = tpl.spots.first;
+    expect(spot.hand.board.length, 4);
+    expect(spot.heroOptions, equals(['call', 'fold']));
+    final actions = spot.hand.actions[2]!;
+    expect(actions.first.action, 'bet');
+    expect(actions[1].action, 'push');
+  });
 }

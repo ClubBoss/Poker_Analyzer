@@ -12,12 +12,11 @@ import 'full_board_generator_service.dart';
 import 'hand_range_library.dart';
 import 'pack_generator_service.dart';
 
-/// Generates river jam decision training pack templates.
+/// Generates postflop jam decision training pack templates.
 ///
 /// The service builds one [TrainingPackTemplateV2] per sampled hand from
-/// [heroHandGroup]. Each template contains a single river spot where the hero
-/// either faces an all-in or considers shoving. Packs are tagged for Level III
-/// study.
+/// [heroHandGroup]. Each template contains a single spot where the hero either
+/// faces an all-in or considers shoving. Packs are tagged for Level III study.
 class PostflopJamDecisionTemplateGeneratorService {
   final Random _random;
   final FullBoardGeneratorService _boardGenerator;
@@ -29,13 +28,14 @@ class PostflopJamDecisionTemplateGeneratorService {
         _boardGenerator =
             boardGenerator ?? FullBoardGeneratorService(random: random ?? Random());
 
-  /// Generates river jam decision templates.
+  /// Generates jam decision templates for river or delayed turn scenarios.
   List<TrainingPackTemplateV2> generate({
     required String boardTexture,
     required String heroHandGroup,
     required String villainLine,
     required int effectiveStack,
     required int potSize,
+    bool delayedTurn = false,
   }) {
     final hands = _resolveHands(heroHandGroup);
     hands.shuffle(_random);
@@ -47,13 +47,15 @@ class PostflopJamDecisionTemplateGeneratorService {
     final templates = <TrainingPackTemplateV2>[];
 
     for (var i = 0; i < selected.length; i++) {
-      final board = _boardGenerator
-          .generateFullBoard(boardFilterParams: boardFilter)
-          .cards
-          .map((c) => '${c.rank}${c.suit}')
-          .toList();
+      final boardResult = delayedTurn
+          ? _boardGenerator.generatePartialBoard(
+              stages: 4, boardFilterParams: boardFilter)
+          : _boardGenerator.generateFullBoard(
+              boardFilterParams: boardFilter);
+      final board =
+          boardResult.cards.map((c) => '${c.rank}${c.suit}').toList();
       final heroPos = _random.nextBool() ? HeroPosition.btn : HeroPosition.bb;
-      final facingJam = _random.nextBool();
+      final facingJam = delayedTurn ? true : _random.nextBool();
       final spot = _buildSpot(
         hand: selected[i],
         board: board,
@@ -64,10 +66,15 @@ class PostflopJamDecisionTemplateGeneratorService {
         facingJam: facingJam,
         index: i + 1,
         boardTexture: boardTexture,
+        delayedTurn: delayedTurn,
       );
       final tpl = TrainingPackTemplateV2(
-        id: 'river_jam_${effectiveStack}bb_${i + 1}',
-        name: 'River Jam Decision ${i + 1}',
+        id: delayedTurn
+            ? 'delayed_turn_jam_${effectiveStack}bb_${i + 1}'
+            : 'river_jam_${effectiveStack}bb_${i + 1}',
+        name: delayedTurn
+            ? 'Delayed Turn Jam Decision ${i + 1}'
+            : 'River Jam Decision ${i + 1}',
         description:
             '${heroPos == HeroPosition.btn ? 'IP' : 'OOP'} decision with ${selected[i]}',
         trainingType: TrainingType.postflopJamDecision,
@@ -76,12 +83,20 @@ class PostflopJamDecisionTemplateGeneratorService {
         gameType: GameType.tournament,
         bb: effectiveStack,
         positions: [heroPos.name],
-        tags: const ['river', 'jam', 'call', 'potOdds'],
-        meta: const {
-          'level': 'intermediate/advanced',
-          'goal': 'riverDecision',
-          'theme': 'postflop',
-        },
+        tags: delayedTurn
+            ? const ['turn', 'jam', 'delayCbet', 'call', 'fold']
+            : const ['river', 'jam', 'call', 'potOdds'],
+        meta: delayedTurn
+            ? const {
+                'level': 'intermediate/advanced',
+                'goal': 'turnDecision',
+                'theme': 'postflop',
+              }
+            : const {
+                'level': 'intermediate/advanced',
+                'goal': 'riverDecision',
+                'theme': 'postflop',
+              },
       );
       templates.add(tpl);
     }
@@ -107,19 +122,32 @@ class PostflopJamDecisionTemplateGeneratorService {
     required bool facingJam,
     required int index,
     required String boardTexture,
+    required bool delayedTurn,
   }) {
     final heroCards = _firstCombo(hand);
     final actions = <int, List<ActionEntry>>{
-      3: facingJam
-          ? [
-              ActionEntry(3, 1, 'push', amount: effectiveStack.toDouble()),
-              ActionEntry(3, 0, 'call', amount: effectiveStack.toDouble()),
-              ActionEntry(3, 0, 'fold'),
-            ]
-          : [
-              ActionEntry(3, 0, 'push', amount: effectiveStack.toDouble()),
-              ActionEntry(3, 1, 'fold'),
-            ],
+      if (delayedTurn)
+        2: [
+          ActionEntry(2, 0, 'bet',
+              amount: min(potSize.toDouble(), effectiveStack.toDouble())),
+          ActionEntry(2, 1, 'push', amount: effectiveStack.toDouble()),
+          ActionEntry(2, 0, 'call', amount: effectiveStack.toDouble()),
+          ActionEntry(2, 0, 'fold'),
+        ]
+      else
+        3: facingJam
+            ? [
+                ActionEntry(3, 1, 'push',
+                    amount: effectiveStack.toDouble()),
+                ActionEntry(3, 0, 'call',
+                    amount: effectiveStack.toDouble()),
+                ActionEntry(3, 0, 'fold'),
+              ]
+            : [
+                ActionEntry(3, 0, 'push',
+                    amount: effectiveStack.toDouble()),
+                ActionEntry(3, 1, 'fold'),
+              ],
     };
     final handData = HandData(
       heroCards: heroCards,
@@ -133,16 +161,20 @@ class PostflopJamDecisionTemplateGeneratorService {
     return TrainingPackSpot(
       id: 'spot_$index',
       hand: handData,
-      villainAction: facingJam ? 'jam' : 'check',
-      heroOptions: facingJam
+      villainAction: 'jam',
+      heroOptions: delayedTurn
           ? const ['call', 'fold']
-          : const ['shove', 'fold'],
-      tags: const ['river', 'jam', 'call', 'potOdds'],
+          : facingJam
+              ? const ['call', 'fold']
+              : const ['shove', 'fold'],
+      tags: delayedTurn
+          ? const ['turn', 'jam', 'delayCbet', 'call', 'fold']
+          : const ['river', 'jam', 'call', 'potOdds'],
       meta: {
         'villainLine': villainLine,
         'potSize': potSize,
         'boardTexture': boardTexture,
-        'facingJam': facingJam,
+        'facingJam': delayedTurn ? true : facingJam,
       },
     );
   }
