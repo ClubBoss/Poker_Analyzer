@@ -4,6 +4,7 @@ import '../models/v3/lesson_step.dart';
 import '../services/lesson_resume_engine.dart';
 import '../screens/lesson_step_screen.dart';
 import '../screens/lesson_step_recap_screen.dart';
+import 'theory_lesson_progress_widget.dart';
 
 class ResumeLessonCard extends StatefulWidget {
   const ResumeLessonCard({super.key});
@@ -69,6 +70,7 @@ class _ResumeLessonCardState extends State<ResumeLessonCard> {
           const SizedBox(height: 4),
           Text(step.title, style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 8),
+          const TheoryLessonProgressWidget(),
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
