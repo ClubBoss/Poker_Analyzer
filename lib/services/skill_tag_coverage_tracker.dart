@@ -1,33 +1,52 @@
 import 'dart:io';
+import 'dart:math';
 
-import '../models/v2/training_pack_spot.dart';
+import '../models/training_pack_model.dart';
+import '../models/skill_tag_coverage_report.dart';
 
-/// Tracks how often skill tags appear across generated spots.
+/// Tracks how often skill tags appear across generated packs.
 class SkillTagCoverageTracker {
-  final Map<String, int> _counts = <String, int>{};
+  final Map<String, int> _aggregateCounts = <String, int>{};
+  int _totalSpots = 0;
 
-  /// Records tags from a single [spot].
-  void track(TrainingPackSpot spot) {
-    for (final tag in spot.tags) {
-      _counts[tag] = (_counts[tag] ?? 0) + 1;
+  /// Analyzes [pack] and updates global coverage counts.
+  SkillTagCoverageReport analyze(TrainingPackModel pack) {
+    final counts = <String, int>{};
+    for (final spot in pack.spots) {
+      _totalSpots++;
+      for (final tag in spot.tags) {
+        counts[tag] = (counts[tag] ?? 0) + 1;
+        _aggregateCounts[tag] = (_aggregateCounts[tag] ?? 0) + 1;
+      }
     }
+    return _buildReport(counts, pack.spots.length);
   }
 
-  /// Convenience method to record tags from multiple [spots].
-  void trackAll(Iterable<TrainingPackSpot> spots) {
-    for (final s in spots) {
-      track(s);
-    }
+  /// Returns the aggregated coverage across all analyzed packs.
+  SkillTagCoverageReport get aggregateReport =>
+      _buildReport(_aggregateCounts, _totalSpots);
+
+  SkillTagCoverageReport _buildReport(
+    Map<String, int> counts,
+    int totalSpots,
+  ) {
+    final values = counts.values.toList();
+    final minCount = values.isEmpty ? 0 : values.reduce(min);
+    final maxCount = values.isEmpty ? 0 : values.reduce(max);
+    return SkillTagCoverageReport(
+      tagCounts: Map<String, int>.from(counts),
+      totalSpots: totalSpots,
+      minCount: minCount,
+      maxCount: maxCount,
+    );
   }
 
-  /// Returns the current tag coverage counts.
-  Map<String, int> get counts => _counts;
-
-  /// Logs the coverage summary to [sink] or a default file.
+  /// Logs the aggregate coverage summary to [sink] or a default file.
   Future<void> logSummary([IOSink? sink]) async {
+    final report = aggregateReport;
     final out = sink ??
         File('skill_tag_coverage.log').openWrite(mode: FileMode.append);
-    for (final entry in _counts.entries) {
+    for (final entry in report.tagCounts.entries) {
       out.writeln('${entry.key}: ${entry.value}');
     }
     await out.flush();
@@ -36,4 +55,3 @@ class SkillTagCoverageTracker {
     }
   }
 }
-
