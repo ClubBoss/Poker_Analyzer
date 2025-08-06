@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/autogen_status_dashboard_service.dart';
+import '../services/autogen_stats_dashboard_service.dart';
 
 /// Compact real-time display of autogeneration statistics.
 class AutogenRealtimeStatsPanel extends StatelessWidget {
@@ -9,10 +9,10 @@ class AutogenRealtimeStatsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final service = AutogenStatusDashboardService.instance;
+    final service = AutogenStatsDashboardService.instance;
     return ChangeNotifierProvider.value(
       value: service,
-      child: Consumer<AutogenStatusDashboardService>(
+      child: Consumer<AutogenStatsDashboardService>(
         builder: (context, dashboard, _) {
           final stats = dashboard.stats;
           return Container(

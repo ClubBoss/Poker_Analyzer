@@ -1,14 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/autogen_stats_model.dart';
-import '../models/skill_tag_coverage_report.dart';
+import '../models/autogen_status.dart';
 
-/// Centralized logger aggregating key metrics during hyperscale autogeneration.
-class AutogenStatusDashboardService extends ChangeNotifier {
-  AutogenStatusDashboardService._({String logPath = 'autogen_report.log'})
-      : _logFile = File(logPath);
+class AutogenStatusDashboardService {
+  AutogenStatusDashboardService._() {
+    _loadLastRun();
+  }
 
   static final AutogenStatusDashboardService _instance =
       AutogenStatusDashboardService._();
@@ -16,80 +14,65 @@ class AutogenStatusDashboardService extends ChangeNotifier {
   factory AutogenStatusDashboardService() => _instance;
   static AutogenStatusDashboardService get instance => _instance;
 
-  final File _logFile;
-  final AutogenStatsModel stats = AutogenStatsModel();
-  SkillTagCoverageReport coverage =
-      const SkillTagCoverageReport(tagCounts: {}, totalSpots: 0);
-  DateTime? _start;
-  int _yamlFiles = 0;
+  final ValueNotifier<AutogenStatus> notifier =
+      ValueNotifier(const AutogenStatus());
 
-  /// Marks the beginning of tracking.
-  void start() {
-    _start = DateTime.now();
-    stats
-      ..totalPacks = 0
-      ..totalSpots = 0
-      ..skippedSpots = 0
-      ..fingerprintCount = 0;
-    coverage = const SkillTagCoverageReport(tagCounts: {}, totalSpots: 0);
-    _yamlFiles = 0;
-    notifyListeners();
+  AutogenStatus get current => notifier.value;
+
+  void updateStatus(AutogenStatus newStatus) {
+    notifier.value = newStatus;
   }
 
-  /// Records a generated pack and its [spotCount].
-  void recordPack(int spotCount) {
-    stats.totalPacks++;
-    _yamlFiles++;
-    stats.totalSpots += spotCount;
-    notifyListeners();
+  void start({String? templateSet}) {
+    updateStatus(current.copyWith(
+      status: AutogenPipelineStatus.running,
+      activeStage: 'start',
+      error: null,
+      lastTemplateSet: templateSet ?? current.lastTemplateSet,
+    ));
   }
 
-  /// Records the number of skipped duplicate spots.
-  void recordSkipped(int count) {
-    stats.skippedSpots = count;
-    notifyListeners();
+  void stage(String stage, {String? templateSet}) {
+    updateStatus(current.copyWith(
+      activeStage: stage,
+      lastTemplateSet: templateSet ?? current.lastTemplateSet,
+    ));
   }
 
-  /// Records that a fingerprint was generated.
-  void recordFingerprint(String _) {
-    stats.fingerprintCount++;
-    notifyListeners();
+  Future<void> fail(String error) async {
+    final now = DateTime.now();
+    updateStatus(current.copyWith(
+      status: AutogenPipelineStatus.failed,
+      error: error,
+      activeStage: null,
+      lastRun: now,
+    ));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastRunKey, now.toIso8601String());
   }
 
-  /// Updates coverage statistics for dashboard preview.
-  void recordCoverage(SkillTagCoverageReport report) {
-    coverage = report;
-    notifyListeners();
+  Future<void> complete() async {
+    final now = DateTime.now();
+    updateStatus(current.copyWith(
+      status: AutogenPipelineStatus.completed,
+      error: null,
+      activeStage: null,
+      lastRun: now,
+    ));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastRunKey, now.toIso8601String());
   }
 
-  /// Logs final aggregated statistics to console and to a log file.
-  Future<void> logFinalStats(
-    SkillTagCoverageReport coverage, {
-    int? yamlFiles,
-  }) async {
-    final end = DateTime.now();
-    final start = _start ?? end;
-    final buffer = StringBuffer()
-      ..writeln('=== Autogen Status Report ===')
-      ..writeln('Start: $start')
-      ..writeln('End:   $end')
-      ..writeln('Duration: ${end.difference(start)}')
-      ..writeln('Packs generated: ${stats.totalPacks}')
-      ..writeln('Unique spots: ${stats.totalSpots}')
-      ..writeln('Duplicates skipped: ${stats.skippedSpots}')
-      ..writeln('YAML files: ${yamlFiles ?? _yamlFiles}')
-      ..writeln('Top 10 tags:');
+  static const _lastRunKey = 'autogen_last_run';
 
-    final sorted = coverage.tagCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    for (final entry in sorted.take(10)) {
-      buffer.writeln('  ${entry.key}: ${entry.value}');
+  Future<void> _loadLastRun() async {
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getString(_lastRunKey);
+    if (last != null) {
+      final dt = DateTime.tryParse(last);
+      if (dt != null) {
+        updateStatus(current.copyWith(lastRun: dt));
+      }
     }
-
-    final report = buffer.toString();
-    // Output to console for immediate visibility.
-    print(report);
-    // Persist to log file.
-    await _logFile.writeAsString(report);
   }
 }

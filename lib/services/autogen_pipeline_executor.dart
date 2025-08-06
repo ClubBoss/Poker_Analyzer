@@ -11,6 +11,7 @@ import 'auto_deduplication_engine.dart';
 import 'training_pack_auto_generator.dart';
 import 'yaml_pack_exporter.dart';
 import 'skill_tag_coverage_tracker.dart';
+import 'autogen_stats_dashboard_service.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'theory_link_auto_injector.dart';
 import 'board_texture_classifier.dart';
@@ -28,7 +29,8 @@ class AutogenPipelineExecutor {
   final SkillTreeAutoLinker skillLinker;
   final TrainingPackFingerprintGenerator fingerprintGenerator;
   final IOSink _fingerprintLog;
-  final AutogenStatusDashboardService dashboard;
+  final AutogenStatsDashboardService dashboard;
+  final AutogenStatusDashboardService status;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -40,7 +42,8 @@ class AutogenPipelineExecutor {
     SkillTreeAutoLinker? skillLinker,
     TrainingPackFingerprintGenerator? fingerprintGenerator,
     IOSink? fingerprintLog,
-    AutogenStatusDashboardService? dashboard,
+    AutogenStatsDashboardService? dashboard,
+    AutogenStatusDashboardService? status,
   }) : dedup = dedup ?? AutoDeduplicationEngine(),
        exporter = exporter ?? const YamlPackExporter(),
        coverage = coverage ?? SkillTagCoverageTracker(),
@@ -54,7 +57,8 @@ class AutogenPipelineExecutor {
            File(
              'generated_pack_fingerprints.log',
            ).openWrite(mode: FileMode.append),
-       dashboard = dashboard ?? AutogenStatusDashboardService() {
+       dashboard = dashboard ?? AutogenStatsDashboardService(),
+       status = status ?? AutogenStatusDashboardService() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -66,6 +70,7 @@ class AutogenPipelineExecutor {
   }) async {
     // Load existing YAMLs to prime deduplication engine.
     dashboard.start();
+    status.start();
     if (existingYamlPath.isNotEmpty) {
       final dir = Directory(existingYamlPath);
       if (await dir.exists()) {
@@ -81,11 +86,13 @@ class AutogenPipelineExecutor {
     }
 
     final files = <File>[];
-    for (final set in sets) {
-      if (generator.shouldAbort) break;
-      final spots = generator.generate(set, theoryIndex: theoryIndex);
-      if (generator.shouldAbort) break;
-      if (spots.isEmpty) continue;
+    try {
+      for (final set in sets) {
+        status.stage('template:${set.baseSpot.id}', templateSet: set.baseSpot.id);
+        if (generator.shouldAbort) break;
+        final spots = generator.generate(set, theoryIndex: theoryIndex);
+        if (generator.shouldAbort) break;
+        if (spots.isEmpty) continue;
 
       theoryInjector.injectAll(spots, theoryIndex);
       boardClassifier?.classifyAll(spots);
@@ -122,17 +129,22 @@ class AutogenPipelineExecutor {
       dashboard.recordPack(spots.length);
       final fp = fingerprintGenerator.generateFromTemplate(pack);
       _fingerprintLog.writeln(fp);
-    }
+      }
 
-    dashboard.recordSkipped(dedup.skippedCount);
-    await dedup.dispose();
-    await coverage.logSummary();
-    await _fingerprintLog.flush();
-    await _fingerprintLog.close();
-    await dashboard.logFinalStats(
-      coverage.aggregateReport,
-      yamlFiles: files.length,
-    );
-    return files;
+      dashboard.recordSkipped(dedup.skippedCount);
+      await dedup.dispose();
+      await coverage.logSummary();
+      await _fingerprintLog.flush();
+      await _fingerprintLog.close();
+      await dashboard.logFinalStats(
+        coverage.aggregateReport,
+        yamlFiles: files.length,
+      );
+      await status.complete();
+      return files;
+    } catch (e) {
+      await status.fail(e.toString());
+      rethrow;
+    }
   }
 }

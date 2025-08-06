@@ -6,7 +6,7 @@ import 'package:crypto/crypto.dart';
 import '../models/training_pack_model.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'spot_fingerprint_generator.dart';
-import 'autogen_status_dashboard_service.dart';
+import 'autogen_stats_dashboard_service.dart';
 
 /// Generates a deterministic fingerprint for training packs.
 ///
@@ -17,12 +17,12 @@ import 'autogen_status_dashboard_service.dart';
 class TrainingPackFingerprintGenerator {
   const TrainingPackFingerprintGenerator({
     SpotFingerprintGenerator? spotFingerprint,
-    AutogenStatusDashboardService? dashboard,
+    AutogenStatsDashboardService? dashboard,
   }) : _spotFingerprint = spotFingerprint ?? const SpotFingerprintGenerator(),
-       _dashboard = dashboard ?? AutogenStatusDashboardService();
+       _dashboard = dashboard ?? AutogenStatsDashboardService();
 
   final SpotFingerprintGenerator _spotFingerprint;
-  final AutogenStatusDashboardService _dashboard;
+  final AutogenStatsDashboardService _dashboard;
 
   /// Returns a SHA256 hash uniquely representing [model]. The fingerprint is
   /// stored in `model.metadata['fingerprint']` and recorded via the autogen
