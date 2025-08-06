@@ -53,6 +53,7 @@ void main() {
     await tester.pump();
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.text('New lesson unlocked: B'), findsOneWidget);
+    expect(find.text('View'), findsOneWidget);
   });
 
   testWidgets('does nothing when no new lessons', (tester) async {
