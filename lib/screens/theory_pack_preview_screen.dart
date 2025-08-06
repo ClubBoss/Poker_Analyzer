@@ -2,16 +2,90 @@ import 'package:flutter/material.dart';
 
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_v2.dart';
+import '../models/theory_lesson_cluster.dart';
+import '../models/theory_mini_lesson_node.dart';
+import '../services/mini_lesson_library_service.dart';
+import '../services/theory_lesson_cluster_linker_service.dart';
 import '../theme/app_colors.dart';
+import 'theory_lesson_preview_screen.dart';
 import 'training_session_screen.dart';
 
 /// Displays a lightweight preview of theory spots before starting a session.
-class TheoryPackPreviewScreen extends StatelessWidget {
+class TheoryPackPreviewScreen extends StatefulWidget {
   final TrainingPackTemplateV2 template;
   const TheoryPackPreviewScreen({super.key, required this.template});
 
+  @override
+  State<TheoryPackPreviewScreen> createState() =>
+      _TheoryPackPreviewScreenState();
+}
+
+class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
+  late final Future<TheoryLessonCluster?> _clusterFuture;
+  final TheoryLessonClusterLinkerService _linker =
+      TheoryLessonClusterLinkerService();
+
+  @override
+  void initState() {
+    super.initState();
+    _clusterFuture = _loadCluster();
+  }
+
+  Future<TheoryLessonCluster?> _loadCluster() async {
+    await MiniLessonLibraryService.instance.loadAll();
+    TheoryMiniLessonNode? lesson;
+    for (final l in MiniLessonLibraryService.instance.all) {
+      if (l.linkedPackIds.contains(widget.template.id)) {
+        lesson = l;
+        break;
+      }
+    }
+    if (lesson == null) return null;
+    return _linker.getCluster(lesson.id);
+  }
+
+  Future<void> _openLesson(TheoryMiniLessonNode lesson) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TheoryLessonPreviewScreen(lessonId: lesson.id),
+      ),
+    );
+  }
+
+  Widget _clusterPreview() {
+    return FutureBuilder<TheoryLessonCluster?>(
+      future: _clusterFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox.shrink();
+        }
+        final cluster = snapshot.data;
+        return ExpansionTile(
+          title: const Text('Related Theory Cluster'),
+          children: cluster == null
+              ? [
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('No related theory cluster available'),
+                  ),
+                ]
+              : cluster.lessons
+                  .map(
+                    (l) => ListTile(
+                      title: Text(l.resolvedTitle),
+                      onTap: () => _openLesson(l),
+                    ),
+                  )
+                  .toList(),
+        );
+      },
+    );
+  }
+
   void _start(BuildContext context) {
-    final pack = TrainingPackV2.fromTemplate(template, template.id);
+    final pack = TrainingPackV2.fromTemplate(
+        widget.template, widget.template.id);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => TrainingSessionScreen(pack: pack)),
@@ -21,14 +95,15 @@ class TheoryPackPreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(template.name)),
+      appBar: AppBar(title: Text(widget.template.name)),
       backgroundColor: AppColors.background,
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
-        itemCount: template.spots.length,
+        itemCount: widget.template.spots.length + 1,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (_, i) {
-          final spot = template.spots[i];
+          if (i == 0) return _clusterPreview();
+          final spot = widget.template.spots[i - 1];
           final subtitle = spot.explanation?.split('\n').first ?? '';
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +113,7 @@ class TheoryPackPreviewScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      spot.title.isNotEmpty ? spot.title : 'Spot ${i + 1}',
+                      spot.title.isNotEmpty ? spot.title : 'Spot ${i}',
                       style: const TextStyle(fontSize: 16),
                     ),
                     if (subtitle.isNotEmpty)
