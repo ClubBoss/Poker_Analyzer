@@ -68,6 +68,7 @@ import '../services/personal_recommendation_service.dart';
 import '../services/reminder_service.dart';
 import '../services/daily_reminder_service.dart';
 import '../services/streak_reminder_service.dart';
+import '../services/streak_reminder_scheduler_service.dart';
 import '../services/next_step_engine.dart';
 import '../services/drill_suggestion_engine.dart';
 import '../services/weak_spot_recommendation_service.dart';
@@ -332,6 +333,9 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) => StreakReminderService(
         logs: context.read<SessionLogService>(),
       )..init(),
+    ),
+    Provider(
+      create: (_) => StreakReminderSchedulerService()..init(),
     ),
     ChangeNotifierProvider(
       create: (context) => NextStepEngine(
