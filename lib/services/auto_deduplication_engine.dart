@@ -35,24 +35,56 @@ class AutoDeduplicationEngine {
     return false;
   }
 
-  /// Deduplicates [original] by removing spots with matching fingerprints.
+  /// Deduplicates [spots] and returns a new list containing only unique items.
   ///
-  /// The first occurrence of each unique fingerprint is kept while subsequent
-  /// duplicates are discarded. Returns a new [TrainingPackModel] containing only
-  /// the unique spots. The internal fingerprint registry is updated with all
-  /// retained spots so subsequent calls can detect cross-pack duplicates.
-  TrainingPackModel deduplicate(TrainingPackModel original) {
-    final unique = <TrainingPackSpot>[];
-    for (final spot in original.spots) {
+  /// Duplicates are detected via a fingerprint based on hero hand, board,
+  /// position and action. When [keepHighestWeight] is `true`, the spot with the
+  /// largest `meta['weight']` value is preserved. Otherwise the first occurrence
+  /// is kept. All decisions are logged for debugging purposes.
+  List<TrainingPackSpot> deduplicate(
+    List<TrainingPackSpot> spots, {
+    bool keepHighestWeight = false,
+    String? source,
+  }) {
+    final unique = <String, TrainingPackSpot>{};
+    for (final spot in spots) {
       final fp = _fingerprint.generate(spot);
-      if (_seen.contains(fp)) {
+      final existing = unique[fp];
+      if (_seen.contains(fp) && existing == null) {
         _skipped++;
-        _log.writeln('Skipped duplicate from ${original.id}: ${spot.id}');
+        _log.writeln('dropped ${spot.id} from ${source ?? 'memory'}');
         continue;
       }
-      _seen.add(fp);
-      unique.add(spot);
+
+      if (existing == null) {
+        unique[fp] = spot;
+        _log.writeln('kept ${spot.id}');
+        continue;
+      }
+
+      // Duplicate within the same batch.
+      final wExisting = (existing.meta['weight'] as num?)?.toDouble() ?? 0.0;
+      final wNew = (spot.meta['weight'] as num?)?.toDouble() ?? 0.0;
+      if (keepHighestWeight && wNew > wExisting) {
+        _log.writeln('dropped ${existing.id} replaced by ${spot.id}');
+        unique[fp] = spot;
+      } else {
+        _log.writeln('dropped ${spot.id} duplicate of ${existing.id}');
+      }
+      _skipped++;
     }
+
+    _seen.addAll(unique.keys);
+    return unique.values.toList();
+  }
+
+  /// Deduplicates [original] by removing spots with matching fingerprints.
+  ///
+  /// Convenience wrapper around [deduplicate] for [TrainingPackModel].
+  TrainingPackModel deduplicatePack(TrainingPackModel original,
+      {bool keepHighestWeight = false}) {
+    final unique = deduplicate(original.spots,
+        keepHighestWeight: keepHighestWeight, source: original.id);
     return TrainingPackModel(
       id: original.id,
       title: original.title,

@@ -1,6 +1,5 @@
 import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
-import '../models/training_pack_model.dart';
 import '../models/v2/training_pack_spot.dart';
 import 'training_pack_generator_engine_v2.dart';
 import 'auto_deduplication_engine.dart';
@@ -32,13 +31,8 @@ class TrainingPackAutoGenerator {
     final spots = _engine.generate(set, theoryIndex: theoryIndex);
     if (_shouldAbort || !deduplicate) return spots;
 
-    final pack = TrainingPackModel(
-      id: set.baseSpot.id,
-      title: set.baseSpot.title,
-      spots: spots,
-    );
-    final filtered = _dedup.deduplicate(pack);
-    return filtered.spots;
+    final filtered = _dedup.deduplicate(spots, source: set.baseSpot.id);
+    return filtered;
   }
 
   /// Requests the generator to stop processing.
