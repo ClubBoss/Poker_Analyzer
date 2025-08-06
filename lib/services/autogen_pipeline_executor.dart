@@ -88,7 +88,7 @@ class AutogenPipelineExecutor {
       if (generator.shouldAbort) break;
       if (spots.isEmpty) continue;
 
-      theoryInjector.injectAll(spots);
+      theoryInjector.injectAll(spots, theoryIndex);
       boardClassifier?.classifyAll(spots);
       skillLinker.linkAll(spots);
 
