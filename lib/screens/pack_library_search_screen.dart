@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
-import '../services/training_pack_search_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/pack_card.dart';
-import '../widgets/training_pack_search_bar_widget.dart';
+import '../widgets/training_pack_library_metadata_filter_bar.dart';
+import '../models/v2/pack_ux_metadata.dart';
 import 'training_pack_preview_screen.dart';
 
 class PackLibrarySearchScreen extends StatefulWidget {
@@ -15,8 +15,13 @@ class PackLibrarySearchScreen extends StatefulWidget {
 }
 
 class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
+  List<TrainingPackTemplateV2> _all = [];
   List<TrainingPackTemplateV2> _results = [];
   bool _loading = true;
+  TrainingPackLevel? _level;
+  TrainingPackTopic? _topic;
+  TrainingPackFormat? _format;
+  List<TrainingPackTopic> _topics = TrainingPackTopic.values;
 
   @override
   void initState() {
@@ -26,22 +31,64 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
 
   Future<void> _load() async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
-    TrainingPackSearchService.instance.init();
-    final all = TrainingPackSearchService.instance.query();
+    _all = TrainingPackLibraryV2.instance.packs;
+    _topics = _availableTopics();
+    _applyFilters();
     setState(() {
-      _results = all;
       _loading = false;
     });
   }
 
-  @override
-  void dispose() {
-    TrainingPackSearchService.instance.dispose();
-    super.dispose();
+  List<TrainingPackTopic> _availableTopics([TrainingPackLevel? level]) {
+    final set = <TrainingPackTopic>{};
+    for (final p in _all) {
+      final lvl = p.meta['level']?.toString();
+      if (level != null && lvl != level.name) continue;
+      final topic = p.meta['topic']?.toString();
+      if (topic == null) continue;
+      try {
+        set.add(TrainingPackTopic.values.byName(topic));
+      } catch (_) {}
+    }
+    final list = set.toList()..sort((a, b) => a.name.compareTo(b.name));
+    return list;
   }
 
-  void _onChanged(List<TrainingPackTemplateV2> list) {
+  void _applyFilters() {
+    List<TrainingPackTemplateV2> list = _all;
+    if (_level != null || _topic != null || _format != null) {
+      list = _all.where((p) {
+        final meta = p.meta;
+        final levelStr = meta['level']?.toString();
+        final topicStr = meta['topic']?.toString();
+        final formatStr = meta['format']?.toString();
+        final levelOk = _level == null || levelStr == _level!.name;
+        final topicOk = _topic == null || topicStr == _topic!.name;
+        final formatOk = _format == null || formatStr == _format!.name;
+        return levelOk && topicOk && formatOk;
+      }).toList();
+    }
+    list.sort((a, b) => a.name.compareTo(b.name));
+    _topics = _availableTopics(_level);
+    if (_topic != null && !_topics.contains(_topic)) {
+      _topic = null;
+    }
     setState(() => _results = list);
+  }
+
+  void _onLevelChanged(TrainingPackLevel? value) {
+    setState(() => _level = value);
+    _applyFilters();
+  }
+
+  void _onTopicChanged(TrainingPackTopic? value) {
+    setState(() => _topic = value);
+    _applyFilters();
+  }
+
+  void _onFormatChanged(TrainingPackFormat? value) {
+    setState(() => _format = value);
+    _applyFilters();
   }
 
   Future<void> _open(TrainingPackTemplateV2 tpl) async {
@@ -65,7 +112,15 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          TrainingPackSearchBarWidget(onFilterChanged: _onChanged),
+          TrainingPackLibraryMetadataFilterBar(
+            level: _level,
+            topic: _topic,
+            format: _format,
+            topics: _topics,
+            onLevelChanged: _onLevelChanged,
+            onTopicChanged: _onTopicChanged,
+            onFormatChanged: _onFormatChanged,
+          ),
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
