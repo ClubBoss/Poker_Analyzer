@@ -8,6 +8,7 @@ import 'auto_deduplication_engine.dart';
 class TrainingPackAutoGenerator {
   final TrainingPackGeneratorEngineV2 _engine;
   final AutoDeduplicationEngine _dedup;
+  bool _shouldAbort = false;
 
   TrainingPackAutoGenerator({
     TrainingPackGeneratorEngineV2? engine,
@@ -21,13 +22,23 @@ class TrainingPackAutoGenerator {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
     Iterable<TrainingPackSpot> existingSpots = const [],
   }) {
+    if (_shouldAbort) return [];
     _dedup.addExisting(existingSpots);
     final spots = _engine.generate(set, theoryIndex: theoryIndex);
     final filtered = <TrainingPackSpot>[];
     for (final spot in spots) {
+      if (_shouldAbort) break;
       if (_dedup.isDuplicate(spot, source: 'auto')) continue;
       filtered.add(spot);
     }
     return filtered;
   }
+
+  /// Requests the generator to stop processing.
+  void abort() {
+    _shouldAbort = true;
+  }
+
+  /// Whether an abort has been requested.
+  bool get shouldAbort => _shouldAbort;
 }
