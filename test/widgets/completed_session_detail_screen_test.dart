@@ -34,7 +34,9 @@ void main() {
       completedAt: DateTime.utc(2024, 1, 1),
       accuracy: 0.8,
     );
-    final fp = const TrainingPackFingerprintGenerator().generate(pack);
+    final fp = const TrainingPackFingerprintGenerator().generateFromTemplate(
+      pack,
+    );
 
     await tester.pumpWidget(
       MaterialApp(home: CompletedSessionDetailScreen(fingerprint: fp)),
@@ -51,7 +53,8 @@ void main() {
   testWidgets('shows not found when missing', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-          home: CompletedSessionDetailScreen(fingerprint: 'missing')),
+        home: CompletedSessionDetailScreen(fingerprint: 'missing'),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Session not found'), findsOneWidget);

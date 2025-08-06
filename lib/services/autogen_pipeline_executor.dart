@@ -41,18 +41,20 @@ class AutogenPipelineExecutor {
     TrainingPackFingerprintGenerator? fingerprintGenerator,
     IOSink? fingerprintLog,
     AutogenStatusDashboardService? dashboard,
-  })  : dedup = dedup ?? AutoDeduplicationEngine(),
-        exporter = exporter ?? const YamlPackExporter(),
-        coverage = coverage ?? SkillTagCoverageTracker(),
-        theoryInjector = theoryInjector ?? TheoryLinkAutoInjector(),
-        boardClassifier = boardClassifier,
-        skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
-        fingerprintGenerator =
-            fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
-        _fingerprintLog = fingerprintLog ??
-            File('generated_pack_fingerprints.log')
-                .openWrite(mode: FileMode.append),
-        dashboard = dashboard ?? AutogenStatusDashboardService() {
+  }) : dedup = dedup ?? AutoDeduplicationEngine(),
+       exporter = exporter ?? const YamlPackExporter(),
+       coverage = coverage ?? SkillTagCoverageTracker(),
+       theoryInjector = theoryInjector ?? TheoryLinkAutoInjector(),
+       boardClassifier = boardClassifier,
+       skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
+       fingerprintGenerator =
+           fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
+       _fingerprintLog =
+           fingerprintLog ??
+           File(
+             'generated_pack_fingerprints.log',
+           ).openWrite(mode: FileMode.append),
+       dashboard = dashboard ?? AutogenStatusDashboardService() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -81,10 +83,7 @@ class AutogenPipelineExecutor {
     final files = <File>[];
     for (final set in sets) {
       if (generator.shouldAbort) break;
-      final spots = generator.generate(
-        set,
-        theoryIndex: theoryIndex,
-      );
+      final spots = generator.generate(set, theoryIndex: theoryIndex);
       if (generator.shouldAbort) break;
       if (spots.isEmpty) continue;
 
@@ -121,8 +120,7 @@ class AutogenPipelineExecutor {
       files.add(file);
 
       dashboard.recordPack(spots.length);
-      final fp = fingerprintGenerator.generate(pack);
-      dashboard.recordFingerprint(fp);
+      final fp = fingerprintGenerator.generateFromTemplate(pack);
       _fingerprintLog.writeln(fp);
     }
 
@@ -131,8 +129,10 @@ class AutogenPipelineExecutor {
     await coverage.logSummary();
     await _fingerprintLog.flush();
     await _fingerprintLog.close();
-    await dashboard.logFinalStats(coverage.aggregateReport,
-        yamlFiles: files.length);
+    await dashboard.logFinalStats(
+      coverage.aggregateReport,
+      yamlFiles: files.length,
+    );
     return files;
   }
 }
