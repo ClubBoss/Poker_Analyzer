@@ -34,7 +34,7 @@ class CompletedTrainingPackRegistry {
     Duration? duration,
   }) async {
     final prefs = await _sp;
-    final fingerprint = _fingerprintGenerator.generate(pack);
+    final fingerprint = _fingerprintGenerator.generateFromTemplate(pack);
     final data = <String, dynamic>{
       'yaml': pack.toYamlString(),
       'timestamp': (completedAt ?? DateTime.now()).toIso8601String(),

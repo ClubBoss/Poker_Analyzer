@@ -37,9 +37,8 @@ void main() {
 
   test('blocks replay when enabled and completed', () async {
     await blocker.setBlockingEnabled(true);
-    final fp = gen.generate(pack);
+    final fp = gen.generateFromTemplate(pack);
     await TrainingSessionFingerprintRecorder.instance.recordCompletion(fp);
     expect(await blocker.isReplayBlocked(pack), isTrue);
   });
 }
-

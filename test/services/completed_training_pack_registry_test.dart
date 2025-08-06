@@ -33,7 +33,9 @@ void main() {
       duration: const Duration(seconds: 30),
     );
 
-    final fp = const TrainingPackFingerprintGenerator().generate(pack);
+    final fp = const TrainingPackFingerprintGenerator().generateFromTemplate(
+      pack,
+    );
     final data = await registry.getCompletedPackData(fp);
     expect(data, isNotNull);
     expect(data!['yaml'], equals(pack.toYamlString()));

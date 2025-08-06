@@ -37,8 +37,12 @@ void main() {
     final summaries = await service.loadSummaries();
 
     expect(summaries, hasLength(2));
-    final fp1 = const TrainingPackFingerprintGenerator().generate(pack1);
-    final fp2 = const TrainingPackFingerprintGenerator().generate(pack2);
+    final fp1 = const TrainingPackFingerprintGenerator().generateFromTemplate(
+      pack1,
+    );
+    final fp2 = const TrainingPackFingerprintGenerator().generateFromTemplate(
+      pack2,
+    );
 
     expect(summaries[0].fingerprint, fp2);
     expect(summaries[0].timestamp, time2);
