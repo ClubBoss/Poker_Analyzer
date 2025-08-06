@@ -348,24 +348,43 @@ class _PackCardState extends State<PackCard>
         ? ', точность ${(_accuracy! * 100).toStringAsFixed(0)}%'
         : '';
     IconData? topicIcon;
-    final topicStr = widget.template.meta['topic'];
-    if (topicStr is String) {
-      try {
-        switch (TrainingPackTopic.values.byName(topicStr)) {
-          case TrainingPackTopic.openFold:
-            topicIcon = Icons.call_made;
-            break;
-          case TrainingPackTopic.threeBet:
-            topicIcon = Icons.trending_up;
-            break;
-          case TrainingPackTopic.postflop:
-            topicIcon = Icons.blur_on;
-            break;
-          case TrainingPackTopic.pushFold:
-            topicIcon = Icons.flash_on;
-            break;
-        }
-      } catch (_) {}
+    final themeStr = widget.template.meta['theme'];
+    if (themeStr is String) {
+      switch (themeStr.toLowerCase()) {
+        case 'pushfold':
+          topicIcon = Icons.flash_on;
+          break;
+        case '3bet':
+          topicIcon = Icons.trending_up;
+          break;
+        case 'limped':
+          topicIcon = Icons.waves;
+          break;
+        case 'icm':
+          topicIcon = Icons.balance;
+          break;
+      }
+    }
+    if (topicIcon == null) {
+      final topicStr = widget.template.meta['topic'];
+      if (topicStr is String) {
+        try {
+          switch (TrainingPackTopic.values.byName(topicStr)) {
+            case TrainingPackTopic.openFold:
+              topicIcon = Icons.call_made;
+              break;
+            case TrainingPackTopic.threeBet:
+              topicIcon = Icons.trending_up;
+              break;
+            case TrainingPackTopic.postflop:
+              topicIcon = Icons.blur_on;
+              break;
+            case TrainingPackTopic.pushFold:
+              topicIcon = Icons.flash_on;
+              break;
+          }
+        } catch (_) {}
+      }
     }
 
     TrainingPackLevel? level;
