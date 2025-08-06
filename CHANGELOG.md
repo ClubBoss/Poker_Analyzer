@@ -25,3 +25,4 @@
 - Track days without critical decay via DecayStreakTrackerService.
 
 - Celebrate decay streak milestones with DecayMilestoneCelebrationService.
+- Display theory cluster completion summary in TheoryPackPreviewScreen.
