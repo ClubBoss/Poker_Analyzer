@@ -2,14 +2,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/hand_data.dart';
 import 'package:poker_analyzer/models/inline_theory_entry.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/models/training_pack_model.dart';
 import 'package:poker_analyzer/services/theory_link_auto_injector.dart';
 
 void main() {
   group('TheoryLinkAutoInjector', () {
-    test('injects matching theory metadata', () {
+    test('injects matching theory entry', () {
       final spots = [
         TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSB']),
       ];
+      final model = TrainingPackModel(
+        id: 'p1',
+        title: 'Pack',
+        spots: spots,
+      );
       final index = {
         'openSB': const InlineTheoryEntry(
           tag: 'openSB',
@@ -20,19 +26,20 @@ void main() {
       };
       const injector = TheoryLinkAutoInjector();
 
-      injector.injectAll(spots, index);
+      injector.injectLinks(model, index);
 
-      final meta = spots.first.meta['theory'] as Map<String, dynamic>?;
-      expect(meta, isNotNull);
-      expect(meta!['id'], 'sb_vs_bb_open_range');
-      expect(meta['title'], 'SB Opening Range vs BB');
-      expect(meta['tag'], 'openSB');
+      final entry = spots.first.inlineTheory;
+      expect(entry, isNotNull);
+      expect(entry!.id, 'sb_vs_bb_open_range');
+      expect(entry.title, 'SB Opening Range vs BB');
+      expect(entry.tag, 'openSB');
     });
 
     test('falls back to fuzzy tag matches', () {
       final spots = [
         TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSBWide']),
       ];
+      final model = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
       final index = {
         'openSB': const InlineTheoryEntry(
           tag: 'openSB',
@@ -43,11 +50,11 @@ void main() {
       };
       const injector = TheoryLinkAutoInjector();
 
-      injector.injectAll(spots, index);
+      injector.injectLinks(model, index);
 
-      final meta = spots.first.meta['theory'] as Map<String, dynamic>?;
-      expect(meta, isNotNull);
-      expect(meta!['tag'], 'openSB');
+      final entry = spots.first.inlineTheory;
+      expect(entry, isNotNull);
+      expect(entry!.tag, 'openSB');
     });
 
     test('avoids duplicate theory ids across pack', () {
@@ -55,6 +62,7 @@ void main() {
         TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSB']),
         TrainingPackSpot(id: 's2', hand: HandData(), tags: ['openSB']),
       ];
+      final model = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
       final index = {
         'openSB': const InlineTheoryEntry(
           tag: 'openSB',
@@ -65,12 +73,10 @@ void main() {
       };
       const injector = TheoryLinkAutoInjector();
 
-      injector.injectAll(spots, index);
+      injector.injectLinks(model, index);
 
-      final first = spots[0].meta['theory'] as Map<String, dynamic>?;
-      final second = spots[1].meta['theory'] as Map<String, dynamic>?;
-      expect(first, isNotNull);
-      expect(second, isNull);
+      expect(spots[0].inlineTheory, isNotNull);
+      expect(spots[1].inlineTheory, isNull);
     });
   });
 }
