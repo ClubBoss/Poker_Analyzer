@@ -98,4 +98,38 @@ class TheoryMiniLessonNode implements LearningPathNode {
       autoContent: yaml['autoContent'] as bool? ?? false,
     );
   }
+
+  factory TheoryMiniLessonNode.fromJson(Map<String, dynamic> json) {
+    final tags = <String>[for (final t in (json['tags'] as List? ?? [])) t.toString()];
+    final rawNext = json['nextIds'] ?? json['next'];
+    final nextIds = <String>[for (final v in (rawNext as List? ?? [])) v.toString()];
+    final linked = <String>[for (final v in (json['linkedPackIds'] as List? ?? [])) v.toString()];
+    return TheoryMiniLessonNode(
+      id: json['id']?.toString() ?? '',
+      refId: json['refId']?.toString(),
+      title: json['title']?.toString() ?? '',
+      content: json['content']?.toString() ?? '',
+      tags: tags,
+      targetStreet: json['targetStreet']?.toString(),
+      stage: json['stage']?.toString(),
+      nextIds: nextIds,
+      linkedPackIds: linked,
+      recoveredFromMistake: json['recoveredFromMistake'] as bool? ?? false,
+      autoContent: json['autoContent'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        if (refId != null) 'refId': refId,
+        'title': title,
+        'content': content,
+        if (tags.isNotEmpty) 'tags': tags,
+        if (targetStreet != null) 'targetStreet': targetStreet,
+        if (stage != null) 'stage': stage,
+        if (nextIds.isNotEmpty) 'nextIds': nextIds,
+        if (linkedPackIds.isNotEmpty) 'linkedPackIds': linkedPackIds,
+        if (recoveredFromMistake) 'recoveredFromMistake': recoveredFromMistake,
+        if (autoContent) 'autoContent': autoContent,
+      };
 }
