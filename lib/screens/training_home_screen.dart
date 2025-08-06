@@ -40,6 +40,7 @@ import '../widgets/smart_recap_preview_widget.dart';
 import '../widgets/theory_inbox_banner.dart';
 import '../widgets/training_recommender_banner.dart';
 import '../widgets/leak_insight_banner.dart';
+import '../widgets/theory_lesson_progress_widget.dart';
 import '../widgets/daily_focus_recap_card.dart';
 import '../widgets/daily_focus_card.dart';
 import '../widgets/progress_summary_box.dart';
@@ -156,6 +157,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           const TheoryInboxBanner(),
           const LeakInsightBanner(),
           const TrainingRecommenderBanner(),
+          TheoryLessonProgressWidget(),
           const TrackUnlockPreviewCard(),
           const RecommendedNextPackCard(),
           const AdaptiveTheoryReminderBanner(),
