@@ -51,6 +51,7 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
         builder: (_) => TheoryLessonPreviewScreen(lessonId: lesson.id),
       ),
     );
+    setState(() {});
   }
 
   Widget _clusterPreview() {
@@ -72,9 +73,25 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
                 ]
               : cluster.lessons
                   .map(
-                    (l) => ListTile(
-                      title: Text(l.resolvedTitle),
-                      onTap: () => _openLesson(l),
+                    (l) => FutureBuilder<bool>(
+                      future: MiniLessonLibraryService.instance
+                          .isLessonCompleted(l.id),
+                      builder: (context, doneSnap) {
+                        final done = doneSnap.data ?? false;
+                        return ListTile(
+                          leading: done
+                              ? const Icon(Icons.check_circle,
+                                  color: Colors.green)
+                              : null,
+                          title: Text(
+                            l.resolvedTitle,
+                            style: TextStyle(
+                              color: done ? Colors.green : null,
+                            ),
+                          ),
+                          onTap: () => _openLesson(l),
+                        );
+                      },
                     ),
                   )
                   .toList(),
