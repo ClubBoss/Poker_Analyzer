@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../services/mini_lesson_library_service.dart';
+import '../services/theory_lesson_progress_tracker_service.dart';
 
 class TheoryLessonProgressWidget extends StatefulWidget {
   const TheoryLessonProgressWidget({super.key});
@@ -12,38 +14,37 @@ class TheoryLessonProgressWidget extends StatefulWidget {
 
 class _TheoryLessonProgressWidgetState
     extends State<TheoryLessonProgressWidget> {
-  int _total = 0;
-  int _completed = 0;
-  bool _loading = true;
+  final _tracker = TheoryLessonProgressTrackerService.instance;
+  TheoryLessonProgressState? _state;
+  StreamSubscription<TheoryLessonProgressState>? _sub;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _sub = _tracker.stream.listen((s) {
+      if (!mounted) return;
+      setState(() => _state = s);
+    });
+    _tracker.refresh();
   }
 
-  Future<void> _load() async {
-    final total = await MiniLessonLibraryService.instance.getTotalLessonCount();
-    final completed = await MiniLessonLibraryService.instance
-        .getCompletedLessonCount();
-    if (!mounted) return;
-    setState(() {
-      _total = total;
-      _completed = completed;
-      _loading = false;
-    });
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading || _total == 0) return const SizedBox.shrink();
-    final progress = _total > 0 ? _completed / _total : 0.0;
+    final s = _state;
+    if (s == null || s.total == 0) return const SizedBox.shrink();
+    final progress = s.total > 0 ? s.completed / s.total : 0.0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$_completed of $_total lessons complete'),
+          Text('${s.completed} of ${s.total} lessons complete'),
           const SizedBox(height: 8),
           LinearProgressIndicator(value: progress),
         ],
