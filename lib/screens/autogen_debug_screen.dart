@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/autogen_realtime_stats_panel.dart';
 import '../widgets/inline_report_viewer_widget.dart';
+import '../services/autogen_stats_dashboard_service.dart';
 import '../services/autogen_status_dashboard_service.dart';
 import '../services/autogen_pipeline_executor.dart';
 import '../services/training_pack_auto_generator.dart';
@@ -68,8 +69,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
 
   void _startAutogen() {
     if (_status == _AutogenStatus.running) return;
-    final dashboard = AutogenStatusDashboardService.instance;
+    final dashboard = AutogenStatsDashboardService.instance;
     dashboard.start();
+    final status = AutogenStatusDashboardService.instance;
     final generator = TrainingPackAutoGenerator();
     _generator = generator;
     final exporter = YamlPackExporter(
@@ -78,6 +80,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     final executor = AutogenPipelineExecutor(
       generator: generator,
       dashboard: dashboard,
+      status: status,
       exporter: exporter,
     );
     setState(() {
