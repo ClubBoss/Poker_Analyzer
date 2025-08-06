@@ -16,7 +16,7 @@ import '../services/daily_target_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
-import '../widgets/lesson_streak_badge_widget.dart';
+import '../widgets/lesson_streak_badge_tooltip_widget.dart';
 import '../services/png_exporter.dart';
 import '../helpers/date_utils.dart';
 import '../utils/responsive.dart';
@@ -148,7 +148,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         actions: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            child: LessonStreakBadgeWidget(dense: true),
+            child: LessonStreakBadgeTooltipWidget(dense: true),
           ),
           IconButton(onPressed: _share, icon: const Icon(Icons.share)),
           IconButton(onPressed: _exportCsv, icon: const Icon(Icons.download)),
