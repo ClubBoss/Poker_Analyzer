@@ -10,6 +10,9 @@ import '../services/booster_pack_launcher.dart';
 import '../services/theory_session_service.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 import '../screens/theory_recap_screen.dart';
+import '../services/skill_tree_library_service.dart';
+import '../services/skill_tree_unlock_evaluator.dart';
+import '../services/theory_lesson_unlock_notification_service.dart';
 
 /// Handles navigation after completing a [TheoryMiniLessonNode].
 class TheoryExitHandler {
@@ -26,6 +29,8 @@ class TheoryExitHandler {
   }) async {
     final session = TheorySessionService();
     final boosterRec = await session.onComplete(node);
+    final ids = await _getUnlockedTheoryLessonIds();
+    await TheoryLessonUnlockNotificationService().checkAndNotify(ids, context);
     final nextId = node.nextIds.isNotEmpty ? node.nextIds.first : null;
     if (nextId != null) {
       await MiniLessonLibraryService.instance.loadAll();
@@ -61,5 +66,24 @@ class TheoryExitHandler {
         ),
       ),
     );
+  }
+
+  static Future<List<String>> _getUnlockedTheoryLessonIds() async {
+    try {
+      if (SkillTreeLibraryService.instance.getAllTracks().isEmpty) {
+        await SkillTreeLibraryService.instance.reload();
+      }
+      final eval = const SkillTreeUnlockEvaluator();
+      final ids = <String>{};
+      for (final res in SkillTreeLibraryService.instance.getAllTracks()) {
+        final nodes = eval.getUnlockedNodes(res.tree);
+        for (final n in nodes) {
+          if (n.theoryLessonId.isNotEmpty) ids.add(n.theoryLessonId);
+        }
+      }
+      return ids.toList();
+    } catch (_) {
+      return [];
+    }
   }
 }
