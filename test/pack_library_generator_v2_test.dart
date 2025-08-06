@@ -10,8 +10,12 @@ import 'package:poker_analyzer/core/training/generation/training_pack_generator_
 class FakeEngine extends TrainingPackGeneratorEngine {
   const FakeEngine();
   @override
-  Future<TrainingPackV2> generateFromTemplate(TrainingPackTemplateV2 template) async {
-    final spots = [for (final s in template.spots) TrainingPackSpot.fromJson(s.toJson())];
+  Future<TrainingPackV2> generateFromTemplate(
+    TrainingPackTemplateV2 template,
+  ) async {
+    final spots = [
+      for (final s in template.spots) TrainingPackSpot.fromJson(s.toJson()),
+    ];
     return TrainingPackV2(
       id: template.id,
       sourceTemplateId: template.id,
@@ -25,7 +29,9 @@ class FakeEngine extends TrainingPackGeneratorEngine {
       gameType: template.gameType,
       bb: template.bb,
       positions: List<String>.from(template.positions),
-      difficulty: template.meta['difficulty'] is int ? template.meta['difficulty'] as int : spots.length,
+      difficulty: template.meta['difficulty'] is int
+          ? template.meta['difficulty'] as int
+          : spots.length,
       meta: Map<String, dynamic>.from(template.meta),
     );
   }
@@ -33,8 +39,16 @@ class FakeEngine extends TrainingPackGeneratorEngine {
 
 void main() {
   test('generateFromTemplates skips disabled and empty', () async {
-    final spot = TrainingPackSpot(id: 's1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
-    final enabled = TrainingPackTemplateV2(id: '1', name: 'A', trainingType: TrainingType.pushFold, spots: [spot]);
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
+    final enabled = TrainingPackTemplateV2(
+      id: '1',
+      name: 'A',
+      trainingType: TrainingType.pushFold,
+      spots: [spot],
+    );
     final disabled = TrainingPackTemplateV2(
       id: '2',
       name: 'B',
@@ -42,15 +56,26 @@ void main() {
       meta: {'enabled': false},
       spots: [spot],
     );
-    final empty = TrainingPackTemplateV2(id: '3', name: 'C', trainingType: TrainingType.pushFold);
+    final empty = TrainingPackTemplateV2(
+      id: '3',
+      name: 'C',
+      trainingType: TrainingType.pushFold,
+    );
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
-    final res = await generator.generateFromTemplates([enabled, disabled, empty]);
+    final res = await generator.generateFromTemplates([
+      enabled,
+      disabled,
+      empty,
+    ]);
     expect(res.length, 1);
     expect(res.first.sourceTemplateId, '1');
   });
 
   test('generateFromTemplates sorts by priority', () async {
-    final spot = TrainingPackSpot(id: 's1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final high = TrainingPackTemplateV2(
       id: '1',
       name: 'High',
@@ -72,16 +97,26 @@ void main() {
   });
 
   test('estimateDifficulty sets meta', () async {
-    final s1 = TrainingPackSpot(id: 's1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final s1 = TrainingPackSpot(
+      id: 's1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final s2 = TrainingPackSpot(
       id: 's2',
-      hand: HandData.fromSimpleInput('KdQd', HeroPosition.bb, 20)..board.addAll(['2h', '3d', '4s']),
+      hand: HandData.fromSimpleInput('KdQd', HeroPosition.bb, 20)
+        ..board.addAll(['2h', '3d', '4s']),
     );
     final s3 = TrainingPackSpot(
       id: 's3',
-      hand: HandData.fromSimpleInput('JcJs', HeroPosition.btn, 15)..board.addAll(['2h', '3d', '4s', '5c']),
+      hand: HandData.fromSimpleInput('JcJs', HeroPosition.btn, 15)
+        ..board.addAll(['2h', '3d', '4s', '5c']),
     );
-    final tpl = TrainingPackTemplateV2(id: 't', name: 'T', trainingType: TrainingType.pushFold, spots: [s1, s2, s3]);
+    final tpl = TrainingPackTemplateV2(
+      id: 't',
+      name: 'T',
+      trainingType: TrainingType.pushFold,
+      spots: [s1, s2, s3],
+    );
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
     final res = await generator.generateFromTemplates([tpl]);
     expect(res.first.meta['difficulty'], 3);
@@ -136,7 +171,12 @@ void main() {
         board: ['2h', '3d', '4s', '5c'],
       ),
     );
-    final tpl = TrainingPackTemplateV2(id: 'x', name: 'X', trainingType: TrainingType.pushFold, spots: [spot]);
+    final tpl = TrainingPackTemplateV2(
+      id: 'x',
+      name: 'X',
+      trainingType: TrainingType.pushFold,
+      spots: [spot],
+    );
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
     final res = await generator.generateFromTemplates([tpl]);
     final tags = res.first.tags;
@@ -148,7 +188,10 @@ void main() {
   });
 
   test('generateFromTemplates generates title when empty', () async {
-    final spot = TrainingPackSpot(id: 's1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final tpl = TrainingPackTemplateV2(
       id: 'z',
       name: '',
@@ -164,7 +207,10 @@ void main() {
   });
 
   test('generateFromTemplates generates description when empty', () async {
-    final spot = TrainingPackSpot(id: 's1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final tpl = TrainingPackTemplateV2(
       id: 'y',
       name: 'T',
@@ -181,7 +227,10 @@ void main() {
   });
 
   test('generateFromTemplates stores goal', () async {
-    final spot = TrainingPackSpot(id: 'g1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final spot = TrainingPackSpot(
+      id: 'g1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final tpl = TrainingPackTemplateV2(
       id: 'g',
       name: 'T',
@@ -195,7 +244,10 @@ void main() {
   });
 
   test('generateFromTemplates stores audience', () async {
-    final spot = TrainingPackSpot(id: 'a1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final spot = TrainingPackSpot(
+      id: 'a1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final tpl = TrainingPackTemplateV2(
       id: 'a',
       name: 'T',
@@ -209,7 +261,10 @@ void main() {
   });
 
   test('generateFromTemplates auto generates goal', () async {
-    final spot = TrainingPackSpot(id: 'ag1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final spot = TrainingPackSpot(
+      id: 'ag1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final tpl = TrainingPackTemplateV2(
       id: 'ag',
       name: 'Auto',
@@ -226,7 +281,10 @@ void main() {
   });
 
   test('generateFromTemplates stores recommended', () async {
-    final spot = TrainingPackSpot(id: 'r1', hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10));
+    final spot = TrainingPackSpot(
+      id: 'r1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
     final tpl = TrainingPackTemplateV2(
       id: 'r',
       name: 'R',
@@ -237,5 +295,21 @@ void main() {
     final generator = PackLibraryGenerator(packEngine: const FakeEngine());
     final res = await generator.generateFromTemplates([tpl]);
     expect(res.first.meta['recommended'], true);
+  });
+
+  test('generateFromTemplates assigns level', () async {
+    final spot = TrainingPackSpot(
+      id: 'l1',
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
+    final tpl = TrainingPackTemplateV2(
+      id: 'l',
+      name: 'L',
+      trainingType: TrainingType.pushFold,
+      spots: [spot],
+    );
+    final generator = PackLibraryGenerator(packEngine: const FakeEngine());
+    final res = await generator.generateFromTemplates([tpl]);
+    expect(res.first.meta['level'], 1);
   });
 }
