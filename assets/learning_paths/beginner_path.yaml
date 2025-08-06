@@ -1,6 +1,6 @@
 packs:
   # Basic preflop spots to get new users started
-  - assets/packs/v2/preflop/open_fold_early_mtt.yaml
-  - assets/packs/v2/preflop/3bet_push_bb_vs_btn.yaml
-  - assets/packs/v2/preflop/3bet_push_btn_vs_co.yaml
-  - assets/packs/v2/preflop/3bet_push_sb_vs_btn.yaml
+  - assets/packs/v2/manual_legacy/preflop/open_fold_early_mtt.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_btn.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_co.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_btn.yaml

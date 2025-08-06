@@ -1,0 +1,17 @@
+id: flop_cbet_jam_decision_template
+name: Flop C-Bet Jam Decision
+trainingType: postflopJamDecision
+goal: flopDecision
+description: You c-bet the flop in position and face a jam — pot-commit or fold?
+theme: postflop
+tags: [flop, jam, cbet, fold, potOdds]
+positions: [btn]
+spotCount: 0
+meta:
+  manualSource: true
+  level: intermediate/advanced
+  spotConstraints:
+    board: flop
+    position: [btn]
+    actionFacing: jam
+  schemaVersion: 2.0.0

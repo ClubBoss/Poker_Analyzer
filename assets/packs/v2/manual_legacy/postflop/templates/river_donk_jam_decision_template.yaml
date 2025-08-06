@@ -1,0 +1,17 @@
+id: river_donk_jam_decision_template
+name: River Donk Jam Decision
+trainingType: postflopJamDecision
+goal: riverDecision
+description: BB check-calls flop and turn, leads river, and faces a BTN jam — can you find the bluff-catch or disciplined fold?
+theme: postflop
+tags: [river, donk, jam, fold, bluffcatcher]
+positions: [bb]
+spotCount: 0
+meta:
+  manualSource: true
+  level: advanced
+  spotConstraints:
+    board: river
+    position: [bb]
+    actionFacing: jam
+  schemaVersion: 2.0.0

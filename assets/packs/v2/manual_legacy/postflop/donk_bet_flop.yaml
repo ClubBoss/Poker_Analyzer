@@ -1,0 +1,26 @@
+id: donk_bet_flop
+name: Donk Bet Flop
+trainingType: postflop
+bb: 25
+gameType: tournament
+positions: [bb, btn]
+tags: [postflop, donk]
+spots:
+  - id: donk_flop_1
+    title: Lead into raiser
+    board: [Ts,9d,4c]
+    street: 1
+    villainAction: none
+    heroOptions: [bet, check]
+    hand:
+      heroCards: '7h 7c'
+      position: bb
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 30, '1': 30}
+      board: [Ts,9d,4c]
+spotCount: 1
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0

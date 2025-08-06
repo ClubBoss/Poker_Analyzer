@@ -108,21 +108,21 @@ flutter:
     - assets/packs/
     - assets/packs/v2/
     - assets/packs/v2/library_index.json
-    - assets/packs/v2/preflop/openfold_hj_vs_utg_cash.yaml
+    - assets/packs/v2/manual_legacy/preflop/openfold_hj_vs_utg_cash.yaml
     - assets/theory_lessons/level2/openfold_hj_vs_utg_cash.yaml
-    - assets/packs/v2/preflop/threebet_btn_vs_co_cash.yaml
+    - assets/packs/v2/manual_legacy/preflop/threebet_btn_vs_co_cash.yaml
     - assets/theory_lessons/level2/threebet_btn_vs_co_cash.yaml
-    - assets/packs/v2/preflop/threebet_co_vs_hj_cash.yaml
+    - assets/packs/v2/manual_legacy/preflop/threebet_co_vs_hj_cash.yaml
     - assets/theory_lessons/level2/threebet_co_vs_hj_cash.yaml
-    - assets/packs/v2/preflop/threebet_hj_vs_utg_cash.yaml
+    - assets/packs/v2/manual_legacy/preflop/threebet_hj_vs_utg_cash.yaml
     - assets/theory_lessons/level2/threebet_hj_vs_utg_cash.yaml
     # UTG defense versus Hijack 3-bet
-    - assets/packs/v2/preflop/defend_utg_vs_hj_3bet_cash.yaml
+    - assets/packs/v2/manual_legacy/preflop/defend_utg_vs_hj_3bet_cash.yaml
     - assets/theory_lessons/level2/defend_utg_vs_hj_3bet_cash.yaml
-    - assets/packs/v2/postflop/postflop_utg_call_vs_hj_3bet_cash.yaml
-    - assets/packs/v2/postflop/templates/flop_cbet_template.yaml
-    - assets/packs/v2/postflop/templates/turn_barrel_template.yaml
-    - assets/packs/v2/postflop/templates/river_decision_template.yaml
+    - assets/packs/v2/manual_legacy/postflop/postflop_utg_call_vs_hj_3bet_cash.yaml
+    - assets/packs/v2/manual_legacy/postflop/templates/flop_cbet_template.yaml
+    - assets/packs/v2/manual_legacy/postflop/templates/turn_barrel_template.yaml
+    - assets/packs/v2/manual_legacy/postflop/templates/river_decision_template.yaml
     - assets/theory_lessons/level3/postflop_utg_call_vs_hj_3bet_cash.yaml
     - assets/built_in_packs.yaml
     - assets/theory_packs/

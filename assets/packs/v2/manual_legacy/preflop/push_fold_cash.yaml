@@ -1,0 +1,57 @@
+
+id: push_fold_cash
+name: Push/Fold Cash
+
+trainingType: cash
+
+recommended: true
+
+icon: cash
+
+bb: 100
+
+gameType: cash
+
+positions:
+  - sb
+
+tags:
+  - cash
+  - push-fold
+
+spots:
+  - id: pf_cash_1
+    title: SB shove A5s 10bb
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: As 5s
+      position: sb
+      heroIndex: 0
+      playerCount: 2
+      stacks:
+        '0': 10
+        '1': 10
+  - id: pf_cash_2
+    title: SB shove 88 15bb
+    villainAction: none
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: 8c 8d
+      position: sb
+      heroIndex: 0
+      playerCount: 2
+      stacks:
+        '0': 15
+        '1': 15
+
+spotCount: 2
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

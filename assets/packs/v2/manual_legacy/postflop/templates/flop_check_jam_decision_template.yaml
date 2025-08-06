@@ -1,0 +1,17 @@
+id: flop_check_jam_decision_template
+name: Flop Check-Jam Decision
+trainingType: postflopJamDecision
+goal: flopDecision
+description: You check flop out of position and face a jam — bluff-catch or fold?
+theme: postflop
+tags: [flop, jam, check, fold, bluffcatch]
+positions: [bb]
+spotCount: 0
+meta:
+  manualSource: true
+  level: [intermediate, advanced]
+  spotConstraints:
+    board: flop
+    position: [bb]
+    actionFacing: jam
+  schemaVersion: 2.0.0

@@ -1,0 +1,66 @@
+
+id: threebet_push_mid_mtt
+name: 3bet Push Mid MTT
+
+trainingType: mtt
+
+recommended: true
+
+icon: north
+
+bb: 20
+
+gameType: tournament
+
+positions:
+  - co
+  - btn
+
+tags:
+  - mtt
+  - 3bet-push
+
+spots:
+  - id: tb_mid_1
+    title: CO shove A5s vs MP open
+    villainAction: raise
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: Ac 5c
+      position: co
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: tb_mid_2
+    title: BTN shove KQo vs MP open
+    villainAction: raise
+    heroOptions:
+      - push
+      - fold
+    hand:
+      heroCards: Kd Qh
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 22
+        '1': 22
+        '2': 22
+        '3': 22
+        '4': 22
+        '5': 22
+
+spotCount: 2
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

@@ -12,6 +12,7 @@ Future<void> main(List<String> args) async {
   void addTag(String tag) => tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
   void addCategory(String tag) => categoryCounts[tag] = (categoryCounts[tag] ?? 0) + 1;
   Future<void> processTemplate(TrainingPackTemplateV2 tpl) async {
+    if (tpl.meta['manualSource'] == true) return;
     for (final t in tpl.tags) {
       addTag(t);
     }

@@ -1,0 +1,17 @@
+id: delayed_turn_jam_decision_template
+name: Delayed Turn Jam Decision
+trainingType: postflopJamDecision
+goal: turnDecision
+description: You delay cbet turn and get jammed on — what now?
+theme: postflop
+tags: [turn, jam, delayCbet, call, fold]
+positions: [sb, bb]
+spotCount: 0
+meta:
+  manualSource: true
+  level: [intermediate, advanced]
+  spotConstraints:
+    board: turn
+    position: [sb, bb]
+    actionFacing: jam
+  schemaVersion: 2.0.0

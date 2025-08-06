@@ -1,0 +1,140 @@
+
+id: 3bet_push_sb_vs_lj
+name: 3bet Push SB vs LJ
+
+trainingType: mtt
+
+recommended: true
+
+icon: north
+
+bb: 25
+
+gameType: tournament
+
+positions:
+  - sb
+
+tags:
+  - level2
+  - 3bet-push
+  - sb
+  - lj
+  - mtt
+
+spots:
+  - id: tb_sb_lj_1
+    title: SB shove AJo vs LJ open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ah Jd
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_sb_lj_2
+    title: SB shove 88 vs LJ open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 8s 8h
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_sb_lj_3
+    title: SB shove KQs vs LJ open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Kd Qd
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_sb_lj_4
+    title: SB shove A5s vs LJ open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ac 5c
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_sb_lj_5
+    title: SB shove QTs vs LJ open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Qh Th
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_sb_lj_6
+    title: SB shove T9s vs LJ open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Td 9d
+      position: sb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+
+spotCount: 6
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

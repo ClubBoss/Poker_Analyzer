@@ -1,0 +1,68 @@
+
+id: 3bet_push_bb_vs_btn
+name: 3bet Push BB vs BTN
+
+trainingType: mtt
+
+recommended: true
+
+icon: north
+
+bb: 25
+
+gameType: tournament
+
+positions:
+  - bb
+
+tags:
+  - level2
+  - 3bet-push
+  - bb
+  - btn
+  - mtt
+
+spots:
+  - id: tb_bb_btn_1
+    title: BB shove AJo vs BTN open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ad Jc
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_bb_btn_2
+    title: BB shove 76s vs BTN open
+    villainAction: open 2.5
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 7s 6s
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+
+spotCount: 2
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

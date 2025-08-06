@@ -1,0 +1,17 @@
+id: river_after_turn_lead_jam_decision_template
+name: River After Turn Lead Jam Decision
+trainingType: postflopJamDecision
+goal: riverDecision
+description: Hero check-calls the flop from BB, leads the turn to regain initiative, BTN calls, then jams over the river bet or after a river check.
+theme: postflop
+tags: [river, jam, leadTurn, fold, rangeShift]
+positions: [bb]
+spotCount: 0
+meta:
+  manualSource: true
+  level: advanced
+  spotConstraints:
+    board: river
+    position: [bb]
+    actionFacing: jam
+  schemaVersion: 2.0.0

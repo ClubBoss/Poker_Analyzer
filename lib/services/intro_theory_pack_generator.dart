@@ -33,6 +33,7 @@ class IntroTheoryPackGenerator {
       try {
         final yaml = await file.readAsString();
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+        if (tpl.meta['manualSource'] == true) continue;
         for (final s in tpl.spots) {
           if (s.type != 'theory') continue;
           for (final t in tags) {

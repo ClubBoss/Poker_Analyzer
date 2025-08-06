@@ -72,8 +72,10 @@ class TrainingCoverageService {
         if (data is List) {
           for (final item in data) {
             if (item is Map) {
-              list.add(TrainingPackTemplateV2.fromJson(
-                  Map<String, dynamic>.from(item)));
+              final tpl = TrainingPackTemplateV2.fromJson(
+                  Map<String, dynamic>.from(item));
+              if (tpl.meta['manualSource'] == true) continue;
+              list.add(tpl);
             }
           }
           processed = true;
@@ -91,7 +93,9 @@ class TrainingCoverageService {
         for (final f in files) {
           try {
             final yaml = await f.readAsString();
-            list.add(TrainingPackTemplateV2.fromYamlAuto(yaml));
+            final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+            if (tpl.meta['manualSource'] == true) continue;
+            list.add(tpl);
             processed = true;
           } catch (_) {}
         }

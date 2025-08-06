@@ -21,6 +21,7 @@ Future<void> main(List<String> args) async {
     try {
       final yaml = await file.readAsString();
       final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+      if (tpl.meta['manualSource'] == true) continue;
       list.add({
         'id': tpl.id,
         'name': tpl.name,
