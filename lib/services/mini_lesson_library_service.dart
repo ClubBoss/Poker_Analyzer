@@ -5,6 +5,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/theory_mini_lesson_node.dart';
 import 'theory_mini_lesson_factory_service.dart';
 import 'theory_lesson_completion_logger.dart';
+import 'mini_lesson_progress_tracker.dart';
 
 /// Loads and indexes mini lesson blocks stored as YAML files.
 class MiniLessonLibraryService {
@@ -28,6 +29,11 @@ class MiniLessonLibraryService {
     /// Returns training pack ids linked to [lessonId].
     List<String> linkedPacksFor(String lessonId) =>
         _byId[lessonId]?.linkedPackIds ?? const [];
+
+  /// Returns `true` if the lesson with [lessonId] has been completed.
+  Future<bool> isLessonCompleted(String lessonId) async {
+    return MiniLessonProgressTracker.instance.isCompleted(lessonId);
+  }
 
   /// Suggests the next lesson that has not been completed yet.
   Future<TheoryMiniLessonNode?> getNextLesson() async {
