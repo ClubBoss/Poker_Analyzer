@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +9,28 @@ import '../widgets/inline_report_viewer_widget.dart';
 import '../services/autogen_status_dashboard_service.dart';
 import '../services/autogen_pipeline_executor.dart';
 import '../services/training_pack_auto_generator.dart';
+import '../services/training_pack_template_set_library_service.dart';
+import '../services/yaml_pack_exporter.dart';
+import '../models/training_pack_template_set.dart';
+import '../core/training/export/training_pack_exporter_v2.dart';
+import '../models/v2/training_pack_template_v2.dart';
+
+class _DirExporter extends TrainingPackExporterV2 {
+  final String outDir;
+  const _DirExporter(this.outDir);
+
+  @override
+  Future<File> exportToFile(TrainingPackTemplateV2 pack, {String? fileName}) async {
+    final dir = Directory(outDir);
+    await dir.create(recursive: true);
+    final safeName = (fileName ?? pack.name)
+        .replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')
+        .replaceAll(' ', '_');
+    final file = File('${dir.path}/$safeName.yaml');
+    await file.writeAsString(exportYaml(pack));
+    return file;
+  }
+}
 
 enum _AutogenStatus { idle, running, completed, stopped }
 
@@ -21,6 +45,26 @@ class AutogenDebugScreen extends StatefulWidget {
 class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   _AutogenStatus _status = _AutogenStatus.idle;
   TrainingPackAutoGenerator? _generator;
+  List<TrainingPackTemplateSet> _templateSets = const [];
+  TrainingPackTemplateSet? _selectedSet;
+  final TextEditingController _outputDirController =
+      TextEditingController(text: 'packs/generated');
+
+  @override
+  void initState() {
+    super.initState();
+    TrainingPackTemplateSetLibraryService.instance.loadAll().then((_) {
+      if (mounted) {
+        setState(() {
+          _templateSets =
+              TrainingPackTemplateSetLibraryService.instance.all;
+          if (_templateSets.isNotEmpty) {
+            _selectedSet = _templateSets.first;
+          }
+        });
+      }
+    });
+  }
 
   void _startAutogen() {
     if (_status == _AutogenStatus.running) return;
@@ -28,15 +72,22 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     dashboard.start();
     final generator = TrainingPackAutoGenerator();
     _generator = generator;
+    final exporter = YamlPackExporter(
+      delegate: _DirExporter(_outputDirController.text),
+    );
     final executor = AutogenPipelineExecutor(
       generator: generator,
       dashboard: dashboard,
+      exporter: exporter,
     );
     setState(() {
       _status = _AutogenStatus.running;
     });
     Future(() async {
-      await executor.execute(const []);
+      await executor.execute(
+        _selectedSet != null ? [_selectedSet!] : const [],
+        existingYamlPath: _outputDirController.text,
+      );
       if (mounted && _status == _AutogenStatus.running) {
         setState(() => _status = _AutogenStatus.completed);
       }
@@ -51,6 +102,12 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   }
 
   @override
+  void dispose() {
+    _outputDirController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
     return Scaffold(
@@ -58,6 +115,32 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButton<TrainingPackTemplateSet>(
+                  isExpanded: true,
+                  value: _selectedSet,
+                  hint: const Text('Select Template Set'),
+                  items: [
+                    for (final s in _templateSets)
+                      DropdownMenuItem(
+                        value: s,
+                        child: Text(s.baseSpot.id),
+                      ),
+                  ],
+                  onChanged: (v) => setState(() => _selectedSet = v),
+                ),
+                TextField(
+                  controller: _outputDirController,
+                  decoration:
+                      const InputDecoration(labelText: 'Output Directory'),
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -73,7 +156,15 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                       _status == _AutogenStatus.running ? _stopAutogen : null,
                   child: const Text('Stop'),
                 ),
-                Text('Status: ${_status.name}'),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Status: ${_status.name}'),
+                    Text('Template: '
+                        '${_selectedSet?.baseSpot.id ?? 'none'}'),
+                    Text('Output: ${_outputDirController.text}'),
+                  ],
+                ),
               ],
             ),
           ),
