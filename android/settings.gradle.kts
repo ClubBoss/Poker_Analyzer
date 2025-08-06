@@ -1,6 +1,14 @@
 import java.io.FileInputStream
 import java.util.Properties
 
+pluginManagement {
+    repositories {
+        google()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 val localProperties = Properties()
 val localPropertiesFile = File(rootDir, "local.properties")
 if (localPropertiesFile.exists()) {
