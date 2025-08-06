@@ -1,35 +1,57 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
+import '../models/autogen_stats_model.dart';
 import 'skill_tag_coverage_tracker.dart';
 
 /// Centralized logger aggregating key metrics during hyperscale autogeneration.
-class AutogenStatusDashboardService {
-  AutogenStatusDashboardService({String logPath = 'autogen_report.log'})
+class AutogenStatusDashboardService extends ChangeNotifier {
+  AutogenStatusDashboardService._({String logPath = 'autogen_report.log'})
       : _logFile = File(logPath);
 
+  static final AutogenStatusDashboardService _instance =
+      AutogenStatusDashboardService._();
+
+  factory AutogenStatusDashboardService() => _instance;
+  static AutogenStatusDashboardService get instance => _instance;
+
   final File _logFile;
+  final AutogenStatsModel stats = AutogenStatsModel();
   DateTime? _start;
-  int _totalPacks = 0;
-  int _totalSpots = 0;
-  int _skippedSpots = 0;
-  int _fingerprintCount = 0;
   int _yamlFiles = 0;
 
   /// Marks the beginning of tracking.
-  void start() => _start = DateTime.now();
+  void start() {
+    _start = DateTime.now();
+    stats
+      ..totalPacks = 0
+      ..totalSpots = 0
+      ..skippedSpots = 0
+      ..fingerprintCount = 0;
+    _yamlFiles = 0;
+    notifyListeners();
+  }
 
   /// Records a generated pack and its [spotCount].
   void recordPack(int spotCount) {
-    _totalPacks++;
+    stats.totalPacks++;
     _yamlFiles++;
-    _totalSpots += spotCount;
+    stats.totalSpots += spotCount;
+    notifyListeners();
   }
 
   /// Records the number of skipped duplicate spots.
-  void recordSkipped(int count) => _skippedSpots = count;
+  void recordSkipped(int count) {
+    stats.skippedSpots = count;
+    notifyListeners();
+  }
 
   /// Records that a fingerprint was generated.
-  void recordFingerprint(String _) => _fingerprintCount++;
+  void recordFingerprint(String _) {
+    stats.fingerprintCount++;
+    notifyListeners();
+  }
 
   /// Logs final aggregated statistics to console and to a log file.
   Future<void> logFinalStats(
@@ -43,9 +65,9 @@ class AutogenStatusDashboardService {
       ..writeln('Start: $start')
       ..writeln('End:   $end')
       ..writeln('Duration: ${end.difference(start)}')
-      ..writeln('Packs generated: $_totalPacks')
-      ..writeln('Unique spots: $_totalSpots')
-      ..writeln('Duplicates skipped: $_skippedSpots')
+      ..writeln('Packs generated: ${stats.totalPacks}')
+      ..writeln('Unique spots: ${stats.totalSpots}')
+      ..writeln('Duplicates skipped: ${stats.skippedSpots}')
       ..writeln('YAML files: ${yamlFiles ?? _yamlFiles}')
       ..writeln('Top 10 tags:');
 
