@@ -463,21 +463,20 @@ class _PackCardState extends State<PackCard>
                       ),
                     ),
                     if (levelLabel != null)
-                      Container(
-                        margin: const EdgeInsets.only(left: 4),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: levelColor,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          levelLabel!,
-                          style: const TextStyle(
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Chip(
+                          label: Text(levelLabel!),
+                          backgroundColor: levelColor,
+                          labelStyle: const TextStyle(
                             color: Colors.black,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: const VisualDensity(
+                              horizontal: -4, vertical: -4),
                         ),
                       ),
                   ],
