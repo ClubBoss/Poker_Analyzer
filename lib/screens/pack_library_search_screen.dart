@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../services/pack_search_index_service.dart';
-import '../services/training_pack_library_loader_service.dart';
+import '../core/training/library/training_pack_library_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
-import 'training_pack_preview_screen.dart';
-import '../widgets/pack_card.dart';
+import '../services/training_pack_search_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/pack_card.dart';
+import '../widgets/training_pack_search_bar_widget.dart';
+import 'training_pack_preview_screen.dart';
 
 class PackLibrarySearchScreen extends StatefulWidget {
   const PackLibrarySearchScreen({super.key});
@@ -14,29 +15,33 @@ class PackLibrarySearchScreen extends StatefulWidget {
 }
 
 class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
-  final _controller = TextEditingController();
   List<TrainingPackTemplateV2> _results = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    final templates =
-        TrainingPackLibraryLoaderService.instance.loadedTemplates;
-    PackSearchIndexService.instance.buildIndex(templates);
-    _controller.addListener(_onChanged);
+    _load();
+  }
+
+  Future<void> _load() async {
+    await TrainingPackLibraryV2.instance.loadFromFolder();
+    TrainingPackSearchService.instance.init();
+    final all = TrainingPackSearchService.instance.query();
+    setState(() {
+      _results = all;
+      _loading = false;
+    });
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_onChanged);
-    _controller.dispose();
+    TrainingPackSearchService.instance.dispose();
     super.dispose();
   }
 
-  void _onChanged() {
-    final q = _controller.text.trim();
-    final res = PackSearchIndexService.instance.search(q);
-    setState(() => _results = res);
+  void _onChanged(List<TrainingPackTemplateV2> list) {
+    setState(() => _results = list);
   }
 
   Future<void> _open(TrainingPackTemplateV2 tpl) async {
@@ -50,18 +55,17 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Search Library')),
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _controller,
-              decoration: const InputDecoration(hintText: 'Search'),
-            ),
-          ),
+          TrainingPackSearchBarWidget(onFilterChanged: _onChanged),
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
