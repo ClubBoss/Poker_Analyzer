@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../models/autogen_stats_model.dart';
-import '../models/skill_tag_coverage_report.dart';
+import '../models/skill_tag_stats.dart';
 
 /// Centralized logger aggregating key metrics during hyperscale autogeneration.
 class AutogenStatsDashboardService extends ChangeNotifier {
   AutogenStatsDashboardService._({String logPath = 'autogen_report.log'})
-      : _logFile = File(logPath);
+    : _logFile = File(logPath);
 
   static final AutogenStatsDashboardService _instance =
       AutogenStatsDashboardService._();
@@ -18,8 +18,12 @@ class AutogenStatsDashboardService extends ChangeNotifier {
 
   final File _logFile;
   final AutogenStatsModel stats = AutogenStatsModel();
-  SkillTagCoverageReport coverage =
-      const SkillTagCoverageReport(tagCounts: {}, totalSpots: 0);
+  SkillTagStats coverage = const SkillTagStats(
+    tagCounts: {},
+    totalTags: 0,
+    unusedTags: [],
+    overloadedTags: [],
+  );
   DateTime? _start;
   int _yamlFiles = 0;
 
@@ -31,7 +35,12 @@ class AutogenStatsDashboardService extends ChangeNotifier {
       ..totalSpots = 0
       ..skippedSpots = 0
       ..fingerprintCount = 0;
-    coverage = const SkillTagCoverageReport(tagCounts: {}, totalSpots: 0);
+    coverage = const SkillTagStats(
+      tagCounts: {},
+      totalTags: 0,
+      unusedTags: [],
+      overloadedTags: [],
+    );
     _yamlFiles = 0;
     notifyListeners();
   }
@@ -57,16 +66,13 @@ class AutogenStatsDashboardService extends ChangeNotifier {
   }
 
   /// Updates coverage statistics for dashboard preview.
-  void recordCoverage(SkillTagCoverageReport report) {
+  void recordCoverage(SkillTagStats report) {
     coverage = report;
     notifyListeners();
   }
 
   /// Logs final aggregated statistics to console and to a log file.
-  Future<void> logFinalStats(
-    SkillTagCoverageReport coverage, {
-    int? yamlFiles,
-  }) async {
+  Future<void> logFinalStats(SkillTagStats coverage, {int? yamlFiles}) async {
     final end = DateTime.now();
     final start = _start ?? end;
     final buffer = StringBuffer()

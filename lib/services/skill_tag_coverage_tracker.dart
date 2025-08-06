@@ -1,53 +1,84 @@
 import 'dart:io';
-import 'dart:math';
 
 import '../models/training_pack_model.dart';
-import '../models/skill_tag_coverage_report.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/skill_tag_stats.dart';
 
-/// Tracks how often skill tags appear across generated packs.
+/// Tracks tag frequency and coverage across generated spots.
 class SkillTagCoverageTracker {
+  final List<String> allTags;
+  final int overloadThreshold;
   final Map<String, int> _aggregateCounts = <String, int>{};
-  int _totalSpots = 0;
+  int _aggregateTotalTags = 0;
+
+  SkillTagCoverageTracker({
+    this.allTags = const <String>[],
+    this.overloadThreshold = 50,
+  });
 
   /// Analyzes [pack] and updates global coverage counts.
-  SkillTagCoverageReport analyze(TrainingPackModel pack) {
+  SkillTagStats analyzePack(TrainingPackModel pack) => analyze(pack.spots);
+
+  /// Computes tag coverage statistics for [spots].
+  SkillTagStats analyze(List<TrainingPackSpot> spots) {
     final counts = <String, int>{};
-    for (final spot in pack.spots) {
-      _totalSpots++;
-      for (final tag in spot.tags) {
+    final perSpot = <String, List<String>>{};
+    var total = 0;
+    for (final spot in spots) {
+      final tags = List<String>.from(spot.tags);
+      perSpot[spot.id] = tags;
+      total += tags.length;
+      for (final tag in tags) {
         counts[tag] = (counts[tag] ?? 0) + 1;
         _aggregateCounts[tag] = (_aggregateCounts[tag] ?? 0) + 1;
       }
     }
-    return _buildReport(counts, pack.spots.length);
+    _aggregateTotalTags += total;
+    final unused = allTags.where((t) => (counts[t] ?? 0) == 0).toList();
+    final overloaded = counts.entries
+        .where((e) => e.value > overloadThreshold)
+        .map((e) => e.key)
+        .toList();
+    return SkillTagStats(
+      tagCounts: Map<String, int>.from(counts),
+      totalTags: total,
+      unusedTags: unused,
+      overloadedTags: overloaded,
+      spotTags: perSpot,
+    );
   }
 
   /// Returns the aggregated coverage across all analyzed packs.
-  SkillTagCoverageReport get aggregateReport =>
-      _buildReport(_aggregateCounts, _totalSpots);
-
-  SkillTagCoverageReport _buildReport(
-    Map<String, int> counts,
-    int totalSpots,
-  ) {
-    final values = counts.values.toList();
-    final minCount = values.isEmpty ? 0 : values.reduce(min);
-    final maxCount = values.isEmpty ? 0 : values.reduce(max);
-    return SkillTagCoverageReport(
-      tagCounts: Map<String, int>.from(counts),
-      totalSpots: totalSpots,
-      minCount: minCount,
-      maxCount: maxCount,
+  SkillTagStats get aggregateReport {
+    final unused = allTags
+        .where((t) => (_aggregateCounts[t] ?? 0) == 0)
+        .toList();
+    final overloaded = _aggregateCounts.entries
+        .where((e) => e.value > overloadThreshold)
+        .map((e) => e.key)
+        .toList();
+    return SkillTagStats(
+      tagCounts: Map<String, int>.from(_aggregateCounts),
+      totalTags: _aggregateTotalTags,
+      unusedTags: unused,
+      overloadedTags: overloaded,
     );
   }
 
   /// Logs the aggregate coverage summary to [sink] or a default file.
   Future<void> logSummary([IOSink? sink]) async {
     final report = aggregateReport;
-    final out = sink ??
-        File('skill_tag_coverage.log').openWrite(mode: FileMode.append);
+    final out =
+        sink ?? File('skill_tag_coverage.log').openWrite(mode: FileMode.append);
+    out.writeln('Total tags: ${report.totalTags}');
     for (final entry in report.tagCounts.entries) {
       out.writeln('${entry.key}: ${entry.value}');
+    }
+    if (report.unusedTags.isNotEmpty) {
+      out.writeln('Unused tags: ${report.unusedTags.join(', ')}');
+    }
+    if (report.overloadedTags.isNotEmpty) {
+      out.writeln('Overloaded tags: ${report.overloadedTags.join(', ')}');
     }
     await out.flush();
     if (sink == null) {
