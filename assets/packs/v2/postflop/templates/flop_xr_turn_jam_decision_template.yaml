@@ -1,0 +1,16 @@
+id: flop_xr_turn_jam_decision_template
+name: Flop Check-Raise Turn Jam Decision
+trainingType: postflopJamDecision
+goal: turnDecision
+description: BB check-raises flop, BTN calls, jams turn — defend initiative or fold?
+theme: postflop
+tags: [turn, jam, checkRaise, fold, aggression]
+positions: [bb]
+spotCount: 0
+meta:
+  level: advanced
+  spotConstraints:
+    board: turn
+    position: [bb]
+    actionFacing: jam
+  schemaVersion: 2.0.0
