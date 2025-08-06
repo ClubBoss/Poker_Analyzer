@@ -31,10 +31,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
   bool _loading = true;
   List<TrainingPackTemplateV2> _packs = [];
   List<String> _tags = [];
+  List<String> _themes = [];
   List<String> _audiences = [];
   List<int> _difficulties = [];
   List<String> _goals = [];
   final Set<String> _selectedTags = {};
+  final Set<String> _selectedThemes = {};
   final Set<int> _selectedDifficulties = {};
   final Set<String> _selectedAudiences = {};
   String _selectedGoal = '';
@@ -109,13 +111,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
     await TrainingPackAudienceService.instance.load(list);
     await TrainingPackDifficultyService.instance.load(list);
     final goalSet = <String>{};
+    final themeMap = <String, String>{};
     for (final p in list) {
       final g = _goalText(p);
       if (g.isNotEmpty) goalSet.add(g);
+      final th = p.meta['theme'];
+      if (th is String) {
+        final t = th.trim();
+        if (t.isNotEmpty) themeMap.putIfAbsent(t.toLowerCase(), () => t);
+      } else if (th is List) {
+        for (final e in th) {
+          final t = e.toString().trim();
+          if (t.isNotEmpty) {
+            themeMap.putIfAbsent(t.toLowerCase(), () => t);
+          }
+        }
+      }
     }
     setState(() {
       _packs = list;
       _tags = TrainingPackTagsService.instance.topTags;
+      _themes = themeMap.values.toList()..sort();
       _audiences = TrainingPackAudienceService.instance.topAudiences;
       _difficulties = TrainingPackDifficultyService.instance.topDifficulties;
       _goals = goalSet.toList()..sort();
@@ -145,6 +161,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
     final visible = const PackFilterService().filter(
       templates: baseTemplates,
+      themes: _selectedThemes.isEmpty ? null : _selectedThemes,
       tags: _selectedTags.isEmpty ? null : _selectedTags,
       types: _selectedTypes.isEmpty ? null : _selectedTypes,
       difficulties:
@@ -235,6 +252,40 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     onChanged: (v) {
                       setState(() => _selectedGoal = v ?? '');
                     },
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                if (_themes.isNotEmpty) ...[
+                  const Text('🗂 Theme'),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final theme in _themes)
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4),
+                            child: ChoiceChip(
+                              label: Text(theme),
+                              selected: _selectedThemes.contains(theme),
+                              selectedColor: AppColors.accent,
+                              backgroundColor: Colors.grey[700],
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              onSelected: (_) {
+                                setState(() {
+                                  if (_selectedThemes.contains(theme)) {
+                                    _selectedThemes.remove(theme);
+                                  } else {
+                                    _selectedThemes.add(theme);
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -399,6 +450,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ),
                     const Spacer(),
                     if (_selectedTags.isNotEmpty ||
+                        _selectedThemes.isNotEmpty ||
                         _selectedDifficulties.isNotEmpty ||
                         _selectedAudiences.isNotEmpty ||
                         _selectedTypes.isNotEmpty ||
@@ -407,6 +459,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       TextButton(
                         onPressed: () => setState(() {
                           _selectedTags.clear();
+                          _selectedThemes.clear();
                           _selectedDifficulties.clear();
                           _selectedAudiences.clear();
                           _selectedTypes.clear();
@@ -416,6 +469,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         child: const Text('Сбросить'),
                       ),
                     if (_selectedTags.isNotEmpty ||
+                        _selectedThemes.isNotEmpty ||
                         _selectedDifficulties.isNotEmpty ||
                         _selectedAudiences.isNotEmpty ||
                         _selectedTypes.isNotEmpty ||
@@ -436,6 +490,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       children: [
                         const Text('По текущему фильтру пакетов не найдено'),
                         if (_selectedTags.isNotEmpty ||
+                            _selectedThemes.isNotEmpty ||
                             _selectedDifficulties.isNotEmpty ||
                             _selectedAudiences.isNotEmpty ||
                             _selectedTypes.isNotEmpty ||
@@ -444,6 +499,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           TextButton(
                             onPressed: () => setState(() {
                               _selectedTags.clear();
+                              _selectedThemes.clear();
                               _selectedDifficulties.clear();
                               _selectedAudiences.clear();
                               _selectedTypes.clear();
