@@ -53,33 +53,39 @@ class _ResumeLessonCardState extends State<ResumeLessonCard> {
     final step = _step;
     if (step == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Material(
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '📘 Continue lesson',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(step.title, style: const TextStyle(color: Colors.white)),
-          const SizedBox(height: 8),
-          const TheoryLessonProgressWidget(),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: accent),
-              onPressed: _openStep,
-              child: const Text('Open'),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: _openStep,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '📘 Continue lesson',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(step.title, style: const TextStyle(color: Colors.white)),
+                const SizedBox(height: 8),
+                const TheoryLessonProgressWidget(),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: accent),
+                    onPressed: _openStep,
+                    child: const Text('Open'),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
