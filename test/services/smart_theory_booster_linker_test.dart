@@ -18,10 +18,10 @@ void main() {
   test('linkForLesson returns deep link to containing cluster', () async {
     const l1 = TheoryMiniLessonNode(id: 'a', title: 'A', content: '', nextIds: ['b']);
     const l2 = TheoryMiniLessonNode(id: 'b', title: 'B', content: '');
-    const cluster = TheoryLessonCluster(lessons: [l1, l2], tags: {'preflop'});
+    final cluster = TheoryLessonCluster(lessons: [l1, l2], tags: {'preflop'});
 
     final linker = SmartTheoryBoosterLinker(
-      clusterer: _StubClusterer(const [cluster]),
+      clusterer: _StubClusterer([cluster]),
       summaryService: TheoryClusterSummaryService(),
     );
 
@@ -30,17 +30,17 @@ void main() {
   });
 
   test('linkForTags picks cluster with overlapping tags', () async {
-    const c1 = TheoryLessonCluster(
+    final c1 = TheoryLessonCluster(
       lessons: [TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '')],
       tags: {'push'},
     );
-    const c2 = TheoryLessonCluster(
+    final c2 = TheoryLessonCluster(
       lessons: [TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '')],
       tags: {'call'},
     );
 
     final linker = SmartTheoryBoosterLinker(
-      clusterer: _StubClusterer(const [c1, c2]),
+      clusterer: _StubClusterer([c1, c2]),
       summaryService: TheoryClusterSummaryService(),
     );
 
