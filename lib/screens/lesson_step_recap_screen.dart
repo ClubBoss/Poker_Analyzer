@@ -12,6 +12,7 @@ import '../services/smart_review_service.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../widgets/streak_banner_widget.dart';
 import '../services/lesson_streak_engine.dart';
+import '../widgets/daily_training_recap_card.dart';
 import 'lesson_step_screen.dart';
 import 'track_recap_screen.dart';
 
@@ -164,6 +165,8 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
                     return const StreakBannerWidget();
                   },
                 ),
+                const SizedBox(height: 12),
+                const DailyTrainingRecapCard(),
                 const Spacer(),
                 if (!done)
                   const Center(child: CircularProgressIndicator())

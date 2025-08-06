@@ -29,6 +29,18 @@ class MiniLessonLibraryService {
     List<String> linkedPacksFor(String lessonId) =>
         _byId[lessonId]?.linkedPackIds ?? const [];
 
+  /// Suggests the next lesson that has not been completed yet.
+  Future<TheoryMiniLessonNode?> getNextLesson() async {
+    await loadAll();
+    final completions =
+        await TheoryLessonCompletionLogger.instance.getCompletions();
+    final completedIds = completions.map((e) => e.lessonId).toSet();
+    for (final lesson in _lessons) {
+      if (!completedIds.contains(lesson.id)) return lesson;
+    }
+    return null;
+  }
+
   Future<void> loadAll() async {
     if (_lessons.isNotEmpty) return;
     await reload();
