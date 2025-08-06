@@ -70,16 +70,17 @@ class PostflopJamDecisionTemplateGeneratorService {
         name: 'River Jam Decision ${i + 1}',
         description:
             '${heroPos == HeroPosition.btn ? 'IP' : 'OOP'} decision with ${selected[i]}',
-        trainingType: TrainingType.postflop,
+        trainingType: TrainingType.postflopJamDecision,
         spots: [spot],
         spotCount: 1,
         gameType: GameType.tournament,
         bb: effectiveStack,
         positions: [heroPos.name],
-        tags: const ['postflop', 'river', 'jamDecision', 'LevelIII'],
+        tags: const ['river', 'jam', 'call', 'potOdds'],
         meta: const {
-          'level': 3,
-          'topic': 'river jam',
+          'level': 'intermediate/advanced',
+          'goal': 'riverDecision',
+          'theme': 'postflop',
         },
       );
       templates.add(tpl);
@@ -136,7 +137,7 @@ class PostflopJamDecisionTemplateGeneratorService {
       heroOptions: facingJam
           ? const ['call', 'fold']
           : const ['shove', 'fold'],
-      tags: const ['postflop', 'river', 'jamDecision', 'LevelIII'],
+      tags: const ['river', 'jam', 'call', 'potOdds'],
       meta: {
         'villainLine': villainLine,
         'potSize': potSize,
