@@ -8,6 +8,7 @@ import 'hero_position.dart';
 import '../card_model.dart';
 import 'package:uuid/uuid.dart';
 import '../../services/inline_theory_linker.dart';
+import '../inline_theory_entry.dart';
 
 class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel {
   final String id;
@@ -43,6 +44,11 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
   /// When present, this value is serialized to `inlineLessonId` in YAML and
   /// links the spot to a [TheoryMiniLessonNode].
   String? inlineLessonId;
+
+  /// Ephemeral reference to inline theory content matched by tags.
+  ///
+  /// Populated at runtime by [TheoryLinkAutoInjector] and never serialized.
+  InlineTheoryEntry? inlineTheory;
 
   /// Ephemeral link to a related theory lesson.
   ///
