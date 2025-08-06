@@ -1,0 +1,15 @@
+enum BoardTextureTag {
+  low,
+  high,
+  paired,
+  trip,
+  aceHigh,
+  kingHigh,
+  monotone,
+  rainbow,
+  twoTone,
+  straighty,
+  disconnected,
+  wet,
+  dry,
+}
