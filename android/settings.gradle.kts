@@ -1,28 +1,15 @@
-val properties = java.util.Properties()
-val localProperties = File(rootDir, "local.properties")
-if (localProperties.exists()) {
-    localProperties.inputStream().use { properties.load(it) }
+import java.io.FileInputStream
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = File(rootDir, "local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
-val flutterSdkPath = properties.getProperty("flutter.sdk")
+val flutterSdkPath = localProperties.getProperty("flutter.sdk")
 
-pluginManagement {
-    if (flutterSdkPath != null) {
-        includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
-    }
-
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
-plugins {
-    if (flutterSdkPath != null) {
-        id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    }
-    id("com.android.application") version "8.7.3" apply false
-    id("org.jetbrains.kotlin.android") version "2.1.0" apply false
+if (flutterSdkPath != null) {
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 }
 
 include(":app")
