@@ -1,0 +1,2 @@
+# Ignore generated local configuration files
+android/local.properties
