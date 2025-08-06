@@ -5,6 +5,7 @@ import 'package:poker_analyzer/services/theory_lesson_cluster_linker_service.dar
 import 'package:poker_analyzer/services/theory_lesson_navigator_service.dart';
 import 'package:poker_analyzer/services/theory_suggestion_engagement_tracker_service.dart';
 import 'package:poker_analyzer/models/theory_suggestion_engagement_event.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final List<TheoryMiniLessonNode> lessons;
@@ -53,6 +54,7 @@ class _FakeTracker implements TheorySuggestionEngagementTrackerService {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
 
   test('navigates within cluster alphabetically', () async {
     final lessons = [

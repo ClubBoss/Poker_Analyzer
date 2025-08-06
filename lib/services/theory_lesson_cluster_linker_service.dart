@@ -1,26 +1,49 @@
 import '../models/theory_lesson_cluster.dart';
 import 'mini_lesson_library_service.dart';
 import 'theory_suggestion_engagement_tracker_service.dart';
+import 'theory_cluster_cache_service.dart';
+import 'user_action_logger.dart';
 
 /// Links theory lessons into clusters based on shared tags, linked packs,
 /// and co-suggestion history.
 class TheoryLessonClusterLinkerService {
   final MiniLessonLibraryService library;
   final TheorySuggestionEngagementTrackerService tracker;
+  final TheoryClusterCacheService cache;
 
   TheoryLessonClusterLinkerService({
     MiniLessonLibraryService? library,
     TheorySuggestionEngagementTrackerService? tracker,
+    TheoryClusterCacheService? cache,
   })  : library = library ?? MiniLessonLibraryService.instance,
-        tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
+        tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance,
+        cache = cache ?? TheoryClusterCacheService.instance;
 
-  List<TheoryLessonCluster>? _cache;
+  List<TheoryLessonCluster>? _clustersCache;
 
   /// Returns all computed clusters, building them on first use.
   Future<List<TheoryLessonCluster>> clusters() async {
-    if (_cache != null) return _cache!;
-    _cache = await _build();
-    return _cache!;
+    if (_clustersCache != null) return _clustersCache!;
+    final ids = await cache.getAllClusterIds();
+    if (ids.isNotEmpty) {
+      final cached = <TheoryLessonCluster>[];
+      for (final id in ids) {
+        final c = await cache.loadCluster(id);
+        if (c != null) cached.add(c);
+      }
+      if (cached.isNotEmpty) {
+        _clustersCache = cached;
+        await UserActionLogger.instance
+            .log('theory_cluster_linker.load.cache');
+        return _clustersCache!;
+      }
+    }
+    _clustersCache = await _build();
+    for (final c in _clustersCache!) {
+      await cache.saveCluster(c);
+    }
+    await UserActionLogger.instance.log('theory_cluster_linker.load.fresh');
+    return _clustersCache!;
   }
 
   /// Returns the cluster containing [lessonId], if any.
