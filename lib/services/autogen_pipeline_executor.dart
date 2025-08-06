@@ -79,10 +79,12 @@ class AutogenPipelineExecutor {
 
     final files = <File>[];
     for (final set in sets) {
+      if (generator.shouldAbort) break;
       final spots = generator.generate(
         set,
         theoryIndex: theoryIndex,
       );
+      if (generator.shouldAbort) break;
       if (spots.isEmpty) continue;
 
       theoryInjector.injectAll(spots);
