@@ -1,23 +1,21 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 pluginManagement {
     repositories {
         google()
+        mavenCentral()
         gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google()
         mavenCentral()
     }
 }
 
-val localProperties = Properties()
-val localPropertiesFile = File(rootDir, "local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(FileInputStream(localPropertiesFile))
-}
-val flutterSdkPath = localProperties.getProperty("flutter.sdk")
-
-if (flutterSdkPath != null) {
-    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
-}
-
+rootProject.name = "Poker_Analyzer"
 include(":app")
+
+tasks.register<Delete>("clean") {
+    delete(rootProject.layout.buildDirectory)
+}
