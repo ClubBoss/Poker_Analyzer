@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../models/training_pack_model.dart';
 import '../models/v2/training_pack_spot.dart';
 import 'spot_fingerprint_generator.dart';
 
@@ -32,6 +33,33 @@ class AutoDeduplicationEngine {
     }
     _seen.add(fp);
     return false;
+  }
+
+  /// Deduplicates [original] by removing spots with matching fingerprints.
+  ///
+  /// The first occurrence of each unique fingerprint is kept while subsequent
+  /// duplicates are discarded. Returns a new [TrainingPackModel] containing only
+  /// the unique spots. The internal fingerprint registry is updated with all
+  /// retained spots so subsequent calls can detect cross-pack duplicates.
+  TrainingPackModel deduplicate(TrainingPackModel original) {
+    final unique = <TrainingPackSpot>[];
+    for (final spot in original.spots) {
+      final fp = _fingerprint.generate(spot);
+      if (_seen.contains(fp)) {
+        _skipped++;
+        _log.writeln('Skipped duplicate from ${original.id}: ${spot.id}');
+        continue;
+      }
+      _seen.add(fp);
+      unique.add(spot);
+    }
+    return TrainingPackModel(
+      id: original.id,
+      title: original.title,
+      spots: unique,
+      tags: List<String>.from(original.tags),
+      metadata: Map<String, dynamic>.from(original.metadata),
+    );
   }
 
   int get skippedCount => _skipped;
