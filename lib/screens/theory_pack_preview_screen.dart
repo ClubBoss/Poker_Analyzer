@@ -64,6 +64,16 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
     return done;
   }
 
+  Future<TheoryMiniLessonNode?> _firstIncompleteLesson(
+      TheoryLessonCluster cluster) async {
+    for (final l in cluster.lessons) {
+      if (!await MiniLessonLibraryService.instance.isLessonCompleted(l.id)) {
+        return l;
+      }
+    }
+    return null;
+  }
+
   Widget _clusterPreview() {
     return FutureBuilder<TheoryLessonCluster?>(
       future: _clusterFuture,
@@ -82,6 +92,23 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
                   ),
                 ]
               : [
+                  FutureBuilder<TheoryMiniLessonNode?>(
+                    future: _firstIncompleteLesson(cluster),
+                    builder: (context, lessonSnap) {
+                      final firstIncomplete = lessonSnap.data;
+                      if (firstIncomplete == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: ElevatedButton(
+                          onPressed: () => _openLesson(firstIncomplete),
+                          child: const Text('Continue lesson'),
+                        ),
+                      );
+                    },
+                  ),
                   FutureBuilder<int>(
                     future: _completedLessonCount(cluster),
                     builder: (context, countSnap) {
