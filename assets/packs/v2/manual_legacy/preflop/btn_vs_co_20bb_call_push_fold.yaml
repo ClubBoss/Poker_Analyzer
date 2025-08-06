@@ -1,0 +1,411 @@
+id: btn_vs_co_20bb_call_push_fold
+name: BTN vs CO — 20bb (Call / Push / Fold)
+
+audience: Advanced
+trainingType: mtt
+
+icon: north
+
+bb: 20
+
+gameType: tournament
+
+positions:
+  - btn
+
+tags:
+  - btn
+  - co
+  - vsOpen
+  - 3betPush
+  - callVsOpen
+  - foldVsOpen
+  - 20bb
+  - mtt
+
+spots:
+  - id: bcpf_1
+    title: BTN AKo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: As Kh
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_2
+    title: BTN AQo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ac Qd
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_3
+    title: BTN AQ suited vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ad Qd
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_4
+    title: BTN AJs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ah Jh
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_5
+    title: BTN ATs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: As Ts
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_6
+    title: BTN KQs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Kc Qc
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_7
+    title: BTN KJs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ks Js
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_8
+    title: BTN QJs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Qh Jh
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_9
+    title: BTN JTs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Jh Th
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_10
+    title: BTN T9s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Th 9h
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_11
+    title: BTN 98s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 9s 8s
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_12
+    title: BTN 76s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 7h 6h
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_13
+    title: BTN 55 vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 5c 5d
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_14
+    title: BTN 77 vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 7d 7c
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_15
+    title: BTN 99 vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 9c 9d
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_16
+    title: BTN A5s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ac 5c
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_17
+    title: BTN ATo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ad Tc
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_18
+    title: BTN KQo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ks Qd
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_19
+    title: BTN 65s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 6s 5s
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bcpf_20
+    title: BTN Q9s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Qs 9s
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+spotCount: 20
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0

@@ -23,6 +23,7 @@ class TrainingPackTemplateSetExpanderService {
   /// against [TrainingPackTemplateSet.requiredBoardClusters] and
   /// [TrainingPackTemplateSet.excludedBoardClusters].
   List<TrainingPackSpot> expand(TrainingPackTemplateSet set) {
+    if (set.baseSpot.meta['manualSource'] == true) return [];
     final spots = _expander.expand(set);
     if (set.requiredBoardClusters.isEmpty &&
         set.excludedBoardClusters.isEmpty) {

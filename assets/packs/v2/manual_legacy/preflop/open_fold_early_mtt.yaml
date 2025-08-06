@@ -1,0 +1,67 @@
+
+id: open_fold_early_mtt
+name: Open/Fold Early MTT
+
+trainingType: mtt
+
+recommended: true
+
+icon: schedule
+
+bb: 25
+
+gameType: tournament
+
+positions:
+  - utg
+  - utg1
+
+tags:
+  - mtt
+  - open-fold
+  - early
+
+spots:
+  - id: of_emtt_1
+    title: AJo UTG 30bb
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: Ah Jd
+      position: utg
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 30
+        '1': 30
+        '2': 30
+        '3': 30
+        '4': 30
+        '5': 30
+  - id: of_emtt_2
+    title: 98s UTG+1 25bb facing 3bet
+    villainAction: raise
+    heroOptions:
+      - fold
+      - open
+    hand:
+      heroCards: 9h 8h
+      position: utg1
+      heroIndex: 1
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+
+spotCount: 2
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

@@ -47,6 +47,7 @@ class TagFrequencyAnalyzer {
           try {
             final yaml = await f.readAsString();
             final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+            if (tpl.meta['manualSource'] == true) continue;
             for (final t in tpl.tags) {
               addTag(t);
             }

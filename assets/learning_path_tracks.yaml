@@ -1,8 +1,8 @@
 beginner:
-  - assets/packs/v2/preflop/3bet_push_bb_vs_btn.yaml
-  - assets/packs/v2/preflop/3bet_push_bb_vs_hj.yaml
-  - assets/packs/v2/preflop/3bet_push_bb_vs_lj.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_btn.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_hj.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_lj.yaml
 intermediate:
-  - assets/packs/v2/preflop/3bet_push_btn_vs_co.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_co.yaml
 advanced:
-  - assets/packs/v2/preflop/3bet_push_co_vs_lj.yaml
+  - assets/packs/v2/manual_legacy/preflop/3bet_push_co_vs_lj.yaml

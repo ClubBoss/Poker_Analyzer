@@ -1,0 +1,53 @@
+
+id: openfold_3bb_cash
+name: Open/Fold vs 3bb (Cash)
+
+trainingType: cash
+
+recommended: false
+
+icon: cash
+
+bb: 100
+
+gameType: cash
+
+positions:
+  - utg
+  - hj
+  - co
+  - btn
+  - sb
+
+tags:
+  - cash
+  - openfold
+  - preflop
+  - level2
+
+spots:
+  - id: of_3bb_cash_1
+    title: KJo CO facing folds
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: Ks Jd
+      position: co
+      heroIndex: 2
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+
+spotCount: 1
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

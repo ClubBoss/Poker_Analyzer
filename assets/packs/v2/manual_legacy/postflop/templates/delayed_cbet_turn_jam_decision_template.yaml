@@ -1,0 +1,17 @@
+id: delayed_cbet_turn_jam_decision_template
+name: Delayed C-Bet Turn Jam Decision
+trainingType: postflopJamDecision
+goal: turnDecision
+description: Hero checks the flop in position, bets the turn, and faces a jam — manage thin barreling under pressure.
+theme: postflop
+tags: [turn, jam, delayedCbet, fold, initiative]
+positions: [btn]
+spotCount: 0
+meta:
+  manualSource: true
+  level: [intermediate, advanced]
+  spotConstraints:
+    board: turn
+    position: [btn]
+    actionFacing: jam
+  schemaVersion: 2.0.0

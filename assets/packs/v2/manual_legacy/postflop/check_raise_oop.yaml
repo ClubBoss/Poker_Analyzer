@@ -1,0 +1,28 @@
+id: check_raise_oop
+name: Check-Raise OOP
+trainingType: postflop
+bb: 50
+gameType: tournament
+positions: [bb, btn]
+tags: [postflop, check-raise]
+unlockRules:
+  requiredPacks: [cbet_ip]
+spots:
+  - id: cr_oop_1
+    title: Versus cbet
+    board: [Kd,7h,3s]
+    street: 1
+    villainAction: bet
+    heroOptions: [raise, call]
+    hand:
+      heroCards: '9d 9c'
+      position: bb
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 50, '1': 50}
+      board: [Kd,7h,3s]
+spotCount: 1
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0

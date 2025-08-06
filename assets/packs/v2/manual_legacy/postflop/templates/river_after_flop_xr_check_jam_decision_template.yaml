@@ -1,0 +1,17 @@
+id: river_after_flop_xr_check_jam_decision_template
+name: River After Flop Check-Raise Check Jam Decision
+trainingType: postflopJamDecision
+goal: riverDecision
+description: BB check-raises the flop, checks turn, BTN checks back or bets small, you check river and face a jam — sniff out overbluffs or release?
+theme: postflop
+tags: [river, jam, checkRaise, fold, rangeCap]
+positions: [bb]
+spotCount: 0
+meta:
+  manualSource: true
+  level: advanced
+  spotConstraints:
+    board: river
+    position: [bb]
+    actionFacing: jam
+  schemaVersion: 2.0.0

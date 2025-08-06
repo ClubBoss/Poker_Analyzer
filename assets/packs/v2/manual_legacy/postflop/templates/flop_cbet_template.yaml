@@ -1,0 +1,25 @@
+meta:
+  manualSource: true
+
+baseSpot:
+  id: flop_cbet_base
+  title: Flop C-Bet
+  heroOptions: [bet, check]
+  hand:
+    heroCards: Ah Kh
+    position: btn
+    heroIndex: 0
+    playerCount: 2
+    stacks:
+      '0': 100
+      '1': 100
+  tags: [postflop, flop]
+variations:
+  - targetStreet: flop
+    boardConstraints:
+      - targetStreet: flop
+        requiredTextures: [dry, low, paired]
+    linePattern:
+      streets:
+        preflop: [villainRaise, call]
+        flop: [bet]

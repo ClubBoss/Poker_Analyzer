@@ -1,0 +1,140 @@
+
+id: 3bet_push_btn_vs_sb
+name: 3bet Push BTN vs SB
+
+trainingType: mtt
+
+recommended: true
+
+icon: north
+
+bb: 25
+
+gameType: tournament
+
+positions:
+  - btn
+
+tags:
+  - level2
+  - 3bet-push
+  - btn
+  - sb
+  - mtt
+
+spots:
+  - id: tb_btn_sb_1
+    title: BTN shove AJo vs SB open
+    villainAction: open 3
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ad Jc
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_btn_sb_2
+    title: BTN shove KTs vs SB open
+    villainAction: open 3
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Kh Th
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_btn_sb_3
+    title: BTN shove 88 vs SB open
+    villainAction: open 3
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 8c 8d
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_btn_sb_4
+    title: BTN shove A5s vs SB open
+    villainAction: open 3
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: As 5s
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_btn_sb_5
+    title: BTN shove QJs vs SB open
+    villainAction: open 3
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Qs Js
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: tb_btn_sb_6
+    title: BTN shove KQo vs SB open
+    villainAction: open 3
+    heroOptions:
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Kh Qd
+      position: btn
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+
+spotCount: 6
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

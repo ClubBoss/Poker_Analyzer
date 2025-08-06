@@ -1,0 +1,71 @@
+
+id: open_fold_mid_cash
+name: Open/Fold Mid Cash
+
+trainingType: cash
+
+recommended: true
+
+icon: cash
+
+bb: 100
+
+gameType: cash
+
+positions:
+  - lj
+  - hj
+  - co
+
+tags:
+  - cash
+  - open-fold
+
+unlockRules:
+  requiredPacks:
+    - push_fold_cash
+
+spots:
+  - id: of_mid_cash_1
+    title: AQo LJ 100bb
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: Ad Qc
+      position: lj
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+  - id: of_mid_cash_2
+    title: 76s HJ 100bb facing limp
+    villainAction: limp
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: 7h 6h
+      position: hj
+      heroIndex: 1
+      playerCount: 6
+      stacks:
+        '0': 100
+        '1': 100
+        '2': 100
+        '3': 100
+        '4': 100
+        '5': 100
+
+spotCount: 2
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

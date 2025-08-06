@@ -1,0 +1,52 @@
+id: postflop_utg_call_vs_hj_3bet_cash
+name: UTG Postflop vs HJ 3-bet (Cash)
+trainingType: postflop
+bb: 100
+gameType: cash
+positions: [utg, hj]
+tags: [cash, postflop, threebetDefense, level3, utg, hj]
+spots:
+  - id: pf_utg_call_hj_3bet_cash_1
+    title: AQ on K72r
+    board: [Kc,7d,2s]
+    street: 1
+    villainAction: bet 6.0
+    heroOptions: [call, fold]
+    hand:
+      heroCards: 'As Qd'
+      position: utg
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 100, '1': 100}
+      board: [Kc,7d,2s]
+  - id: pf_utg_call_hj_3bet_cash_2
+    title: 99 on T84s
+    board: [Ts,8s,4d]
+    street: 1
+    villainAction: bet 6.0
+    heroOptions: [call, fold]
+    hand:
+      heroCards: '9c 9d'
+      position: utg
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 100, '1': 100}
+      board: [Ts,8s,4d]
+  - id: pf_utg_call_hj_3bet_cash_3
+    title: KQs on Q63
+    board: [Qd,6c,3s]
+    street: 1
+    villainAction: bet 6.0
+    heroOptions: [call, raise]
+    hand:
+      heroCards: 'Ks Qs'
+      position: utg
+      heroIndex: 0
+      playerCount: 2
+      stacks: {'0': 100, '1': 100}
+      board: [Qd,6c,3s]
+spotCount: 3
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0

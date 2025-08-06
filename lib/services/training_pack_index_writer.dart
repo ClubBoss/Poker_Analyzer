@@ -26,6 +26,7 @@ class TrainingPackIndexWriter {
       try {
         final yaml = await file.readAsString();
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+        if (tpl.meta['manualSource'] == true) continue;
         list.add({
           'title': tpl.name,
           if (tpl.tags.isNotEmpty) 'tags': tpl.tags,

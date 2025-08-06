@@ -1,0 +1,449 @@
+id: bb_vs_co_20bb_call_push_fold
+name: BB vs CO — 20bb (Call / Push / Fold)
+
+audience: Advanced
+trainingType: mtt
+
+icon: north
+
+bb: 20
+
+gameType: tournament
+
+positions:
+  - bb
+
+tags:
+  - bb
+  - co
+  - vsOpen
+  - 3betPush
+  - callVsOpen
+  - foldVsOpen
+  - 20bb
+  - mtt
+
+spots:
+  - id: bbcocpf_1
+    title: BB AKo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: As Kc
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_2
+    title: BB AQo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ah Qd
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_3
+    title: BB AQs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ad Qd
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_4
+    title: BB AJs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ac Js
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_5
+    title: BB ATs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ah Ts
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_6
+    title: BB A5s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ac 5c
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_7
+    title: BB AJo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ad Jc
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_8
+    title: BB KQo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Ks Qc
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_9
+    title: BB KJo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Kd Jh
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_10
+    title: BB KTs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Kh Ts
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_11
+    title: BB QJs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Qs Jd
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_12
+    title: BB QTs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Qd Td
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_13
+    title: BB JTs vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Jc Tc
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_14
+    title: BB JTo vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Jh Td
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_15
+    title: BB T9s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Th 9h
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_16
+    title: BB 98s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 9s 8s
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_17
+    title: BB 87s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 8c 7c
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_18
+    title: BB 77 vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 7d 7h
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_19
+    title: BB 66 vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 6s 6c
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_20
+    title: BB 55 vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 5h 5d
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_21
+    title: BB Q9s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: Qh 9h
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: bbcocpf_22
+    title: BB 65s vs CO open
+    villainAction: open 2.0
+    heroOptions:
+      - call
+      - 3betPush
+      - fold
+    hand:
+      heroCards: 6h 5h
+      position: bb
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+spotCount: 22
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0

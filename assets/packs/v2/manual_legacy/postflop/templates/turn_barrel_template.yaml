@@ -1,0 +1,25 @@
+meta:
+  manualSource: true
+
+baseSpot:
+  id: turn_barrel_base
+  title: Turn Barrel
+  heroOptions: [barrel, check]
+  hand:
+    heroCards: Ad Qd
+    position: btn
+    heroIndex: 0
+    playerCount: 2
+    stacks:
+      '0': 100
+      '1': 100
+  tags: [postflop, turn]
+variations:
+  - targetStreet: turn
+    boardConstraints:
+      - targetStreet: turn
+        requiredTextures: [connected, low]
+    linePattern:
+      streets:
+        flop: [bet, villainCall]
+        turn: [bet]

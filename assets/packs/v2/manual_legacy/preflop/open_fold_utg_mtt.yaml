@@ -1,0 +1,67 @@
+
+id: open_fold_utg_mtt
+name: UTG Open/Fold MTT
+
+trainingType: openingMTT
+
+recommended: true
+
+icon: schedule
+
+bb: 20
+
+gameType: tournament
+
+positions:
+  - utg
+
+tags:
+  - level2
+  - mtt
+  - utg
+  - openfold
+
+spots:
+  - id: of_utg_mtt_1
+    title: AJs UTG 20bb
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: As Js
+      position: utg
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 20
+        '1': 20
+        '2': 20
+        '3': 20
+        '4': 20
+        '5': 20
+  - id: of_utg_mtt_2
+    title: KTs UTG 15bb
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: Kh Th
+      position: utg
+      heroIndex: 0
+      playerCount: 6
+      stacks:
+        '0': 15
+        '1': 15
+        '2': 15
+        '3': 15
+        '4': 15
+        '5': 15
+
+spotCount: 2
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

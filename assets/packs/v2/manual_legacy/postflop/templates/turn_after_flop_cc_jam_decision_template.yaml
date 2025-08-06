@@ -1,0 +1,17 @@
+id: turn_after_flop_cc_jam_decision_template
+name: Turn After Flop Check-Call Jam Decision
+trainingType: postflopJamDecision
+goal: turnDecision
+description: You check-call the flop out of position and face a turn jam — cling to thin equity or find the fold?
+theme: postflop
+tags: [turn, jam, checkCall, fold, equityRealization]
+positions: [bb]
+spotCount: 0
+meta:
+  manualSource: true
+  level: [intermediate, advanced]
+  spotConstraints:
+    board: turn
+    position: [bb]
+    actionFacing: jam
+  schemaVersion: 2.0.0

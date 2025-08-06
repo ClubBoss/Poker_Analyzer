@@ -1,0 +1,67 @@
+
+id: open_fold_lj_mtt
+name: LJ Open/Fold MTT
+
+trainingType: openingMTT
+
+recommended: true
+
+icon: schedule
+
+bb: 25
+
+gameType: tournament
+
+positions:
+  - lj
+
+tags:
+  - level2
+  - mtt
+  - lj
+  - openfold
+
+spots:
+  - id: of_lj_mtt_1
+    title: 66 LJ 25bb
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: 6s 6c
+      position: lj
+      heroIndex: 2
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+  - id: of_lj_mtt_2
+    title: KTo LJ 25bb
+    villainAction: none
+    heroOptions:
+      - open
+      - fold
+    hand:
+      heroCards: Kd Th
+      position: lj
+      heroIndex: 2
+      playerCount: 6
+      stacks:
+        '0': 25
+        '1': 25
+        '2': 25
+        '3': 25
+        '4': 25
+        '5': 25
+
+spotCount: 2
+
+meta:
+  manualSource: true
+  schemaVersion: 2.0.0
+

@@ -42,8 +42,12 @@ class TrainingPackTemplateExpanderService {
         _lineEngine = lineEngine ?? LineGraphEngine(),
         _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
 
+  bool _isManual(TrainingPackTemplateSet set) =>
+      set.baseSpot.meta['manualSource'] == true;
+
   /// Generates all spots described by [set] and injects theory links.
   List<TrainingPackSpot> expand(TrainingPackTemplateSet set) {
+    if (_isManual(set)) return [];
     final processed = [
       for (final v in set.variations)
         _expandBoards(
@@ -158,6 +162,7 @@ class TrainingPackTemplateExpanderService {
     TrainingPackTemplateSet set, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
   }) {
+    if (_isManual(set)) return [];
     final seeds = <SpotSeedFormat>[];
     for (final pattern in set.linePatterns) {
       var result = _lineEngine.build(pattern);
@@ -218,7 +223,7 @@ class TrainingPackTemplateExpanderService {
   /// into seeds per street using [LineGraphEngine.expandLine]. Each seed
   /// contains the accumulated action history up to that street.
   List<SpotSeed> expandPostflopLines(TrainingPackTemplateSet set) {
-    if (set.postflopLines.isEmpty) return [];
+    if (_isManual(set) || set.postflopLines.isEmpty) return [];
 
     final handCards = <CardModel>[];
     for (final token in set.baseSpot.hand.heroCards.split(RegExp(r'\s+'))) {

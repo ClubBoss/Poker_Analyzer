@@ -18,6 +18,7 @@ class YamlValidationService {
     for (final f in files) {
       try {
         final map = reader.read(await f.readAsString());
+        if ((map['meta'] as Map?)?['manualSource'] == true) continue;
         TrainingPackTemplateV2.fromJson(map);
       } catch (e) {
         errors.add((f.path, e.toString()));

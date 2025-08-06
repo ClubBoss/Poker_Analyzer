@@ -1,5 +1,5 @@
 packs:
-  - assets/packs/v2/postflop/cbet_ip.yaml
-  - assets/packs/v2/postflop/check_raise_oop.yaml
-  - assets/packs/v2/postflop/donk_bet_flop.yaml
-  - assets/packs/v2/postflop/river_bluffcatch.yaml
+  - assets/packs/v2/manual_legacy/postflop/cbet_ip.yaml
+  - assets/packs/v2/manual_legacy/postflop/check_raise_oop.yaml
+  - assets/packs/v2/manual_legacy/postflop/donk_bet_flop.yaml
+  - assets/packs/v2/manual_legacy/postflop/river_bluffcatch.yaml
