@@ -65,6 +65,7 @@ import '../widgets/daily_spotlight_card.dart';
 import '../widgets/streak_banner_widget.dart';
 import '../widgets/streak_analytics_card.dart';
 import '../widgets/decay_memory_health_banner.dart';
+import '../widgets/lesson_streak_summary_card.dart';
 import 'booster_library_screen.dart';
 import 'booster_archive_screen.dart';
 import 'training_progress_analytics_screen.dart';
@@ -151,6 +152,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
       body: ListView(
         children: [
           const StarterPathCard(),
+          const LessonStreakSummaryCard(),
           const NextUpBanner(),
           const SmartRecapPreviewWidget(),
           const TheoryInboxBanner(),
