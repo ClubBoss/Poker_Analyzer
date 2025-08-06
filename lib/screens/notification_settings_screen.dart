@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/notification_service.dart';
+import '../widgets/streak_reminder_settings_widget.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
@@ -43,6 +44,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             subtitle: Text(timeText, style: const TextStyle(color: Colors.white70)),
             onTap: _pick,
           ),
+          const StreakReminderSettingsWidget(),
         ],
       ),
     );
