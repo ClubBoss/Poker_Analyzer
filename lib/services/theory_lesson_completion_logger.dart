@@ -1,21 +1,32 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/lesson_completion_entry.dart';
+import 'lesson_completion_milestone_toast_service.dart';
 
 class TheoryLessonCompletionLogger {
+  TheoryLessonCompletionLogger();
+  static final TheoryLessonCompletionLogger instance =
+      TheoryLessonCompletionLogger();
+
   static const _key = 'lesson_completion_log';
 
-  Future<void> logCompletion(String lessonId) async {
+  Future<void> logCompletion(String lessonId, {BuildContext? context}) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now().toUtc();
     final entries = await _load(prefs);
-    final exists = entries.any((e) =>
-        e.lessonId == lessonId && _isSameDay(e.timestamp, now));
+    final exists = entries.any(
+        (e) => e.lessonId == lessonId && _isSameDay(e.timestamp, now));
     if (!exists) {
       entries.add(LessonCompletionEntry(lessonId: lessonId, timestamp: now));
       await _save(prefs, entries);
+      if (context != null) {
+        final count = await getCompletionsCountFor(DateTime.now());
+        await LessonCompletionMilestoneToastService.instance
+            .showIfMilestoneReached(context, count);
+      }
     }
   }
 
