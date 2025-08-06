@@ -1,0 +1,23 @@
+baseSpot:
+  id: river_decision_base
+  title: River Decision
+  heroOptions: [valueBet, bluff, check]
+  hand:
+    heroCards: As Kd
+    position: btn
+    heroIndex: 0
+    playerCount: 2
+    stacks:
+      '0': 100
+      '1': 100
+  tags: [postflop, river]
+variations:
+  - targetStreet: river
+    boardConstraints:
+      - targetStreet: river
+        requiredTextures: [broadway, rainbow]
+    linePattern:
+      streets:
+        flop: [bet, villainCall]
+        turn: [bet, villainCall]
+        river: [bet]

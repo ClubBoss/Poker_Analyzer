@@ -120,6 +120,9 @@ flutter:
     - assets/packs/v2/preflop/defend_utg_vs_hj_3bet_cash.yaml
     - assets/theory_lessons/level2/defend_utg_vs_hj_3bet_cash.yaml
     - assets/packs/v2/postflop/postflop_utg_call_vs_hj_3bet_cash.yaml
+    - assets/packs/v2/postflop/templates/flop_cbet_template.yaml
+    - assets/packs/v2/postflop/templates/turn_barrel_template.yaml
+    - assets/packs/v2/postflop/templates/river_decision_template.yaml
     - assets/theory_lessons/level3/postflop_utg_call_vs_hj_3bet_cash.yaml
     - assets/built_in_packs.yaml
     - assets/theory_packs/
