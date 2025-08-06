@@ -4,6 +4,7 @@ import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../models/training_pack_model.dart';
 import '../models/game_type.dart';
 
 import 'auto_deduplication_engine.dart';
@@ -90,7 +91,6 @@ class AutogenPipelineExecutor {
       theoryInjector.injectAll(spots);
       boardClassifier?.classifyAll(spots);
       skillLinker.linkAll(spots);
-      coverage.trackAll(spots);
 
       final base = set.baseSpot;
       final pack = TrainingPackTemplateV2(
@@ -107,6 +107,16 @@ class AutogenPipelineExecutor {
       );
       pack.meta['uniqueSpotsOnly'] = true;
 
+      final model = TrainingPackModel(
+        id: pack.id,
+        title: pack.name,
+        spots: spots,
+        tags: List<String>.from(pack.tags),
+        metadata: Map<String, dynamic>.from(pack.meta),
+      );
+      coverage.analyze(model);
+      dashboard.recordCoverage(coverage.aggregateReport);
+
       final file = await exporter.export(pack);
       files.add(file);
 
@@ -121,8 +131,8 @@ class AutogenPipelineExecutor {
     await coverage.logSummary();
     await _fingerprintLog.flush();
     await _fingerprintLog.close();
-    await dashboard.logFinalStats(coverage, yamlFiles: files.length);
+    await dashboard.logFinalStats(coverage.aggregateReport,
+        yamlFiles: files.length);
     return files;
   }
 }
-

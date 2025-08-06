@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../models/autogen_stats_model.dart';
-import 'skill_tag_coverage_tracker.dart';
+import '../models/skill_tag_coverage_report.dart';
 
 /// Centralized logger aggregating key metrics during hyperscale autogeneration.
 class AutogenStatusDashboardService extends ChangeNotifier {
@@ -18,6 +18,8 @@ class AutogenStatusDashboardService extends ChangeNotifier {
 
   final File _logFile;
   final AutogenStatsModel stats = AutogenStatsModel();
+  SkillTagCoverageReport coverage =
+      const SkillTagCoverageReport(tagCounts: {}, totalSpots: 0);
   DateTime? _start;
   int _yamlFiles = 0;
 
@@ -29,6 +31,7 @@ class AutogenStatusDashboardService extends ChangeNotifier {
       ..totalSpots = 0
       ..skippedSpots = 0
       ..fingerprintCount = 0;
+    coverage = const SkillTagCoverageReport(tagCounts: {}, totalSpots: 0);
     _yamlFiles = 0;
     notifyListeners();
   }
@@ -53,9 +56,15 @@ class AutogenStatusDashboardService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Updates coverage statistics for dashboard preview.
+  void recordCoverage(SkillTagCoverageReport report) {
+    coverage = report;
+    notifyListeners();
+  }
+
   /// Logs final aggregated statistics to console and to a log file.
   Future<void> logFinalStats(
-    SkillTagCoverageTracker coverage, {
+    SkillTagCoverageReport coverage, {
     int? yamlFiles,
   }) async {
     final end = DateTime.now();
@@ -71,7 +80,7 @@ class AutogenStatusDashboardService extends ChangeNotifier {
       ..writeln('YAML files: ${yamlFiles ?? _yamlFiles}')
       ..writeln('Top 10 tags:');
 
-    final sorted = coverage.counts.entries.toList()
+    final sorted = coverage.tagCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     for (final entry in sorted.take(10)) {
       buffer.writeln('  ${entry.key}: ${entry.value}');
