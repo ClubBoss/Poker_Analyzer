@@ -33,9 +33,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   List<String> _tags = [];
   List<String> _audiences = [];
   List<int> _difficulties = [];
+  List<String> _goals = [];
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
   final Set<String> _selectedAudiences = {};
+  String _selectedGoal = '';
   TrainingPackLevel? _levelFilter;
   final List<TrainingType> _types = TrainingType.values;
   final Set<TrainingType> _selectedTypes = {};
@@ -106,11 +108,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
     await TrainingPackTagsService.instance.load(list);
     await TrainingPackAudienceService.instance.load(list);
     await TrainingPackDifficultyService.instance.load(list);
+    final goalSet = <String>{};
+    for (final p in list) {
+      final g = _goalText(p);
+      if (g.isNotEmpty) goalSet.add(g);
+    }
     setState(() {
       _packs = list;
       _tags = TrainingPackTagsService.instance.topTags;
       _audiences = TrainingPackAudienceService.instance.topAudiences;
       _difficulties = TrainingPackDifficultyService.instance.topDifficulties;
+      _goals = goalSet.toList()..sort();
       _ratings = ratingMap;
       _loading = false;
     });
@@ -143,6 +151,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           _selectedDifficulties.isEmpty ? null : _selectedDifficulties,
       audiences: _selectedAudiences.isEmpty ? null : _selectedAudiences,
       level: _levelFilter,
+      goal: _selectedGoal.isEmpty ? null : _selectedGoal,
     );
 
     DateTime createdAt(TrainingPackTemplateV2 p) {
@@ -210,6 +219,25 @@ class _LibraryScreenState extends State<LibraryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (_goals.isNotEmpty) ...[
+                  const Text('🎯 Goal'),
+                  DropdownButton<String>(
+                    value: _selectedGoal,
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: '',
+                        child: Text('All goals'),
+                      ),
+                      for (final g in _goals)
+                        DropdownMenuItem(value: g, child: Text(g)),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _selectedGoal = v ?? '');
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 if (_tags.isNotEmpty)
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -374,7 +402,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         _selectedDifficulties.isNotEmpty ||
                         _selectedAudiences.isNotEmpty ||
                         _selectedTypes.isNotEmpty ||
-                        _levelFilter != null)
+                        _levelFilter != null ||
+                        _selectedGoal.isNotEmpty)
                       TextButton(
                         onPressed: () => setState(() {
                           _selectedTags.clear();
@@ -382,6 +411,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           _selectedAudiences.clear();
                           _selectedTypes.clear();
                           _levelFilter = null;
+                          _selectedGoal = '';
                         }),
                         child: const Text('Сбросить'),
                       ),
@@ -389,7 +419,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         _selectedDifficulties.isNotEmpty ||
                         _selectedAudiences.isNotEmpty ||
                         _selectedTypes.isNotEmpty ||
-                        _levelFilter != null)
+                        _levelFilter != null ||
+                        _selectedGoal.isNotEmpty)
                       const SizedBox(width: 12),
                     Text('Найдено: ${visible.length}')
                   ],
@@ -408,7 +439,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             _selectedDifficulties.isNotEmpty ||
                             _selectedAudiences.isNotEmpty ||
                             _selectedTypes.isNotEmpty ||
-                            _levelFilter != null)
+                            _levelFilter != null ||
+                            _selectedGoal.isNotEmpty)
                           TextButton(
                             onPressed: () => setState(() {
                               _selectedTags.clear();
@@ -416,6 +448,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               _selectedAudiences.clear();
                               _selectedTypes.clear();
                               _levelFilter = null;
+                              _selectedGoal = '';
                             }),
                             child: const Text('Сбросить'),
                           ),

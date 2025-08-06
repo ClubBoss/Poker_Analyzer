@@ -67,13 +67,22 @@ class TrainingPackLibraryV2 {
     TrainingType? type,
     List<String>? tags,
     TrainingPackLevel? level,
+    String? goal,
   }) {
+    final goalStr = goal?.trim().toLowerCase();
     return [
       for (final p in _packs)
         if ((gameType == null || p.gameType == gameType) &&
             (type == null || p.trainingType == type) &&
             (tags == null || tags.every((t) => p.tags.contains(t))) &&
-            (level == null || p.meta['level']?.toString() == level.name))
+            (level == null || p.meta['level']?.toString() == level.name) &&
+            (goalStr == null ||
+                ((p.goal.isNotEmpty
+                        ? p.goal
+                        : p.meta['goal']?.toString() ?? '')
+                    .trim()
+                    .toLowerCase() ==
+                    goalStr)))
           p
     ];
   }
