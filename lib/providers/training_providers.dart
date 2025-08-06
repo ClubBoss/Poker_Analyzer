@@ -119,6 +119,7 @@ import '../services/skill_loss_overlay_prompt_service.dart';
 import '../services/gift_drop_service.dart';
 import '../services/decay_badge_banner_controller.dart';
 import '../services/session_streak_overlay_prompt_service.dart';
+import '../services/lesson_streak_celebration_service.dart';
 import '../services/decay_streak_overlay_prompt_service.dart';
 import '../services/overlay_decay_booster_orchestrator.dart';
 import '../services/smart_recap_auto_injector.dart';
@@ -529,6 +530,7 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(create: (_) => GiftDropService()),
     Provider(create: (_) => DecayBadgeBannerController()..start()),
     Provider(create: (_) => SessionStreakOverlayPromptService()),
+    Provider(create: (_) => LessonStreakCelebrationService()),
     Provider(create: (_) => DecayStreakOverlayPromptService()),
     Provider(create: (_) => OverlayDecayBoosterOrchestrator()),
     Provider(

@@ -14,6 +14,7 @@ import '../services/dynamic_pack_adjustment_service.dart';
 import 'training_session_screen.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../services/daily_spotlight_service.dart';
+import '../services/lesson_streak_celebration_service.dart';
 
 import '../widgets/booster_suggestion_block.dart';
 import '../widgets/theory_booster_suggestion_block.dart';
@@ -92,9 +93,10 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
   void initState() {
     super.initState();
     context.read<SpotOfTheDayService>().ensureTodaySpot();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => widget.tutorial?.showCurrentStep(context),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.tutorial?.showCurrentStep(context);
+      context.read<LessonStreakCelebrationService>().maybeCelebrate(context);
+    });
   }
 
   @override
