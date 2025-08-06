@@ -393,6 +393,9 @@ class _PackCardState extends State<PackCard>
           break;
       }
     }
+    final goalText = widget.template.goal.isNotEmpty
+        ? widget.template.goal
+        : (widget.template.meta['goal']?.toString() ?? '').trim();
     return GestureDetector(
       onTap: () async {
         if (_locked) {
@@ -467,6 +470,19 @@ class _PackCardState extends State<PackCard>
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ),
+                if (goalText.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      goalText,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 if (!_locked &&
                     ((_requiredAccuracy ?? 0) > 0 || (_minHands ?? 0) > 0))
                   PackProgressSummaryWidget(

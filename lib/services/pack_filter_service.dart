@@ -12,15 +12,17 @@ class PackFilterService {
     Set<int>? difficulties,
     Set<String>? audiences,
     TrainingPackLevel? level,
+    String? goal,
   }) {
     final tagSet = tags?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
     final typeSet = types ?? {};
     final diffSet = difficulties ?? {};
     final audSet = audiences?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
+    final goalStr = goal?.trim().toLowerCase();
 
     return [
       for (final t in templates)
-        if (_matches(t, tagSet, typeSet, diffSet, audSet, level)) t
+        if (_matches(t, tagSet, typeSet, diffSet, audSet, level, goalStr)) t
     ];
   }
 
@@ -31,6 +33,7 @@ class PackFilterService {
     Set<int> diffs,
     Set<String> audiences,
     TrainingPackLevel? level,
+    String? goal,
   ) {
     if (types.isNotEmpty && !types.contains(tpl.trainingType)) return false;
 
@@ -54,6 +57,15 @@ class PackFilterService {
     if (level != null) {
       final lvl = tpl.meta['level']?.toString();
       if (lvl != level.name) return false;
+    }
+
+    if (goal != null && goal.isNotEmpty) {
+      final g = (tpl.goal.isNotEmpty
+              ? tpl.goal
+              : tpl.meta['goal']?.toString() ?? '')
+          .trim()
+          .toLowerCase();
+      if (g != goal) return false;
     }
     return true;
   }
