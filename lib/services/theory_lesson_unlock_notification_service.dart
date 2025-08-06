@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'mini_lesson_library_service.dart';
+import '../screens/theory_lesson_viewer_screen.dart';
 
 /// Shows a notification when new theory lessons become unlocked.
 class TheoryLessonUnlockNotificationService {
@@ -32,9 +33,28 @@ class TheoryLessonUnlockNotificationService {
     await _library.loadAll();
     for (final id in newIds) {
       if (!context.mounted) break;
-      final title = _library.getById(id)?.title ?? id;
+      final lesson = _library.getById(id);
+      final title = lesson?.title ?? id;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('New lesson unlocked: $title')),
+        SnackBar(
+          content: Text('New lesson unlocked: $title'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              if (!context.mounted || lesson == null) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TheoryLessonViewerScreen(
+                    lesson: lesson,
+                    currentIndex: 1,
+                    totalCount: 1,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       );
     }
 
