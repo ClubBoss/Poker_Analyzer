@@ -4,6 +4,7 @@ import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../models/game_type.dart';
 import '../engine/training_type_engine.dart';
 import '../../../asset_manifest.dart';
+import '../../../models/v2/pack_ux_metadata.dart';
 
 class TrainingPackLibraryV2 {
   static const packsDir = 'assets/packs/v2/';
@@ -65,12 +66,14 @@ class TrainingPackLibraryV2 {
     GameType? gameType,
     TrainingType? type,
     List<String>? tags,
+    TrainingPackLevel? level,
   }) {
     return [
       for (final p in _packs)
         if ((gameType == null || p.gameType == gameType) &&
             (type == null || p.trainingType == type) &&
-            (tags == null || tags.every((t) => p.tags.contains(t))))
+            (tags == null || tags.every((t) => p.tags.contains(t))) &&
+            (level == null || p.meta['level']?.toString() == level.name))
           p
     ];
   }

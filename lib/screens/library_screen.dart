@@ -15,6 +15,7 @@ import '../services/training_pack_difficulty_service.dart';
 import 'pack_library_search_screen.dart';
 import 'skill_map_screen.dart';
 import 'goal_screen.dart';
+import '../models/v2/pack_ux_metadata.dart';
 
 enum _SortOption { newest, rating, difficulty }
 
@@ -35,6 +36,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final Set<String> _selectedTags = {};
   final Set<int> _selectedDifficulties = {};
   final Set<String> _selectedAudiences = {};
+  TrainingPackLevel? _levelFilter;
   final List<TrainingType> _types = TrainingType.values;
   final Set<TrainingType> _selectedTypes = {};
   bool _favoritesOnly = false;
@@ -62,6 +64,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
     if (diff >= 3) return 3;
     return 0;
   }
+
+  String _levelLabel(TrainingPackLevel l) =>
+      l.name[0].toUpperCase() + l.name.substring(1);
 
   String _goalText(TrainingPackTemplateV2 pack) =>
       pack.goal.isNotEmpty
@@ -137,6 +142,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       difficulties:
           _selectedDifficulties.isEmpty ? null : _selectedDifficulties,
       audiences: _selectedAudiences.isEmpty ? null : _selectedAudiences,
+      level: _levelFilter,
     );
 
     DateTime createdAt(TrainingPackTemplateV2 p) {
@@ -267,9 +273,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ),
                 ],
                 if (_tags.isNotEmpty) const SizedBox(height: 8),
-                if (_audiences.isNotEmpty)
-                  Row(
-                    children: [
+                Row(
+                  children: [
+                    if (_audiences.isNotEmpty)
                       Expanded(
                         child: DropdownButton<String>(
                           value: _selectedAudiences.isEmpty
@@ -295,33 +301,45 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      DropdownButton<int>(
-                        value: _selectedDifficulties.isEmpty
-                            ? 0
-                            : _selectedDifficulties.first,
-                        hint: const Text('Difficulty'),
-                        items: [
-                          const DropdownMenuItem(value: 0, child: Text('Any')),
-                          for (final d in _difficulties)
-                            DropdownMenuItem(
-                              value: d,
-                              child:
-                                  Text('${_difficultyIconFromLevel(d)} $d'),
-                            ),
-                        ],
-                        onChanged: (v) {
-                          setState(() {
-                            _selectedDifficulties.clear();
-                            if (v != null && v > 0) {
-                              _selectedDifficulties.add(v);
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                if (_audiences.isNotEmpty) const SizedBox(height: 8),
+                    if (_audiences.isNotEmpty) const SizedBox(width: 8),
+                    DropdownButton<int>(
+                      value: _selectedDifficulties.isEmpty
+                          ? 0
+                          : _selectedDifficulties.first,
+                      hint: const Text('Difficulty'),
+                      items: [
+                        const DropdownMenuItem(value: 0, child: Text('Any')),
+                        for (final d in _difficulties)
+                          DropdownMenuItem(
+                            value: d,
+                            child: Text('${_difficultyIconFromLevel(d)} $d'),
+                          ),
+                      ],
+                      onChanged: (v) {
+                        setState(() {
+                          _selectedDifficulties.clear();
+                          if (v != null && v > 0) {
+                            _selectedDifficulties.add(v);
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    DropdownButton<TrainingPackLevel?>(
+                      value: _levelFilter,
+                      hint: const Text('Level'),
+                      items: [
+                        const DropdownMenuItem(
+                            value: null, child: Text('All')),
+                        for (final l in TrainingPackLevel.values)
+                          DropdownMenuItem(
+                              value: l, child: Text(_levelLabel(l))),
+                      ],
+                      onChanged: (v) => setState(() => _levelFilter = v),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 CheckboxListTile(
                   value: _favoritesOnly,
                   title: const Text('⭐️ Только избранные'),
@@ -355,20 +373,23 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     if (_selectedTags.isNotEmpty ||
                         _selectedDifficulties.isNotEmpty ||
                         _selectedAudiences.isNotEmpty ||
-                        _selectedTypes.isNotEmpty)
+                        _selectedTypes.isNotEmpty ||
+                        _levelFilter != null)
                       TextButton(
                         onPressed: () => setState(() {
                           _selectedTags.clear();
                           _selectedDifficulties.clear();
                           _selectedAudiences.clear();
                           _selectedTypes.clear();
+                          _levelFilter = null;
                         }),
                         child: const Text('Сбросить'),
                       ),
                     if (_selectedTags.isNotEmpty ||
                         _selectedDifficulties.isNotEmpty ||
                         _selectedAudiences.isNotEmpty ||
-                        _selectedTypes.isNotEmpty)
+                        _selectedTypes.isNotEmpty ||
+                        _levelFilter != null)
                       const SizedBox(width: 12),
                     Text('Найдено: ${visible.length}')
                   ],
@@ -386,13 +407,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         if (_selectedTags.isNotEmpty ||
                             _selectedDifficulties.isNotEmpty ||
                             _selectedAudiences.isNotEmpty ||
-                            _selectedTypes.isNotEmpty)
+                            _selectedTypes.isNotEmpty ||
+                            _levelFilter != null)
                           TextButton(
                             onPressed: () => setState(() {
                               _selectedTags.clear();
                               _selectedDifficulties.clear();
                               _selectedAudiences.clear();
                               _selectedTypes.clear();
+                              _levelFilter = null;
                             }),
                             child: const Text('Сбросить'),
                           ),
