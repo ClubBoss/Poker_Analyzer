@@ -26,3 +26,5 @@
 
 - Celebrate decay streak milestones with DecayMilestoneCelebrationService.
 - Display theory cluster completion summary in TheoryPackPreviewScreen.
+
+- Add river probe jam decision training pack template for facing jams over river probes.
