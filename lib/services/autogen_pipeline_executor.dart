@@ -88,47 +88,50 @@ class AutogenPipelineExecutor {
     final files = <File>[];
     try {
       for (final set in sets) {
-        status.stage('template:${set.baseSpot.id}', templateSet: set.baseSpot.id);
+        status.stage(
+          'template:${set.baseSpot.id}',
+          templateSet: set.baseSpot.id,
+        );
         if (generator.shouldAbort) break;
         final spots = generator.generate(set, theoryIndex: theoryIndex);
         if (generator.shouldAbort) break;
         if (spots.isEmpty) continue;
 
-      theoryInjector.injectAll(spots, theoryIndex);
-      boardClassifier?.classifyAll(spots);
-      skillLinker.linkAll(spots);
+        theoryInjector.injectAll(spots, theoryIndex);
+        boardClassifier?.classifyAll(spots);
+        skillLinker.linkAll(spots);
 
-      final base = set.baseSpot;
-      final pack = TrainingPackTemplateV2(
-        id: base.id,
-        name: base.title.isNotEmpty ? base.title : base.id,
-        trainingType: TrainingType.custom,
-        spots: spots,
-        spotCount: spots.length,
-        tags: List<String>.from(base.tags),
-        gameType: GameType.cash,
-        bb: base.hand.stacks['0']?.toInt() ?? 0,
-        positions: [base.hand.position.name],
-        meta: Map<String, dynamic>.from(base.meta),
-      );
-      pack.meta['uniqueSpotsOnly'] = true;
+        final base = set.baseSpot;
+        final pack = TrainingPackTemplateV2(
+          id: base.id,
+          name: base.title.isNotEmpty ? base.title : base.id,
+          trainingType: TrainingType.custom,
+          spots: spots,
+          spotCount: spots.length,
+          tags: List<String>.from(base.tags),
+          gameType: GameType.cash,
+          bb: base.hand.stacks['0']?.toInt() ?? 0,
+          positions: [base.hand.position.name],
+          meta: Map<String, dynamic>.from(base.meta),
+        );
+        pack.meta['uniqueSpotsOnly'] = true;
 
-      final model = TrainingPackModel(
-        id: pack.id,
-        title: pack.name,
-        spots: spots,
-        tags: List<String>.from(pack.tags),
-        metadata: Map<String, dynamic>.from(pack.meta),
-      );
-      coverage.analyze(model);
-      dashboard.recordCoverage(coverage.aggregateReport);
+        final model = TrainingPackModel(
+          id: pack.id,
+          title: pack.name,
+          spots: spots,
+          tags: List<String>.from(pack.tags),
+          metadata: Map<String, dynamic>.from(pack.meta),
+        );
+        coverage.analyzePack(model);
+        dashboard.recordCoverage(coverage.aggregateReport);
 
-      final file = await exporter.export(pack);
-      files.add(file);
+        final file = await exporter.export(pack);
+        files.add(file);
 
-      dashboard.recordPack(spots.length);
-      final fp = fingerprintGenerator.generateFromTemplate(pack);
-      _fingerprintLog.writeln(fp);
+        dashboard.recordPack(spots.length);
+        final fp = fingerprintGenerator.generateFromTemplate(pack);
+        _fingerprintLog.writeln(fp);
       }
 
       dashboard.recordSkipped(dedup.skippedCount);

@@ -1,4 +1,4 @@
-import '../models/skill_tag_coverage_report.dart';
+import '../models/skill_tag_stats.dart';
 import '../models/v2/training_pack_template_set.dart';
 import '../models/v2/training_pack_spot.dart';
 
@@ -17,7 +17,7 @@ class TagBalancerEngine {
   /// boosted at most once.
   List<TrainingPackSpot> balance(
     TrainingPackTemplateSet baseSet,
-    SkillTagCoverageReport coverage,
+    SkillTagStats coverage,
   ) {
     if (baseSet.template.spots.isEmpty) return [];
     if (coverage.tagCounts.isEmpty) return [];
@@ -48,4 +48,3 @@ class TagBalancerEngine {
     return result;
   }
 }
-

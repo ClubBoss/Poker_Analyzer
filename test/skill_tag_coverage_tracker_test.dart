@@ -12,13 +12,19 @@ void main() {
       TrainingPackSpot(id: '2', tags: ['push']),
     ];
     final pack = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
-    final tracker = SkillTagCoverageTracker();
-    final report = tracker.analyze(pack);
-    expect(report.totalSpots, 2);
-    expect(report.tagCounts['push'], 2);
-    expect(report.tagCounts['call'], 1);
+    final tracker = SkillTagCoverageTracker(
+      allTags: const ['push', 'call', 'fold'],
+      overloadThreshold: 1,
+    );
+    final stats = tracker.analyzePack(pack);
+    expect(stats.totalTags, 3);
+    expect(stats.tagCounts['push'], 2);
+    expect(stats.tagCounts['call'], 1);
+    expect(stats.unusedTags, ['fold']);
+    expect(stats.overloadedTags, ['push']);
+    expect(stats.spotTags['1'], ['push', 'call']);
     final aggregate = tracker.aggregateReport;
-    expect(aggregate.totalSpots, 2);
+    expect(aggregate.totalTags, 3);
     expect(aggregate.tagCounts['push'], 2);
     expect(aggregate.tagCounts['call'], 1);
   });

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_analyzer/models/skill_tag_coverage_report.dart';
+import 'package:poker_analyzer/models/skill_tag_stats.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_set.dart';
@@ -18,9 +18,11 @@ void main() {
       spotCount: 4,
     );
     final set = TrainingPackTemplateSet(template: template);
-    final coverage = SkillTagCoverageReport(
-      tagCounts: const {'A': 10, 'B': 1, 'C': 2},
-      totalSpots: 13,
+    const coverage = SkillTagStats(
+      tagCounts: {'A': 10, 'B': 1, 'C': 2},
+      totalTags: 13,
+      unusedTags: [],
+      overloadedTags: [],
     );
 
     final engine = const TagBalancerEngine(maxBoostCount: 3);
@@ -30,4 +32,3 @@ void main() {
     expect(boost.first.id, 'B1');
   });
 }
-
