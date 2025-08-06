@@ -23,6 +23,7 @@
 - Introduce DecayForecastAlertService for upcoming critical decay warnings.
 - Add DecayDashboardScreen to visualize memory health.
 - Track days without critical decay via DecayStreakTrackerService.
+- Show humanized goal labels on pack cards for quick tactical focus.
 
 - Celebrate decay streak milestones with DecayMilestoneCelebrationService.
 - Display theory cluster completion summary in TheoryPackPreviewScreen.
