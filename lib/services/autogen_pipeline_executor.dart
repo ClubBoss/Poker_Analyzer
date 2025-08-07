@@ -26,6 +26,8 @@ import 'autogen_pipeline_event_logger_service.dart';
 import 'pack_fingerprint_comparer.dart';
 import 'spot_fingerprint_generator.dart';
 import 'deduplication_policy_engine.dart';
+import 'targeted_pack_booster_engine.dart';
+import 'auto_skill_gap_clusterer.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -45,6 +47,7 @@ class AutogenPipelineExecutor {
   final AutogenRunHistoryLoggerService runHistory;
   final PackFingerprintComparer packComparer;
   final DeduplicationPolicyEngine policyEngine;
+  final TargetedPackBoosterEngine boosterEngine;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -63,6 +66,7 @@ class AutogenPipelineExecutor {
     AutogenRunHistoryLoggerService? runHistory,
     PackFingerprintComparer? packComparer,
     DeduplicationPolicyEngine? policyEngine,
+    TargetedPackBoosterEngine? boosterEngine,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
@@ -81,7 +85,8 @@ class AutogenPipelineExecutor {
         gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
         runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
         packComparer = packComparer ?? const PackFingerprintComparer(),
-        policyEngine = policyEngine ?? DeduplicationPolicyEngine() {
+        policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
+        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -90,6 +95,7 @@ class AutogenPipelineExecutor {
     List<TrainingPackTemplateSet> sets, {
     String existingYamlPath = '',
     Map<String, InlineTheoryEntry> theoryIndex = const {},
+    List<SkillGapCluster> clusters = const [],
   }) async {
     // Load existing YAMLs to prime deduplication engine.
     dashboard.start();
@@ -247,6 +253,47 @@ class AutogenPipelineExecutor {
             progress: (i + 1) / sets.length,
           ),
         );
+      }
+
+      if (clusters.isNotEmpty) {
+        boosterEngine.existingFingerprints = existingFingerprints;
+        final boosters = await boosterEngine.generateBoosters(clusters);
+        for (final pack in boosters) {
+          final model = TrainingPackModel(
+            id: pack.id,
+            title: pack.name,
+            spots: pack.spots,
+            tags: List<String>.from(pack.tags),
+            metadata: Map<String, dynamic>.from(pack.meta),
+          );
+          coverage.analyzePack(model);
+          dashboard.recordCoverage(coverage.aggregateReport);
+          final file = await exporter.export(pack);
+          files.add(file);
+          dashboard.recordPack(pack.spots.length);
+          final fp = fingerprintGenerator.generateFromTemplate(pack);
+          _fingerprintLog.writeln(fp);
+          final pf = PackFingerprint(
+            id: pack.id,
+            hash: fp,
+            spots: {
+              for (final TrainingPackSpot s in pack.spots) spotGen.generate(s)
+            },
+            meta: Map<String, dynamic>.from(pack.meta),
+          );
+          final dupReports = packComparer.compare(pf, existingFingerprints);
+          final duplicates = [
+            for (final r in dupReports)
+              DuplicatePackInfo(
+                candidateId: pf.id,
+                existingId: r.existingPackId,
+                similarity: r.similarity,
+                reason: r.reason.replaceAll(' ', '_'),
+              ),
+          ];
+          await policyEngine.applyPolicies(duplicates);
+          existingFingerprints.add(pf);
+        }
       }
 
       dashboard.recordSkipped(dedup.skippedCount);
