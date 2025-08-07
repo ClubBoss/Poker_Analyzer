@@ -8,33 +8,25 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('logs and retrieves sessions', () async {
+  test('logs start and end of sessions', () async {
     final service = TrainingSessionFingerprintLoggerService();
-    final session = TrainingSessionFingerprint(
-      packId: 'pack1',
-      tags: const ['tag1', 'tag2'],
-      totalSpots: 5,
-      correct: 3,
-      incorrect: 2,
-      completedAt: DateTime(2023, 1, 1),
-    );
-    await service.logSession(session);
+    await service.logSessionStart('pack1');
+    await service.logSessionEnd('pack1', ['tag1', 'tag2']);
 
-    final all = await service.getAll();
+    final all = await service.getAllSessions();
     expect(all, hasLength(1));
-    expect(all.first.packId, 'pack1');
-    expect(all.first.tags, containsAll(['tag1', 'tag2']));
-    expect(all.first.totalSpots, 5);
-    expect(all.first.correct, 3);
-    expect(all.first.incorrect, 2);
-    expect(all.first.completedAt, DateTime(2023, 1, 1));
+    final fp = all.first;
+    expect(fp.packId, 'pack1');
+    expect(fp.tagsCovered, containsAll(['tag1', 'tag2']));
+    expect(fp.endTime.isAfter(fp.startTime) || fp.endTime == fp.startTime, isTrue);
   });
 
   test('clear removes all fingerprints', () async {
     final service = TrainingSessionFingerprintLoggerService();
-    await service.logSession(TrainingSessionFingerprint(packId: 'p'));
+    await service.logSessionStart('p');
+    await service.logSessionEnd('p', []);
     await service.clear();
-    final all = await service.getAll();
+    final all = await service.getAllSessions();
     expect(all, isEmpty);
   });
 }
