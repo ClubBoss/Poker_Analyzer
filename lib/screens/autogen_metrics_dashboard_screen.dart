@@ -17,6 +17,7 @@ import '../widgets/autogen_debug_control_panel_widget.dart';
 import '../widgets/autogen_event_log_viewer_widget.dart';
 import '../widgets/run_comparison_window.dart';
 import '../widgets/autogen_error_inspector_widget.dart';
+import '../widgets/ab_results_panel_widget.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
 class AutogenMetricsDashboardScreen extends StatefulWidget {
@@ -176,6 +177,8 @@ class _AutogenMetricsDashboardScreenState
                 ),
                 const SizedBox(height: 16),
                 const AutogenErrorInspectorWidget(),
+                const SizedBox(height: 16),
+                const ABResultsPanelWidget(),
                 const SizedBox(height: 16),
                 _buildTile('Generated',
                     (_metrics['generatedCount'] as int? ?? 0).toString()),

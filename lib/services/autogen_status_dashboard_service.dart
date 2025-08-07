@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../models/autogen_status.dart';
 import '../models/autogen_session_meta.dart';
+import '../models/training_run_record.dart';
+import 'training_run_ab_comparator.dart';
 
 class DuplicatePackInfo {
   final String candidateId;
@@ -41,6 +43,10 @@ class AutogenStatusDashboardService {
       ValueNotifier(const {});
   final ValueNotifier<List<String>> boosterIdsNotifier =
       ValueNotifier(const <String>[]);
+
+  final ValueNotifier<List<ABArmResult>> abResultsNotifier =
+      ValueNotifier(const <ABArmResult>[]);
+  final TrainingRunABComparator _abComparator = TrainingRunABComparator();
 
   final List<AutogenSessionMeta> _sessions = [];
   final StreamController<List<AutogenSessionMeta>> _sessionController =
@@ -112,6 +118,12 @@ class AutogenStatusDashboardService {
     final map = Map<String, int>.from(boostersSkippedNotifier.value);
     map[reason] = (map[reason] ?? 0) + 1;
     boostersSkippedNotifier.value = Map.unmodifiable(map);
+  }
+
+  Future<void> refreshAbResults(List<TrainingRunRecord> runs,
+      {String? audience}) async {
+    final results = await _abComparator.compare(runs, audience: audience);
+    abResultsNotifier.value = List.unmodifiable(results);
   }
 
   void _cleanupOldSessions() {
