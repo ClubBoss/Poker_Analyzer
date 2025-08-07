@@ -45,4 +45,7 @@ class SharedPrefsKeys {
   static const String trainingSearchHistory = 'training_search_history';
   static const String trainingSpotListSort = 'training_spot_list_sort';
   static const String trainingQuickSortOption = 'training_quick_sort_option';
+
+  // Skill tag coverage report
+  static const String skillTagCoverageReport = 'skill_tag_coverage_report';
 }
