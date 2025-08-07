@@ -5,6 +5,7 @@ import 'pack_fingerprint_comparer_service.dart';
 import 'training_pack_library_service.dart';
 import 'spot_fingerprint_generator.dart';
 import '../utils/app_logger.dart';
+import 'autogen_pipeline_debug_stats_service.dart';
 
 class AutoDeduplicationReport {
   final List<PackSimilarityResult> duplicates;
@@ -48,6 +49,7 @@ class AutoDeduplicationEngine {
     final fp = _fingerprint.generate(spot);
     if (_seen.contains(fp)) {
       _skipped++;
+      AutogenPipelineDebugStatsService.incrementDeduplicated();
       _log.writeln('Skipped duplicate from ${source ?? 'unknown'}: ${spot.id}');
       return true;
     }
@@ -73,6 +75,7 @@ class AutoDeduplicationEngine {
       final existing = unique[fp];
       if (_seen.contains(fp) && existing == null) {
         _skipped++;
+        AutogenPipelineDebugStatsService.incrementDeduplicated();
         _log.writeln('dropped ${spot.id} from ${source ?? 'memory'}');
         continue;
       }
@@ -93,6 +96,7 @@ class AutoDeduplicationEngine {
         _log.writeln('dropped ${spot.id} duplicate of ${existing.id}');
       }
       _skipped++;
+      AutogenPipelineDebugStatsService.incrementDeduplicated();
     }
 
     _seen.addAll(unique.keys);

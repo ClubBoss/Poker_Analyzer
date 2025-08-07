@@ -21,6 +21,7 @@ import 'training_pack_fingerprint_generator.dart';
 import 'icm_scenario_library_injector.dart';
 import 'pack_quality_gatekeeper_service.dart';
 import 'autogen_run_history_logger_service.dart';
+import 'autogen_pipeline_debug_stats_service.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -134,6 +135,7 @@ class AutogenPipelineExecutor {
           );
           continue;
         }
+        AutogenPipelineDebugStatsService.incrementGenerated();
 
         theoryInjector.injectAll(spots, theoryIndex);
         boardClassifier?.classifyAll(spots);
@@ -176,6 +178,7 @@ class AutogenPipelineExecutor {
           continue;
         }
         generatedCount++;
+        AutogenPipelineDebugStatsService.incrementCurated();
         pack.meta['qualityScore'] = score;
 
         coverage.analyzePack(model);
