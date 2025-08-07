@@ -1,5 +1,7 @@
 import '../models/training_pack_model.dart';
 import '../models/theory_mini_lesson_node.dart';
+import '../models/autogen_status.dart';
+import 'autogen_status_dashboard_service.dart';
 
 /// Simple representation of a skill tree node with tag metadata.
 class SkillTreeNode {
@@ -37,33 +39,72 @@ class SkillTreeAutoLinkerService {
     List<TrainingPackModel> packs,
     List<TheoryMiniLessonNode> lessons,
   ) {
-    final res = <String, SkillLinkResult>{};
-    for (final node in nodes) {
-      final nodeTags = node.tags.map((t) => t.toLowerCase().trim()).toSet();
-      final pIds = <String>[];
-      for (final pack in packs) {
-        final packTags = <String>{
-          for (final spot in pack.spots)
-            for (final t in spot.tags) t.toLowerCase().trim(),
-          for (final t in pack.tags) t.toLowerCase().trim(),
-        };
-        if (packTags.intersection(nodeTags).isNotEmpty) {
-          pIds.add(pack.id);
+    final status = AutogenStatusDashboardService.instance;
+    status.update(
+      'SkillTreeAutoLinkerService',
+      const AutogenStatus(
+        isRunning: true,
+        currentStage: 'link',
+        progress: 0,
+      ),
+    );
+    try {
+      final res = <String, SkillLinkResult>{};
+      for (var i = 0; i < nodes.length; i++) {
+        final node = nodes[i];
+        final nodeTags = node.tags.map((t) => t.toLowerCase().trim()).toSet();
+        final pIds = <String>[];
+        for (final pack in packs) {
+          final packTags = <String>{
+            for (final spot in pack.spots)
+              for (final t in spot.tags) t.toLowerCase().trim(),
+            for (final t in pack.tags) t.toLowerCase().trim(),
+          };
+          if (packTags.intersection(nodeTags).isNotEmpty) {
+            pIds.add(pack.id);
+          }
         }
+        final lIds = <String>[
+          for (final lesson in lessons)
+            if (lesson.tags
+                .map((t) => t.toLowerCase().trim())
+                .toSet()
+                .intersection(nodeTags)
+                .isNotEmpty)
+              lesson.id,
+        ];
+        node.meta['linkedPackIds'] = pIds;
+        node.meta['linkedLessonIds'] = lIds;
+        res[node.id] = SkillLinkResult(packIds: pIds, lessonIds: lIds);
+        status.update(
+          'SkillTreeAutoLinkerService',
+          AutogenStatus(
+            isRunning: true,
+            currentStage: 'link',
+            progress: (i + 1) / nodes.length,
+          ),
+        );
       }
-      final lIds = <String>[
-        for (final lesson in lessons)
-          if (lesson.tags
-              .map((t) => t.toLowerCase().trim())
-              .toSet()
-              .intersection(nodeTags)
-              .isNotEmpty)
-            lesson.id,
-      ];
-      node.meta['linkedPackIds'] = pIds;
-      node.meta['linkedLessonIds'] = lIds;
-      res[node.id] = SkillLinkResult(packIds: pIds, lessonIds: lIds);
+      status.update(
+        'SkillTreeAutoLinkerService',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'complete',
+          progress: 1,
+        ),
+      );
+      return res;
+    } catch (e) {
+      status.update(
+        'SkillTreeAutoLinkerService',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: 'error',
+          progress: 0,
+          lastError: e.toString(),
+        ),
+      );
+      rethrow;
     }
-    return res;
   }
 }

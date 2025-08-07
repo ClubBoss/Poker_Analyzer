@@ -1,8 +1,10 @@
 import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../models/autogen_status.dart';
 import 'training_pack_generator_engine_v2.dart';
 import 'auto_deduplication_engine.dart';
+import 'autogen_status_dashboard_service.dart';
 
 /// Wrapper around [TrainingPackGeneratorEngineV2] that skips duplicate spots.
 class TrainingPackAutoGenerator {
@@ -24,15 +26,65 @@ class TrainingPackAutoGenerator {
     Iterable<TrainingPackSpot> existingSpots = const [],
     bool deduplicate = true,
   }) {
-    if (_shouldAbort) return [];
-    if (deduplicate) {
-      _dedup.addExisting(existingSpots);
+    final status = AutogenStatusDashboardService.instance;
+    if (_shouldAbort) {
+      status.update(
+        'TrainingPackAutoGenerator',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'aborted',
+          progress: 0,
+        ),
+      );
+      return [];
     }
-    final spots = _engine.generate(set, theoryIndex: theoryIndex);
-    if (_shouldAbort || !deduplicate) return spots;
+    status.update(
+      'TrainingPackAutoGenerator',
+      const AutogenStatus(
+        isRunning: true,
+        currentStage: 'generating',
+        progress: 0,
+      ),
+    );
+    try {
+      if (deduplicate) {
+        _dedup.addExisting(existingSpots);
+      }
+      final spots = _engine.generate(set, theoryIndex: theoryIndex);
+      if (_shouldAbort || !deduplicate) {
+        status.update(
+          'TrainingPackAutoGenerator',
+          const AutogenStatus(
+            isRunning: false,
+            currentStage: 'complete',
+            progress: 1,
+          ),
+        );
+        return spots;
+      }
 
-    final filtered = _dedup.deduplicate(spots, source: set.baseSpot.id);
-    return filtered;
+      final filtered = _dedup.deduplicate(spots, source: set.baseSpot.id);
+      status.update(
+        'TrainingPackAutoGenerator',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'complete',
+          progress: 1,
+        ),
+      );
+      return filtered;
+    } catch (e) {
+      status.update(
+        'TrainingPackAutoGenerator',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: 'error',
+          progress: 0,
+          lastError: e.toString(),
+        ),
+      );
+      rethrow;
+    }
   }
 
   /// Requests the generator to stop processing.

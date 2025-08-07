@@ -6,6 +6,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/training_pack_model.dart';
 import '../models/game_type.dart';
+import '../models/autogen_status.dart';
 
 import 'auto_deduplication_engine.dart';
 import 'training_pack_auto_generator.dart';
@@ -74,7 +75,14 @@ class AutogenPipelineExecutor {
   }) async {
     // Load existing YAMLs to prime deduplication engine.
     dashboard.start();
-    status.start();
+    status.update(
+      'pipeline',
+      const AutogenStatus(
+        isRunning: true,
+        currentStage: 'init',
+        progress: 0,
+      ),
+    );
     if (existingYamlPath.isNotEmpty) {
       final dir = Directory(existingYamlPath);
       if (await dir.exists()) {
@@ -91,15 +99,30 @@ class AutogenPipelineExecutor {
 
     final files = <File>[];
     try {
-      for (final set in sets) {
-        status.stage(
-          'template:${set.baseSpot.id}',
-          templateSet: set.baseSpot.id,
+      for (var i = 0; i < sets.length; i++) {
+        final set = sets[i];
+        status.update(
+          'pipeline',
+          AutogenStatus(
+            isRunning: true,
+            currentStage: 'template:${set.baseSpot.id}',
+            progress: i / sets.length,
+          ),
         );
         if (generator.shouldAbort) break;
         var spots = generator.generate(set, theoryIndex: theoryIndex);
         if (generator.shouldAbort) break;
-        if (spots.isEmpty) continue;
+        if (spots.isEmpty) {
+          status.update(
+            'pipeline',
+            AutogenStatus(
+              isRunning: true,
+              currentStage: 'template:${set.baseSpot.id}',
+              progress: (i + 1) / sets.length,
+            ),
+          );
+          continue;
+        }
 
         theoryInjector.injectAll(spots, theoryIndex);
         boardClassifier?.classifyAll(spots);
@@ -142,6 +165,14 @@ class AutogenPipelineExecutor {
         dashboard.recordPack(spots.length);
         final fp = fingerprintGenerator.generateFromTemplate(pack);
         _fingerprintLog.writeln(fp);
+        status.update(
+          'pipeline',
+          AutogenStatus(
+            isRunning: true,
+            currentStage: 'template:${set.baseSpot.id}',
+            progress: (i + 1) / sets.length,
+          ),
+        );
       }
 
       dashboard.recordSkipped(dedup.skippedCount);
@@ -153,10 +184,25 @@ class AutogenPipelineExecutor {
         coverage.aggregateReport,
         yamlFiles: files.length,
       );
-      await status.complete();
+      status.update(
+        'pipeline',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'complete',
+          progress: 1,
+        ),
+      );
       return files;
     } catch (e) {
-      await status.fail(e.toString());
+      status.update(
+        'pipeline',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: 'error',
+          progress: 0,
+          lastError: e.toString(),
+        ),
+      );
       rethrow;
     }
   }

@@ -1,33 +1,27 @@
-enum AutogenPipelineStatus { idle, running, completed, failed }
-
 class AutogenStatus {
-  final AutogenPipelineStatus status;
-  final String? lastTemplateSet;
-  final DateTime? lastRun;
-  final String? error;
-  final String? activeStage;
+  final bool isRunning;
+  final String currentStage;
+  final double progress;
+  final String? lastError;
 
   const AutogenStatus({
-    this.status = AutogenPipelineStatus.idle,
-    this.lastTemplateSet,
-    this.lastRun,
-    this.error,
-    this.activeStage,
+    this.isRunning = false,
+    this.currentStage = '',
+    this.progress = 0.0,
+    this.lastError,
   });
 
   AutogenStatus copyWith({
-    AutogenPipelineStatus? status,
-    String? lastTemplateSet,
-    DateTime? lastRun,
-    String? error,
-    String? activeStage,
+    bool? isRunning,
+    String? currentStage,
+    double? progress,
+    String? lastError,
   }) {
     return AutogenStatus(
-      status: status ?? this.status,
-      lastTemplateSet: lastTemplateSet ?? this.lastTemplateSet,
-      lastRun: lastRun ?? this.lastRun,
-      error: error ?? this.error,
-      activeStage: activeStage ?? this.activeStage,
+      isRunning: isRunning ?? this.isRunning,
+      currentStage: currentStage ?? this.currentStage,
+      progress: progress ?? this.progress,
+      lastError: lastError ?? this.lastError,
     );
   }
 }
