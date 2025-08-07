@@ -71,6 +71,18 @@ class _AutogenPipelineDebugControlPanelState
     );
   }
 
+  void _failStep(String name, Object e) {
+    _tracker.updateStep(
+      _sessionId,
+      AutoGenStepStatus(
+        stepName: name,
+        status: 'error',
+        errorMessage: e.toString(),
+      ),
+    );
+    _showSnack('Error in $name: $e');
+  }
+
   Future<void> _runGenerator() async {
     final set = _selectedSet;
     if (set == null) {
@@ -120,14 +132,7 @@ class _AutogenPipelineDebugControlPanelState
       );
       _showSnack('Generated ${spots.length} spots for ${set.baseSpot.id}');
     } catch (e) {
-      _tracker.updateStep(
-        _sessionId,
-        AutoGenStepStatus(
-          stepName: 'Generator',
-          status: 'error',
-          errorMessage: e.toString(),
-        ),
-      );
+      _failStep('Generator', e);
     }
   }
 
@@ -158,14 +163,7 @@ class _AutogenPipelineDebugControlPanelState
       );
       _showSnack('Enrichment complete for ${pack.id}');
     } catch (e) {
-      _tracker.updateStep(
-        _sessionId,
-        AutoGenStepStatus(
-          stepName: 'Enricher',
-          status: 'error',
-          errorMessage: e.toString(),
-        ),
-      );
+      _failStep('Enricher', e);
     }
   }
 
@@ -192,14 +190,7 @@ class _AutogenPipelineDebugControlPanelState
       );
       _showSnack('Exported ${pack.id} to ${file.path}');
     } catch (e) {
-      _tracker.updateStep(
-        _sessionId,
-        AutoGenStepStatus(
-          stepName: 'Exporter',
-          status: 'error',
-          errorMessage: e.toString(),
-        ),
-      );
+      _failStep('Exporter', e);
     }
   }
 
@@ -222,14 +213,7 @@ class _AutogenPipelineDebugControlPanelState
       );
       _showSnack('Full pipeline completed for ${set.baseSpot.id}');
     } catch (e) {
-      _tracker.updateStep(
-        _sessionId,
-        AutoGenStepStatus(
-          stepName: 'Full Pipeline',
-          status: 'error',
-          errorMessage: e.toString(),
-        ),
-      );
+      _failStep('Full Pipeline', e);
     }
   }
 
