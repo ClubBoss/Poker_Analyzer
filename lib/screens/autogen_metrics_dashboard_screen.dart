@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../services/pack_generation_metrics_tracker_service.dart';
 import '../services/autogen_metrics_history_service.dart';
+import '../services/autogen_error_stats_logger.dart';
+import '../services/autogen_pack_error_classifier_service.dart';
 import '../widgets/autogen_debug_control_panel_widget.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
@@ -22,6 +24,7 @@ class _AutogenMetricsDashboardScreenState
       const PackGenerationMetricsTrackerService();
   final AutogenMetricsHistoryService _historyService =
       const AutogenMetricsHistoryService();
+  final AutogenErrorStatsLogger _errorStats = AutogenErrorStatsLogger();
   bool _loading = true;
   Map<String, dynamic> _metrics = const {};
   List<RunMetricsEntry> _history = const [];
@@ -46,6 +49,7 @@ class _AutogenMetricsDashboardScreenState
 
   Future<void> _resetMetrics() async {
     await _service.clearMetrics();
+    _errorStats.clear();
     await _loadMetrics();
   }
 
@@ -85,6 +89,34 @@ class _AutogenMetricsDashboardScreenState
     );
   }
 
+  Widget _buildErrorBreakdown() {
+    final counts = _errorStats.counts;
+    final entries = AutogenPackErrorType.values
+        .map((t) => MapEntry(t, counts[t] ?? 0))
+        .where((e) => e.value > 0)
+        .toList();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Error Breakdown',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (entries.isEmpty)
+              const Text('No errors recorded')
+            else
+              for (final e in entries)
+                Text('• ${e.key.name}: ${e.value}'),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +138,7 @@ class _AutogenMetricsDashboardScreenState
                     (_metrics['avgQualityScore'] as num? ?? 0)
                         .toStringAsFixed(2)),
                 _buildTile('Last Run', _formatLastRun()),
+                _buildErrorBreakdown(),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _resetMetrics,
