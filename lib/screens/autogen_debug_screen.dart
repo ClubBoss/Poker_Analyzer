@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../widgets/autogen_realtime_stats_panel.dart';
 import '../widgets/inline_report_viewer_widget.dart';
+import '../widgets/autogen_history_chart_widget.dart';
 import '../services/autogen_stats_dashboard_service.dart';
 import '../services/autogen_status_dashboard_service.dart';
 import '../services/autogen_pipeline_executor.dart';
@@ -172,6 +173,10 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
             ),
           ),
           Expanded(child: Container()),
+          const SizedBox(
+            height: 200,
+            child: AutogenHistoryChartWidget(),
+          ),
           const AutogenRealtimeStatsPanel(),
           const SizedBox(
             height: 200,
