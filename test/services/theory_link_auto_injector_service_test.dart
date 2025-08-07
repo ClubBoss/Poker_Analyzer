@@ -1,70 +1,127 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:poker_analyzer/models/hand_data.dart';
+import 'package:poker_analyzer/models/skill_tag_coverage_report.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/models/training_pack_model.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/services/inline_theory_linker.dart';
+import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/theory_link_auto_injector_service.dart';
+import 'package:poker_analyzer/services/theory_mini_lesson_navigator.dart';
+
+class _FakeLibrary implements MiniLessonLibraryService {
+  final Map<String, TheoryMiniLessonNode> byTag;
+  _FakeLibrary(this.byTag);
+
+  @override
+  List<TheoryMiniLessonNode> get all => byTag.values.toList();
+
+  @override
+  TheoryMiniLessonNode? getById(String id) =>
+      all.firstWhere((e) => e.id == id, orElse: () => null);
+
+  @override
+  Future<void> loadAll() async {}
+
+  @override
+  Future<void> reload() async {}
+
+  @override
+  List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
+        for (final t in tags)
+          if (byTag[t] != null) byTag[t]!,
+      ];
+
+  @override
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
+}
+
+class _FakeNavigator extends TheoryMiniLessonNavigator {
+  String? openedTag;
+
+  @override
+  Future<void> openLessonByTag(String tag, [context]) async {
+    openedTag = tag;
+  }
+}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   group('TheoryLinkAutoInjectorService', () {
-    test('injects linkedTheoryLessonId when tags match', () async {
-      final spots = [
-        TrainingPackSpot(id: 's1', tags: ['push']),
-      ];
-      final lessons = [
-        const TheoryMiniLessonNode(
-          id: 'l1',
-          title: 'Push basics',
-          content: '...',
-          tags: ['push'],
+    test('injects link for underrepresented tag', () {
+      final library = _FakeLibrary({
+        'cbet': const TheoryMiniLessonNode(
+            id: '1', title: 'CBet', content: '', tags: ['cbet']),
+      });
+      final navigator = _FakeNavigator();
+      final service = TheoryLinkAutoInjectorService(
+        library: library,
+        navigator: navigator,
+      );
+      final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['cbet']);
+      final pack = TrainingPackModel(id: 'p1', title: 'Pack', spots: [spot]);
+
+      service.injectLinks(
+        const SkillTagCoverageReport(
+          tagCounts: {},
+          underrepresentedTags: ['cbet'],
         ),
-      ];
-      final service = TheoryLinkAutoInjectorService();
-      final count = await service.injectLinks(spots, lessons: lessons);
-      expect(count, 1);
-      expect(spots.first.meta['linkedTheoryLessonId'], 'l1');
+        [pack],
+      );
+
+      expect(spot.theoryLink?.title, 'CBet');
+      spot.theoryLink?.onTap();
+      expect(navigator.openedTag, 'cbet');
     });
 
-    test('skips spots without matching lessons', () async {
-      final spots = [
-        TrainingPackSpot(id: 's2', tags: ['push']),
-      ];
-      final lessons = [
-        const TheoryMiniLessonNode(
-          id: 'l1',
-          title: 'Fold basics',
-          content: '...',
-          tags: ['fold'],
+    test('does not override existing theoryLink', () {
+      final library = _FakeLibrary({
+        'cbet': const TheoryMiniLessonNode(
+            id: '1', title: 'CBet', content: '', tags: ['cbet']),
+      });
+      final navigator = _FakeNavigator();
+      final service = TheoryLinkAutoInjectorService(
+        library: library,
+        navigator: navigator,
+      );
+      final spot = TrainingPackSpot(
+        id: 's1',
+        hand: HandData(),
+        tags: ['cbet'],
+      )..theoryLink = InlineTheoryLink(title: 'Existing', onTap: () {});
+      final pack = TrainingPackModel(id: 'p1', title: 'Pack', spots: [spot]);
+
+      service.injectLinks(
+        const SkillTagCoverageReport(
+          tagCounts: {},
+          underrepresentedTags: ['cbet'],
         ),
-      ];
-      final service = TheoryLinkAutoInjectorService();
-      final count = await service.injectLinks(spots, lessons: lessons);
-      expect(count, 0);
-      expect(spots.first.meta.containsKey('linkedTheoryLessonId'), false);
+        [pack],
+      );
+
+      expect(spot.theoryLink?.title, 'Existing');
+      expect(navigator.openedTag, isNull);
     });
 
-    test('prefers lesson with more overlapping tags', () async {
-      final spots = [
-        TrainingPackSpot(id: 's3', tags: ['push', 'call']),
-      ];
-      final lessons = [
-        const TheoryMiniLessonNode(
-          id: 'l1',
-          title: 'Push',
-          content: '...',
-          tags: ['push'],
+    test('skips when no lesson found', () {
+      final library = _FakeLibrary({});
+      final navigator = _FakeNavigator();
+      final service = TheoryLinkAutoInjectorService(
+        library: library,
+        navigator: navigator,
+      );
+      final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['cbet']);
+      final pack = TrainingPackModel(id: 'p1', title: 'Pack', spots: [spot]);
+
+      service.injectLinks(
+        const SkillTagCoverageReport(
+          tagCounts: {},
+          underrepresentedTags: ['cbet'],
         ),
-        const TheoryMiniLessonNode(
-          id: 'l2',
-          title: 'Push and call',
-          content: '...',
-          tags: ['push', 'call'],
-        ),
-      ];
-      final service = TheoryLinkAutoInjectorService();
-      final count = await service.injectLinks(spots, lessons: lessons);
-      expect(count, 1);
-      expect(spots.first.meta['linkedTheoryLessonId'], 'l2');
+        [pack],
+      );
+
+      expect(spot.theoryLink, isNull);
     });
   });
 }
