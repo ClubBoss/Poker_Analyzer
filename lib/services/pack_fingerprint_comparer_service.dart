@@ -1,7 +1,9 @@
 import 'dart:math';
 
-import '../models/action_entry.dart';
 import '../models/training_pack_model.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../utils/app_logger.dart';
+import 'spot_fingerprint_generator.dart';
 
 /// Represents another pack that is similar to the target.
 class SimilarPackMatch {
@@ -24,42 +26,54 @@ class PackSimilarityResult {
   });
 }
 
-/// Internal fingerprint representation used for similarity comparisons.
-class _PackFingerprint {
-  final Set<String> tags;
-  final Set<String> boards;
-  final Set<String> actions;
-  final Map<int, int> streetCounts;
-
-  const _PackFingerprint({
-    required this.tags,
-    required this.boards,
-    required this.actions,
-    required this.streetCounts,
-  });
-}
-
-/// Compares training packs based on tags, board coverage, action sequences and
-/// high level structure.
+/// Compares training packs based on spot fingerprints and metadata overlap.
 class PackFingerprintComparerService {
-  const PackFingerprintComparerService();
+  final SpotFingerprintGenerator _fingerprint;
+  final bool _debug;
+
+  const PackFingerprintComparerService({
+    SpotFingerprintGenerator? fingerprint,
+    bool debug = false,
+  })  : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
+        _debug = debug;
 
   /// Returns a similarity score between [a] and [b] from 0.0 (no overlap) to
-  /// 1.0 (identical) based on weighted metrics.
-  double computeSimilarity(TrainingPackModel a, TrainingPackModel b) {
-    final fa = _fingerprint(a);
-    final fb = _fingerprint(b);
+  /// 1.0 (identical) based on weighted heuristics.
+  double compare(TrainingPackModel a, TrainingPackModel b) {
+    final spotA = {for (final s in a.spots) _fingerprint.generate(s)};
+    final spotB = {for (final s in b.spots) _fingerprint.generate(s)};
+    final tagsA = _collectTags(a);
+    final tagsB = _collectTags(b);
+    final clustersA = _collectClusters(a);
+    final clustersB = _collectClusters(b);
 
-    final tagScore = _jaccard(fa.tags, fb.tags);
-    final boardScore = _jaccard(fa.boards, fb.boards);
-    final actionScore = _jaccard(fa.actions, fb.actions);
-    final structureScore = _structureScore(fa.streetCounts, fb.streetCounts);
+    final spotScore = _jaccard(spotA, spotB);
+    final tagScore = _jaccard(tagsA, tagsB);
+    final clusterScore = _jaccard(clustersA, clustersB);
+    final templateScore = _templateScore(a, b);
+    final countScore = _countScore(a, b);
 
-    return tagScore * 0.3 +
-        boardScore * 0.3 +
-        actionScore * 0.3 +
-        structureScore * 0.1;
+    final result = spotScore * 0.5 +
+        tagScore * 0.2 +
+        clusterScore * 0.1 +
+        templateScore * 0.1 +
+        countScore * 0.1;
+
+    if (_debug) {
+      AppLogger.log(
+        'PackFingerprintComparerService: ${a.id} vs ${b.id} -> '
+        'spots=$spotScore tags=$tagScore clusters=$clusterScore '
+        'template=$templateScore count=$countScore => $result',
+      );
+    }
+
+    return result;
   }
+
+  /// Returns `true` when the similarity between [a] and [b] meets [threshold].
+  bool areSimilar(TrainingPackModel a, TrainingPackModel b,
+          {double threshold = 0.9}) =>
+      compare(a, b) >= threshold;
 
   /// Finds packs from [all] that are similar to [target] above [threshold].
   List<SimilarPackMatch> findSimilarPacks(
@@ -70,7 +84,7 @@ class PackFingerprintComparerService {
     final matches = <SimilarPackMatch>[];
     for (final p in all) {
       if (identical(p, target) || p.id == target.id) continue;
-      final sim = computeSimilarity(target, p);
+      final sim = compare(target, p);
       if (sim >= threshold) {
         matches.add(SimilarPackMatch(p, sim));
       }
@@ -90,7 +104,7 @@ class PackFingerprintComparerService {
       for (var j = i + 1; j < packs.length; j++) {
         final a = packs[i];
         final b = packs[j];
-        final sim = computeSimilarity(a, b);
+        final sim = compare(a, b);
         if (sim >= threshold) {
           results.add(PackSimilarityResult(a: a, b: b, similarity: sim));
         }
@@ -99,40 +113,45 @@ class PackFingerprintComparerService {
     return results;
   }
 
-  _PackFingerprint _fingerprint(TrainingPackModel pack) {
-    final tags = <String>{
-      for (final t in pack.tags) t.trim().toLowerCase(),
-    };
-    final boards = <String>{};
-    final actions = <String>{};
-    final streetCounts = <int, int>{};
-
-    for (final spot in pack.spots) {
-      tags.addAll(spot.tags.map((t) => t.trim().toLowerCase()));
-
-      if (spot.board.isNotEmpty) {
-        boards.add(spot.board.join());
-      }
-
-      streetCounts[spot.street] = (streetCounts[spot.street] ?? 0) + 1;
-
-      final entries = spot.hand.actions.entries.toList()
-        ..sort((a, b) => a.key.compareTo(b.key));
-      final line = <String>[];
-      for (final kv in entries) {
-        for (final a in kv.value) {
-          line.add(a.action);
-        }
-      }
-      if (line.isNotEmpty) actions.add(line.join('-'));
+  Set<String> _collectTags(TrainingPackModel pack) {
+    final result = <String>{for (final t in pack.tags) _norm(t)};
+    for (final TrainingPackSpot s in pack.spots) {
+      result.addAll(s.tags.map(_norm));
     }
+    result.removeWhere((e) => e.isEmpty);
+    return result;
+  }
 
-    return _PackFingerprint(
-      tags: tags,
-      boards: boards,
-      actions: actions,
-      streetCounts: streetCounts,
-    );
+  Set<String> _collectClusters(TrainingPackModel pack) {
+    final result = <String>{};
+    for (final TrainingPackSpot s in pack.spots) {
+      final meta = s.meta;
+      final c = meta['cluster'] ??
+          meta['theoryCluster'] ??
+          meta['clusterId'] ??
+          meta['theoryClusterId'];
+      if (c is String && c.trim().isNotEmpty) {
+        result.add(c.trim().toLowerCase());
+      }
+    }
+    return result;
+  }
+
+  double _templateScore(TrainingPackModel a, TrainingPackModel b) {
+    final ta = a.metadata['templateId']?.toString();
+    final tb = b.metadata['templateId']?.toString();
+    if (ta == null || tb == null) return 0.0;
+    return ta == tb ? 1.0 : 0.0;
+  }
+
+  double _countScore(TrainingPackModel a, TrainingPackModel b) {
+    final aCount = a.spots.length;
+    final bCount = b.spots.length;
+    if (aCount == 0 && bCount == 0) return 1.0;
+    final minCount = min(aCount, bCount);
+    final maxCount = max(aCount, bCount);
+    if (maxCount == 0) return 0.0;
+    return minCount / maxCount;
   }
 
   double _jaccard(Set<String> a, Set<String> b) {
@@ -142,19 +161,6 @@ class PackFingerprintComparerService {
     return union == 0 ? 0.0 : inter / union;
   }
 
-  double _structureScore(Map<int, int> a, Map<int, int> b) {
-    final streets = {...a.keys, ...b.keys};
-    if (streets.isEmpty) return 1.0;
-    var minSum = 0;
-    var maxSum = 0;
-    for (final s in streets) {
-      final av = a[s] ?? 0;
-      final bv = b[s] ?? 0;
-      minSum += min(av, bv);
-      maxSum += max(av, bv);
-    }
-    if (maxSum == 0) return 0.0;
-    return minSum / maxSum;
-  }
+  String _norm(String v) => v.trim().toLowerCase();
 }
 

@@ -16,7 +16,7 @@ TrainingPackSpot _spot(String id, List<String> board, List<String> actions) {
 }
 
 void main() {
-  test('computeSimilarity detects near duplicates', () {
+  test('compare detects near duplicates', () {
     final service = const PackFingerprintComparerService();
     final pack1 = TrainingPackModel(
       id: 'p1',
@@ -45,11 +45,13 @@ void main() {
       tags: ['tag2'],
     );
 
-    final sim12 = service.computeSimilarity(pack1, pack2);
-    final sim13 = service.computeSimilarity(pack1, pack3);
+    final sim12 = service.compare(pack1, pack2);
+    final sim13 = service.compare(pack1, pack3);
 
-    expect(sim12, greaterThanOrEqualTo(0.8));
-    expect(sim13, lessThan(0.8));
+    expect(sim12, greaterThanOrEqualTo(0.9));
+    expect(sim13, lessThan(0.9));
+    expect(service.areSimilar(pack1, pack2), isTrue);
+    expect(service.areSimilar(pack1, pack3), isFalse);
 
     final matches = service.findSimilarPacks(pack1, [pack1, pack2, pack3]);
     expect(matches.length, 1);
