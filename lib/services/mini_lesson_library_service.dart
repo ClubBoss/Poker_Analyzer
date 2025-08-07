@@ -97,6 +97,14 @@ class MiniLessonLibraryService {
       findByTags(tags.toList());
 }
 
+extension MiniLessonLibraryFetch on MiniLessonLibraryService {
+  /// Loads and returns all available lessons.
+  Future<List<TheoryMiniLessonNode>> getAllLessons() async {
+    await loadAll();
+    return all;
+  }
+}
+
 extension MiniLessonLibraryProgress on MiniLessonLibraryService {
   Future<int> getTotalLessonCount() async {
     await loadAll();

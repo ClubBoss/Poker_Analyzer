@@ -1,52 +1,63 @@
+import '../models/card_model.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../models/v2/training_pack_spot.dart';
+import 'board_texture_classifier.dart';
+import 'mini_lesson_library_service.dart';
 
-/// Injects references to [TheoryMiniLessonNode]s into [TrainingPackSpot]s based
-/// on overlapping tags.
+/// Injects inline theory references into [TrainingPackSpot]s based on shared
+/// tags and board texture.
 class TheoryLinkAutoInjector {
-  const TheoryLinkAutoInjector({this.maxLinks = 2, this.strict = false});
+  TheoryLinkAutoInjector({
+    this.maxLinks = 3,
+    MiniLessonLibraryService? library,
+    BoardTextureClassifier? boardClassifier,
+  })  : library = library ?? MiniLessonLibraryService.instance,
+        boardClassifier = boardClassifier ?? const BoardTextureClassifier();
 
-  /// Maximum number of lesson references to inject per spot.
+  /// Maximum number of lesson ids to attach to each spot.
   final int maxLinks;
 
-  /// When true, only inject when the lesson's tags exactly match the spot's
-  /// tag set.
-  final bool strict;
+  /// Source of theory mini-lessons.
+  final MiniLessonLibraryService library;
 
-  /// Injects relevant theory links into [spots] from [lessons].
-  void injectAll(
-    List<TrainingPackSpot> spots,
-    List<TheoryMiniLessonNode> lessons,
-  ) {
+  /// Classifier used to extract board texture tags.
+  final BoardTextureClassifier boardClassifier;
+
+  /// Scans [spots] and injects matching theory lesson ids into
+  /// `spot.meta['linkedTheoryLessonIds']`.
+  Future<void> injectAll(List<TrainingPackSpot> spots) async {
+    final lessons = await library.getAllLessons();
     for (final spot in spots) {
-      inject(spot, lessons);
+      _inject(spot, lessons);
     }
   }
 
-  /// Injects lesson references into a single [spot].
-  TrainingPackSpot inject(
-    TrainingPackSpot spot,
-    List<TheoryMiniLessonNode> lessons,
-  ) {
-    final refs = <String>[];
-    final spotTags = spot.tags.toSet();
+  void _inject(TrainingPackSpot spot, List<TheoryMiniLessonNode> lessons) {
+    final boardTags = _boardTags(spot);
+    final spotTags = {...spot.tags, ...boardTags};
+    final ids = <String>[];
     for (final lesson in lessons) {
-      if (refs.length >= maxLinks) break;
-      final lessonTags = lesson.tags.toSet();
-      final matches = strict
-          ? spotTags.length == lessonTags.length &&
-                spotTags.containsAll(lessonTags)
-          : spotTags.intersection(lessonTags).isNotEmpty;
-      if (matches) {
-        refs.add(lesson.id);
+      if (ids.length >= maxLinks) break;
+      final lt = lesson.tags.toSet();
+      if (spotTags.intersection(lt).isNotEmpty) {
+        ids.add(lesson.id);
       }
     }
-    spot.theoryRefs = refs;
-    if (refs.isNotEmpty) {
-      // Simple logging for audit purposes.
+    if (ids.isNotEmpty) {
+      spot.meta['linkedTheoryLessonIds'] = ids;
       // ignore: avoid_print
-      print('TheoryLinkAutoInjector: ${spot.id} -> $refs');
+      print('TheoryLinkAutoInjector: ${spot.id} -> $ids');
     }
-    return spot;
+  }
+
+  Set<String> _boardTags(TrainingPackSpot spot) {
+    final cards = <CardModel>[];
+    for (final c in spot.board) {
+      if (c.length >= 2) {
+        cards.add(CardModel(rank: c[0], suit: c[1]));
+      }
+    }
+    return boardClassifier.classifyCards(cards);
   }
 }
+

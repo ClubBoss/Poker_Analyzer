@@ -2,15 +2,50 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/hand_data.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/theory_link_auto_injector.dart';
+
+class _FakeLibrary implements MiniLessonLibraryService {
+  final List<TheoryMiniLessonNode> lessons;
+  _FakeLibrary(this.lessons);
+
+  @override
+  List<TheoryMiniLessonNode> get all => lessons;
+
+  @override
+  TheoryMiniLessonNode? getById(String id) =>
+      lessons.firstWhere((e) => e.id == id, orElse: () => null);
+
+  @override
+  Future<void> loadAll() async {}
+
+  @override
+  Future<void> reload() async {}
+
+  @override
+  List<TheoryMiniLessonNode> findByTags(List<String> tags) => const [];
+
+  @override
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => const [];
+
+  @override
+  List<String> linkedPacksFor(String lessonId) => const [];
+
+  @override
+  Future<bool> isLessonCompleted(String lessonId) async => false;
+
+  @override
+  Future<TheoryMiniLessonNode?> getNextLesson() async => null;
+}
 
 void main() {
   group('TheoryLinkAutoInjector', () {
-    test('injects matching lessons with tag overlap', () {
+    test('injects lessons using spot and board tags', () async {
       final spot = TrainingPackSpot(
         id: 's1',
         hand: HandData(),
-        tags: ['openSB', 'early'],
+        tags: ['openSB'],
+        board: ['Ah', 'Ad', '7c'],
       );
       final lessons = [
         TheoryMiniLessonNode(
@@ -21,52 +56,56 @@ void main() {
         ),
         TheoryMiniLessonNode(
           id: 'l2',
-          title: 'Early',
+          title: 'Paired Boards',
           content: '',
-          tags: ['early'],
+          tags: ['paired'],
         ),
       ];
-      const injector = TheoryLinkAutoInjector();
+      final injector = TheoryLinkAutoInjector(library: _FakeLibrary(lessons));
 
-      injector.injectAll([spot], lessons);
+      await injector.injectAll([spot]);
 
-      expect(spot.theoryRefs, ['l1', 'l2']);
+      expect(spot.meta['linkedTheoryLessonIds'], ['l1', 'l2']);
     });
 
-    test('respects max link limit', () {
+    test('respects max link limit', () async {
       final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['t']);
       final lessons = [
         TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['t']),
         TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['t']),
         TheoryMiniLessonNode(id: 'l3', title: 'C', content: '', tags: ['t']),
       ];
-      const injector = TheoryLinkAutoInjector(maxLinks: 2);
+      final injector = TheoryLinkAutoInjector(
+        maxLinks: 2,
+        library: _FakeLibrary(lessons),
+      );
 
-      injector.injectAll([spot], lessons);
+      await injector.injectAll([spot]);
 
-      expect(spot.theoryRefs.length, 2);
+      final ids = spot.meta['linkedTheoryLessonIds'] as List<String>;
+      expect(ids.length, 2);
     });
 
-    test('strict mode requires full tag match', () {
+    test('matches lessons using board textures alone', () async {
       final spot = TrainingPackSpot(
         id: 's1',
         hand: HandData(),
-        tags: ['a', 'b'],
+        board: ['Ah', 'Ad', '7c'],
       );
       final lessons = [
-        TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
         TheoryMiniLessonNode(
-          id: 'l2',
-          title: 'AB',
+          id: 'l1',
+          title: 'Paired Boards',
           content: '',
-          tags: ['a', 'b'],
+          tags: ['paired'],
         ),
       ];
-      const injector = TheoryLinkAutoInjector(strict: true);
+      final injector = TheoryLinkAutoInjector(library: _FakeLibrary(lessons));
 
-      injector.injectAll([spot], lessons);
+      await injector.injectAll([spot]);
 
-      expect(spot.theoryRefs, ['l2']);
+      expect(spot.meta['linkedTheoryLessonIds'], ['l1']);
     });
   });
 }
+
