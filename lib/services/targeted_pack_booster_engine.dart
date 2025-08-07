@@ -32,10 +32,12 @@ class TargetedPackBoosterEngine {
     final now = DateTime.now();
     final packs = _packsProvider();
     final result = <TrainingPackModel>[];
+    final seen = <String>{};
 
     for (final rawTag in weakTags) {
-      final tag = rawTag.trim().toLowerCase();
-      if (tag.isEmpty) continue;
+      final displayTag = rawTag.trim();
+      final tag = displayTag.toLowerCase();
+      if (tag.isEmpty || !seen.add(tag)) continue;
       final last = prefs.getInt(SharedPrefsKeys.targetedBoosterLast(tag));
       if (last != null &&
           now.difference(DateTime.fromMillisecondsSinceEpoch(last)) <
@@ -52,7 +54,7 @@ class TargetedPackBoosterEngine {
 
       final model = TrainingPackModel(
         id: 'booster_${tag}_${now.millisecondsSinceEpoch}',
-        title: 'Booster — $rawTag',
+        title: 'Booster — $displayTag',
         spots: spots,
         tags: [tag, 'booster'],
         metadata: const {'booster': true},
