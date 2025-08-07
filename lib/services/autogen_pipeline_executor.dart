@@ -348,52 +348,15 @@ class AutogenPipelineExecutor {
         );
       }
 
-      if (clusters.isNotEmpty) {
-        boosterEngine.existingFingerprints = existingFingerprints;
-        final boosters = await boosterEngine.generateBoosters(clusters);
-        for (final pack in boosters) {
-          final model = TrainingPackModel(
-            id: pack.id,
-            title: pack.name,
-            spots: pack.spots,
-            tags: List<String>.from(pack.tags),
-            metadata: Map<String, dynamic>.from(pack.meta),
-          );
-          coverage.analyzePack(model);
-          dashboard.recordCoverage(coverage.aggregateReport);
-          final file = await exporter.export(pack);
-          files.add(file);
-          dashboard.recordPack(pack.spots.length);
-          final fp = fingerprintGenerator.generateFromTemplate(pack);
-          _fingerprintLog.writeln(fp);
-          final pf = PackFingerprint(
-            id: pack.id,
-            hash: fp,
-            spots: {
-              for (final TrainingPackSpot s in pack.spots) spotGen.generate(s),
-            },
-            meta: Map<String, dynamic>.from(pack.meta),
-          );
-          final dupReports = packComparer.compare(pf, existingFingerprints);
-          final duplicates = [
-            for (final r in dupReports)
-              DuplicatePackInfo(
-                candidateId: pf.id,
-                existingId: r.existingPackId,
-                similarity: r.similarity,
-                reason: r.reason.replaceAll(' ', '_'),
-              ),
-          ];
-          await policyEngine.applyPolicies(duplicates);
-          existingFingerprints.add(pf);
-        }
-      }
-
       dashboard.recordSkipped(dedup.skippedCount);
       await dedup.dispose();
       await coverage.logSummary();
       await _fingerprintLog.flush();
       await _fingerprintLog.close();
+      final boostRequests = await boosterEngine.detectBoostCandidates();
+      if (boostRequests.isNotEmpty) {
+        await boosterEngine.boostPacks(boostRequests);
+      }
       await dashboard.logFinalStats(
         coverage.aggregateReport,
         yamlFiles: files.length,
