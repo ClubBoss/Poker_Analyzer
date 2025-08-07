@@ -6,6 +6,7 @@ import 'package:yaml/yaml.dart';
 
 import '../models/training_pack_model.dart';
 import '../core/training/generation/yaml_writer.dart';
+import 'autogen_status_dashboard_service.dart';
 
 class AutogenLibraryPublisherService {
   final String baseDir;
@@ -57,6 +58,9 @@ class AutogenLibraryPublisherService {
       'totalCandidates': curatedPacks.length,
     });
     await logFile.writeAsString(jsonEncode(logs));
+
+    AutogenStatusDashboardService.instance
+        .updatePublishedStats(published: published);
   }
 
   Map<String, dynamic> _packToYaml(TrainingPackModel pack) => {

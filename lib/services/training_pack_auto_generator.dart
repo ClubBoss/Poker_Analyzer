@@ -85,6 +85,9 @@ class TrainingPackAutoGenerator {
         _errorStats?.log(type);
       }
       if (_shouldAbort || !deduplicate) {
+        if (spots.isNotEmpty) {
+          status.updateGenerationStats(generated: 1);
+        }
         status.update(
           'TrainingPackAutoGenerator',
           const AutogenStatus(
@@ -102,6 +105,9 @@ class TrainingPackAutoGenerator {
         final type =
             _errorClassifier.classify(pack, Exception('duplicate spots'));
         _errorStats?.log(type);
+      }
+      if (filtered.isNotEmpty) {
+        status.updateGenerationStats(generated: 1);
       }
       status.update(
         'TrainingPackAutoGenerator',

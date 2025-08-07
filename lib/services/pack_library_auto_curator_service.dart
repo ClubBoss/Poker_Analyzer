@@ -1,6 +1,7 @@
 import '../models/training_pack_model.dart';
 import 'auto_deduplication_engine.dart';
 import 'skill_tag_coverage_tracker.dart';
+import 'autogen_status_dashboard_service.dart';
 
 /// Selects a diverse subset of training packs for the library.
 class PackLibraryAutoCuratorService {
@@ -50,7 +51,10 @@ class PackLibraryAutoCuratorService {
       return a.id.compareTo(b.id);
     });
 
-    return result.length > limit ? result.sublist(0, limit) : result;
+    final curated = result.length > limit ? result.sublist(0, limit) : result;
+    AutogenStatusDashboardService.instance
+        .updateCuratedStats(curated: curated.length);
+    return curated;
   }
 
   String? _getClusterId(TrainingPackModel pack) {
