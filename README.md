@@ -142,6 +142,16 @@ dart tools/validate_training_content.dart --fix
 
 Use `--ci` to exit with a non-zero code on errors.
 
+### Pre-commit USF lint
+
+Validate seed files before committing by running the USF lint tool:
+
+```bash
+dart run bin/usf_lint.dart <seed_directory>
+```
+
+Add this to your pre-commit hook to block invalid seeds.
+
 ## Precompile Training Packs
 
 Regenerate the precompiled YAML packs before running the app or building a release:
