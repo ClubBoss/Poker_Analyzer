@@ -5,12 +5,14 @@ class TrainingTimelineDaySummary {
   final int sessionCount;
   final double avgAccuracy;
   final Set<String> tags;
+  final int handCount;
 
   TrainingTimelineDaySummary({
     required this.date,
     required this.sessionCount,
     required this.avgAccuracy,
     required this.tags,
+    required this.handCount,
   });
 }
 
@@ -25,8 +27,11 @@ class TrainingSessionFingerprintTimelineService {
     final sessions = await logger.getAll();
     final map = <DateTime, List<TrainingSessionFingerprint>>{};
     for (final s in sessions) {
-      final day =
-          DateTime(s.completedAt.year, s.completedAt.month, s.completedAt.day);
+      final day = DateTime(
+        s.completedAt.year,
+        s.completedAt.month,
+        s.completedAt.day,
+      );
       map.putIfAbsent(day, () => []).add(s);
     }
     final days = map.keys.toList()..sort();
@@ -42,12 +47,15 @@ class TrainingSessionFingerprintTimelineService {
         totalSpots += s.totalSpots;
       }
       final avgAccuracy = totalSpots > 0 ? totalCorrect / totalSpots : 0.0;
-      summaries.add(TrainingTimelineDaySummary(
-        date: day,
-        sessionCount: daySessions.length,
-        avgAccuracy: avgAccuracy,
-        tags: tags,
-      ));
+      summaries.add(
+        TrainingTimelineDaySummary(
+          date: day,
+          sessionCount: daySessions.length,
+          avgAccuracy: avgAccuracy,
+          tags: tags,
+          handCount: totalSpots,
+        ),
+      );
     }
     return summaries;
   }
