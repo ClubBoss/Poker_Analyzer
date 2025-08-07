@@ -121,7 +121,7 @@ class AutogenPipelineExecutor {
           ),
         );
         if (generator.shouldAbort) break;
-        var spots = generator.generate(set, theoryIndex: theoryIndex);
+        var spots = await generator.generate(set, theoryIndex: theoryIndex);
         if (generator.shouldAbort) break;
         if (spots.isEmpty) {
           status.update(

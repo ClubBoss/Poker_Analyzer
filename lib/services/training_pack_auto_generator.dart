@@ -10,6 +10,7 @@ import 'auto_deduplication_engine.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'autogen_pack_error_classifier_service.dart';
 import 'autogen_error_stats_logger.dart';
+import 'training_pack_template_registry_service.dart';
 
 /// Wrapper around [TrainingPackGeneratorEngineV2] that skips duplicate spots.
 class TrainingPackAutoGenerator {
@@ -17,6 +18,7 @@ class TrainingPackAutoGenerator {
   final AutoDeduplicationEngine _dedup;
   final AutogenPackErrorClassifierService _errorClassifier;
   final AutogenErrorStatsLogger? _errorStats;
+  final TrainingPackTemplateRegistryService _registry;
   bool _shouldAbort = false;
 
   TrainingPackAutoGenerator({
@@ -24,11 +26,13 @@ class TrainingPackAutoGenerator {
     AutoDeduplicationEngine? dedup,
     AutogenPackErrorClassifierService? errorClassifier,
     AutogenErrorStatsLogger? errorStats,
+    TrainingPackTemplateRegistryService? registry,
   })  : _engine = engine ?? TrainingPackGeneratorEngineV2(),
         _dedup = dedup ?? AutoDeduplicationEngine(),
         _errorClassifier =
             errorClassifier ?? const AutogenPackErrorClassifierService(),
-        _errorStats = errorStats ?? AutogenErrorStatsLogger();
+        _errorStats = errorStats ?? AutogenErrorStatsLogger(),
+        _registry = registry ?? TrainingPackTemplateRegistryService();
 
   /// Generates spots from [template] and optionally deduplicates them based on
   /// fingerprints.
@@ -36,16 +40,20 @@ class TrainingPackAutoGenerator {
   /// When [template] is a [TrainingPackTemplateSet] it is processed normally.
   /// Passing any other type will result in an [ArgumentError]. This allows
   /// callers to eventually support invoking the generator by template id.
-  List<TrainingPackSpot> generate(
+  Future<List<TrainingPackSpot>> generate(
     dynamic template, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
     Iterable<TrainingPackSpot> existingSpots = const [],
     bool deduplicate = true,
-  }) {
-    if (template is! TrainingPackTemplateSet) {
-      throw ArgumentError('Expected TrainingPackTemplateSet');
+  }) async {
+    TrainingPackTemplateSet set;
+    if (template is TrainingPackTemplateSet) {
+      set = template;
+    } else if (template is String) {
+      set = await _registry.loadTemplateById(template);
+    } else {
+      throw ArgumentError('Expected TrainingPackTemplateSet or templateId');
     }
-    final set = template as TrainingPackTemplateSet;
     final status = AutogenStatusDashboardService.instance;
     if (_shouldAbort) {
       status.update(
