@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../services/pack_generation_metrics_tracker_service.dart';
+import '../services/autogen_metrics_history_service.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
 class AutogenMetricsDashboardScreen extends StatefulWidget {
@@ -17,13 +19,19 @@ class _AutogenMetricsDashboardScreenState
     extends State<AutogenMetricsDashboardScreen> {
   final PackGenerationMetricsTrackerService _service =
       const PackGenerationMetricsTrackerService();
+  final AutogenMetricsHistoryService _historyService =
+      const AutogenMetricsHistoryService();
   bool _loading = true;
   Map<String, dynamic> _metrics = const {};
+  List<RunMetricsEntry> _history = const [];
+  bool _showQuality = true;
+  bool _showAcceptance = true;
 
   @override
   void initState() {
     super.initState();
     _loadMetrics();
+    _loadHistory();
   }
 
   Future<void> _loadMetrics() async {
@@ -38,6 +46,14 @@ class _AutogenMetricsDashboardScreenState
   Future<void> _resetMetrics() async {
     await _service.clearMetrics();
     await _loadMetrics();
+  }
+
+  Future<void> _loadHistory() async {
+    final h = await _historyService.loadHistory();
+    if (!mounted) return;
+    setState(() {
+      _history = h;
+    });
   }
 
   double _acceptanceRate() {
@@ -92,8 +108,116 @@ class _AutogenMetricsDashboardScreenState
                   onPressed: _resetMetrics,
                   child: const Text('Reset Metrics'),
                 ),
+                const SizedBox(height: 24),
+                _buildChartSection(),
               ],
             ),
+    );
+  }
+
+  Widget _buildChartSection() {
+    if (_history.length < 2) return const SizedBox.shrink();
+    final qualitySpots = <FlSpot>[];
+    final acceptanceSpots = <FlSpot>[];
+    for (var i = 0; i < _history.length; i++) {
+      final entry = _history[i];
+      qualitySpots.add(FlSpot(i.toDouble(), entry.avgQualityScore * 100));
+      acceptanceSpots.add(FlSpot(i.toDouble(), entry.acceptanceRate));
+    }
+    final lines = <LineChartBarData>[];
+    if (_showQuality) {
+      lines.add(LineChartBarData(
+        spots: qualitySpots,
+        color: Colors.blueAccent,
+        barWidth: 2,
+        isCurved: true,
+        dotData: const FlDotData(show: false),
+      ));
+    }
+    if (_showAcceptance) {
+      lines.add(LineChartBarData(
+        spots: acceptanceSpots,
+        color: Colors.greenAccent,
+        barWidth: 2,
+        isCurved: true,
+        dotData: const FlDotData(show: false),
+      ));
+    }
+    final step = (_history.length / 5).ceil();
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: LineChart(
+            LineChartData(
+              minY: 0,
+              maxY: 100,
+              gridData: FlGridData(show: true, drawVerticalLine: false),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: true, interval: 20),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index < 0 || index >= _history.length) {
+                        return const SizedBox.shrink();
+                      }
+                      if (index % step != 0 && index != _history.length - 1) {
+                        return const SizedBox.shrink();
+                      }
+                      final d = _history[index].timestamp;
+                      final label =
+                          '${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}';
+                      return Text(label,
+                          style: const TextStyle(fontSize: 10));
+                    },
+                  ),
+                ),
+                topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false)),
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: const Border(
+                  left: BorderSide(color: Colors.black12),
+                  bottom: BorderSide(color: Colors.black12),
+                ),
+              ),
+              lineBarsData: lines,
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Quality'),
+                value: _showQuality,
+                onChanged: (v) => setState(() {
+                  _showQuality = v ?? true;
+                }),
+              ),
+            ),
+            Expanded(
+              child: CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Acceptance %'),
+                value: _showAcceptance,
+                onChanged: (v) => setState(() {
+                  _showAcceptance = v ?? true;
+                }),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

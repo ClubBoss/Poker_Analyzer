@@ -9,6 +9,7 @@ import 'yaml_pack_exporter.dart';
 import 'pack_quality_gatekeeper_service.dart';
 import '../models/training_pack_model.dart';
 import 'pack_generation_metrics_tracker_service.dart';
+import 'autogen_metrics_history_service.dart';
 
 /// Generates training packs from template sets while automatically skipping
 /// duplicate spots and exporting the results to YAML.
@@ -18,6 +19,7 @@ class AutogenPackGeneratorService {
   final AutoDeduplicationEngine _dedup;
   final PackQualityGatekeeperService _gatekeeper;
   final PackGenerationMetricsTrackerService _metrics;
+  final AutogenMetricsHistoryService _history;
 
   AutogenPackGeneratorService({
     TrainingPackAutoGenerator? generator,
@@ -25,10 +27,12 @@ class AutogenPackGeneratorService {
     AutoDeduplicationEngine? dedup,
     PackQualityGatekeeperService? gatekeeper,
     PackGenerationMetricsTrackerService? metrics,
+    AutogenMetricsHistoryService? history,
   })  : _dedup = dedup ?? AutoDeduplicationEngine(),
         _exporter = exporter ?? const YamlPackExporter(),
         _gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
-        _metrics = metrics ?? const PackGenerationMetricsTrackerService() {
+        _metrics = metrics ?? const PackGenerationMetricsTrackerService(),
+        _history = history ?? const AutogenMetricsHistoryService() {
     _generator = generator ?? TrainingPackAutoGenerator(dedup: _dedup);
   }
 
@@ -91,6 +95,16 @@ class AutogenPackGeneratorService {
     }
 
     await _dedup.dispose();
+
+    final metrics = await _metrics.getMetrics();
+    final generated = (metrics['generatedCount'] as int? ?? 0);
+    final rejected = (metrics['rejectedCount'] as int? ?? 0);
+    final total = generated + rejected;
+    final acceptanceRate =
+        total == 0 ? 0.0 : generated / total * 100.0;
+    final avgQuality =
+        (metrics['avgQualityScore'] as num? ?? 0).toDouble();
+    await _history.recordRunMetrics(avgQuality, acceptanceRate);
     return files;
   }
 }
