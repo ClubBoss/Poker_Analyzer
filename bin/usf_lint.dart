@@ -46,4 +46,5 @@ Future<void> main(List<String> args) async {
   if (hasErrors) {
     exit(1);
   }
+  exit(0);
 }

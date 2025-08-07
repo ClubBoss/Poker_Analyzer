@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/autogen_status.dart';
 import '../models/autogen_session_meta.dart';
 import '../models/training_run_record.dart';
+import '../core/models/spot_seed/seed_issue.dart';
 import 'training_run_ab_comparator.dart';
 
 class DuplicatePackInfo {
@@ -47,6 +48,10 @@ class AutogenStatusDashboardService {
   final ValueNotifier<List<ABArmResult>> abResultsNotifier =
       ValueNotifier(const <ABArmResult>[]);
   final TrainingRunABComparator _abComparator = TrainingRunABComparator();
+
+  /// Issues discovered during seed validation.
+  final ValueNotifier<List<SeedIssue>> seedIssuesNotifier =
+      ValueNotifier(const <SeedIssue>[]);
 
   final List<AutogenSessionMeta> _sessions = [];
   final StreamController<List<AutogenSessionMeta>> _sessionController =
@@ -120,6 +125,15 @@ class AutogenStatusDashboardService {
     boostersSkippedNotifier.value = Map.unmodifiable(map);
   }
 
+  /// Append [issues] for [seedId] to the lint feed.
+  void reportSeedIssues(String seedId, List<SeedIssue> issues) {
+    if (issues.isEmpty) return;
+    final list = [...seedIssuesNotifier.value];
+    list.addAll(issues.map((i) =>
+        SeedIssue(code: i.code, severity: i.severity, message: i.message, path: i.path, seedId: seedId)));
+    seedIssuesNotifier.value = List.unmodifiable(list);
+  }
+
   Future<void> refreshAbResults(List<TrainingRunRecord> runs,
       {String? audience}) async {
     final results = await _abComparator.compare(runs, audience: audience);
@@ -145,5 +159,6 @@ class AutogenStatusDashboardService {
     boostersGeneratedNotifier.value = 0;
     boostersSkippedNotifier.value = const {};
     boosterIdsNotifier.value = const <String>[];
+    seedIssuesNotifier.value = const <SeedIssue>[];
   }
 }

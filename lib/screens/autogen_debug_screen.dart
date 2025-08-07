@@ -9,6 +9,7 @@ import '../widgets/inline_report_viewer_widget.dart';
 import '../widgets/autogen_history_chart_widget.dart';
 import '../services/autogen_stats_dashboard_service.dart';
 import '../services/autogen_status_dashboard_service.dart';
+import '../widgets/seed_lint_panel_widget.dart';
 import '../services/autogen_pipeline_executor.dart';
 import '../services/training_pack_auto_generator.dart';
 import '../services/training_pack_template_set_library_service.dart';
@@ -234,6 +235,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
           SizedBox(height: 200, child: AutogenHistoryChartWidget()),
           const AutogenRealtimeStatsPanel(),
           SizedBox(height: 200, child: TheoryCoveragePanelWidget()),
+          SizedBox(height: 200, child: SeedLintPanelWidget()),
           SizedBox(height: 200, child: AutogenDuplicateTableWidget()),
           SizedBox(
             height: 200,

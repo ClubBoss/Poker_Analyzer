@@ -30,6 +30,10 @@ import 'targeted_pack_booster_engine.dart';
 import 'auto_skill_gap_clusterer.dart';
 import 'auto_format_selector.dart';
 import 'theory_auto_injector.dart';
+import '../core/models/spot_seed/spot_seed_codec.dart';
+import '../core/models/spot_seed/spot_seed_validator.dart';
+import '../core/models/spot_seed/legacy_seed_adapter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -96,6 +100,39 @@ class AutogenPipelineExecutor {
         formatSelector = formatSelector ?? AutoFormatSelector(),
         autoInjector = autoInjector ?? TheoryAutoInjector() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
+  }
+
+  /// Convert and validate raw seed inputs using USF. Legacy formats are
+  /// auto-detected and adapted via [LegacySeedAdapter]. Issues are reported to
+  /// [AutogenStatusDashboardService.seedIssuesNotifier].
+  Future<List<SpotSeed>> _ingestSeeds(List<dynamic> raw) async {
+    final prefs = await SharedPreferences.getInstance();
+    final validator = SpotSeedValidator(
+      preferences: SpotSeedValidatorPreferences(
+        allowUnknownTags: prefs.getBool('usf.allowUnknownTags') ?? true,
+        maxComboCount: prefs.getInt('usf.maxComboCount'),
+        requireRangesForStreets: prefs.getString('usf.requireRangesForStreets'),
+      ),
+    );
+    const adapter = LegacySeedAdapter();
+    final seeds = <SpotSeed>[];
+    for (final item in raw) {
+      SpotSeed seed;
+      if (item is SpotSeed) {
+        seed = item;
+      } else if (item is Map<String, dynamic>) {
+        seed = adapter.convert(item);
+      } else {
+        continue;
+      }
+      final issues = validator.validate(seed);
+      if (issues.isNotEmpty) {
+        AutogenStatusDashboardService.instance
+            .reportSeedIssues(seed.id, issues);
+      }
+      seeds.add(seed);
+    }
+    return seeds;
   }
 
   /// Runs the pipeline on [sets].
