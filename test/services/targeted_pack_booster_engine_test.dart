@@ -52,4 +52,14 @@ void main() {
     final second = await engine.generateBoostersFor(['fold']);
     expect(second, isEmpty);
   });
+
+  test('deduplicates repeated tags', () async {
+    final engine = TargetedPackBoosterEngine(
+      packsProvider: () => [buildPack()],
+      cooldown: Duration.zero,
+    );
+    final boosters =
+        await engine.generateBoostersFor(['push', 'Push', ' push ']);
+    expect(boosters.length, 1);
+  });
 }
