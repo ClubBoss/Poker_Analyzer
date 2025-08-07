@@ -174,5 +174,11 @@ class SkillTagCoverageTracker {
     }, path);
   }
 
+  /// Clears all accumulated tag statistics.
+  void reset() {
+    skillTagCounts.clear();
+    _totalTags = 0;
+  }
+
   String _normalize(String tag) => tag.trim().toLowerCase();
 }
