@@ -276,6 +276,20 @@ class _AutogenMetricsDashboardScreenState
                 rightTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false)),
               ),
+              rangeAnnotations: RangeAnnotations(
+                horizontalRangeAnnotations: [
+                  HorizontalRangeAnnotation(
+                    y1: 0,
+                    y2: 60,
+                    color: Colors.red.withOpacity(0.2),
+                  ),
+                  HorizontalRangeAnnotation(
+                    y1: 60,
+                    y2: 70,
+                    color: Colors.red.withOpacity(0.1),
+                  ),
+                ],
+              ),
               borderData: FlBorderData(
                 show: true,
                 border: const Border(
@@ -283,6 +297,30 @@ class _AutogenMetricsDashboardScreenState
                   bottom: BorderSide(color: Colors.black12),
                 ),
               ),
+              extraLinesData: ExtraLinesData(horizontalLines: [
+                HorizontalLine(
+                  y: 60,
+                  color: Colors.red,
+                  strokeWidth: 1,
+                  dashArray: [5, 5],
+                  label: HorizontalLineLabel(
+                    'Low Acceptance Threshold',
+                    style: const TextStyle(color: Colors.red),
+                    alignment: Alignment.topRight,
+                  ),
+                ),
+                HorizontalLine(
+                  y: 70,
+                  color: Colors.red,
+                  strokeWidth: 1,
+                  dashArray: [5, 5],
+                  label: HorizontalLineLabel(
+                    'Low Quality Threshold',
+                    style: const TextStyle(color: Colors.red),
+                    alignment: Alignment.bottomRight,
+                  ),
+                ),
+              ]),
               lineBarsData: lines,
             ),
           ),
