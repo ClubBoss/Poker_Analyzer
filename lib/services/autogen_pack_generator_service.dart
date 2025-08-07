@@ -6,6 +6,8 @@ import '../models/game_type.dart';
 import 'auto_deduplication_engine.dart';
 import 'training_pack_auto_generator.dart';
 import 'yaml_pack_exporter.dart';
+import 'pack_quality_gatekeeper_service.dart';
+import '../models/training_pack_model.dart';
 
 /// Generates training packs from template sets while automatically skipping
 /// duplicate spots and exporting the results to YAML.
@@ -13,13 +15,16 @@ class AutogenPackGeneratorService {
   late final TrainingPackAutoGenerator _generator;
   final YamlPackExporter _exporter;
   final AutoDeduplicationEngine _dedup;
+  final PackQualityGatekeeperService _gatekeeper;
 
   AutogenPackGeneratorService({
     TrainingPackAutoGenerator? generator,
     YamlPackExporter? exporter,
     AutoDeduplicationEngine? dedup,
+    PackQualityGatekeeperService? gatekeeper,
   })  : _dedup = dedup ?? AutoDeduplicationEngine(),
-        _exporter = exporter ?? const YamlPackExporter() {
+        _exporter = exporter ?? const YamlPackExporter(),
+        _gatekeeper = gatekeeper ?? const PackQualityGatekeeperService() {
     _generator = generator ?? TrainingPackAutoGenerator(dedup: _dedup);
   }
 
@@ -64,6 +69,17 @@ class AutogenPackGeneratorService {
         meta: Map<String, dynamic>.from(base.meta),
       );
       pack.meta['uniqueSpotsOnly'] = true;
+      final model = TrainingPackModel(
+        id: pack.id,
+        title: pack.name,
+        spots: pack.spots,
+        tags: pack.tags,
+        metadata: Map<String, dynamic>.from(pack.meta),
+      );
+      if (!_gatekeeper.isQualityAcceptable(model)) {
+        continue;
+      }
+      pack.meta['qualityScore'] = model.metadata['qualityScore'];
       files.add(await _exporter.export(pack));
     }
 
