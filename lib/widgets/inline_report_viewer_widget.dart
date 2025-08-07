@@ -1,81 +1,147 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-/// Displays the contents of `autogen_report.log` and refreshes periodically.
-class InlineReportViewerWidget extends StatefulWidget {
-  const InlineReportViewerWidget({super.key});
+import '../models/autogen_session_meta.dart';
+import '../models/autogen_step_status.dart';
+import '../services/autogen_pipeline_session_tracker_service.dart';
+import '../services/autogen_status_dashboard_service.dart';
 
-  @override
-  State<InlineReportViewerWidget> createState() => _InlineReportViewerWidgetState();
-}
+/// Displays a detailed autogen session report inline.
+class InlineReportViewerWidget extends StatelessWidget {
+  final String sessionId;
 
-class _InlineReportViewerWidgetState extends State<InlineReportViewerWidget> {
-  String _content = '';
-  String _status = 'In progress...';
-  String _errors = '0';
-  Timer? _timer;
-  bool _finalStatsLogged = false;
+  const InlineReportViewerWidget({super.key, required this.sessionId});
 
-  @override
-  void initState() {
-    super.initState();
-    _load();
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) => _load());
-  }
-
-  Future<void> _load() async {
-    try {
-      final file = File('autogen_report.log');
-      if (await file.exists()) {
-        final text = await file.readAsString();
-        final endMatch = RegExp(r'^End:\\s*(.*)\\$', multiLine: true).firstMatch(text);
-        final errorMatch = RegExp(r'^Errors:\\s*(\\d+)', multiLine: true).firstMatch(text);
-        setState(() {
-          _content = text;
-          _errors = errorMatch?.group(1) ?? '0';
-          if (endMatch != null) {
-            _status = 'Completed at ${endMatch.group(1)}';
-            _finalStatsLogged = true;
-            _timer?.cancel();
-          } else {
-            _status = 'In progress...';
-          }
-        });
-      } else {
-        setState(() {
-          _content = '';
-          _status = 'In progress...';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _status = 'Error reading log';
-      });
+  Icon _statusIcon(AutoGenStepStatus step) {
+    switch (step.status) {
+      case 'ok':
+        return const Icon(Icons.check_circle, color: Colors.green);
+      case 'error':
+        return const Icon(Icons.error, color: Colors.red);
+      default:
+        return const Icon(Icons.hourglass_empty, color: Colors.blue);
     }
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  Future<String?> _loadYaml(String packId) async {
+    final candidates = [
+      'packs/generated/$packId.yaml',
+      '$packId.yaml',
+    ];
+    for (final path in candidates) {
+      final file = File(path);
+      if (await file.exists()) {
+        return file.readAsString();
+      }
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(_status),
-        Text('Errors: $_errors'),
-        const SizedBox(height: 8),
-        Expanded(
-          child: SingleChildScrollView(
-            child: SelectableText(_content),
-          ),
-        ),
-      ],
+    final statusService = AutogenStatusDashboardService.instance;
+    final tracker = AutogenPipelineSessionTrackerService.instance;
+
+    return StreamBuilder<List<AutogenSessionMeta>>(
+      stream: statusService.watchSessions(),
+      initialData: statusService.getRecentSessions(),
+      builder: (context, sessionSnap) {
+        AutogenSessionMeta? meta;
+        final sessions = sessionSnap.data ?? [];
+        for (final s in sessions) {
+          if (s.sessionId == sessionId) {
+            meta = s;
+            break;
+          }
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (meta != null)
+              ExpansionTile(
+                title: const Text('Session'),
+                initiallyExpanded: true,
+                children: [
+                  ListTile(title: Text('Pack: ${meta.packId}')),
+                  ListTile(title: Text('Started: ${meta.startedAt}')),
+                  ListTile(title: Text('Status: ${meta.status}')),
+                ],
+              ),
+            Expanded(
+              child: StreamBuilder<List<AutoGenStepStatus>>(
+                stream: tracker.watchSession(sessionId),
+                initialData: const [],
+                builder: (context, stepSnap) {
+                  final steps = stepSnap.data ?? [];
+                  final errors =
+                      steps.where((e) => e.status == 'error').toList();
+
+                  final children = <Widget>[
+                    ExpansionTile(
+                      title: const Text('Steps'),
+                      initiallyExpanded: true,
+                      children: steps
+                          .map(
+                            (s) => ListTile(
+                              leading: _statusIcon(s),
+                              title: Text(s.stepName),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ];
+
+                  if (errors.isNotEmpty)
+                    children.add(
+                      ExpansionTile(
+                        title: Text('Errors (${errors.length})'),
+                        initiallyExpanded: true,
+                        children: errors
+                            .map(
+                              (e) => ListTile(
+                                title: Text(e.stepName),
+                                subtitle: e.errorMessage != null
+                                    ? Text(e.errorMessage!)
+                                    : null,
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    );
+
+                  if (meta != null)
+                    children.add(
+                      FutureBuilder<String?>(
+                        future: _loadYaml(meta.packId),
+                        builder: (context, yamlSnap) {
+                          final yaml = yamlSnap.data;
+                          if (yaml == null || yaml.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return ExpansionTile(
+                            title: const Text('YAML'),
+                            children: [
+                              SizedBox(
+                                height: 200,
+                                child: SingleChildScrollView(
+                                  child: SelectableText(yaml),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    );
+
+                  return ListView(children: children);
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

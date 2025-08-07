@@ -16,6 +16,7 @@ import '../services/yaml_pack_exporter.dart';
 import '../models/training_pack_template_set.dart';
 import '../core/training/export/training_pack_exporter_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../models/autogen_session_meta.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -51,6 +52,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   TrainingPackTemplateSet? _selectedSet;
   final TextEditingController _outputDirController =
       TextEditingController(text: 'packs/generated');
+  String? _sessionId;
 
   @override
   void initState() {
@@ -73,6 +75,15 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     final dashboard = AutogenStatsDashboardService.instance;
     dashboard.start();
     final status = AutogenStatusDashboardService.instance;
+    final sessionId = DateTime.now().millisecondsSinceEpoch.toString();
+    status.registerSession(
+      AutogenSessionMeta(
+        sessionId: sessionId,
+        packId: _selectedSet?.baseSpot.id ?? 'unknown',
+        startedAt: DateTime.now(),
+        status: 'running',
+      ),
+    );
     final generator = TrainingPackAutoGenerator();
     _generator = generator;
     final exporter = YamlPackExporter(
@@ -86,6 +97,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     );
     setState(() {
       _status = _AutogenStatus.running;
+      _sessionId = sessionId;
     });
     Future(() async {
       await executor.execute(
@@ -95,6 +107,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       if (mounted && _status == _AutogenStatus.running) {
         setState(() => _status = _AutogenStatus.completed);
       }
+      status.updateSessionStatus(sessionId, 'done');
     });
   }
 
@@ -102,6 +115,11 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     _generator?.abort();
     if (mounted) {
       setState(() => _status = _AutogenStatus.stopped);
+    }
+    final id = _sessionId;
+    if (id != null) {
+      AutogenStatusDashboardService.instance
+          .updateSessionStatus(id, 'stopped');
     }
   }
 
@@ -178,9 +196,11 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
             child: AutogenHistoryChartWidget(),
           ),
           const AutogenRealtimeStatsPanel(),
-          const SizedBox(
+          SizedBox(
             height: 200,
-            child: InlineReportViewerWidget(),
+            child: _sessionId == null
+                ? const Center(child: Text('No session'))
+                : InlineReportViewerWidget(sessionId: _sessionId!),
           ),
         ],
       ),
