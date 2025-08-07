@@ -33,6 +33,7 @@ import 'theory_auto_injector.dart';
 import '../core/models/spot_seed/spot_seed_codec.dart';
 import '../core/models/spot_seed/spot_seed_validator.dart';
 import '../core/models/spot_seed/legacy_seed_adapter.dart';
+import '../core/models/spot_seed/seed_issue.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
@@ -56,6 +57,7 @@ class AutogenPipelineExecutor {
   final TargetedPackBoosterEngine boosterEngine;
   final AutoFormatSelector formatSelector;
   final TheoryAutoInjector autoInjector;
+  final bool failOnSeedErrors;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -77,6 +79,7 @@ class AutogenPipelineExecutor {
     TargetedPackBoosterEngine? boosterEngine,
     AutoFormatSelector? formatSelector,
     TheoryAutoInjector? autoInjector,
+    bool? failOnSeedErrors,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
@@ -98,7 +101,10 @@ class AutogenPipelineExecutor {
         policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
         boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
         formatSelector = formatSelector ?? AutoFormatSelector(),
-        autoInjector = autoInjector ?? TheoryAutoInjector() {
+        autoInjector = autoInjector ?? TheoryAutoInjector(),
+        failOnSeedErrors =
+            failOnSeedErrors ?? (Platform.environment['CI'] == 'true')
+  {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -111,11 +117,17 @@ class AutogenPipelineExecutor {
       preferences: SpotSeedValidatorPreferences(
         allowUnknownTags: prefs.getBool('usf.allowUnknownTags') ?? true,
         maxComboCount: prefs.getInt('usf.maxComboCount'),
-        requireRangesForStreets: prefs.getString('usf.requireRangesForStreets'),
+        requireRangesForStreets:
+            prefs.getStringList('usf.requireRangesForStreets') ?? const [],
+        validateBoardLength:
+            prefs.getBool('usf.validateBoardLength') ?? false,
+        validatePositionConsistency:
+            prefs.getBool('usf.validatePositionConsistency') ?? false,
       ),
     );
     const adapter = LegacySeedAdapter();
     final seeds = <SpotSeed>[];
+    final allIssues = <SeedIssue>[];
     for (final item in raw) {
       SpotSeed seed;
       if (item is SpotSeed) {
@@ -125,12 +137,33 @@ class AutogenPipelineExecutor {
       } else {
         continue;
       }
-      final issues = validator.validate(seed);
+      final issues = validator
+          .validate(seed)
+          .map((i) => SeedIssue(
+                code: i.code,
+                severity: i.severity,
+                message: i.message,
+                path: i.path,
+                seedId: seed.id,
+              ))
+          .toList();
       if (issues.isNotEmpty) {
         AutogenStatusDashboardService.instance
             .reportSeedIssues(seed.id, issues);
+        allIssues.addAll(issues);
       }
       seeds.add(seed);
+    }
+    final errors = allIssues.where((i) => i.severity == 'error').toList();
+    if (errors.isNotEmpty && failOnSeedErrors) {
+      final buffer = StringBuffer(
+          'ERROR: Seed validation failed (${errors.length} errors)');
+      for (final e in errors) {
+        buffer.writeln(
+            '\n- seedId=${e.seedId ?? ''}, issue=${e.code}');
+      }
+      stderr.writeln(buffer.toString());
+      throw Exception('seed_validation_failed');
     }
     return seeds;
   }

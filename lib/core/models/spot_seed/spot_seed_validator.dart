@@ -5,12 +5,16 @@ import 'seed_issue.dart';
 class SpotSeedValidatorPreferences {
   final bool allowUnknownTags;
   final int? maxComboCount;
-  final String? requireRangesForStreets;
+  final List<String> requireRangesForStreets;
+  final bool validateBoardLength;
+  final bool validatePositionConsistency;
 
   const SpotSeedValidatorPreferences({
     this.allowUnknownTags = true,
     this.maxComboCount,
-    this.requireRangesForStreets,
+    this.requireRangesForStreets = const <String>[],
+    this.validateBoardLength = false,
+    this.validatePositionConsistency = false,
   });
 }
 
@@ -75,20 +79,87 @@ class SpotSeedValidator {
     }
 
     // Range requirement based on board presence
-    if (prefs.requireRangesForStreets != null) {
-      final req = prefs.requireRangesForStreets!;
-      final hasBoardBeyondPreflop =
-          (req == 'flop' && (seed.board.flop?.isNotEmpty ?? false)) ||
-          (req == 'turn' && (seed.board.turn?.isNotEmpty ?? false)) ||
-          (req == 'river' && (seed.board.river?.isNotEmpty ?? false));
-      if (hasBoardBeyondPreflop) {
-        if (seed.ranges.hero == null || seed.ranges.villain == null) {
+    if (prefs.requireRangesForStreets.isNotEmpty) {
+      final streets = prefs.requireRangesForStreets.map((s) => s.toLowerCase());
+      final needsRanges =
+          (streets.contains('flop') && (seed.board.flop?.isNotEmpty ?? false)) ||
+          (streets.contains('turn') && (seed.board.turn?.isNotEmpty ?? false)) ||
+          (streets.contains('river') && (seed.board.river?.isNotEmpty ?? false));
+      if (needsRanges &&
+          (seed.ranges.hero == null || seed.ranges.villain == null)) {
+        issues.add(
+          const SeedIssue(
+            code: 'ranges_missing',
+            severity: 'error',
+            message: 'ranges required for specified streets',
+            path: ['ranges'],
+          ),
+        );
+      }
+    }
+
+    // Board length validation
+    if (prefs.validateBoardLength) {
+      if (seed.board.flop != null && seed.board.flop!.length != 3) {
+        issues.add(
+          const SeedIssue(
+            code: 'flop_length',
+            severity: 'error',
+            message: 'flop must have 3 cards',
+            path: ['board', 'flop'],
+          ),
+        );
+      }
+      if (seed.board.turn != null && seed.board.turn!.length != 1) {
+        issues.add(
+          const SeedIssue(
+            code: 'turn_length',
+            severity: 'error',
+            message: 'turn must have 1 card',
+            path: ['board', 'turn'],
+          ),
+        );
+      }
+      if (seed.board.river != null && seed.board.river!.length != 1) {
+        issues.add(
+          const SeedIssue(
+            code: 'river_length',
+            severity: 'error',
+            message: 'river must have 1 card',
+            path: ['board', 'river'],
+          ),
+        );
+      }
+    }
+
+    // Position consistency validation
+    if (prefs.validatePositionConsistency) {
+      final hero = seed.positions.hero.toUpperCase();
+      final villain = seed.positions.villain?.toUpperCase();
+      const allowed = {'BTN', 'SB', 'BB'};
+      if (!allowed.contains(hero) ||
+          (villain != null && !allowed.contains(villain))) {
+        issues.add(
+          const SeedIssue(
+            code: 'position_invalid',
+            severity: 'error',
+            message: 'positions must be BTN, SB or BB',
+            path: ['positions'],
+          ),
+        );
+      } else if (villain != null) {
+        final pairs = {
+          'BTN': {'SB', 'BB'},
+          'SB': {'BTN', 'BB'},
+          'BB': {'BTN', 'SB'},
+        };
+        if (!(pairs[hero]?.contains(villain) ?? false)) {
           issues.add(
             const SeedIssue(
-              code: 'ranges_missing',
+              code: 'position_mismatch',
               severity: 'error',
-              message: 'ranges required for specified streets',
-              path: ['ranges'],
+              message: 'hero/villain positions inconsistent',
+              path: ['positions'],
             ),
           );
         }
