@@ -21,6 +21,8 @@ void main() {
   group('AutogenPackErrorClassifierService', () {
     const classifier = AutogenPackErrorClassifierService();
 
+    setUp(() => AutogenPackErrorClassifierService.clearRecentErrors());
+
     test('detects no spots generated', () {
       final type = classifier.classify(_emptyPack(), null);
       expect(type, AutogenPackErrorType.noSpotsGenerated);
@@ -38,6 +40,21 @@ void main() {
         Exception('Invalid board sequence'),
       );
       expect(type, AutogenPackErrorType.invalidBoard);
+    });
+
+    test('stores recent errors with classification', () {
+      classifier.classify(_emptyPack(), Exception('duplicate spot'));
+      final errors = AutogenPackErrorClassifierService.getRecentErrors();
+      expect(errors, hasLength(1));
+      expect(errors.first.type, AutogenPackErrorType.duplicate);
+    });
+
+    test('limits recent errors to 50', () {
+      for (var i = 0; i < 60; i++) {
+        classifier.classify(_emptyPack(), Exception('duplicate spot $i'));
+      }
+      final errors = AutogenPackErrorClassifierService.getRecentErrors();
+      expect(errors.length, 50);
     });
   });
 }
