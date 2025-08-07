@@ -13,7 +13,7 @@ import 'yaml_pack_exporter.dart';
 import 'skill_tag_coverage_tracker.dart';
 import 'autogen_stats_dashboard_service.dart';
 import 'autogen_status_dashboard_service.dart';
-import 'theory_link_auto_injector.dart';
+import 'inline_theory_link_auto_injector.dart';
 import 'board_texture_classifier.dart';
 import 'skill_tree_auto_linker.dart';
 import 'training_pack_fingerprint_generator.dart';
@@ -24,7 +24,7 @@ class AutogenPipelineExecutor {
   final AutoDeduplicationEngine dedup;
   final YamlPackExporter exporter;
   final SkillTagCoverageTracker coverage;
-  final TheoryLinkAutoInjector theoryInjector;
+  final InlineTheoryLinkAutoInjector theoryInjector;
   final BoardTextureClassifier? boardClassifier;
   final SkillTreeAutoLinker skillLinker;
   final TrainingPackFingerprintGenerator fingerprintGenerator;
@@ -37,7 +37,7 @@ class AutogenPipelineExecutor {
     AutoDeduplicationEngine? dedup,
     YamlPackExporter? exporter,
     SkillTagCoverageTracker? coverage,
-    TheoryLinkAutoInjector? theoryInjector,
+    InlineTheoryLinkAutoInjector? theoryInjector,
     BoardTextureClassifier? boardClassifier,
     SkillTreeAutoLinker? skillLinker,
     TrainingPackFingerprintGenerator? fingerprintGenerator,
@@ -47,7 +47,7 @@ class AutogenPipelineExecutor {
   }) : dedup = dedup ?? AutoDeduplicationEngine(),
        exporter = exporter ?? const YamlPackExporter(),
        coverage = coverage ?? SkillTagCoverageTracker(),
-       theoryInjector = theoryInjector ?? TheoryLinkAutoInjector(),
+       theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
        boardClassifier = boardClassifier,
        skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
        fingerprintGenerator =

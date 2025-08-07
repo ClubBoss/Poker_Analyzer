@@ -1,83 +1,72 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/hand_data.dart';
-import 'package:poker_analyzer/models/inline_theory_entry.dart';
+import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
-import 'package:poker_analyzer/models/training_pack_model.dart';
 import 'package:poker_analyzer/services/theory_link_auto_injector.dart';
 
 void main() {
   group('TheoryLinkAutoInjector', () {
-    test('injects matching theory entry', () {
-      final spots = [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSB']),
-      ];
-      final model = TrainingPackModel(
-        id: 'p1',
-        title: 'Pack',
-        spots: spots,
+    test('injects matching lessons with tag overlap', () {
+      final spot = TrainingPackSpot(
+        id: 's1',
+        hand: HandData(),
+        tags: ['openSB', 'early'],
       );
-      final index = {
-        'openSB': const InlineTheoryEntry(
-          tag: 'openSB',
-          id: 'sb_vs_bb_open_range',
-          title: 'SB Opening Range vs BB',
-          htmlSnippet: '<p>SB open</p>',
+      final lessons = [
+        TheoryMiniLessonNode(
+          id: 'l1',
+          title: 'SB',
+          content: '',
+          tags: ['openSB'],
         ),
-      };
+        TheoryMiniLessonNode(
+          id: 'l2',
+          title: 'Early',
+          content: '',
+          tags: ['early'],
+        ),
+      ];
       const injector = TheoryLinkAutoInjector();
 
-      injector.injectLinks(model, index);
+      injector.injectAll([spot], lessons);
 
-      final entry = spots.first.inlineTheory;
-      expect(entry, isNotNull);
-      expect(entry!.id, 'sb_vs_bb_open_range');
-      expect(entry.title, 'SB Opening Range vs BB');
-      expect(entry.tag, 'openSB');
+      expect(spot.theoryRefs, ['l1', 'l2']);
     });
 
-    test('falls back to fuzzy tag matches', () {
-      final spots = [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSBWide']),
+    test('respects max link limit', () {
+      final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['t']);
+      final lessons = [
+        TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['t']),
+        TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['t']),
+        TheoryMiniLessonNode(id: 'l3', title: 'C', content: '', tags: ['t']),
       ];
-      final model = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
-      final index = {
-        'openSB': const InlineTheoryEntry(
-          tag: 'openSB',
-          id: 'sb_vs_bb_open_range',
-          title: 'SB Opening Range',
-          htmlSnippet: '<p>SB open</p>',
-        ),
-      };
-      const injector = TheoryLinkAutoInjector();
+      const injector = TheoryLinkAutoInjector(maxLinks: 2);
 
-      injector.injectLinks(model, index);
+      injector.injectAll([spot], lessons);
 
-      final entry = spots.first.inlineTheory;
-      expect(entry, isNotNull);
-      expect(entry!.tag, 'openSB');
+      expect(spot.theoryRefs.length, 2);
     });
 
-    test('avoids duplicate theory ids across pack', () {
-      final spots = [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSB']),
-        TrainingPackSpot(id: 's2', hand: HandData(), tags: ['openSB']),
-      ];
-      final model = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
-      final index = {
-        'openSB': const InlineTheoryEntry(
-          tag: 'openSB',
-          id: 'sb_vs_bb_open_range',
-          title: 'SB Opening Range',
-          htmlSnippet: '<p>SB open</p>',
+    test('strict mode requires full tag match', () {
+      final spot = TrainingPackSpot(
+        id: 's1',
+        hand: HandData(),
+        tags: ['a', 'b'],
+      );
+      final lessons = [
+        TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
+        TheoryMiniLessonNode(
+          id: 'l2',
+          title: 'AB',
+          content: '',
+          tags: ['a', 'b'],
         ),
-      };
-      const injector = TheoryLinkAutoInjector();
+      ];
+      const injector = TheoryLinkAutoInjector(strict: true);
 
-      injector.injectLinks(model, index);
+      injector.injectAll([spot], lessons);
 
-      expect(spots[0].inlineTheory, isNotNull);
-      expect(spots[1].inlineTheory, isNull);
+      expect(spot.theoryRefs, ['l2']);
     });
   });
 }
-
