@@ -68,6 +68,10 @@ class TrainingPackSpot
   /// Never serialized to persistent storage.
   bool isTheoryNote;
 
+  /// Ephemeral flag marking spots injected automatically (e.g. ICM scenarios).
+  /// Never serialized to persistent storage.
+  bool isInjected;
+
   /// Optional note metadata for inline theory clusters.
   TheoryNoteEntry? theoryNote;
 
@@ -103,6 +107,7 @@ class TrainingPackSpot
     List<String>? theoryRefs,
     this.isTheoryNote = false,
     this.theoryNote,
+    this.isInjected = false,
   }) : hand = hand ?? HandData(),
        tags = tags != null ? List<String>.from(tags) : <String>[],
        categories = categories != null
