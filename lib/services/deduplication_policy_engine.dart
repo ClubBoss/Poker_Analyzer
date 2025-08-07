@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'autogen_status_dashboard_service.dart';
+import '../models/v2/training_pack_template_v2.dart';
+import 'spot_fingerprint_generator.dart';
 
 enum DeduplicationAction { block, merge, rename, flag }
 
@@ -113,22 +115,72 @@ class DeduplicationPolicyEngine {
               );
               break;
             case DeduplicationAction.merge:
-              _status.flagDuplicate(
-                d.candidateId,
-                d.existingId,
-                'merge by policy pending',
-                d.similarity,
-              );
-              // TODO: implement merge logic
+              final candidateFile = File('$outputDir/${d.candidateId}.yaml');
+              final existingFile = File('$outputDir/${d.existingId}.yaml');
+              if (await candidateFile.exists() && await existingFile.exists()) {
+                final candidate = TrainingPackTemplateV2.fromYaml(
+                  await candidateFile.readAsString(),
+                );
+                final existing = TrainingPackTemplateV2.fromYaml(
+                  await existingFile.readAsString(),
+                );
+                final gen = const SpotFingerprintGenerator();
+                final keys = <String>{
+                  for (final s in existing.spots) gen.generate(s),
+                };
+                for (final s in candidate.spots) {
+                  if (keys.add(gen.generate(s))) existing.spots.add(s);
+                }
+                existing.spotCount = existing.spots.length;
+                final merged = <String>{
+                  ...((existing.meta['mergedIds'] as List?)
+                          ?.map((e) => e.toString()) ??
+                      []),
+                  ...((candidate.meta['mergedIds'] as List?)
+                          ?.map((e) => e.toString()) ??
+                      []),
+                  candidate.id,
+                };
+                existing.meta['mergedIds'] = merged.toList();
+                await existingFile.writeAsString(existing.toYamlString());
+                await candidateFile.delete();
+                _status.flagDuplicate(
+                  d.candidateId,
+                  d.existingId,
+                  'merged by policy',
+                  d.similarity,
+                );
+              }
               break;
             case DeduplicationAction.rename:
-              _status.flagDuplicate(
-                d.candidateId,
-                d.existingId,
-                'rename by policy pending',
-                d.similarity,
-              );
-              // TODO: implement rename logic
+              final candidateFile = File('$outputDir/${d.candidateId}.yaml');
+              if (await candidateFile.exists()) {
+                final candidate = TrainingPackTemplateV2.fromYaml(
+                  await candidateFile.readAsString(),
+                );
+                var counter = 2;
+                var newId = '${candidate.id}_v$counter';
+                while (File('$outputDir/$newId.yaml').existsSync()) {
+                  counter++;
+                  newId = '${candidate.id}_v$counter';
+                }
+                final map = candidate.toJson();
+                final meta = Map<String, dynamic>.from(map['meta'] ?? {});
+                meta['renamedFrom'] = candidate.id;
+                map
+                  ..['id'] = newId
+                  ..['meta'] = meta;
+                final renamed = TrainingPackTemplateV2.fromJson(map);
+                final newFile = File('$outputDir/$newId.yaml');
+                await newFile.writeAsString(renamed.toYamlString());
+                await candidateFile.delete();
+                _status.flagDuplicate(
+                  newId,
+                  d.existingId,
+                  'renamed by policy',
+                  d.similarity,
+                );
+              }
               break;
             case DeduplicationAction.flag:
               _status.flagDuplicate(
@@ -145,4 +197,3 @@ class DeduplicationPolicyEngine {
     }
   }
 }
-
