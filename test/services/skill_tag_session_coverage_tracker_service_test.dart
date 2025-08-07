@@ -12,10 +12,10 @@ void main() {
   test('computeCoverage counts tags correctly', () async {
     final logger = TrainingSessionFingerprintLoggerService();
     await logger.logSession(
-      TrainingSessionFingerprint(packId: '1', tags: const ['a', 'b']),
+      TrainingSessionFingerprint(packId: '1', tagsCovered: const ['a', 'b']),
     );
     await logger.logSession(
-      TrainingSessionFingerprint(packId: '2', tags: const ['b']),
+      TrainingSessionFingerprint(packId: '2', tagsCovered: const ['b']),
     );
     final tracker = SkillTagSessionCoverageTrackerService(logger: logger);
     final coverage = await tracker.computeCoverage();
@@ -27,18 +27,45 @@ void main() {
   test('lowFrequencyTags returns tags under threshold', () async {
     final logger = TrainingSessionFingerprintLoggerService();
     await logger.logSession(
-      TrainingSessionFingerprint(packId: '1', tags: const ['x']),
+      TrainingSessionFingerprint(packId: '1', tagsCovered: const ['x']),
     );
     await logger.logSession(
-      TrainingSessionFingerprint(packId: '2', tags: const ['x', 'y']),
+      TrainingSessionFingerprint(packId: '2', tagsCovered: const ['x', 'y']),
     );
     await logger.logSession(
-      TrainingSessionFingerprint(packId: '3', tags: const ['y', 'z']),
+      TrainingSessionFingerprint(packId: '3', tagsCovered: const ['y', 'z']),
     );
     final tracker = SkillTagSessionCoverageTrackerService(logger: logger);
     final low = await tracker.lowFrequencyTags(2);
     expect(low, contains('z'));
     expect(low, isNot(contains('x')));
     expect(low, isNot(contains('y')));
+  });
+
+  test('updateCoverageMap persists aggregated counts', () async {
+    final logger = TrainingSessionFingerprintLoggerService();
+    await logger.logSession(
+      TrainingSessionFingerprint(packId: '1', tagsCovered: const ['a', 'b']),
+    );
+    await logger.logSession(
+      TrainingSessionFingerprint(packId: '2', tagsCovered: const ['b']),
+    );
+    final tracker = SkillTagSessionCoverageTrackerService(logger: logger);
+    await tracker.updateCoverageMap();
+    final map = await tracker.getCoverageMap();
+    expect(map['a'], 1);
+    expect(map['b'], 2);
+  });
+
+  test('clearCoverageMap removes stored coverage', () async {
+    final logger = TrainingSessionFingerprintLoggerService();
+    await logger.logSession(
+      TrainingSessionFingerprint(packId: '1', tagsCovered: const ['a']),
+    );
+    final tracker = SkillTagSessionCoverageTrackerService(logger: logger);
+    await tracker.updateCoverageMap();
+    await tracker.clearCoverageMap();
+    final map = await tracker.getCoverageMap();
+    expect(map, isEmpty);
   });
 }
