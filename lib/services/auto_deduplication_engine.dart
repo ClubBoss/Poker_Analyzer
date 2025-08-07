@@ -10,11 +10,11 @@ class AutoDeduplicationEngine {
   final IOSink _log;
   int _skipped = 0;
 
-  AutoDeduplicationEngine({
-    SpotFingerprintGenerator? fingerprint,
-    IOSink? log,
-  })  : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
-        _log = log ?? File('skipped_duplicates.log').openWrite(mode: FileMode.append);
+  AutoDeduplicationEngine({SpotFingerprintGenerator? fingerprint, IOSink? log})
+    : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
+      _log =
+          log ??
+          File('skipped_duplicates.log').openWrite(mode: FileMode.append);
 
   /// Registers existing spots so future checks can detect duplicates.
   void addExisting(Iterable<TrainingPackSpot> spots) {
@@ -45,6 +45,7 @@ class AutoDeduplicationEngine {
     List<TrainingPackSpot> spots, {
     bool keepHighestWeight = false,
     String? source,
+    bool logLists = false,
   }) {
     final unique = <String, TrainingPackSpot>{};
     for (final spot in spots) {
@@ -75,16 +76,31 @@ class AutoDeduplicationEngine {
     }
 
     _seen.addAll(unique.keys);
+    if (logLists) {
+      final originalIds = spots.map((s) => s.id).join(',');
+      final filteredIds = unique.values.map((s) => s.id).join(',');
+      _log.writeln('original: [$originalIds]');
+      _log.writeln('filtered: [$filteredIds]');
+    }
+    final removed = spots.length - unique.length;
+    _log.writeln(
+      'Removed $removed duplicate${removed == 1 ? '' : 's'} from ${source ?? 'batch'}',
+    );
     return unique.values.toList();
   }
 
   /// Deduplicates [original] by removing spots with matching fingerprints.
   ///
   /// Convenience wrapper around [deduplicate] for [TrainingPackModel].
-  TrainingPackModel deduplicatePack(TrainingPackModel original,
-      {bool keepHighestWeight = false}) {
-    final unique = deduplicate(original.spots,
-        keepHighestWeight: keepHighestWeight, source: original.id);
+  TrainingPackModel deduplicatePack(
+    TrainingPackModel original, {
+    bool keepHighestWeight = false,
+  }) {
+    final unique = deduplicate(
+      original.spots,
+      keepHighestWeight: keepHighestWeight,
+      source: original.id,
+    );
     return TrainingPackModel(
       id: original.id,
       title: original.title,
