@@ -30,14 +30,22 @@ class TrainingPackAutoGenerator {
             errorClassifier ?? const AutogenPackErrorClassifierService(),
         _errorStats = errorStats ?? AutogenErrorStatsLogger();
 
-  /// Generates spots from [set] and optionally deduplicates them based on
+  /// Generates spots from [template] and optionally deduplicates them based on
   /// fingerprints.
+  ///
+  /// When [template] is a [TrainingPackTemplateSet] it is processed normally.
+  /// Passing any other type will result in an [ArgumentError]. This allows
+  /// callers to eventually support invoking the generator by template id.
   List<TrainingPackSpot> generate(
-    TrainingPackTemplateSet set, {
+    dynamic template, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
     Iterable<TrainingPackSpot> existingSpots = const [],
     bool deduplicate = true,
   }) {
+    if (template is! TrainingPackTemplateSet) {
+      throw ArgumentError('Expected TrainingPackTemplateSet');
+    }
+    final set = template as TrainingPackTemplateSet;
     final status = AutogenStatusDashboardService.instance;
     if (_shouldAbort) {
       status.update(
