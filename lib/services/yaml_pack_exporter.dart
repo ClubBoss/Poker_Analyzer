@@ -3,6 +3,7 @@ import 'dart:io';
 import '../core/training/export/training_pack_exporter_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'autogen_pipeline_debug_stats_service.dart';
+import 'autogen_pipeline_event_logger_service.dart';
 
 /// Exports training packs to YAML files.
 class YamlPackExporter {
@@ -15,6 +16,10 @@ class YamlPackExporter {
   Future<File> export(TrainingPackTemplateV2 pack) async {
     final file = await _delegate.exportToFile(pack);
     AutogenPipelineDebugStatsService.incrementPublished();
+    AutogenPipelineEventLoggerService.log(
+      'published',
+      'Published pack ${pack.id} to ${file.path}',
+    );
     return file;
   }
 

@@ -22,6 +22,7 @@ import 'icm_scenario_library_injector.dart';
 import 'pack_quality_gatekeeper_service.dart';
 import 'autogen_run_history_logger_service.dart';
 import 'autogen_pipeline_debug_stats_service.dart';
+import 'autogen_pipeline_event_logger_service.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -136,6 +137,10 @@ class AutogenPipelineExecutor {
           continue;
         }
         AutogenPipelineDebugStatsService.incrementGenerated();
+        AutogenPipelineEventLoggerService.log(
+          'generated',
+          'Generated ${spots.length} spots for template ${set.baseSpot.id}',
+        );
 
         theoryInjector.injectAll(spots, theoryIndex);
         boardClassifier?.classifyAll(spots);
@@ -179,6 +184,10 @@ class AutogenPipelineExecutor {
         }
         generatedCount++;
         AutogenPipelineDebugStatsService.incrementCurated();
+        AutogenPipelineEventLoggerService.log(
+          'curated',
+          'Curated pack ${pack.id} with ${spots.length} spots',
+        );
         pack.meta['qualityScore'] = score;
 
         coverage.analyzePack(model);
