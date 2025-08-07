@@ -15,20 +15,10 @@ class InlineAutogenDebugPanelWidget extends StatelessWidget {
       children: [
         const AutogenPipelineStatusBadgeWidget(),
         const SizedBox(height: 8),
-        FutureBuilder<AutogenPipelineStats>(
-          future: AutogenPipelineDebugStatsService.getStats(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              );
-            }
-            final stats = snapshot.data;
-            if (stats == null) {
-              return const Text('No stats');
-            }
+        ValueListenableBuilder<AutogenPipelineStats>(
+          valueListenable:
+              AutogenPipelineDebugStatsService.getLiveStats(),
+          builder: (context, stats, _) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
