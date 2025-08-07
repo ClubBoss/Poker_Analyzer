@@ -1,55 +1,94 @@
-/// Represents a normalized poker spot used to generate training content.
-class UnifiedSpotSeedFormat {
+/// Unified Spot Seed Format (USF).
+///
+/// Represents a canonical description of a poker training spot.
+class SpotSeed {
   /// Unique identifier for this seed.
   final String id;
 
-  /// Type of training (preflop, postflop, etc.).
-  final String trainingType;
+  /// Game type identifier (e.g. `cash`, `tournament`).
+  final String gameType;
 
-  /// Primary goal for this training spot.
-  final String goal;
+  /// Size of the big blind in chips.
+  final double bb;
 
-  /// High level theme or category for filtering.
-  final String theme;
+  /// Effective stack in big blinds.
+  final double stackBB;
 
-  /// Human readable description of the scenario.
-  final String description;
+  /// Hero and optional villain positions.
+  final SpotPositions positions;
 
-  /// Player position at the table (e.g. UTG, BTN).
-  final String position;
+  /// Ranges for hero and villain when available.
+  final SpotRanges ranges;
 
-  /// Action hero is facing (e.g. open, 3bet, shove).
-  final String actionFacing;
+  /// Board cards for each street.
+  final SpotBoard board;
 
-  /// Board street for this scenario: preflop, flop, turn, river.
-  final String boardStreet;
+  /// Current pot size in big blinds.
+  final double pot;
 
-  /// Tags used for clustering and search.
+  /// ICM data for tournament contexts.
+  final SpotIcm? icm;
+
+  /// Normalized, lowercase tags.
   final List<String> tags;
 
-  /// Difficulty level of the spot.
-  final String level;
+  /// Optional difficulty level.
+  final String? difficulty;
 
-  /// Estimated number of spots generated from this seed.
-  final int spotCount;
+  /// Optional audience identifier.
+  final String? audience;
 
-  /// Additional metadata used by generators.
+  /// Additional metadata for generators.
   final Map<String, dynamic> meta;
 
-  UnifiedSpotSeedFormat({
+  SpotSeed({
     required this.id,
-    required this.trainingType,
-    required this.goal,
-    required this.theme,
-    required this.description,
-    required this.position,
-    required this.actionFacing,
-    required this.boardStreet,
+    required this.gameType,
+    required this.bb,
+    required this.stackBB,
+    required this.positions,
+    required this.ranges,
+    required this.board,
+    required this.pot,
+    this.icm,
     List<String>? tags,
-    required this.level,
-    required this.spotCount,
+    this.difficulty,
+    this.audience,
     Map<String, dynamic>? meta,
-  })  : tags = tags ?? const <String>[],
-        meta = meta ?? const <String, dynamic>{};
+  }) : tags = tags ?? const <String>[],
+       meta = meta ?? const <String, dynamic>{};
 }
 
+/// Holds positional information.
+class SpotPositions {
+  final String hero;
+  final String? villain;
+
+  const SpotPositions({required this.hero, this.villain});
+}
+
+/// Holds range information.
+class SpotRanges {
+  final String? hero;
+  final String? villain;
+
+  const SpotRanges({this.hero, this.villain});
+}
+
+/// Represents the board cards for each street.
+class SpotBoard {
+  final List<String>? preflop;
+  final List<String>? flop;
+  final List<String>? turn;
+  final List<String>? river;
+
+  const SpotBoard({this.preflop, this.flop, this.turn, this.river});
+}
+
+/// ICM specific data.
+class SpotIcm {
+  final List<double>? stackDistribution;
+  final List<double>? payouts;
+
+  const SpotIcm({this.stackDistribution, this.payouts});
+}
