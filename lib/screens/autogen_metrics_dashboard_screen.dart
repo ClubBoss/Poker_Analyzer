@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../services/pack_generation_metrics_tracker_service.dart';
 import '../services/autogen_metrics_history_service.dart';
+import '../widgets/autogen_debug_control_panel_widget.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
 class AutogenMetricsDashboardScreen extends StatefulWidget {
@@ -93,6 +94,8 @@ class _AutogenMetricsDashboardScreenState
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                const AutogenDebugControlPanelWidget(),
+                const SizedBox(height: 16),
                 _buildTile('Generated',
                     (_metrics['generatedCount'] as int? ?? 0).toString()),
                 _buildTile('Rejected',
