@@ -3,6 +3,8 @@ import 'package:poker_analyzer/services/auto_deduplication_engine.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:poker_analyzer/models/v2/hero_position.dart';
+import 'package:poker_analyzer/models/training_pack_model.dart';
+import 'package:poker_analyzer/services/training_pack_library_service.dart';
 
 void main() {
   test('deduplicates spots by fingerprint', () {
@@ -69,4 +71,55 @@ void main() {
 
     expect(engine.skippedCount, 1);
   });
+
+  test('run generates merge suggestions for similar packs', () async {
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData(heroCards: 'Ah As', position: HeroPosition.sb),
+      villainAction: 'fold',
+    );
+    final packA = TrainingPackModel(
+      id: 'pA',
+      title: 'A',
+      spots: [spot],
+      tags: ['tag1'],
+    );
+    final packB = TrainingPackModel(
+      id: 'pB',
+      title: 'B',
+      spots: [spot, spot],
+      tags: ['tag1'],
+    );
+    final packC = TrainingPackModel(
+      id: 'pC',
+      title: 'C',
+      spots: [
+        TrainingPackSpot(
+          id: 's2',
+          hand: HandData(heroCards: 'Kd Kc', position: HeroPosition.bb),
+          villainAction: 'call',
+        ),
+      ],
+      tags: ['tag2'],
+    );
+
+    final engine = AutoDeduplicationEngine(
+      library: _MockLibrary([packA, packB, packC]),
+    );
+    final report = await engine.run(threshold: 0.8);
+
+    expect(report.duplicates, hasLength(1));
+    expect(report.mergeSuggestions.length, 1);
+    final base = report.mergeSuggestions.keys.single;
+    expect(base, 'pB');
+    expect(report.mergeSuggestions[base], contains('pA'));
+  });
+}
+
+class _MockLibrary extends TrainingPackLibraryService {
+  final List<TrainingPackModel> _packs;
+  _MockLibrary(this._packs);
+
+  @override
+  Future<List<TrainingPackModel>> getAllPacks() async => _packs;
 }

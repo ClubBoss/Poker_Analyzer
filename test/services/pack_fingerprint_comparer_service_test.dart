@@ -56,5 +56,38 @@ void main() {
     expect(matches.first.pack.id, 'p2');
     expect(matches.first.similarity, sim12);
   });
+
+  test('findDuplicates returns similar pairs', () {
+    final service = const PackFingerprintComparerService();
+    final pack1 = TrainingPackModel(
+      id: 'p1',
+      title: 'A',
+      spots: [
+        _spot('s1', ['Ah', 'Kd', 'Qc'], ['push', 'call']),
+      ],
+      tags: ['tag1'],
+    );
+    final pack2 = TrainingPackModel(
+      id: 'p2',
+      title: 'B',
+      spots: [
+        _spot('s2', ['Ah', 'Kd', 'Qc'], ['push', 'call']),
+      ],
+      tags: ['tag1'],
+    );
+    final pack3 = TrainingPackModel(
+      id: 'p3',
+      title: 'C',
+      spots: [
+        _spot('s3', ['2c', '3d', '4h'], ['bet', 'fold']),
+      ],
+      tags: ['tag2'],
+    );
+
+    final results = service.findDuplicates([pack1, pack2, pack3]);
+    expect(results.length, 1);
+    final pair = results.first;
+    expect({pair.a.id, pair.b.id}, containsAll(['p1', 'p2']));
+  });
 }
 
