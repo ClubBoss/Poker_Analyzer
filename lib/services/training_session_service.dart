@@ -46,6 +46,7 @@ import 'training_progress_tracker_service.dart';
 import 'training_progress_logger.dart';
 import '../app_bootstrap.dart';
 import 'training_session_context_service.dart';
+import 'training_session_fingerprint_logger_service.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -659,6 +660,22 @@ class TrainingSessionService extends ChangeNotifier {
         _resumedAt = null;
       }
       _timer?.cancel();
+      final total = _session!.results.length;
+      final correct = _session!.results.values.where((e) => e).length;
+      final tags = <String>{
+        ...?_template?.tags,
+        ..._sessionTags,
+      };
+      final fp = TrainingSessionFingerprint(
+        packId: _template?.id ?? '',
+        tags: tags.toList(),
+        completedAt: _session!.completedAt!,
+        totalSpots: total,
+        correct: correct,
+        incorrect: total - correct,
+      );
+      unawaited(
+          TrainingSessionFingerprintLoggerService().logSession(fp));
       unawaited(RecapOpportunityDetector.instance.notifyDrillCompleted());
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {

@@ -1,47 +1,44 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../core/training/engine/training_type_engine.dart';
-
 class TrainingSessionFingerprint {
-  final String fingerprint;
   final String packId;
-  final TrainingType trainingType;
-  final int spotCount;
-  final double accuracy;
+  final List<String> tags;
   final DateTime completedAt;
+  final int totalSpots;
+  final int correct;
+  final int incorrect;
 
   TrainingSessionFingerprint({
-    required this.fingerprint,
     required this.packId,
-    required this.trainingType,
-    required this.spotCount,
-    required this.accuracy,
+    List<String>? tags,
     DateTime? completedAt,
-  }) : completedAt = completedAt ?? DateTime.now();
+    this.totalSpots = 0,
+    this.correct = 0,
+    this.incorrect = 0,
+  })  : tags = tags ?? const [],
+        completedAt = completedAt ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
-        'fingerprint': fingerprint,
         'packId': packId,
-        'trainingType': trainingType.name,
-        'spotCount': spotCount,
-        'accuracy': accuracy,
+        'tags': tags,
         'completedAt': completedAt.toIso8601String(),
+        'totalSpots': totalSpots,
+        'correct': correct,
+        'incorrect': incorrect,
       };
 
   factory TrainingSessionFingerprint.fromJson(Map<String, dynamic> json) {
     return TrainingSessionFingerprint(
-      fingerprint: json['fingerprint'] as String,
-      packId: json['packId'] as String,
-      trainingType: TrainingType.values.firstWhere(
-        (e) => e.name == json['trainingType'],
-        orElse: () => TrainingType.custom,
-      ),
-      spotCount: json['spotCount'] as int? ?? 0,
-      accuracy: (json['accuracy'] as num?)?.toDouble() ?? 0.0,
+      packId: json['packId'] as String? ?? '',
+      tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       completedAt:
           DateTime.tryParse(json['completedAt'] ?? '') ?? DateTime.now(),
+      totalSpots: json['totalSpots'] as int? ?? 0,
+      correct: json['correct'] as int? ?? 0,
+      incorrect: json['incorrect'] as int? ?? 0,
     );
   }
 }
@@ -51,38 +48,48 @@ class TrainingSessionFingerprintLoggerService {
       : _prefs = prefs;
 
   SharedPreferences? _prefs;
-  static const _prefix = 'session_fingerprint_';
+  static const _key = 'training_session_fingerprints';
 
   Future<SharedPreferences> get _sp async =>
       _prefs ??= await SharedPreferences.getInstance();
 
-  Future<void> logSession(TrainingSessionFingerprint session) async {
+  Future<void> logSession(TrainingSessionFingerprint fp) async {
     final prefs = await _sp;
-    await prefs.setString(
-      '$_prefix${session.fingerprint}',
-      jsonEncode(session.toJson()),
-    );
+    final raw = prefs.getString(_key);
+    List<dynamic> list;
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        list = jsonDecode(raw) as List;
+      } catch (_) {
+        list = [];
+      }
+    } else {
+      list = [];
+    }
+    list.add(fp.toJson());
+    await prefs.setString(_key, jsonEncode(list));
+    debugPrint('Logged training session fingerprint for ${fp.packId}');
   }
 
   Future<List<TrainingSessionFingerprint>> getAll() async {
     final prefs = await _sp;
-    final list = <TrainingSessionFingerprint>[];
-    for (final key in prefs.getKeys()) {
-      if (key.startsWith(_prefix)) {
-        final raw = prefs.getString(key);
-        if (raw == null) continue;
-        try {
-          final data = jsonDecode(raw);
-          if (data is Map<String, dynamic>) {
-            list.add(
-              TrainingSessionFingerprint.fromJson(
-                Map<String, dynamic>.from(data),
-              ),
-            );
-          }
-        } catch (_) {}
-      }
+    final raw = prefs.getString(_key);
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final list = jsonDecode(raw) as List;
+      return [
+        for (final e in list)
+          if (e is Map)
+            TrainingSessionFingerprint.fromJson(
+                Map<String, dynamic>.from(e as Map)),
+      ];
+    } catch (_) {
+      return [];
     }
-    return list;
+  }
+
+  Future<void> clear() async {
+    final prefs = await _sp;
+    await prefs.remove(_key);
   }
 }
