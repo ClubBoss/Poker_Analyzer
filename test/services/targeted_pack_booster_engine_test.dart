@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:poker_analyzer/services/targeted_pack_booster_engine.dart';
+import 'package:poker_analyzer/services/autogen_status_dashboard_service.dart';
 import 'package:poker_analyzer/core/training/library/training_pack_library_v2.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
@@ -42,6 +43,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     TrainingPackLibraryV2.instance.clear();
+    AutogenStatusDashboardService.instance.clear();
   });
 
   TrainingPackTemplateV2 buildPack(String id, String tag) {
@@ -84,11 +86,25 @@ void main() {
     final engine = TargetedPackBoosterEngine(exporter: exporter);
     final req =
         PackBoosterRequest(packId: 'p2', tags: ['fold'], ratio: 1.5);
-    await engine.boostPacks([req]);
-    final boosted = exporter.last;
-    expect(boosted, isNotNull);
-    expect(boosted!.id, 'p2_boosted');
+    final result = await engine.boostPacks([req]);
+    final boosted = result.single;
+    expect(boosted.id, startsWith('p2_boosted_'));
     expect(boosted.spotCount, greaterThan(pack.spotCount));
     expect(boosted.meta['boostTags'], ['fold']);
+    final status = AutogenStatusDashboardService.instance;
+    expect(status.boostersGeneratedNotifier.value, 1);
+  });
+
+  test('boostPacks skips duplicate packs', () async {
+    final pack = buildPack('p3', 'fold');
+    TrainingPackLibraryV2.instance.addPack(pack);
+    final exporter = _CapturingExporter();
+    final engine = TargetedPackBoosterEngine(exporter: exporter);
+    final req =
+        PackBoosterRequest(packId: 'p3', tags: ['fold'], ratio: 1.5);
+    final result = await engine.boostPacks([req]);
+    expect(result, isEmpty);
+    final status = AutogenStatusDashboardService.instance;
+    expect(status.boostersSkippedNotifier.value['duplicate'], 1);
   });
 }
