@@ -9,6 +9,7 @@ import '../card_model.dart';
 import 'package:uuid/uuid.dart';
 import '../../services/inline_theory_linker.dart';
 import '../inline_theory_entry.dart';
+import '../theory_note_entry.dart';
 
 class TrainingPackSpot
     with CopyWithMixin<TrainingPackSpot>
@@ -63,6 +64,13 @@ class TrainingPackSpot
   /// and is never serialized.
   InlineTheoryLink? theoryLink;
 
+  /// Marks this spot as a lightweight theory note inserted by clustering.
+  /// Never serialized to persistent storage.
+  bool isTheoryNote;
+
+  /// Optional note metadata for inline theory clusters.
+  TheoryNoteEntry? theoryNote;
+
   /// Ephemeral list of IDs for theory mini-lessons relevant to this spot.
   ///
   /// Populated at runtime by [TheoryLinkAutoInjector] and never serialized.
@@ -93,6 +101,8 @@ class TrainingPackSpot
     this.inlineLessonId,
     this.theoryId,
     List<String>? theoryRefs,
+    this.isTheoryNote = false,
+    this.theoryNote,
   }) : hand = hand ?? HandData(),
        tags = tags != null ? List<String>.from(tags) : <String>[],
        categories = categories != null
@@ -138,6 +148,13 @@ class TrainingPackSpot
     templateSourceId: j['templateSourceId']?.toString(),
     inlineLessonId:
         j['inlineLessonId']?.toString() ?? j['inlineTheoryId']?.toString(),
+    isTheoryNote: j['isTheoryNote'] == true,
+    theoryNote: j['theoryNote'] is Map
+        ? TheoryNoteEntry(
+            tag: j['theoryNote']['tag']?.toString() ?? '',
+            text: j['theoryNote']['text']?.toString() ?? '',
+          )
+        : null,
   );
 
   factory TrainingPackSpot.fromTrainingSpot(
