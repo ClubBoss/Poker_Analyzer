@@ -14,6 +14,7 @@ import '../services/autogen_error_stats_logger.dart';
 import '../services/autogen_pack_error_classifier_service.dart';
 import '../services/file_saver_service.dart';
 import '../widgets/autogen_debug_control_panel_widget.dart';
+import '../widgets/autogen_event_log_viewer_widget.dart';
 import '../widgets/run_comparison_window.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
@@ -167,6 +168,11 @@ class _AutogenMetricsDashboardScreenState
                 RunComparisonWindow(entries: _lastTwoRuns),
                 const SizedBox(height: 16),
                 const AutogenDebugControlPanelWidget(),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 300,
+                  child: AutogenEventLogViewerWidget(),
+                ),
                 const SizedBox(height: 16),
                 _buildTile('Generated',
                     (_metrics['generatedCount'] as int? ?? 0).toString()),
