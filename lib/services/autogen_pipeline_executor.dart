@@ -25,6 +25,7 @@ import 'autogen_pipeline_debug_stats_service.dart';
 import 'autogen_pipeline_event_logger_service.dart';
 import 'pack_fingerprint_comparer.dart';
 import 'spot_fingerprint_generator.dart';
+import 'deduplication_policy_engine.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -43,6 +44,7 @@ class AutogenPipelineExecutor {
   final PackQualityGatekeeperService gatekeeper;
   final AutogenRunHistoryLoggerService runHistory;
   final PackFingerprintComparer packComparer;
+  final DeduplicationPolicyEngine policyEngine;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -60,6 +62,7 @@ class AutogenPipelineExecutor {
     PackQualityGatekeeperService? gatekeeper,
     AutogenRunHistoryLoggerService? runHistory,
     PackFingerprintComparer? packComparer,
+    DeduplicationPolicyEngine? policyEngine,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
@@ -77,7 +80,8 @@ class AutogenPipelineExecutor {
         icmInjector = icmInjector,
         gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
         runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
-        packComparer = packComparer ?? const PackFingerprintComparer() {
+        packComparer = packComparer ?? const PackFingerprintComparer(),
+        policyEngine = policyEngine ?? DeduplicationPolicyEngine() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -103,6 +107,8 @@ class AutogenPipelineExecutor {
         progress: 0,
       ),
     );
+    policyEngine.outputDir = existingYamlPath;
+    await policyEngine.loadPolicies();
     if (existingYamlPath.isNotEmpty) {
       final dir = Directory(existingYamlPath);
       if (await dir.exists()) {
@@ -222,9 +228,16 @@ class AutogenPipelineExecutor {
           meta: Map<String, dynamic>.from(pack.meta),
         );
         final dupReports = packComparer.compare(pf, existingFingerprints);
-        for (final r in dupReports) {
-          status.flagDuplicate(pf.id, r.existingPackId, r.reason, r.similarity);
-        }
+        final duplicates = [
+          for (final r in dupReports)
+            DuplicatePackInfo(
+              candidateId: pf.id,
+              existingId: r.existingPackId,
+              similarity: r.similarity,
+              reason: r.reason.replaceAll(' ', '_'),
+            ),
+        ];
+        await policyEngine.applyPolicies(duplicates);
         existingFingerprints.add(pf);
         status.update(
           'pipeline',

@@ -20,6 +20,7 @@ import '../models/autogen_session_meta.dart';
 import '../widgets/autogen_pipeline_debug_control_panel.dart';
 import '../widgets/autogen_duplicate_table_widget.dart';
 import 'pack_fingerprint_comparer_report_ui.dart';
+import '../widgets/deduplication_policy_editor.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -192,6 +193,16 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                     );
                   },
                   child: const Text('View Duplicate Report'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const DeduplicationPolicyEditor(),
+                      ),
+                    );
+                  },
+                  child: const Text('Edit Policies'),
                 ),
                 ValueListenableBuilder<List<DuplicatePackInfo>>(
                   valueListenable: statusService.duplicatesNotifier,
