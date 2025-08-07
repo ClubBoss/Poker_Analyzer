@@ -28,7 +28,7 @@ class TrainingPackAutoGenerator {
         _dedup = dedup ?? AutoDeduplicationEngine(),
         _errorClassifier =
             errorClassifier ?? const AutogenPackErrorClassifierService(),
-        _errorStats = errorStats;
+        _errorStats = errorStats ?? AutogenErrorStatsLogger();
 
   /// Generates spots from [set] and optionally deduplicates them based on
   /// fingerprints.
