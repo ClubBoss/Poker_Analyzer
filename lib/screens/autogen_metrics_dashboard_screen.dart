@@ -225,6 +225,25 @@ class _AutogenMetricsDashboardScreenState
           height: 200,
           child: LineChart(
             LineChartData(
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipItems: (touchedSpots) {
+                    if (touchedSpots.isEmpty) return [];
+                    final index = touchedSpots.first.x.toInt();
+                    if (index < 0 || index >= _history.length) return [];
+                    final entry = _history[index];
+                    final d = entry.timestamp;
+                    final date =
+                        '${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}';
+                    return [
+                      LineTooltipItem(
+                        '$date\nAcceptance: ${entry.acceptanceRate.toStringAsFixed(1)}%\nQuality: ${(entry.avgQualityScore * 100).toStringAsFixed(1)}%',
+                        const TextStyle(color: Colors.white),
+                      )
+                    ];
+                  },
+                ),
+              ),
               minY: 0,
               maxY: 100,
               gridData: FlGridData(show: true, drawVerticalLine: false),
@@ -273,20 +292,20 @@ class _AutogenMetricsDashboardScreenState
             Expanded(
               child: CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Quality'),
-                value: _showQuality,
+                title: const Text('Acceptance Rate'),
+                value: _showAcceptance,
                 onChanged: (v) => setState(() {
-                  _showQuality = v ?? true;
+                  _showAcceptance = v ?? true;
                 }),
               ),
             ),
             Expanded(
               child: CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Acceptance %'),
-                value: _showAcceptance,
+                title: const Text('Quality Score'),
+                value: _showQuality,
                 onChanged: (v) => setState(() {
-                  _showAcceptance = v ?? true;
+                  _showQuality = v ?? true;
                 }),
               ),
             ),
