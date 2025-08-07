@@ -19,7 +19,8 @@ class PackTagCounterService {
   final Map<String, int> _counts = <String, int>{};
   bool _loaded = false;
 
-  Future<void> _load() async {
+  /// Loads persisted tag counts from local storage if not yet loaded.
+  Future<void> load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
@@ -45,7 +46,7 @@ class PackTagCounterService {
   }
 
   Future<void> _logPack(TrainingPackModel pack) async {
-    await _load();
+    await load();
     for (final tag in pack.tags) {
       final t = tag.toLowerCase();
       _counts[t] = (_counts[t] ?? 0) + 1;

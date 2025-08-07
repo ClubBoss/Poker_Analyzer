@@ -22,7 +22,9 @@ class _PackTagCounterDebuggerScreenState
     _loadCounts();
   }
 
-  void _loadCounts() {
+  Future<void> _loadCounts() async {
+    await PackTagCounterService.instance.load();
+    if (!mounted) return;
     setState(() {
       _counts = PackTagCounterService.instance.getTagCounts();
     });
