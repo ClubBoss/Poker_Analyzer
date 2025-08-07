@@ -45,9 +45,11 @@ void main() {
     test('blocks packs with seed errors', () {
       final pack = TrainingPackModel(id: 'p3', title: 'A', spots: const []);
       const gatekeeper = PackQualityGatekeeperService();
-      final issues = [
-        const SeedIssue(code: 'bad', severity: 'error', message: 'oops'),
-      ];
+      final issues = {
+        pack.id: [
+          const SeedIssue(code: 'bad', severity: 'error', message: 'oops'),
+        ]
+      };
       final result = gatekeeper.isQualityAcceptable(pack, seedIssues: issues);
       expect(result, isFalse);
     });
@@ -55,9 +57,11 @@ void main() {
     test('allows packs with only warnings', () {
       final pack = TrainingPackModel(id: 'p4', title: 'B', spots: const []);
       const gatekeeper = PackQualityGatekeeperService();
-      final issues = [
-        const SeedIssue(code: 'warn', severity: 'warn', message: 'meh'),
-      ];
+      final issues = {
+        pack.id: [
+          const SeedIssue(code: 'warn', severity: 'warn', message: 'meh'),
+        ]
+      };
       final result = gatekeeper.isQualityAcceptable(pack, seedIssues: issues);
       expect(result, isTrue);
     });

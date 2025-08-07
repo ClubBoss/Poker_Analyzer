@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../core/models/spot_seed/seed_issue.dart';
 import '../services/autogen_status_dashboard_service.dart';
@@ -14,7 +16,7 @@ class SeedLintPanelWidget extends StatefulWidget {
 }
 
 class _SeedLintPanelWidgetState extends State<SeedLintPanelWidget> {
-  String? _severityFilter;
+  String _filter = 'all';
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +24,9 @@ class _SeedLintPanelWidgetState extends State<SeedLintPanelWidget> {
     return ValueListenableBuilder<List<SeedIssue>>(
       valueListenable: service.seedIssuesNotifier,
       builder: (context, issues, _) {
-        final filtered = _severityFilter == null
+        final filtered = _filter == 'all'
             ? issues
-            : issues.where((i) => i.severity == _severityFilter).toList();
+            : issues.where((i) => i.severity == _filter).toList();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -32,16 +34,44 @@ class _SeedLintPanelWidgetState extends State<SeedLintPanelWidget> {
               children: [
                 const Text('Seed Lint'),
                 const SizedBox(width: 16),
-                DropdownButton<String>(
-                  hint: const Text('Severity'),
-                  value: _severityFilter,
-                  items: const [
-                    DropdownMenuItem(value: 'warn', child: Text('Warn')),
-                    DropdownMenuItem(value: 'error', child: Text('Error')),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    ChoiceChip(
+                      label: const Text('All'),
+                      selected: _filter == 'all',
+                      onSelected: (_) => setState(() => _filter = 'all'),
+                    ),
+                    ChoiceChip(
+                      label: const Text('Warn'),
+                      selected: _filter == 'warn',
+                      onSelected: (_) => setState(() => _filter = 'warn'),
+                    ),
+                    ChoiceChip(
+                      label: const Text('Error'),
+                      selected: _filter == 'error',
+                      onSelected: (_) => setState(() => _filter = 'error'),
+                    ),
                   ],
-                  onChanged: (v) => setState(() => _severityFilter = v),
                 ),
                 const Spacer(),
+                TextButton(
+                  onPressed: () async {
+                    final data = filtered
+                        .map((i) => {
+                              'seedId': i.seedId,
+                              'severity': i.severity,
+                              'code': i.code,
+                              'message': i.message,
+                              'path': i.path,
+                            })
+                        .toList();
+                    await Clipboard.setData(
+                      ClipboardData(text: jsonEncode(data)),
+                    );
+                  },
+                  child: const Text('Copy JSON'),
+                ),
                 TextButton(
                   onPressed: () async {
                     final rows = [
