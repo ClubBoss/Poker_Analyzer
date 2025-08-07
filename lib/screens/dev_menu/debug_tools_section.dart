@@ -7,6 +7,7 @@ import '../../services/learning_graph_engine.dart';
 import '../recent_auto_injections_screen.dart';
 import '../theory_recall_stats_dashboard_screen.dart';
 import '../training_pack_import_validator_screen.dart';
+import '../skill_tag_coverage_debugger_screen.dart';
 
 class DebugToolsSection extends StatefulWidget {
   const DebugToolsSection({super.key});
@@ -91,6 +92,18 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const TrainingPackImportValidatorScreen(),
+                ),
+              );
+            },
+          ),
+        if (kDebugMode)
+          ListTile(
+            title: const Text('Skill Tag Coverage Debugger'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SkillTagCoverageDebuggerScreen(),
                 ),
               );
             },
