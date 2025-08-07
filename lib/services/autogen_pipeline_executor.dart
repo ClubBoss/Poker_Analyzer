@@ -17,6 +17,7 @@ import 'inline_theory_link_auto_injector.dart';
 import 'board_texture_classifier.dart';
 import 'skill_tree_auto_linker.dart';
 import 'training_pack_fingerprint_generator.dart';
+import 'icm_scenario_library_injector.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -31,6 +32,7 @@ class AutogenPipelineExecutor {
   final IOSink _fingerprintLog;
   final AutogenStatsDashboardService dashboard;
   final AutogenStatusDashboardService status;
+  final ICMScenarioLibraryInjector? icmInjector;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -44,6 +46,7 @@ class AutogenPipelineExecutor {
     IOSink? fingerprintLog,
     AutogenStatsDashboardService? dashboard,
     AutogenStatusDashboardService? status,
+    ICMScenarioLibraryInjector? icmInjector,
   }) : dedup = dedup ?? AutoDeduplicationEngine(),
        exporter = exporter ?? const YamlPackExporter(),
        coverage = coverage ?? SkillTagCoverageTracker(),
@@ -58,7 +61,8 @@ class AutogenPipelineExecutor {
              'generated_pack_fingerprints.log',
            ).openWrite(mode: FileMode.append),
        dashboard = dashboard ?? AutogenStatsDashboardService(),
-       status = status ?? AutogenStatusDashboardService() {
+       status = status ?? AutogenStatusDashboardService(),
+       icmInjector = icmInjector {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -93,7 +97,7 @@ class AutogenPipelineExecutor {
           templateSet: set.baseSpot.id,
         );
         if (generator.shouldAbort) break;
-        final spots = generator.generate(set, theoryIndex: theoryIndex);
+        var spots = generator.generate(set, theoryIndex: theoryIndex);
         if (generator.shouldAbort) break;
         if (spots.isEmpty) continue;
 
@@ -116,13 +120,19 @@ class AutogenPipelineExecutor {
         );
         pack.meta['uniqueSpotsOnly'] = true;
 
-        final model = TrainingPackModel(
+        var model = TrainingPackModel(
           id: pack.id,
           title: pack.name,
           spots: spots,
           tags: List<String>.from(pack.tags),
           metadata: Map<String, dynamic>.from(pack.meta),
         );
+        if (icmInjector != null) {
+          model = icmInjector!.injectICMSpots(model);
+          pack.spots = model.spots;
+          pack.spotCount = model.spots.length;
+          spots = model.spots;
+        }
         coverage.analyzePack(model);
         dashboard.recordCoverage(coverage.aggregateReport);
 
