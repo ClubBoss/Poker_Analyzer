@@ -5,6 +5,20 @@ import 'package:flutter/foundation.dart';
 import '../models/autogen_status.dart';
 import '../models/autogen_session_meta.dart';
 
+class FlaggedPack {
+  final String newPackId;
+  final String existingPackId;
+  final String reason;
+  final double similarity;
+
+  const FlaggedPack({
+    required this.newPackId,
+    required this.existingPackId,
+    required this.reason,
+    required this.similarity,
+  });
+}
+
 class AutogenStatusDashboardService {
   AutogenStatusDashboardService._();
 
@@ -18,6 +32,9 @@ class AutogenStatusDashboardService {
   final ValueNotifier<Map<String, AutogenStatus>> notifier = ValueNotifier(
     const <String, AutogenStatus>{},
   );
+
+  final ValueNotifier<List<FlaggedPack>> flaggedPacksNotifier =
+      ValueNotifier(const <FlaggedPack>[]);
 
   final List<AutogenSessionMeta> _sessions = [];
   final StreamController<List<AutogenSessionMeta>> _sessionController =
@@ -58,6 +75,27 @@ class AutogenStatusDashboardService {
 
   Map<String, AutogenStatus> getAll() => Map.unmodifiable(_statuses);
 
+  List<FlaggedPack> get flaggedPacks =>
+      List.unmodifiable(flaggedPacksNotifier.value);
+
+  void flagDuplicate(
+    String newPackId,
+    String existingPackId,
+    String reason,
+    double similarity,
+  ) {
+    final list = [...flaggedPacksNotifier.value];
+    list.add(
+      FlaggedPack(
+        newPackId: newPackId,
+        existingPackId: existingPackId,
+        reason: reason,
+        similarity: similarity,
+      ),
+    );
+    flaggedPacksNotifier.value = List.unmodifiable(list);
+  }
+
   void _cleanupOldSessions() {
     final cutoff = DateTime.now().subtract(_sessionTtl);
     final before = _sessions.length;
@@ -73,5 +111,6 @@ class AutogenStatusDashboardService {
     notifier.value = const <String, AutogenStatus>{};
     _sessions.clear();
     _sessionController.add(const <AutogenSessionMeta>[]);
+    flaggedPacksNotifier.value = const <FlaggedPack>[];
   }
 }
