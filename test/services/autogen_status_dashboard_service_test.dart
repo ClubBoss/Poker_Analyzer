@@ -44,4 +44,13 @@ void main() {
     expect(sessions, hasLength(1));
     expect(sessions.first.sessionId, 'new');
   });
+
+  test('tracks duplicate packs', () {
+    service.flagDuplicate('c1', 'e1', 'duplicate', 1.0);
+    expect(service.duplicates, hasLength(1));
+    final info = service.duplicates.first;
+    expect(info.candidateId, 'c1');
+    expect(info.existingId, 'e1');
+    expect(info.reason, 'duplicate');
+  });
 }

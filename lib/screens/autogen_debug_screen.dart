@@ -18,6 +18,7 @@ import '../core/training/export/training_pack_exporter_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/autogen_session_meta.dart';
 import '../widgets/autogen_pipeline_debug_control_panel.dart';
+import '../widgets/autogen_duplicate_table_widget.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -133,6 +134,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
+    final statusService = AutogenStatusDashboardService.instance;
     return Scaffold(
       appBar: AppBar(title: const Text('Autogen Debug')),
       backgroundColor: AppColors.background,
@@ -180,14 +182,23 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                       _status == _AutogenStatus.running ? _stopAutogen : null,
                   child: const Text('Stop'),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Status: ${_status.name}'),
-                    Text('Template: '
-                        '${_selectedSet?.baseSpot.id ?? 'none'}'),
-                    Text('Output: ${_outputDirController.text}'),
-                  ],
+                ValueListenableBuilder<List<DuplicatePackInfo>>(
+                  valueListenable: statusService.duplicatesNotifier,
+                  builder: (context, dups, _) {
+                    final color = dups.isEmpty ? null : Colors.orange;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Status: ${_status.name}',
+                          style: TextStyle(color: color),
+                        ),
+                        Text('Template: '
+                            '${_selectedSet?.baseSpot.id ?? 'none'}'),
+                        Text('Output: ${_outputDirController.text}'),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -198,6 +209,10 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
             child: AutogenHistoryChartWidget(),
           ),
           const AutogenRealtimeStatsPanel(),
+          SizedBox(
+            height: 200,
+            child: AutogenDuplicateTableWidget(),
+          ),
           SizedBox(
             height: 200,
             child: _sessionId == null

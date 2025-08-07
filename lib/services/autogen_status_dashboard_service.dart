@@ -5,17 +5,17 @@ import 'package:flutter/foundation.dart';
 import '../models/autogen_status.dart';
 import '../models/autogen_session_meta.dart';
 
-class FlaggedPack {
-  final String newPackId;
-  final String existingPackId;
-  final String reason;
+class DuplicatePackInfo {
+  final String candidateId;
+  final String existingId;
   final double similarity;
+  final String reason;
 
-  const FlaggedPack({
-    required this.newPackId,
-    required this.existingPackId,
-    required this.reason,
+  const DuplicatePackInfo({
+    required this.candidateId,
+    required this.existingId,
     required this.similarity,
+    required this.reason,
   });
 }
 
@@ -33,8 +33,8 @@ class AutogenStatusDashboardService {
     const <String, AutogenStatus>{},
   );
 
-  final ValueNotifier<List<FlaggedPack>> flaggedPacksNotifier =
-      ValueNotifier(const <FlaggedPack>[]);
+  final ValueNotifier<List<DuplicatePackInfo>> duplicatesNotifier =
+      ValueNotifier(const <DuplicatePackInfo>[]);
 
   final List<AutogenSessionMeta> _sessions = [];
   final StreamController<List<AutogenSessionMeta>> _sessionController =
@@ -75,25 +75,25 @@ class AutogenStatusDashboardService {
 
   Map<String, AutogenStatus> getAll() => Map.unmodifiable(_statuses);
 
-  List<FlaggedPack> get flaggedPacks =>
-      List.unmodifiable(flaggedPacksNotifier.value);
+  List<DuplicatePackInfo> get duplicates =>
+      List.unmodifiable(duplicatesNotifier.value);
 
   void flagDuplicate(
-    String newPackId,
-    String existingPackId,
+    String candidateId,
+    String existingId,
     String reason,
     double similarity,
   ) {
-    final list = [...flaggedPacksNotifier.value];
+    final list = [...duplicatesNotifier.value];
     list.add(
-      FlaggedPack(
-        newPackId: newPackId,
-        existingPackId: existingPackId,
-        reason: reason,
+      DuplicatePackInfo(
+        candidateId: candidateId,
+        existingId: existingId,
         similarity: similarity,
+        reason: reason,
       ),
     );
-    flaggedPacksNotifier.value = List.unmodifiable(list);
+    duplicatesNotifier.value = List.unmodifiable(list);
   }
 
   void _cleanupOldSessions() {
@@ -111,6 +111,6 @@ class AutogenStatusDashboardService {
     notifier.value = const <String, AutogenStatus>{};
     _sessions.clear();
     _sessionController.add(const <AutogenSessionMeta>[]);
-    flaggedPacksNotifier.value = const <FlaggedPack>[];
+    duplicatesNotifier.value = const <DuplicatePackInfo>[];
   }
 }
