@@ -49,4 +49,7 @@ class SharedPrefsKeys {
 
   // Theory gap detector
   static const String theoryGapReport = 'theory_gap_report';
+
+  // Theory auto-injector
+  static const String theoryInjectReport = 'theory_inject_report';
 }
