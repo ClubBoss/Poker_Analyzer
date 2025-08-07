@@ -8,6 +8,7 @@ import 'training_pack_auto_generator.dart';
 import 'yaml_pack_exporter.dart';
 import 'pack_quality_gatekeeper_service.dart';
 import '../models/training_pack_model.dart';
+import 'pack_generation_metrics_tracker_service.dart';
 
 /// Generates training packs from template sets while automatically skipping
 /// duplicate spots and exporting the results to YAML.
@@ -16,15 +17,18 @@ class AutogenPackGeneratorService {
   final YamlPackExporter _exporter;
   final AutoDeduplicationEngine _dedup;
   final PackQualityGatekeeperService _gatekeeper;
+  final PackGenerationMetricsTrackerService _metrics;
 
   AutogenPackGeneratorService({
     TrainingPackAutoGenerator? generator,
     YamlPackExporter? exporter,
     AutoDeduplicationEngine? dedup,
     PackQualityGatekeeperService? gatekeeper,
+    PackGenerationMetricsTrackerService? metrics,
   })  : _dedup = dedup ?? AutoDeduplicationEngine(),
         _exporter = exporter ?? const YamlPackExporter(),
-        _gatekeeper = gatekeeper ?? const PackQualityGatekeeperService() {
+        _gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
+        _metrics = metrics ?? const PackGenerationMetricsTrackerService() {
     _generator = generator ?? TrainingPackAutoGenerator(dedup: _dedup);
   }
 
@@ -76,10 +80,13 @@ class AutogenPackGeneratorService {
         tags: pack.tags,
         metadata: Map<String, dynamic>.from(pack.meta),
       );
-      if (!_gatekeeper.isQualityAcceptable(model)) {
+      final accepted = _gatekeeper.isQualityAcceptable(model);
+      final score = model.metadata['qualityScore'] as double? ?? 0.0;
+      await _metrics.recordGenerationResult(score: score, accepted: accepted);
+      if (!accepted) {
         continue;
       }
-      pack.meta['qualityScore'] = model.metadata['qualityScore'];
+      pack.meta['qualityScore'] = score;
       files.add(await _exporter.export(pack));
     }
 
