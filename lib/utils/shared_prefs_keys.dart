@@ -9,15 +9,11 @@ class SharedPrefsKeys {
 
   static String boosterInboxLast(String tag) =>
       _boosterTagKey('inbox_last', tag);
-  static final String boosterInboxTotalDate =
-      _boosterKey('inbox_total_date');
-  static final String boosterInboxTotalCount =
-      _boosterKey('inbox_total_count');
-  static final String boosterExclusionLog =
-      _boosterKey('exclusion_log');
+  static final String boosterInboxTotalDate = _boosterKey('inbox_total_date');
+  static final String boosterInboxTotalCount = _boosterKey('inbox_total_count');
+  static final String boosterExclusionLog = _boosterKey('exclusion_log');
 
-  static String boosterOpened(String tag) =>
-      _boosterTagKey('opened', tag);
+  static String boosterOpened(String tag) => _boosterTagKey('opened', tag);
 
   static String boosterDismissed(String tag) =>
       _boosterTagKey('dismissed', tag);
@@ -42,8 +38,7 @@ class SharedPrefsKeys {
   static const String trainingPresetRatingSort = 'training_preset_rating_sort';
   static const String trainingSimpleSortField = 'training_simple_sort_field';
   static const String trainingSimpleSortOrder = 'training_simple_sort_order';
-  static const String trainingCustomTagPresets =
-      'training_custom_tag_presets';
+  static const String trainingCustomTagPresets = 'training_custom_tag_presets';
   static const String trainingQuickPreset = 'training_quick_preset';
   static const String trainingSearchHistory = 'training_search_history';
   static const String trainingSpotListSort = 'training_spot_list_sort';
@@ -51,4 +46,7 @@ class SharedPrefsKeys {
 
   // Skill tag coverage report
   static const String skillTagCoverageReport = 'skill_tag_coverage_report';
+
+  // Theory gap detector
+  static const String theoryGapReport = 'theory_gap_report';
 }
