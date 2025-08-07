@@ -9,11 +9,16 @@ class TrainingProgressChartWidget extends StatefulWidget {
   const TrainingProgressChartWidget({
     super.key,
     this.service,
+    this.dayRange,
   });
 
   /// Service used to load timeline data. Defaults to
   /// [TrainingSessionFingerprintTimelineService].
   final TrainingSessionFingerprintTimelineService? service;
+
+  /// If provided, only show data from the last [dayRange] days.
+  /// When `null`, shows all available data.
+  final int? dayRange;
 
   @override
   State<TrainingProgressChartWidget> createState() =>
@@ -40,7 +45,12 @@ class _TrainingProgressChartWidgetState
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
-        final data = snapshot.data!;
+        var data = snapshot.data!;
+        if (widget.dayRange != null) {
+          final cutoff =
+              DateTime.now().subtract(Duration(days: widget.dayRange!));
+          data = data.where((e) => e.date.isAfter(cutoff)).toList();
+        }
         if (data.isEmpty) {
           return const SizedBox.shrink();
         }
