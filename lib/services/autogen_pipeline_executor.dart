@@ -12,6 +12,7 @@ import 'auto_deduplication_engine.dart';
 import 'training_pack_auto_generator.dart';
 import 'yaml_pack_exporter.dart';
 import 'skill_tag_coverage_tracker.dart';
+import 'skill_tag_coverage_tracker_service.dart';
 import 'autogen_stats_dashboard_service.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'inline_theory_link_auto_injector.dart';
@@ -30,6 +31,7 @@ class AutogenPipelineExecutor {
   final AutoDeduplicationEngine dedup;
   final YamlPackExporter exporter;
   final SkillTagCoverageTracker coverage;
+  final SkillTagCoverageTrackerService coverageService;
   final InlineTheoryLinkAutoInjector theoryInjector;
   final BoardTextureClassifier? boardClassifier;
   final SkillTreeAutoLinker skillLinker;
@@ -46,6 +48,7 @@ class AutogenPipelineExecutor {
     AutoDeduplicationEngine? dedup,
     YamlPackExporter? exporter,
     SkillTagCoverageTracker? coverage,
+    SkillTagCoverageTrackerService? coverageService,
     InlineTheoryLinkAutoInjector? theoryInjector,
     BoardTextureClassifier? boardClassifier,
     SkillTreeAutoLinker? skillLinker,
@@ -59,6 +62,7 @@ class AutogenPipelineExecutor {
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
+        coverageService = coverageService ?? SkillTagCoverageTrackerService(),
         theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
         boardClassifier = boardClassifier,
         skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
@@ -192,6 +196,7 @@ class AutogenPipelineExecutor {
 
         coverage.analyzePack(model);
         dashboard.recordCoverage(coverage.aggregateReport);
+        await coverageService.logPack(model);
 
         final file = await exporter.export(pack);
         files.add(file);

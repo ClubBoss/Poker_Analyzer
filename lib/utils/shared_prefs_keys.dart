@@ -51,4 +51,5 @@ class SharedPrefsKeys {
 
   // Skill tag coverage report
   static const String skillTagCoverageReport = 'skill_tag_coverage_report';
+  static const String skillTagUsageCounts = 'skill_tag_usage_counts';
 }
