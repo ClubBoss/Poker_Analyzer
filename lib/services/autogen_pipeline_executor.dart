@@ -29,6 +29,7 @@ import 'deduplication_policy_engine.dart';
 import 'targeted_pack_booster_engine.dart';
 import 'auto_skill_gap_clusterer.dart';
 import 'auto_format_selector.dart';
+import 'theory_auto_injector.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -50,6 +51,7 @@ class AutogenPipelineExecutor {
   final DeduplicationPolicyEngine policyEngine;
   final TargetedPackBoosterEngine boosterEngine;
   final AutoFormatSelector formatSelector;
+  final TheoryAutoInjector autoInjector;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -70,6 +72,7 @@ class AutogenPipelineExecutor {
     DeduplicationPolicyEngine? policyEngine,
     TargetedPackBoosterEngine? boosterEngine,
     AutoFormatSelector? formatSelector,
+    TheoryAutoInjector? autoInjector,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
@@ -90,7 +93,8 @@ class AutogenPipelineExecutor {
         packComparer = packComparer ?? const PackFingerprintComparer(),
         policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
         boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
-        formatSelector = formatSelector ?? AutoFormatSelector() {
+        formatSelector = formatSelector ?? AutoFormatSelector(),
+        autoInjector = autoInjector ?? TheoryAutoInjector() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -101,6 +105,10 @@ class AutogenPipelineExecutor {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
     List<SkillGapCluster> clusters = const [],
     String? audience,
+    Map<String, List<String>> remediationPlan = const {},
+    Map<String, List<String>> theoryLinkIndex = const {},
+    bool injectDryRun = false,
+    int minLinksPerPack = 1,
   }) async {
     // Load existing YAMLs to prime deduplication engine.
     dashboard.start();
@@ -115,13 +123,18 @@ class AutogenPipelineExecutor {
     var processedCount = 0;
     final existingFingerprints = <PackFingerprint>[];
     final spotGen = const SpotFingerprintGenerator();
+    if (remediationPlan.isNotEmpty && existingYamlPath.isNotEmpty) {
+      await autoInjector.inject(
+        plan: remediationPlan,
+        theoryIndex: theoryLinkIndex,
+        libraryDir: existingYamlPath,
+        minLinksPerPack: minLinksPerPack,
+        dryRun: injectDryRun,
+      );
+    }
     status.update(
       'pipeline',
-      const AutogenStatus(
-        isRunning: true,
-        currentStage: 'init',
-        progress: 0,
-      ),
+      const AutogenStatus(isRunning: true, currentStage: 'init', progress: 0),
     );
     policyEngine.outputDir = existingYamlPath;
     await policyEngine.loadPolicies();
@@ -239,7 +252,7 @@ class AutogenPipelineExecutor {
           id: pack.id,
           hash: fp,
           spots: {
-            for (final TrainingPackSpot s in pack.spots) spotGen.generate(s)
+            for (final TrainingPackSpot s in pack.spots) spotGen.generate(s),
           },
           meta: Map<String, dynamic>.from(pack.meta),
         );
@@ -287,7 +300,7 @@ class AutogenPipelineExecutor {
             id: pack.id,
             hash: fp,
             spots: {
-              for (final TrainingPackSpot s in pack.spots) spotGen.generate(s)
+              for (final TrainingPackSpot s in pack.spots) spotGen.generate(s),
             },
             meta: Map<String, dynamic>.from(pack.meta),
           );
