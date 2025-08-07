@@ -1,22 +1,34 @@
 import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../models/v2/training_pack_template_v2.dart';
 import '../models/autogen_status.dart';
+import '../models/game_type.dart';
+import '../core/training/engine/training_type_engine.dart';
 import 'training_pack_generator_engine_v2.dart';
 import 'auto_deduplication_engine.dart';
 import 'autogen_status_dashboard_service.dart';
+import 'autogen_pack_error_classifier_service.dart';
+import 'autogen_error_stats_logger.dart';
 
 /// Wrapper around [TrainingPackGeneratorEngineV2] that skips duplicate spots.
 class TrainingPackAutoGenerator {
   final TrainingPackGeneratorEngineV2 _engine;
   final AutoDeduplicationEngine _dedup;
+  final AutogenPackErrorClassifierService _errorClassifier;
+  final AutogenErrorStatsLogger? _errorStats;
   bool _shouldAbort = false;
 
   TrainingPackAutoGenerator({
     TrainingPackGeneratorEngineV2? engine,
     AutoDeduplicationEngine? dedup,
+    AutogenPackErrorClassifierService? errorClassifier,
+    AutogenErrorStatsLogger? errorStats,
   })  : _engine = engine ?? TrainingPackGeneratorEngineV2(),
-        _dedup = dedup ?? AutoDeduplicationEngine();
+        _dedup = dedup ?? AutoDeduplicationEngine(),
+        _errorClassifier =
+            errorClassifier ?? const AutogenPackErrorClassifierService(),
+        _errorStats = errorStats;
 
   /// Generates spots from [set] and optionally deduplicates them based on
   /// fingerprints.
@@ -51,6 +63,11 @@ class TrainingPackAutoGenerator {
         _dedup.addExisting(existingSpots);
       }
       final spots = _engine.generate(set, theoryIndex: theoryIndex);
+      if (spots.isEmpty) {
+        final pack = _buildPack(set, spots);
+        final type = _errorClassifier.classify(pack, null);
+        _errorStats?.log(type);
+      }
       if (_shouldAbort || !deduplicate) {
         status.update(
           'TrainingPackAutoGenerator',
@@ -64,6 +81,12 @@ class TrainingPackAutoGenerator {
       }
 
       final filtered = _dedup.deduplicate(spots, source: set.baseSpot.id);
+      if (spots.isNotEmpty && filtered.isEmpty) {
+        final pack = _buildPack(set, spots);
+        final type =
+            _errorClassifier.classify(pack, Exception('duplicate spots'));
+        _errorStats?.log(type);
+      }
       status.update(
         'TrainingPackAutoGenerator',
         const AutogenStatus(
@@ -74,6 +97,12 @@ class TrainingPackAutoGenerator {
       );
       return filtered;
     } catch (e) {
+      final pack = _buildPack(set, const []);
+      final type = _errorClassifier.classify(
+        pack,
+        e is Exception ? e : Exception(e.toString()),
+      );
+      _errorStats?.log(type);
       status.update(
         'TrainingPackAutoGenerator',
         AutogenStatus(
@@ -85,6 +114,25 @@ class TrainingPackAutoGenerator {
       );
       rethrow;
     }
+  }
+
+  TrainingPackTemplateV2 _buildPack(
+    TrainingPackTemplateSet set,
+    List<TrainingPackSpot> spots,
+  ) {
+    final base = set.baseSpot;
+    return TrainingPackTemplateV2(
+      id: base.id,
+      name: base.title.isNotEmpty ? base.title : base.id,
+      trainingType: TrainingType.custom,
+      spots: spots,
+      spotCount: spots.length,
+      tags: List<String>.from(base.tags),
+      gameType: GameType.cash,
+      bb: base.hand.stacks['0']?.toInt() ?? 0,
+      positions: [base.hand.position.name],
+      meta: Map<String, dynamic>.from(base.meta),
+    );
   }
 
   /// Requests the generator to stop processing.
