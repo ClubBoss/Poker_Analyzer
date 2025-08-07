@@ -5,6 +5,7 @@ import '../../services/training_coverage_service.dart';
 import '../pack_coverage_stats_screen.dart';
 import '../theory_coverage_dashboard.dart';
 import '../yaml_coverage_stats_screen.dart';
+import '../pack_tag_counter_debugger_screen.dart';
 
 class CoverageSection extends StatefulWidget {
   const CoverageSection({super.key});
@@ -22,8 +23,9 @@ class _CoverageSectionState extends State<CoverageSection> {
     final ok = await compute(_coverageTask, '');
     if (!mounted) return;
     setState(() => _exporting = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(ok ? 'Готово' : 'Ошибка')));
   }
 
   @override
@@ -55,6 +57,18 @@ class _CoverageSectionState extends State<CoverageSection> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const PackCoverageStatsScreen(),
+                ),
+              );
+            },
+          ),
+        if (kDebugMode)
+          ListTile(
+            title: const Text('📊 Tag Coverage'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PackTagCounterDebuggerScreen(),
                 ),
               );
             },
