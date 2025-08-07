@@ -23,7 +23,7 @@ class SpotSeedValidator {
   final SpotSeedValidatorPreferences prefs;
 
   const SpotSeedValidator({SpotSeedValidatorPreferences? preferences})
-    : prefs = preferences ?? const SpotSeedValidatorPreferences();
+      : prefs = preferences ?? const SpotSeedValidatorPreferences();
 
   /// Returns a list of issues found within [seed].
   List<SeedIssue> validate(SpotSeed seed) {
@@ -80,11 +80,14 @@ class SpotSeedValidator {
 
     // Range requirement based on board presence
     if (prefs.requireRangesForStreets.isNotEmpty) {
-      final streets = prefs.requireRangesForStreets.map((s) => s.toLowerCase());
-      final needsRanges =
-          (streets.contains('flop') && (seed.board.flop?.isNotEmpty ?? false)) ||
-          (streets.contains('turn') && (seed.board.turn?.isNotEmpty ?? false)) ||
-          (streets.contains('river') && (seed.board.river?.isNotEmpty ?? false));
+      final streets =
+          prefs.requireRangesForStreets.map((s) => s.toLowerCase()).toSet();
+      final needsRanges = (streets.contains('flop') &&
+              (seed.board.flop?.isNotEmpty ?? false)) ||
+          (streets.contains('turn') &&
+              (seed.board.turn?.isNotEmpty ?? false)) ||
+          (streets.contains('river') &&
+              (seed.board.river?.isNotEmpty ?? false));
       if (needsRanges &&
           (seed.ranges.hero == null || seed.ranges.villain == null)) {
         issues.add(
