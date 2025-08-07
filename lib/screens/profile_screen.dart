@@ -12,6 +12,7 @@ import '../services/training_pack_cloud_sync_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
+import '../widgets/training_progress_chart_widget.dart';
 import 'basic_achievements_screen.dart';
 import 'booster_library_screen.dart';
 import 'booster_archive_screen.dart';
@@ -27,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late int _evaluated;
   late int _correct;
   final List<MapEntry<TrainingPackStat, String>> _stats = [];
+  int? _progressRange = 7;
 
   void _load() {
     final service = EvaluationExecutorService();
@@ -259,57 +261,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('Accuracy: ${(acc * 100).toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white, fontSize: 16)),
             const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _reset,
-            child: const Text('Reset Accuracy'),
-          ),
-          const SizedBox(height: 16),
-          _buildChart(),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AchievementsScreen()),
-              );
-            },
-            child: const Text('Достижения'),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const BoosterLibraryScreen()),
-              );
-            },
-            child: const Text('Booster Library'),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const BoosterArchiveScreen()),
-              );
-            },
-            child: const Text('Booster Archive'),
-          ),
-          const SizedBox(height: 16),
-          Consumer<AuthService>(
-            builder: (context, auth, child) {
-              if (auth.isSignedIn) {
-                final email = auth.email;
-                return ElevatedButton(
-                  onPressed: auth.signOut,
-                  child: Text('Sign Out ($email)'),
+            const Text('Your Progress',
+                style: TextStyle(color: Colors.white, fontSize: 16)),
+            const SizedBox(height: 8),
+            ToggleButtons(
+              isSelected: [
+                _progressRange == 7,
+                _progressRange == 30,
+                _progressRange == null,
+              ],
+              onPressed: (index) {
+                setState(() {
+                  _progressRange = const [7, 30, null][index];
+                });
+              },
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text('7 days'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text('30 days'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text('All time'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            TrainingProgressChartWidget(dayRange: _progressRange),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _reset,
+              child: const Text('Reset Accuracy'),
+            ),
+            const SizedBox(height: 16),
+            _buildChart(),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AchievementsScreen()),
                 );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
+              },
+              child: const Text('Достижения'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const BoosterLibraryScreen(),
+                  ),
+                );
+              },
+              child: const Text('Booster Library'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const BoosterArchiveScreen(),
+                  ),
+                );
+              },
+              child: const Text('Booster Archive'),
+            ),
+            const SizedBox(height: 16),
+            Consumer<AuthService>(
+              builder: (context, auth, child) {
+                if (auth.isSignedIn) {
+                  final email = auth.email;
+                  return ElevatedButton(
+                    onPressed: auth.signOut,
+                    child: Text('Sign Out ($email)'),
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
                       final ok = await auth.signInWithGoogle();
                       if (ok) {
                         final cloud = context.read<CloudSyncService>();
