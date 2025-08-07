@@ -13,6 +13,7 @@ import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../utils/responsive.dart';
 import '../widgets/training_progress_chart_widget.dart';
+import '../widgets/training_goal_tracker_widget.dart';
 import 'basic_achievements_screen.dart';
 import 'booster_library_screen.dart';
 import 'booster_archive_screen.dart';
@@ -70,17 +71,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _legendItem(Color color, String text) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 4),
-          Text(text, style: const TextStyle(color: Colors.white, fontSize: 10)),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 4),
+      Text(text, style: const TextStyle(color: Colors.white, fontSize: 10)),
+    ],
+  );
 
   Widget _buildChart() {
     if (_stats.isEmpty) {
@@ -91,8 +92,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Text('Недостаточно данных',
-            style: TextStyle(color: Colors.white70)),
+        child: const Text(
+          'Недостаточно данных',
+          style: TextStyle(color: Colors.white70),
+        ),
       );
     }
     final preEv = <FlSpot>[];
@@ -162,7 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           LineTooltipItem(
                             '${e.value}\nEV ${e.key.preEvPct.toStringAsFixed(1)} → ${e.key.postEvPct.toStringAsFixed(1)}\nICM ${e.key.preIcmPct.toStringAsFixed(1)} → ${e.key.postIcmPct.toStringAsFixed(1)}',
                             const TextStyle(color: Colors.white, fontSize: 12),
-                          )
+                          ),
                         ];
                       },
                     ),
@@ -175,10 +178,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const FlLine(color: Colors.white24, strokeWidth: 1),
                   ),
                   titlesData: FlTitlesData(
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -187,7 +192,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         getTitlesWidget: (value, meta) => Text(
                           value.toInt().toString(),
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 10),
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
                     ),
@@ -206,9 +213,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           final d = _stats[index].key.last;
                           final label =
                               '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                          return Text(label,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 10));
+                          return Text(
+                            label,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -255,14 +266,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Streak: $streak',
-                style: const TextStyle(color: Colors.white, fontSize: 16)),
+            Text(
+              'Streak: $streak',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
             const SizedBox(height: 8),
-            Text('Accuracy: ${(acc * 100).toStringAsFixed(1)}%',
-                style: const TextStyle(color: Colors.white, fontSize: 16)),
+            Text(
+              'Accuracy: ${(acc * 100).toStringAsFixed(1)}%',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
             const SizedBox(height: 16),
-            const Text('Your Progress',
-                style: TextStyle(color: Colors.white, fontSize: 16)),
+            const Text(
+              'Your Progress',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
             const SizedBox(height: 8),
             ToggleButtons(
               isSelected: [
@@ -292,6 +309,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 8),
             TrainingProgressChartWidget(dayRange: _progressRange),
+            const SizedBox(height: 16),
+            const TrainingGoalTrackerWidget(),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _reset,
@@ -348,38 +367,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-                      final ok = await auth.signInWithGoogle();
-                      if (ok) {
-                        final cloud = context.read<CloudSyncService>();
-                        await cloud.syncDown();
-                        await context
-                            .read<TrainingPackCloudSyncService>()
-                            .syncDownStats();
-                      }
-                    },
-                    child: const Text('Sign In with Google'),
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final ok = await auth.signInWithApple();
-                      if (ok) {
-                        final cloud = context.read<CloudSyncService>();
-                        await cloud.syncDown();
-                        await context
-                            .read<TrainingPackCloudSyncService>()
-                            .syncDownStats();
-                      }
-                    },
-                    child: const Text('Sign In with Apple'),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+                        final ok = await auth.signInWithGoogle();
+                        if (ok) {
+                          final cloud = context.read<CloudSyncService>();
+                          await cloud.syncDown();
+                          await context
+                              .read<TrainingPackCloudSyncService>()
+                              .syncDownStats();
+                        }
+                      },
+                      child: const Text('Sign In with Google'),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final ok = await auth.signInWithApple();
+                        if (ok) {
+                          final cloud = context.read<CloudSyncService>();
+                          await cloud.syncDown();
+                          await context
+                              .read<TrainingPackCloudSyncService>()
+                              .syncDownStats();
+                        }
+                      },
+                      child: const Text('Sign In with Apple'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
