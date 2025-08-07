@@ -1,6 +1,8 @@
 import '../models/inline_theory_entry.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/training_pack_model.dart';
+import '../models/autogen_status.dart';
+import 'autogen_status_dashboard_service.dart';
 
 /// Injects references to [InlineTheoryEntry] into [TrainingPackSpot]s based on
 /// matching tags.
@@ -15,11 +17,41 @@ class InlineTheoryLinkAutoInjector {
     TrainingPackModel model,
     Map<String, InlineTheoryEntry> theoryIndex,
   ) {
-    final count = _injectAll(model.spots, theoryIndex);
-    if (count > 0) {
-      print('InlineTheoryLinkAutoInjector: injected $count links');
+    final status = AutogenStatusDashboardService.instance;
+    status.update(
+      'InlineTheoryLinkAutoInjector',
+      const AutogenStatus(
+        isRunning: true,
+        currentStage: 'inject',
+        progress: 0,
+      ),
+    );
+    try {
+      final count = _injectAll(model.spots, theoryIndex, status);
+      if (count > 0) {
+        print('InlineTheoryLinkAutoInjector: injected $count links');
+      }
+      status.update(
+        'InlineTheoryLinkAutoInjector',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'complete',
+          progress: 1,
+        ),
+      );
+      return model;
+    } catch (e) {
+      status.update(
+        'InlineTheoryLinkAutoInjector',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: 'error',
+          progress: 0,
+          lastError: e.toString(),
+        ),
+      );
+      rethrow;
     }
-    return model;
   }
 
   /// Convenience method to inject links into a list of [spots].
@@ -27,19 +59,51 @@ class InlineTheoryLinkAutoInjector {
     List<TrainingPackSpot> spots,
     Map<String, InlineTheoryEntry> theoryIndex,
   ) {
-    final count = _injectAll(spots, theoryIndex);
-    if (count > 0) {
-      print('InlineTheoryLinkAutoInjector: injected $count links');
+    final status = AutogenStatusDashboardService.instance;
+    status.update(
+      'InlineTheoryLinkAutoInjector',
+      const AutogenStatus(
+        isRunning: true,
+        currentStage: 'inject',
+        progress: 0,
+      ),
+    );
+    try {
+      final count = _injectAll(spots, theoryIndex, status);
+      if (count > 0) {
+        print('InlineTheoryLinkAutoInjector: injected $count links');
+      }
+      status.update(
+        'InlineTheoryLinkAutoInjector',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'complete',
+          progress: 1,
+        ),
+      );
+    } catch (e) {
+      status.update(
+        'InlineTheoryLinkAutoInjector',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: 'error',
+          progress: 0,
+          lastError: e.toString(),
+        ),
+      );
+      rethrow;
     }
   }
 
   int _injectAll(
     List<TrainingPackSpot> spots,
     Map<String, InlineTheoryEntry> theoryIndex,
+    AutogenStatusDashboardService status,
   ) {
     final used = <String>{};
     var injected = 0;
-    for (final spot in spots) {
+    for (var i = 0; i < spots.length; i++) {
+      final spot = spots[i];
       if (spot.inlineTheory != null) {
         final id = spot.inlineTheory!.id ?? spot.inlineTheory!.tag;
         used.add(id);
@@ -60,6 +124,14 @@ class InlineTheoryLinkAutoInjector {
         injected++;
         break;
       }
+      status.update(
+        'InlineTheoryLinkAutoInjector',
+        AutogenStatus(
+          isRunning: true,
+          currentStage: 'inject',
+          progress: (i + 1) / spots.length,
+        ),
+      );
     }
     return injected;
   }
