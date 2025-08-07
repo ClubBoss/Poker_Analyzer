@@ -28,6 +28,7 @@ import 'spot_fingerprint_generator.dart';
 import 'deduplication_policy_engine.dart';
 import 'targeted_pack_booster_engine.dart';
 import 'auto_skill_gap_clusterer.dart';
+import 'auto_format_selector.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -48,6 +49,7 @@ class AutogenPipelineExecutor {
   final PackFingerprintComparer packComparer;
   final DeduplicationPolicyEngine policyEngine;
   final TargetedPackBoosterEngine boosterEngine;
+  final AutoFormatSelector formatSelector;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -67,6 +69,7 @@ class AutogenPipelineExecutor {
     PackFingerprintComparer? packComparer,
     DeduplicationPolicyEngine? policyEngine,
     TargetedPackBoosterEngine? boosterEngine,
+    AutoFormatSelector? formatSelector,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
@@ -86,7 +89,8 @@ class AutogenPipelineExecutor {
         runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
         packComparer = packComparer ?? const PackFingerprintComparer(),
         policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
-        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine() {
+        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
+        formatSelector = formatSelector ?? AutoFormatSelector() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -96,9 +100,15 @@ class AutogenPipelineExecutor {
     String existingYamlPath = '',
     Map<String, InlineTheoryEntry> theoryIndex = const {},
     List<SkillGapCluster> clusters = const [],
+    String? audience,
   }) async {
     // Load existing YAMLs to prime deduplication engine.
     dashboard.start();
+    await formatSelector.load();
+    final appliedFormat = formatSelector.effectiveFormat(audience: audience);
+    if (formatSelector.autoApply) {
+      formatSelector.applyTo(generator, audience: audience);
+    }
     var generatedCount = 0;
     var rejectedCount = 0;
     var totalQualityScore = 0.0;
@@ -311,6 +321,7 @@ class AutogenPipelineExecutor {
         generated: generatedCount,
         rejected: rejectedCount,
         avgScore: avgQuality,
+        format: appliedFormat,
       );
       status.update(
         'pipeline',

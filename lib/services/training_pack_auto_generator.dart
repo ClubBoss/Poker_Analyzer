@@ -19,6 +19,9 @@ class TrainingPackAutoGenerator {
   final AutogenPackErrorClassifierService _errorClassifier;
   final AutogenErrorStatsLogger? _errorStats;
   final TrainingPackTemplateRegistryService _registry;
+  int spotsPerPack;
+  int streets;
+  double theoryRatio;
   bool _shouldAbort = false;
 
   TrainingPackAutoGenerator({
@@ -27,6 +30,9 @@ class TrainingPackAutoGenerator {
     AutogenPackErrorClassifierService? errorClassifier,
     AutogenErrorStatsLogger? errorStats,
     TrainingPackTemplateRegistryService? registry,
+    this.spotsPerPack = 12,
+    this.streets = 1,
+    this.theoryRatio = 0.5,
   })  : _engine = engine ?? TrainingPackGeneratorEngineV2(),
         _dedup = dedup ?? AutoDeduplicationEngine(),
         _errorClassifier =

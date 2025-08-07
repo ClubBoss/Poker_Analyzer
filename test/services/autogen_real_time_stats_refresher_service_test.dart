@@ -7,6 +7,7 @@ import 'package:poker_analyzer/services/autogen_real_time_stats_refresher_servic
 import 'package:poker_analyzer/services/autogen_run_history_logger_service.dart';
 import 'package:poker_analyzer/services/autogen_status_dashboard_service.dart';
 import 'package:poker_analyzer/models/autogen_status.dart';
+import 'package:poker_analyzer/models/training_run_record.dart';
 
 void main() {
   test('emits ticks only while running', () async {
@@ -14,7 +15,11 @@ void main() {
     final logger = AutogenRunHistoryLoggerService(
       filePath: p.join(dir.path, 'history.json'),
     );
-    await logger.logRun(generated: 1, rejected: 0, avgScore: 0.5);
+    await logger.logRun(
+        generated: 1,
+        rejected: 0,
+        avgScore: 0.5,
+        format: const FormatMeta(spotsPerPack: 12, streets: 1, theoryRatio: 0.5));
 
     final status = AutogenStatusDashboardService.instance;
     final refresher = AutogenRealTimeStatsRefresherService(
