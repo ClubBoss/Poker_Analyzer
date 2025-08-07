@@ -27,4 +27,18 @@ class AutogenErrorStatsLogger {
 
   /// Returns an immutable view of the recorded counts.
   Map<AutogenPackErrorType, int> get counts => Map.unmodifiable(_counts);
+
+  /// Exports the current error counts to CSV format.
+  ///
+  /// The first line is a header `error_type,count`. Each subsequent line lists
+  /// an [AutogenPackErrorType] name and its associated count. Types with no
+  /// recorded occurrences are included with a count of zero.
+  String exportCsv() {
+    final buffer = StringBuffer('error_type,count\n');
+    for (final type in AutogenPackErrorType.values) {
+      final count = _counts[type] ?? 0;
+      buffer.writeln('${type.name},$count');
+    }
+    return buffer.toString();
+  }
 }

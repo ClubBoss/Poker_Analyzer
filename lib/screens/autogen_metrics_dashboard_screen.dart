@@ -1,11 +1,18 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../services/pack_generation_metrics_tracker_service.dart';
 import '../services/autogen_metrics_history_service.dart';
 import '../services/autogen_error_stats_logger.dart';
 import '../services/autogen_pack_error_classifier_service.dart';
+import '../services/file_saver_service.dart';
 import '../widgets/autogen_debug_control_panel_widget.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
@@ -51,6 +58,33 @@ class _AutogenMetricsDashboardScreenState
     await _service.clearMetrics();
     _errorStats.clear();
     await _loadMetrics();
+  }
+
+  Future<void> _exportErrors() async {
+    final csv = _errorStats.exportCsv();
+    try {
+      if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
+        await FileSaverService.instance
+            .saveCsv('autogen_error_breakdown', csv);
+      } else {
+        final dir = await getDownloadsDirectory() ??
+            await getApplicationDocumentsDirectory();
+        final file = File(p.join(dir.path, 'autogen_error_breakdown.csv'));
+        await file.writeAsString(csv);
+        await Share.shareXFiles([XFile(file.path)]);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error breakdown exported')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to export errors: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _loadHistory() async {
@@ -139,6 +173,11 @@ class _AutogenMetricsDashboardScreenState
                         .toStringAsFixed(2)),
                 _buildTile('Last Run', _formatLastRun()),
                 _buildErrorBreakdown(),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _exportErrors,
+                  child: const Text('Export Errors to CSV'),
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _resetMetrics,
