@@ -51,5 +51,22 @@ void main() {
     expect(result.length, 1);
     expect(result.first.id, 'b');
   });
-}
 
+  test('tracks number of skipped duplicates', () {
+    final spot1 = TrainingPackSpot(
+      id: 'a',
+      hand: HandData(heroCards: 'Ah As', position: HeroPosition.sb),
+      villainAction: 'fold',
+    );
+    final spot2 = TrainingPackSpot(
+      id: 'b',
+      hand: HandData(heroCards: 'As Ah', position: HeroPosition.sb),
+      villainAction: 'fold',
+    );
+
+    final engine = AutoDeduplicationEngine();
+    engine.deduplicate([spot1, spot2]);
+
+    expect(engine.skippedCount, 1);
+  });
+}
