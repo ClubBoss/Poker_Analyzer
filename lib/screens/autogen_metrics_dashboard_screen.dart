@@ -14,6 +14,7 @@ import '../services/autogen_error_stats_logger.dart';
 import '../services/autogen_pack_error_classifier_service.dart';
 import '../services/file_saver_service.dart';
 import '../widgets/autogen_debug_control_panel_widget.dart';
+import '../widgets/run_comparison_window.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
 class AutogenMetricsDashboardScreen extends StatefulWidget {
@@ -35,6 +36,7 @@ class _AutogenMetricsDashboardScreenState
   bool _loading = true;
   Map<String, dynamic> _metrics = const {};
   List<RunMetricsEntry> _history = const [];
+  List<RunMetricsEntry> _lastTwoRuns = const [];
   bool _showQuality = true;
   bool _showAcceptance = true;
 
@@ -89,9 +91,11 @@ class _AutogenMetricsDashboardScreenState
 
   Future<void> _loadHistory() async {
     final h = await _historyService.loadHistory();
+    final lastTwo = await _historyService.getLastTwoRuns();
     if (!mounted) return;
     setState(() {
       _history = h;
+      _lastTwoRuns = lastTwo;
     });
   }
 
@@ -160,6 +164,8 @@ class _AutogenMetricsDashboardScreenState
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                RunComparisonWindow(entries: _lastTwoRuns),
+                const SizedBox(height: 16),
                 const AutogenDebugControlPanelWidget(),
                 const SizedBox(height: 16),
                 _buildTile('Generated',

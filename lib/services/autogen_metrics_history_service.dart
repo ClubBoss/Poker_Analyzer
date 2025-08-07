@@ -63,5 +63,12 @@ class AutogenMetricsHistoryService {
     } catch (_) {}
     return [];
   }
+
+  /// Returns the two most recent [RunMetricsEntry] items, newest first.
+  Future<List<RunMetricsEntry>> getLastTwoRuns() async {
+    final history = await loadHistory();
+    final reversed = history.reversed.toList();
+    return reversed.take(2).toList();
+  }
 }
 
