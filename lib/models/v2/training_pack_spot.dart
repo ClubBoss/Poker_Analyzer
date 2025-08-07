@@ -10,7 +10,9 @@ import 'package:uuid/uuid.dart';
 import '../../services/inline_theory_linker.dart';
 import '../inline_theory_entry.dart';
 
-class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel {
+class TrainingPackSpot
+    with CopyWithMixin<TrainingPackSpot>
+    implements SpotModel {
   final String id;
   String type;
   String title;
@@ -47,7 +49,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
 
   /// Ephemeral reference to inline theory content matched by tags.
   ///
-  /// Populated at runtime by [TheoryLinkAutoInjector] and never serialized.
+  /// Populated at runtime by [InlineTheoryLinkAutoInjector] and never serialized.
   InlineTheoryEntry? inlineTheory;
 
   /// Ephemeral link to a related theory lesson.
@@ -55,6 +57,11 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
   /// This field is populated at runtime by [AutoSpotTheoryInjectorService]
   /// and is never serialized.
   InlineTheoryLink? theoryLink;
+
+  /// Ephemeral list of IDs for theory mini-lessons relevant to this spot.
+  ///
+  /// Populated at runtime by [TheoryLinkAutoInjector] and never serialized.
+  List<String> theoryRefs;
 
   TrainingPackSpot({
     required this.id,
@@ -79,6 +86,7 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
     DateTime? createdAt,
     this.templateSourceId,
     this.inlineLessonId,
+    List<String>? theoryRefs,
   }) : hand = hand ?? HandData(),
        tags = tags != null ? List<String>.from(tags) : <String>[],
        categories = categories != null
@@ -92,7 +100,10 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
            ? Map<String, dynamic>.from(meta)
            : <String, dynamic>{},
        editedAt = editedAt ?? DateTime.now(),
-       createdAt = createdAt ?? DateTime.now();
+       createdAt = createdAt ?? DateTime.now(),
+       theoryRefs = theoryRefs != null
+           ? List<String>.from(theoryRefs)
+           : <String>[];
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
     id: j['id']?.toString() ?? '',
@@ -165,29 +176,29 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
   }
 
   Map<String, dynamic> _serialize({bool includeInlineLessonId = false}) => {
-        'id': id,
-        'type': type,
-        'title': title,
-        'note': note,
-        'hand': hand.toJson(),
-        if (tags.isNotEmpty) 'tags': tags,
-        if (categories.isNotEmpty) 'categories': categories,
-        'editedAt': editedAt.toIso8601String(),
-        'createdAt': createdAt.toIso8601String(),
-        if (pinned) 'pinned': true,
-        if (priority != 3) 'priority': priority,
-        if (evalResult != null) 'evalResult': evalResult!.toJson(),
-        if (correctAction != null) 'correctAction': correctAction,
-        if (explanation != null) 'explanation': explanation,
-        if (board.isNotEmpty) 'board': board,
-        if (street > 0) 'street': street,
-        if (villainAction != null) 'villainAction': villainAction,
-        if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
-        if (meta.isNotEmpty) 'meta': meta,
-        if (templateSourceId != null) 'templateSourceId': templateSourceId,
-        if (includeInlineLessonId && inlineLessonId != null)
-          'inlineLessonId': inlineLessonId,
-      };
+    'id': id,
+    'type': type,
+    'title': title,
+    'note': note,
+    'hand': hand.toJson(),
+    if (tags.isNotEmpty) 'tags': tags,
+    if (categories.isNotEmpty) 'categories': categories,
+    'editedAt': editedAt.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    if (pinned) 'pinned': true,
+    if (priority != 3) 'priority': priority,
+    if (evalResult != null) 'evalResult': evalResult!.toJson(),
+    if (correctAction != null) 'correctAction': correctAction,
+    if (explanation != null) 'explanation': explanation,
+    if (board.isNotEmpty) 'board': board,
+    if (street > 0) 'street': street,
+    if (villainAction != null) 'villainAction': villainAction,
+    if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
+    if (meta.isNotEmpty) 'meta': meta,
+    if (templateSourceId != null) 'templateSourceId': templateSourceId,
+    if (includeInlineLessonId && inlineLessonId != null)
+      'inlineLessonId': inlineLessonId,
+  };
 
   @override
   Map<String, dynamic> toJson() => _serialize();
@@ -250,7 +261,8 @@ class TrainingPackSpot with CopyWithMixin<TrainingPackSpot> implements SpotModel
     }
 
     final inlineId =
-        yaml['inlineLessonId']?.toString() ?? yaml['inlineTheoryId']?.toString();
+        yaml['inlineLessonId']?.toString() ??
+        yaml['inlineTheoryId']?.toString();
     if (inlineId?.isNotEmpty == true) {
       map['inlineLessonId'] = inlineId;
     }
