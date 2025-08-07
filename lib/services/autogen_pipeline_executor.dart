@@ -169,6 +169,10 @@ class AutogenPipelineExecutor {
   }
 
   /// Runs the pipeline on [sets].
+  ///
+  /// Returns the list of files exported for the primary generation step.
+  /// Boosted packs are exported separately and are not included in the
+  /// returned collection.
   Future<List<File>> execute(
     List<TrainingPackTemplateSet> sets, {
     String existingYamlPath = '',
@@ -351,10 +355,10 @@ class AutogenPipelineExecutor {
       dashboard.recordSkipped(dedup.skippedCount);
       await dedup.dispose();
       final boostRequests = await boosterEngine.detectBoostCandidates();
-      final boosted = <TrainingPackTemplateV2>[];
-      if (boostRequests.isNotEmpty) {
-        boosted.addAll(await boosterEngine.boostPacks(boostRequests));
-        for (final pack in boosted) {
+      final boosted = boostRequests.isNotEmpty
+          ? await boosterEngine.boostPacks(boostRequests)
+          : <TrainingPackTemplateV2>[];
+      for (final pack in boosted) {
           final model = TrainingPackModel(
             id: pack.id,
             title: pack.name,
@@ -388,7 +392,6 @@ class AutogenPipelineExecutor {
           await policyEngine.applyPolicies(duplicates);
           existingFingerprints.add(pf);
         }
-      }
       await coverage.logSummary();
       await _fingerprintLog.flush();
       await _fingerprintLog.close();
