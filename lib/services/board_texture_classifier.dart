@@ -1,14 +1,23 @@
 import '../models/card_model.dart';
-import '../models/board_texture_tag.dart';
 import '../models/v2/training_pack_spot.dart';
 
-/// Classifies board textures for generated training spots.
+/// Classifies flop boards into descriptive texture tags.
 class BoardTextureClassifier {
   const BoardTextureClassifier();
 
-  /// Returns a set of tags describing [board]'s texture.
-  Set<BoardTextureTag> classify(List<CardModel> board) {
-    final tags = <BoardTextureTag>{};
+  /// Classifies [flop] such as `'7c5s2h'` into a set of texture tags.
+  Set<String> classify(String flop) {
+    final cards = <CardModel>[];
+    final cleaned = flop.replaceAll(RegExp(r'\s+'), '');
+    for (var i = 0; i + 1 < cleaned.length; i += 2) {
+      cards.add(CardModel(rank: cleaned[i], suit: cleaned[i + 1]));
+    }
+    return classifyCards(cards);
+  }
+
+  /// Returns texture tags for [board] represented by [CardModel]s.
+  Set<String> classifyCards(List<CardModel> board) {
+    final tags = <String>{};
     if (board.isEmpty) return tags;
 
     final ranks = board.map((c) => _rankValue(c.rank)).toList()..sort();
@@ -20,50 +29,53 @@ class BoardTextureClassifier {
       rankCounts[r] = (rankCounts[r] ?? 0) + 1;
     }
     if (rankCounts.values.contains(3)) {
-      tags.add(BoardTextureTag.trip);
+      tags.add('trip');
     }
     if (rankCounts.values.any((c) => c >= 2)) {
-      tags.add(BoardTextureTag.paired);
+      tags.add('paired');
+    } else {
+      tags.add('unpaired');
     }
 
-    // Highest rank
+    // Highest rank categories
     final maxRank = ranks.last;
-    if (maxRank == 14) {
-      tags.add(BoardTextureTag.aceHigh);
-      tags.add(BoardTextureTag.high);
-    } else if (maxRank == 13) {
-      tags.add(BoardTextureTag.kingHigh);
-      tags.add(BoardTextureTag.high);
-    } else if (maxRank >= 10) {
-      tags.add(BoardTextureTag.high);
+    if (maxRank >= 11) {
+      tags.add('high');
+    } else if (maxRank >= 9) {
+      tags.add('mid');
     } else {
-      tags.add(BoardTextureTag.low);
+      tags.add('low');
     }
+
+    // Specific high-card tags
+    if (ranks.contains(14)) tags.add('aceHigh');
+    if (ranks.contains(13)) tags.add('kingHigh');
+    if (ranks.every((r) => r >= 10)) tags.add('broadway');
 
     // Suit distribution
     final uniqueSuits = suits.toSet().length;
     if (uniqueSuits == 1) {
-      tags.add(BoardTextureTag.monotone);
+      tags.add('monotone');
     } else if (uniqueSuits == 2) {
-      tags.add(BoardTextureTag.twoTone);
+      tags.add('twoTone');
     } else {
-      tags.add(BoardTextureTag.rainbow);
+      tags.add('rainbow');
     }
 
     // Connectedness
     if (ranks.last - ranks.first <= 4) {
-      tags.add(BoardTextureTag.straighty);
+      tags.add('connected');
     } else {
-      tags.add(BoardTextureTag.disconnected);
+      tags.add('disconnected');
     }
 
     // Wet vs dry
     final hasFlushDraw = uniqueSuits <= 2;
     final hasStraightDraw = ranks.last - ranks.first <= 4;
-    if (hasFlushDraw || hasStraightDraw || tags.contains(BoardTextureTag.paired)) {
-      tags.add(BoardTextureTag.wet);
+    if (hasFlushDraw || hasStraightDraw || tags.contains('paired')) {
+      tags.add('wet');
     } else {
-      tags.add(BoardTextureTag.dry);
+      tags.add('dry');
     }
 
     return tags;
@@ -75,7 +87,7 @@ class BoardTextureClassifier {
       final board = [
         for (final c in s.board) CardModel(rank: c[0], suit: c[1])
       ];
-      final tags = classify(board).map((e) => e.name).toList();
+      final tags = classifyCards(board).toList();
       s.meta['boardTextureTags'] = tags;
     }
   }
