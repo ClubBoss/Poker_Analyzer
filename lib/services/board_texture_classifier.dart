@@ -1,5 +1,4 @@
 import '../models/card_model.dart';
-import '../models/v2/training_pack_spot.dart';
 
 /// Classifies flop boards into descriptive texture tags.
 class BoardTextureClassifier {
@@ -20,76 +19,91 @@ class BoardTextureClassifier {
     final tags = <String>{};
     if (board.isEmpty) return tags;
 
-    final ranks = board.map((c) => _rankValue(c.rank)).toList()..sort();
+    // Map ranks and suits.
+    final ranks = board.map((c) => _rankValue(c.rank)).toList();
     final suits = board.map((c) => c.suit).toList();
 
-    // Duplication checks
+    // Count ranks and suits.
     final rankCounts = <int, int>{};
-    for (final r in ranks) {
+    final suitCounts = <String, int>{};
+    for (var i = 0; i < ranks.length; i++) {
+      final r = ranks[i];
       rankCounts[r] = (rankCounts[r] ?? 0) + 1;
-    }
-    if (rankCounts.values.contains(3)) {
-      tags.add('trip');
-    }
-    if (rankCounts.values.any((c) => c >= 2)) {
-      tags.add('paired');
-    } else {
-      tags.add('unpaired');
+      final s = suits[i];
+      suitCounts[s] = (suitCounts[s] ?? 0) + 1;
     }
 
-    // Highest rank categories
-    final maxRank = ranks.last;
-    if (maxRank >= 11) {
+    // Pair related tags.
+    final pairCount = rankCounts.values.where((c) => c >= 2).length;
+    if (pairCount >= 1) tags.add('paired');
+    if (pairCount >= 2) tags.add('twoPaired');
+    if (rankCounts.values.any((c) => c >= 3)) tags.add('trip');
+
+    // High/low related tags.
+    final maxRank = ranks.reduce((a, b) => a > b ? a : b);
+    if (maxRank >= 10) {
       tags.add('high');
-    } else if (maxRank >= 9) {
-      tags.add('mid');
     } else {
       tags.add('low');
     }
-
-    // Specific high-card tags
     if (ranks.contains(14)) tags.add('aceHigh');
-    if (ranks.contains(13)) tags.add('kingHigh');
     if (ranks.every((r) => r >= 10)) tags.add('broadway');
 
-    // Suit distribution
-    final uniqueSuits = suits.toSet().length;
+    // Suit based tags.
+    final uniqueSuits = suitCounts.length;
+    final maxSuitCount = suitCounts.values.isEmpty
+        ? 0
+        : suitCounts.values.reduce((a, b) => a > b ? a : b);
     if (uniqueSuits == 1) {
       tags.add('monotone');
-    } else if (uniqueSuits == 2) {
-      tags.add('twoTone');
-    } else {
+    } else if (maxSuitCount >= board.length - 1) {
+      tags.add('flushDraw');
+    } else if (uniqueSuits == board.length) {
       tags.add('rainbow');
     }
 
-    // Connectedness
-    if (ranks.last - ranks.first <= 4) {
+    // Prepare ranks for straight evaluation (treat Ace as low as well).
+    final straightRanks = rankCounts.keys.toSet();
+    if (straightRanks.contains(14)) straightRanks.add(1);
+    final sortedRanks = straightRanks.toList()..sort();
+
+    // Connected / disconnected.
+    if (sortedRanks.last - sortedRanks.first <= 4) {
       tags.add('connected');
     } else {
       tags.add('disconnected');
     }
 
-    // Wet vs dry
-    final hasFlushDraw = uniqueSuits <= 2;
-    final hasStraightDraw = ranks.last - ranks.first <= 4;
-    if (hasFlushDraw || hasStraightDraw || tags.contains('paired')) {
+    // Straight draw detection: any 3 ranks within a span of four.
+    var hasStraightDraw = false;
+    for (var i = 0; i < sortedRanks.length && !hasStraightDraw; i++) {
+      var count = 1;
+      for (var j = i + 1; j < sortedRanks.length; j++) {
+        if (sortedRanks[j] - sortedRanks[i] <= 4) {
+          count++;
+          if (count >= 3) {
+            hasStraightDraw = true;
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+    }
+    if (hasStraightDraw) tags.add('straightDraw');
+
+    // Wet vs dry.
+    if (tags.contains('flushDraw') ||
+        tags.contains('straightDraw') ||
+        tags.contains('paired') ||
+        tags.contains('twoPaired') ||
+        tags.contains('trip')) {
       tags.add('wet');
     } else {
       tags.add('dry');
     }
 
     return tags;
-  }
-
-  /// Annotates each [TrainingPackSpot] with `boardTextureTags` in its meta map.
-  void classifyAll(Iterable<TrainingPackSpot> spots) {
-    for (final s in spots) {
-      final board = [
-        for (final c in s.board) CardModel(rank: c[0], suit: c[1])
-      ];
-      final tags = classifyCards(board).toList();
-      s.meta['boardTextureTags'] = tags;
-    }
   }
 
   int _rankValue(String r) {
