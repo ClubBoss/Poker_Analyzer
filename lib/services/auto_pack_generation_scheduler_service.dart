@@ -3,6 +3,7 @@ import 'dart:io';
 
 import '../utils/app_logger.dart';
 import 'training_pack_auto_generator.dart';
+import 'training_pack_template_registry_service.dart';
 
 /// Represents a scheduled autogeneration job.
 class ScheduledAutogenJob {
@@ -36,12 +37,15 @@ class ScheduledAutogenJob {
 class AutoPackGenerationSchedulerService {
   final String _filePath;
   final TrainingPackAutoGenerator _generator;
+  final TrainingPackTemplateRegistryService _registry;
 
   AutoPackGenerationSchedulerService({
     String filePath = 'scheduledJobs.json',
     TrainingPackAutoGenerator? generator,
+    TrainingPackTemplateRegistryService? registry,
   })  : _filePath = filePath,
-        _generator = generator ?? TrainingPackAutoGenerator();
+        _generator = generator ?? TrainingPackAutoGenerator(),
+        _registry = registry ?? TrainingPackTemplateRegistryService();
 
   Future<List<ScheduledAutogenJob>> _loadJobs() async {
     final file = File(_filePath);
@@ -76,7 +80,8 @@ class AutoPackGenerationSchedulerService {
     final templates = <String>[];
     for (final job in jobs) {
       try {
-        _generator.generate(job.templateId);
+        final templateSet = await _registry.loadTemplateById(job.templateId);
+        await _generator.generate(templateSet);
         job.lastRun = DateTime.now().toUtc();
         completed++;
         templates.add(job.templateId);

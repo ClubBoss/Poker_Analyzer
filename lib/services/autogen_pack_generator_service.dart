@@ -61,7 +61,7 @@ class AutogenPackGeneratorService {
 
     final files = <File>[];
     for (final set in sets) {
-      final spots = _generator.generate(set);
+      final spots = await _generator.generate(set);
       if (spots.isEmpty) continue;
       final base = set.baseSpot;
       final pack = TrainingPackTemplateV2(
