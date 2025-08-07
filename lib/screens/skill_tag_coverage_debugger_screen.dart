@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
+import '../services/skill_tag_coverage_tracker.dart';
 import '../services/skill_tag_coverage_tracker_service.dart';
 
 /// Debug screen visualizing how often each skill tag appears.
@@ -32,6 +36,26 @@ class _SkillTagCoverageDebuggerScreenState
     _load();
   }
 
+  Future<void> _downloadYaml() async {
+    final counts = SkillTagCoverageTrackerService.instance.getTagStats();
+    final unused =
+        SkillTagCoverageTrackerService.instance.allSkillTags
+            .difference(counts.keys.toSet())
+            .toList()
+          ..sort();
+    final dir = await getApplicationDocumentsDirectory();
+    final path = '${dir.path}/skill_tag_coverage.yaml';
+    await SkillTagCoverageTracker().exportReportAsYaml(
+      tagCounts: counts,
+      unusedTags: unused,
+      path: path,
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Exported to $path')));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
@@ -48,6 +72,13 @@ class _SkillTagCoverageDebuggerScreenState
             onPressed: _reset,
             child: const Text('Reset', style: TextStyle(color: Colors.white)),
           ),
+          TextButton(
+            onPressed: _downloadYaml,
+            child: const Text(
+              'Download YAML',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
       body: ListView.builder(
@@ -57,9 +88,7 @@ class _SkillTagCoverageDebuggerScreenState
           return ListTile(
             title: Text(e.key),
             trailing: Text('${e.value}'),
-            subtitle: LinearProgressIndicator(
-              value: e.value / max,
-            ),
+            subtitle: LinearProgressIndicator(value: e.value / max),
           );
         },
       ),
