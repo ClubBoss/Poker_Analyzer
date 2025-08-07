@@ -173,7 +173,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
             ),
           ),
           Expanded(child: Container()),
-          const SizedBox(
+          SizedBox(
             height: 200,
             child: AutogenHistoryChartWidget(),
           ),
