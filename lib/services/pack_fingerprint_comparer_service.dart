@@ -11,6 +11,19 @@ class SimilarPackMatch {
   const SimilarPackMatch(this.pack, this.similarity);
 }
 
+/// Represents a pair of packs with a similarity score.
+class PackSimilarityResult {
+  final TrainingPackModel a;
+  final TrainingPackModel b;
+  final double similarity;
+
+  const PackSimilarityResult({
+    required this.a,
+    required this.b,
+    required this.similarity,
+  });
+}
+
 /// Internal fingerprint representation used for similarity comparisons.
 class _PackFingerprint {
   final Set<String> tags;
@@ -64,6 +77,26 @@ class PackFingerprintComparerService {
     }
     matches.sort((a, b) => b.similarity.compareTo(a.similarity));
     return matches;
+  }
+
+  /// Finds all pairs of packs in [packs] that have similarity above
+  /// [threshold]. Each pair is only reported once.
+  List<PackSimilarityResult> findDuplicates(
+    List<TrainingPackModel> packs, {
+    double threshold = 0.8,
+  }) {
+    final results = <PackSimilarityResult>[];
+    for (var i = 0; i < packs.length; i++) {
+      for (var j = i + 1; j < packs.length; j++) {
+        final a = packs[i];
+        final b = packs[j];
+        final sim = computeSimilarity(a, b);
+        if (sim >= threshold) {
+          results.add(PackSimilarityResult(a: a, b: b, similarity: sim));
+        }
+      }
+    }
+    return results;
   }
 
   _PackFingerprint _fingerprint(TrainingPackModel pack) {

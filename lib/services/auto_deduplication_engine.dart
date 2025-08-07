@@ -1,7 +1,19 @@
 import 'dart:io';
 import '../models/training_pack_model.dart';
 import '../models/v2/training_pack_spot.dart';
+import 'pack_fingerprint_comparer_service.dart';
+import 'training_pack_library_service.dart';
 import 'spot_fingerprint_generator.dart';
+
+class AutoDeduplicationReport {
+  final List<PackSimilarityResult> duplicates;
+  final Map<String, List<String>> mergeSuggestions;
+
+  const AutoDeduplicationReport({
+    required this.duplicates,
+    required this.mergeSuggestions,
+  });
+}
 
 /// Keeps track of spot fingerprints to automatically skip duplicates.
 class AutoDeduplicationEngine {
@@ -9,12 +21,19 @@ class AutoDeduplicationEngine {
   final Set<String> _seen = <String>{};
   final IOSink _log;
   int _skipped = 0;
+  final TrainingPackLibraryService _library;
+  final PackFingerprintComparerService _comparer;
 
-  AutoDeduplicationEngine({SpotFingerprintGenerator? fingerprint, IOSink? log})
-    : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
-      _log =
-          log ??
-          File('skipped_duplicates.log').openWrite(mode: FileMode.append);
+  AutoDeduplicationEngine({
+    SpotFingerprintGenerator? fingerprint,
+    IOSink? log,
+    TrainingPackLibraryService? library,
+    PackFingerprintComparerService? comparer,
+  })  : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
+        _log =
+            log ?? File('skipped_duplicates.log').openWrite(mode: FileMode.append),
+        _library = library ?? TrainingPackLibraryService(),
+        _comparer = comparer ?? const PackFingerprintComparerService();
 
   /// Registers existing spots so future checks can detect duplicates.
   void addExisting(Iterable<TrainingPackSpot> spots) {
@@ -114,4 +133,44 @@ class AutoDeduplicationEngine {
 
   /// Closes the underlying log sink.
   Future<void> dispose() => _log.close();
+
+  /// Scans the training pack library and reports near-duplicate packs.
+  Future<AutoDeduplicationReport> run({double threshold = 0.8}) async {
+    final packs = await _library.getAllPacks();
+    final duplicates = _comparer.findDuplicates(packs, threshold: threshold);
+
+    final graph = <String, Set<String>>{};
+    for (final r in duplicates) {
+      graph.putIfAbsent(r.a.id, () => <String>{}).add(r.b.id);
+      graph.putIfAbsent(r.b.id, () => <String>{}).add(r.a.id);
+    }
+
+    final mergeSuggestions = <String, List<String>>{};
+    final visited = <String>{};
+    final packMap = {for (final p in packs) p.id: p};
+
+    for (final id in graph.keys) {
+      if (visited.contains(id)) continue;
+      final stack = <String>[id];
+      final group = <String>{};
+      while (stack.isNotEmpty) {
+        final current = stack.removeLast();
+        if (!visited.add(current)) continue;
+        group.add(current);
+        for (final n in graph[current] ?? const <String>{}) {
+          if (!visited.contains(n)) stack.add(n);
+        }
+      }
+      if (group.length < 2) continue;
+      final groupPacks = [for (final gid in group) packMap[gid]!];
+      groupPacks.sort((a, b) => b.spots.length.compareTo(a.spots.length));
+      final base = groupPacks.first;
+      mergeSuggestions[base.id] = [for (final p in groupPacks.skip(1)) p.id];
+    }
+
+    return AutoDeduplicationReport(
+      duplicates: duplicates,
+      mergeSuggestions: mergeSuggestions,
+    );
+  }
 }
