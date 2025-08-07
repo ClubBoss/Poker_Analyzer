@@ -1,12 +1,17 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../core/training/engine/training_type_engine.dart';
+import '../models/autogen_step_status.dart';
 import '../models/game_type.dart';
 import '../models/training_pack_template_set.dart';
-import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template_v2.dart';
+import '../services/autogen_pipeline_debug_stats_service.dart';
+import '../services/autogen_pipeline_event_logger_service.dart';
 import '../services/autogen_pipeline_executor.dart';
+import '../services/autogen_pipeline_session_tracker_service.dart';
 import '../services/training_pack_auto_generator.dart';
 import '../services/training_pack_template_set_library_service.dart';
 import '../services/yaml_pack_exporter.dart';
@@ -23,13 +28,18 @@ class _AutogenPipelineDebugControlPanelState
     extends State<AutogenPipelineDebugControlPanel> {
   final TrainingPackAutoGenerator _generator = TrainingPackAutoGenerator();
   final YamlPackExporter _exporter = const YamlPackExporter();
+  final AutogenPipelineSessionTrackerService _tracker =
+      AutogenPipelineSessionTrackerService.instance;
   List<TrainingPackTemplateSet> _sets = [];
   TrainingPackTemplateSet? _selectedSet;
   TrainingPackTemplateV2? _pack;
+  late final String _sessionId;
+  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
+    _sessionId = 'debug-${DateTime.now().millisecondsSinceEpoch}';
     TrainingPackTemplateSetLibraryService.instance.loadAll().then((_) {
       final all = TrainingPackTemplateSetLibraryService.instance.all;
       if (mounted) {
@@ -41,6 +51,18 @@ class _AutogenPipelineDebugControlPanelState
         });
       }
     });
+  }
+
+  Future<void> _guard(Future<void> Function() fn) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await fn();
+    } catch (e) {
+      _showSnack('Error: $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   void _showSnack(String message) {
@@ -55,22 +77,59 @@ class _AutogenPipelineDebugControlPanelState
       _showSnack('Select a template set first');
       return;
     }
-    final spots = await _generator.generate(set);
-    final base = set.baseSpot;
-    final pack = TrainingPackTemplateV2(
-      id: base.id,
-      name: base.title.isNotEmpty ? base.title : base.id,
-      trainingType: TrainingType.custom,
-      spots: spots,
-      spotCount: spots.length,
-      tags: List<String>.from(base.tags),
-      gameType: GameType.cash,
-      bb: base.hand.stacks['0']?.toInt() ?? 0,
-      positions: [base.hand.position.name],
-      meta: Map<String, dynamic>.from(base.meta),
+    _tracker.updateStep(
+      _sessionId,
+      const AutoGenStepStatus(stepName: 'Generator', status: 'running'),
     );
-    setState(() => _pack = pack);
-    _showSnack('Generated ${spots.length} spots');
+    try {
+      final spots = await _generator.generate(set);
+      if (spots.isEmpty) {
+        _showSnack('No spots generated for ${set.baseSpot.id}');
+        _tracker.updateStep(
+          _sessionId,
+          AutoGenStepStatus(
+            stepName: 'Generator',
+            status: 'error',
+            errorMessage: 'No spots generated for ${set.baseSpot.id}',
+          ),
+        );
+        return;
+      }
+      final base = set.baseSpot;
+      final pack = TrainingPackTemplateV2(
+        id: base.id,
+        name: base.title.isNotEmpty ? base.title : base.id,
+        trainingType: TrainingType.custom,
+        spots: spots,
+        spotCount: spots.length,
+        tags: List<String>.from(base.tags),
+        gameType: GameType.cash,
+        bb: base.hand.stacks['0']?.toInt() ?? 0,
+        positions: [base.hand.position.name],
+        meta: Map<String, dynamic>.from(base.meta),
+      );
+      setState(() => _pack = pack);
+      AutogenPipelineDebugStatsService.incrementGenerated();
+      AutogenPipelineEventLoggerService.log(
+        'generated',
+        'Generated ${spots.length} spots for template ${set.baseSpot.id}',
+      );
+      _tracker.updateStep(
+        _sessionId,
+        const AutoGenStepStatus(stepName: 'Generator', status: 'ok'),
+      );
+      _showSnack('Generated ${spots.length} spots for ${set.baseSpot.id}');
+    } catch (e) {
+      _tracker.updateStep(
+        _sessionId,
+        AutoGenStepStatus(
+          stepName: 'Generator',
+          status: 'error',
+          errorMessage: e.toString(),
+        ),
+      );
+      rethrow;
+    }
   }
 
   Future<void> _runEnricher() async {
@@ -79,12 +138,37 @@ class _AutogenPipelineDebugControlPanelState
       _showSnack('Run generator first');
       return;
     }
-    final executor = AutogenPipelineExecutor(generator: _generator);
-    executor.theoryInjector.injectAll(pack.spots, {});
-    executor.boardClassifier?.classifyAll(pack.spots);
-    executor.skillLinker.linkAll(pack.spots);
-    setState(() {});
-    _showSnack('Enrichment complete');
+    _tracker.updateStep(
+      _sessionId,
+      const AutoGenStepStatus(stepName: 'Enricher', status: 'running'),
+    );
+    try {
+      final executor = AutogenPipelineExecutor(generator: _generator);
+      executor.theoryInjector.injectAll(pack.spots, {});
+      executor.boardClassifier?.classifyAll(pack.spots);
+      executor.skillLinker.linkAll(pack.spots);
+      setState(() {});
+      AutogenPipelineDebugStatsService.incrementCurated();
+      AutogenPipelineEventLoggerService.log(
+        'curated',
+        'Curated pack ${pack.id} with ${pack.spots.length} spots',
+      );
+      _tracker.updateStep(
+        _sessionId,
+        const AutoGenStepStatus(stepName: 'Enricher', status: 'ok'),
+      );
+      _showSnack('Enrichment complete for ${pack.id}');
+    } catch (e) {
+      _tracker.updateStep(
+        _sessionId,
+        AutoGenStepStatus(
+          stepName: 'Enricher',
+          status: 'error',
+          errorMessage: e.toString(),
+        ),
+      );
+      rethrow;
+    }
   }
 
   Future<void> _runExporter() async {
@@ -93,8 +177,33 @@ class _AutogenPipelineDebugControlPanelState
       _showSnack('Nothing to export');
       return;
     }
-    final file = await _exporter.export(pack);
-    _showSnack('Exported to ${file.path}');
+    _tracker.updateStep(
+      _sessionId,
+      const AutoGenStepStatus(stepName: 'Exporter', status: 'running'),
+    );
+    try {
+      final file = await _exporter.export(pack);
+      AutogenPipelineEventLoggerService.log(
+        'published',
+        'Exported ${pack.id} → ${file.path}',
+      );
+      AutogenPipelineDebugStatsService.incrementPublished();
+      _tracker.updateStep(
+        _sessionId,
+        const AutoGenStepStatus(stepName: 'Exporter', status: 'ok'),
+      );
+      _showSnack('Exported ${pack.id} to ${file.path}');
+    } catch (e) {
+      _tracker.updateStep(
+        _sessionId,
+        AutoGenStepStatus(
+          stepName: 'Exporter',
+          status: 'error',
+          errorMessage: e.toString(),
+        ),
+      );
+      rethrow;
+    }
   }
 
   Future<void> _runFullPipeline() async {
@@ -103,13 +212,34 @@ class _AutogenPipelineDebugControlPanelState
       _showSnack('Select a template set first');
       return;
     }
-    final executor = AutogenPipelineExecutor();
-    await executor.execute([set], existingYamlPath: 'packs/generated');
-    _showSnack('Full pipeline completed');
+    _tracker.updateStep(
+      _sessionId,
+      const AutoGenStepStatus(stepName: 'Full Pipeline', status: 'running'),
+    );
+    try {
+      final executor = AutogenPipelineExecutor();
+      await executor.execute([set], existingYamlPath: 'packs/generated');
+      _tracker.updateStep(
+        _sessionId,
+        const AutoGenStepStatus(stepName: 'Full Pipeline', status: 'ok'),
+      );
+      _showSnack('Full pipeline completed for ${set.baseSpot.id}');
+    } catch (e) {
+      _tracker.updateStep(
+        _sessionId,
+        AutoGenStepStatus(
+          stepName: 'Full Pipeline',
+          status: 'error',
+          errorMessage: e.toString(),
+        ),
+      );
+      rethrow;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!kDebugMode) return const SizedBox.shrink();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -135,19 +265,23 @@ class _AutogenPipelineDebugControlPanelState
               runSpacing: 8,
               children: [
                 ElevatedButton(
-                  onPressed: _runGenerator,
+                  onPressed:
+                      _busy ? null : () => _guard(_runGenerator),
                   child: const Text('Run Generator'),
                 ),
                 ElevatedButton(
-                  onPressed: _runEnricher,
+                  onPressed:
+                      _busy ? null : () => _guard(_runEnricher),
                   child: const Text('Run Enricher'),
                 ),
                 ElevatedButton(
-                  onPressed: _runExporter,
+                  onPressed:
+                      _busy ? null : () => _guard(_runExporter),
                   child: const Text('Run Exporter'),
                 ),
                 ElevatedButton(
-                  onPressed: _runFullPipeline,
+                  onPressed:
+                      _busy ? null : () => _guard(_runFullPipeline),
                   child: const Text('Run Full Pipeline'),
                 ),
               ],
