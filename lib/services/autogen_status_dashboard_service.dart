@@ -36,6 +36,12 @@ class AutogenStatusDashboardService {
   final ValueNotifier<List<DuplicatePackInfo>> duplicatesNotifier =
       ValueNotifier(const <DuplicatePackInfo>[]);
 
+  final ValueNotifier<int> boostersGeneratedNotifier = ValueNotifier(0);
+  final ValueNotifier<Map<String, int>> boostersSkippedNotifier =
+      ValueNotifier(const {});
+  final ValueNotifier<List<String>> boosterIdsNotifier =
+      ValueNotifier(const <String>[]);
+
   final List<AutogenSessionMeta> _sessions = [];
   final StreamController<List<AutogenSessionMeta>> _sessionController =
       StreamController.broadcast();
@@ -96,6 +102,18 @@ class AutogenStatusDashboardService {
     duplicatesNotifier.value = List.unmodifiable(list);
   }
 
+  void recordBoosterGenerated(String id) {
+    boostersGeneratedNotifier.value = boostersGeneratedNotifier.value + 1;
+    final list = [...boosterIdsNotifier.value, id];
+    boosterIdsNotifier.value = List.unmodifiable(list);
+  }
+
+  void recordBoosterSkipped(String reason) {
+    final map = Map<String, int>.from(boostersSkippedNotifier.value);
+    map[reason] = (map[reason] ?? 0) + 1;
+    boostersSkippedNotifier.value = Map.unmodifiable(map);
+  }
+
   void _cleanupOldSessions() {
     final cutoff = DateTime.now().subtract(_sessionTtl);
     final before = _sessions.length;
@@ -112,5 +130,8 @@ class AutogenStatusDashboardService {
     _sessions.clear();
     _sessionController.add(const <AutogenSessionMeta>[]);
     duplicatesNotifier.value = const <DuplicatePackInfo>[];
+    boostersGeneratedNotifier.value = 0;
+    boostersSkippedNotifier.value = const {};
+    boosterIdsNotifier.value = const <String>[];
   }
 }
