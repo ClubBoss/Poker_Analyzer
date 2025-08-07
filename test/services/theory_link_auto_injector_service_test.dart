@@ -124,4 +124,49 @@ void main() {
       expect(spot.theoryLink, isNull);
     });
   });
+
+  group('injectTheoryRefs', () {
+    test('adds lesson ids to meta based on tag overlap', () async {
+      final library = _FakeLibrary({
+        'cbet': const TheoryMiniLessonNode(
+            id: '1', title: 'CBet', content: '', tags: ['cbet']),
+        'turn': const TheoryMiniLessonNode(
+            id: '2', title: 'Turn', content: '', tags: ['turn']),
+      });
+      final service = TheoryLinkAutoInjectorService(library: library);
+      final spots = [
+        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['cbet', 'turn']),
+        TrainingPackSpot(id: 's2', hand: HandData(), tags: ['river']),
+      ];
+
+      final map = await service.injectTheoryRefs(spots);
+
+      expect(map['s1'], ['1', '2']);
+      expect(spots[0].meta['theoryRefs'], ['1', '2']);
+      expect(map['s2'], isEmpty);
+      expect(spots[1].meta['theoryRefs'], isNull);
+    });
+
+    test('respects maxRefsPerSpot', () async {
+      final library = _FakeLibrary({
+        't1': const TheoryMiniLessonNode(
+            id: '1', title: 'L1', content: '', tags: ['t1']),
+        't2': const TheoryMiniLessonNode(
+            id: '2', title: 'L2', content: '', tags: ['t2']),
+        't3': const TheoryMiniLessonNode(
+            id: '3', title: 'L3', content: '', tags: ['t3']),
+      });
+      final service = TheoryLinkAutoInjectorService(
+        library: library,
+        maxRefsPerSpot: 2,
+      );
+      final spot =
+          TrainingPackSpot(id: 's1', hand: HandData(), tags: ['t1', 't2', 't3']);
+
+      final map = await service.injectTheoryRefs([spot]);
+
+      expect(map['s1'], ['1', '2']);
+      expect((spot.meta['theoryRefs'] as List).length, 2);
+    });
+  });
 }
