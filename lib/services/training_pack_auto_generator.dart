@@ -96,7 +96,7 @@ class TrainingPackAutoGenerator {
         return spots;
       }
 
-      final filtered = _dedup.deduplicate(spots, source: set.baseSpot.id);
+      final filtered = _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
       if (spots.isNotEmpty && filtered.isEmpty) {
         final pack = _buildPack(set, spots);
         final type =
