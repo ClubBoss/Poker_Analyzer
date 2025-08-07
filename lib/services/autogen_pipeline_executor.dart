@@ -23,6 +23,8 @@ import 'pack_quality_gatekeeper_service.dart';
 import 'autogen_run_history_logger_service.dart';
 import 'autogen_pipeline_debug_stats_service.dart';
 import 'autogen_pipeline_event_logger_service.dart';
+import 'pack_fingerprint_comparer.dart';
+import 'spot_fingerprint_generator.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -40,6 +42,7 @@ class AutogenPipelineExecutor {
   final ICMScenarioLibraryInjector? icmInjector;
   final PackQualityGatekeeperService gatekeeper;
   final AutogenRunHistoryLoggerService runHistory;
+  final PackFingerprintComparer packComparer;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -56,6 +59,7 @@ class AutogenPipelineExecutor {
     ICMScenarioLibraryInjector? icmInjector,
     PackQualityGatekeeperService? gatekeeper,
     AutogenRunHistoryLoggerService? runHistory,
+    PackFingerprintComparer? packComparer,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
         coverage = coverage ?? SkillTagCoverageTracker(),
@@ -72,7 +76,8 @@ class AutogenPipelineExecutor {
         status = status ?? AutogenStatusDashboardService(),
         icmInjector = icmInjector,
         gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
-        runHistory = runHistory ?? const AutogenRunHistoryLoggerService() {
+        runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
+        packComparer = packComparer ?? const PackFingerprintComparer() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -88,6 +93,8 @@ class AutogenPipelineExecutor {
     var rejectedCount = 0;
     var totalQualityScore = 0.0;
     var processedCount = 0;
+    final existingFingerprints = <PackFingerprint>[];
+    final spotGen = const SpotFingerprintGenerator();
     status.update(
       'pipeline',
       const AutogenStatus(
@@ -105,6 +112,13 @@ class AutogenPipelineExecutor {
             final yaml = await entity.readAsString();
             final tpl = TrainingPackTemplateV2.fromYaml(yaml);
             dedup.addExisting(tpl.spots);
+            existingFingerprints.add(
+              PackFingerprint.fromTemplate(
+                tpl,
+                packFingerprint: fingerprintGenerator,
+                spotFingerprint: spotGen,
+              ),
+            );
           }
         }
       }
@@ -199,6 +213,19 @@ class AutogenPipelineExecutor {
         dashboard.recordPack(spots.length);
         final fp = fingerprintGenerator.generateFromTemplate(pack);
         _fingerprintLog.writeln(fp);
+        final pf = PackFingerprint(
+          id: pack.id,
+          hash: fp,
+          spots: {
+            for (final TrainingPackSpot s in pack.spots) spotGen.generate(s)
+          },
+          meta: Map<String, dynamic>.from(pack.meta),
+        );
+        final dupReports = packComparer.compare(pf, existingFingerprints);
+        for (final r in dupReports) {
+          status.flagDuplicate(pf.id, r.existingPackId, r.reason, r.similarity);
+        }
+        existingFingerprints.add(pf);
         status.update(
           'pipeline',
           AutogenStatus(
