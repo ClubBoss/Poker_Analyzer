@@ -17,6 +17,7 @@ import '../models/training_pack_template_set.dart';
 import '../core/training/export/training_pack_exporter_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/autogen_session_meta.dart';
+import '../widgets/autogen_pipeline_debug_control_panel.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -163,6 +164,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
               ],
             ),
           ),
+          const AutogenPipelineDebugControlPanel(),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
