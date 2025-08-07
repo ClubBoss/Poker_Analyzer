@@ -128,7 +128,6 @@ class _AutogenPipelineDebugControlPanelState
           errorMessage: e.toString(),
         ),
       );
-      rethrow;
     }
   }
 
@@ -167,7 +166,6 @@ class _AutogenPipelineDebugControlPanelState
           errorMessage: e.toString(),
         ),
       );
-      rethrow;
     }
   }
 
@@ -202,7 +200,6 @@ class _AutogenPipelineDebugControlPanelState
           errorMessage: e.toString(),
         ),
       );
-      rethrow;
     }
   }
 
@@ -233,7 +230,6 @@ class _AutogenPipelineDebugControlPanelState
           errorMessage: e.toString(),
         ),
       );
-      rethrow;
     }
   }
 
@@ -246,6 +242,8 @@ class _AutogenPipelineDebugControlPanelState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_busy) const LinearProgressIndicator(),
+            if (_busy) const SizedBox(height: 12),
             DropdownButton<TrainingPackTemplateSet>(
               isExpanded: true,
               value: _selectedSet,
@@ -257,7 +255,8 @@ class _AutogenPipelineDebugControlPanelState
                     child: Text(set.baseSpot.id),
                   ),
               ],
-              onChanged: (v) => setState(() => _selectedSet = v),
+              onChanged:
+                  _busy ? null : (v) => setState(() => _selectedSet = v),
             ),
             const SizedBox(height: 12),
             Wrap(
