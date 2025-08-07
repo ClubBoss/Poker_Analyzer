@@ -1,26 +1,37 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../services/autogen_run_history_logger_service.dart';
+import '../services/autogen_real_time_stats_refresher_service.dart';
 
 /// Displays historical autogeneration metrics as a time-series chart.
-class AutogenHistoryChartWidget extends StatelessWidget {
-  final AutogenRunHistoryLoggerService service;
+class AutogenHistoryChartWidget extends StatefulWidget {
+  const AutogenHistoryChartWidget({super.key});
 
-  const AutogenHistoryChartWidget({
-    super.key,
-    this.service = const AutogenRunHistoryLoggerService(),
-  });
+  @override
+  State<AutogenHistoryChartWidget> createState() => _AutogenHistoryChartWidgetState();
+}
+
+class _AutogenHistoryChartWidgetState extends State<AutogenHistoryChartWidget> {
+  late final AutogenRealTimeStatsRefresherService _refresher;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresher = AutogenRealTimeStatsRefresherService();
+  }
+
+  @override
+  void dispose() {
+    _refresher.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<RunMetricsEntry>>(
-      future: service.getHistory(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final history = snapshot.data ?? [];
+    return ValueListenableBuilder<DateTime>(
+      valueListenable: _refresher.notifier,
+      builder: (context, _, __) {
+        final history = _refresher.history;
         if (history.isEmpty) {
           return const Center(child: Text('No history'));
         }
