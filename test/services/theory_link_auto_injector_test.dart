@@ -36,75 +36,50 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
   @override
   Future<TheoryMiniLessonNode?> getNextLesson() async => null;
+
+  @override
+  TheoryMiniLessonNode? findLessonByTag(String tag) {
+    for (final l in lessons) {
+      if (l.tags.contains(tag)) return l;
+    }
+    return null;
+  }
 }
 
 void main() {
   group('TheoryLinkAutoInjector', () {
-    test('injects lessons using spot and board tags', () async {
+    test('injects first matching theory id', () async {
       final spot = TrainingPackSpot(
         id: 's1',
         hand: HandData(),
-        tags: ['openSB'],
-        board: ['Ah', 'Ad', '7c'],
+        tags: ['a', 'b'],
       );
       final lessons = [
-        TheoryMiniLessonNode(
-          id: 'l1',
-          title: 'SB',
-          content: '',
-          tags: ['openSB'],
-        ),
-        TheoryMiniLessonNode(
-          id: 'l2',
-          title: 'Paired Boards',
-          content: '',
-          tags: ['paired'],
-        ),
+        TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
+        TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['b']),
       ];
       final injector = TheoryLinkAutoInjector(library: _FakeLibrary(lessons));
 
       await injector.injectAll([spot]);
 
-      expect(spot.meta['linkedTheoryLessonIds'], ['l1', 'l2']);
+      expect(spot.theoryId, 'l1');
     });
 
-    test('respects max link limit', () async {
-      final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['t']);
-      final lessons = [
-        TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['t']),
-        TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['t']),
-        TheoryMiniLessonNode(id: 'l3', title: 'C', content: '', tags: ['t']),
-      ];
-      final injector = TheoryLinkAutoInjector(
-        maxLinks: 2,
-        library: _FakeLibrary(lessons),
-      );
-
-      await injector.injectAll([spot]);
-
-      final ids = spot.meta['linkedTheoryLessonIds'] as List<String>;
-      expect(ids.length, 2);
-    });
-
-    test('matches lessons using board textures alone', () async {
+    test('does not overwrite existing theory id', () async {
       final spot = TrainingPackSpot(
         id: 's1',
         hand: HandData(),
-        board: ['Ah', 'Ad', '7c'],
+        tags: ['a'],
+        theoryId: 'keep',
       );
       final lessons = [
-        TheoryMiniLessonNode(
-          id: 'l1',
-          title: 'Paired Boards',
-          content: '',
-          tags: ['paired'],
-        ),
+        TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
       ];
       final injector = TheoryLinkAutoInjector(library: _FakeLibrary(lessons));
 
       await injector.injectAll([spot]);
 
-      expect(spot.meta['linkedTheoryLessonIds'], ['l1']);
+      expect(spot.theoryId, 'keep');
     });
   });
 }

@@ -47,6 +47,11 @@ class TrainingPackSpot
   /// links the spot to a [TheoryMiniLessonNode].
   String? inlineLessonId;
 
+  /// Ephemeral reference to a full theory lesson matched by tags.
+  ///
+  /// Populated at runtime by [TheoryLinkAutoInjector] and never serialized.
+  String? theoryId;
+
   /// Ephemeral reference to inline theory content matched by tags.
   ///
   /// Populated at runtime by [InlineTheoryLinkAutoInjector] and never serialized.
@@ -86,6 +91,7 @@ class TrainingPackSpot
     DateTime? createdAt,
     this.templateSourceId,
     this.inlineLessonId,
+    this.theoryId,
     List<String>? theoryRefs,
   }) : hand = hand ?? HandData(),
        tags = tags != null ? List<String>.from(tags) : <String>[],

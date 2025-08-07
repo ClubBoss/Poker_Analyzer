@@ -1,63 +1,38 @@
-import '../models/card_model.dart';
-import '../models/theory_mini_lesson_node.dart';
 import '../models/v2/training_pack_spot.dart';
-import 'board_texture_classifier.dart';
 import 'mini_lesson_library_service.dart';
 
-/// Injects inline theory references into [TrainingPackSpot]s based on shared
-/// tags and board texture.
+/// Automatically links [TrainingPackSpot]s with relevant theory lessons.
+///
+/// For each spot, the first matching lesson found by tag is written to the
+/// [TrainingPackSpot.theoryId] field. Existing values are never overwritten.
+/// A summary log is printed indicating how many spots were updated.
 class TheoryLinkAutoInjector {
-  TheoryLinkAutoInjector({
-    this.maxLinks = 3,
-    MiniLessonLibraryService? library,
-    BoardTextureClassifier? boardClassifier,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        boardClassifier = boardClassifier ?? const BoardTextureClassifier();
+  TheoryLinkAutoInjector({MiniLessonLibraryService? library})
+      : _library = library ?? MiniLessonLibraryService.instance;
 
-  /// Maximum number of lesson ids to attach to each spot.
-  final int maxLinks;
+  final MiniLessonLibraryService _library;
 
-  /// Source of theory mini-lessons.
-  final MiniLessonLibraryService library;
-
-  /// Classifier used to extract board texture tags.
-  final BoardTextureClassifier boardClassifier;
-
-  /// Scans [spots] and injects matching theory lesson ids into
-  /// `spot.meta['linkedTheoryLessonIds']`.
+  /// Scans [spots] and injects `theoryId` references when a matching lesson is
+  /// found. Only the first matching tag per spot is used.
   Future<void> injectAll(List<TrainingPackSpot> spots) async {
-    final lessons = await library.getAllLessons();
+    var injected = 0;
     for (final spot in spots) {
-      _inject(spot, lessons);
-    }
-  }
-
-  void _inject(TrainingPackSpot spot, List<TheoryMiniLessonNode> lessons) {
-    final boardTags = _boardTags(spot);
-    final spotTags = {...spot.tags, ...boardTags};
-    final ids = <String>[];
-    for (final lesson in lessons) {
-      if (ids.length >= maxLinks) break;
-      final lt = lesson.tags.toSet();
-      if (spotTags.intersection(lt).isNotEmpty) {
-        ids.add(lesson.id);
+      if (spot.theoryId != null && spot.theoryId!.isNotEmpty) {
+        continue;
+      }
+      for (final tag in spot.tags) {
+        final lesson = _library.findLessonByTag(tag);
+        if (lesson != null) {
+          spot.theoryId = lesson.id;
+          injected++;
+          break;
+        }
       }
     }
-    if (ids.isNotEmpty) {
-      spot.meta['linkedTheoryLessonIds'] = ids;
+    if (injected > 0) {
       // ignore: avoid_print
-      print('TheoryLinkAutoInjector: ${spot.id} -> $ids');
+      print('TheoryLinkAutoInjector: injected $injected links');
     }
-  }
-
-  Set<String> _boardTags(TrainingPackSpot spot) {
-    final cards = <CardModel>[];
-    for (final c in spot.board) {
-      if (c.length >= 2) {
-        cards.add(CardModel(rank: c[0], suit: c[1]));
-      }
-    }
-    return boardClassifier.classifyCards(cards);
   }
 }
 

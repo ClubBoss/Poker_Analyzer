@@ -95,6 +95,19 @@ class MiniLessonLibraryService {
   /// Returns lessons matching any of [tags]. Convenience for Set input.
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
       findByTags(tags.toList());
+
+  /// Returns the first lesson matching [tag], or `null` if none found.
+  TheoryMiniLessonNode? findLessonByTag(String tag) {
+    final direct = _byTag[tag];
+    if (direct != null && direct.isNotEmpty) return direct.first;
+    final lower = tag.toLowerCase();
+    for (final entry in _byTag.entries) {
+      if (entry.key.toLowerCase() == lower && entry.value.isNotEmpty) {
+        return entry.value.first;
+      }
+    }
+    return null;
+  }
 }
 
 extension MiniLessonLibraryFetch on MiniLessonLibraryService {
