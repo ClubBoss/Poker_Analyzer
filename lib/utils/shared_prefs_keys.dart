@@ -22,6 +22,9 @@ class SharedPrefsKeys {
   static String boosterDismissed(String tag) =>
       _boosterTagKey('dismissed', tag);
 
+  static String targetedBoosterLast(String tag) =>
+      _boosterTagKey('targeted_last', tag);
+
   // Training spot list keys
   static const String trainingPresetTags = 'training_preset_tags';
   static const String trainingPresetSearch = 'training_preset_search';
