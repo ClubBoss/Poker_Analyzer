@@ -1,40 +1,61 @@
-import '../models/skill_tag_coverage_report.dart';
-import 'training_pack_library_service.dart';
+import 'dart:convert';
 
-/// Evaluates how many spots reference each skill tag across the
-/// training pack library.
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/training_pack_model.dart';
+
+/// Tracks how often skill tags appear across generated training packs.
 class SkillTagCoverageTrackerService {
-  final TrainingPackLibraryService library;
-  final Set<String> allSkillTags;
-  final int underrepresentedThreshold;
+  SkillTagCoverageTrackerService._();
 
-  SkillTagCoverageTrackerService({
-    TrainingPackLibraryService? library,
-    Set<String>? allSkillTags,
-    this.underrepresentedThreshold = 5,
-  }) : library = library ?? TrainingPackLibraryService(),
-       allSkillTags = allSkillTags ?? const {};
+  /// Singleton instance.
+  static final SkillTagCoverageTrackerService instance =
+      SkillTagCoverageTrackerService._();
 
-  /// Generates a coverage report for all packs in the library.
-  Future<SkillTagCoverageReport> generateReport() async {
-    final packs = await library.getAllPacks();
-    final counts = <String, int>{};
-    for (final pack in packs) {
-      for (final spot in pack.spots) {
-        for (final tag in spot.tags) {
-          final norm = tag.trim().toLowerCase();
-          if (norm.isEmpty) continue;
-          counts[norm] = (counts[norm] ?? 0) + 1;
-        }
-      }
+  static const _prefsKey = 'skill_tag_usage_map';
+
+  /// Logs tag usage for [pack]. Tags are normalized to lowercase and
+  /// duplicates within a pack are ignored.
+  Future<void> logPack(TrainingPackModel pack) async {
+    final prefs = await SharedPreferences.getInstance();
+    final counts = await getTagUsageCount();
+    final tags = <String>{for (final t in pack.tags) _normalize(t)};
+    for (final tag in tags) {
+      counts[tag] = (counts[tag] ?? 0) + 1;
     }
-    final underrepresented = <String>[
-      for (final tag in allSkillTags)
-        if ((counts[tag] ?? 0) < underrepresentedThreshold) tag,
-    ];
-    return SkillTagCoverageReport(
-      tagCounts: counts,
-      underrepresentedTags: underrepresented,
-    );
+    await prefs.setString(_prefsKey, jsonEncode(counts));
   }
+
+  /// Returns cumulative tag usage counts.
+  Future<Map<String, int>> getTagUsageCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_prefsKey);
+    if (raw == null || raw.isEmpty) return {};
+    try {
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+      return {
+        for (final e in data.entries) e.key: (e.value as num).toInt(),
+      };
+    } catch (_) {
+      return {};
+    }
+  }
+
+  /// Returns tags from [requiredTags] that have not yet been logged.
+  Future<List<String>> getUncoveredTags(Set<String> requiredTags) async {
+    final counts = await getTagUsageCount();
+    final normalized = requiredTags.map(_normalize).toSet();
+    return [
+      for (final tag in normalized)
+        if ((counts[tag] ?? 0) == 0) tag,
+    ];
+  }
+
+  /// Clears all stored tag usage data.
+  Future<void> reset() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsKey);
+  }
+
+  String _normalize(String tag) => tag.trim().toLowerCase();
 }
