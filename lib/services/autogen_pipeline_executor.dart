@@ -19,6 +19,8 @@ import 'board_texture_classifier.dart';
 import 'skill_tree_auto_linker.dart';
 import 'training_pack_fingerprint_generator.dart';
 import 'icm_scenario_library_injector.dart';
+import 'pack_quality_gatekeeper_service.dart';
+import 'autogen_run_history_logger_service.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -34,6 +36,8 @@ class AutogenPipelineExecutor {
   final AutogenStatsDashboardService dashboard;
   final AutogenStatusDashboardService status;
   final ICMScenarioLibraryInjector? icmInjector;
+  final PackQualityGatekeeperService gatekeeper;
+  final AutogenRunHistoryLoggerService runHistory;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -48,22 +52,25 @@ class AutogenPipelineExecutor {
     AutogenStatsDashboardService? dashboard,
     AutogenStatusDashboardService? status,
     ICMScenarioLibraryInjector? icmInjector,
-  }) : dedup = dedup ?? AutoDeduplicationEngine(),
-       exporter = exporter ?? const YamlPackExporter(),
-       coverage = coverage ?? SkillTagCoverageTracker(),
-       theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
-       boardClassifier = boardClassifier,
-       skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
-       fingerprintGenerator =
-           fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
-       _fingerprintLog =
-           fingerprintLog ??
-           File(
-             'generated_pack_fingerprints.log',
-           ).openWrite(mode: FileMode.append),
-       dashboard = dashboard ?? AutogenStatsDashboardService(),
-       status = status ?? AutogenStatusDashboardService(),
-       icmInjector = icmInjector {
+    PackQualityGatekeeperService? gatekeeper,
+    AutogenRunHistoryLoggerService? runHistory,
+  })  : dedup = dedup ?? AutoDeduplicationEngine(),
+        exporter = exporter ?? const YamlPackExporter(),
+        coverage = coverage ?? SkillTagCoverageTracker(),
+        theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
+        boardClassifier = boardClassifier,
+        skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
+        fingerprintGenerator =
+            fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
+        _fingerprintLog = fingerprintLog ??
+            File(
+              'generated_pack_fingerprints.log',
+            ).openWrite(mode: FileMode.append),
+        dashboard = dashboard ?? AutogenStatsDashboardService(),
+        status = status ?? AutogenStatusDashboardService(),
+        icmInjector = icmInjector,
+        gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
+        runHistory = runHistory ?? const AutogenRunHistoryLoggerService() {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -75,6 +82,10 @@ class AutogenPipelineExecutor {
   }) async {
     // Load existing YAMLs to prime deduplication engine.
     dashboard.start();
+    var generatedCount = 0;
+    var rejectedCount = 0;
+    var totalQualityScore = 0.0;
+    var processedCount = 0;
     status.update(
       'pipeline',
       const AutogenStatus(
@@ -156,6 +167,17 @@ class AutogenPipelineExecutor {
           pack.spotCount = model.spots.length;
           spots = model.spots;
         }
+        final accepted = gatekeeper.isQualityAcceptable(model);
+        final score = model.metadata['qualityScore'] as double? ?? 0.0;
+        totalQualityScore += score;
+        processedCount++;
+        if (!accepted) {
+          rejectedCount++;
+          continue;
+        }
+        generatedCount++;
+        pack.meta['qualityScore'] = score;
+
         coverage.analyzePack(model);
         dashboard.recordCoverage(coverage.aggregateReport);
 
@@ -183,6 +205,13 @@ class AutogenPipelineExecutor {
       await dashboard.logFinalStats(
         coverage.aggregateReport,
         yamlFiles: files.length,
+      );
+      final avgQuality =
+          processedCount == 0 ? 0.0 : totalQualityScore / processedCount;
+      await runHistory.logRun(
+        generated: generatedCount,
+        rejected: rejectedCount,
+        avgScore: avgQuality,
       );
       status.update(
         'pipeline',
