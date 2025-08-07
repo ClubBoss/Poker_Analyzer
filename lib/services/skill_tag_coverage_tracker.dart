@@ -12,8 +12,8 @@ import 'preferences_service.dart';
 class SkillTagCoverageTracker {
   final List<String> allTags;
   final int overloadThreshold;
-  final Map<String, int> _aggregateCounts = <String, int>{};
-  int _aggregateTotalTags = 0;
+  final Map<String, int> skillTagCounts = <String, int>{};
+  int _totalTags = 0;
 
   SkillTagCoverageTracker({
     this.allTags = const <String>[],
@@ -29,16 +29,16 @@ class SkillTagCoverageTracker {
     final perSpot = <String, List<String>>{};
     var total = 0;
     for (final spot in spots) {
-      final tags = List<String>.from(spot.tags);
+      final tags = spot.tags.map(_normalize).toList()..sort();
       perSpot[spot.id] = tags;
       total += tags.length;
       for (final tag in tags) {
         counts[tag] = (counts[tag] ?? 0) + 1;
-        _aggregateCounts[tag] = (_aggregateCounts[tag] ?? 0) + 1;
+        skillTagCounts[tag] = (skillTagCounts[tag] ?? 0) + 1;
       }
     }
-    _aggregateTotalTags += total;
-    final unused = allTags.where((t) => (counts[t] ?? 0) == 0).toList();
+    _totalTags += total;
+    final unused = allTags.where((t) => (counts[_normalize(t)] ?? 0) == 0).toList();
     final overloaded = counts.entries
         .where((e) => e.value > overloadThreshold)
         .map((e) => e.key)
@@ -52,18 +52,43 @@ class SkillTagCoverageTracker {
     );
   }
 
+  /// Returns tag coverage counts for [spots]. Tags are normalized to lowercase
+  /// and can be filtered by [minCount].
+  Map<String, int> getSkillTagCoverage(
+    List<TrainingPackSpot> spots, {
+    int minCount = 0,
+  }) {
+    final counts = analyze(spots).tagCounts;
+    if (minCount > 0) {
+      counts.removeWhere((_, value) => value < minCount);
+    }
+    return counts;
+  }
+
+  /// Groups coverage counts by pack identifier.
+  Map<String, Map<String, int>> getCoverageByPack(
+    Map<String, List<TrainingPackSpot>> packs, {
+    int minCount = 0,
+  }) {
+    final result = <String, Map<String, int>>{};
+    for (final entry in packs.entries) {
+      result[entry.key] = getSkillTagCoverage(entry.value, minCount: minCount);
+    }
+    return result;
+  }
+
   /// Returns the aggregated coverage across all analyzed packs.
   SkillTagStats get aggregateReport {
     final unused = allTags
-        .where((t) => (_aggregateCounts[t] ?? 0) == 0)
+        .where((t) => (skillTagCounts[_normalize(t)] ?? 0) == 0)
         .toList();
-    final overloaded = _aggregateCounts.entries
+    final overloaded = skillTagCounts.entries
         .where((e) => e.value > overloadThreshold)
         .map((e) => e.key)
         .toList();
     return SkillTagStats(
-      tagCounts: Map<String, int>.from(_aggregateCounts),
-      totalTags: _aggregateTotalTags,
+      tagCounts: Map<String, int>.from(skillTagCounts),
+      totalTags: _totalTags,
       unusedTags: unused,
       overloadedTags: overloaded,
     );
@@ -74,9 +99,11 @@ class SkillTagCoverageTracker {
     final report = aggregateReport;
     final out =
         sink ?? File('skill_tag_coverage.log').openWrite(mode: FileMode.append);
-    out.writeln('Total tags: ${report.totalTags}');
-    for (final entry in report.tagCounts.entries) {
-      out.writeln('${entry.key}: ${entry.value}');
+    out.writeln('Skill Coverage Summary:');
+    final entries = report.tagCounts.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    for (final entry in entries) {
+      out.writeln('- ${entry.key}: ${entry.value}');
     }
     if (report.unusedTags.isNotEmpty) {
       out.writeln('Unused tags: ${report.unusedTags.join(', ')}');
@@ -95,7 +122,7 @@ class SkillTagCoverageTracker {
     final counts = <String, int>{};
     for (final pack in packs) {
       for (final tag in pack.tags) {
-        final norm = tag.trim().toLowerCase();
+        final norm = _normalize(tag);
         if (norm.isEmpty) continue;
         counts[norm] = (counts[norm] ?? 0) + 1;
       }
@@ -110,7 +137,7 @@ class SkillTagCoverageTracker {
     Set<String> allTags,
   ) {
     final counts = computeTagCounts(packs);
-    final normalizedAll = allTags.map((e) => e.trim().toLowerCase()).toSet();
+    final normalizedAll = allTags.map(_normalize).toSet();
     final unused = <String>[
       for (final tag in normalizedAll)
         if (!counts.containsKey(tag)) tag,
@@ -146,4 +173,6 @@ class SkillTagCoverageTracker {
       'unusedTags': unusedTags,
     }, path);
   }
+
+  String _normalize(String tag) => tag.trim().toLowerCase();
 }
