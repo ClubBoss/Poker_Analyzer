@@ -19,6 +19,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/autogen_session_meta.dart';
 import '../widgets/autogen_pipeline_debug_control_panel.dart';
 import '../widgets/autogen_duplicate_table_widget.dart';
+import 'pack_fingerprint_comparer_report_ui.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -181,6 +182,16 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                   onPressed:
                       _status == _AutogenStatus.running ? _stopAutogen : null,
                   child: const Text('Stop'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PackFingerprintComparerReportUI(),
+                      ),
+                    );
+                  },
+                  child: const Text('View Duplicate Report'),
                 ),
                 ValueListenableBuilder<List<DuplicatePackInfo>>(
                   valueListenable: statusService.duplicatesNotifier,
