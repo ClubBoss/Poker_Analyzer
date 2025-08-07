@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import '../models/training_pack_model.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/skill_tag_stats.dart';
+import '../core/training/generation/yaml_writer.dart';
+import '../utils/app_logger.dart';
+import 'preferences_service.dart';
 
 /// Tracks tag frequency and coverage across generated spots.
 class SkillTagCoverageTracker {
@@ -84,5 +88,62 @@ class SkillTagCoverageTracker {
     if (sink == null) {
       await out.close();
     }
+  }
+
+  /// Computes tag usage counts across [packs]. Tags are normalized to lowercase.
+  Map<String, int> computeTagCounts(List<TrainingPackModel> packs) {
+    final counts = <String, int>{};
+    for (final pack in packs) {
+      for (final tag in pack.tags) {
+        final norm = tag.trim().toLowerCase();
+        if (norm.isEmpty) continue;
+        counts[norm] = (counts[norm] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }
+
+  /// Returns tags from [allTags] that do not appear in [packs]. A warning is
+  /// logged listing any uncovered tags.
+  List<String> findUnusedTags(
+    List<TrainingPackModel> packs,
+    Set<String> allTags,
+  ) {
+    final counts = computeTagCounts(packs);
+    final normalizedAll = allTags.map((e) => e.trim().toLowerCase()).toSet();
+    final unused = <String>[
+      for (final tag in normalizedAll)
+        if (!counts.containsKey(tag)) tag,
+    ]..sort();
+    if (unused.isNotEmpty) {
+      AppLogger.warn('Unused tags: ${unused.join(', ')}');
+    }
+    return unused;
+  }
+
+  /// Persists the coverage report to [SharedPreferences].
+  Future<void> saveReportToPrefs({
+    required Map<String, int> tagCounts,
+    required List<String> unusedTags,
+  }) async {
+    final prefs = await PreferencesService.getInstance();
+    final data = jsonEncode({
+      'tagCounts': tagCounts,
+      'unusedTags': unusedTags,
+    });
+    await prefs.setString(SharedPrefsKeys.skillTagCoverageReport, data);
+  }
+
+  /// Exports the coverage report as a YAML file at [path].
+  Future<void> exportReportAsYaml({
+    required Map<String, int> tagCounts,
+    required List<String> unusedTags,
+    required String path,
+  }) async {
+    const writer = YamlWriter();
+    await writer.write({
+      'tagCounts': tagCounts,
+      'unusedTags': unusedTags,
+    }, path);
   }
 }

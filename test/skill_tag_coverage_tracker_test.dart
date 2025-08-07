@@ -28,4 +28,27 @@ void main() {
     expect(aggregate.tagCounts['push'], 2);
     expect(aggregate.tagCounts['call'], 1);
   });
+
+  test('computeTagCounts and findUnusedTags work across packs', () {
+    final packs = [
+      TrainingPackModel(
+        id: 'p1',
+        title: 'P1',
+        spots: const <TrainingPackSpot>[],
+        tags: ['a', 'b'],
+      ),
+      TrainingPackModel(
+        id: 'p2',
+        title: 'P2',
+        spots: const <TrainingPackSpot>[],
+        tags: ['a'],
+      ),
+    ];
+    final tracker = SkillTagCoverageTracker();
+    final counts = tracker.computeTagCounts(packs);
+    expect(counts['a'], 2);
+    expect(counts['b'], 1);
+    final unused = tracker.findUnusedTags(packs, {'a', 'b', 'c'});
+    expect(unused, ['c']);
+  });
 }
