@@ -21,13 +21,17 @@ import '../widgets/autogen_pipeline_debug_control_panel.dart';
 import '../widgets/autogen_duplicate_table_widget.dart';
 import 'pack_fingerprint_comparer_report_ui.dart';
 import '../widgets/deduplication_policy_editor.dart';
+import '../widgets/theory_coverage_panel_widget.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
   const _DirExporter(this.outDir);
 
   @override
-  Future<File> exportToFile(TrainingPackTemplateV2 pack, {String? fileName}) async {
+  Future<File> exportToFile(
+    TrainingPackTemplateV2 pack, {
+    String? fileName,
+  }) async {
     final dir = Directory(outDir);
     await dir.create(recursive: true);
     final safeName = (fileName ?? pack.name)
@@ -54,8 +58,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   TrainingPackAutoGenerator? _generator;
   List<TrainingPackTemplateSet> _templateSets = const [];
   TrainingPackTemplateSet? _selectedSet;
-  final TextEditingController _outputDirController =
-      TextEditingController(text: 'packs/generated');
+  final TextEditingController _outputDirController = TextEditingController(
+    text: 'packs/generated',
+  );
   String? _sessionId;
 
   @override
@@ -64,8 +69,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     TrainingPackTemplateSetLibraryService.instance.loadAll().then((_) {
       if (mounted) {
         setState(() {
-          _templateSets =
-              TrainingPackTemplateSetLibraryService.instance.all;
+          _templateSets = TrainingPackTemplateSetLibraryService.instance.all;
           if (_templateSets.isNotEmpty) {
             _selectedSet = _templateSets.first;
           }
@@ -122,8 +126,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     }
     final id = _sessionId;
     if (id != null) {
-      AutogenStatusDashboardService.instance
-          .updateSessionStatus(id, 'stopped');
+      AutogenStatusDashboardService.instance.updateSessionStatus(id, 'stopped');
     }
   }
 
@@ -153,17 +156,15 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                   hint: const Text('Select Template Set'),
                   items: [
                     for (final s in _templateSets)
-                      DropdownMenuItem(
-                        value: s,
-                        child: Text(s.baseSpot.id),
-                      ),
+                      DropdownMenuItem(value: s, child: Text(s.baseSpot.id)),
                   ],
                   onChanged: (v) => setState(() => _selectedSet = v),
                 ),
                 TextField(
                   controller: _outputDirController,
-                  decoration:
-                      const InputDecoration(labelText: 'Output Directory'),
+                  decoration: const InputDecoration(
+                    labelText: 'Output Directory',
+                  ),
                 ),
               ],
             ),
@@ -175,13 +176,15 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed:
-                      _status == _AutogenStatus.running ? null : _startAutogen,
+                  onPressed: _status == _AutogenStatus.running
+                      ? null
+                      : _startAutogen,
                   child: const Text('Start Autogen'),
                 ),
                 OutlinedButton(
-                  onPressed:
-                      _status == _AutogenStatus.running ? _stopAutogen : null,
+                  onPressed: _status == _AutogenStatus.running
+                      ? _stopAutogen
+                      : null,
                   child: const Text('Stop'),
                 ),
                 ElevatedButton(
@@ -215,8 +218,10 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                           'Status: ${_status.name}',
                           style: TextStyle(color: color),
                         ),
-                        Text('Template: '
-                            '${_selectedSet?.baseSpot.id ?? 'none'}'),
+                        Text(
+                          'Template: '
+                          '${_selectedSet?.baseSpot.id ?? 'none'}',
+                        ),
                         Text('Output: ${_outputDirController.text}'),
                       ],
                     );
@@ -226,15 +231,10 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
             ),
           ),
           Expanded(child: Container()),
-          SizedBox(
-            height: 200,
-            child: AutogenHistoryChartWidget(),
-          ),
+          SizedBox(height: 200, child: AutogenHistoryChartWidget()),
           const AutogenRealtimeStatsPanel(),
-          SizedBox(
-            height: 200,
-            child: AutogenDuplicateTableWidget(),
-          ),
+          SizedBox(height: 200, child: TheoryCoveragePanelWidget()),
+          SizedBox(height: 200, child: AutogenDuplicateTableWidget()),
           SizedBox(
             height: 200,
             child: _sessionId == null
@@ -246,4 +246,3 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     );
   }
 }
-
