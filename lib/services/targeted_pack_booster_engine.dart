@@ -1,12 +1,16 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/autogen_status.dart';
+import '../models/training_pack_model.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import 'autogen_status_dashboard_service.dart';
+import 'autogen_stats_dashboard_service.dart';
 import 'pack_fingerprint_comparer.dart';
 import 'pack_library_service.dart';
+import 'skill_tag_coverage_tracker.dart';
 import 'spot_fingerprint_generator.dart';
 import 'training_pack_fingerprint_generator.dart';
 import 'yaml_pack_exporter.dart';
@@ -39,14 +43,20 @@ class TargetedPackBoosterEngine {
   final SkillDecayTracker? decayTracker;
   final PackLibraryService library;
   final YamlPackExporter exporter;
+  final AutogenStatsDashboardService dashboard;
+  final SkillTagCoverageTracker coverage;
 
   TargetedPackBoosterEngine({
     this.masteryAnalyzer,
     this.decayTracker,
     PackLibraryService? library,
     YamlPackExporter? exporter,
+    AutogenStatsDashboardService? dashboard,
+    SkillTagCoverageTracker? coverage,
   })  : library = library ?? PackLibraryService.instance,
-        exporter = exporter ?? const YamlPackExporter();
+        exporter = exporter ?? const YamlPackExporter(),
+        dashboard = dashboard ?? AutogenStatsDashboardService.instance,
+        coverage = coverage ?? SkillTagCoverageTracker();
 
   /// Scans analytics services for weak or decayed tags and returns
   /// matching pack boost requests.
@@ -76,6 +86,14 @@ class TargetedPackBoosterEngine {
     final prefs = await SharedPreferences.getInstance();
     final minNovelty = prefs.getDouble('booster.minNoveltyJaccard') ?? 0.6;
     final status = AutogenStatusDashboardService.instance;
+    status.update(
+      'booster',
+      const AutogenStatus(
+        isRunning: true,
+        currentStage: 'booster',
+        progress: 0,
+      ),
+    );
     const packGen = TrainingPackFingerprintGenerator();
     const spotGen = SpotFingerprintGenerator();
     await TrainingPackLibraryV2.instance.loadFromFolder();
@@ -88,14 +106,33 @@ class TargetedPackBoosterEngine {
         ),
     ];
     final boostedPacks = <TrainingPackTemplateV2>[];
-    for (final req in requests) {
+    for (var i = 0; i < requests.length; i++) {
+      final req = requests[i];
       final tpl = await library.getById(req.packId);
-      if (tpl == null) continue;
+      if (tpl == null) {
+        status.update(
+          'booster',
+          AutogenStatus(
+            isRunning: true,
+            currentStage: 'booster',
+            progress: (i + 1) / requests.length,
+          ),
+        );
+        continue;
+      }
       final tagged = tpl.spots
           .where((s) => s.tags.any((t) => req.tags.contains(t)))
           .toList();
       if (tagged.isEmpty) {
         status.recordBoosterSkipped('no_tagged_spots');
+        status.update(
+          'booster',
+          AutogenStatus(
+            isRunning: true,
+            currentStage: 'booster',
+            progress: (i + 1) / requests.length,
+          ),
+        );
         continue;
       }
       final addCount = (tagged.length * (req.ratio - 1)).round();
@@ -138,12 +175,48 @@ class TargetedPackBoosterEngine {
           break;
         }
       }
-      if (isDup) continue;
+      if (isDup) {
+        status.update(
+          'booster',
+          AutogenStatus(
+            isRunning: true,
+            currentStage: 'booster',
+            progress: (i + 1) / requests.length,
+          ),
+        );
+        continue;
+      }
       await exporter.export(boosted);
       status.recordBoosterGenerated(boosted.id);
+      dashboard.recordPack(boosted.spotCount);
+      final model = TrainingPackModel(
+        id: boosted.id,
+        title: boosted.name,
+        spots: boosted.spots,
+        tags: List<String>.from(boosted.tags),
+        metadata: Map<String, dynamic>.from(boosted.meta),
+      );
+      coverage.analyzePack(model);
+      dashboard.recordCoverage(coverage.aggregateReport);
       existingFingerprints.add(fp);
       boostedPacks.add(boosted);
+      status.update(
+        'booster',
+        AutogenStatus(
+          isRunning: true,
+          currentStage: 'booster',
+          progress: (i + 1) / requests.length,
+        ),
+      );
     }
+    status.update(
+      'booster',
+      const AutogenStatus(
+        isRunning: false,
+        currentStage: 'booster',
+        progress: 1,
+      ),
+    );
     return boostedPacks;
   }
 }
