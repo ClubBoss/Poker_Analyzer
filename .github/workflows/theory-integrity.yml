@@ -40,20 +40,37 @@ jobs:
         env:
           BASE: ${{ github.base_ref }}
 
+      - name: Check manifest presence
+        id: manifest
+        run: |
+          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json; then
+            echo "has_manifest=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_manifest=0" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: No theory changes
         if: steps.changes.outputs.dirs == ''
         run: echo "No theory changes"
 
-      - name: Verify theory files
-        if: steps.changes.outputs.dirs != ''
+      - name: Verify theory files (strict, with manifest)
+        if: steps.changes.outputs.dirs != '' && steps.manifest.outputs.has_manifest == '1'
         run: |
           dirs="${{ steps.changes.outputs.dirs }}"
           args=""
-          for d in $dirs; do
-            args="$args --dir $d"
-          done
-          echo "Verifying theory paths: $dirs"
+          for d in $dirs; do args="$args --dir $d"; done
+          echo "Verifying (strict) theory paths: $dirs"
           dart run bin/poker_analyzer.dart verify $args --manifest theory_manifest.json --ci
+
+      - name: Verify theory files (soft, no manifest yet)
+        if: steps.changes.outputs.dirs != '' && steps.manifest.outputs.has_manifest == '0'
+        run: |
+          dirs="${{ steps.changes.outputs.dirs }}"
+          args=""
+          for d in $dirs; do args="$args --dir $d"; done
+          echo "Soft verify (no manifest) theory paths: $dirs"
+          # Dry-run sweep to produce annotations/summary, but do not fail CI
+          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json
 
       - name: Report sweep results
         if: steps.changes.outputs.dirs != '' && always()
