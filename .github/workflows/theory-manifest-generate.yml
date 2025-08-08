@@ -1,5 +1,4 @@
 name: Theory Manifest – Generate baseline
-
 on:
   workflow_dispatch:
 
@@ -15,34 +14,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Generate/Update manifest
+      - name: Generate baseline manifest (Python, no Flutter)
         id: gen
         shell: bash
         run: |
           set -euo pipefail
-          CHANGED=0
-
-          if [ -d assets ]; then
-            echo "Generating manifest for ./assets"
-            dart run bin/poker_analyzer.dart manifest generate --dir assets --out theory_manifest.json
-            CHANGED=1
-          fi
-
-          if [ "$CHANGED" = "0" ]; then
-            echo "No assets dir present; nothing to generate"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
+          python3 - <<'PY'
+          import os, json, hashlib
+          ROOTS = ["assets"]  # где лежат YAML
+          exts = {".yaml", ".yml"}
+          files = []
+          for root in ROOTS:
+              if not os.path.isdir(root):
+                  continue
+              for r, _, fns in os.walk(root):
+                  for fn in fns:
+                      if os.path.splitext(fn)[1].lower() in exts:
+                          files.append(os.path.join(r, fn))
+          files.sort()
+          mani = {"version": 1, "strict": False, "files": {}}
+          for p in files:
+              with open(p, "rb") as fh:
+                  sha = hashlib.sha256(fh.read()).hexdigest()
+              mani["files"][p] = {"sha256": sha}
+          with open("theory_manifest.json", "w", encoding="utf-8") as out:
+              json.dump(mani, out, ensure_ascii=False, indent=2)
+          print(f"Wrote theory_manifest.json with {len(files)} files")
+          PY
           echo "changed=1" >> "$GITHUB_OUTPUT"
 
       - name: Create PR with baseline
@@ -52,7 +50,7 @@ jobs:
           commit-message: "chore: add baseline theory manifest"
           title: "chore: add baseline theory manifest"
           body: |
-            Generated/updated theory_manifest.json to enable strict CI verification.
-            This PR was created by the one-shot workflow.
+            Generated theory_manifest.json (soft mode, strict=false).
+            Flip `"strict": true` later to enable strict CI.
           branch: manifest/baseline
           signoff: false
