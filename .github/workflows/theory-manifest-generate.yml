@@ -1,4 +1,4 @@
-name: "Theory Manifest - Generate baseline"
+name: Theory Manifest – Generate baseline
 
 on:
   workflow_dispatch:
@@ -6,15 +6,12 @@ on:
 permissions:
   contents: write
 
-env:
-  THEORY_DIRS: assets
-
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -32,29 +29,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          IFS=',' read -ra DIRS <<< "${THEORY_DIRS:-assets}"
-          first=1
-          for d in "${DIRS[@]}"; do
-            [ -d "$d" ] || continue
-            echo "Processing dir: $d"
-            if [ "$first" -eq 1 ]; then
-              dart run bin/poker_analyzer.dart manifest generate --dir "$d" --out theory_manifest.json
-              first=0
-            else
-              dart run bin/poker_analyzer.dart manifest update --dir "$d"
-            fi
-          done
-          if [ "$first" -eq 1 ]; then
-            echo "No theory dirs present; nothing to generate"
+          CHANGED=0
+
+          if [ -d assets ]; then
+            echo "Generating manifest for ./assets"
+            dart run bin/poker_analyzer.dart manifest generate --dir assets --out theory_manifest.json
+            CHANGED=1
+          fi
+
+          if [ "$CHANGED" = "0" ]; then
+            echo "No assets dir present; nothing to generate"
             echo "changed=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          # отметим, есть ли реальный diff по файлу
-          if git diff --quiet -- theory_manifest.json; then
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=1" >> "$GITHUB_OUTPUT"
-          fi
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
 
       - name: Create PR with baseline
         if: steps.gen.outputs.changed == '1'
