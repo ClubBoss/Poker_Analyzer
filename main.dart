@@ -1,3 +1,4 @@
+import 'package:args/args.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:poker_analyzer/core/plugin_runtime.dart';
@@ -26,10 +27,36 @@ import 'package:poker_analyzer/services/demo_playback_controller.dart';
 
 final PluginRuntime pluginRuntime = PluginRuntime();
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  final parser = ArgParser()
+    ..addFlag('help', abbr: 'h', negatable: false, help: 'Show usage information.')
+    ..addFlag(
+      'demo',
+      defaultsTo: true,
+      help: 'Run application in demo mode.',
+    );
+
+  late ArgResults results;
+  try {
+    results = parser.parse(args);
+  } on FormatException catch (e) {
+    // Invalid arguments supplied, print error and usage.
+    print(e.message);
+    print(parser.usage);
+    return;
+  }
+
+  if (results['help'] as bool) {
+    print('Usage: poker_analyzer [options]');
+    print(parser.usage);
+    return;
+  }
+
+  final demoMode = results['demo'] as bool;
+
   WidgetsFlutterBinding.ensureInitialized();
   await pluginRuntime.initialize();
-  runApp(const PokerAnalyzerDemoApp());
+  runApp(PokerAnalyzerDemoApp(demoMode: demoMode));
 }
 
 class PokerAnalyzerDemoApp extends StatefulWidget {
