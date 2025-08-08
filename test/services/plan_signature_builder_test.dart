@@ -58,5 +58,15 @@ void main() {
       budgetMinutes: 30,
     );
     expect(sig1, isNot(sig4));
+
+    final sig5 = await builder.build(
+      userId: 'u1',
+      plan: plan,
+      audience: 'regular',
+      format: 'standard',
+      budgetMinutes: 30,
+      abArm: 'exp1:armA',
+    );
+    expect(sig1, isNot(sig5));
   });
 }

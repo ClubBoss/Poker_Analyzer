@@ -95,6 +95,22 @@ class AdaptiveOutcomeTracker {
       'tags': tags,
     };
     await _save(userId, data);
+
+    final ab = m.metrics['abArm'] as String?;
+    if (ab != null && ab.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final pairs = ab.split(',');
+      for (final p in pairs) {
+        final parts = p.split(':');
+        if (parts.length != 2) continue;
+        final key = 'ab.outcomes.${parts[0]}.${parts[1]}';
+        final n = prefs.getInt('$key.n') ?? 0;
+        final mean = prefs.getDouble('$key.mean') ?? 0.0;
+        final newMean = (mean * n + delta) / (n + 1);
+        await prefs.setInt('$key.n', n + 1);
+        await prefs.setDouble('$key.mean', newMean);
+      }
+    }
     return perTag;
   }
 

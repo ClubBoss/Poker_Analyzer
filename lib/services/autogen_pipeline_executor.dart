@@ -45,7 +45,7 @@ import 'plan_idempotency_guard.dart';
 import 'path_write_lock_service.dart';
 import 'path_transaction_manager.dart';
 import 'learning_path_store.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'ab_orchestrator_service.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -468,19 +468,33 @@ class AutogenPipelineExecutor {
     String? format,
     AdaptivePlanExecutor? executor,
   }) async {
+    var aud = audience ?? 'regular';
+    var fmt = format ?? 'standard';
+    final abSvc = ABOrchestratorService.instance;
+    final arms = await abSvc.resolveActiveArms(userId, aud);
+    for (final arm in arms) {
+      await abSvc.applyOverrides(arm);
+      if (arm.audience != null) aud = arm.audience!;
+      if (arm.format != null) fmt = arm.format!;
+      abSvc.logExposure(userId, arm.expId, arm.armId,
+          audience: aud, format: fmt);
+    }
+    final abStr = arms.map((a) => '${a.expId}:${a.armId}').join(',');
     final planner = AdaptiveTrainingPlanner();
     final plan = await planner.plan(
       userId: userId,
       durationMinutes: durationMinutes,
-      audience: audience ?? 'regular',
-      format: format ?? 'standard',
+      audience: aud,
+      format: fmt,
+      abArm: abStr.isEmpty ? null : abStr,
     );
     final sig = await PlanSignatureBuilder().build(
       userId: userId,
       plan: plan,
-      audience: audience ?? 'regular',
-      format: format ?? 'standard',
+      audience: aud,
+      format: fmt,
       budgetMinutes: durationMinutes,
+      abArm: abStr.isEmpty ? null : abStr,
     );
 
     final exec = executor ?? const AdaptivePlanExecutor();
@@ -504,6 +518,7 @@ class AutogenPipelineExecutor {
             'action': 'locked',
             'createdModules': 0,
             'durationMs': 0,
+            if (abStr.isNotEmpty) 'abArm': abStr,
           }),
         ),
       );
@@ -525,15 +540,16 @@ class AutogenPipelineExecutor {
           AutogenStatus(
             isRunning: false,
             currentStage: jsonEncode({
-              'userId': userId,
-              'sig': sig,
-              'action': 'skip',
-              'createdModules': 0,
-              'durationMs':
-                  DateTime.now().difference(start).inMilliseconds,
-            }),
-          ),
-        );
+            'userId': userId,
+            'sig': sig,
+            'action': 'skip',
+            'createdModules': 0,
+            'durationMs':
+                DateTime.now().difference(start).inMilliseconds,
+            if (abStr.isNotEmpty) 'abArm': abStr,
+          }),
+        ),
+      );
         return <File>[];
       }
       final modules = await exec.execute(
@@ -541,6 +557,7 @@ class AutogenPipelineExecutor {
         plan: plan,
         budgetMinutes: durationMinutes,
         sig: sig,
+        abArm: abStr.isEmpty ? null : abStr,
       );
       for (final m in modules) {
         await txn.recordModule(userId, txId, m.moduleId);
@@ -559,6 +576,7 @@ class AutogenPipelineExecutor {
             'createdModules': modules.length,
             'durationMs':
                 DateTime.now().difference(start).inMilliseconds,
+            if (abStr.isNotEmpty) 'abArm': abStr,
           }),
         ),
       );
@@ -576,6 +594,7 @@ class AutogenPipelineExecutor {
             'createdModules': 0,
             'durationMs':
                 DateTime.now().difference(start).inMilliseconds,
+            if (abStr.isNotEmpty) 'abArm': abStr,
           }),
           lastError: e.toString(),
         ),

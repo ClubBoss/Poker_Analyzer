@@ -26,6 +26,7 @@ class PlanSignatureBuilder {
     required int budgetMinutes,
     String? templateSetVersion,
     String? usfVersion,
+    String? abArm,
   }) async {
     final obj = {
       'version': 2,
@@ -36,6 +37,7 @@ class PlanSignatureBuilder {
       'mix': plan.mix,
       'templateSetVersion': templateSetVersion ?? '',
       'usfVersion': usfVersion ?? '',
+      if (abArm != null && abArm.isNotEmpty) 'abArm': abArm,
     };
     final canonical = jsonEncode(obj);
     final sig = sha256.convert(utf8.encode(canonical)).toString();

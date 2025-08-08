@@ -1,0 +1,15 @@
+[
+  {
+    "id": "wImpactTest",
+    "active": true,
+    "traffic": 1.0,
+    "arms": [
+      { "id": "control", "ratio": 1, "overrides": {} },
+      {
+        "id": "hiImpact",
+        "ratio": 1,
+        "overrides": { "prefs": { "planner.weight.impact": 0.3 } }
+      }
+    ]
+  }
+]
