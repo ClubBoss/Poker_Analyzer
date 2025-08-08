@@ -52,6 +52,10 @@ void main() {
     if (dir.existsSync()) {
       dir.deleteSync(recursive: true);
     }
+    final cacheDir = Directory('autogen_cache');
+    if (cacheDir.existsSync()) {
+      cacheDir.deleteSync(recursive: true);
+    }
   });
 
   TrainingPackTemplateV2 buildPack(String id, String tag) {
