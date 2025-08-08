@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:json2yaml/json2yaml.dart';
 import 'package:path/path.dart' as p;
-import 'package:yaml/yaml.dart';
 
 import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'preferences_service.dart';
 import 'theory_yaml_safe_writer.dart';
+import 'theory_yaml_safe_reader.dart';
 import 'theory_write_scope.dart';
 import 'path_transaction_manager.dart';
 
@@ -83,9 +83,9 @@ class TheoryAutoInjector {
           errors[packId] = 'pack_missing';
           continue;
         }
+        final data = await TheoryYamlSafeReader()
+            .read(path: file.path, schema: 'TemplateSet');
         final yamlStr = await file.readAsString();
-        final data =
-            jsonDecode(jsonEncode(loadYaml(yamlStr))) as Map<String, dynamic>;
         final meta = Map<String, dynamic>.from(data['meta'] ?? {});
         final existing =
             (meta['theoryLinks'] as List?)?.cast<String>() ?? <String>[];
