@@ -6,12 +6,12 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:yaml/yaml.dart';
 
 import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
+import 'config_source.dart';
 import 'theory_yaml_safe_reader.dart';
 import 'theory_write_scope.dart';
 import 'theory_yaml_canonicalizer.dart';
@@ -61,20 +61,24 @@ class TheoryIntegritySweeper {
   TheoryIntegritySweeper({
     AutogenStatusDashboardService? dashboard,
     TheoryYamlSafeReader? reader,
+    ConfigSource? config,
   }) : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-       _reader = reader ?? TheoryYamlSafeReader();
+       _config = config ?? ConfigSource.empty(),
+       _reader =
+           reader ??
+           TheoryYamlSafeReader(config: config ?? ConfigSource.empty());
 
   final AutogenStatusDashboardService _dashboard;
   final TheoryYamlSafeReader _reader;
+  final ConfigSource _config;
 
   Future<SweepReport> run({
     required List<String> dirs,
     bool dryRun = true,
     bool heal = true,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final maxParallel = prefs.getInt('theory.sweep.maxParallel') ?? 2;
-    final keep = prefs.getInt('theory.backups.keep') ?? 10;
+    final maxParallel = _config.getInt('theory.sweep.maxParallel') ?? 2;
+    final keep = _config.getInt('theory.backups.keep') ?? 10;
 
     final files = <String>[];
     for (final dir in dirs) {
