@@ -12,6 +12,7 @@ import 'package:yaml/yaml.dart';
 import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'config_source.dart';
+import 'theory_manifest_service.dart';
 import 'theory_yaml_safe_reader.dart';
 import 'theory_write_scope.dart';
 import 'theory_yaml_canonicalizer.dart';
@@ -49,7 +50,14 @@ class SweepReport {
 
   SweepReport({List<SweepEntry>? entries, Map<String, int>? counters})
     : entries = entries ?? [],
-      counters = counters ?? {'ok': 0, 'upgraded': 0, 'healed': 0, 'failed': 0};
+      counters = counters ?? {
+        'ok': 0,
+        'upgraded': 0,
+        'healed': 0,
+        'failed': 0,
+        'needs_upgrade': 0,
+        'needs_heal': 0,
+      };
 
   Map<String, dynamic> toJson() => {
     'entries': entries.map((e) => e.toJson()).toList(),
@@ -76,7 +84,15 @@ class TheoryIntegritySweeper {
     required List<String> dirs,
     bool dryRun = true,
     bool heal = true,
+    String? manifestPath,
+    bool check = false,
   }) async {
+    TheoryManifestService? manifest;
+    if (manifestPath != null) {
+      manifest = TheoryManifestService(path: manifestPath);
+      await manifest.load();
+    }
+
     final maxParallel = _config.getInt('theory.sweep.maxParallel') ?? 2;
     final keep = _config.getInt('theory.backups.keep') ?? 10;
 
@@ -93,6 +109,23 @@ class TheoryIntegritySweeper {
       );
     }
     files.sort();
+
+    if (check && manifest != null) {
+      files.retainWhere((path) {
+        final rel = p.relative(path);
+        final entry = manifest!.entry(rel);
+        if (entry == null) return true;
+        final stat = File(path).statSync();
+        final lines = File(path).readAsLinesSync();
+        final headerHash = _parseHeader(lines.isEmpty ? '' : lines.first)['x-hash'];
+        if ((stat.modified.isBefore(entry.ts) ||
+                stat.modified.isAtSameMomentAs(entry.ts)) &&
+            headerHash == entry.hash) {
+          return false;
+        }
+        return true;
+      });
+    }
     final total = files.length;
 
     final queue = Queue<String>.from(files);
@@ -109,12 +142,48 @@ class TheoryIntegritySweeper {
           }
         });
         if (path == null) break;
-        final entry = await _process(
+        var entry = await _process(
           path!,
           dryRun: dryRun,
           heal: heal,
           keep: keep,
         );
+        if (check && manifest != null) {
+          final rel = p.relative(entry.file);
+          final mEntry = manifest.entry(rel);
+          var action = entry.action;
+          if (action == 'upgraded') {
+            action = 'needs_upgrade';
+          } else if (action == 'healed') {
+            action = 'needs_heal';
+          } else if (action == 'ok') {
+            if (mEntry == null || mEntry.hash != entry.newHash) {
+              action = 'failed';
+            }
+          }
+          entry = SweepEntry(
+            file: entry.file,
+            action: action,
+            oldHash: entry.oldHash,
+            newHash: entry.newHash,
+            headerVersion: entry.headerVersion,
+            pruned: entry.pruned,
+          );
+        } else if (!dryRun && manifest != null &&
+            _config.getBool('theory.manifest.autoupdate') == true &&
+            entry.newHash != null) {
+          final rel = p.relative(entry.file);
+          final stat = File(entry.file).statSync();
+          manifest.updateEntry(
+            rel,
+            ManifestEntry(
+              algo: 'sha256-canon@v1',
+              hash: entry.newHash!,
+              ver: entry.headerVersion ?? 0,
+              ts: stat.modified,
+            ),
+          );
+        }
         await lock.synchronized(() {
           report.entries.add(entry);
           report.counters[entry.action] =
@@ -137,6 +206,10 @@ class TheoryIntegritySweeper {
     await Future.wait(workers);
 
     await _writeReport(report);
+    if (!dryRun && !check && manifest != null &&
+        _config.getBool('theory.manifest.autoupdate') == true) {
+      await manifest.save();
+    }
     return report;
   }
 
