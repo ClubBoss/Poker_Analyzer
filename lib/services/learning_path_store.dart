@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../models/injected_path_module.dart';
+import 'user_skill_model_service.dart';
 
 /// Persists injected learning path modules per user.
 class LearningPathStore {
@@ -81,6 +82,16 @@ class LearningPathStore {
     }
     modules[idx] = module.copyWith(status: status, metrics: metrics);
     await _save(userId, modules);
+    if (status == 'completed') {
+      final tags = (metrics['clusterTags'] as List?)?.cast<String>() ?? const [];
+      if (tags.isNotEmpty) {
+        await UserSkillModelService.instance.recordAttempt(
+          userId,
+          tags,
+          correct: (passRate ?? 0.0) > 0.6,
+        );
+      }
+    }
   }
 
   Future<void> removeModule(String userId, String moduleId) async {
