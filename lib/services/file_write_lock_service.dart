@@ -11,27 +11,24 @@ class FileWriteLockService {
 
   Future<RandomAccessFile> acquire() async {
     final prefs = await SharedPreferences.getInstance();
-    final timeoutSec = prefs.getInt('theory.lock.timeoutSec') ?? 10;
-    final timeout = Duration(seconds: timeoutSec);
+    final timeout =
+        Duration(seconds: prefs.getInt('theory.lock.timeoutSec') ?? 10);
     final start = DateTime.now();
     while (true) {
       try {
-        final raf = await _lockFile.open(mode: FileMode.write);
-        await raf.lock(FileLock.exclusive);
+        final raf =
+            _lockFile.openSync(mode: FileMode.writeOnlyExclusive);
         return raf;
       } catch (_) {
         if (DateTime.now().difference(start) > timeout) {
           throw TimeoutException('Failed to acquire theory write lock');
         }
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 120));
       }
     }
   }
 
   Future<void> release(RandomAccessFile raf) async {
-    try {
-      await raf.unlock();
-    } catch (_) {}
     await raf.close();
   }
 }

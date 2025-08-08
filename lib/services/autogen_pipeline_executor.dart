@@ -540,6 +540,7 @@ class AutogenPipelineExecutor {
         );
         if (!should) {
           await txn.rollback(userId, txId);
+          await PathTransactionManager(rootDir: '.').rollbackFileBackups();
           AutogenStatusDashboardService.instance.update(
             'PathHardening',
             AutogenStatus(
@@ -590,10 +591,11 @@ class AutogenPipelineExecutor {
           ),
         );
         return <File>[];
-      } catch (e) {
-        await txn.rollback(userId, txId);
-        AutogenStatusDashboardService.instance.update(
-          'PathHardening',
+        } catch (e) {
+          await txn.rollback(userId, txId);
+          await PathTransactionManager(rootDir: '.').rollbackFileBackups();
+          AutogenStatusDashboardService.instance.update(
+            'PathHardening',
           AutogenStatus(
             isRunning: false,
             currentStage: jsonEncode({
