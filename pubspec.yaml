@@ -10,6 +10,7 @@ environment:
 
 executables:
   batch_generate: bin/batch_generate.dart
+  poker_analyzer: bin/poker_analyzer.dart
 
 dependencies:
   flutter:
