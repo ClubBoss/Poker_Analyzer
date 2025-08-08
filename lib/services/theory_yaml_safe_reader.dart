@@ -7,6 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaml/yaml.dart';
 
+import 'theory_yaml_canonicalizer.dart';
+
 import '../models/autogen_status.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'autogen_status_dashboard_service.dart';
@@ -27,7 +29,7 @@ class TheoryYamlSafeReader {
   final AutogenStatusDashboardService _dashboard;
 
   static final _headerRe = RegExp(
-      r'^#\s*x-hash:\s*([0-9a-f]{64})\s*\|\s*x-ver:\s*(\d+).*$');
+      r'^#\s*x-hash:\s*([0-9a-f]{64})\s*\|\s*x-ver:\s*(\d+)\s*\|\s*x-ts:\s*([^|]+?)(?:\s*\|\s*x-hash-algo:\s*(\S+))?(?:\s*\|\s*(.*))?$');
 
   Future<Map<String, dynamic>> read({
     required String path,
@@ -46,35 +48,85 @@ class TheoryYamlSafeReader {
       final m = _headerRe.firstMatch(header);
       if (m == null) throw TheoryReadCorruption('missing_header');
       final expected = m.group(1)!;
+      final version = int.parse(m.group(2)!); // unused but reserved
+      final ts = m.group(3)!;
+      final algo = m.group(4);
+      final meta = m.group(5);
       final body = lines.skip(1).join('\n');
-      final hash = sha256.convert(utf8.encode(body)).toString();
-      if (hash != expected) {
-        AutogenPipelineEventLoggerService.log('theory.hash_mismatch', path);
-        if (healEnabled) {
-          final restored = await _tryHeal(path, schema, strict);
-          if (restored != null) {
-            AutogenPipelineEventLoggerService.log(
-                'theory.autoheal_success', path);
-            return restored;
-          }
+
+      Map<String, dynamic>? map;
+      String hash;
+      if (algo == 'sha256-canon@v1') {
+        map = _parse(body);
+        final canon = const TheoryYamlCanonicalizer().canonicalize(map);
+        hash = sha256.convert(utf8.encode(canon)).toString();
+        if (hash != expected) {
           AutogenPipelineEventLoggerService.log(
-              'theory.autoheal_failed', path);
+              'theory.hash_canon_mismatch', path);
+          if (healEnabled) {
+            final restored = await _tryHeal(path, schema, strict);
+            if (restored != null) {
+              AutogenPipelineEventLoggerService.log(
+                  'theory.autoheal_success', path);
+              return restored;
+            }
+            AutogenPipelineEventLoggerService.log(
+                'theory.autoheal_failed', path);
+          }
+          _dashboard.update(
+            'TheoryReader',
+            AutogenStatus(
+              currentStage: 'corrupt',
+              action: 'corrupt',
+              file: path,
+              lastError: 'checksum_mismatch',
+            ),
+          );
+          throw TheoryReadCorruption('checksum_mismatch');
         }
-        _dashboard.update(
-          'TheoryReader',
-          AutogenStatus(
-            currentStage: 'corrupt',
-            action: 'corrupt',
-            file: path,
-            lastError: 'checksum_mismatch',
-          ),
-        );
-        throw TheoryReadCorruption('checksum_mismatch');
+      } else {
+        hash = sha256.convert(utf8.encode(body)).toString();
+        if (hash != expected) {
+          AutogenPipelineEventLoggerService.log('theory.hash_mismatch', path);
+          if (healEnabled) {
+            final restored = await _tryHeal(path, schema, strict);
+            if (restored != null) {
+              AutogenPipelineEventLoggerService.log(
+                  'theory.autoheal_success', path);
+              return restored;
+            }
+            AutogenPipelineEventLoggerService.log(
+                'theory.autoheal_failed', path);
+          }
+          _dashboard.update(
+            'TheoryReader',
+            AutogenStatus(
+              currentStage: 'corrupt',
+              action: 'corrupt',
+              file: path,
+              lastError: 'checksum_mismatch',
+            ),
+          );
+          throw TheoryReadCorruption('checksum_mismatch');
+        }
+        AutogenPipelineEventLoggerService.log(
+            'theory.hash_legacy_verified', path);
+        map = _parse(body);
+        if (healEnabled) {
+          // Upgrade header in-place to canonical hash
+          final canon = const TheoryYamlCanonicalizer().canonicalize(map);
+          final newHash = sha256.convert(utf8.encode(canon)).toString();
+          lines[0] =
+              '# x-hash: $newHash | x-ver: $version | x-ts: $ts | x-hash-algo: sha256-canon@v1'
+              '${meta != null ? ' | $meta' : ''}';
+          await file.writeAsString(lines.join('\n'));
+          AutogenPipelineEventLoggerService.log('theory.hash_upgraded', path);
+        }
       }
-      final map = _parse(body);
-      _enforceSchema(map, schema, strict);
+
+      _enforceSchema(map ?? _parse(body), schema, strict);
       AutogenPipelineEventLoggerService.log('theory.read_ok', path);
-      return map;
+      return map!;
     } catch (e) {
       if (e is TheoryReadCorruption) rethrow;
       AutogenPipelineEventLoggerService.log(
@@ -116,10 +168,21 @@ class TheoryYamlSafeReader {
         final m = _headerRe.firstMatch(lines.first.trim());
         if (m == null) continue;
         final expected = m.group(1)!;
+        final algo = m.group(4);
         final body = lines.skip(1).join('\n');
-        final hash = sha256.convert(utf8.encode(body)).toString();
-        if (hash != expected) continue;
-        final map = _parse(body);
+        Map<String, dynamic>? map;
+        String hash;
+        if (algo == 'sha256-canon@v1') {
+          map = _parse(body);
+          final canon = const TheoryYamlCanonicalizer().canonicalize(map);
+          hash = sha256.convert(utf8.encode(canon)).toString();
+        } else {
+          hash = sha256.convert(utf8.encode(body)).toString();
+          if (hash == expected) {
+            map = _parse(body);
+          }
+        }
+        if (hash != expected || map == null) continue;
         _enforceSchema(map, schema, strict);
         try {
           final corrupt = File(path);

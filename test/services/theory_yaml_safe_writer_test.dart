@@ -40,8 +40,10 @@ void main() {
   });
 
   test('extractHash parsing', () {
-    final valid = '# x-hash: ${'a' * 64} | x-ver: 1 | x-ts: now';
-    expect(TheoryYamlSafeWriter.extractHash(valid), 'a' * 64);
+    final hashStr = 'a' * 64;
+    final valid =
+        '# x-hash: $hashStr | x-ver: 1 | x-ts: now | x-hash-algo: sha256-canon@v1';
+    expect(TheoryYamlSafeWriter.extractHash(valid), hashStr);
     final invalid = '# x-hash: 123 | x-ver: 1 | x-ts: now';
     expect(TheoryYamlSafeWriter.extractHash(invalid), isNull);
     expect(TheoryYamlSafeWriter.extractHash('no header'), isNull);
@@ -89,10 +91,26 @@ void main() {
     final lines1 = await File(path).readAsLines();
     expect(lines1.first.startsWith('# x-hash:'), isTrue);
     expect(lines1.first.contains('| x-ver: 1'), isTrue);
-    final hash = TheoryYamlSafeWriter.extractHash(lines1.join('\n'));
+    expect(lines1.first.contains('x-hash-algo: sha256-canon@v1'), isTrue);
+    final hash = TheoryYamlSafeWriter.extractHash(lines1.join('\\n'));
     await writer.write(path: path, yaml: 'x: 1', schema: 'raw', prevHash: hash);
     final lines2 = await File(path).readAsLines();
     expect(lines2.first.contains('| x-ver: 1'), isTrue);
+    expect(lines2.first.contains('x-hash-algo: sha256-canon@v1'), isTrue);
+  });
+
+  test('same data different formatting -> identical hash', () async {
+    final dir = Directory('tmp_test')..createSync();
+    final path1 = p.join(dir.path, 'f1.yaml');
+    final path2 = p.join(dir.path, 'f2.yaml');
+    final w = TheoryYamlSafeWriter();
+    const y1 = 'a: 1\\nb: 2';
+    const y2 = 'b: 2\\na: 1';
+    await w.write(path: path1, yaml: y1, schema: 'raw');
+    await w.write(path: path2, yaml: y2, schema: 'raw');
+    final h1 = TheoryYamlSafeWriter.extractHash(await File(path1).readAsString());
+    final h2 = TheoryYamlSafeWriter.extractHash(await File(path2).readAsString());
+    expect(h1, h2);
   });
 
   test('concurrent writes serialize', () async {

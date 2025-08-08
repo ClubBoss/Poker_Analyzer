@@ -7,6 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaml/yaml.dart';
 
+import 'theory_yaml_canonicalizer.dart';
+
 import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
 import '../models/v2/training_pack_template_v2.dart';
@@ -52,20 +54,16 @@ class TheoryYamlSafeWriter {
     var version = 0;
 
     try {
-      // Validate YAML / schema
-      if (strict) {
-        final map =
-            jsonDecode(jsonEncode(loadYaml(yaml))) as Map<String, dynamic>;
-        if (schema == 'TemplateSet') {
-          // Throws if invalid
-          TrainingPackTemplateV2.fromJson(map);
-        }
-      } else {
-        // At least ensure it's parseable
-        loadYaml(yaml);
+      // Validate YAML / schema and parse map for canonicalization
+      final map =
+          jsonDecode(jsonEncode(loadYaml(yaml))) as Map<String, dynamic>;
+      if (strict && schema == 'TemplateSet') {
+        // Throws if invalid
+        TrainingPackTemplateV2.fromJson(map);
       }
 
-      newHash = sha256.convert(utf8.encode(yaml)).toString();
+      final canon = const TheoryYamlCanonicalizer().canonicalize(map);
+      newHash = sha256.convert(utf8.encode(canon)).toString();
 
       final file = File(path);
       if (file.existsSync()) {
@@ -153,7 +151,7 @@ class TheoryYamlSafeWriter {
           ? ''
           : meta.entries.map((e) => ' | ${e.key}: ${e.value}').join();
       final header =
-          '# x-hash: $newHash | x-ver: ${version + 1} | x-ts: ${DateTime.now().toIso8601String()}$metaSuffix';
+          '# x-hash: $newHash | x-ver: ${version + 1} | x-ts: ${DateTime.now().toIso8601String()} | x-hash-algo: sha256-canon@v1$metaSuffix';
 
       final tmp = File('$path.tmp')..parent.createSync(recursive: true);
       final raf = tmp.openSync(mode: FileMode.write);

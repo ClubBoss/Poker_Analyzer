@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +50,7 @@ void main() {
     final map = await TheoryYamlSafeReader().read(path: path, schema: 'TemplateSet');
     expect(map['id'], 'a');
     final events = AutogenPipelineEventLoggerService.getLog();
-    expect(events.any((e) => e.type == 'theory.hash_mismatch'), isTrue);
+    expect(events.any((e) => e.type == 'theory.hash_canon_mismatch'), isTrue);
     expect(events.any((e) => e.type == 'theory.autoheal_success'), isTrue);
   });
 
@@ -65,6 +68,63 @@ void main() {
     );
     final events = AutogenPipelineEventLoggerService.getLog();
     expect(events.any((e) => e.type == 'theory.autoheal_failed'), isTrue);
+  });
+
+  test('legacy header migrates to v2', () async {
+    final dir = Directory('tmp_reader_test')..createSync();
+    final path = p.join(dir.path, 'legacy.yaml');
+    const body =
+        'id: l\nname: L\ntrainingType: theory\ngameType: cash\nbb: 1\nspots: []\n';
+    final legacyHash = sha256.convert(utf8.encode(body)).toString();
+    await File(path).writeAsString(
+        '# x-hash: $legacyHash | x-ver: 1 | x-ts: now\n$body');
+    final map =
+        await TheoryYamlSafeReader().read(path: path, schema: 'TemplateSet');
+    expect(map['id'], 'l');
+    final header = (await File(path).readAsLines()).first;
+    expect(header.contains('x-hash-algo: sha256-canon@v1'), isTrue);
+    final events = AutogenPipelineEventLoggerService.getLog();
+    expect(events.any((e) => e.type == 'theory.hash_legacy_verified'), isTrue);
+    expect(events.any((e) => e.type == 'theory.hash_upgraded'), isTrue);
+  });
+
+  test('mixed backup set restore', () async {
+    final dir = Directory('tmp_reader_test')..createSync();
+    final path = p.join(dir.path, 'mix.yaml');
+    const body1 =
+        'id: a\nname: A\ntrainingType: theory\ngameType: cash\nbb: 1\nspots: []\n';
+    const body2 =
+        'id: b\nname: B\ntrainingType: theory\ngameType: cash\nbb: 1\nspots: []\n';
+    final writer = TheoryYamlSafeWriter();
+    await writer.write(path: path, yaml: body1, schema: 'TemplateSet');
+    final legacyHash = sha256.convert(utf8.encode(body1)).toString();
+    final rel = p.relative(path);
+    final ts1 = DateTime.now().millisecondsSinceEpoch - 1000;
+    final legacyBackup = File('theory_backups/$rel.$ts1.yaml')
+      ..parent.createSync(recursive: true);
+    await legacyBackup
+        .writeAsString('# x-hash: $legacyHash | x-ver: 1 | x-ts: now\n$body1');
+    final prev = TheoryYamlSafeWriter.extractHash(await File(path).readAsString());
+    await writer.write(path: path, yaml: body2, schema: 'TemplateSet', prevHash: prev);
+    // Corrupt latest (v2) backup
+    final backupDir = legacyBackup.parent;
+    final latest = backupDir
+        .listSync()
+        .whereType<File>()
+        .reduce((a, b) => a.path.compareTo(b.path) > 0 ? a : b);
+    final blines = await latest.readAsLines();
+    blines[1] = 'id: corrupt';
+    await latest.writeAsString(blines.join('\n'));
+    // Corrupt main file
+    final lines = await File(path).readAsLines();
+    lines[1] = 'id: bad';
+    await File(path).writeAsString(lines.join('\n'));
+    final map =
+        await TheoryYamlSafeReader().read(path: path, schema: 'TemplateSet');
+    expect(map['id'], 'a');
+    final events = AutogenPipelineEventLoggerService.getLog();
+    expect(events.any((e) => e.type == 'theory.hash_canon_mismatch'), isTrue);
+    expect(events.any((e) => e.type == 'theory.autoheal_success'), isTrue);
   });
 
   test('bad schema throws', () async {
