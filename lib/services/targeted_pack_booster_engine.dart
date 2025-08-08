@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,6 +40,7 @@ abstract class TagMasteryAnalyzer {
 /// Provides decayed-tag analytics.
 abstract class SkillDecayTracker {
   Future<List<String>> getDecayedTags({required double threshold});
+  Stream<String> get onDecayStateChanged;
 }
 
 /// Engine detecting and boosting packs targeting weak or decayed skills.
@@ -49,6 +51,9 @@ class TargetedPackBoosterEngine {
   final YamlPackExporter exporter;
   final AutogenStatsDashboardService dashboard;
   final SkillTagCoverageTracker coverage;
+  final Duration decayDebounce;
+  final Set<String> _pendingDecayTags = {};
+  Timer? _decayTimer;
 
   TargetedPackBoosterEngine({
     this.masteryAnalyzer,
@@ -57,10 +62,16 @@ class TargetedPackBoosterEngine {
     YamlPackExporter? exporter,
     AutogenStatsDashboardService? dashboard,
     SkillTagCoverageTracker? coverage,
+    Duration decayDebounce = const Duration(seconds: 2),
   })  : library = library ?? PackLibraryService.instance,
         exporter = exporter ?? const YamlPackExporter(),
         dashboard = dashboard ?? AutogenStatsDashboardService.instance,
-        coverage = coverage ?? SkillTagCoverageTracker();
+        coverage = coverage ?? SkillTagCoverageTracker(),
+        decayDebounce = decayDebounce {
+    if (decayTracker != null) {
+      decayTracker!.onDecayStateChanged.listen(_handleDecayEvent);
+    }
+  }
 
   /// Scans analytics services for weak or decayed tags and returns
   /// matching pack boost requests.
@@ -99,6 +110,7 @@ class TargetedPackBoosterEngine {
   Future<List<TrainingPackTemplateV2>> generateBoosterPacks({
     required int count,
     required List<String> tags,
+    String triggerReason = 'manual',
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final ratio = prefs.getDouble('booster.ratio') ?? 1.5;
@@ -110,11 +122,78 @@ class TargetedPackBoosterEngine {
         packId: pack.id,
         tags: [tag],
         ratio: ratio,
-        triggerReason: 'manual',
+        triggerReason: triggerReason,
       ));
     }
     if (requests.isEmpty) return [];
     return boostPacks(requests);
+  }
+
+  void _handleDecayEvent(String tag) {
+    _pendingDecayTags.add(tag);
+    _decayTimer?.cancel();
+    _decayTimer = Timer(decayDebounce, () {
+      _processDecayTags();
+    });
+  }
+
+  Future<void> _processDecayTags() async {
+    if (decayTracker == null) return;
+    final tags = List<String>.from(_pendingDecayTags);
+    _pendingDecayTags.clear();
+    if (tags.isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    final threshold = prefs.getDouble('booster.threshold') ?? 0.75;
+    final decayed = await decayTracker!.getDecayedTags(threshold: threshold);
+    final unique = await _filterRecentDuplicates(
+        tags.where((t) => decayed.contains(t)).toList());
+    if (unique.isEmpty) return;
+    final status = AutogenStatusDashboardService.instance;
+    status.update(
+      'booster',
+      const AutogenStatus(isRunning: true, currentStage: 'decaySync', progress: 0),
+    );
+    await generateBoosterPacks(
+      count: unique.length,
+      tags: unique,
+      triggerReason: 'decaySync',
+    );
+    status.update(
+      'booster',
+      const AutogenStatus(isRunning: false, currentStage: 'decaySync', progress: 1),
+    );
+  }
+
+  Future<List<String>> _filterRecentDuplicates(List<String> tags) async {
+    final dir = Directory('boosterPacks');
+    if (!dir.existsSync()) return tags;
+    final cutoff = DateTime.now().subtract(const Duration(hours: 24));
+    final recent = <String>{};
+    for (final entity in dir.listSync().whereType<File>()) {
+      if (!entity.path.endsWith('.yaml')) continue;
+      try {
+        final yaml = await entity.readAsString();
+        final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
+        final gen = tpl.meta['generatedAt']?.toString();
+        final ts = gen != null ? DateTime.tryParse(gen) : null;
+        if (ts == null || ts.isBefore(cutoff)) continue;
+        final targeted =
+            (tpl.meta['tagsTargeted'] as List?)?.map((e) => e.toString()) ?? [];
+        for (final t in targeted) {
+          recent.add(t.toLowerCase());
+        }
+      } catch (_) {}
+    }
+    final unique = <String>[];
+    for (final t in tags) {
+      if (recent.contains(t.toLowerCase())) {
+        AutogenStatusDashboardService.instance
+            .recordBoosterSkipped('recent_duplicate');
+      } else {
+        unique.add(t);
+      }
+    }
+    return unique;
   }
 
   /// Regenerates packs with boosted coverage for [requests].
