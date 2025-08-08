@@ -35,6 +35,7 @@ import '../core/models/spot_seed/spot_seed_validator.dart';
 import '../core/models/spot_seed/legacy_seed_adapter.dart';
 import '../core/models/spot_seed/seed_issue.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'pack_novelty_guard_service.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -57,6 +58,7 @@ class AutogenPipelineExecutor {
   final TargetedPackBoosterEngine boosterEngine;
   final AutoFormatSelector formatSelector;
   final TheoryAutoInjector autoInjector;
+  final PackNoveltyGuardService noveltyGuard;
   final bool failOnSeedErrors;
 
   AutogenPipelineExecutor({
@@ -79,6 +81,7 @@ class AutogenPipelineExecutor {
     TargetedPackBoosterEngine? boosterEngine,
     AutoFormatSelector? formatSelector,
     TheoryAutoInjector? autoInjector,
+    PackNoveltyGuardService? noveltyGuard,
     bool? failOnSeedErrors,
   })  : dedup = dedup ?? AutoDeduplicationEngine(),
         exporter = exporter ?? const YamlPackExporter(),
@@ -102,6 +105,7 @@ class AutogenPipelineExecutor {
         boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
         formatSelector = formatSelector ?? AutoFormatSelector(),
         autoInjector = autoInjector ?? TheoryAutoInjector(),
+        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
         failOnSeedErrors =
             failOnSeedErrors ?? (Platform.environment['CI'] == 'true')
   {
@@ -305,6 +309,17 @@ class AutogenPipelineExecutor {
           rejectedCount++;
           continue;
         }
+        final novelty = await noveltyGuard.evaluate(pack);
+        if (novelty.isDuplicate) {
+          status.recordBoosterSkipped('duplicate');
+          status.flagDuplicate(
+            pack.id,
+            novelty.bestMatchId ?? '',
+            'novelty',
+            novelty.jaccard,
+          );
+          continue;
+        }
         generatedCount++;
         AutogenPipelineDebugStatsService.incrementCurated();
         AutogenPipelineEventLoggerService.log(
@@ -342,6 +357,7 @@ class AutogenPipelineExecutor {
         ];
         await policyEngine.applyPolicies(duplicates);
         existingFingerprints.add(pf);
+        await noveltyGuard.registerExport(pack);
         status.update(
           'pipeline',
           AutogenStatus(

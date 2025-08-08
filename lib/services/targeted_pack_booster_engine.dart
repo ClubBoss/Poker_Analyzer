@@ -11,13 +11,11 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'autogen_stats_dashboard_service.dart';
-import 'pack_fingerprint_comparer.dart';
 import 'pack_library_service.dart';
 import 'auto_skill_gap_clusterer.dart';
 import 'skill_tag_coverage_tracker.dart';
-import 'spot_fingerprint_generator.dart';
-import 'training_pack_fingerprint_generator.dart';
 import 'yaml_pack_exporter.dart';
+import 'pack_novelty_guard_service.dart';
 
 /// Request describing how to boost a training pack.
 class PackBoosterRequest {
@@ -52,6 +50,7 @@ class TargetedPackBoosterEngine {
   final YamlPackExporter exporter;
   final AutogenStatsDashboardService dashboard;
   final SkillTagCoverageTracker coverage;
+  final PackNoveltyGuardService noveltyGuard;
   final Duration decayDebounce;
   final Set<String> _pendingDecayTags = {};
   Timer? _decayTimer;
@@ -63,11 +62,13 @@ class TargetedPackBoosterEngine {
     YamlPackExporter? exporter,
     AutogenStatsDashboardService? dashboard,
     SkillTagCoverageTracker? coverage,
+    PackNoveltyGuardService? noveltyGuard,
     Duration decayDebounce = const Duration(seconds: 2),
   })  : library = library ?? PackLibraryService.instance,
         exporter = exporter ?? const YamlPackExporter(),
         dashboard = dashboard ?? AutogenStatsDashboardService.instance,
         coverage = coverage ?? SkillTagCoverageTracker(),
+        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
         decayDebounce = decayDebounce {
     if (decayTracker != null) {
       decayTracker!.onDecayStateChanged.listen(_handleDecayEvent);
@@ -223,8 +224,6 @@ class TargetedPackBoosterEngine {
   /// Regenerates packs with boosted coverage for [requests].
   Future<List<TrainingPackTemplateV2>> boostPacks(
       List<PackBoosterRequest> requests) async {
-    final prefs = await SharedPreferences.getInstance();
-    final minNovelty = prefs.getDouble('booster.minNoveltyJaccard') ?? 0.6;
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
@@ -234,17 +233,6 @@ class TargetedPackBoosterEngine {
         progress: 0,
       ),
     );
-    const packGen = TrainingPackFingerprintGenerator();
-    const spotGen = SpotFingerprintGenerator();
-    await TrainingPackLibraryV2.instance.loadFromFolder();
-    final existingFingerprints = <PackFingerprint>[
-      for (final p in TrainingPackLibraryV2.instance.packs)
-        PackFingerprint.fromTemplate(
-          p,
-          packFingerprint: packGen,
-          spotFingerprint: spotGen,
-        ),
-    ];
     final boostedPacks = <TrainingPackTemplateV2>[];
     for (var i = 0; i < requests.length; i++) {
       final req = requests[i];
@@ -304,24 +292,9 @@ class TargetedPackBoosterEngine {
           'triggerReason': req.triggerReason,
         },
       );
-      final fp = PackFingerprint.fromTemplate(
-        boosted,
-        packFingerprint: packGen,
-        spotFingerprint: spotGen,
-      );
-      var isDup = false;
-      for (final existing in existingFingerprints) {
-        final inter =
-            fp.spots.intersection(existing.spots).length.toDouble();
-        final union = fp.spots.union(existing.spots).length.toDouble();
-        final jac = union == 0 ? 0 : inter / union;
-        if (jac >= minNovelty) {
-          status.recordBoosterSkipped('duplicate');
-          isDup = true;
-          break;
-        }
-      }
-      if (isDup) {
+      final novelty = await noveltyGuard.evaluate(boosted);
+      if (novelty.isDuplicate) {
+        status.recordBoosterSkipped('duplicate');
         status.update(
           'booster',
           AutogenStatus(
@@ -348,7 +321,7 @@ class TargetedPackBoosterEngine {
       );
       coverage.analyzePack(model);
       dashboard.recordCoverage(coverage.aggregateReport);
-      existingFingerprints.add(fp);
+      await noveltyGuard.registerExport(boosted);
       boostedPacks.add(boosted);
       status.update(
         'booster',
