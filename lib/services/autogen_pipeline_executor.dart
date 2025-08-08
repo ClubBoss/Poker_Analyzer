@@ -37,6 +37,9 @@ import '../core/models/spot_seed/seed_issue.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pack_novelty_guard_service.dart';
 import 'theory_injection_scheduler_service.dart';
+import 'adaptive_training_planner.dart';
+import 'learning_path_store.dart';
+import '../models/injected_path_module.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -450,5 +453,42 @@ class AutogenPipelineExecutor {
       );
       rethrow;
     }
+  }
+
+  Future<List<File>> planAndInjectForUser(
+    String userId, {
+    required int durationMinutes,
+    String? audience,
+  }) async {
+    final planner = AdaptiveTrainingPlanner();
+    final plan = await planner.plan(
+      userId: userId,
+      durationMinutes: durationMinutes,
+      audience: audience,
+    );
+    final store = const LearningPathStore();
+    for (final c in plan.clusters) {
+      final module = InjectedPathModule(
+        moduleId: '${userId}_${c.clusterId}',
+        clusterId: c.clusterId,
+        themeName: c.themeName,
+        theoryIds: const [],
+        boosterPackIds: const [],
+        assessmentPackId: '',
+        createdAt: DateTime.now(),
+        triggerReason: 'adaptivePlan',
+        metrics: {
+          'clusterTags': c.tags,
+        },
+        itemsDurations: const {
+          'theoryMins': 5,
+          'boosterMins': 10,
+          'assessmentMins': 8,
+        },
+      );
+      await store.upsertModule(userId, module);
+    }
+    await TheoryInjectionSchedulerService.instance.runNow(force: true);
+    return <File>[];
   }
 }
