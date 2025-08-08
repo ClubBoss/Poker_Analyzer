@@ -21,15 +21,11 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: stable
-          channel: stable
-          cache: true
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       - name: Determine changed theory paths
         id: changes
@@ -56,7 +52,13 @@ jobs:
 
       - name: Report sweep results
         if: steps.changes.outputs.dirs != '' && always()
-        run: dart run bin/ci_report.dart --report theory_sweep_report.json --markdown > sweep_summary.md
+        run: |
+          if [ ! -f theory_sweep_report.json ]; then
+            echo "no report"
+            exit 0
+          fi
+          dart run bin/ci_report.dart --report theory_sweep_report.json --markdown | tee sweep_summary.md
+          cat sweep_summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment sweep summary
         if: steps.changes.outputs.dirs != '' && always()
@@ -64,12 +66,25 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const marker = '<!-- theory-sweep-summary -->';
+            if (!fs.existsSync('theory_sweep_report.json') || !fs.existsSync('sweep_summary.md')) {
+              core.info('no report to comment');
+              return;
+            }
             const report = JSON.parse(fs.readFileSync('theory_sweep_report.json', 'utf8'));
             const c = report.counters || {};
             const count = (c.needs_upgrade || 0) + (c.needs_heal || 0) + (c.failed || 0);
-            if (count > 0) {
-              const body = fs.readFileSync('sweep_summary.md', 'utf8');
-              github.rest.issues.createComment({ ...context.issue, body });
+            if (count === 0) {
+              core.info('no issues, skipping comment');
+              return;
+            }
+            const body = fs.readFileSync('sweep_summary.md', 'utf8') + '\n' + marker;
+            const { data: comments } = await github.rest.issues.listComments({ ...context.issue });
+            const existing = comments.find(comment => comment.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...context.issue, body });
             }
 
       - name: Upload sweep reports
@@ -98,15 +113,11 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: stable
-          channel: stable
-          cache: true
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       - name: Determine changed theory paths
         id: changes
