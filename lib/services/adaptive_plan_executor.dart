@@ -62,6 +62,7 @@ class AdaptivePlanExecutor {
     required AdaptivePlan plan,
     required int budgetMinutes,
     required String sig,
+    String? abArm,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final boosterPerSpot =
@@ -150,6 +151,7 @@ class AdaptivePlanExecutor {
           'clusterTags': c.tags,
           'planHash': planHash,
           'plannerScore': plannerScore,
+          if (abArm != null && abArm.isNotEmpty) 'abArm': abArm,
         },
         itemsDurations: {
           'theoryMins': 0,

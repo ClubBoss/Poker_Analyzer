@@ -45,6 +45,7 @@ class AdaptiveTrainingPlanner {
     required int durationMinutes,
     String audience = 'regular',
     String format = 'standard',
+    String? abArm,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final wErr = prefs.getDouble('planner.weight.error') ?? 0.55;
@@ -147,6 +148,7 @@ class AdaptiveTrainingPlanner {
           'mix': mix,
           'estMins': estMins,
           'budget': budget,
+          if (abArm != null && abArm.isNotEmpty) 'abArm': abArm,
         }),
       ),
     );
