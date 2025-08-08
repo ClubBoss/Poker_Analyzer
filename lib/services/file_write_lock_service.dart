@@ -19,7 +19,7 @@ class FileWriteLockService {
 
     while (true) {
       try {
-        // Fails if another process/thread holds it
+        // Non-blocking exclusive open; fails if someone else holds it.
         final raf = _lockFile.openSync(mode: FileMode.writeOnlyExclusive);
         return raf;
       } catch (_) {
@@ -32,7 +32,7 @@ class FileWriteLockService {
   }
 
   Future<void> release(RandomAccessFile raf) async {
-    // No advisory lock held, just close
+    // No advisory lock to unlock; just close the handle.
     await raf.close();
   }
 }

@@ -52,14 +52,16 @@ class TheoryYamlSafeWriter {
     var version = 0;
 
     try {
-      // Validate YAML/schema
+      // Validate YAML / schema
       if (strict) {
         final map =
             jsonDecode(jsonEncode(loadYaml(yaml))) as Map<String, dynamic>;
         if (schema == 'TemplateSet') {
+          // Throws if invalid
           TrainingPackTemplateV2.fromJson(map);
         }
       } else {
+        // At least ensure it's parseable
         loadYaml(yaml);
       }
 
@@ -115,7 +117,7 @@ class TheoryYamlSafeWriter {
           await onBackup(file.path, backupFile.path, newHash, oldHash);
         }
 
-        // Lexicographic prune works because suffix is fixed-width unix millis
+        // Lexicographic prune works because suffix is fixed-width millis
         final base = p.basename(rel);
         final backups = backupFile.parent
             .listSync()
@@ -147,10 +149,12 @@ class TheoryYamlSafeWriter {
       }
 
       // Atomic write via temp + rename
+      final metaSuffix = (meta == null || meta.isEmpty)
+          ? ''
+          : meta.entries.map((e) => ' | ${e.key}: ${e.value}').join();
       final header =
-          '# x-hash: $newHash | x-ver: ${version + 1} | x-ts: ${DateTime.now().toIso8601String()}'
-          '${meta == null || meta.isEmpty ? '' : meta.entries.map((e) => ' | ${e.key}: ${e.value}').join()}'
-          ;
+          '# x-hash: $newHash | x-ver: ${version + 1} | x-ts: ${DateTime.now().toIso8601String()}$metaSuffix';
+
       final tmp = File('$path.tmp')..parent.createSync(recursive: true);
       final raf = tmp.openSync(mode: FileMode.write);
       raf.writeStringSync('$header\n$yaml');
