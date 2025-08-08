@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 env:
-  THEORY_DIRS: theory,yaml_out
+  THEORY_DIRS: assets
 
 jobs:
   verify:
@@ -46,7 +46,7 @@ jobs:
       - name: Check manifest presence
         id: manifest
         run: |
-          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json; then
+          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json && ! grep -q '"files": {}' theory_manifest.json; then
             echo "has_manifest=1" >> "$GITHUB_OUTPUT"
           else
             echo "has_manifest=0" >> "$GITHUB_OUTPUT"
