@@ -6,6 +6,7 @@ import '../helpers/board_filtering_params_builder.dart';
 import 'card_deck_service.dart';
 import 'board_texture_filter_service.dart';
 import 'board_filtering_service_v2.dart';
+import 'board_texture_classifier.dart';
 
 class FullBoardGenerator {
   FullBoardGenerator({
@@ -13,15 +14,18 @@ class FullBoardGenerator {
     CardDeckService? deckService,
     BoardTextureFilterService? textureFilter,
     BoardFilteringServiceV2? boardFilter,
+    BoardTextureClassifier? classifier,
   })  : _random = random ?? Random(),
         _deckService = deckService ?? const CardDeckService(),
         _textureFilter = textureFilter ?? const BoardTextureFilterService(),
-        _boardFilter = boardFilter ?? const BoardFilteringServiceV2();
+        _boardFilter = boardFilter ?? const BoardFilteringServiceV2(),
+        _classifier = classifier ?? const BoardTextureClassifier();
 
   final Random _random;
   final CardDeckService _deckService;
   final BoardTextureFilterService _textureFilter;
   final BoardFilteringServiceV2 _boardFilter;
+  final BoardTextureClassifier _classifier;
 
   int lastAttempts = 0;
 
@@ -76,7 +80,8 @@ class FullBoardGenerator {
         continue;
       }
       if (targetStreet == 'flop') {
-        return FullBoard(flop: flop);
+        final tags = _classifier.classifyCards(flop);
+        return FullBoard(flop: flop, textureTags: tags);
       }
       final turn = cards[3];
       final flopTurn = [...flop, turn];
@@ -84,14 +89,16 @@ class FullBoardGenerator {
         continue;
       }
       if (targetStreet == 'turn') {
-        return FullBoard(flop: flop, turn: turn);
+        final tags = _classifier.classifyCards(flopTurn);
+        return FullBoard(flop: flop, turn: turn, textureTags: tags);
       }
       final river = cards[4];
       final full = [...flopTurn, river];
       if (!_passesConstraints(full, filter, requiredTags, excludedTags)) {
         continue;
       }
-      return FullBoard(flop: flop, turn: turn, river: river);
+      final tags = _classifier.classifyCards(full);
+      return FullBoard(flop: flop, turn: turn, river: river, textureTags: tags);
     }
     throw StateError('Unable to generate board with given constraints');
   }
@@ -112,74 +119,6 @@ class FullBoardGenerator {
     return true;
   }
 
-  Set<String> _evaluateTags(List<CardModel> cards) {
-    final tags = <String>{};
-    final ranks = cards.map((c) => c.rank).toList();
-    final suits = cards.map((c) => c.suit).toList();
-    final values = cards.map((c) => _rankValue(c.rank)).toList();
-
-    if (ranks.toSet().length < ranks.length) tags.add('paired');
-    if (values.any((v) => v >= 10)) tags.add('highCard');
-    if (values.any((v) => v == 14)) tags.add('aceHigh');
-    if (values.every((v) => v <= 9)) tags.add('low');
-
-    final broadwayCount = values.where((v) => v >= 10).length;
-    if (broadwayCount >= 3) tags.add('broadwayHeavy');
-    if (broadwayCount == 3) tags.add('tripleBroadway');
-
-    final suitCounts = <String, int>{};
-    for (final s in suits) {
-      suitCounts[s] = (suitCounts[s] ?? 0) + 1;
-    }
-    if (suitCounts.values.any((c) => c >= 4)) {
-      tags.add('fourToFlush');
-      tags.add('flushDraw');
-    }
-    if (suitCounts.values.any((c) => c == 5)) {
-      tags.add('flush');
-    }
-
-    if (_isStraightDrawHeavy(values)) tags.add('straightDrawHeavy');
-
-    return tags;
-  }
-
-  bool _isStraightDrawHeavy(List<int> values) {
-    if (values.length < 3) return false;
-    final sorted = [...values]..sort();
-    return sorted.last - sorted.first <= 4;
-  }
-
-  int _rankValue(String r) {
-    switch (r.toUpperCase()) {
-      case 'A':
-        return 14;
-      case 'K':
-        return 13;
-      case 'Q':
-        return 12;
-      case 'J':
-        return 11;
-      case 'T':
-        return 10;
-      case '9':
-        return 9;
-      case '8':
-        return 8;
-      case '7':
-        return 7;
-      case '6':
-        return 6;
-      case '5':
-        return 5;
-      case '4':
-        return 4;
-      case '3':
-        return 3;
-      case '2':
-        return 2;
-      default:
-        return 0;
-    }
-  }
+  Set<String> _evaluateTags(List<CardModel> cards) =>
+      _classifier.classifyCards(cards);
 }
