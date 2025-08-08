@@ -9,6 +9,8 @@ import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'preferences_service.dart';
 import 'theory_yaml_safe_writer.dart';
+import 'theory_write_scope.dart';
+import 'path_transaction_manager.dart';
 
 class TheoryInjectReport {
   final int packsUpdated;
@@ -22,10 +24,10 @@ class TheoryInjectReport {
   }) : errors = errors ?? const {};
 
   Map<String, dynamic> toJson() => {
-        'packsUpdated': packsUpdated,
-        'linksAdded': linksAdded,
-        'errors': errors,
-      };
+    'packsUpdated': packsUpdated,
+    'linksAdded': linksAdded,
+    'errors': errors,
+  };
 
   factory TheoryInjectReport.fromJson(Map<String, dynamic> json) =>
       TheoryInjectReport(
@@ -40,7 +42,7 @@ class TheoryInjectReport {
 /// Automatically injects theory links into packs based on a remediation plan.
 class TheoryAutoInjector {
   TheoryAutoInjector({AutogenStatusDashboardService? dashboard})
-      : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+    : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   final AutogenStatusDashboardService _dashboard;
 
@@ -103,14 +105,20 @@ class TheoryAutoInjector {
           meta['theoryLinks'] = [...existing, ...needed];
           data['meta'] = meta;
           final out = json2yaml(data);
-          final prevHash =
-              TheoryYamlSafeWriter.extractHash(yamlStr);
-          await TheoryYamlSafeWriter().write(
-            path: file.path,
-            yaml: out,
-            schema: 'TemplateSet',
-            prevHash: prevHash,
-          );
+          final prevHash = TheoryYamlSafeWriter.extractHash(yamlStr);
+          await TheoryWriteScope.run(() async {
+            await TheoryYamlSafeWriter().write(
+              path: file.path,
+              yaml: out,
+              schema: 'TemplateSet',
+              prevHash: prevHash,
+              onBackup: (path, backupPath, newHash, prev) async {
+                await PathTransactionManager(
+                  rootDir: '.',
+                ).recordFileBackup(path, backupPath);
+              },
+            );
+          });
         }
         packsUpdated++;
         linksAdded += needed.length;

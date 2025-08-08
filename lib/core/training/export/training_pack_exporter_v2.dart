@@ -2,6 +2,8 @@ import 'dart:io';
 
 import '../../../models/v2/training_pack_template_v2.dart';
 import '../../../services/theory_yaml_safe_writer.dart';
+import '../../../services/theory_write_scope.dart';
+import '../../../services/path_transaction_manager.dart';
 
 class TrainingPackExporterV2 {
   const TrainingPackExporterV2();
@@ -20,16 +22,23 @@ class TrainingPackExporterV2 {
         .replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')
         .replaceAll(' ', '_');
     final file = File('${dir.path}/$safeName.yaml');
-    String? prevHash;
-    if (await file.exists()) {
-      prevHash = TheoryYamlSafeWriter.extractHash(await file.readAsString());
-    }
-    await TheoryYamlSafeWriter().write(
-      path: file.path,
-      yaml: exportYaml(pack),
-      schema: 'TemplateSet',
-      prevHash: prevHash,
-    );
-    return file;
+    return await TheoryWriteScope.run(() async {
+      String? prevHash;
+      if (await file.exists()) {
+        prevHash = TheoryYamlSafeWriter.extractHash(await file.readAsString());
+      }
+      await TheoryYamlSafeWriter().write(
+        path: file.path,
+        yaml: exportYaml(pack),
+        schema: 'TemplateSet',
+        prevHash: prevHash,
+        onBackup: (path, backupPath, newHash, prev) async {
+          await PathTransactionManager(
+            rootDir: '.',
+          ).recordFileBackup(path, backupPath);
+        },
+      );
+      return file;
+    });
   }
 }
