@@ -24,8 +24,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
-          channel: stable
+          channel: 'stable'
           cache: true
 
       - name: Install dependencies
@@ -83,7 +82,7 @@ jobs:
           if-no-files-found: ignore
 
   theory-fix:
-    if: contains(github.event.pull_request.labels.*.name, 'theory-fix') && github.event.pull_request.head.repo.fork == false
+    if: contains(github.event.pull_request.labels.*.name, 'theory-fix') && github.event.pull_request.head.repo.fork == false && github.actor != 'github-actions[bot]'
     needs: verify
     runs-on: ubuntu-latest
     steps:
@@ -101,8 +100,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
-          channel: stable
+          channel: 'stable'
           cache: true
 
       - name: Install dependencies
