@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +18,8 @@ class _FakeDecayTracker implements SkillDecayTracker {
   _FakeDecayTracker(this.tags);
   @override
   Future<List<String>> getDecayedTags({required double threshold}) async => tags;
+  @override
+  Stream<String> get onDecayStateChanged => const Stream.empty();
 }
 
 class _FakeMasteryAnalyzer implements TagMasteryAnalyzer {
@@ -44,6 +47,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     TrainingPackLibraryV2.instance.clear();
     AutogenStatusDashboardService.instance.clear();
+    final dir = Directory('boosterPacks');
+    if (dir.existsSync()) {
+      dir.deleteSync(recursive: true);
+    }
   });
 
   TrainingPackTemplateV2 buildPack(String id, String tag) {
@@ -123,5 +130,94 @@ void main() {
     expect(result, isEmpty);
     final status = AutogenStatusDashboardService.instance;
     expect(status.boostersSkippedNotifier.value['duplicate'], 1);
+  });
+
+  class _StreamDecayTracker implements SkillDecayTracker {
+    final StreamController<String> controller = StreamController.broadcast();
+    final Set<String> decayed = {};
+    int calls = 0;
+    void emit(String tag) {
+      decayed.add(tag);
+      controller.add(tag);
+    }
+
+    @override
+    Future<List<String>> getDecayedTags({required double threshold}) async {
+      calls++;
+      return decayed.toList();
+    }
+
+    @override
+    Stream<String> get onDecayStateChanged => controller.stream;
+  }
+
+  test('auto-generates boosters when decay threshold crossed', () async {
+    final pack = buildPack('p4', 'push');
+    TrainingPackLibraryV2.instance.addPack(pack);
+    final exporter = _CapturingExporter();
+    final tracker = _StreamDecayTracker();
+    final engine = TargetedPackBoosterEngine(
+      exporter: exporter,
+      decayTracker: tracker,
+      decayDebounce: const Duration(milliseconds: 20),
+    );
+    tracker.emit('push');
+    await Future.delayed(const Duration(milliseconds: 80));
+    expect(exporter.last, isNotNull);
+    expect(exporter.last!.meta['triggerReason'], 'decaySync');
+  });
+
+  test('decay events are batched into single generation pass', () async {
+    final packA = buildPack('p5', 'a');
+    final packB = buildPack('p6', 'b');
+    TrainingPackLibraryV2.instance.addPack(packA);
+    TrainingPackLibraryV2.instance.addPack(packB);
+    final tracker = _StreamDecayTracker();
+    final engine = TargetedPackBoosterEngine(
+      decayTracker: tracker,
+      decayDebounce: const Duration(milliseconds: 20),
+    );
+    tracker.emit('a');
+    tracker.emit('b');
+    await Future.delayed(const Duration(milliseconds: 80));
+    final status = AutogenStatusDashboardService.instance;
+    expect(status.boostersGeneratedNotifier.value, 2);
+    expect(tracker.calls, 1);
+  });
+
+  test('skips generating booster if recent duplicate exists', () async {
+    final pack = buildPack('p7', 'c');
+    TrainingPackLibraryV2.instance.addPack(pack);
+    final dir = Directory('boosterPacks');
+    await dir.create(recursive: true);
+    final existing = TrainingPackTemplateV2(
+      id: 'existing',
+      name: 'existing',
+      trainingType: TrainingType.custom,
+      spots: pack.spots,
+      spotCount: pack.spotCount,
+      tags: ['c'],
+      gameType: GameType.cash,
+      meta: {
+        'type': 'booster',
+        'tagsTargeted': ['c'],
+        'generatedAt': DateTime.now().toIso8601String(),
+      },
+    );
+    final file = File('${dir.path}/existing.yaml');
+    await file.writeAsString(existing.toYamlString());
+
+    final tracker = _StreamDecayTracker();
+    final exporter = _CapturingExporter();
+    final engine = TargetedPackBoosterEngine(
+      exporter: exporter,
+      decayTracker: tracker,
+      decayDebounce: const Duration(milliseconds: 20),
+    );
+    tracker.emit('c');
+    await Future.delayed(const Duration(milliseconds: 80));
+    final status = AutogenStatusDashboardService.instance;
+    expect(status.boostersGeneratedNotifier.value, 0);
+    expect(status.boostersSkippedNotifier.value['recent_duplicate'], 1);
   });
 }

@@ -1,8 +1,17 @@
+import 'dart:async';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks reinforcement events for decayed theory tags.
 class DecayTagRetentionTrackerService {
   const DecayTagRetentionTrackerService();
+
+  static final StreamController<String> _decayController =
+      StreamController<String>.broadcast();
+
+  /// Emits tags whose decay state changed. Consumers can listen to this
+  /// stream to react to decay updates in real-time.
+  Stream<String> get onDecayStateChanged => _decayController.stream;
 
   static const String _theoryPrefix = 'retention.theoryReviewed.';
   static const String _boosterPrefix = 'retention.boosterCompleted.';
@@ -13,6 +22,7 @@ class DecayTagRetentionTrackerService {
       '$_theoryPrefix${tag.toLowerCase()}',
       (time ?? DateTime.now()).toIso8601String(),
     );
+    _decayController.add(tag.toLowerCase());
   }
 
   Future<void> markBoosterCompleted(String tag, {DateTime? time}) async {
@@ -21,6 +31,14 @@ class DecayTagRetentionTrackerService {
       '$_boosterPrefix${tag.toLowerCase()}',
       (time ?? DateTime.now()).toIso8601String(),
     );
+    _decayController.add(tag.toLowerCase());
+  }
+
+  /// Manually notifies listeners that [tag]'s decay state has changed.
+  /// Useful for tests or external schedulers that periodically assess decay
+  /// without going through [markTheoryReviewed] or [markBoosterCompleted].
+  void notifyDecayStateChanged(String tag) {
+    _decayController.add(tag.toLowerCase());
   }
 
   Future<DateTime?> getLastTheoryReview(String tag) async {
