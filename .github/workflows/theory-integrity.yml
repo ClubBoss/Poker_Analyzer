@@ -1,0 +1,119 @@
+name: Theory Integrity
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  THEORY_DIRS: theory,yaml_out
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Determine changed theory paths
+        id: changes
+        run: |
+          paths=$(scripts/changed_theory_paths.sh "$BASE")
+          echo "dirs=$paths" >> "$GITHUB_OUTPUT"
+        env:
+          BASE: ${{ github.base_ref }}
+
+      - name: Verify theory files
+        if: steps.changes.outputs.dirs != ''
+        run: |
+          dirs="${{ steps.changes.outputs.dirs }}"
+          args=""
+          for d in $dirs; do
+            args="$args --dir $d"
+          done
+          echo "Verifying theory paths: $dirs"
+          dart run bin/poker_analyzer.dart verify $args --manifest theory_manifest.json --ci
+
+      - name: Upload sweep reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: theory-sweep-report
+          path: |
+            theory_sweep_report.json
+            theory_sweep_report.csv
+          if-no-files-found: ignore
+
+  theory-fix:
+    if: contains(github.event.pull_request.labels.*.name, 'theory-fix')
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Determine changed theory paths
+        id: changes
+        run: |
+          paths=$(scripts/changed_theory_paths.sh "$BASE")
+          echo "dirs=$paths" >> "$GITHUB_OUTPUT"
+        env:
+          BASE: ${{ github.base_ref }}
+
+      - name: Sweep and fix theory files
+        if: steps.changes.outputs.dirs != ''
+        run: |
+          dirs="${{ steps.changes.outputs.dirs }}"
+          args=""
+          for d in $dirs; do
+            args="$args --dir $d"
+          done
+          dart run bin/poker_analyzer.dart sweep $args --fix --manifest theory_manifest.json
+          dart run bin/poker_analyzer.dart manifest update $args
+
+      - name: Commit and push fixes
+        if: steps.changes.outputs.dirs != ''
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: sweep theory"
+          git push
