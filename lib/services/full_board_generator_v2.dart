@@ -5,19 +5,23 @@ import 'board_texture_filter_service.dart';
 import 'card_deck_service.dart';
 import 'board_filtering_service_v2.dart';
 import 'board_cluster_library.dart';
+import 'board_texture_classifier.dart';
 
 class FullBoardGeneratorV2 {
   const FullBoardGeneratorV2({
     CardDeckService? deckService,
     BoardTextureFilterService? textureFilter,
     BoardFilteringServiceV2? boardFilter,
+    BoardTextureClassifier? classifier,
   })  : _deckService = deckService ?? const CardDeckService(),
         _textureFilter = textureFilter ?? const BoardTextureFilterService(),
-        _boardFilter = boardFilter ?? const BoardFilteringServiceV2();
+        _boardFilter = boardFilter ?? const BoardFilteringServiceV2(),
+        _classifier = classifier ?? const BoardTextureClassifier();
 
   final CardDeckService _deckService;
   final BoardTextureFilterService _textureFilter;
   final BoardFilteringServiceV2 _boardFilter;
+  final BoardTextureClassifier _classifier;
 
   List<BoardStages> generate(
     Map<String, dynamic> constraints, {
@@ -93,16 +97,14 @@ class FullBoardGeneratorV2 {
               final turn = remaining[t];
               final river = remaining[r];
               final all = [...flop, turn, river];
-              if (requiredRanks.any((rr) =>
-                  !all.any((c) => c.rank.toUpperCase() == rr))) {
+              if (requiredRanks
+                  .any((rr) => !all.any((c) => c.rank.toUpperCase() == rr))) {
                 continue;
               }
-              if (requiredSuits.any((ss) =>
-                  !all.any((c) => c.suit == ss))) {
+              if (requiredSuits.any((ss) => !all.any((c) => c.suit == ss))) {
                 continue;
               }
-              if (excludedSuits.any((ss) =>
-                  all.any((c) => c.suit == ss))) {
+              if (excludedSuits.any((ss) => all.any((c) => c.suit == ss))) {
                 continue;
               }
               final clusters = BoardClusterLibrary.getClusters(all)
@@ -114,10 +116,12 @@ class FullBoardGeneratorV2 {
               if (excludedClusterSet.any(clusters.contains)) {
                 continue;
               }
+              final tags = _classifier.classifyCards(all);
               final board = BoardStages(
                 flop: flop.map((c) => c.toString()).toList(),
                 turn: turn.toString(),
                 river: river.toString(),
+                textureTags: tags,
               );
               if (!_boardFilter.isMatch(board, requiredTags,
                   excludedTags: excludedTags)) {
@@ -152,4 +156,3 @@ class FullBoardGeneratorV2 {
     }
   }
 }
-
