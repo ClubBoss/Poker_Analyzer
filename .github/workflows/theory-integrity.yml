@@ -8,6 +8,7 @@ permissions:
   contents: write
 
 env:
+  # Что отслеживаем для проверки — у тебя YAML лежит в assets/**
   THEORY_DIRS: assets
 
 jobs:
@@ -24,14 +25,13 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
-      # Use Flutter SDK (not Dart-only)
+      # Flutter (включает нужный Dart)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      # Fetch deps with Flutter's pub
       - name: Install dependencies
         run: flutter pub get
 
@@ -46,7 +46,7 @@ jobs:
       - name: Check manifest presence
         id: manifest
         run: |
-          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json && ! grep -q '"files": {}' theory_manifest.json; then
+          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json; then
             echo "has_manifest=1" >> "$GITHUB_OUTPUT"
           else
             echo "has_manifest=0" >> "$GITHUB_OUTPUT"
@@ -72,8 +72,8 @@ jobs:
           args=""
           for d in $dirs; do args="$args --dir $d"; done
           echo "Soft verify (no manifest) theory paths: $dirs"
-          # Dry-run sweep to produce annotations/summary, but do not fail CI
-          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json || true
+          # dry-run чтобы получить отчёт и аннотации, но НЕ падать
+          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json
 
       - name: Report sweep results
         if: steps.changes.outputs.dirs != '' && always()
@@ -85,7 +85,7 @@ jobs:
           dart run bin/ci_report.dart --report theory_sweep_report.json --markdown | tee sweep_summary.md
           cat sweep_summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Comment sweep summary
+      - name: Comment sweep summary (upsert)
         if: steps.changes.outputs.dirs != '' && always()
         uses: actions/github-script@v7
         with:
@@ -105,7 +105,7 @@ jobs:
             }
             const body = fs.readFileSync('sweep_summary.md', 'utf8') + '\n' + marker;
             const { data: comments } = await github.rest.issues.listComments({ ...context.issue });
-            const existing = comments.find(comment => comment.body.includes(marker));
+            const existing = comments.find(comment => comment.body && comment.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
             } else {
@@ -138,7 +138,6 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
-      # Use Flutter SDK here as well
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -165,9 +164,7 @@ jobs:
         run: |
           dirs="${{ steps.changes.outputs.dirs }}"
           args=""
-          for d in $dirs; do
-            args="$args --dir $d"
-          done
+          for d in $dirs; do args="$args --dir $d"; done
           dart run bin/poker_analyzer.dart sweep $args --fix --manifest theory_manifest.json
           dart run bin/poker_analyzer.dart manifest update $args
 
