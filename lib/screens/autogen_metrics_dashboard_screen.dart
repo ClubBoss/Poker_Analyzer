@@ -19,6 +19,7 @@ import '../widgets/run_comparison_window.dart';
 import '../widgets/autogen_error_inspector_widget.dart';
 import '../widgets/ab_results_panel_widget.dart';
 import '../widgets/auto_format_panel_widget.dart';
+import '../widgets/theory_injection_dashboard_panel.dart';
 
 /// Visual dashboard for autogen pack generation metrics.
 class AutogenMetricsDashboardScreen extends StatefulWidget {
@@ -70,10 +71,10 @@ class _AutogenMetricsDashboardScreenState
     final csv = _errorStats.exportCsv();
     try {
       if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
-        await FileSaverService.instance
-            .saveCsv('autogen_error_breakdown', csv);
+        await FileSaverService.instance.saveCsv('autogen_error_breakdown', csv);
       } else {
-        final dir = await getDownloadsDirectory() ??
+        final dir =
+            await getDownloadsDirectory() ??
             await getApplicationDocumentsDirectory();
         final file = File(p.join(dir.path, 'autogen_error_breakdown.csv'));
         await file.writeAsString(csv);
@@ -86,9 +87,9 @@ class _AutogenMetricsDashboardScreenState
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to export errors: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to export errors: $e')));
       }
     }
   }
@@ -124,10 +125,7 @@ class _AutogenMetricsDashboardScreenState
 
   Widget _buildTile(String title, String value) {
     return Card(
-      child: ListTile(
-        title: Text(title),
-        trailing: Text(value),
-      ),
+      child: ListTile(title: Text(title), trailing: Text(value)),
     );
   }
 
@@ -151,8 +149,7 @@ class _AutogenMetricsDashboardScreenState
             if (entries.isEmpty)
               const Text('No errors recorded')
             else
-              for (final e in entries)
-                Text('• ${e.key.name}: ${e.value}'),
+              for (final e in entries) Text('• ${e.key.name}: ${e.value}'),
           ],
         ),
       ),
@@ -172,10 +169,7 @@ class _AutogenMetricsDashboardScreenState
                 const SizedBox(height: 16),
                 const AutogenDebugControlPanelWidget(),
                 const SizedBox(height: 16),
-                SizedBox(
-                  height: 300,
-                  child: AutogenEventLogViewerWidget(),
-                ),
+                SizedBox(height: 300, child: AutogenEventLogViewerWidget()),
                 const SizedBox(height: 16),
                 const AutogenErrorInspectorWidget(),
                 const SizedBox(height: 16),
@@ -183,15 +177,30 @@ class _AutogenMetricsDashboardScreenState
                 const SizedBox(height: 16),
                 const AutoFormatPanelWidget(),
                 const SizedBox(height: 16),
-                _buildTile('Generated',
-                    (_metrics['generatedCount'] as int? ?? 0).toString()),
-                _buildTile('Rejected',
-                    (_metrics['rejectedCount'] as int? ?? 0).toString()),
-                _buildTile('Acceptance Rate',
-                    '${_acceptanceRate().toStringAsFixed(1)}%'),
-                _buildTile('Average Quality Score',
-                    (_metrics['avgQualityScore'] as num? ?? 0)
-                        .toStringAsFixed(2)),
+                Card(
+                  child: ExpansionTile(
+                    title: const Text('Theory Injection Scheduler'),
+                    childrenPadding: const EdgeInsets.all(16),
+                    children: const [TheoryInjectionDashboardPanel()],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildTile(
+                  'Generated',
+                  (_metrics['generatedCount'] as int? ?? 0).toString(),
+                ),
+                _buildTile(
+                  'Rejected',
+                  (_metrics['rejectedCount'] as int? ?? 0).toString(),
+                ),
+                _buildTile(
+                  'Acceptance Rate',
+                  '${_acceptanceRate().toStringAsFixed(1)}%',
+                ),
+                _buildTile(
+                  'Average Quality Score',
+                  (_metrics['avgQualityScore'] as num? ?? 0).toStringAsFixed(2),
+                ),
                 _buildTile('Last Run', _formatLastRun()),
                 _buildErrorBreakdown(),
                 const SizedBox(height: 8),
@@ -222,22 +231,26 @@ class _AutogenMetricsDashboardScreenState
     }
     final lines = <LineChartBarData>[];
     if (_showQuality) {
-      lines.add(LineChartBarData(
-        spots: qualitySpots,
-        color: Colors.blueAccent,
-        barWidth: 2,
-        isCurved: true,
-        dotData: const FlDotData(show: false),
-      ));
+      lines.add(
+        LineChartBarData(
+          spots: qualitySpots,
+          color: Colors.blueAccent,
+          barWidth: 2,
+          isCurved: true,
+          dotData: const FlDotData(show: false),
+        ),
+      );
     }
     if (_showAcceptance) {
-      lines.add(LineChartBarData(
-        spots: acceptanceSpots,
-        color: Colors.greenAccent,
-        barWidth: 2,
-        isCurved: true,
-        dotData: const FlDotData(show: false),
-      ));
+      lines.add(
+        LineChartBarData(
+          spots: acceptanceSpots,
+          color: Colors.greenAccent,
+          barWidth: 2,
+          isCurved: true,
+          dotData: const FlDotData(show: false),
+        ),
+      );
     }
     final step = (_history.length / 5).ceil();
     return Column(
@@ -260,7 +273,7 @@ class _AutogenMetricsDashboardScreenState
                       LineTooltipItem(
                         '$date\nAcceptance: ${entry.acceptanceRate.toStringAsFixed(1)}%\nQuality: ${(entry.avgQualityScore * 100).toStringAsFixed(1)}%',
                         const TextStyle(color: Colors.white),
-                      )
+                      ),
                     ];
                   },
                 ),
@@ -287,15 +300,16 @@ class _AutogenMetricsDashboardScreenState
                       final d = _history[index].timestamp;
                       final label =
                           '${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}';
-                      return Text(label,
-                          style: const TextStyle(fontSize: 10));
+                      return Text(label, style: const TextStyle(fontSize: 10));
                     },
                   ),
                 ),
                 topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false)),
+                  sideTitles: SideTitles(showTitles: false),
+                ),
                 rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false)),
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
               rangeAnnotations: RangeAnnotations(
                 horizontalRangeAnnotations: [
@@ -318,30 +332,32 @@ class _AutogenMetricsDashboardScreenState
                   bottom: BorderSide(color: Colors.black12),
                 ),
               ),
-              extraLinesData: ExtraLinesData(horizontalLines: [
-                HorizontalLine(
-                  y: 60,
-                  color: Colors.red,
-                  strokeWidth: 1,
-                  dashArray: [5, 5],
-                  label: HorizontalLineLabel(
-                    'Low Acceptance Threshold',
-                    style: const TextStyle(color: Colors.red),
-                    alignment: Alignment.topRight,
+              extraLinesData: ExtraLinesData(
+                horizontalLines: [
+                  HorizontalLine(
+                    y: 60,
+                    color: Colors.red,
+                    strokeWidth: 1,
+                    dashArray: [5, 5],
+                    label: HorizontalLineLabel(
+                      'Low Acceptance Threshold',
+                      style: const TextStyle(color: Colors.red),
+                      alignment: Alignment.topRight,
+                    ),
                   ),
-                ),
-                HorizontalLine(
-                  y: 70,
-                  color: Colors.red,
-                  strokeWidth: 1,
-                  dashArray: [5, 5],
-                  label: HorizontalLineLabel(
-                    'Low Quality Threshold',
-                    style: const TextStyle(color: Colors.red),
-                    alignment: Alignment.bottomRight,
+                  HorizontalLine(
+                    y: 70,
+                    color: Colors.red,
+                    strokeWidth: 1,
+                    dashArray: [5, 5],
+                    label: HorizontalLineLabel(
+                      'Low Quality Threshold',
+                      style: const TextStyle(color: Colors.red),
+                      alignment: Alignment.bottomRight,
+                    ),
                   ),
-                ),
-              ]),
+                ],
+              ),
               lineBarsData: lines,
             ),
           ),
@@ -374,4 +390,3 @@ class _AutogenMetricsDashboardScreenState
     );
   }
 }
-
