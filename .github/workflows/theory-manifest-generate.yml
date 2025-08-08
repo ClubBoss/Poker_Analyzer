@@ -1,11 +1,10 @@
-name: Theory Manifest – Generate baseline
+name: Theory Manifest: Generate baseline
 
 on:
   workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   generate:
@@ -16,52 +15,55 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Генерация минимального baseline-манифеста без Flutter.
-      # Берём все *.yaml из часто встречающихся директорий.
-      - name: Generate baseline manifest (Python, no Flutter)
-        id: gen
-        shell: python
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build dir list from repo (*.yaml)
+        id: dirs
+        shell: bash
         run: |
-          import os, json, glob
+          set -euo pipefail
+          DIRS="$(git ls-files '*.yaml' | xargs -r dirname | sort -u || true)"
+          if [ -z "${DIRS}" ]; then
+            echo "no_yaml=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          ARGS=""
+          for d in $DIRS; do
+            ARGS="$ARGS --dir $d"
+          done
+          echo "no_yaml=0" >> "$GITHUB_OUTPUT"
+          echo "args=${ARGS}" >> "$GITHUB_OUTPUT"
 
-          roots = [
-              "theory", "yaml_out",
-              "assets", "assets/learning_paths", "assets/learning_tracks",
-              "assets/lesson_tracks", "assets/lessons", "assets/mini_lessons",
-              "assets/packs/advanced", "assets/packs/advanced_icm", "assets/packs/intermediate",
-              "assets/packs/v2/manual_legacy/postflop",
-              "assets/packs/v2/manual_legacy/postflop/templates",
-              "assets/packs/v2/manual_legacy/preflop",
-              "assets/paths", "assets/skills/cash", "assets/templates",
-              "assets/theory_blocks",
-              "assets/theory_lessons/level1", "assets/theory_lessons/level2", "assets/theory_lessons/level3",
-              "assets/theory_mini_lessons", "assets/theory_packs", "assets/theory_tracks",
-              "assets/training_packs",
-              "tool"
-          ]
+      - name: Generate/Update manifest
+        if: steps.dirs.outputs.no_yaml == '0'
+        id: gen
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARGS="${{ steps.dirs.outputs.args }}"
+          dart run bin/poker_analyzer.dart manifest generate ${ARGS} --out theory_manifest.json
+          dart run bin/poker_analyzer.dart manifest update ${ARGS}
+          if git diff --quiet -- theory_manifest.json; then
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+          fi
 
-          files = {}
-          for root in roots:
-              if not os.path.isdir(root):
-                  continue
-              for path in glob.glob(os.path.join(root, "**", "*.yaml"), recursive=True):
-                  rel = os.path.normpath(path)
-                  files[rel] = {"hash": None}
-
-          data = {"version": 1, "files": files}
-          out_path = "theory_manifest.json"
-
-          before = None
-          if os.path.exists(out_path):
-              try:
-                  before = json.load(open(out_path, "r", encoding="utf-8"))
-              except Exception:
-                  before = None
-
-          with open(out_path, "w", encoding="utf-8") as f:
-              json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
-
-          changed = json.dumps(before, sort_keys=True) != json.dumps(data, sort_keys=True)
-          print(f"::notice ::Found {len(files)} YAML files; manifest {'changed' if changed else 'unchanged'}.")
-
-          # Запишем флаг для с
+      - name: Create PR with baseline
+        if: steps.gen.outputs.changed == '1'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: add baseline theory manifest"
+          title: "chore: add baseline theory manifest"
+          body: |
+            Generated/updated theory_manifest.json across all YAML directories found in the repo.
+            Enables strict verification in Theory Integrity CI.
+          branch: manifest/baseline
+          signoff: false
