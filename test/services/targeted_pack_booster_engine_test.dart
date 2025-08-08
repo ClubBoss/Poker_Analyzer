@@ -77,6 +77,7 @@ void main() {
     expect(candidates.length, 1);
     expect(candidates.first.packId, 'p1');
     expect(candidates.first.ratio, 2.0);
+    expect(candidates.first.triggerReason, 'decayThreshold');
   });
 
   test('boostPacks exports boosted template', () async {
@@ -84,13 +85,25 @@ void main() {
     TrainingPackLibraryV2.instance.addPack(pack);
     final exporter = _CapturingExporter();
     final engine = TargetedPackBoosterEngine(exporter: exporter);
-    final req =
-        PackBoosterRequest(packId: 'p2', tags: ['fold'], ratio: 1.5);
+    final req = PackBoosterRequest(
+      packId: 'p2',
+      tags: ['fold'],
+      ratio: 1.5,
+      triggerReason: 'manual',
+    );
     final result = await engine.boostPacks([req]);
     final boosted = result.single;
     expect(boosted.id, startsWith('p2_boosted_'));
     expect(boosted.spotCount, greaterThan(pack.spotCount));
-    expect(boosted.meta['boostTags'], ['fold']);
+    expect(boosted.meta['tagsTargeted'], ['fold']);
+    expect(boosted.meta['triggerReason'], 'manual');
+    expect(boosted.meta['type'], 'booster');
+    for (final s in boosted.spots) {
+      expect(s.tags, contains('fold'));
+    }
+    final dir = Directory('boosterPacks');
+    expect(dir.existsSync(), isTrue);
+    expect(dir.listSync().isNotEmpty, isTrue);
     final status = AutogenStatusDashboardService.instance;
     expect(status.boostersGeneratedNotifier.value, 1);
   });
@@ -100,8 +113,12 @@ void main() {
     TrainingPackLibraryV2.instance.addPack(pack);
     final exporter = _CapturingExporter();
     final engine = TargetedPackBoosterEngine(exporter: exporter);
-    final req =
-        PackBoosterRequest(packId: 'p3', tags: ['fold'], ratio: 1.5);
+    final req = PackBoosterRequest(
+      packId: 'p3',
+      tags: ['fold'],
+      ratio: 1.5,
+      triggerReason: 'manual',
+    );
     final result = await engine.boostPacks([req]);
     expect(result, isEmpty);
     final status = AutogenStatusDashboardService.instance;

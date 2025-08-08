@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -20,10 +22,12 @@ class PackBoosterRequest {
   final String packId;
   final List<String> tags;
   final double ratio;
+  final String triggerReason;
   const PackBoosterRequest({
     required this.packId,
     required this.tags,
     required this.ratio,
+    required this.triggerReason,
   });
 }
 
@@ -70,14 +74,47 @@ class TargetedPackBoosterEngine {
     final decayed = decayTracker == null
         ? <String>[]
         : await decayTracker!.getDecayedTags(threshold: threshold);
-    final tags = {...weak, ...decayed};
+    final tagReasons = <String, String>{};
+    for (final t in weak) {
+      tagReasons[t] = 'lowMastery';
+    }
+    for (final t in decayed) {
+      tagReasons[t] = 'decayThreshold';
+    }
     final requests = <PackBoosterRequest>[];
-    for (final tag in tags) {
+    for (final tag in tagReasons.keys) {
       final pack = await library.findByTag(tag);
       if (pack == null) continue;
-      requests.add(PackBoosterRequest(packId: pack.id, tags: [tag], ratio: ratio));
+      requests.add(PackBoosterRequest(
+        packId: pack.id,
+        tags: [tag],
+        ratio: ratio,
+        triggerReason: tagReasons[tag]!,
+      ));
     }
     return requests;
+  }
+
+  /// Manually trigger booster generation for [tags].
+  Future<List<TrainingPackTemplateV2>> generateBoosterPacks({
+    required int count,
+    required List<String> tags,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final ratio = prefs.getDouble('booster.ratio') ?? 1.5;
+    final requests = <PackBoosterRequest>[];
+    for (final tag in tags.take(count)) {
+      final pack = await library.findByTag(tag);
+      if (pack == null) continue;
+      requests.add(PackBoosterRequest(
+        packId: pack.id,
+        tags: [tag],
+        ratio: ratio,
+        triggerReason: 'manual',
+      ));
+    }
+    if (requests.isEmpty) return [];
+    return boostPacks(requests);
   }
 
   /// Regenerates packs with boosted coverage for [requests].
@@ -137,25 +174,31 @@ class TargetedPackBoosterEngine {
       }
       final addCount = (tagged.length * (req.ratio - 1)).round();
       final extra = <TrainingPackSpot>[];
-      for (var i = 0; i < addCount; i++) {
-        final clone = tagged[i % tagged.length]
+      for (var j = 0; j < addCount; j++) {
+        final clone = tagged[j % tagged.length]
             .copyWith(id: const Uuid().v4());
         extra.add(clone);
       }
+      final spots = [
+        for (final s in tagged) s,
+        ...extra,
+      ];
       final ts = DateTime.now().millisecondsSinceEpoch;
       final boosted = TrainingPackTemplateV2(
         id: '${tpl.id}_boosted_$ts',
         name: '${tpl.name}_boosted',
         trainingType: tpl.trainingType,
-        spots: [...tpl.spots, ...extra],
-        spotCount: tpl.spots.length + extra.length,
-        tags: List<String>.from(tpl.tags),
+        spots: spots,
+        spotCount: spots.length,
+        tags: List<String>.from(req.tags),
         gameType: tpl.gameType,
         meta: {
           ...tpl.meta,
-          'boostedFrom': tpl.id,
-          'boostTags': req.tags,
-          'boostRatio': req.ratio,
+          'type': 'booster',
+          'sourcePack': tpl.id,
+          'tagsTargeted': req.tags,
+          'generatedAt': DateTime.now().toIso8601String(),
+          'triggerReason': req.triggerReason,
         },
       );
       final fp = PackFingerprint.fromTemplate(
@@ -186,7 +229,11 @@ class TargetedPackBoosterEngine {
         );
         continue;
       }
-      await exporter.export(boosted);
+      final exported = await exporter.export(boosted);
+      final boosterDir = Directory('boosterPacks');
+      await boosterDir.create(recursive: true);
+      final fileName = exported.uri.pathSegments.last;
+      await exported.copy('${boosterDir.path}/$fileName');
       status.recordBoosterGenerated(boosted.id);
       dashboard.recordPack(boosted.spotCount);
       final model = TrainingPackModel(
