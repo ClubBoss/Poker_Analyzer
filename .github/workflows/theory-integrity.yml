@@ -21,12 +21,14 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
+      # Use Flutter SDK (not Dart-only)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
+      # Fetch deps with Flutter's pub
       - name: Install dependencies
         run: flutter pub get
 
@@ -116,6 +118,7 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
+      # Use Flutter SDK here as well
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
