@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'autogen_pipeline_event_logger_service.dart';
@@ -27,10 +28,20 @@ class ABOrchestratorService {
 
   List<dynamic>? _cache;
 
+  @visibleForTesting
+  void clearCache() {
+    _cache = null;
+  }
+
   Future<List<dynamic>> _loadSpec() async {
     if (_cache != null) return _cache!;
-    final raw = await rootBundle.loadString('assets/ab_experiments.json');
-    _cache = jsonDecode(raw) as List;
+    try {
+      final raw = await rootBundle.loadString('assets/ab_experiments.json');
+      _cache = jsonDecode(raw) as List;
+    } catch (e) {
+      AutogenPipelineEventLoggerService.log('ab_spec_error', '$e');
+      _cache = const [];
+    }
     return _cache!;
   }
 
@@ -54,28 +65,37 @@ class ABOrchestratorService {
       final key = 'ab.assignment.$expId.$userId';
       var assigned = prefs.getString(key);
       if (assigned == null) {
-        final h = sha256.convert(utf8.encode('$userId$expId')).toString();
-        final val = int.parse(h.substring(0, 8), radix: 16) / 0xFFFFFFFF;
-        if (val >= traffic) {
-          prefs.setString(key, '');
+        final h1 = sha256.convert(utf8.encode('$userId|$expId')).toString();
+        final u1 = int.parse(h1.substring(0, 8), radix: 16) / 0xFFFFFFFF;
+        if (u1 >= traffic) {
+          assigned = 'none';
+          await prefs.setString(key, assigned);
+          final cKey = 'ab.assignments.$expId.$assigned.n';
+          await prefs.setInt(cKey, (prefs.getInt(cKey) ?? 0) + 1);
           continue;
         }
         final arms = (exp['arms'] as List?)?.cast<Map<String, dynamic>>() ??
             const [];
+        final h2 =
+            sha256.convert(utf8.encode('$userId|$expId|arm')).toString();
+        final u2 = int.parse(h2.substring(0, 8), radix: 16) / 0xFFFFFFFF;
         final total =
             arms.fold<num>(0, (s, a) => s + (a['ratio'] as num? ?? 1));
-        final slot = val * total;
+        final slot = u2 * total;
         num cumulative = 0;
         for (final a in arms) {
           cumulative += (a['ratio'] as num? ?? 1);
           if (slot < cumulative) {
-            assigned = a['id'] as String?;
+            assigned = a['id'] as String? ?? 'control';
             break;
           }
         }
-        prefs.setString(key, assigned ?? '');
+        assigned ??= 'control';
+        await prefs.setString(key, assigned!);
+        final cKey = 'ab.assignments.$expId.$assigned.n';
+        await prefs.setInt(cKey, (prefs.getInt(cKey) ?? 0) + 1);
       }
-      if (assigned == null || assigned.isEmpty) continue;
+      if (assigned == 'none') continue;
       final armSpec = (exp['arms'] as List)
           .cast<Map<String, dynamic>>()
           .firstWhere((a) => a['id'] == assigned, orElse: () => {});
@@ -99,10 +119,17 @@ class ABOrchestratorService {
     return results;
   }
 
-  Future<void> applyOverrides(ResolvedArm arm) async {
+  Future<T> withOverrides<T>(ResolvedArm arm, Future<T> Function() fn) async {
     final prefs = await SharedPreferences.getInstance();
+    final original = <String, Object?>{};
+    final missing = <String>{};
     for (final entry in arm.prefs.entries) {
       final k = entry.key;
+      if (prefs.containsKey(k)) {
+        original[k] = prefs.get(k);
+      } else {
+        missing.add(k);
+      }
       final v = entry.value;
       if (v is int) {
         await prefs.setInt(k, v);
@@ -112,6 +139,26 @@ class ABOrchestratorService {
         await prefs.setBool(k, v);
       } else if (v is String) {
         await prefs.setString(k, v);
+      }
+    }
+    try {
+      return await fn();
+    } finally {
+      for (final k in missing) {
+        await prefs.remove(k);
+      }
+      for (final entry in original.entries) {
+        final k = entry.key;
+        final v = entry.value;
+        if (v is int) {
+          await prefs.setInt(k, v);
+        } else if (v is double) {
+          await prefs.setDouble(k, v);
+        } else if (v is bool) {
+          await prefs.setBool(k, v);
+        } else if (v is String) {
+          await prefs.setString(k, v);
+        }
       }
     }
   }
