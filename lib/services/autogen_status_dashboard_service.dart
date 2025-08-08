@@ -45,6 +45,11 @@ class AutogenStatusDashboardService {
   final ValueNotifier<List<String>> boosterIdsNotifier =
       ValueNotifier(const <String>[]);
 
+  final ValueNotifier<int> pathModulesInjectedNotifier = ValueNotifier(0);
+  final ValueNotifier<int> pathModulesInProgressNotifier = ValueNotifier(0);
+  final ValueNotifier<int> pathModulesCompletedNotifier = ValueNotifier(0);
+  final ValueNotifier<double> avgPassRateNotifier = ValueNotifier(0.0);
+
   final ValueNotifier<List<ABArmResult>> abResultsNotifier =
       ValueNotifier(const <ABArmResult>[]);
   final TrainingRunABComparator _abComparator = TrainingRunABComparator();
@@ -125,6 +130,20 @@ class AutogenStatusDashboardService {
     boostersSkippedNotifier.value = Map.unmodifiable(map);
   }
 
+  void recordPathModuleInjected() {
+    pathModulesInjectedNotifier.value = pathModulesInjectedNotifier.value + 1;
+  }
+
+  void recordPathModuleStarted() {
+    pathModulesInProgressNotifier.value = pathModulesInProgressNotifier.value + 1;
+  }
+
+  void recordPathModuleCompleted(double passRate) {
+    pathModulesCompletedNotifier.value = pathModulesCompletedNotifier.value + 1;
+    final total = pathModulesCompletedNotifier.value;
+    avgPassRateNotifier.value = ((avgPassRateNotifier.value * (total - 1)) + passRate) / total;
+  }
+
   /// Append [issues] for [seedId] to the lint feed.
   void reportSeedIssues(String seedId, List<SeedIssue> issues) {
     if (issues.isEmpty) return;
@@ -160,5 +179,9 @@ class AutogenStatusDashboardService {
     boostersSkippedNotifier.value = const {};
     boosterIdsNotifier.value = const <String>[];
     seedIssuesNotifier.value = const <SeedIssue>[];
+    pathModulesInjectedNotifier.value = 0;
+    pathModulesInProgressNotifier.value = 0;
+    pathModulesCompletedNotifier.value = 0;
+    avgPassRateNotifier.value = 0.0;
   }
 }
