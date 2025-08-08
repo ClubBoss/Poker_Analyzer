@@ -27,7 +27,6 @@ class TheoryLinkAutoInjector {
     required this.noveltyRegistry,
     required this.policy,
     TheoryLinkConfigService? config,
-    InlinePackTheoryClusterer? clusterer,
     AutogenStatusDashboardService? dashboard,
     TrainingPackLibraryV2? packLibrary,
     DecayTagRetentionTrackerService? retention,
@@ -36,10 +35,9 @@ class TheoryLinkAutoInjector {
         dashboard = dashboard ?? AutogenStatusDashboardService.instance,
         packLibrary = packLibrary ?? TrainingPackLibraryV2.instance,
         retention = retention ?? const DecayTagRetentionTrackerService(),
-        clusterer = clusterer ??
-            InlinePackTheoryClusterer(
-                maxPerPack: (config ?? TheoryLinkConfigService.instance).value.maxPerPack,
-                maxPerSpot: (config ?? TheoryLinkConfigService.instance).value.maxPerSpot) {
+        clusterer = InlinePackTheoryClusterer(
+            maxPerPack: (config ?? TheoryLinkConfigService.instance).value.maxPerPack,
+            maxPerSpot: (config ?? TheoryLinkConfigService.instance).value.maxPerSpot) {
     _applyConfig(this.config.value);
     this.config.notifier.addListener(() {
       _applyConfig(this.config.value);
@@ -65,6 +63,7 @@ class TheoryLinkAutoInjector {
   late double weightTagMatch;
   late Duration noveltyRecent;
   late double noveltyMinOverlap;
+  final Map<String, bool> _runningUsers = {};
 
   void _applyConfig(TheoryLinkConfig cfg) {
     maxPerModule = cfg.maxPerModule;
@@ -79,6 +78,9 @@ class TheoryLinkAutoInjector {
   }
 
   Future<int> injectForUser(String userId) async {
+    if (_runningUsers[userId] == true) return 0;
+    _runningUsers[userId] = true;
+    try {
     if (config.value.ablationEnabled) {
       dashboard.update(
         'TheoryLinkPolicy',
@@ -155,7 +157,13 @@ class TheoryLinkAutoInjector {
         candidates.add(_Scored(res, score));
       }
       if (candidates.isEmpty) continue;
-      candidates.sort((a, b) => b.score.compareTo(a.score));
+      candidates.sort((a, b) {
+        final diff = b.score.compareTo(a.score);
+        if (diff != 0) return diff;
+        final idDiff = a.resource.id.compareTo(b.resource.id);
+        if (idDiff != 0) return idDiff;
+        return a.resource.title.compareTo(b.resource.title);
+      });
 
       final uncovered = Set<String>.from(demand);
       final selected = <_Scored>[];
@@ -165,7 +173,11 @@ class TheoryLinkAutoInjector {
           final gainA = a.resource.tags.where(uncovered.contains).length;
           final gainB = b.resource.tags.where(uncovered.contains).length;
           if (gainA != gainB) return gainB.compareTo(gainA);
-          return b.score.compareTo(a.score);
+          final scoreDiff = b.score.compareTo(a.score);
+          if (scoreDiff != 0) return scoreDiff;
+          final idDiff = a.resource.id.compareTo(b.resource.id);
+          if (idDiff != 0) return idDiff;
+          return a.resource.title.compareTo(b.resource.title);
         });
         final best = remaining.removeAt(0);
         final gain = best.resource.tags.where(uncovered.contains).length;
@@ -256,6 +268,9 @@ class TheoryLinkAutoInjector {
       dashboard.recordTheoryInjection(clusters: clustersCount, links: linksCount);
     }
     return injected;
+  } finally {
+      _runningUsers.remove(userId);
+    }
   }
 
   Future<Map<String, double>> _decayScores(Set<String> tags,

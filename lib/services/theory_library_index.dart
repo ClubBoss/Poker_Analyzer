@@ -8,7 +8,7 @@ import 'inline_pack_theory_clusterer.dart';
 class TheoryLibraryIndex {
   final String assetPath;
   final AssetBundle _bundle;
-  List<TheoryResource>? _cache;
+  static List<TheoryResource>? _cache;
 
   TheoryLibraryIndex({
     this.assetPath = 'assets/theory_index.json',
@@ -39,5 +39,10 @@ class TheoryLibraryIndex {
     }
     _cache = items;
     return items;
+  }
+
+  Future<void> reload() async {
+    _cache = null;
+    await all();
   }
 }
