@@ -14,6 +14,8 @@ import 'package:poker_analyzer/services/learning_path_store.dart';
 import 'package:poker_analyzer/services/theory_novelty_registry.dart';
 import 'package:poker_analyzer/services/autogen_status_dashboard_service.dart';
 import 'package:poker_analyzer/core/training/library/training_pack_library_v2.dart';
+import 'package:poker_analyzer/services/theory_link_policy_engine.dart';
+import 'package:poker_analyzer/services/theory_link_config_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +27,9 @@ void main() {
       'telemetry.errors.bb': 0.8,
       'telemetry.errors.push': 0.2,
     });
+    final prefs = await SharedPreferences.getInstance();
+    await TheoryLinkConfigService.instance.reload();
+    final policy = TheoryLinkPolicyEngine(prefs: prefs);
 
     final packLibrary = TrainingPackLibraryV2.instance;
     packLibrary.clear();
@@ -63,6 +68,7 @@ void main() {
       noveltyRegistry: registry,
       dashboard: AutogenStatusDashboardService(),
       packLibrary: packLibrary,
+      policy: policy,
     );
 
     final injected = await injector.injectForUser('u1');

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -12,6 +13,8 @@ import 'inline_pack_theory_clusterer.dart';
 import 'learning_path_store.dart';
 import 'mistake_telemetry_store.dart';
 import 'theory_library_index.dart';
+import 'theory_link_config_service.dart';
+import 'theory_link_policy_engine.dart';
 import 'theory_novelty_registry.dart';
 
 enum TheoryLinkSaveStrategy { inMemory, overwriteYaml }
@@ -22,44 +25,81 @@ class TheoryLinkAutoInjector {
     required this.libraryIndex,
     required this.telemetry,
     required this.noveltyRegistry,
+    required this.policy,
+    TheoryLinkConfigService? config,
     InlinePackTheoryClusterer? clusterer,
     AutogenStatusDashboardService? dashboard,
     TrainingPackLibraryV2? packLibrary,
     DecayTagRetentionTrackerService? retention,
-    this.maxPerModule = 3,
-    this.maxPerPack = 2,
-    this.maxPerSpot = 2,
-    this.weightErrorRate = 0.5,
-    this.weightDecay = 0.3,
-    this.weightTagMatch = 0.2,
-    this.noveltyRecent = const Duration(hours: 72),
-    this.noveltyMinOverlap = 0.6,
     this.saveStrategy = TheoryLinkSaveStrategy.inMemory,
-  })  : clusterer =
-            clusterer ?? InlinePackTheoryClusterer(maxPerPack: maxPerPack, maxPerSpot: maxPerSpot),
+  })  : config = config ?? TheoryLinkConfigService.instance,
         dashboard = dashboard ?? AutogenStatusDashboardService.instance,
         packLibrary = packLibrary ?? TrainingPackLibraryV2.instance,
-        retention = retention ?? const DecayTagRetentionTrackerService();
+        retention = retention ?? const DecayTagRetentionTrackerService(),
+        clusterer = clusterer ??
+            InlinePackTheoryClusterer(
+                maxPerPack: (config ?? TheoryLinkConfigService.instance).value.maxPerPack,
+                maxPerSpot: (config ?? TheoryLinkConfigService.instance).value.maxPerSpot) {
+    _applyConfig(this.config.value);
+    this.config.notifier.addListener(() {
+      _applyConfig(this.config.value);
+    });
+  }
 
   final LearningPathStore store;
   final TheoryLibraryIndex libraryIndex;
   final MistakeTelemetryStore telemetry;
   final TheoryNoveltyRegistry noveltyRegistry;
-  final InlinePackTheoryClusterer clusterer;
+  final TheoryLinkPolicyEngine policy;
+  final TheoryLinkConfigService config;
+  InlinePackTheoryClusterer clusterer;
   final AutogenStatusDashboardService dashboard;
   final TrainingPackLibraryV2 packLibrary;
   final DecayTagRetentionTrackerService retention;
   final TheoryLinkSaveStrategy saveStrategy;
-  final int maxPerModule;
-  final int maxPerPack;
-  final int maxPerSpot;
-  final double weightErrorRate;
-  final double weightDecay;
-  final double weightTagMatch;
-  final Duration noveltyRecent;
-  final double noveltyMinOverlap;
+  late int maxPerModule;
+  late int maxPerPack;
+  late int maxPerSpot;
+  late double weightErrorRate;
+  late double weightDecay;
+  late double weightTagMatch;
+  late Duration noveltyRecent;
+  late double noveltyMinOverlap;
+
+  void _applyConfig(TheoryLinkConfig cfg) {
+    maxPerModule = cfg.maxPerModule;
+    maxPerPack = cfg.maxPerPack;
+    maxPerSpot = cfg.maxPerSpot;
+    weightTagMatch = cfg.wTag;
+    weightErrorRate = cfg.wErr;
+    weightDecay = cfg.wDecay;
+    noveltyRecent = cfg.noveltyRecent;
+    noveltyMinOverlap = cfg.noveltyMinOverlap;
+    clusterer = InlinePackTheoryClusterer(maxPerPack: maxPerPack, maxPerSpot: maxPerSpot);
+  }
 
   Future<int> injectForUser(String userId) async {
+    if (config.value.ablationEnabled) {
+      dashboard.update(
+        'TheoryLinkPolicy',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: jsonEncode({'policyBlocks': 0, 'ablation': true}),
+          progress: 1.0,
+        ),
+      );
+      return 0;
+    }
+    var policyBlocks = 0;
+    dashboard.update(
+      'TheoryLinkPolicy',
+      AutogenStatus(
+        isRunning: false,
+        currentStage: jsonEncode({'policyBlocks': 0, 'ablation': false}),
+        progress: 1.0,
+      ),
+    );
+
     final modules = await store.listModules(userId);
     final pending = modules.where((m) => m.status == 'pending' || m.status == 'in_progress');
     if (pending.isEmpty) return 0;
@@ -84,6 +124,19 @@ class TheoryLinkAutoInjector {
         }
       }
       if (demand.isEmpty) continue;
+
+      if (!await policy.canInject(userId, demand)) {
+        policyBlocks++;
+        dashboard.update(
+          'TheoryLinkPolicy',
+          AutogenStatus(
+            isRunning: false,
+            currentStage: jsonEncode({'policyBlocks': policyBlocks, 'ablation': false}),
+            progress: 1.0,
+          ),
+        );
+        continue;
+      }
 
       final decayScores = await _decayScores(demand);
 
@@ -173,6 +226,7 @@ class TheoryLinkAutoInjector {
 
       await store.upsertModule(userId, updated);
       await noveltyRegistry.record(userId, demand.toList(), theoryIds);
+      await policy.onInjected(userId, demand);
       injected++;
 
       var clustersCount = 0;
