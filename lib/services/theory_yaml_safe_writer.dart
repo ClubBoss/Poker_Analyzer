@@ -1,3 +1,4 @@
+// lib/services/theory_yaml_safe_writer.dart
 import 'dart:convert';
 import 'dart:io';
 
@@ -5,7 +6,6 @@ import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaml/yaml.dart';
-import 'package:collection/collection.dart';
 
 import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
@@ -15,7 +15,7 @@ class TheoryWriteConflict implements Exception {
   final String message;
   TheoryWriteConflict(this.message);
   @override
-  String toString() => 'TheoryWriteConflict: ' + message;
+  String toString() => 'TheoryWriteConflict: $message';
 }
 
 class TheoryYamlSafeWriter {
@@ -39,8 +39,8 @@ class TheoryYamlSafeWriter {
       String backupPath,
       String newHash,
       String? prevHash,
-    )?,
-    onBackup,
+    )?
+        onBackup,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final dryRun = prefs.getBool('theory.safeWriter.dryRun') ?? false;
@@ -52,7 +52,7 @@ class TheoryYamlSafeWriter {
     var version = 0;
 
     try {
-      // validate
+      // Validate YAML/schema
       if (strict) {
         final map =
             jsonDecode(jsonEncode(loadYaml(yaml))) as Map<String, dynamic>;
@@ -67,8 +67,8 @@ class TheoryYamlSafeWriter {
 
       final file = File(path);
       if (file.existsSync()) {
-        final first = (await file.readAsLines()).firstOrNull ?? '';
-        final m = _headerRe.firstMatch(first);
+        final firstLine = file.readAsLinesSync().firstOrNull ?? '';
+        final m = _headerRe.firstMatch(firstLine);
         if (m != null) {
           oldHash = m.group(1);
           version = int.parse(m.group(2)!);
@@ -86,6 +86,7 @@ class TheoryYamlSafeWriter {
             throw TheoryWriteConflict('checksum_mismatch');
           }
         }
+
         if (oldHash == newHash) {
           _dashboard.update(
             'TheoryWriter',
@@ -101,17 +102,20 @@ class TheoryYamlSafeWriter {
           return;
         }
 
+        // Backup current file and prune old backups
         final rel = p.relative(path);
-        final backupPath =
-            p.join('theory_backups', '$rel.${DateTime.now().millisecondsSinceEpoch}.yaml');
-        final backupFile = File(backupPath)
-          ..parent.createSync(recursive: true);
+        final backupPath = p.join(
+          'theory_backups',
+          '$rel.${DateTime.now().millisecondsSinceEpoch}.yaml',
+        );
+        final backupFile = File(backupPath);
+        backupFile.parent.createSync(recursive: true);
         await file.copy(backupFile.path);
         if (onBackup != null) {
           await onBackup(file.path, backupFile.path, newHash, oldHash);
         }
 
-        // prune backups (sorted lexicographically because suffix is fixed-width timestamp)
+        // Lexicographic prune works because suffix is fixed-width unix millis
         final base = p.basename(rel);
         final backups = backupFile.parent
             .listSync()
@@ -119,8 +123,11 @@ class TheoryYamlSafeWriter {
             .where((f) => p.basename(f.path).startsWith('$base.'))
             .toList()
           ..sort((a, b) => a.path.compareTo(b.path));
-        for (final f in backups.take((backups.length - keep).clamp(0, backups.length))) {
-          f.deleteSync();
+        final over = backups.length - keep;
+        if (over > 0) {
+          for (final f in backups.take(over)) {
+            f.deleteSync();
+          }
         }
       }
 
@@ -139,8 +146,11 @@ class TheoryYamlSafeWriter {
         return;
       }
 
+      // Atomic write via temp + rename
       final header =
-          '# x-hash: $newHash | x-ver: ${version + 1} | x-ts: ${DateTime.now().toIso8601String()}';
+          '# x-hash: $newHash | x-ver: ${version + 1} | x-ts: ${DateTime.now().toIso8601String()}'
+          '${meta == null || meta.isEmpty ? '' : meta.entries.map((e) => ' | ${e.key}: ${e.value}').join()}'
+          ;
       final tmp = File('$path.tmp')..parent.createSync(recursive: true);
       final raf = tmp.openSync(mode: FileMode.write);
       raf.writeStringSync('$header\n$yaml');
@@ -164,9 +174,9 @@ class TheoryYamlSafeWriter {
         'TheoryWriter',
         AutogenStatus(
           currentStage: 'rollback',
+          action: 'rollback',
           lastError: e.toString(),
           file: path,
-          action: 'rollback',
           prevHash: oldHash,
           newHash: newHash,
         ),
@@ -181,3 +191,9 @@ class TheoryYamlSafeWriter {
     return m?.group(1);
   }
 }
+
+// Tiny convenience so we can safely read first line
+extension on List<String> {
+  String? get firstOrNull => isEmpty ? null : first;
+}
+
