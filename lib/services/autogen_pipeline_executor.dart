@@ -473,135 +473,154 @@ class AutogenPipelineExecutor {
     final abSvc = ABOrchestratorService.instance;
     final arms = await abSvc.resolveActiveArms(userId, aud);
     for (final arm in arms) {
-      await abSvc.applyOverrides(arm);
       if (arm.audience != null) aud = arm.audience!;
       if (arm.format != null) fmt = arm.format!;
       abSvc.logExposure(userId, arm.expId, arm.armId,
           audience: aud, format: fmt);
     }
     final abStr = arms.map((a) => '${a.expId}:${a.armId}').join(',');
-    final planner = AdaptiveTrainingPlanner();
-    final plan = await planner.plan(
-      userId: userId,
-      durationMinutes: durationMinutes,
-      audience: aud,
-      format: fmt,
-      abArm: abStr.isEmpty ? null : abStr,
-    );
-    final sig = await PlanSignatureBuilder().build(
-      userId: userId,
-      plan: plan,
-      audience: aud,
-      format: fmt,
-      budgetMinutes: durationMinutes,
-      abArm: abStr.isEmpty ? null : abStr,
-    );
+    final overridesApplied = arms.any((a) => a.prefs.isNotEmpty);
 
-    final exec = executor ?? const AdaptivePlanExecutor();
-    final store = exec.store;
-    final lock = PathWriteLockService(rootDir: store.rootDir);
-    final txn = PathTransactionManager(rootDir: store.rootDir);
-    final guard = PlanIdempotencyGuard();
-    final prefs = await SharedPreferences.getInstance();
-    final windowHours =
-        prefs.getInt('planner.idempotency.windowHours') ?? 24;
-    final start = DateTime.now();
-    final acquired = await lock.acquire(userId);
-    if (!acquired) {
-      AutogenStatusDashboardService.instance.update(
-        'PathHardening',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: jsonEncode({
-            'userId': userId,
-            'sig': sig,
-            'action': 'locked',
-            'createdModules': 0,
-            'durationMs': 0,
-            if (abStr.isNotEmpty) 'abArm': abStr,
-          }),
-        ),
+    Future<List<File>> core() async {
+      final planner = AdaptiveTrainingPlanner();
+      final plan = await planner.plan(
+        userId: userId,
+        durationMinutes: durationMinutes,
+        audience: aud,
+        format: fmt,
+        abArm: abStr.isEmpty ? null : abStr,
       );
-      return <File>[];
-    }
-    String txId = '';
-    try {
-      await txn.reconcile(userId);
-      txId = await txn.begin(userId, sig);
-      final should = await guard.shouldInject(
-        userId,
-        sig,
-        window: Duration(hours: windowHours),
+      final sig = await PlanSignatureBuilder().build(
+        userId: userId,
+        plan: plan,
+        audience: aud,
+        format: fmt,
+        budgetMinutes: durationMinutes,
+        abArm: abStr.isEmpty ? null : abStr,
       );
-      if (!should) {
+
+      final exec = executor ?? const AdaptivePlanExecutor();
+      final store = exec.store;
+      final lock = PathWriteLockService(rootDir: store.rootDir);
+      final txn = PathTransactionManager(rootDir: store.rootDir);
+      final guard = PlanIdempotencyGuard();
+      final prefs = await SharedPreferences.getInstance();
+      final windowHours =
+          prefs.getInt('planner.idempotency.windowHours') ?? 24;
+      final start = DateTime.now();
+      final acquired = await lock.acquire(userId);
+      final assignment = abStr.isEmpty ? 'none' : abStr;
+      if (!acquired) {
+        AutogenStatusDashboardService.instance.update(
+          'PathHardening',
+          AutogenStatus(
+            isRunning: false,
+            currentStage: jsonEncode({
+              'userId': userId,
+              'sig': sig,
+              'action': 'locked',
+              'createdModules': 0,
+              'durationMs': 0,
+              if (abStr.isNotEmpty) 'abArm': abStr,
+              'assignment': assignment,
+              'overridesApplied': overridesApplied,
+            }),
+          ),
+        );
+        return <File>[];
+      }
+      String txId = '';
+      try {
+        await txn.reconcile(userId);
+        txId = await txn.begin(userId, sig);
+        final should = await guard.shouldInject(
+          userId,
+          sig,
+          window: Duration(hours: windowHours),
+        );
+        if (!should) {
+          await txn.rollback(userId, txId);
+          AutogenStatusDashboardService.instance.update(
+            'PathHardening',
+            AutogenStatus(
+              isRunning: false,
+              currentStage: jsonEncode({
+                'userId': userId,
+                'sig': sig,
+                'action': 'skip',
+                'createdModules': 0,
+                'durationMs':
+                    DateTime.now().difference(start).inMilliseconds,
+                if (abStr.isNotEmpty) 'abArm': abStr,
+                'assignment': assignment,
+                'overridesApplied': overridesApplied,
+              }),
+            ),
+          );
+          return <File>[];
+        }
+        final modules = await exec.execute(
+          userId: userId,
+          plan: plan,
+          budgetMinutes: durationMinutes,
+          sig: sig,
+          abArm: abStr.isEmpty ? null : abStr,
+        );
+        for (final m in modules) {
+          await txn.recordModule(userId, txId, m.moduleId);
+        }
+        await txn.commit(userId, txId);
+        await guard.recordInjected(userId, sig);
+        await TheoryInjectionSchedulerService.instance.runNow(force: true);
+        AutogenStatusDashboardService.instance.update(
+          'PathHardening',
+          AutogenStatus(
+            isRunning: false,
+            currentStage: jsonEncode({
+              'userId': userId,
+              'sig': sig,
+              'action': 'inject',
+              'createdModules': modules.length,
+              'durationMs':
+                  DateTime.now().difference(start).inMilliseconds,
+              if (abStr.isNotEmpty) 'abArm': abStr,
+              'assignment': assignment,
+              'overridesApplied': overridesApplied,
+            }),
+          ),
+        );
+        return <File>[];
+      } catch (e) {
         await txn.rollback(userId, txId);
         AutogenStatusDashboardService.instance.update(
           'PathHardening',
           AutogenStatus(
             isRunning: false,
             currentStage: jsonEncode({
-            'userId': userId,
-            'sig': sig,
-            'action': 'skip',
-            'createdModules': 0,
-            'durationMs':
-                DateTime.now().difference(start).inMilliseconds,
-            if (abStr.isNotEmpty) 'abArm': abStr,
-          }),
-        ),
-      );
-        return <File>[];
+              'userId': userId,
+              'sig': sig,
+              'action': 'rollback',
+              'createdModules': 0,
+              'durationMs':
+                  DateTime.now().difference(start).inMilliseconds,
+              if (abStr.isNotEmpty) 'abArm': abStr,
+              'assignment': assignment,
+              'overridesApplied': overridesApplied,
+            }),
+            lastError: e.toString(),
+          ),
+        );
+        rethrow;
+      } finally {
+        await lock.release(userId);
       }
-      final modules = await exec.execute(
-        userId: userId,
-        plan: plan,
-        budgetMinutes: durationMinutes,
-        sig: sig,
-        abArm: abStr.isEmpty ? null : abStr,
-      );
-      for (final m in modules) {
-        await txn.recordModule(userId, txId, m.moduleId);
-      }
-      await txn.commit(userId, txId);
-      await guard.recordInjected(userId, sig);
-      await TheoryInjectionSchedulerService.instance.runNow(force: true);
-      AutogenStatusDashboardService.instance.update(
-        'PathHardening',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: jsonEncode({
-            'userId': userId,
-            'sig': sig,
-            'action': 'inject',
-            'createdModules': modules.length,
-            'durationMs':
-                DateTime.now().difference(start).inMilliseconds,
-            if (abStr.isNotEmpty) 'abArm': abStr,
-          }),
-        ),
-      );
-      return <File>[];
-    } catch (e) {
-      await txn.rollback(userId, txId);
-      AutogenStatusDashboardService.instance.update(
-        'PathHardening',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: jsonEncode({
-            'userId': userId,
-            'sig': sig,
-            'action': 'rollback',
-            'createdModules': 0,
-            'durationMs':
-                DateTime.now().difference(start).inMilliseconds,
-            if (abStr.isNotEmpty) 'abArm': abStr,
-          }),
-          lastError: e.toString(),
-        ),
-      );
-      rethrow;
-    } finally {
-      await lock.release(userId);
     }
+
+    Future<List<File>> wrap(int idx) {
+      if (idx >= arms.length) return core();
+      return abSvc.withOverrides(arms[idx], () => wrap(idx + 1));
+    }
+
+    return await wrap(0);
   }
 }
