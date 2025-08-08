@@ -10,22 +10,18 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
-      - name: Build dir list from repo (*.yaml)
-        id: dirs
+      - id: dirs
         shell: bash
         run: |
           set -euo pipefail
@@ -35,15 +31,12 @@ jobs:
             exit 0
           fi
           ARGS=""
-          for d in $DIRS; do
-            ARGS="$ARGS --dir $d"
-          done
+          for d in $DIRS; do ARGS="$ARGS --dir $d"; done
           echo "no_yaml=0" >> "$GITHUB_OUTPUT"
           echo "args=${ARGS}" >> "$GITHUB_OUTPUT"
 
-      - name: Generate/Update manifest
+      - id: gen
         if: steps.dirs.outputs.no_yaml == '0'
-        id: gen
         shell: bash
         run: |
           set -euo pipefail
@@ -56,9 +49,8 @@ jobs:
             echo "changed=1" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create PR with baseline
+      - uses: peter-evans/create-pull-request@v6
         if: steps.gen.outputs.changed == '1'
-        uses: peter-evans/create-pull-request@v6
         with:
           commit-message: "chore: add baseline theory manifest"
           title: "chore: add baseline theory manifest"
