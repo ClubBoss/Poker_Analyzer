@@ -13,7 +13,7 @@ class FileWriteLockService {
     final prefs = await SharedPreferences.getInstance();
     final timeout = Duration(seconds: prefs.getInt('theory.lock.timeoutSec') ?? 10);
 
-    // Open (creates if missing), then try to acquire an exclusive advisory lock
+    // Open (creates if missing), then try to acquire an exclusive advisory lock.
     final raf = await _lockFile.open(mode: FileMode.write);
     try {
       await raf.lock(FileLock.exclusive).timeout(timeout);
@@ -31,7 +31,7 @@ class FileWriteLockService {
     try {
       await raf.unlock();
     } catch (_) {
-      // ignore unlock errors (e.g., if already unlocked)
+      // ignore unlock errors (e.g., already unlocked)
     }
     await raf.close();
   }
