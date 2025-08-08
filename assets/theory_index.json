@@ -1,0 +1,5 @@
+[
+  {"id":"th_push","title":"Push/Fold Basics","uri":"theory/push_fold_basics","tags":["push","icm"]},
+  {"id":"th_bb_def","title":"BB Defense vs 2.5x","uri":"theory/bb_defense_2_5x","tags":["bb","defense"]},
+  {"id":"th_mono","title":"Monotone Flops Strategy","uri":"theory/monotone_flops","tags":["monotone","postflop"]}
+]
