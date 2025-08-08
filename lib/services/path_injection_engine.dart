@@ -92,6 +92,9 @@ class PathInjectionEngine {
         assessmentPackId: assessmentId,
         createdAt: DateTime.now(),
         triggerReason: 'autoCluster',
+        metrics: {
+          'clusterTags': c.tags,
+        },
         itemsDurations: {
           'theoryMins': theoryMins,
           'boosterMins': boosterMins,

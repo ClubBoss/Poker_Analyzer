@@ -4,14 +4,17 @@ import 'package:collection/collection.dart';
 
 import '../models/injected_path_module.dart';
 import '../models/training_pack_model.dart';
+import '../core/training/library/training_pack_library_v2.dart';
+import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
+import 'decay_tag_retention_tracker_service.dart';
 import 'inline_pack_theory_clusterer.dart';
 import 'learning_path_store.dart';
 import 'mistake_telemetry_store.dart';
 import 'theory_library_index.dart';
 import 'theory_novelty_registry.dart';
-import '../core/training/library/training_pack_library_v2.dart';
-import '../models/autogen_status.dart';
+
+enum TheoryLinkSaveStrategy { inMemory, overwriteYaml }
 
 class TheoryLinkAutoInjector {
   TheoryLinkAutoInjector({
@@ -22,17 +25,21 @@ class TheoryLinkAutoInjector {
     InlinePackTheoryClusterer? clusterer,
     AutogenStatusDashboardService? dashboard,
     TrainingPackLibraryV2? packLibrary,
+    DecayTagRetentionTrackerService? retention,
     this.maxPerModule = 3,
     this.maxPerPack = 2,
     this.maxPerSpot = 2,
     this.weightErrorRate = 0.5,
-    this.weightTagMatch = 0.5,
+    this.weightDecay = 0.3,
+    this.weightTagMatch = 0.2,
     this.noveltyRecent = const Duration(hours: 72),
     this.noveltyMinOverlap = 0.6,
+    this.saveStrategy = TheoryLinkSaveStrategy.inMemory,
   })  : clusterer =
             clusterer ?? InlinePackTheoryClusterer(maxPerPack: maxPerPack, maxPerSpot: maxPerSpot),
         dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        packLibrary = packLibrary ?? TrainingPackLibraryV2.instance;
+        packLibrary = packLibrary ?? TrainingPackLibraryV2.instance,
+        retention = retention ?? const DecayTagRetentionTrackerService();
 
   final LearningPathStore store;
   final TheoryLibraryIndex libraryIndex;
@@ -41,10 +48,13 @@ class TheoryLinkAutoInjector {
   final InlinePackTheoryClusterer clusterer;
   final AutogenStatusDashboardService dashboard;
   final TrainingPackLibraryV2 packLibrary;
+  final DecayTagRetentionTrackerService retention;
+  final TheoryLinkSaveStrategy saveStrategy;
   final int maxPerModule;
   final int maxPerPack;
   final int maxPerSpot;
   final double weightErrorRate;
+  final double weightDecay;
   final double weightTagMatch;
   final Duration noveltyRecent;
   final double noveltyMinOverlap;
@@ -63,6 +73,9 @@ class TheoryLinkAutoInjector {
       if (clusterTags != null && clusterTags.isNotEmpty) {
         demand.addAll(clusterTags.map((e) => e.toLowerCase()));
       } else {
+        if (packLibrary.packs.isEmpty) {
+          await packLibrary.loadFromFolder();
+        }
         for (final id in [...module.boosterPackIds, module.assessmentPackId]) {
           final tpl = packLibrary.getById(id);
           if (tpl != null) {
@@ -72,15 +85,20 @@ class TheoryLinkAutoInjector {
       }
       if (demand.isEmpty) continue;
 
+      final decayScores = await _decayScores(demand);
+
       final candidates = <_Scored>[];
       for (final res in library) {
         final j = _jaccard(res.tags, demand);
         if (j == 0) continue;
         var err = 0.0;
+        var dec = 0.0;
         for (final t in res.tags) {
           err = max(err, errorRates[t] ?? 0);
+          dec = max(dec, decayScores[t] ?? 0);
         }
-        final score = weightTagMatch * j + weightErrorRate * err;
+        final score =
+            weightTagMatch * j + weightErrorRate * err + weightDecay * dec;
         candidates.add(_Scored(res, score));
       }
       if (candidates.isEmpty) continue;
@@ -184,6 +202,16 @@ class TheoryLinkAutoInjector {
       dashboard.recordTheoryInjection(clusters: clustersCount, links: linksCount);
     }
     return injected;
+  }
+
+  Future<Map<String, double>> _decayScores(Set<String> tags,
+      {int capDays = 30}) async {
+    final result = <String, double>{};
+    for (final t in tags) {
+      final days = await retention.getDecayScore(t);
+      result[t] = min(days, capDays) / capDays;
+    }
+    return result;
   }
 }
 
