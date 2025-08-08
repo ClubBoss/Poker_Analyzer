@@ -81,6 +81,7 @@ void main() {
       clusters: [cluster],
       estMins: 0,
       tagWeights: const {'a': 1.0},
+      mix: const {'theory': 0, 'booster': 1, 'assessment': 1},
     );
     final first = await exec.execute(
       userId: 'u1',
@@ -103,6 +104,7 @@ void main() {
       clusters: [cluster],
       estMins: 0,
       tagWeights: const {'a': 1.0},
+      mix: const {'theory': 0, 'booster': 1, 'assessment': 1},
     );
     await exec.execute(userId: 'u1', plan: plan, budgetMinutes: 20);
     final changed = AdaptivePlan(
@@ -111,6 +113,7 @@ void main() {
       ],
       estMins: 0,
       tagWeights: const {'a': 1.0, 'b': 1.0},
+      mix: const {'theory': 0, 'booster': 2, 'assessment': 1},
     );
     final res1 = await exec.execute(
       userId: 'u1',

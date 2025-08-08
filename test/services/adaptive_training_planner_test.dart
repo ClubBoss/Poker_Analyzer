@@ -36,5 +36,12 @@ void main() {
     expect(plan.tagWeights.keys, containsAll(['a', 'c']));
     expect(plan.tagWeights.keys, isNot(contains('b')));
   });
+
+  test('mix mapping respects audience and format', () {
+    final m1 = AdaptiveTrainingPlanner.mixFor(2, 'novice', 'quick');
+    expect(m1['booster']! >= m1['assessment']!, true);
+    final m2 = AdaptiveTrainingPlanner.mixFor(3, 'advanced', 'deep');
+    expect(m2['assessment']! >= m2['booster']!, true);
+  });
 }
 

@@ -37,7 +37,8 @@ void main() {
     }));
     await prefs.setInt('planner.maxTagsPerPlan', 1);
     await prefs.setInt('planner.budgetPaddingMins', 0);
-    await prefs.setDouble('planner.impact.b', 1.1);
+    await prefs.setDouble('bandit.alpha.user.b', 5.0);
+    await prefs.setDouble('bandit.beta.user.b', 1.0);
 
     final planner = AdaptiveTrainingPlanner();
     final store = LearningPathStore(rootDir: 'test_lp');
