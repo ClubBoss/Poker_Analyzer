@@ -8,6 +8,7 @@ import 'package:yaml/yaml.dart';
 import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'preferences_service.dart';
+import 'theory_yaml_safe_writer.dart';
 
 class TheoryInjectReport {
   final int packsUpdated;
@@ -102,7 +103,14 @@ class TheoryAutoInjector {
           meta['theoryLinks'] = [...existing, ...needed];
           data['meta'] = meta;
           final out = json2yaml(data);
-          await file.writeAsString(out);
+          final prevHash =
+              TheoryYamlSafeWriter.extractHash(yamlStr);
+          await TheoryYamlSafeWriter().write(
+            path: file.path,
+            yaml: out,
+            schema: 'TemplateSet',
+            prevHash: prevHash,
+          );
         }
         packsUpdated++;
         linksAdded += needed.length;
