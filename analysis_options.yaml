@@ -1,8 +1,10 @@
-include: package:flutter_lints/flutter.yaml
+include: package:lints/recommended.yaml
 
 linter:
   rules:
-    - avoid_print
-    - prefer_single_quotes
-    - always_declare_return_types
-    - prefer_final_locals
+    unnecessary_import: true
+    unused_field: true
+    avoid_print: true
+    prefer_final_locals: true
+    always_declare_return_types: true
+    public_member_api_docs: false
