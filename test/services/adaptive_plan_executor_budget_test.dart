@@ -89,6 +89,7 @@ void main() {
       userId: 'u1',
       plan: plan,
       budgetMinutes: 14,
+      sig: 'sig',
     );
     expect(modules, hasLength(1));
     final m = modules.first;
