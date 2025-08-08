@@ -39,13 +39,10 @@ Future<void> main() async {
     expect(sw.elapsedMilliseconds, greaterThanOrEqualTo(900));
 
     // Cleanup
-    await child.exitCode.timeout(
-      const Duration(seconds: 5),
-      onTimeout: () {
-        child.kill();
-        return -1;
-      },
-    );
+    await child.exitCode.timeout(const Duration(seconds: 5), onTimeout: () {
+      child.kill();
+      return -1;
+    });
     await dir.delete(recursive: true);
   });
 
