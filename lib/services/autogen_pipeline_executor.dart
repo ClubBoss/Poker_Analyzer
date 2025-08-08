@@ -38,8 +38,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pack_novelty_guard_service.dart';
 import 'theory_injection_scheduler_service.dart';
 import 'adaptive_training_planner.dart';
-import 'learning_path_store.dart';
-import '../models/injected_path_module.dart';
+import 'adaptive_plan_executor.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -459,6 +458,7 @@ class AutogenPipelineExecutor {
     String userId, {
     required int durationMinutes,
     String? audience,
+    AdaptivePlanExecutor? executor,
   }) async {
     final planner = AdaptiveTrainingPlanner();
     final plan = await planner.plan(
@@ -466,28 +466,12 @@ class AutogenPipelineExecutor {
       durationMinutes: durationMinutes,
       audience: audience,
     );
-    final store = const LearningPathStore();
-    for (final c in plan.clusters) {
-      final module = InjectedPathModule(
-        moduleId: '${userId}_${c.clusterId}',
-        clusterId: c.clusterId,
-        themeName: c.themeName,
-        theoryIds: const [],
-        boosterPackIds: const [],
-        assessmentPackId: '',
-        createdAt: DateTime.now(),
-        triggerReason: 'adaptivePlan',
-        metrics: {
-          'clusterTags': c.tags,
-        },
-        itemsDurations: const {
-          'theoryMins': 5,
-          'boosterMins': 10,
-          'assessmentMins': 8,
-        },
-      );
-      await store.upsertModule(userId, module);
-    }
+    final exec = executor ?? const AdaptivePlanExecutor();
+    await exec.execute(
+      userId: userId,
+      plan: plan,
+      budgetMinutes: durationMinutes,
+    );
     await TheoryInjectionSchedulerService.instance.runNow(force: true);
     return <File>[];
   }
