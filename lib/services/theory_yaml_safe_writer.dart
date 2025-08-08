@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaml/yaml.dart';
 
 import 'theory_yaml_canonicalizer.dart';
+import 'theory_manifest_service.dart';
 
 import '../models/autogen_status.dart';
 import 'autogen_status_dashboard_service.dart';
@@ -171,6 +172,22 @@ class TheoryYamlSafeWriter {
           newHash: newHash,
         ),
       );
+
+      if (prefs.getBool('theory.manifest.autoupdate') ?? false) {
+        final manifest = TheoryManifestService();
+        await manifest.load();
+        final stat = await File(path).stat();
+        manifest.updateEntry(
+          p.relative(path),
+          ManifestEntry(
+            algo: 'sha256-canon@v1',
+            hash: newHash!,
+            ver: version + 1,
+            ts: stat.modified,
+          ),
+        );
+        await manifest.save();
+      }
     } catch (e) {
       _dashboard.update(
         'TheoryWriter',
