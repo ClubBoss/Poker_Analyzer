@@ -45,6 +45,11 @@ class AutogenStatusDashboardService {
   final ValueNotifier<List<String>> boosterIdsNotifier =
       ValueNotifier(const <String>[]);
 
+  final ValueNotifier<int> theoryClustersInjectedNotifier =
+      ValueNotifier(0);
+  final ValueNotifier<int> theoryLinksInjectedNotifier =
+      ValueNotifier(0);
+
   final ValueNotifier<int> pathModulesInjectedNotifier = ValueNotifier(0);
   final ValueNotifier<int> pathModulesInProgressNotifier = ValueNotifier(0);
   final ValueNotifier<int> pathModulesCompletedNotifier = ValueNotifier(0);
@@ -130,6 +135,17 @@ class AutogenStatusDashboardService {
     boostersSkippedNotifier.value = Map.unmodifiable(map);
   }
 
+  void recordTheoryInjection({int clusters = 0, int links = 0}) {
+    if (clusters != 0) {
+      theoryClustersInjectedNotifier.value =
+          theoryClustersInjectedNotifier.value + clusters;
+    }
+    if (links != 0) {
+      theoryLinksInjectedNotifier.value =
+          theoryLinksInjectedNotifier.value + links;
+    }
+  }
+
   void recordPathModuleInjected() {
     pathModulesInjectedNotifier.value = pathModulesInjectedNotifier.value + 1;
   }
@@ -183,5 +199,7 @@ class AutogenStatusDashboardService {
     pathModulesInProgressNotifier.value = 0;
     pathModulesCompletedNotifier.value = 0;
     avgPassRateNotifier.value = 0.0;
+    theoryClustersInjectedNotifier.value = 0;
+    theoryLinksInjectedNotifier.value = 0;
   }
 }

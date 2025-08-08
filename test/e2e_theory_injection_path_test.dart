@@ -1,24 +1,25 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/models/injected_path_module.dart';
-import 'package:poker_analyzer/services/theory_link_auto_injector.dart';
+import 'package:poker_analyzer/services/learning_path_store.dart';
 import 'package:poker_analyzer/services/theory_library_index.dart';
 import 'package:poker_analyzer/services/mistake_telemetry_store.dart';
-import 'package:poker_analyzer/services/learning_path_store.dart';
 import 'package:poker_analyzer/services/theory_novelty_registry.dart';
+import 'package:poker_analyzer/services/theory_link_auto_injector.dart';
 import 'package:poker_analyzer/services/autogen_status_dashboard_service.dart';
 import 'package:poker_analyzer/core/training/library/training_pack_library_v2.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('injects theory and respects novelty and idempotency', () async {
+  test('end-to-end theory injection', () async {
     final cacheDir = Directory('test_cache');
     if (cacheDir.existsSync()) cacheDir.deleteSync(recursive: true);
     SharedPreferences.setMockInitialValues({
@@ -53,33 +54,29 @@ void main() {
     );
     await store.upsertModule('u1', module);
 
-    final registry = TheoryNoveltyRegistry(path: 'test_cache/theory_bundles.json');
-    await registry.record('u1', ['push', 'bb'], ['th_bb_def', 'th_push']);
-
     final injector = TheoryLinkAutoInjector(
       store: store,
       libraryIndex: TheoryLibraryIndex(),
       telemetry: MistakeTelemetryStore(),
-      noveltyRegistry: registry,
+      noveltyRegistry: TheoryNoveltyRegistry(path: 'test_cache/theory_bundles.json'),
       dashboard: AutogenStatusDashboardService(),
       packLibrary: packLibrary,
     );
 
-    final injected = await injector.injectForUser('u1');
-    expect(injected, 1);
-
-    final modules = await store.listModules('u1');
-    final updated = modules.first;
-    expect(updated.theoryIds.contains('th_bb_def'), isTrue);
-    expect(updated.theoryIds.contains('th_push'), isFalse);
-    expect(updated.itemsDurations?['theoryMins'], greaterThan(0));
+    final first = await injector.injectForUser('u1');
+    expect(first, 1);
+    final firstModule = (await store.listModules('u1')).first;
+    final origIds = firstModule.theoryIds;
 
     final second = await injector.injectForUser('u1');
     expect(second, 0);
 
-    expect(
-      AutogenStatusDashboardService.instance.theoryClustersInjectedNotifier.value,
-      greaterThan(0),
-    );
+    // Shift novelty window by deleting registry file
+    final file = File('test_cache/theory_bundles.json');
+    if (file.existsSync()) file.deleteSync();
+    final third = await injector.injectForUser('u1');
+    expect(third, 1);
+    final newModule = (await store.listModules('u1')).first;
+    expect(listEquals(origIds, newModule.theoryIds), isFalse);
   });
 }

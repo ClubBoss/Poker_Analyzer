@@ -137,6 +137,7 @@ flutter:
     - assets/lessons/
     - assets/lesson_tracks/
     - assets/pack_matrix.json
+    - assets/theory_index.json
     - assets/learning_intro.svg
     - assets/training_paths.yaml
     - assets/learning_paths/
