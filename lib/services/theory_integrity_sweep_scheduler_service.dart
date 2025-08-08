@@ -1,25 +1,28 @@
 import 'dart:async';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'config_source.dart';
 import 'theory_integrity_sweeper.dart';
 
 class TheoryIntegritySweepSchedulerService {
-  TheoryIntegritySweepSchedulerService._({TheoryIntegritySweeper? sweeper})
-    : _sweeper = sweeper ?? TheoryIntegritySweeper();
+  TheoryIntegritySweepSchedulerService._({
+    TheoryIntegritySweeper? sweeper,
+    ConfigSource? config,
+  }) : _sweeper = sweeper ?? TheoryIntegritySweeper(config: config),
+       _config = config ?? ConfigSource.empty();
 
   static final TheoryIntegritySweepSchedulerService instance =
       TheoryIntegritySweepSchedulerService._();
 
   final TheoryIntegritySweeper _sweeper;
+  final ConfigSource _config;
   Timer? _timer;
 
-  Future<void> start() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!(prefs.getBool('theory.sweep.enabled') ?? true)) return;
-    final dirs = prefs.getStringList('theory.sweep.dirs') ?? const [];
+  Future<void> start({ConfigSource? config}) async {
+    final cfg = config ?? _config;
+    if (!(cfg.getBool('theory.sweep.enabled') ?? true)) return;
+    final dirs = cfg.getStringList('theory.sweep.dirs') ?? const [];
     if (dirs.isEmpty) return;
-    final intervalHours = prefs.getInt('theory.sweep.intervalHours') ?? 24;
+    final intervalHours = cfg.getInt('theory.sweep.intervalHours') ?? 24;
     await _sweeper.run(dirs: dirs, dryRun: true);
     _timer?.cancel();
     _timer = Timer.periodic(

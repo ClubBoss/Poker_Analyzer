@@ -3,22 +3,24 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
+import 'package:poker_analyzer/services/config_source.dart';
 import 'package:poker_analyzer/services/theory_integrity_sweeper.dart';
 import 'package:poker_analyzer/services/theory_yaml_canonicalizer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/theory_yaml_safe_reader.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
-
   test('upgrades legacy headers and prunes backups', () async {
     final tmp = await Directory.systemTemp.createTemp();
     Directory.current = tmp.path;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('theory.backups.keep', 1);
-    await prefs.setInt('theory.sweep.maxParallel', 2);
-    await prefs.setBool('theory.reader.strict', false);
+    final cfgFile = File('config.yaml')
+      ..writeAsStringSync(
+        'theory.backups.keep: 1\n'
+        'theory.sweep.maxParallel: 2\n'
+        'theory.reader.strict: false\n',
+      );
+    final config = await ConfigSource.from(configFile: cfgFile.path);
 
     final dir = Directory('theory')..createSync(recursive: true);
     final file = File(p.join(dir.path, 'legacy.yaml'));
@@ -36,7 +38,10 @@ void main() {
       p.join(backupDir.path, 'legacy.yaml.2.yaml'),
     ).writeAsStringSync('# backup\n');
 
-    final sweeper = TheoryIntegritySweeper();
+    final sweeper = TheoryIntegritySweeper(
+      config: config,
+      reader: TheoryYamlSafeReader(config: config),
+    );
     final report = await sweeper.run(dirs: [dir.path], dryRun: false);
     final entry = report.entries.firstWhere((e) => e.file == file.path);
     expect(entry.action, 'upgraded');
@@ -54,9 +59,12 @@ void main() {
   test('heals corrupt file from backup and is idempotent', () async {
     final tmp = await Directory.systemTemp.createTemp();
     Directory.current = tmp.path;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('theory.backups.keep', 1);
-    await prefs.setBool('theory.reader.strict', false);
+    final cfgFile = File('config.yaml')
+      ..writeAsStringSync(
+        'theory.backups.keep: 1\n'
+        'theory.reader.strict: false\n',
+      );
+    final config = await ConfigSource.from(configFile: cfgFile.path);
 
     final dir = Directory('packs')..createSync();
     final file = File(p.join(dir.path, 'pack.yaml'));
@@ -81,7 +89,10 @@ void main() {
       '# x-hash: $goodHash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\n$goodBody',
     );
 
-    final sweeper = TheoryIntegritySweeper();
+    final sweeper = TheoryIntegritySweeper(
+      config: config,
+      reader: TheoryYamlSafeReader(config: config),
+    );
     var report = await sweeper.run(dirs: [dir.path], dryRun: false);
     final entry = report.entries.firstWhere((e) => e.file == file.path);
     expect(entry.action, 'healed');
@@ -95,8 +106,9 @@ void main() {
   test('dryRun does not mutate', () async {
     final tmp = await Directory.systemTemp.createTemp();
     Directory.current = tmp.path;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('theory.reader.strict', false);
+    final cfgFile = File('config.yaml')
+      ..writeAsStringSync('theory.reader.strict: false\n');
+    final config = await ConfigSource.from(configFile: cfgFile.path);
 
     final dir = Directory('theory')..createSync();
     final file = File(p.join(dir.path, 'legacy.yaml'));
@@ -104,7 +116,10 @@ void main() {
     final legacyHash = sha256.convert(utf8.encode(body)).toString();
     file.writeAsStringSync('# x-hash: $legacyHash | x-ver: 1 | x-ts: 0\n$body');
 
-    final sweeper = TheoryIntegritySweeper();
+    final sweeper = TheoryIntegritySweeper(
+      config: config,
+      reader: TheoryYamlSafeReader(config: config),
+    );
     final report = await sweeper.run(dirs: [dir.path], dryRun: true);
     final entry = report.entries.firstWhere((e) => e.file == file.path);
     expect(entry.action, 'upgraded');

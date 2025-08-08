@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaml/yaml.dart';
 
+import 'config_source.dart';
 import 'theory_yaml_canonicalizer.dart';
 
 import '../models/autogen_status.dart';
@@ -23,23 +23,27 @@ class TheoryReadCorruption implements Exception {
 
 /// Safely reads theory YAML files with checksum verification and auto-heal.
 class TheoryYamlSafeReader {
-  TheoryYamlSafeReader({AutogenStatusDashboardService? dashboard})
-      : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+  TheoryYamlSafeReader({
+    AutogenStatusDashboardService? dashboard,
+    ConfigSource? config,
+  }) : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       _config = config ?? ConfigSource.empty();
 
   final AutogenStatusDashboardService _dashboard;
+  final ConfigSource _config;
 
   static final _headerRe = RegExp(
-      r'^#\s*x-hash:\s*([0-9a-f]{64})\s*\|\s*x-ver:\s*(\d+)\s*\|\s*x-ts:\s*([^|]+?)(?:\s*\|\s*x-hash-algo:\s*(\S+))?(?:\s*\|\s*(.*))?$');
+    r'^#\s*x-hash:\s*([0-9a-f]{64})\s*\|\s*x-ver:\s*(\d+)\s*\|\s*x-ts:\s*([^|]+?)(?:\s*\|\s*x-hash-algo:\s*(\S+))?(?:\s*\|\s*(.*))?$',
+  );
 
   Future<Map<String, dynamic>> read({
     required String path,
     required String schema,
     bool autoHeal = true,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
     final healEnabled =
-        autoHeal && (prefs.getBool('theory.reader.autoHeal') ?? true);
-    final strict = prefs.getBool('theory.reader.strict') ?? true;
+        autoHeal && (_config.getBool('theory.reader.autoHeal') ?? true);
+    final strict = _config.getBool('theory.reader.strict') ?? true;
     final file = File(path);
     try {
       final lines = await file.readAsLines();
@@ -62,16 +66,22 @@ class TheoryYamlSafeReader {
         hash = sha256.convert(utf8.encode(canon)).toString();
         if (hash != expected) {
           AutogenPipelineEventLoggerService.log(
-              'theory.hash_canon_mismatch', path);
+            'theory.hash_canon_mismatch',
+            path,
+          );
           if (healEnabled) {
             final restored = await _tryHeal(path, schema, strict);
             if (restored != null) {
               AutogenPipelineEventLoggerService.log(
-                  'theory.autoheal_success', path);
+                'theory.autoheal_success',
+                path,
+              );
               return restored;
             }
             AutogenPipelineEventLoggerService.log(
-                'theory.autoheal_failed', path);
+              'theory.autoheal_failed',
+              path,
+            );
           }
           _dashboard.update(
             'TheoryReader',
@@ -92,11 +102,15 @@ class TheoryYamlSafeReader {
             final restored = await _tryHeal(path, schema, strict);
             if (restored != null) {
               AutogenPipelineEventLoggerService.log(
-                  'theory.autoheal_success', path);
+                'theory.autoheal_success',
+                path,
+              );
               return restored;
             }
             AutogenPipelineEventLoggerService.log(
-                'theory.autoheal_failed', path);
+              'theory.autoheal_failed',
+              path,
+            );
           }
           _dashboard.update(
             'TheoryReader',
@@ -110,16 +124,35 @@ class TheoryYamlSafeReader {
           throw TheoryReadCorruption('checksum_mismatch');
         }
         AutogenPipelineEventLoggerService.log(
-            'theory.hash_legacy_verified', path);
+          'theory.hash_legacy_verified',
+          path,
+        );
         map = _parse(body);
         if (healEnabled) {
-          // Upgrade header in-place to canonical hash
+          // Upgrade header atomically to canonical hash
           final canon = const TheoryYamlCanonicalizer().canonicalize(map);
           final newHash = sha256.convert(utf8.encode(canon)).toString();
-          lines[0] =
+          final header =
               '# x-hash: $newHash | x-ver: $version | x-ts: $ts | x-hash-algo: sha256-canon@v1'
               '${meta != null ? ' | $meta' : ''}';
-          await file.writeAsString(lines.join('\n'));
+          final tmp = File('$path.tmp');
+          if (tmp.existsSync()) {
+            // Leftover from a previous crash
+            try {
+              tmp.deleteSync();
+            } catch (_) {}
+          }
+          final sink = tmp.openWrite();
+          sink.writeln(header);
+          sink.write(body);
+          await sink.flush();
+          await sink.close();
+          try {
+            await tmp.rename(path);
+          } catch (_) {
+            await tmp.copy(path);
+            await tmp.delete().catchError((_) {});
+          }
           AutogenPipelineEventLoggerService.log('theory.hash_upgraded', path);
         }
       }
@@ -130,7 +163,9 @@ class TheoryYamlSafeReader {
     } catch (e) {
       if (e is TheoryReadCorruption) rethrow;
       AutogenPipelineEventLoggerService.log(
-          'theory.read_schema_error', '$path:$e');
+        'theory.read_schema_error',
+        '$path:$e',
+      );
       rethrow;
     }
   }
@@ -140,8 +175,7 @@ class TheoryYamlSafeReader {
     return jsonDecode(jsonEncode(doc)) as Map<String, dynamic>;
   }
 
-  void _enforceSchema(
-      Map<String, dynamic> map, String schema, bool strict) {
+  void _enforceSchema(Map<String, dynamic> map, String schema, bool strict) {
     if (!strict) return;
     if (schema == 'TemplateSet') {
       // Throws if invalid
@@ -150,17 +184,21 @@ class TheoryYamlSafeReader {
   }
 
   Future<Map<String, dynamic>?> _tryHeal(
-      String path, String schema, bool strict) async {
+    String path,
+    String schema,
+    bool strict,
+  ) async {
     final rel = p.relative(path);
     final base = p.basename(rel);
     final backupDir = Directory(p.join('theory_backups', p.dirname(rel)));
     if (!backupDir.existsSync()) return null;
-    final files = backupDir
-        .listSync()
-        .whereType<File>()
-        .where((f) => p.basename(f.path).startsWith('$base.'))
-        .toList()
-      ..sort((a, b) => b.path.compareTo(a.path));
+    final files =
+        backupDir
+            .listSync()
+            .whereType<File>()
+            .where((f) => p.basename(f.path).startsWith('$base.'))
+            .toList()
+          ..sort((a, b) => b.path.compareTo(a.path));
     for (final f in files) {
       try {
         final lines = await f.readAsLines();
