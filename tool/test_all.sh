@@ -1,4 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
 flutter analyze
 flutter test
