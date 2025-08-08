@@ -63,4 +63,17 @@ void main() {
     );
     expect(plan.tagWeights.keys.single, 'b');
   });
+
+  test('planner deterministic with stable inputs', () async {
+    const user = 'u4';
+    final skills = UserSkillModelService.instance;
+    await skills.recordAttempt(user, ['a'], correct: false);
+    await skills.recordAttempt(user, ['b'], correct: false);
+
+    final planner = AdaptiveTrainingPlanner();
+    final plan1 = await planner.plan(userId: user, durationMinutes: 25);
+    final plan2 = await planner.plan(userId: user, durationMinutes: 25);
+    expect(plan1.tagWeights, equals(plan2.tagWeights));
+    expect(plan1.mix, equals(plan2.mix));
+  });
 }

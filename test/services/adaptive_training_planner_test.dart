@@ -40,8 +40,24 @@ void main() {
   test('mix mapping respects audience and format', () {
     final m1 = AdaptiveTrainingPlanner.mixFor(2, 'novice', 'quick');
     expect(m1['booster']! >= m1['assessment']!, true);
+    expect(m1.values.reduce((a, b) => a + b), 2);
     final m2 = AdaptiveTrainingPlanner.mixFor(3, 'advanced', 'deep');
     expect(m2['assessment']! >= m2['booster']!, true);
+    expect(m2.values.reduce((a, b) => a + b), 3);
+  });
+
+  test('deterministic ordering with equal scores tie-breaking by name', () async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('planner.maxTagsPerPlan', 2);
+
+    const user = 'tie-user';
+    final skills = UserSkillModelService.instance;
+    await skills.recordAttempt(user, ['a'], correct: false);
+    await skills.recordAttempt(user, ['b'], correct: false);
+
+    final planner = AdaptiveTrainingPlanner();
+    final plan = await planner.plan(userId: user, durationMinutes: 30);
+    expect(plan.tagWeights.keys.toList(), ['a', 'b']);
   });
 }
 

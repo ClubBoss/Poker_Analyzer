@@ -68,12 +68,12 @@ class AdaptiveTrainingPlanner {
     for (final tag in allTags) {
       final mastery = skills[tag]?.mastery ?? 0.0;
       final decay = decays[tag] ?? 1.0;
-      var impact = await BanditWeightLearner.instance.getImpact(userId, tag);
-      impact = impact.isNaN
-          ? (prefs.getDouble('planner.impact.$tag') ?? 1.0)
-          : impact;
-      tagScores[tag] =
-          wErr * (1 - mastery) + wDecay * decay + wImpact * impact.clamp(0.0, 2.0);
+      final rawImpact = await BanditWeightLearner.instance.getImpact(userId, tag);
+      final impact = (rawImpact.isNaN
+              ? (prefs.getDouble('planner.impact.$tag') ?? 1.0)
+              : rawImpact)
+          .clamp(0.0, 2.0);
+      tagScores[tag] = wErr * (1 - mastery) + wDecay * decay + wImpact * impact;
     }
     final sorted = tagScores.entries.toList()
       ..sort((a, b) {
@@ -122,8 +122,7 @@ class AdaptiveTrainingPlanner {
     }
 
     Map<String, int> mix = mixFor(selected.length, audience, format);
-    int estMins =
-        mix['theory']! * theoryAvg + mix['booster']! * boosterAvg + mix['assessment']! * assessAvg;
+    int estMins = mix['theory']! * theoryAvg + mix['booster']! * boosterAvg + mix['assessment']! * assessAvg;
     while (estMins > budget && selected.isNotEmpty) {
       selected.removeLast();
       mix = mixFor(selected.length, audience, format);
@@ -147,6 +146,7 @@ class AdaptiveTrainingPlanner {
           'chosenTags': selected,
           'mix': mix,
           'estMins': estMins,
+          'budget': budget,
         }),
       ),
     );
@@ -156,37 +156,52 @@ class AdaptiveTrainingPlanner {
         clusters: clusters, estMins: estMins, tagWeights: weights, mix: mix);
   }
 
-  static Map<String, int> mixFor(
-      int tagCount, String audience, String format) {
+  static Map<String, int> mixFor(int tagCount, String audience, String format) {
+    if (tagCount <= 0) {
+      return const {'theory': 0, 'booster': 0, 'assessment': 0};
+    }
+
     final base = <String, Map<String, int>>{
       'novice': const {'theory': 4, 'booster': 3, 'assessment': 1},
       'regular': const {'theory': 2, 'booster': 3, 'assessment': 1},
       'advanced': const {'theory': 1, 'booster': 2, 'assessment': 3},
     };
     final ratios = Map<String, double>.from(
-        base[audience] ?? base['regular']!); // default regular
-    final bias = <String, double>{
-      'theory': 1.0,
-      'booster': 1.0,
-      'assessment': 1.0,
-    };
+      base[audience] ?? base['regular']!,
+    );
+
     if (format == 'quick') {
-      bias['booster'] = 1.5;
-      bias['assessment'] = 0.5;
+      ratios['booster'] = ratios['booster']! * 1.5;
+      ratios['assessment'] = ratios['assessment']! * 0.5;
     } else if (format == 'deep') {
-      bias['assessment'] = 1.5;
+      ratios['assessment'] = ratios['assessment']! * 1.5;
     }
-    final weights = {
-      for (final k in ratios.keys) k: ratios[k]! * bias[k]!
-    };
-    final total = weights.values.fold<double>(0, (a, b) => a + b);
-    if (total == 0 || tagCount == 0) {
+
+    final total = ratios.values.fold<double>(0, (a, b) => a + b);
+    if (total == 0) {
       return const {'theory': 0, 'booster': 0, 'assessment': 0};
     }
-    return {
-      for (final k in weights.keys)
-        k: ((weights[k]! / total) * tagCount).round()
+
+    final raw = {
+      for (final k in ratios.keys) k: (ratios[k]! / total) * tagCount
     };
+    final result = {for (final k in raw.keys) k: raw[k]!.floor()};
+    var used = result.values.fold<int>(0, (a, b) => a + b);
+
+    if (used < tagCount) {
+      final remainder = tagCount - used;
+      final frac = {
+        for (final k in raw.keys) k: raw[k]! - raw[k]!.floor(),
+      };
+      final keys = frac.keys.toList()
+        ..sort((a, b) => frac[b]!.compareTo(frac[a]!));
+      for (var i = 0; i < remainder; i++) {
+        final k = keys[i % keys.length];
+        result[k] = result[k]! + 1;
+      }
+    }
+
+    return result;
   }
 }
 
