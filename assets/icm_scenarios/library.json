@@ -1,0 +1,74 @@
+[
+  {
+    "scenarioId": "ft9_1",
+    "stage": "FT9",
+    "players": 9,
+    "stacksBB": [20,15,12,10,9,8,7,6,5],
+    "heroSeat": 0,
+    "payouts": [50,30,20],
+    "effectiveBB": 5,
+    "positions": ["BTN","SB","BB","UTG1","UTG2","LJ","HJ","CO","UTG"],
+    "tags": ["icm","mtt","FT9","finalTable"],
+    "weight": 1.0,
+    "spot": {
+      "id": "ft9_1_spot",
+      "hand": {
+        "heroCards": "Ah Kh",
+        "position": "btn",
+        "playerCount": 9,
+        "heroIndex": 0,
+        "actions": {},
+        "stacks": {}
+      },
+      "tags": []
+    }
+  },
+  {
+    "scenarioId": "ft6_1",
+    "stage": "FT6",
+    "players": 6,
+    "stacksBB": [25,20,15,10,8,5],
+    "heroSeat": 2,
+    "payouts": [60,25,15],
+    "effectiveBB": 5,
+    "positions": ["BTN","SB","BB","UTG","HJ","CO"],
+    "tags": ["icm","mtt","FT6"],
+    "weight": 1.0,
+    "spot": {
+      "id": "ft6_1_spot",
+      "hand": {
+        "heroCards": "Qh Qd",
+        "position": "co",
+        "playerCount": 6,
+        "heroIndex": 2,
+        "actions": {},
+        "stacks": {}
+      },
+      "tags": []
+    }
+  },
+  {
+    "scenarioId": "hu_1",
+    "stage": "HU",
+    "players": 2,
+    "stacksBB": [20,10],
+    "heroSeat": 0,
+    "payouts": [70,30],
+    "effectiveBB": 10,
+    "positions": ["BTN","BB"],
+    "tags": ["icm","mtt","HU"],
+    "weight": 1.0,
+    "spot": {
+      "id": "hu_1_spot",
+      "hand": {
+        "heroCards": "7s 7c",
+        "position": "btn",
+        "playerCount": 2,
+        "heroIndex": 0,
+        "actions": {},
+        "stacks": {}
+      },
+      "tags": []
+    }
+  }
+]

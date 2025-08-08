@@ -146,6 +146,7 @@ flutter:
     - assets/skills/cash/
     - assets/paths/
     - assets/precompiled_packs/
+    - assets/icm_scenarios/
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo
