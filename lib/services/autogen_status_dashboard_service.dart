@@ -40,28 +40,30 @@ class AutogenStatusDashboardService {
       ValueNotifier(const <DuplicatePackInfo>[]);
 
   final ValueNotifier<int> boostersGeneratedNotifier = ValueNotifier(0);
-  final ValueNotifier<Map<String, int>> boostersSkippedNotifier =
-      ValueNotifier(const {});
-  final ValueNotifier<List<String>> boosterIdsNotifier =
-      ValueNotifier(const <String>[]);
+  final ValueNotifier<Map<String, int>> boostersSkippedNotifier = ValueNotifier(
+    const {},
+  );
+  final ValueNotifier<List<String>> boosterIdsNotifier = ValueNotifier(
+    const <String>[],
+  );
 
-  final ValueNotifier<int> theoryClustersInjectedNotifier =
-      ValueNotifier(0);
-  final ValueNotifier<int> theoryLinksInjectedNotifier =
-      ValueNotifier(0);
+  final ValueNotifier<int> theoryClustersInjectedNotifier = ValueNotifier(0);
+  final ValueNotifier<int> theoryLinksInjectedNotifier = ValueNotifier(0);
 
   final ValueNotifier<int> pathModulesInjectedNotifier = ValueNotifier(0);
   final ValueNotifier<int> pathModulesInProgressNotifier = ValueNotifier(0);
   final ValueNotifier<int> pathModulesCompletedNotifier = ValueNotifier(0);
   final ValueNotifier<double> avgPassRateNotifier = ValueNotifier(0.0);
 
-  final ValueNotifier<List<ABArmResult>> abResultsNotifier =
-      ValueNotifier(const <ABArmResult>[]);
+  final ValueNotifier<List<ABArmResult>> abResultsNotifier = ValueNotifier(
+    const <ABArmResult>[],
+  );
   final TrainingRunABComparator _abComparator = TrainingRunABComparator();
 
   /// Issues discovered during seed validation.
-  final ValueNotifier<List<SeedIssue>> seedIssuesNotifier =
-      ValueNotifier(const <SeedIssue>[]);
+  final ValueNotifier<List<SeedIssue>> seedIssuesNotifier = ValueNotifier(
+    const <SeedIssue>[],
+  );
 
   final List<AutogenSessionMeta> _sessions = [];
   final StreamController<List<AutogenSessionMeta>> _sessionController =
@@ -99,6 +101,22 @@ class AutogenStatusDashboardService {
   Stream<List<AutogenSessionMeta>> watchSessions() => _sessionController.stream;
 
   AutogenStatus? getStatus(String module) => _statuses[module];
+
+  final Map<String, ValueNotifier<AutogenStatus>> _moduleNotifiers = {};
+
+  /// Returns a [ValueListenable] that emits updates for [module].
+  ValueListenable<AutogenStatus> getStatusNotifier(String module) {
+    return _moduleNotifiers.putIfAbsent(module, () {
+      final vn = ValueNotifier<AutogenStatus>(
+        _statuses[module] ?? const AutogenStatus(),
+      );
+      notifier.addListener(() {
+        final s = _statuses[module];
+        if (s != null) vn.value = s;
+      });
+      return vn;
+    });
+  }
 
   Map<String, AutogenStatus> getAll() => Map.unmodifiable(_statuses);
 
@@ -151,26 +169,39 @@ class AutogenStatusDashboardService {
   }
 
   void recordPathModuleStarted() {
-    pathModulesInProgressNotifier.value = pathModulesInProgressNotifier.value + 1;
+    pathModulesInProgressNotifier.value =
+        pathModulesInProgressNotifier.value + 1;
   }
 
   void recordPathModuleCompleted(double passRate) {
     pathModulesCompletedNotifier.value = pathModulesCompletedNotifier.value + 1;
     final total = pathModulesCompletedNotifier.value;
-    avgPassRateNotifier.value = ((avgPassRateNotifier.value * (total - 1)) + passRate) / total;
+    avgPassRateNotifier.value =
+        ((avgPassRateNotifier.value * (total - 1)) + passRate) / total;
   }
 
   /// Append [issues] for [seedId] to the lint feed.
   void reportSeedIssues(String seedId, List<SeedIssue> issues) {
     if (issues.isEmpty) return;
     final list = [...seedIssuesNotifier.value];
-    list.addAll(issues.map((i) =>
-        SeedIssue(code: i.code, severity: i.severity, message: i.message, path: i.path, seedId: seedId)));
+    list.addAll(
+      issues.map(
+        (i) => SeedIssue(
+          code: i.code,
+          severity: i.severity,
+          message: i.message,
+          path: i.path,
+          seedId: seedId,
+        ),
+      ),
+    );
     seedIssuesNotifier.value = List.unmodifiable(list);
   }
 
-  Future<void> refreshAbResults(List<TrainingRunRecord> runs,
-      {String? audience}) async {
+  Future<void> refreshAbResults(
+    List<TrainingRunRecord> runs, {
+    String? audience,
+  }) async {
     final results = await _abComparator.compare(runs, audience: audience);
     abResultsNotifier.value = List.unmodifiable(results);
   }
