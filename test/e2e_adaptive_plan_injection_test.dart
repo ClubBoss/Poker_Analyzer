@@ -92,7 +92,7 @@ void main() {
     expect(lastRun, isNotNull);
 
     final status =
-        AutogenStatusDashboardService.instance.getStatus('AdaptivePlanner');
+        AutogenStatusDashboardService.instance.getStatus('PlannerV2');
     expect(status, isNotNull);
 
     await exec.planAndInjectForUser(

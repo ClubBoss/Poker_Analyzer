@@ -458,13 +458,15 @@ class AutogenPipelineExecutor {
     String userId, {
     required int durationMinutes,
     String? audience,
+    String? format,
     AdaptivePlanExecutor? executor,
   }) async {
     final planner = AdaptiveTrainingPlanner();
     final plan = await planner.plan(
       userId: userId,
       durationMinutes: durationMinutes,
-      audience: audience,
+      audience: audience ?? 'regular',
+      format: format ?? 'standard',
     );
     final exec = executor ?? const AdaptivePlanExecutor();
     await exec.execute(
