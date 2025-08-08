@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:poker_analyzer/services/targeted_pack_booster_engine.dart';
 import 'package:poker_analyzer/services/autogen_status_dashboard_service.dart';
+import 'package:poker_analyzer/services/auto_skill_gap_clusterer.dart';
 import 'package:poker_analyzer/core/training/library/training_pack_library_v2.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
@@ -219,5 +220,52 @@ void main() {
     final status = AutogenStatusDashboardService.instance;
     expect(status.boostersGeneratedNotifier.value, 0);
     expect(status.boostersSkippedNotifier.value['recent_duplicate'], 1);
+  });
+
+  test('generates boosters from tag clusters', () async {
+    final spot1 = TrainingPackSpot(
+      id: 'c_s1',
+      tags: ['a', 'b'],
+      board: ['As', 'Kd', '2c'],
+    );
+    final spot2 = TrainingPackSpot(
+      id: 'c_s2',
+      tags: ['a'],
+      board: ['Ah', 'Ks', '3d'],
+    );
+    final spot3 = TrainingPackSpot(
+      id: 'c_s3',
+      tags: ['b'],
+      board: ['Ad', 'Kh', '4c'],
+    );
+    final pack = TrainingPackTemplateV2(
+      id: 'clusterPack',
+      name: 'Cluster Pack',
+      trainingType: TrainingType.custom,
+      spots: [spot1, spot2, spot3],
+      spotCount: 3,
+      tags: ['a', 'b'],
+      gameType: GameType.cash,
+    );
+    TrainingPackLibraryV2.instance.addPack(pack);
+
+    final clusterer = AutoSkillGapClusterer();
+    final clusters = clusterer.clusterWeakTags(
+      weakTags: ['a', 'b'],
+      spotTags: {
+        's1': ['a', 'b'],
+        's2': ['a'],
+        's3': ['b'],
+      },
+    );
+
+    final engine = TargetedPackBoosterEngine();
+    final boosted = await engine.generateClusterBoosterPacks(clusters: clusters);
+    expect(boosted.length, 1);
+    final booster = boosted.single;
+    expect(booster.meta['tagsTargeted'], ['a', 'b']);
+    for (final tag in ['a', 'b']) {
+      expect(booster.spots.any((s) => s.tags.contains(tag)), isTrue);
+    }
   });
 }

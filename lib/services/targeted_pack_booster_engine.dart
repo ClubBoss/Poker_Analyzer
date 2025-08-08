@@ -13,6 +13,7 @@ import 'autogen_status_dashboard_service.dart';
 import 'autogen_stats_dashboard_service.dart';
 import 'pack_fingerprint_comparer.dart';
 import 'pack_library_service.dart';
+import 'auto_skill_gap_clusterer.dart';
 import 'skill_tag_coverage_tracker.dart';
 import 'spot_fingerprint_generator.dart';
 import 'training_pack_fingerprint_generator.dart';
@@ -126,6 +127,29 @@ class TargetedPackBoosterEngine {
       ));
     }
     if (requests.isEmpty) return [];
+    return boostPacks(requests);
+  }
+
+  /// Generates boosters that target multiple related tags per cluster.
+  Future<List<TrainingPackTemplateV2>> generateClusterBoosterPacks({
+    required List<SkillTagCluster> clusters,
+    String triggerReason = 'cluster',
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final ratio = prefs.getDouble('booster.ratio') ?? 1.5;
+    final requests = <PackBoosterRequest>[];
+    for (final cluster in clusters) {
+      if (cluster.tags.isEmpty) continue;
+      final pack = await library.findByTag(cluster.tags.first);
+      if (pack == null) continue;
+      if (!cluster.tags.every(pack.tags.contains)) continue;
+      requests.add(PackBoosterRequest(
+        packId: pack.id,
+        tags: cluster.tags,
+        ratio: ratio,
+        triggerReason: triggerReason,
+      ));
+    }
     return boostPacks(requests);
   }
 
