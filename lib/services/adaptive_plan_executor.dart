@@ -61,6 +61,7 @@ class AdaptivePlanExecutor {
     required String userId,
     required AdaptivePlan plan,
     required int budgetMinutes,
+    required String sig,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final boosterPerSpot =
@@ -77,6 +78,7 @@ class AdaptivePlanExecutor {
     final modules = <InjectedPathModule>[];
     var used = 0;
 
+    var index = 0;
     for (final c in plan.clusters) {
       var boosters =
           await boosterEngine.generateClusterBoosterPacks(clusters: [c]);
@@ -136,7 +138,7 @@ class AdaptivePlanExecutor {
       final plannerScore =
           c.tags.fold<double>(0, (s, t) => s + (plan.tagWeights[t] ?? 0.0));
       final module = InjectedPathModule(
-        moduleId: '${userId}_${c.clusterId}_${planHash.substring(0, 8)}',
+        moduleId: 'm_${sig.substring(0, 10)}_$index',
         clusterId: c.clusterId,
         themeName: c.themeName,
         theoryIds: const [],
@@ -158,6 +160,7 @@ class AdaptivePlanExecutor {
       await store.upsertModule(userId, module);
       modules.add(module);
       used += moduleMins;
+      index++;
     }
 
     dashboard.update(

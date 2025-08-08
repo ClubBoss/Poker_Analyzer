@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
@@ -39,6 +40,12 @@ import 'pack_novelty_guard_service.dart';
 import 'theory_injection_scheduler_service.dart';
 import 'adaptive_training_planner.dart';
 import 'adaptive_plan_executor.dart';
+import 'plan_signature_builder.dart';
+import 'plan_idempotency_guard.dart';
+import 'path_write_lock_service.dart';
+import 'path_transaction_manager.dart';
+import 'learning_path_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -468,13 +475,114 @@ class AutogenPipelineExecutor {
       audience: audience ?? 'regular',
       format: format ?? 'standard',
     );
-    final exec = executor ?? const AdaptivePlanExecutor();
-    await exec.execute(
+    final sig = await PlanSignatureBuilder().build(
       userId: userId,
       plan: plan,
+      audience: audience ?? 'regular',
+      format: format ?? 'standard',
       budgetMinutes: durationMinutes,
     );
-    await TheoryInjectionSchedulerService.instance.runNow(force: true);
-    return <File>[];
+
+    final exec = executor ?? const AdaptivePlanExecutor();
+    final store = exec.store;
+    final lock = PathWriteLockService(rootDir: store.rootDir);
+    final txn = PathTransactionManager(rootDir: store.rootDir);
+    final guard = PlanIdempotencyGuard();
+    final prefs = await SharedPreferences.getInstance();
+    final windowHours =
+        prefs.getInt('planner.idempotency.windowHours') ?? 24;
+    final start = DateTime.now();
+    final acquired = await lock.acquire(userId);
+    if (!acquired) {
+      AutogenStatusDashboardService.instance.update(
+        'PathHardening',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: jsonEncode({
+            'userId': userId,
+            'sig': sig,
+            'action': 'locked',
+            'createdModules': 0,
+            'durationMs': 0,
+          }),
+        ),
+      );
+      return <File>[];
+    }
+    String txId = '';
+    try {
+      await txn.reconcile(userId);
+      txId = await txn.begin(userId, sig);
+      final should = await guard.shouldInject(
+        userId,
+        sig,
+        window: Duration(hours: windowHours),
+      );
+      if (!should) {
+        await txn.rollback(userId, txId);
+        AutogenStatusDashboardService.instance.update(
+          'PathHardening',
+          AutogenStatus(
+            isRunning: false,
+            currentStage: jsonEncode({
+              'userId': userId,
+              'sig': sig,
+              'action': 'skip',
+              'createdModules': 0,
+              'durationMs':
+                  DateTime.now().difference(start).inMilliseconds,
+            }),
+          ),
+        );
+        return <File>[];
+      }
+      final modules = await exec.execute(
+        userId: userId,
+        plan: plan,
+        budgetMinutes: durationMinutes,
+        sig: sig,
+      );
+      for (final m in modules) {
+        await txn.recordModule(userId, txId, m.moduleId);
+      }
+      await txn.commit(userId, txId);
+      await guard.recordInjected(userId, sig);
+      await TheoryInjectionSchedulerService.instance.runNow(force: true);
+      AutogenStatusDashboardService.instance.update(
+        'PathHardening',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: jsonEncode({
+            'userId': userId,
+            'sig': sig,
+            'action': 'inject',
+            'createdModules': modules.length,
+            'durationMs':
+                DateTime.now().difference(start).inMilliseconds,
+          }),
+        ),
+      );
+      return <File>[];
+    } catch (e) {
+      await txn.rollback(userId, txId);
+      AutogenStatusDashboardService.instance.update(
+        'PathHardening',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: jsonEncode({
+            'userId': userId,
+            'sig': sig,
+            'action': 'rollback',
+            'createdModules': 0,
+            'durationMs':
+                DateTime.now().difference(start).inMilliseconds,
+          }),
+          lastError: e.toString(),
+        ),
+      );
+      rethrow;
+    } finally {
+      await lock.release(userId);
+    }
   }
 }

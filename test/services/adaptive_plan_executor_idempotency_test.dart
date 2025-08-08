@@ -87,12 +87,14 @@ void main() {
       userId: 'u1',
       plan: plan,
       budgetMinutes: 20,
+      sig: 'sig1',
     );
     expect(first, hasLength(1));
     final second = await exec.execute(
       userId: 'u1',
       plan: plan,
       budgetMinutes: 20,
+      sig: 'sig1',
     );
     expect(second, isEmpty);
   });
@@ -106,7 +108,7 @@ void main() {
       tagWeights: const {'a': 1.0},
       mix: const {'theory': 0, 'booster': 1, 'assessment': 1},
     );
-    await exec.execute(userId: 'u1', plan: plan, budgetMinutes: 20);
+    await exec.execute(userId: 'u1', plan: plan, budgetMinutes: 20, sig: 'sig1');
     final changed = AdaptivePlan(
       clusters: [
         SkillTagCluster(tags: ['a', 'b'], clusterId: 'c1', themeName: 'T')
@@ -119,6 +121,7 @@ void main() {
       userId: 'u1',
       plan: changed,
       budgetMinutes: 20,
+      sig: 'sig2',
     );
     expect(res1, hasLength(1));
 
@@ -148,6 +151,7 @@ void main() {
       userId: 'u1',
       plan: plan,
       budgetMinutes: 20,
+      sig: 'sig3',
     );
     expect(res2, hasLength(1));
   });
