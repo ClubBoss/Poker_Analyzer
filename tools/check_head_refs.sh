@@ -1,7 +1,7 @@
 #!/bin/bash
+set -euo pipefail
+# Enable strict mode to exit on errors, unset variables, and pipeline failures.
 # Check for hidden characters in git HEAD and ref files.
-
-set -e
 
 echo "Checking git HEAD and ref files for hidden characters..."
 
@@ -18,12 +18,12 @@ check_file() {
 }
 
 error=0
-check_file .git/HEAD || error=1
+check_file ".git/HEAD" || error=1
 for ref in .git/refs/heads/*; do
   check_file "$ref" || error=1
 done
 
-if [ $error -eq 0 ]; then
+if [ "$error" -eq 0 ]; then
   echo "No hidden characters found."
 else
   echo "Hidden characters were found. Consider rewriting the affected ref file(s)."
