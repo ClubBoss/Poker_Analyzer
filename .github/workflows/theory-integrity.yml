@@ -39,6 +39,10 @@ jobs:
         env:
           BASE: ${{ github.base_ref }}
 
+      - name: No theory changes
+        if: steps.changes.outputs.dirs == ''
+        run: echo "No theory changes"
+
       - name: Verify theory files
         if: steps.changes.outputs.dirs != ''
         run: |
@@ -49,6 +53,24 @@ jobs:
           done
           echo "Verifying theory paths: $dirs"
           dart run bin/poker_analyzer.dart verify $args --manifest theory_manifest.json --ci
+
+      - name: Report sweep results
+        if: steps.changes.outputs.dirs != '' && always()
+        run: dart run bin/ci_report.dart --report theory_sweep_report.json --markdown > sweep_summary.md
+
+      - name: Comment sweep summary
+        if: steps.changes.outputs.dirs != '' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('theory_sweep_report.json', 'utf8'));
+            const c = report.counters || {};
+            const count = (c.needs_upgrade || 0) + (c.needs_heal || 0) + (c.failed || 0);
+            if (count > 0) {
+              const body = fs.readFileSync('sweep_summary.md', 'utf8');
+              github.rest.issues.createComment({ ...context.issue, body });
+            }
 
       - name: Upload sweep reports
         if: always()
@@ -61,7 +83,7 @@ jobs:
           if-no-files-found: ignore
 
   theory-fix:
-    if: contains(github.event.pull_request.labels.*.name, 'theory-fix')
+    if: contains(github.event.pull_request.labels.*.name, 'theory-fix') && github.event.pull_request.head.repo.fork == false
     needs: verify
     runs-on: ubuntu-latest
     steps:
@@ -93,6 +115,10 @@ jobs:
           echo "dirs=$paths" >> "$GITHUB_OUTPUT"
         env:
           BASE: ${{ github.base_ref }}
+
+      - name: No theory changes
+        if: steps.changes.outputs.dirs == ''
+        run: echo "No theory changes"
 
       - name: Sweep and fix theory files
         if: steps.changes.outputs.dirs != ''
