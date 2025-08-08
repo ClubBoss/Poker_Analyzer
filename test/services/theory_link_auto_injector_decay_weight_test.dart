@@ -12,6 +12,8 @@ import 'package:poker_analyzer/services/theory_novelty_registry.dart';
 import 'package:poker_analyzer/services/decay_tag_retention_tracker_service.dart';
 import 'package:poker_analyzer/models/injected_path_module.dart';
 import 'package:poker_analyzer/core/training/library/training_pack_library_v2.dart';
+import 'package:poker_analyzer/services/theory_link_policy_engine.dart';
+import 'package:poker_analyzer/services/theory_link_config_service.dart';
 
 class _FakeBundle extends CachingAssetBundle {
   final String data;
@@ -32,7 +34,11 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'telemetry.errors.x': 0.1,
       'telemetry.errors.y': 0.1,
+      'theory.maxPerModule': 1,
     });
+    final prefs = await SharedPreferences.getInstance();
+    await TheoryLinkConfigService.instance.reload();
+    final policy = TheoryLinkPolicyEngine(prefs: prefs);
 
     final retention = DecayTagRetentionTrackerService();
     await retention.markTheoryReviewed('x',
@@ -70,7 +76,7 @@ void main() {
       noveltyRegistry: TheoryNoveltyRegistry(path: 'test_cache_decay/novelty.json'),
       retention: retention,
       packLibrary: packLibrary,
-      maxPerModule: 1,
+      policy: policy,
     );
 
     final count = await injector.injectForUser('u1');

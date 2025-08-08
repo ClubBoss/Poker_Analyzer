@@ -9,6 +9,8 @@ import 'learning_path_store.dart';
 import 'mistake_telemetry_store.dart';
 import 'theory_library_index.dart';
 import 'theory_link_auto_injector.dart';
+import 'theory_link_config_service.dart';
+import 'theory_link_policy_engine.dart';
 import 'theory_novelty_registry.dart';
 
 class TheoryInjectionSchedulerService {
@@ -16,22 +18,15 @@ class TheoryInjectionSchedulerService {
     LearningPathStore? store,
     TheoryLinkAutoInjector? injector,
     AutogenStatusDashboardService? dashboard,
-  }) : _store = store ?? const LearningPathStore(),
-       _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-       _injector =
-           injector ??
-           TheoryLinkAutoInjector(
-             store: store ?? const LearningPathStore(),
-             libraryIndex: TheoryLibraryIndex(),
-             telemetry: MistakeTelemetryStore(),
-             noveltyRegistry: TheoryNoveltyRegistry(),
-           );
+  })  : _store = store ?? const LearningPathStore(),
+        _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+        _injector = injector;
 
   static final TheoryInjectionSchedulerService instance =
       TheoryInjectionSchedulerService._();
 
   final LearningPathStore _store;
-  final TheoryLinkAutoInjector _injector;
+  TheoryLinkAutoInjector? _injector;
   final AutogenStatusDashboardService _dashboard;
 
   Timer? _timer;
@@ -41,6 +36,14 @@ class TheoryInjectionSchedulerService {
   Future<void> start() async {
     final prefs = await SharedPreferences.getInstance();
     if (!(prefs.getBool('theory.schedulerEnabled') ?? true)) return;
+    _injector ??= TheoryLinkAutoInjector(
+      store: _store,
+      libraryIndex: TheoryLibraryIndex(),
+      telemetry: MistakeTelemetryStore(),
+      noveltyRegistry: TheoryNoveltyRegistry(),
+      policy: TheoryLinkPolicyEngine(prefs: prefs),
+      config: TheoryLinkConfigService.instance,
+    );
     final intervalHours = prefs.getInt('theory.schedulerIntervalHours') ?? 6;
     await runNow();
     _timer?.cancel();
@@ -72,13 +75,14 @@ class TheoryInjectionSchedulerService {
       final pending = modules.where(
         (m) => m.status == 'pending' || m.status == 'in_progress',
       );
+      final injector = _injector!;
       if (pending.isEmpty ||
-          pending.every((m) => m.theoryIds.length >= _injector.maxPerModule)) {
+          pending.every((m) => m.theoryIds.length >= injector.maxPerModule)) {
         skipped++;
         await prefs.setString(key, now.toIso8601String());
         continue;
       }
-      await _injector.injectForUser(user);
+      await injector.injectForUser(user);
       await prefs.setString(key, now.toIso8601String());
       injected++;
     }

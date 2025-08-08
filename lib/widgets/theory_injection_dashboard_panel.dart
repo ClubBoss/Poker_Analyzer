@@ -37,6 +37,9 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
     final notifier = AutogenStatusDashboardService.instance.getStatusNotifier(
       'TheoryInjectionScheduler',
     );
+    final policyNotifier = AutogenStatusDashboardService.instance.getStatusNotifier(
+      'TheoryLinkPolicy',
+    );
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -51,46 +54,72 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
               runs = data['runs'] as int? ?? 0;
               skipped = data['skipped'] as int? ?? 0;
             } catch (_) {}
-            return FutureBuilder<DateTime?>(
-              future: _loadLastRun(),
-              builder: (context, snap) {
-                final dt = snap.data;
-                final last = dt != null
-                    ? DateFormat('yyyy-MM-dd HH:mm').format(dt.toLocal())
-                    : '-';
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            return ValueListenableBuilder<AutogenStatus>(
+              valueListenable: policyNotifier,
+              builder: (context, policy, __) {
+                bool ablated = false;
+                try {
+                  final data =
+                      jsonDecode(policy.currentStage) as Map<String, dynamic>;
+                  ablated = data['ablation'] as bool? ?? false;
+                } catch (_) {}
+                return FutureBuilder<DateTime?>(
+                  future: _loadLastRun(),
+                  builder: (context, snap) {
+                    final dt = snap.data;
+                    final last = dt != null
+                        ? DateFormat('yyyy-MM-dd HH:mm').format(dt.toLocal())
+                        : '-';
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Status: '),
+                        Row(
+                          children: [
+                            const Text('Status: '),
+                            Text(
+                              status.isRunning ? 'Running' : 'Idle',
+                              style: TextStyle(
+                                color: status.isRunning
+                                    ? Colors.green
+                                    : Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (ablated) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'A/B: Ablated',
+                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text('Last run: ' + last),
+                        const SizedBox(height: 8),
                         Text(
-                          status.isRunning ? 'Running' : 'Idle',
-                          style: TextStyle(
-                            color: status.isRunning
-                                ? Colors.green
-                                : Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          'Runs: '
+                              + runs.toString()
+                              + '  |  Skipped: '
+                              + skipped.toString(),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () =>
+                              TheoryInjectionSchedulerService.instance.runNow(force: true),
+                          child: const Text('Run Now'),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text('Last run: ' + last),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Runs: ' +
-                          runs.toString() +
-                          '  |  Skipped: ' +
-                          skipped.toString(),
-                    ),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: () => TheoryInjectionSchedulerService.instance
-                          .runNow(force: true),
-                      child: const Text('Run Now'),
-                    ),
-                  ],
+                    );
+                  },
                 );
               },
             );
