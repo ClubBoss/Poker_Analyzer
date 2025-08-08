@@ -1,120 +1,130 @@
-import 'dart:convert';
+import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-/// Represents a cluster of related weak skill tags.
-class SkillGapCluster {
-  final String clusterName;
+/// Cluster of related skill tags that represent a broader weakness theme.
+class SkillTagCluster {
   final List<String> tags;
-  final double avgAccuracy;
-  final int occurrenceCount;
+  final String clusterId;
+  final String themeName;
 
-  const SkillGapCluster({
-    required this.clusterName,
+  const SkillTagCluster({
     required this.tags,
-    required this.avgAccuracy,
-    required this.occurrenceCount,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'clusterName': clusterName,
-    'tags': tags,
-    'avgAccuracy': avgAccuracy,
-    'occurrenceCount': occurrenceCount,
-  };
-
-  factory SkillGapCluster.fromJson(Map<String, dynamic> json) =>
-      SkillGapCluster(
-        clusterName: json['clusterName'] as String? ?? '',
-        tags: (json['tags'] as List?)?.cast<String>() ?? const [],
-        avgAccuracy: (json['avgAccuracy'] as num?)?.toDouble() ?? 0,
-        occurrenceCount: (json['occurrenceCount'] as num?)?.toInt() ?? 0,
-      );
-}
-
-/// Historical performance data for a user.
-class UserSkillHistory {
-  final Map<String, double> tagAccuracy; // 0..1
-  final Map<String, int> tagOccurrences;
-  final Map<String, String> tagCategories;
-  final Map<String, double> decayWeights;
-
-  const UserSkillHistory({
-    required this.tagAccuracy,
-    required this.tagOccurrences,
-    required this.tagCategories,
-    this.decayWeights = const {},
+    required this.clusterId,
+    required this.themeName,
   });
 }
 
-/// Detects clusters of weak skills based on historical accuracy data.
+/// Automatically groups weak or decayed skill tags into thematic clusters
+/// based on tag co-occurrence across training spots.
 class AutoSkillGapClusterer {
-  AutoSkillGapClusterer({
-    this.weaknessThreshold = 0.7,
-    SharedPreferences? prefs,
-    this.storageKey = 'auto_skill_gap_clusters',
-  }) : _prefs = prefs,
-       clustersNotifier = ValueNotifier<List<SkillGapCluster>>([]);
+  /// Minimum percentage of overlap required to link two tags.
+  final double linkPercentage;
 
-  final double weaknessThreshold;
-  final String storageKey;
-  final SharedPreferences? _prefs;
+  /// Maximum tags per cluster.
+  final int maxClusterSize;
 
-  /// Notifies listeners with the latest detected clusters.
-  final ValueNotifier<List<SkillGapCluster>> clustersNotifier;
+  /// Optional mapping from tag -> human friendly theme name.
+  final Map<String, String> themeMap;
 
-  Future<List<SkillGapCluster>> detectWeakSkillClusters(
-    UserSkillHistory history,
-  ) async {
-    final data = <String, _ClusterData>{};
+  const AutoSkillGapClusterer({
+    this.linkPercentage = 0.5,
+    this.maxClusterSize = 5,
+    this.themeMap = const {},
+  });
 
-    history.tagAccuracy.forEach((tag, acc) {
-      if (acc >= weaknessThreshold) return;
-      final count = history.tagOccurrences[tag] ?? 0;
-      if (count <= 0) return;
-      final category = history.tagCategories[tag] ?? 'misc';
-      final weight = history.decayWeights[tag] ?? 1.0;
-      final c = data.putIfAbsent(category, () => _ClusterData());
-      c.tags.add(tag);
-      c.totalAccuracy += acc * count;
-      c.totalCount += count;
-      c.weightedGap += (1 - acc) * count * weight;
-    });
+  /// Clusters [weakTags] using tag co-occurrence from [spotTags].
+  ///
+  /// [spotTags] maps spot id -> list of tags that appeared in that spot.
+  List<SkillTagCluster> clusterWeakTags({
+    required List<String> weakTags,
+    required Map<String, List<String>> spotTags,
+  }) {
+    final tagCounts = <String, int>{};
+    final pairCounts = <String, Map<String, int>>{};
 
-    final clusters = <SkillGapCluster>[];
-    data.forEach((name, d) {
-      if (d.totalCount == 0) return;
-      final avg = d.totalAccuracy / d.totalCount;
-      clusters.add(
-        SkillGapCluster(
-          clusterName: name,
-          tags: d.tags.toList(),
-          avgAccuracy: avg,
-          occurrenceCount: d.totalCount,
-        ),
-      );
-    });
+    for (final tags in spotTags.values) {
+      final filtered = tags.where(weakTags.contains).toSet();
+      for (final tag in filtered) {
+        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+      }
+      for (final a in filtered) {
+        for (final b in filtered) {
+          if (a == b) continue;
+          pairCounts.putIfAbsent(a, () => <String, int>{});
+          pairCounts[a]![b] = (pairCounts[a]![b] ?? 0) + 1;
+        }
+      }
+    }
 
-    clusters.sort((a, b) {
-      final sevA = (1 - a.avgAccuracy) * a.occurrenceCount;
-      final sevB = (1 - b.avgAccuracy) * b.occurrenceCount;
-      return sevB.compareTo(sevA);
-    });
+    final uf = _UnionFind();
+    for (final tag in weakTags) {
+      uf.makeSet(tag);
+    }
 
-    clustersNotifier.value = clusters;
-    final prefs = _prefs ?? await SharedPreferences.getInstance();
-    await prefs.setString(
-      storageKey,
-      jsonEncode(clusters.map((c) => c.toJson()).toList()),
-    );
+    for (final a in pairCounts.keys) {
+      for (final b in pairCounts[a]!.keys) {
+        final co = pairCounts[a]![b]!.toDouble();
+        final minCount =
+            min(tagCounts[a] ?? 0, tagCounts[b] ?? 0).toDouble();
+        if (minCount == 0) continue;
+        final freq = co / minCount;
+        if (freq >= linkPercentage) {
+          uf.union(a, b);
+        }
+      }
+    }
+
+    final groups = uf.groups();
+    final clusters = <SkillTagCluster>[];
+    var idx = 0;
+    for (final members in groups.values) {
+      final sorted = members.toList()
+        ..sort((a, b) =>
+            (tagCounts[b] ?? 0).compareTo(tagCounts[a] ?? 0));
+      final trimmed = sorted.take(maxClusterSize).toList();
+      final top = trimmed.first;
+      final theme = themeMap[top] ?? top;
+      clusters.add(SkillTagCluster(
+        tags: trimmed,
+        clusterId: 'cluster_${idx++}',
+        themeName: theme,
+      ));
+    }
     return clusters;
   }
 }
 
-class _ClusterData {
-  double totalAccuracy = 0;
-  int totalCount = 0;
-  double weightedGap = 0;
-  final Set<String> tags = <String>{};
+class _UnionFind {
+  final Map<String, String> _parent = {};
+
+  void makeSet(String x) => _parent.putIfAbsent(x, () => x);
+
+  String find(String x) {
+    final p = _parent[x];
+    if (p == null) {
+      _parent[x] = x;
+      return x;
+    }
+    if (p != x) {
+      _parent[x] = find(p);
+    }
+    return _parent[x]!;
+  }
+
+  void union(String a, String b) {
+    final pa = find(a);
+    final pb = find(b);
+    if (pa != pb) {
+      _parent[pa] = pb;
+    }
+  }
+
+  Map<String, List<String>> groups() {
+    final result = <String, List<String>>{};
+    for (final k in _parent.keys) {
+      final root = find(k);
+      result.putIfAbsent(root, () => []).add(k);
+    }
+    return result;
+  }
 }
+
