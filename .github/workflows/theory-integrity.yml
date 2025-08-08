@@ -126,6 +126,16 @@ PY
               await github.rest.issues.createComment({ ...context.issue, body });
             }
 
+      - name: Upload sweep report artifacts
+        if: steps.changes.outputs.dirs != '' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: theory-sweep-report
+          path: |
+            theory_sweep_report.json
+            theory_sweep_report.csv
+          if-no-files-found: ignore
+
   theory-fix:
     if: contains(github.event.pull_request.labels.*.name, 'theory-fix') && github.event.pull_request.head.repo.fork == false
     needs: verify
