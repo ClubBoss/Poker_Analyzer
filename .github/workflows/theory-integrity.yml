@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 env:
-  THEORY_DIRS: assets
+  THEORY_DIRS: theory,yaml_out
 
 jobs:
   verify:
@@ -24,6 +24,7 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
+      # Flutter SDK (вместо Dart-only)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -41,14 +42,29 @@ jobs:
         env:
           BASE: ${{ github.base_ref }}
 
-      - name: Check manifest presence (strict flag)
+      # ✅ считаем, что baseline ЕСТЬ только если .files — НЕ пустой объект
+      - name: Check manifest presence
         id: manifest
+        shell: bash
         run: |
-          if [ -f theory_manifest.json ] && grep -q '"strict"[[:space:]]*:[[:space:]]*true' theory_manifest.json; then
-            echo "has_manifest=1" >> "$GITHUB_OUTPUT"
-          else
+          set -euo pipefail
+          if [ ! -f theory_manifest.json ]; then
             echo "has_manifest=0" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+import json, os
+ok = 0
+try:
+    with open("theory_manifest.json","r",encoding="utf-8") as f:
+        data = json.load(f)
+    files = data.get("files", {})
+    if isinstance(files, dict) and len(files) > 0:
+        ok = 1
+except Exception:
+    ok = 0
+print(f"has_manifest={ok}")
+PY
 
       - name: No theory changes
         if: steps.changes.outputs.dirs == ''
@@ -63,14 +79,15 @@ jobs:
           echo "Verifying (strict) theory paths: $dirs"
           dart run bin/poker_analyzer.dart verify $args --manifest theory_manifest.json --ci
 
-      - name: Verify theory files (soft, no strict manifest)
+      - name: Verify theory files (soft, no manifest yet)
         if: steps.changes.outputs.dirs != '' && steps.manifest.outputs.has_manifest == '0'
         run: |
           dirs="${{ steps.changes.outputs.dirs }}"
           args=""
           for d in $dirs; do args="$args --dir $d"; done
-          echo "Soft verify (no strict manifest) theory paths: $dirs"
-          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json || true
+          echo "Soft verify (no manifest) theory paths: $dirs"
+          # Dry-run: аннотации/summary будут, но джоб не упадёт
+          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json
 
       - name: Report sweep results
         if: steps.changes.outputs.dirs != '' && always()
@@ -82,7 +99,7 @@ jobs:
           dart run bin/ci_report.dart --report theory_sweep_report.json --markdown | tee sweep_summary.md
           cat sweep_summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Comment sweep summary (upsert)
+      - name: Comment sweep summary
         if: steps.changes.outputs.dirs != '' && always()
         uses: actions/github-script@v7
         with:
@@ -96,25 +113,18 @@ jobs:
             const report = JSON.parse(fs.readFileSync('theory_sweep_report.json', 'utf8'));
             const c = report.counters || {};
             const count = (c.needs_upgrade || 0) + (c.needs_heal || 0) + (c.failed || 0);
-            if (count === 0) { core.info('no issues, skipping comment'); return; }
+            if (count === 0) {
+              core.info('no issues, skipping comment');
+              return;
+            }
             const body = fs.readFileSync('sweep_summary.md', 'utf8') + '\n' + marker;
             const { data: comments } = await github.rest.issues.listComments({ ...context.issue });
-            const existing = comments.find(comment => comment.body && comment.body.includes(marker));
+            const existing = comments.find(comment => comment.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
             } else {
               await github.rest.issues.createComment({ ...context.issue, body });
             }
-
-      - name: Upload sweep reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: theory-sweep-report
-          path: |
-            theory_sweep_report.json
-            theory_sweep_report.csv
-          if-no-files-found: ignore
 
   theory-fix:
     if: contains(github.event.pull_request.labels.*.name, 'theory-fix') && github.event.pull_request.head.repo.fork == false
