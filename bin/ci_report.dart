@@ -11,7 +11,10 @@ Future<void> main(List<String> args) async {
   final opts = parser.parse(args);
 
   final reportFile = File(opts['report'] as String);
-  if (!reportFile.existsSync()) return;
+  if (!reportFile.existsSync()) {
+    stdout.writeln('no report');
+    return;
+  }
   final data =
       jsonDecode(await reportFile.readAsString()) as Map<String, dynamic>;
   final entries =
