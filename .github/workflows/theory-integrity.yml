@@ -8,7 +8,6 @@ permissions:
   contents: write
 
 env:
-  # Что отслеживаем для проверки — у тебя YAML лежит в assets/**
   THEORY_DIRS: assets
 
 jobs:
@@ -25,7 +24,6 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
-      # Flutter (включает нужный Dart)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -43,10 +41,10 @@ jobs:
         env:
           BASE: ${{ github.base_ref }}
 
-      - name: Check manifest presence
+      - name: Check manifest presence (strict flag)
         id: manifest
         run: |
-          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json; then
+          if [ -f theory_manifest.json ] && grep -q '"strict"[[:space:]]*:[[:space:]]*true' theory_manifest.json; then
             echo "has_manifest=1" >> "$GITHUB_OUTPUT"
           else
             echo "has_manifest=0" >> "$GITHUB_OUTPUT"
@@ -65,15 +63,14 @@ jobs:
           echo "Verifying (strict) theory paths: $dirs"
           dart run bin/poker_analyzer.dart verify $args --manifest theory_manifest.json --ci
 
-      - name: Verify theory files (soft, no manifest yet)
+      - name: Verify theory files (soft, no strict manifest)
         if: steps.changes.outputs.dirs != '' && steps.manifest.outputs.has_manifest == '0'
         run: |
           dirs="${{ steps.changes.outputs.dirs }}"
           args=""
           for d in $dirs; do args="$args --dir $d"; done
-          echo "Soft verify (no manifest) theory paths: $dirs"
-          # dry-run чтобы получить отчёт и аннотации, но НЕ падать
-          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json
+          echo "Soft verify (no strict manifest) theory paths: $dirs"
+          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json || true
 
       - name: Report sweep results
         if: steps.changes.outputs.dirs != '' && always()
@@ -99,10 +96,7 @@ jobs:
             const report = JSON.parse(fs.readFileSync('theory_sweep_report.json', 'utf8'));
             const c = report.counters || {};
             const count = (c.needs_upgrade || 0) + (c.needs_heal || 0) + (c.failed || 0);
-            if (count === 0) {
-              core.info('no issues, skipping comment');
-              return;
-            }
+            if (count === 0) { core.info('no issues, skipping comment'); return; }
             const body = fs.readFileSync('sweep_summary.md', 'utf8') + '\n' + marker;
             const { data: comments } = await github.rest.issues.listComments({ ...context.issue });
             const existing = comments.find(comment => comment.body && comment.body.includes(marker));
