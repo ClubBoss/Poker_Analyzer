@@ -296,7 +296,7 @@ class AutogenPipelineExecutor {
           metadata: Map<String, dynamic>.from(pack.meta),
         );
         if (icmInjector != null) {
-          model = icmInjector!.injectICMSpots(model);
+          model = await icmInjector!.inject(model);
           pack.spots = model.spots;
           pack.spotCount = model.spots.length;
           spots = model.spots;
