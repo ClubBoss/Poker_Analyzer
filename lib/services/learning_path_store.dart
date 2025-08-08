@@ -4,7 +4,12 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../models/injected_path_module.dart';
+import '../models/autogen_status.dart';
+import 'adaptive_outcome_tracker.dart';
+import 'autogen_status_dashboard_service.dart';
+import 'bandit_weight_learner.dart';
 import 'user_skill_model_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists injected learning path modules per user.
 class LearningPathStore {
@@ -82,6 +87,13 @@ class LearningPathStore {
     }
     modules[idx] = module.copyWith(status: status, metrics: metrics);
     await _save(userId, modules);
+    final updatedModule = modules[idx];
+    if (status == 'in_progress') {
+      await AdaptiveOutcomeTracker.instance.onModuleStarted(
+        userId,
+        updatedModule,
+      );
+    }
     if (status == 'completed') {
       final tags = (metrics['clusterTags'] as List?)?.cast<String>() ?? const [];
       if (tags.isNotEmpty) {
@@ -89,6 +101,43 @@ class LearningPathStore {
           userId,
           tags,
           correct: (passRate ?? 0.0) > 0.6,
+        );
+      }
+      final tagDeltas = await AdaptiveOutcomeTracker.instance.onModuleCompleted(
+        userId,
+        updatedModule,
+        passRate: passRate ?? 0.0,
+      );
+      if (tagDeltas.isNotEmpty) {
+        await BanditWeightLearner.instance.updateFromOutcome(
+          userId,
+          tagDeltas,
+        );
+        final prefs = await SharedPreferences.getInstance();
+        final threshold =
+            prefs.getDouble('bandit.optimismThreshold') ?? 10.0;
+        var exploring = 0;
+        for (final t in tagDeltas.keys) {
+          final a =
+              prefs.getDouble('bandit.alpha.$userId.$t') ?? 1.0;
+          final b =
+              prefs.getDouble('bandit.beta.$userId.$t') ?? 1.0;
+          if (a + b < threshold) exploring++;
+        }
+        final avgDelta = tagDeltas.values.isEmpty
+            ? 0.0
+            : tagDeltas.values.reduce((a, b) => a + b) /
+                tagDeltas.length;
+        AutogenStatusDashboardService.instance.update(
+          'AdaptiveLearning',
+          AutogenStatus(
+            isRunning: false,
+            currentStage: jsonEncode({
+              'tagsUpdated': tagDeltas.length,
+              'avgDelta': avgDelta,
+              'exploreBias': exploring * 0.05,
+            }),
+          ),
         );
       }
     }

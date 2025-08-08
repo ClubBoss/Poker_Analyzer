@@ -8,6 +8,7 @@ import 'decay_tag_retention_tracker_service.dart';
 import 'learning_path_store.dart';
 import 'user_skill_model_service.dart';
 import '../models/autogen_status.dart';
+import 'bandit_weight_learner.dart';
 
 class AdaptivePlan {
   final List<SkillTagCluster> clusters;
@@ -52,12 +53,15 @@ class AdaptiveTrainingPlanner {
     final skills = await skillService.getSkills(userId);
     final decays = await retention.getAllDecayScores();
     final tagScores = <String, double>{};
+    final impacts = await BanditWeightLearner.instance.getAllImpacts(userId);
     final allTags = {...skills.keys, ...decays.keys};
     for (final tag in allTags) {
       final mastery = skills[tag]?.mastery ?? 0.0;
       final decay = decays[tag] ?? 1.0;
-      final impact =
-          (prefs.getDouble('planner.impact.$tag') ?? 1.0).clamp(0.0, 2.0);
+      final impact = (impacts[tag] ??
+              prefs.getDouble('planner.impact.$tag') ??
+              1.0)
+          .clamp(0.0, 2.0);
       tagScores[tag] =
           wErr * (1 - mastery) + wDecay * decay + wImpact * impact;
     }
