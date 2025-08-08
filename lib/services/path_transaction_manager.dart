@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as p;
 
 /// Manages simple transactional writes to [LearningPathStore] using a journal
 /// and snapshot file to allow rollback on failure.
@@ -12,17 +13,20 @@ class PathTransactionManager {
   String _snapshotPath(String userId, String txId) =>
       '$rootDir/.snapshot.$userId.$txId.json';
   String _storePath(String userId) => '$rootDir/$userId.json';
+  String _fileJournal() => p.join(rootDir, '.file.journal.json');
 
   Future<String> begin(String userId, String sig) async {
     final txId = DateTime.now().millisecondsSinceEpoch.toString();
     final journal = File(_journalPath(userId));
     journal.parent.createSync(recursive: true);
-    await journal.writeAsString(jsonEncode({
-      'txId': txId,
-      'sig': sig,
-      'status': 'pending',
-      'modules': <String>[],
-    }));
+    await journal.writeAsString(
+      jsonEncode({
+        'txId': txId,
+        'sig': sig,
+        'status': 'pending',
+        'modules': <String>[],
+      }),
+    );
     final store = File(_storePath(userId));
     final snap = File(_snapshotPath(userId, txId));
     if (store.existsSync()) {
@@ -36,8 +40,9 @@ class PathTransactionManager {
   Future<void> recordModule(String userId, String txId, String moduleId) async {
     final journal = File(_journalPath(userId));
     if (!journal.existsSync()) return;
-    final data =
-        Map<String, dynamic>.from(jsonDecode(await journal.readAsString()));
+    final data = Map<String, dynamic>.from(
+      jsonDecode(await journal.readAsString()),
+    );
     final modules = (data['modules'] as List).cast<String>();
     modules.add(moduleId);
     data['modules'] = modules;
@@ -47,8 +52,9 @@ class PathTransactionManager {
   Future<void> commit(String userId, String txId) async {
     final journal = File(_journalPath(userId));
     if (!journal.existsSync()) return;
-    final data =
-        Map<String, dynamic>.from(jsonDecode(await journal.readAsString()));
+    final data = Map<String, dynamic>.from(
+      jsonDecode(await journal.readAsString()),
+    );
     data['status'] = 'committed';
     await journal.writeAsString(jsonEncode(data));
     final snap = File(_snapshotPath(userId, txId));
@@ -57,12 +63,13 @@ class PathTransactionManager {
     final prefs = await SharedPreferences.getInstance();
     final keep = prefs.getInt('path.journal.keep') ?? 20;
     final dir = Directory(rootDir);
-    final journals = dir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.contains('.journal.$userId'))
-        .toList()
-      ..sort((a, b) => a.path.compareTo(b.path));
+    final journals =
+        dir
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.contains('.journal.$userId'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
     if (journals.length > keep) {
       for (final f in journals.take(journals.length - keep)) {
         f.deleteSync();
@@ -84,12 +91,41 @@ class PathTransactionManager {
     if (journal.existsSync()) await journal.delete();
   }
 
+  Future<void> recordFileBackup(String path, String backupPath) async {
+    final journal = File(_fileJournal());
+    Map<String, dynamic> data = {};
+    if (journal.existsSync()) {
+      data = Map<String, dynamic>.from(
+        jsonDecode(await journal.readAsString()),
+      );
+    }
+    data[path] = backupPath;
+    await journal.writeAsString(jsonEncode(data));
+  }
+
+  Future<void> rollbackFileBackups() async {
+    final journal = File(_fileJournal());
+    if (!journal.existsSync()) return;
+    final data = Map<String, dynamic>.from(
+      jsonDecode(await journal.readAsString()),
+    );
+    for (final entry in data.entries) {
+      final file = File(entry.key);
+      final backup = File(entry.value.toString());
+      if (backup.existsSync()) {
+        await backup.copy(file.path);
+      }
+    }
+    await journal.delete();
+  }
+
   /// Reconcile unfinished transactions, rolling back any pending ones.
   Future<void> reconcile(String userId) async {
     final journal = File(_journalPath(userId));
     if (!journal.existsSync()) return;
-    final data =
-        Map<String, dynamic>.from(jsonDecode(await journal.readAsString()));
+    final data = Map<String, dynamic>.from(
+      jsonDecode(await journal.readAsString()),
+    );
     if (data['status'] != 'committed') {
       final txId = data['txId'] as String?;
       if (txId != null) {

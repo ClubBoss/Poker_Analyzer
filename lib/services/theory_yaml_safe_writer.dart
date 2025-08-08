@@ -19,12 +19,13 @@ class TheoryWriteConflict implements Exception {
 
 class TheoryYamlSafeWriter {
   TheoryYamlSafeWriter({AutogenStatusDashboardService? dashboard})
-      : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+    : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   final AutogenStatusDashboardService _dashboard;
 
   static final _headerRe = RegExp(
-      r'^#\s*x-hash:\s*([0-9a-f]+)\s*\|\s*x-ver:\s*(\d+)\s*\|\s*x-ts:\s*([^|]+)(?:\|\s*(.*))?\$');
+    r'^#\s*x-hash:\s*([0-9a-f]{64})\s*\|\s*x-ver:\s*(\d+)\s*\|\s*x-ts:\s*([^\|]+?)(?:\s*\|\s*(.*))?$',
+  );
 
   Future<void> write({
     required String path,
@@ -32,12 +33,21 @@ class TheoryYamlSafeWriter {
     required String schema,
     Map<String, String>? meta,
     String? prevHash,
+    Future<void> Function(
+      String path,
+      String backupPath,
+      String newHash,
+      String? prevHash,
+    )?
+    onBackup,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final dryRun = prefs.getBool('theory.safeWriter.dryRun') ?? false;
     final keep = prefs.getInt('theory.backups.keep') ?? 10;
     final strict = prefs.getBool('theory.safeWriter.strict') ?? true;
 
+    String? oldHash;
+    String? newHash;
     try {
       if (strict) {
         final map =
@@ -49,45 +59,67 @@ class TheoryYamlSafeWriter {
         loadYaml(yaml);
       }
 
-      final newHash = sha256.convert(utf8.encode(yaml)).toString();
       final file = File(path);
-      String? oldHash;
       var version = 0;
+      newHash = sha256.convert(utf8.encode(yaml)).toString();
       if (file.existsSync()) {
         final lines = file.readAsLinesSync();
         final firstLine = lines.isEmpty ? null : lines.first;
-        final match = firstLine != null ? _headerRe.firstMatch(firstLine) : null;
+        final match = firstLine != null
+            ? _headerRe.firstMatch(firstLine)
+            : null;
         if (match != null) {
           oldHash = match.group(1);
           version = int.parse(match.group(2)!);
           if (oldHash != null && (prevHash == null || prevHash != oldHash)) {
             _dashboard.update(
-                'TheoryWriter',
-                AutogenStatus(
-                    currentStage: 'conflict', lastError: 'checksum_mismatch'));
+              'TheoryWriter',
+              AutogenStatus(
+                currentStage: 'conflict',
+                lastError: 'checksum_mismatch',
+                file: path,
+                action: 'conflict',
+                prevHash: oldHash,
+                newHash: newHash,
+              ),
+            );
             throw TheoryWriteConflict('checksum_mismatch');
           }
         }
         if (oldHash == newHash) {
           _dashboard.update(
-              'TheoryWriter', AutogenStatus(currentStage: 'no-op', progress: 1));
+            'TheoryWriter',
+            AutogenStatus(
+              currentStage: 'no-op',
+              progress: 1,
+              file: path,
+              action: 'no-op',
+              prevHash: oldHash,
+              newHash: newHash,
+            ),
+          );
           return;
         }
         final rel = p.relative(path);
         final backupPath = p.join(
-            'theory_backups',
-            '$rel.${DateTime.now().millisecondsSinceEpoch}.yaml');
+          'theory_backups',
+          '$rel.${DateTime.now().millisecondsSinceEpoch}.yaml',
+        );
         final backupFile = File(backupPath);
         backupFile.parent.createSync(recursive: true);
         await file.copy(backupFile.path);
+        if (onBackup != null) {
+          await onBackup(file.path, backupFile.path, newHash, oldHash);
+        }
         final backupDir = backupFile.parent;
         final base = p.basename(rel);
-        final backups = backupDir
-            .listSync()
-            .whereType<File>()
-            .where((f) => p.basename(f.path).startsWith('$base.'))
-            .toList()
-          ..sort((a, b) => a.path.compareTo(b.path));
+        final backups =
+            backupDir
+                .listSync()
+                .whereType<File>()
+                .where((f) => p.basename(f.path).startsWith('$base.'))
+                .toList()
+              ..sort((a, b) => a.path.compareTo(b.path));
         if (backups.length > keep) {
           for (final f in backups.take(backups.length - keep)) {
             f.deleteSync();
@@ -97,7 +129,16 @@ class TheoryYamlSafeWriter {
 
       if (dryRun) {
         _dashboard.update(
-            'TheoryWriter', AutogenStatus(currentStage: 'dryRun', progress: 1));
+          'TheoryWriter',
+          AutogenStatus(
+            currentStage: 'dryRun',
+            progress: 1,
+            file: path,
+            action: 'no-op',
+            prevHash: oldHash,
+            newHash: newHash,
+          ),
+        );
         return;
       }
 
@@ -105,7 +146,7 @@ class TheoryYamlSafeWriter {
         'x-hash: $newHash',
         'x-ver: ${version + 1}',
         'x-ts: ${DateTime.now().toIso8601String()}',
-        if (meta != null) ...meta.entries.map((e) => '${e.key}: ${e.value}')
+        if (meta != null) ...meta.entries.map((e) => '${e.key}: ${e.value}'),
       ];
       final header = '# ' + headerParts.join(' | ');
       final content = header + '\n' + yaml;
@@ -117,17 +158,35 @@ class TheoryYamlSafeWriter {
       await raf.close();
       await tmp.rename(file.path);
       _dashboard.update(
-          'TheoryWriter', AutogenStatus(currentStage: 'ok', progress: 1));
+        'TheoryWriter',
+        AutogenStatus(
+          currentStage: 'ok',
+          progress: 1,
+          file: path,
+          action: 'ok',
+          prevHash: oldHash,
+          newHash: newHash,
+        ),
+      );
     } catch (e) {
-      _dashboard.update('TheoryWriter',
-          AutogenStatus(currentStage: 'rollback', lastError: e.toString()));
+      _dashboard.update(
+        'TheoryWriter',
+        AutogenStatus(
+          currentStage: 'rollback',
+          lastError: e.toString(),
+          file: path,
+          action: 'rollback',
+          prevHash: oldHash,
+          newHash: newHash,
+        ),
+      );
       rethrow;
     }
   }
 
   static String? extractHash(String content) {
-    final first = content.split('\n').first;
+    final first = content.split('\n').first.trim();
     final match = _headerRe.firstMatch(first);
-    return match?.group(1);
+    return match != null ? match.group(1) : null;
   }
 }
