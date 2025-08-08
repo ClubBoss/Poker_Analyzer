@@ -73,7 +73,7 @@ jobs:
           for d in $dirs; do args="$args --dir $d"; done
           echo "Soft verify (no manifest) theory paths: $dirs"
           # Dry-run sweep to produce annotations/summary, but do not fail CI
-          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json
+          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json || true
 
       - name: Report sweep results
         if: steps.changes.outputs.dirs != '' && always()
