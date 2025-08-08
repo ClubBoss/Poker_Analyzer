@@ -1,4 +1,4 @@
-name: Theory Manifest - Generate baseline
+name: Theory Manifest – Generate baseline
 
 on:
   workflow_dispatch:
@@ -51,8 +51,8 @@ jobs:
         run: |
           set -euo pipefail
           ARGS="${{ steps.dirs.outputs.args }}"
-          dart run bin/poker_analyzer.dart manifest generate ${ARGS} --out theory_manifest.json
-          dart run bin/poker_analyzer.dart manifest update ${ARGS}
+          # Use standalone CLI to avoid compiling the Flutter app
+          dart run tool/theory_manifest_cli.dart ${ARGS} --out theory_manifest.json
           if git diff --quiet -- theory_manifest.json; then
             echo "changed=0" >> "$GITHUB_OUTPUT"
           else
