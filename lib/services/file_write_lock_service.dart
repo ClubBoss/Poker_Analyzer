@@ -1,3 +1,4 @@
+// lib/services/file_write_lock_service.dart
 import 'dart:async';
 import 'dart:io';
 
@@ -11,13 +12,15 @@ class FileWriteLockService {
 
   Future<RandomAccessFile> acquire() async {
     final prefs = await SharedPreferences.getInstance();
-    final timeout =
-        Duration(seconds: prefs.getInt('theory.lock.timeoutSec') ?? 10);
+    final timeout = Duration(
+      seconds: prefs.getInt('theory.lock.timeoutSec') ?? 10,
+    );
     final start = DateTime.now();
+
     while (true) {
       try {
-        final raf =
-            _lockFile.openSync(mode: FileMode.writeOnlyExclusive);
+        // Fails if another process/thread holds it
+        final raf = _lockFile.openSync(mode: FileMode.writeOnlyExclusive);
         return raf;
       } catch (_) {
         if (DateTime.now().difference(start) > timeout) {
@@ -29,6 +32,8 @@ class FileWriteLockService {
   }
 
   Future<void> release(RandomAccessFile raf) async {
+    // No advisory lock held, just close
     await raf.close();
   }
 }
+
