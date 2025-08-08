@@ -1,9 +1,11 @@
 name: Theory Manifest – Generate baseline
+
 on:
   workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   generate:
@@ -14,43 +16,52 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Генерация минимального baseline-манифеста без Flutter.
+      # Берём все *.yaml из часто встречающихся директорий.
       - name: Generate baseline manifest (Python, no Flutter)
         id: gen
-        shell: bash
+        shell: python
         run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import os, json, hashlib
-          ROOTS = ["assets"]  # где лежат YAML
-          exts = {".yaml", ".yml"}
-          files = []
-          for root in ROOTS:
+          import os, json, glob
+
+          roots = [
+              "theory", "yaml_out",
+              "assets", "assets/learning_paths", "assets/learning_tracks",
+              "assets/lesson_tracks", "assets/lessons", "assets/mini_lessons",
+              "assets/packs/advanced", "assets/packs/advanced_icm", "assets/packs/intermediate",
+              "assets/packs/v2/manual_legacy/postflop",
+              "assets/packs/v2/manual_legacy/postflop/templates",
+              "assets/packs/v2/manual_legacy/preflop",
+              "assets/paths", "assets/skills/cash", "assets/templates",
+              "assets/theory_blocks",
+              "assets/theory_lessons/level1", "assets/theory_lessons/level2", "assets/theory_lessons/level3",
+              "assets/theory_mini_lessons", "assets/theory_packs", "assets/theory_tracks",
+              "assets/training_packs",
+              "tool"
+          ]
+
+          files = {}
+          for root in roots:
               if not os.path.isdir(root):
                   continue
-              for r, _, fns in os.walk(root):
-                  for fn in fns:
-                      if os.path.splitext(fn)[1].lower() in exts:
-                          files.append(os.path.join(r, fn))
-          files.sort()
-          mani = {"version": 1, "strict": False, "files": {}}
-          for p in files:
-              with open(p, "rb") as fh:
-                  sha = hashlib.sha256(fh.read()).hexdigest()
-              mani["files"][p] = {"sha256": sha}
-          with open("theory_manifest.json", "w", encoding="utf-8") as out:
-              json.dump(mani, out, ensure_ascii=False, indent=2)
-          print(f"Wrote theory_manifest.json with {len(files)} files")
-          PY
-          echo "changed=1" >> "$GITHUB_OUTPUT"
+              for path in glob.glob(os.path.join(root, "**", "*.yaml"), recursive=True):
+                  rel = os.path.normpath(path)
+                  files[rel] = {"hash": None}
 
-      - name: Create PR with baseline
-        if: steps.gen.outputs.changed == '1'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: "chore: add baseline theory manifest"
-          title: "chore: add baseline theory manifest"
-          body: |
-            Generated theory_manifest.json (soft mode, strict=false).
-            Flip `"strict": true` later to enable strict CI.
-          branch: manifest/baseline
-          signoff: false
+          data = {"version": 1, "files": files}
+          out_path = "theory_manifest.json"
+
+          before = None
+          if os.path.exists(out_path):
+              try:
+                  before = json.load(open(out_path, "r", encoding="utf-8"))
+              except Exception:
+                  before = None
+
+          with open(out_path, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+
+          changed = json.dumps(before, sort_keys=True) != json.dumps(data, sort_keys=True)
+          print(f"::notice ::Found {len(files)} YAML files; manifest {'changed' if changed else 'unchanged'}.")
+
+          # Запишем флаг для с
