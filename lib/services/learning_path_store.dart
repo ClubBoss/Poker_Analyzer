@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+
 import '../models/injected_path_module.dart';
 
 /// Persists injected learning path modules per user.
@@ -10,6 +12,19 @@ class LearningPathStore {
   const LearningPathStore({this.rootDir = 'autogen_cache/learning_paths'});
 
   File _fileFor(String userId) => File('$rootDir/$userId.json');
+
+  Future<List<String>> listUsers() async {
+    final dir = Directory(rootDir);
+    if (!dir.existsSync()) return [];
+    final users = <String>[];
+    await for (final entity in dir.list()) {
+      if (entity is File && entity.path.endsWith('.json')) {
+        final id = p.basenameWithoutExtension(entity.path);
+        if (id.isNotEmpty) users.add(id);
+      }
+    }
+    return users;
+  }
 
   Future<List<InjectedPathModule>> listModules(String userId) async {
     final file = _fileFor(userId);
@@ -74,4 +89,3 @@ class LearningPathStore {
     await _save(userId, modules);
   }
 }
-

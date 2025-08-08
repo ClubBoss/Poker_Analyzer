@@ -36,6 +36,7 @@ import '../core/models/spot_seed/legacy_seed_adapter.dart';
 import '../core/models/spot_seed/seed_issue.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pack_novelty_guard_service.dart';
+import 'theory_injection_scheduler_service.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -83,32 +84,32 @@ class AutogenPipelineExecutor {
     TheoryAutoInjector? autoInjector,
     PackNoveltyGuardService? noveltyGuard,
     bool? failOnSeedErrors,
-  })  : dedup = dedup ?? AutoDeduplicationEngine(),
-        exporter = exporter ?? const YamlPackExporter(),
-        coverage = coverage ?? SkillTagCoverageTracker(),
-        theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
-        boardClassifier = boardClassifier,
-        skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
-        fingerprintGenerator =
-            fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
-        _fingerprintLog = fingerprintLog ??
-            File(
-              'generated_pack_fingerprints.log',
-            ).openWrite(mode: FileMode.append),
-        dashboard = dashboard ?? AutogenStatsDashboardService(),
-        status = status ?? AutogenStatusDashboardService(),
-        icmInjector = icmInjector,
-        gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
-        runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
-        packComparer = packComparer ?? const PackFingerprintComparer(),
-        policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
-        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
-        formatSelector = formatSelector ?? AutoFormatSelector(),
-        autoInjector = autoInjector ?? TheoryAutoInjector(),
-        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
-        failOnSeedErrors =
-            failOnSeedErrors ?? (Platform.environment['CI'] == 'true')
-  {
+  }) : dedup = dedup ?? AutoDeduplicationEngine(),
+       exporter = exporter ?? const YamlPackExporter(),
+       coverage = coverage ?? SkillTagCoverageTracker(),
+       theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
+       boardClassifier = boardClassifier,
+       skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
+       fingerprintGenerator =
+           fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
+       _fingerprintLog =
+           fingerprintLog ??
+           File(
+             'generated_pack_fingerprints.log',
+           ).openWrite(mode: FileMode.append),
+       dashboard = dashboard ?? AutogenStatsDashboardService(),
+       status = status ?? AutogenStatusDashboardService(),
+       icmInjector = icmInjector,
+       gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
+       runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
+       packComparer = packComparer ?? const PackFingerprintComparer(),
+       policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
+       boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
+       formatSelector = formatSelector ?? AutoFormatSelector(),
+       autoInjector = autoInjector ?? TheoryAutoInjector(),
+       noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
+       failOnSeedErrors =
+           failOnSeedErrors ?? (Platform.environment['CI'] == 'true') {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -123,8 +124,7 @@ class AutogenPipelineExecutor {
         maxComboCount: prefs.getInt('usf.maxComboCount'),
         requireRangesForStreets:
             prefs.getStringList('usf.requireRangesForStreets') ?? const [],
-        validateBoardLength:
-            prefs.getBool('usf.validateBoardLength') ?? false,
+        validateBoardLength: prefs.getBool('usf.validateBoardLength') ?? false,
         validatePositionConsistency:
             prefs.getBool('usf.validatePositionConsistency') ?? false,
       ),
@@ -143,17 +143,21 @@ class AutogenPipelineExecutor {
       }
       final issues = validator
           .validate(seed)
-          .map((i) => SeedIssue(
-                code: i.code,
-                severity: i.severity,
-                message: i.message,
-                path: i.path,
-                seedId: seed.id,
-              ))
+          .map(
+            (i) => SeedIssue(
+              code: i.code,
+              severity: i.severity,
+              message: i.message,
+              path: i.path,
+              seedId: seed.id,
+            ),
+          )
           .toList();
       if (issues.isNotEmpty) {
-        AutogenStatusDashboardService.instance
-            .reportSeedIssues(seed.id, issues);
+        AutogenStatusDashboardService.instance.reportSeedIssues(
+          seed.id,
+          issues,
+        );
         allIssues.addAll(issues);
       }
       seeds.add(seed);
@@ -161,10 +165,10 @@ class AutogenPipelineExecutor {
     final errors = allIssues.where((i) => i.severity == 'error').toList();
     if (errors.isNotEmpty && failOnSeedErrors) {
       final buffer = StringBuffer(
-          'ERROR: Seed validation failed (${errors.length} errors)');
+        'ERROR: Seed validation failed (${errors.length} errors)',
+      );
       for (final e in errors) {
-        buffer.writeln(
-            '\n- seedId=${e.seedId ?? ''}, issue=${e.code}');
+        buffer.writeln('\n- seedId=${e.seedId ?? ''}, issue=${e.code}');
       }
       stderr.writeln(buffer.toString());
       throw Exception('seed_validation_failed');
@@ -375,39 +379,39 @@ class AutogenPipelineExecutor {
           ? await boosterEngine.boostPacks(boostRequests)
           : <TrainingPackTemplateV2>[];
       for (final pack in boosted) {
-          final model = TrainingPackModel(
-            id: pack.id,
-            title: pack.name,
-            spots: pack.spots,
-            tags: List<String>.from(pack.tags),
-            metadata: Map<String, dynamic>.from(pack.meta),
-          );
-          coverage.analyzePack(model);
-          dashboard.recordCoverage(coverage.aggregateReport);
-          dashboard.recordPack(pack.spots.length);
-          final fpHash = fingerprintGenerator.generateFromTemplate(pack);
-          _fingerprintLog.writeln(fpHash);
-          final pf = PackFingerprint(
-            id: pack.id,
-            hash: fpHash,
-            spots: {
-              for (final TrainingPackSpot s in pack.spots) spotGen.generate(s),
-            },
-            meta: Map<String, dynamic>.from(pack.meta),
-          );
-          final dupReports = packComparer.compare(pf, existingFingerprints);
-          final duplicates = [
-            for (final r in dupReports)
-              DuplicatePackInfo(
-                candidateId: pf.id,
-                existingId: r.existingPackId,
-                similarity: r.similarity,
-                reason: r.reason.replaceAll(' ', '_'),
-              ),
-          ];
-          await policyEngine.applyPolicies(duplicates);
-          existingFingerprints.add(pf);
-        }
+        final model = TrainingPackModel(
+          id: pack.id,
+          title: pack.name,
+          spots: pack.spots,
+          tags: List<String>.from(pack.tags),
+          metadata: Map<String, dynamic>.from(pack.meta),
+        );
+        coverage.analyzePack(model);
+        dashboard.recordCoverage(coverage.aggregateReport);
+        dashboard.recordPack(pack.spots.length);
+        final fpHash = fingerprintGenerator.generateFromTemplate(pack);
+        _fingerprintLog.writeln(fpHash);
+        final pf = PackFingerprint(
+          id: pack.id,
+          hash: fpHash,
+          spots: {
+            for (final TrainingPackSpot s in pack.spots) spotGen.generate(s),
+          },
+          meta: Map<String, dynamic>.from(pack.meta),
+        );
+        final dupReports = packComparer.compare(pf, existingFingerprints);
+        final duplicates = [
+          for (final r in dupReports)
+            DuplicatePackInfo(
+              candidateId: pf.id,
+              existingId: r.existingPackId,
+              similarity: r.similarity,
+              reason: r.reason.replaceAll(' ', '_'),
+            ),
+        ];
+        await policyEngine.applyPolicies(duplicates);
+        existingFingerprints.add(pf);
+      }
       await coverage.logSummary();
       await _fingerprintLog.flush();
       await _fingerprintLog.close();
@@ -415,14 +419,16 @@ class AutogenPipelineExecutor {
         coverage.aggregateReport,
         yamlFiles: files.length + boosted.length,
       );
-      final avgQuality =
-          processedCount == 0 ? 0.0 : totalQualityScore / processedCount;
+      final avgQuality = processedCount == 0
+          ? 0.0
+          : totalQualityScore / processedCount;
       await runHistory.logRun(
         generated: generatedCount,
         rejected: rejectedCount,
         avgScore: avgQuality,
         format: appliedFormat,
       );
+      await TheoryInjectionSchedulerService.instance.runNow(force: true);
       status.update(
         'pipeline',
         const AutogenStatus(

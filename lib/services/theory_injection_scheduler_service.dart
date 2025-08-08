@@ -1,0 +1,98 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/autogen_status.dart';
+import 'autogen_status_dashboard_service.dart';
+import 'learning_path_store.dart';
+import 'mistake_telemetry_store.dart';
+import 'theory_library_index.dart';
+import 'theory_link_auto_injector.dart';
+import 'theory_novelty_registry.dart';
+
+class TheoryInjectionSchedulerService {
+  TheoryInjectionSchedulerService._({
+    LearningPathStore? store,
+    TheoryLinkAutoInjector? injector,
+    AutogenStatusDashboardService? dashboard,
+  }) : _store = store ?? const LearningPathStore(),
+       _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       _injector =
+           injector ??
+           TheoryLinkAutoInjector(
+             store: store ?? const LearningPathStore(),
+             libraryIndex: TheoryLibraryIndex(),
+             telemetry: MistakeTelemetryStore(),
+             noveltyRegistry: TheoryNoveltyRegistry(),
+           );
+
+  static final TheoryInjectionSchedulerService instance =
+      TheoryInjectionSchedulerService._();
+
+  final LearningPathStore _store;
+  final TheoryLinkAutoInjector _injector;
+  final AutogenStatusDashboardService _dashboard;
+
+  Timer? _timer;
+  int _totalRuns = 0;
+  int _totalSkipped = 0;
+
+  Future<void> start() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('theory.schedulerEnabled') ?? true)) return;
+    final intervalHours = prefs.getInt('theory.schedulerIntervalHours') ?? 6;
+    await runNow();
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(hours: intervalHours), (_) => runNow());
+  }
+
+  Future<void> stop() async {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  Future<void> runNow({bool force = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final intervalHours = prefs.getInt('theory.schedulerIntervalHours') ?? 6;
+    final interval = Duration(hours: intervalHours);
+    final now = DateTime.now();
+    final users = await _store.listUsers();
+    var injected = 0;
+    var skipped = 0;
+    for (final user in users) {
+      final key = 'theoryScheduler.lastRun.$user';
+      final lastRaw = prefs.getString(key);
+      final last = lastRaw != null ? DateTime.tryParse(lastRaw) : null;
+      if (!force && last != null && now.difference(last) < interval) {
+        skipped++;
+        continue;
+      }
+      final modules = await _store.listModules(user);
+      final pending = modules.where(
+        (m) => m.status == 'pending' || m.status == 'in_progress',
+      );
+      if (pending.isEmpty ||
+          pending.every((m) => m.theoryIds.length >= _injector.maxPerModule)) {
+        skipped++;
+        await prefs.setString(key, now.toIso8601String());
+        continue;
+      }
+      await _injector.injectForUser(user);
+      await prefs.setString(key, now.toIso8601String());
+      injected++;
+    }
+    _totalRuns += injected;
+    _totalSkipped += skipped;
+    _dashboard.update(
+      'TheoryInjectionScheduler',
+      AutogenStatus(
+        isRunning: false,
+        currentStage: jsonEncode({
+          'runs': _totalRuns,
+          'skipped': _totalSkipped,
+        }),
+      ),
+    );
+  }
+}
