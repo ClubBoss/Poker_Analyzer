@@ -8,7 +8,8 @@ permissions:
   contents: write
 
 env:
-  THEORY_DIRS: theory,yaml_out
+  # Отслеживаемые директории с YAML
+  THEORY_DIRS: assets,yaml_out,theory
 
 jobs:
   verify:
@@ -42,29 +43,14 @@ jobs:
         env:
           BASE: ${{ github.base_ref }}
 
-      # ✅ считаем, что baseline ЕСТЬ только если .files — НЕ пустой объект
       - name: Check manifest presence
         id: manifest
-        shell: bash
         run: |
-          set -euo pipefail
-          if [ ! -f theory_manifest.json ]; then
+          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json; then
+            echo "has_manifest=1" >> "$GITHUB_OUTPUT"
+          else
             echo "has_manifest=0" >> "$GITHUB_OUTPUT"
-            exit 0
           fi
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-import json, os
-ok = 0
-try:
-    with open("theory_manifest.json","r",encoding="utf-8") as f:
-        data = json.load(f)
-    files = data.get("files", {})
-    if isinstance(files, dict) and len(files) > 0:
-        ok = 1
-except Exception:
-    ok = 0
-print(f"has_manifest={ok}")
-PY
 
       - name: No theory changes
         if: steps.changes.outputs.dirs == ''
@@ -86,7 +72,7 @@ PY
           args=""
           for d in $dirs; do args="$args --dir $d"; done
           echo "Soft verify (no manifest) theory paths: $dirs"
-          # Dry-run: аннотации/summary будут, но джоб не упадёт
+          # Dry-run sweep: создаём отчёт, но не валим сборку
           dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json
 
       - name: Report sweep results
@@ -119,7 +105,7 @@ PY
             }
             const body = fs.readFileSync('sweep_summary.md', 'utf8') + '\n' + marker;
             const { data: comments } = await github.rest.issues.listComments({ ...context.issue });
-            const existing = comments.find(comment => comment.body.includes(marker));
+            const existing = comments.find(comment => comment.body && comment.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
             } else {
@@ -187,7 +173,7 @@ PY
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add .
+          git add -A
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
