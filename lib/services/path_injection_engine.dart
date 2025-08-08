@@ -10,6 +10,9 @@ import 'targeted_pack_booster_engine.dart';
 import 'path_registry.dart';
 import 'pack_novelty_guard_service.dart';
 import 'autogen_status_dashboard_service.dart';
+import 'learning_path_store.dart';
+import 'assessment_pack_synthesizer.dart';
+import 'learning_path_events.dart';
 
 class PathInjectionDecision {
   final bool shouldInject;
@@ -25,6 +28,8 @@ class PathInjectionEngine {
   final PackNoveltyGuardService noveltyGuard;
   final AutogenStatusDashboardService dashboard;
   final PathRegistry registry;
+  final LearningPathStore store;
+  final AssessmentPackSynthesizer synthesizer;
 
   PathInjectionEngine({
     InlinePackTheoryClusterer? theoryClusterer,
@@ -32,11 +37,15 @@ class PathInjectionEngine {
     PackNoveltyGuardService? noveltyGuard,
     AutogenStatusDashboardService? dashboard,
     PathRegistry? registry,
+    LearningPathStore? store,
+    AssessmentPackSynthesizer? synthesizer,
   })  : theoryClusterer = theoryClusterer ?? InlinePackTheoryClusterer(),
         boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
         noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService(),
         dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        registry = registry ?? const PathRegistry();
+        registry = registry ?? const PathRegistry(),
+        store = store ?? const LearningPathStore(),
+        synthesizer = synthesizer ?? const AssessmentPackSynthesizer();
 
   Future<List<InjectedPathModule>> injectForClusters({
     required List<SkillTagCluster> clusters,
@@ -44,8 +53,13 @@ class PathInjectionEngine {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     if (!(prefs.getBool('path.inject.enabled') ?? true)) return [];
+    if (!(prefs.getBool('path.store.enabled') ?? true)) return [];
     final modules = <InjectedPathModule>[];
     final skips = <String, int>{};
+    final assessmentSize = prefs.getInt('path.inject.assessmentSize') ?? 6;
+    final theoryMins = prefs.getInt('path.inject.theoryMins') ?? 5;
+    final boosterMins = prefs.getInt('path.inject.boosterMins') ?? 10;
+    final assessmentMins = prefs.getInt('path.inject.assessmentMins') ?? 5;
     for (final c in clusters) {
       final decision = await evaluateOpportunity(c, userId);
       if (!decision.shouldInject) {
@@ -56,7 +70,13 @@ class PathInjectionEngine {
       final boosters =
           await boosterEngine.generateClusterBoosterPacks(clusters: [c]);
       final boosterIds = boosters.map((b) => b.id).toList();
-      final assessmentId = 'assessment_${c.clusterId}';
+      final assessment = await synthesizer.createAssessment(
+        tags: c.tags,
+        size: assessmentSize,
+        clusterId: c.clusterId,
+        themeName: c.themeName,
+      );
+      final assessmentId = assessment.id;
       final allIds = [...theoryIds, ...boosterIds, assessmentId];
       if (!noveltyGuard.isNovel(c.tags.toSet(), allIds)) {
         skips.update('novelty', (v) => v + 1, ifAbsent: () => 1);
@@ -72,9 +92,17 @@ class PathInjectionEngine {
         assessmentPackId: assessmentId,
         createdAt: DateTime.now(),
         triggerReason: 'autoCluster',
+        itemsDurations: {
+          'theoryMins': theoryMins,
+          'boosterMins': boosterMins,
+          'assessmentMins': assessmentMins,
+        },
       );
       modules.add(module);
       await registry.record(userId, c.tags);
+      await store.upsertModule(userId, module);
+      LearningPathEvents.moduleInjected(userId, module);
+      dashboard.recordPathModuleInjected();
     }
     dashboard.update(
       'PathInjectionEngine',
@@ -130,4 +158,24 @@ class PathInjectionEngine {
   Future<void> removeModule(String moduleId) async {
     // Placeholder for rollback support.
   }
+
+  Future<void> onModuleStarted(String userId, String moduleId) async {
+    await store.updateModuleStatus(userId, moduleId, 'in_progress');
+    LearningPathEvents.moduleStarted(userId, moduleId);
+    dashboard.recordPathModuleStarted();
+  }
+
+  Future<void> onModuleCompleted(String userId, String moduleId,
+      {required double passRate}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final threshold = prefs.getDouble('path.module.completeThreshold') ?? 0.7;
+    final status = passRate >= threshold ? 'completed' : 'in_progress';
+    await store.updateModuleStatus(userId, moduleId, status,
+        passRate: passRate);
+    if (status == 'completed') {
+      LearningPathEvents.moduleCompleted(userId, moduleId, passRate);
+      dashboard.recordPathModuleCompleted(passRate);
+    }
+  }
 }
+

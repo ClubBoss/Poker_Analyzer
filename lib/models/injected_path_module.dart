@@ -10,6 +10,9 @@ class InjectedPathModule {
   final String assessmentPackId;
   final DateTime createdAt;
   final String triggerReason;
+  final String status;
+  final Map<String, dynamic> metrics;
+  final Map<String, int>? itemsDurations;
 
   const InjectedPathModule({
     required this.moduleId,
@@ -20,7 +23,30 @@ class InjectedPathModule {
     required this.assessmentPackId,
     required this.createdAt,
     required this.triggerReason,
-  });
+    this.status = 'pending',
+    Map<String, dynamic>? metrics,
+    this.itemsDurations,
+  }) : metrics = metrics ?? const {};
+
+  InjectedPathModule copyWith({
+    String? status,
+    Map<String, dynamic>? metrics,
+    Map<String, int>? itemsDurations,
+  }) {
+    return InjectedPathModule(
+      moduleId: moduleId,
+      clusterId: clusterId,
+      themeName: themeName,
+      theoryIds: theoryIds,
+      boosterPackIds: boosterPackIds,
+      assessmentPackId: assessmentPackId,
+      createdAt: createdAt,
+      triggerReason: triggerReason,
+      status: status ?? this.status,
+      metrics: metrics ?? Map<String, dynamic>.from(this.metrics),
+      itemsDurations: itemsDurations ?? this.itemsDurations,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'moduleId': moduleId,
@@ -31,6 +57,9 @@ class InjectedPathModule {
         'assessmentPackId': assessmentPackId,
         'createdAt': createdAt.toIso8601String(),
         'triggerReason': triggerReason,
+        'status': status,
+        'metrics': metrics,
+        if (itemsDurations != null) 'itemsDurations': itemsDurations,
       };
 
   static InjectedPathModule fromJson(Map<String, dynamic> json) =>
@@ -43,8 +72,13 @@ class InjectedPathModule {
         assessmentPackId: json['assessmentPackId'] as String,
         createdAt: DateTime.parse(json['createdAt'] as String),
         triggerReason: json['triggerReason'] as String,
+        status: json['status'] as String? ?? 'pending',
+        metrics: (json['metrics'] as Map?)?.cast<String, dynamic>() ?? const {},
+        itemsDurations:
+            (json['itemsDurations'] as Map?)?.map((k, v) => MapEntry(k, (v as num).toInt())),
       );
 
   @override
   String toString() => jsonEncode(toJson());
 }
+
