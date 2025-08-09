@@ -11,11 +11,13 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  TrainingPackTemplateV2 _packWithTags(List<List<String>> tags,
-      {String? audience}) {
+  TrainingPackTemplateV2 _packWithTags(
+    List<List<String>> tags, {
+    String? audience,
+  }) {
     final spots = [
       for (var i = 0; i < tags.length; i++)
-        TrainingPackSpot(id: 's$i', tags: tags[i])
+        TrainingPackSpot(id: 's$i', tags: tags[i]),
     ];
     return TrainingPackTemplateV2(
       id: 'p',
@@ -38,7 +40,7 @@ void main() {
   test('single tag dominance fails coverage pct', () async {
     final guard = SkillTagCoverageGuardService(mode: CoverageGuardMode.strict);
     final pack = _packWithTags([
-      for (var i = 0; i < 10; i++) ['a']
+      for (var i = 0; i < 10; i++) ['a'],
     ]);
     final report = await guard.evaluate(pack);
     expect(report.uniqueTags, 1);
@@ -47,12 +49,34 @@ void main() {
 
   test('audience override applies', () async {
     await SkillTagCoverageGuardService.setThresholds(
-        minUniqueTags: 1, minCoveragePct: 0.1, audience: 'pro');
+      minUniqueTags: 1,
+      minCoveragePct: 0.1,
+      audience: 'pro',
+    );
     final guard = SkillTagCoverageGuardService(mode: CoverageGuardMode.strict);
     final pack = _packWithTags([
-      for (var i = 0; i < 10; i++) ['a']
+      for (var i = 0; i < 10; i++) ['a'],
     ], audience: 'pro');
     final report = await guard.evaluate(pack);
     expect(report.passes, isTrue);
+  });
+
+  test('fromEnv applies overrides', () async {
+    final guard = SkillTagCoverageGuardService.fromEnv({
+      'COVERAGE_MODE': 'strict',
+      'COVERAGE_MIN_UNIQUE_TAGS': '1',
+      'COVERAGE_MIN_PCT': '0.1',
+    })!;
+    final pack = _packWithTags([
+      ['a'],
+    ]);
+    final report = await guard.evaluate(pack);
+    expect(guard.mode, CoverageGuardMode.strict);
+    expect(report.passes, isTrue);
+  });
+
+  test('fromEnv returns null when no vars', () {
+    final guard = SkillTagCoverageGuardService.fromEnv({});
+    expect(guard, isNull);
   });
 }
