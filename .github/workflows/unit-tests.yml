@@ -13,32 +13,45 @@ on:
       - '**/*.md'
 
 jobs:
-  test:
+  unit:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: dart-lang/setup-dart@v1
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          channel: stable
+
+      - name: Flutter version
+        run: flutter --version
 
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
 
-      - name: Run headless unit tests
+      - name: Detect test dirs
+        id: dirs
+        shell: bash
         run: |
-          dirs=()
-          [ -d test/tools ] && dirs+=("test/tools")
-          [ -d test/headless ] && dirs+=("test/headless")
-          if [ ${#dirs[@]} -eq 0 ]; then
-            echo "No headless test directories found."
-            exit 0
+          set -euo pipefail
+          DIRS=()
+          [[ -d test ]] && DIRS+=("test")
+          if [[ ${#DIRS[@]} -eq 0 ]]; then
+            echo "has_tests=0" >> "$GITHUB_OUTPUT"
+          else
+            printf '%s ' "${DIRS[@]}" > dirs.txt
+            echo "has_tests=1" >> "$GITHUB_OUTPUT"
+            echo "list=$(cat dirs.txt)" >> "$GITHUB_OUTPUT"
           fi
-          dart test "${dirs[@]}" --exclude-tags flutter --concurrency=2 --reporter expanded
 
+      - name: Run tests (Flutter)
+        if: steps.dirs.outputs.has_tests == '1'
+        run: |
+          # Flutter-тесты корректно выполняют и pure-Dart тесты
+          flutter test -r expanded ${{ steps.dirs.outputs.list }}
+
+      - name: No tests found
+        if: steps.dirs.outputs.has_tests != '1'
+        run: echo "No tests found. Skipping."
