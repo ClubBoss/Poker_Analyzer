@@ -8,3 +8,5 @@ stages:
     packId: 3bet_push_bb_vs_btn
     requiredAccuracy: 80
     minHands: 10
+
+# ci: touch for verify
