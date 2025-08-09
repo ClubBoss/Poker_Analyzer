@@ -60,6 +60,14 @@ jobs:
             echo "changed=1" >> "$GITHUB_OUTPUT"
           fi
 
+      # На всякий пожарный убираем побочные изменения Flutter из воркспейса (не критично, но полезно)
+      - name: Drop unrelated generated changes
+        if: steps.gen.outputs.changed == '1'
+        shell: bash
+        run: |
+          git restore --worktree --staged lib/l10n || true
+          git restore --worktree --staged macos/Flutter/GeneratedPluginRegistrant.swift || true
+
       - name: Create PR with baseline
         if: steps.gen.outputs.changed == '1'
         uses: peter-evans/create-pull-request@v6
@@ -67,7 +75,9 @@ jobs:
           commit-message: "chore: add baseline theory manifest"
           title: "chore: add baseline theory manifest"
           body: |
-            Generated/updated theory_manifest.json across all YAML directories found in the repo using standalone generator.
-            This avoids compiling lib/ and unblocks strict verification in Theory Integrity CI.
+            Generated/updated theory_manifest.json across all YAML directories found in the repo using a standalone generator.
+            Unblocks strict verification in the Theory Integrity CI without compiling the Flutter app.
           branch: manifest/baseline
           signoff: false
+          add-paths: |
+            theory_manifest.json
