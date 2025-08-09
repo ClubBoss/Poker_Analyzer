@@ -15,6 +15,7 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -46,11 +47,13 @@ jobs:
             echo "list=$(cat dirs.txt)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run tests (Flutter)
+      - name: Run tests (Flutter, serialized)
         if: steps.dirs.outputs.has_tests == '1'
+        shell: bash
         run: |
-          # Flutter-тесты корректно выполняют и pure-Dart тесты
-          flutter test -r expanded ${{ steps.dirs.outputs.list }}
+          # Последовательно (-j 1) снижает флейки и «зависания» на CI.
+          # expanded — понятные логи. В случае подвисания — увидим, на каком тесте.
+          flutter test -r expanded -j 1 ${{ steps.dirs.outputs.list }}
 
       - name: No tests found
         if: steps.dirs.outputs.has_tests != '1'
