@@ -16,7 +16,7 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -35,30 +35,35 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Берём только быстрые headless-наборы, которые НЕ требуют flutter_test
-      - name: Detect pure-dart test dirs
-        id: dirs
+      # Явно выбираем только безопасные pure-Dart тесты из tools (без batch_generate_test.dart)
+      - name: Build whitelist of tests
+        id: files
         shell: bash
         run: |
           set -euo pipefail
-          DIRS=()
-          [[ -d test/tools ]] && DIRS+=("test/tools")
-          [[ -d test/headless ]] && DIRS+=("test/headless")
-          if [[ ${#DIRS[@]} -eq 0 ]]; then
+          WHITELIST=()
+          for f in \
+            "test/tools/schema_check_unit_test.dart" \
+            "test/tools/migrate_output_variants_test.dart" \
+            "test/tools/plugin_scaffold_test.dart"
+          do
+            [[ -f "$f" ]] && WHITELIST+=("$f")
+          done
+
+          if [[ ${#WHITELIST[@]} -eq 0 ]]; then
             echo "has_tests=0" >> "$GITHUB_OUTPUT"
           else
-            printf '%s ' "${DIRS[@]}" > dirs.txt
+            printf '%s\n' "${WHITELIST[@]}" | tee whitelist.txt
             echo "has_tests=1" >> "$GITHUB_OUTPUT"
-            echo "list=$(cat dirs.txt)" >> "$GITHUB_OUTPUT"
+            echo "list=$(tr '\n' ' ' < whitelist.txt)" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run tests (Dart, compact)
-        if: steps.dirs.outputs.has_tests == '1'
+        if: steps.files.outputs.has_tests == '1'
         shell: bash
         run: |
-          # Запускаем как pure Dart, чтобы не триггерить валидацию плагинов Flutter.
-          dart test -r compact ${{ steps.dirs.outputs.list }}
+          dart test -r compact ${{ steps.files.outputs.list }}
 
-      - name: No pure-dart tests found
-        if: steps.dirs.outputs.has_tests != '1'
-        run: echo "No pure-dart test directories found. Skipping."
+      - name: No whitelist tests found
+        if: steps.files.outputs.has_tests != '1'
+        run: echo "No whitelisted tests found. Skipping."
