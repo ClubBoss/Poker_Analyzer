@@ -72,6 +72,15 @@ class TrainingPackAutoGenerator {
       );
       return [];
     }
+    if (set.outputVariants.isNotEmpty) {
+      final all = await generateAll(
+        set,
+        theoryIndex: theoryIndex,
+        existingSpots: existingSpots,
+        deduplicate: deduplicate,
+      );
+      return all.isNotEmpty ? all.first : [];
+    }
     status.update(
       'TrainingPackAutoGenerator',
       const AutogenStatus(
@@ -125,6 +134,69 @@ class TrainingPackAutoGenerator {
         e is Exception ? e : Exception(e.toString()),
       );
       _errorStats?.log(type);
+      status.update(
+        'TrainingPackAutoGenerator',
+        AutogenStatus(
+          isRunning: false,
+          currentStage: 'error',
+          progress: 0,
+          lastError: e.toString(),
+        ),
+      );
+      rethrow;
+    }
+  }
+
+  /// Generates spot lists for each output variant in [set].
+  Future<List<List<TrainingPackSpot>>> generateAll(
+    TrainingPackTemplateSet set, {
+    Map<String, InlineTheoryEntry> theoryIndex = const {},
+    Iterable<TrainingPackSpot> existingSpots = const [],
+    bool deduplicate = true,
+  }) async {
+    final status = AutogenStatusDashboardService.instance;
+    if (_shouldAbort) {
+      status.update(
+        'TrainingPackAutoGenerator',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'aborted',
+          progress: 0,
+        ),
+      );
+      return [];
+    }
+    status.update(
+      'TrainingPackAutoGenerator',
+      const AutogenStatus(
+        isRunning: true,
+        currentStage: 'generating',
+        progress: 0,
+      ),
+    );
+    try {
+      if (deduplicate) {
+        _dedup.addExisting(existingSpots);
+      }
+      final lists = _engine.generateOutputs(set, theoryIndex: theoryIndex);
+      final results = <List<TrainingPackSpot>>[];
+      for (final spots in lists) {
+        if (deduplicate) {
+          results.add(_dedup.deduplicateSpots(spots, source: set.baseSpot.id));
+        } else {
+          results.add(spots);
+        }
+      }
+      status.update(
+        'TrainingPackAutoGenerator',
+        const AutogenStatus(
+          isRunning: false,
+          currentStage: 'complete',
+          progress: 1,
+        ),
+      );
+      return results;
+    } catch (e) {
       status.update(
         'TrainingPackAutoGenerator',
         AutogenStatus(

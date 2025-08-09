@@ -75,6 +75,66 @@ class TrainingPackTemplateExpanderService {
     return spots;
   }
 
+  /// Expands [set] into multiple output variants.
+  ///
+  /// Each entry in [TrainingPackTemplateSet.outputVariants] produces a separate
+  /// list of spots with its constraints merged onto every variation. When no
+  /// output variants are defined, a single list containing [expand] results is
+  /// returned.
+  List<List<TrainingPackSpot>> expandOutputs(TrainingPackTemplateSet set) {
+    if (set.outputVariants.isEmpty) {
+      return [expand(set)];
+    }
+    final results = <List<TrainingPackSpot>>[];
+    for (final variant in set.outputVariants) {
+      final merged = [
+        for (final v in set.variations) _mergeConstraints(v, variant),
+      ];
+      final copy = TrainingPackTemplateSet(
+        baseSpot: set.baseSpot,
+        variations: merged,
+        playerTypeVariations: set.playerTypeVariations,
+        suitAlternation: set.suitAlternation,
+        stackDepthMods: set.stackDepthMods,
+        linePatterns: set.linePatterns,
+        postflopLines: set.postflopLines,
+        boardTexturePreset: set.boardTexturePreset,
+        excludeBoardTexturePresets: set.excludeBoardTexturePresets,
+        requiredBoardClusters: set.requiredBoardClusters,
+        excludedBoardClusters: set.excludedBoardClusters,
+        expandAllLines: set.expandAllLines,
+        postflopLineSeed: set.postflopLineSeed,
+      );
+      results.add(expand(copy));
+    }
+    return results;
+  }
+
+  ConstraintSet _mergeConstraints(ConstraintSet base, ConstraintSet variant) {
+    return ConstraintSet(
+      boardTags: base.boardTags,
+      positions: base.positions,
+      handGroup: base.handGroup,
+      villainActions: base.villainActions,
+      targetStreet: variant.targetStreet ?? base.targetStreet,
+      requiredTags: {...base.requiredTags, ...variant.requiredTags}.toList(),
+      excludedTags: {...base.excludedTags, ...variant.excludedTags}.toList(),
+      position: base.position,
+      opponentPosition: base.opponentPosition,
+      boardTexture: base.boardTexture,
+      minStack: base.minStack,
+      maxStack: base.maxStack,
+      boardConstraints: [...base.boardConstraints, ...variant.boardConstraints],
+      linePattern: base.linePattern,
+      overrides: base.overrides,
+      tags: base.tags,
+      tagMergeMode: base.tagMergeMode,
+      metadata: base.metadata,
+      metaMergeMode: base.metaMergeMode,
+      theoryLink: base.theoryLink,
+    );
+  }
+
   ConstraintSet _expandBoards(
     ConstraintSet set, {
     List<String> requiredBoardClusters = const [],
