@@ -5,178 +5,106 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pull-requests: write
 
 env:
-  # Отслеживаемые директории с YAML
+  # Каталоги, где лежат реальные YAML
   THEORY_DIRS: assets,yaml_out,theory
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Cache Pub dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
-
-      # Flutter SDK (вместо Dart-only)
-      - name: Setup Flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
-          cache: true
+          flutter-version: '3.32.8'
+          channel: 'stable'
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Determine changed theory paths
-        id: changes
+      # Быстрый список затронутых YAML (если есть helper-скрипт — используем; если нет — не падаем)
+      - name: Collect changed YAML paths
+        id: changed
+        shell: bash
         run: |
-          paths=$(bash scripts/changed_theory_paths.sh "$BASE")
-          echo "dirs=$paths" >> "$GITHUB_OUTPUT"
-        env:
-          BASE: ${{ github.base_ref }}
-
-      - name: Check manifest presence
-        id: manifest
-        run: |
-          if [ -f theory_manifest.json ] && grep -q '"files"' theory_manifest.json; then
-            echo "has_manifest=1" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          # Попробуем скрипт, если существует
+          if [[ -x "scripts/changed_theory_paths.sh" ]]; then
+            CHANGED="$(scripts/changed_theory_paths.sh || true)"
           else
-            echo "has_manifest=0" >> "$GITHUB_OUTPUT"
+            # fallback: все yaml из заданных каталогов
+            IFS=',' read -ra DIRS <<< "${THEORY_DIRS}"
+            CHANGED=""
+            for d in "${DIRS[@]}"; do
+              if [[ -d "$d" ]]; then
+                while IFS= read -r f; do
+                  CHANGED+="${f}"$'\n'
+                done < <(git ls-files "${d}/**/*.yaml" || true)
+              fi
+            done
           fi
 
-      - name: No theory changes
-        if: steps.changes.outputs.dirs == ''
-        run: echo "No theory changes"
+          # Сохраним многострочный вывод в переменную-артефакт
+          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CHANGED"   >> "$GITHUB_OUTPUT"
+          echo "EOF"        >> "$GITHUB_OUTPUT"
 
-      - name: Verify theory files (strict, with manifest)
-        if: steps.changes.outputs.dirs != '' && steps.manifest.outputs.has_manifest == '1'
-        run: |
-          dirs="${{ steps.changes.outputs.dirs }}"
-          args=""
-          for d in $dirs; do args="$args --dir $d"; done
-          echo "Verifying (strict) theory paths: $dirs"
-          dart run bin/poker_analyzer.dart verify $args --manifest theory_manifest.json --ci
-
-      - name: Verify theory files (soft, no manifest yet)
-        if: steps.changes.outputs.dirs != '' && steps.manifest.outputs.has_manifest == '0'
-        run: |
-          dirs="${{ steps.changes.outputs.dirs }}"
-          args=""
-          for d in $dirs; do args="$args --dir $d"; done
-          echo "Soft verify (no manifest) theory paths: $dirs"
-          # Dry-run sweep: создаём отчёт, но не валим сборку
-          dart run bin/poker_analyzer.dart sweep $args --manifest theory_manifest.json
-
-      - name: Report sweep results
-        if: steps.changes.outputs.dirs != '' && always()
-        run: |
-          if [ ! -f theory_sweep_report.json ]; then
-            echo "no report"
-            exit 0
+          # Маркер: есть ли вообще YAML
+          if [[ -n "$CHANGED" ]]; then
+            echo "has_yaml=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_yaml=0" >> "$GITHUB_OUTPUT"
           fi
-          dart run bin/ci_report.dart --report theory_sweep_report.json --markdown | tee sweep_summary.md
-          cat sweep_summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Comment sweep summary
-        if: steps.changes.outputs.dirs != '' && always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const marker = '<!-- theory-sweep-summary -->';
-            if (!fs.existsSync('theory_sweep_report.json') || !fs.existsSync('sweep_summary.md')) {
-              core.info('no report to comment');
-              return;
-            }
-            const report = JSON.parse(fs.readFileSync('theory_sweep_report.json', 'utf8'));
-            const c = report.counters || {};
-            const count = (c.needs_upgrade || 0) + (c.needs_heal || 0) + (c.failed || 0);
-            if (count === 0) {
-              core.info('no issues, skipping comment');
-              return;
-            }
-            const body = fs.readFileSync('sweep_summary.md', 'utf8') + '\n' + marker;
-            const { data: comments } = await github.rest.issues.listComments({ ...context.issue });
-            const existing = comments.find(comment => comment.body && comment.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
-            } else {
-              await github.rest.issues.createComment({ ...context.issue, body });
-            }
-
-      - name: Upload sweep report artifacts
-        if: steps.changes.outputs.dirs != '' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: theory-sweep-report
-          path: |
-            theory_sweep_report.json
-            theory_sweep_report.csv
-          if-no-files-found: ignore
-
-  theory-fix:
-    if: contains(github.event.pull_request.labels.*.name, 'theory-fix') && github.event.pull_request.head.repo.fork == false
-    needs: verify
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Cache Pub dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Determine changed theory paths
-        id: changes
-        run: |
-          paths=$(bash scripts/changed_theory_paths.sh "$BASE")
-          echo "dirs=$paths" >> "$GITHUB_OUTPUT"
+      # Мягкая проверка всегда (даже если YAML не найден — шаг пройдёт)
+      - name: Soft verify (summary & annotations)
         env:
-          BASE: ${{ github.base_ref }}
-
-      - name: No theory changes
-        if: steps.changes.outputs.dirs == ''
-        run: echo "No theory changes"
-
-      - name: Sweep and fix theory files
-        if: steps.changes.outputs.dirs != ''
+          THEORY_DIRS: ${{ env.THEORY_DIRS }}
         run: |
-          dirs="${{ steps.changes.outputs.dirs }}"
-          args=""
-          for d in $dirs; do args="$args --dir $d"; done
-          dart run bin/poker_analyzer.dart sweep $args --fix --manifest theory_manifest.json
-          dart run bin/poker_analyzer.dart manifest update $args
-
-      - name: Commit and push fixes
-        if: steps.changes.outputs.dirs != ''
-        run: |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
+          # Если в репо ещё нет YAML — не падаем
+          if [[ "${{ steps.changed.outputs.has_yaml }}" != "1" ]]; then
+            echo "No YAML to verify (soft). Skipping."
             exit 0
           fi
-          git commit -m "chore: sweep theory"
-          git push
+          # Предпочтительно использовать внутренний репортёр, если он есть
+          if [[ -f "bin/ci_report.dart" ]]; then
+            dart run bin/ci_report.dart --mode soft
+          else
+            # Fallback на прямой CLI, если репортёра нет
+            dart run bin/poker_analyzer.dart verify --mode soft --manifest theory_manifest.json || true
+          fi
+
+      # Строгая проверка только на PR (ломаем сборку, если есть ошибки)
+      - name: Strict verify (PR only)
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          THEORY_DIRS: ${{ env.THEORY_DIRS }}
+        run: |
+          if [[ "${{ steps.changed.outputs.has_yaml }}" != "1" ]]; then
+            echo "No YAML to verify (strict). Skipping."
+            exit 0
+          fi
+          if [[ -f "bin/ci_report.dart" ]]; then
+            dart run bin/ci_report.dart --mode strict
+          else
+            dart run bin/poker_analyzer.dart verify --mode strict --manifest theory_manifest.json
+          fi
+
+      # Опционально: подсказка в логах, по каким путям шла проверка
+      - name: Debug changed YAML list
+        if: always()
+        run: |
+          echo "Changed YAML paths:"
+          echo "${{ steps.changed.outputs.paths }}"
