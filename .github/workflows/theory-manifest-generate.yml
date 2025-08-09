@@ -2,71 +2,44 @@ name: Theory Manifest – Generate baseline
 
 on:
   workflow_dispatch:
+    inputs:
+      args:
+        description: "Extra args for manifest generator"
+        required: false
+        default: ""
 
-permissions:
-  contents: write
-  pull-requests: write
-
-defaults:
-  run:
-    shell: bash
+env:
+  FLUTTER_VERSION: "3.22.2"
+  THEORY_DIRS: assets,yaml_out,theory
 
 jobs:
-  generate:
+  generate-theory-manifest:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Flutter
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
-          cache: true
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build dir list from repo (*.yaml)
-        id: dirs
-        run: |
-          set -euo pipefail
-          DIRS="$(git ls-files '*.yaml' | xargs -r dirname | sort -u || true)"
-          if [ -z "${DIRS}" ]; then
-            echo "no_yaml=1" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          ARGS=""
-          for d in $DIRS; do
-            ARGS="$ARGS --dir $d"
-          done
-          echo "no_yaml=0" >> "$GITHUB_OUTPUT"
-          echo "args=${ARGS}" >> "$GITHUB_OUTPUT"
+      - name: Generate theory manifest
+        run: dart run bin/poker_analyzer.dart manifest generate ${{ github.event.inputs.args }} --out theory_manifest.json
+        env:
+          THEORY_DIRS: ${{ env.THEORY_DIRS }}
 
-      - name: Generate/Update manifest
-        if: steps.dirs.outputs.no_yaml == '0'
-        id: gen
-        run: |
-          set -euo pipefail
-          ARGS="${{ steps.dirs.outputs.args }}"
-          # Use standalone CLI to avoid compiling the Flutter app
-          dart run tool/theory_manifest_cli.dart ${ARGS} --out theory_manifest.json
-          if git diff --quiet -- theory_manifest.json; then
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=1" >> "$GITHUB_OUTPUT"
-          fi
+      - name: Update theory manifest
+        run: dart run bin/poker_analyzer.dart manifest update ${{ github.event.inputs.args }}
+        env:
+          THEORY_DIRS: ${{ env.THEORY_DIRS }}
 
-      - name: Create PR with baseline
-        if: steps.gen.outputs.changed == '1'
-        uses: peter-evans/create-pull-request@v6
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit-message: "chore: add baseline theory manifest"
-          title: "chore: add baseline theory manifest"
-          body: |
-            Generated/updated theory_manifest.json across all YAML directories found in the repo.
-            Enables strict verification in Theory Integrity CI.
-          branch: manifest/baseline
-          signoff: false
+          commit_message: "Update theory_manifest.json (one-shot generator)"
+          file_pattern: theory_manifest.json
