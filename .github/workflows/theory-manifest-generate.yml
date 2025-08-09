@@ -2,44 +2,38 @@ name: Theory Manifest – Generate baseline
 
 on:
   workflow_dispatch:
-    inputs:
-      args:
-        description: "Extra args for manifest generator"
-        required: false
-        default: ""
-
-env:
-  FLUTTER_VERSION: "3.22.2"
-  THEORY_DIRS: assets,yaml_out,theory
 
 jobs:
-  generate-theory-manifest:
+  generate-baseline:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          flutter-version: '3.22.0' # фикс под Dart >=3.6.0
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate theory manifest
-        run: dart run bin/poker_analyzer.dart manifest generate ${{ github.event.inputs.args }} --out theory_manifest.json
-        env:
-          THEORY_DIRS: ${{ env.THEORY_DIRS }}
+      - name: Generate manifest
+        run: dart run bin/poker_analyzer.dart manifest generate ${ARGS} --out theory_manifest.json
 
-      - name: Update theory manifest
-        run: dart run bin/poker_analyzer.dart manifest update ${{ github.event.inputs.args }}
-        env:
-          THEORY_DIRS: ${{ env.THEORY_DIRS }}
+      - name: Update manifest
+        run: dart run bin/poker_analyzer.dart manifest update ${ARGS}
 
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add theory_manifest.json
+          git commit -m "Update theory_manifest.json [skip ci]" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
         with:
-          commit_message: "Update theory_manifest.json (one-shot generator)"
-          file_pattern: theory_manifest.json
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
