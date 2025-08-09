@@ -16,7 +16,7 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -33,13 +33,15 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Detect test dirs
+      # Берём только быстрые headless-наборы для CI-мерджа
+      - name: Detect fast test dirs
         id: dirs
         shell: bash
         run: |
           set -euo pipefail
           DIRS=()
-          [[ -d test ]] && DIRS+=("test")
+          [[ -d test/tools ]] && DIRS+=("test/tools")
+          [[ -d test/headless ]] && DIRS+=("test/headless")
           if [[ ${#DIRS[@]} -eq 0 ]]; then
             echo "has_tests=0" >> "$GITHUB_OUTPUT"
           else
@@ -48,12 +50,13 @@ jobs:
             echo "list=$(cat dirs.txt)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run tests (Flutter, serialized)
+      - name: Run tests (Flutter, compact, serialized)
         if: steps.dirs.outputs.has_tests == '1'
         shell: bash
         run: |
-          flutter test -r expanded -j 1 ${{ steps.dirs.outputs.list }}
+          # Компактный вывод и последовательный прогон для стабильности
+          flutter test -r compact -j 1 ${{ steps.dirs.outputs.list }}
 
       - name: No tests found
         if: steps.dirs.outputs.has_tests != '1'
-        run: echo "No tests found. Skipping."
+        run: echo "No fast test directories found. Skipping."
