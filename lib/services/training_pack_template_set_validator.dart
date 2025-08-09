@@ -4,6 +4,13 @@ class TrainingPackTemplateSetValidator {
   static void validate(Map<String, dynamic> json, {String source = ''}) {
     final outputs = json['outputVariants'];
     if (outputs == null) return;
+    if (outputs is List) {
+      _fail(
+        'outputVariants must be a map of keys to variant objects. '
+        'See docs/training_pack_template_schema.md#outputvariants',
+        source,
+      );
+    }
     if (outputs is! Map) {
       _fail('outputVariants must be a map', source);
     }
