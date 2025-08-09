@@ -23,3 +23,6 @@ variations:
       streets:
         flop: [bet, villainCall]
         turn: [bet]
+outputVariants:
+  A:
+    targetStreet: turn
