@@ -80,10 +80,10 @@ jobs:
           fi
           # Предпочтительно использовать внутренний репортёр, если он есть
           if [[ -f "bin/ci_report.dart" ]]; then
-            dart run bin/ci_report.dart --mode soft
+            dart run bin/ci_report.dart --mode=soft
           else
             # Fallback на прямой CLI, если репортёра нет
-            dart run bin/poker_analyzer.dart verify --mode soft --manifest theory_manifest.json || true
+            dart run bin/poker_analyzer.dart verify --mode=soft --manifest theory_manifest.json || true
           fi
 
       # Строгая проверка только на PR (ломаем сборку, если есть ошибки)
@@ -97,9 +97,9 @@ jobs:
             exit 0
           fi
           if [[ -f "bin/ci_report.dart" ]]; then
-            dart run bin/ci_report.dart --mode strict
+            dart run bin/ci_report.dart --mode=strict
           else
-            dart run bin/poker_analyzer.dart verify --mode strict --manifest theory_manifest.json
+            dart run bin/poker_analyzer.dart verify --mode=strict --manifest theory_manifest.json
           fi
 
       # Опционально: подсказка в логах, по каким путям шла проверка
