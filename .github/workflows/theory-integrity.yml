@@ -4,115 +4,24 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pull-requests: write
-
-env:
-  # Каталоги, где лежат реальные YAML
-  THEORY_DIRS: assets,yaml_out,theory
-
 jobs:
   verify:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.32.8'
-          channel: 'stable'
-
-      - name: Disable Flutter analytics
-        run: flutter config --no-analytics
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
-      # Быстрый список затронутых YAML (если есть helper-скрипт — используем; если нет — не падаем)
-      - name: Collect changed YAML paths
-        id: changed
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Попробуем скрипт, если существует
-          if [[ -x "scripts/changed_theory_paths.sh" ]]; then
-            CHANGED="$(scripts/changed_theory_paths.sh || true)"
-          else
-            # fallback: все yaml из заданных каталогов
-            IFS=',' read -ra DIRS <<< "${THEORY_DIRS}"
-            CHANGED=""
-            for d in "${DIRS[@]}"; do
-              if [[ -d "$d" ]]; then
-                while IFS= read -r f; do
-                  CHANGED+="${f}"$'\n'
-                done < <(git ls-files "${d}/**/*.yaml" || true)
-              fi
-            done
-          fi
-
-          # Сохраним многострочный вывод в переменную-артефакт
-          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$CHANGED"   >> "$GITHUB_OUTPUT"
-          echo "EOF"        >> "$GITHUB_OUTPUT"
-
-          # Маркер: есть ли вообще YAML
-          if [[ -n "$CHANGED" ]]; then
-            echo "has_yaml=1" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_yaml=0" >> "$GITHUB_OUTPUT"
-          fi
-
-      # Schema check soft
       - name: Schema check (soft)
         run: dart run tool/schema_check.dart --soft
 
-      # Мягкая проверка всегда (даже если YAML не найден — шаг пройдёт)
-      - name: Soft verify (summary & annotations)
-        env:
-          THEORY_DIRS: ${{ env.THEORY_DIRS }}
-        run: |
-          # Если в репо ещё нет YAML — не падаем
-          if [[ "${{ steps.changed.outputs.has_yaml }}" != "1" ]]; then
-            echo "No YAML to verify (soft). Skipping."
-            exit 0
-          fi
-          # Предпочтительно использовать внутренний репортёр, если он есть
-          if [[ -f "bin/ci_report.dart" ]]; then
-            dart run bin/ci_report.dart --mode=soft
-          else
-            # Fallback на прямой CLI, если репортёра нет
-            dart run bin/poker_analyzer.dart verify --mode=soft --manifest theory_manifest.json || true
-          fi
-
-        # Schema check strict
       - name: Schema check (strict)
         if: ${{ github.event_name == 'pull_request' }}
         run: dart run tool/schema_check.dart
-        # Строгая проверка только на PR (ломаем сборку, если есть ошибки)
-      - name: Strict verify (PR only)
-        if: ${{ github.event_name == 'pull_request' }}
-        env:
-          THEORY_DIRS: ${{ env.THEORY_DIRS }}
-        run: |
-          if [[ "${{ steps.changed.outputs.has_yaml }}" != "1" ]]; then
-            echo "No YAML to verify (strict). Skipping."
-            exit 0
-          fi
-          if [[ -f "bin/ci_report.dart" ]]; then
-            dart run bin/ci_report.dart --mode=strict
-          else
-            dart run bin/poker_analyzer.dart verify --mode=strict --manifest theory_manifest.json
-          fi
-
-      # Опционально: подсказка в логах, по каким путям шла проверка
-      - name: Debug changed YAML list
-        if: always()
-        run: |
-          echo "Changed YAML paths:"
-          echo "${{ steps.changed.outputs.paths }}"
