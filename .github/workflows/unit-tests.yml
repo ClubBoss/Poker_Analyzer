@@ -1,0 +1,40 @@
+name: Unit tests
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      COVERAGE_MODE: soft
+      COVERAGE_MIN_UNIQUE_TAGS: 5
+      COVERAGE_MIN_PCT: 0.35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          cache-key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test --no-pub
+        env:
+          COVERAGE_MODE: ${{ github.event_name == 'pull_request' && 'strict' || env.COVERAGE_MODE }}
+          COVERAGE_MIN_UNIQUE_TAGS: ${{ env.COVERAGE_MIN_UNIQUE_TAGS }}
+          COVERAGE_MIN_PCT: ${{ env.COVERAGE_MIN_PCT }}

@@ -65,6 +65,15 @@ echo 'ref: refs/heads/main' > .git/HEAD
 ## CI & QA
 GitHub Actions run unit tests, build the demo APK, and enforce theory integrity.
 
+### CI configuration
+Environment variables can tune the skill tag coverage gate:
+
+- `COVERAGE_MODE` – `soft` (default) or `strict`.
+- `COVERAGE_MIN_UNIQUE_TAGS` – minimal distinct tags (default `5`).
+- `COVERAGE_MIN_PCT` – minimal tag coverage fraction (default `0.35`).
+
+Set these in CI to adjust thresholds or switch modes (PRs run with `COVERAGE_MODE=strict`).
+
 ## License & Credits
 © 2024 Poker Analyzer contributors. License pending.
 

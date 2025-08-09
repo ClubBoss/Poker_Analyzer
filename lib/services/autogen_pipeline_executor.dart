@@ -105,7 +105,10 @@ class AutogenPipelineExecutor {
   }) : dedup = dedup ?? AutoDeduplicationEngine(),
        exporter = exporter ?? const YamlPackExporter(),
        coverage = coverage ?? SkillTagCoverageTracker(),
-       coverageGuard = coverageGuard ?? SkillTagCoverageGuardService(),
+       coverageGuard =
+           coverageGuard ??
+           SkillTagCoverageGuardService.fromEnv() ??
+           SkillTagCoverageGuardService(),
        theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
        boardClassifier = boardClassifier,
        skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
@@ -126,9 +129,9 @@ class AutogenPipelineExecutor {
        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
        formatSelector = formatSelector ?? AutoFormatSelector(),
        autoInjector = autoInjector ?? TheoryAutoInjector(),
-      noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
-      failOnSeedErrors =
-          failOnSeedErrors ?? (Platform.environment['CI'] == 'true') {
+       noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
+       failOnSeedErrors =
+           failOnSeedErrors ?? (Platform.environment['CI'] == 'true') {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
   }
 
@@ -543,8 +546,13 @@ class AutogenPipelineExecutor {
     for (final arm in arms) {
       if (arm.audience != null) aud = arm.audience!;
       if (arm.format != null) fmt = arm.format!;
-      abSvc.logExposure(userId, arm.expId, arm.armId,
-          audience: aud, format: fmt);
+      abSvc.logExposure(
+        userId,
+        arm.expId,
+        arm.armId,
+        audience: aud,
+        format: fmt,
+      );
     }
     final abStr = arms.map((a) => '${a.expId}:${a.armId}').join(',');
     final overridesApplied = arms.any((a) => a.prefs.isNotEmpty);
@@ -573,8 +581,7 @@ class AutogenPipelineExecutor {
       final txn = PathTransactionManager(rootDir: store.rootDir);
       final guard = PlanIdempotencyGuard();
       final prefs = await SharedPreferences.getInstance();
-      final windowHours =
-          prefs.getInt('planner.idempotency.windowHours') ?? 24;
+      final windowHours = prefs.getInt('planner.idempotency.windowHours') ?? 24;
       final start = DateTime.now();
       final acquired = await lock.acquire(userId);
       final assignment = abStr.isEmpty ? 'none' : abStr;
@@ -618,8 +625,7 @@ class AutogenPipelineExecutor {
                 'sig': sig,
                 'action': 'skip',
                 'createdModules': 0,
-                'durationMs':
-                    DateTime.now().difference(start).inMilliseconds,
+                'durationMs': DateTime.now().difference(start).inMilliseconds,
                 if (abStr.isNotEmpty) 'abArm': abStr,
                 'assignment': assignment,
                 'overridesApplied': overridesApplied,
@@ -650,8 +656,7 @@ class AutogenPipelineExecutor {
               'sig': sig,
               'action': 'inject',
               'createdModules': modules.length,
-              'durationMs':
-                  DateTime.now().difference(start).inMilliseconds,
+              'durationMs': DateTime.now().difference(start).inMilliseconds,
               if (abStr.isNotEmpty) 'abArm': abStr,
               'assignment': assignment,
               'overridesApplied': overridesApplied,
@@ -659,11 +664,11 @@ class AutogenPipelineExecutor {
           ),
         );
         return <File>[];
-        } catch (e) {
-          await txn.rollback(userId, txId);
-          await PathTransactionManager(rootDir: '.').rollbackFileBackups();
-          AutogenStatusDashboardService.instance.update(
-            'PathHardening',
+      } catch (e) {
+        await txn.rollback(userId, txId);
+        await PathTransactionManager(rootDir: '.').rollbackFileBackups();
+        AutogenStatusDashboardService.instance.update(
+          'PathHardening',
           AutogenStatus(
             isRunning: false,
             currentStage: jsonEncode({
@@ -671,8 +676,7 @@ class AutogenPipelineExecutor {
               'sig': sig,
               'action': 'rollback',
               'createdModules': 0,
-              'durationMs':
-                  DateTime.now().difference(start).inMilliseconds,
+              'durationMs': DateTime.now().difference(start).inMilliseconds,
               if (abStr.isNotEmpty) 'abArm': abStr,
               'assignment': assignment,
               'overridesApplied': overridesApplied,

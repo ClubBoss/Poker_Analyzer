@@ -11,6 +11,8 @@ permissions:
 env:
   # Каталоги, где лежат реальные YAML
   THEORY_DIRS: assets,yaml_out,theory
+  COVERAGE_MIN_UNIQUE_TAGS: 5
+  COVERAGE_MIN_PCT: 0.35
 
 jobs:
   verify:
@@ -99,6 +101,9 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         env:
           THEORY_DIRS: ${{ env.THEORY_DIRS }}
+          COVERAGE_MODE: strict
+          COVERAGE_MIN_UNIQUE_TAGS: ${{ env.COVERAGE_MIN_UNIQUE_TAGS }}
+          COVERAGE_MIN_PCT: ${{ env.COVERAGE_MIN_PCT }}
         run: |
           if [[ "${{ steps.changed.outputs.has_yaml }}" != "1" ]]; then
             echo "No YAML to verify (strict). Skipping."
