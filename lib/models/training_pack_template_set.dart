@@ -47,7 +47,7 @@ class TrainingPackTemplateSet {
   /// such as [ConstraintSet.targetStreet], [ConstraintSet.boardConstraints],
   /// [ConstraintSet.requiredTags], and [ConstraintSet.excludedTags]. A separate
   /// training pack is produced for every variant.
-  final List<OutputVariant> outputVariants;
+  final Map<String, OutputVariant> outputVariants;
 
   /// Optional player type variants to apply to generated templates.
   ///
@@ -110,7 +110,7 @@ class TrainingPackTemplateSet {
   const TrainingPackTemplateSet({
     required this.baseSpot,
     List<ConstraintSet>? variations,
-    List<ConstraintSet>? outputVariants,
+    Map<String, OutputVariant>? outputVariants,
     List<String>? playerTypeVariations,
     this.suitAlternation = false,
     List<int>? stackDepthMods,
@@ -124,7 +124,7 @@ class TrainingPackTemplateSet {
     this.postflopLineSeed,
     this.seed,
   }) : variations = variations ?? const [],
-       outputVariants = outputVariants ?? const [],
+       outputVariants = outputVariants ?? const {},
        playerTypeVariations = playerTypeVariations ?? const [],
        stackDepthMods = stackDepthMods ?? const [],
        linePatterns = linePatterns ?? const [],
@@ -146,16 +146,22 @@ class TrainingPackTemplateSet {
       for (final v in (json['variations'] as List? ?? []))
         ConstraintSet.fromJson(Map<String, dynamic>.from(v as Map)),
     ];
-    final outputs = <OutputVariant>[];
+    final outputs = <String, OutputVariant>{};
     final rawOutputs = json['outputVariants'];
     if (rawOutputs is Map) {
       final keys = rawOutputs.keys.map((e) => e.toString()).toList()..sort();
       for (final k in keys) {
         final v = rawOutputs[k];
         if (v is Map) {
-          outputs.add(OutputVariant.fromJson(k, Map<String, dynamic>.from(v)));
+          outputs[k] = OutputVariant.fromJson(k, Map<String, dynamic>.from(v));
         }
       }
+    } else if (rawOutputs is List) {
+      throw FormatException(
+        '${source.isNotEmpty ? '$source: ' : ''}'
+        'outputVariants must be a map. Migrate to the new schema: '
+        'see docs/training_pack_template_schema.md#outputvariants',
+      );
     }
     final pTypes = <String>[
       for (final t in (json['playerTypeVariations'] as List? ?? []))
@@ -225,7 +231,10 @@ class TrainingPackTemplateSet {
     if (variations.isNotEmpty)
       'variations': [for (final v in variations) v.toJson()],
     if (outputVariants.isNotEmpty)
-      'outputVariants': {for (final v in outputVariants) v.key: v.toJson()},
+      'outputVariants': {
+        for (final k in outputVariants.keys.toList()..sort())
+          k: outputVariants[k]!.toJson()
+      },
     if (playerTypeVariations.isNotEmpty)
       'playerTypeVariations': playerTypeVariations,
     if (suitAlternation) 'suitAlternation': true,

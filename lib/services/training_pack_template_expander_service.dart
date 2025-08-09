@@ -74,76 +74,8 @@ class TrainingPackTemplateExpanderService {
     return spots;
   }
 
-  /// Expands [set] into multiple output variants.
-  ///
-  /// Each entry in [TrainingPackTemplateSet.outputVariants] produces a separate
-  /// list of spots with its constraints merged onto every variation. When no
-  /// output variants are defined, a single list containing [expand] results is
-  /// returned.
-  List<List<TrainingPackSpot>> expandOutputs(TrainingPackTemplateSet set) {
-    if (set.outputVariants.isEmpty) {
-      return [expand(set, rng: set.seed != null ? Random(set.seed!) : null)];
-    }
-    final results = <List<TrainingPackSpot>>[];
-    for (final variant in set.outputVariants) {
-      final merged = [
-        for (final v in set.variations)
-          _mergeConstraints(v, variant.constraints),
-      ];
-      final copy = TrainingPackTemplateSet(
-        baseSpot: set.baseSpot,
-        variations: merged,
-        playerTypeVariations: set.playerTypeVariations,
-        suitAlternation: set.suitAlternation,
-        stackDepthMods: set.stackDepthMods,
-        linePatterns: set.linePatterns,
-        postflopLines: set.postflopLines,
-        boardTexturePreset: set.boardTexturePreset,
-        excludeBoardTexturePresets: set.excludeBoardTexturePresets,
-        requiredBoardClusters: set.requiredBoardClusters,
-        excludedBoardClusters: set.excludedBoardClusters,
-        expandAllLines: set.expandAllLines,
-        postflopLineSeed: set.postflopLineSeed,
-        seed: variant.seed ?? set.seed,
-      );
-      final rng = copy.seed != null ? Random(copy.seed!) : null;
-      final spots = expand(copy, rng: rng)
-        ..sort((a, b) => a.id.compareTo(b.id));
-      results.add(spots);
-    }
-    return results;
-  }
-
-  ConstraintSet _mergeConstraints(ConstraintSet base, ConstraintSet variant) {
-    return ConstraintSet(
-      boardTags: base.boardTags,
-      positions: base.positions,
-      handGroup: base.handGroup,
-      villainActions: base.villainActions,
-      targetStreet: variant.targetStreet ?? base.targetStreet,
-      requiredTags: variant.requiredTags.isNotEmpty
-          ? variant.requiredTags
-          : base.requiredTags,
-      excludedTags: variant.excludedTags.isNotEmpty
-          ? variant.excludedTags
-          : base.excludedTags,
-      position: base.position,
-      opponentPosition: base.opponentPosition,
-      boardTexture: base.boardTexture,
-      minStack: base.minStack,
-      maxStack: base.maxStack,
-      boardConstraints: variant.boardConstraints.isNotEmpty
-          ? variant.boardConstraints
-          : base.boardConstraints,
-      linePattern: base.linePattern,
-      overrides: {...base.overrides, ...variant.overrides},
-      tags: base.tags,
-      tagMergeMode: base.tagMergeMode,
-      metadata: base.metadata,
-      metaMergeMode: base.metaMergeMode,
-      theoryLink: base.theoryLink,
-    );
-  }
+  // Deprecated multi-output expansion method removed in favor of handling
+  // variants at the auto-generation layer.
 
   ConstraintSet _expandBoards(
     ConstraintSet set, {

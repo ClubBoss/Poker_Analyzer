@@ -29,6 +29,10 @@ void main() {
       final hashA = sha1.convert(utf8.encode(jsonA)).toString();
       final hashB = sha1.convert(utf8.encode(jsonB)).toString();
       expect(hashA, hashB);
+      final yamlA = a.toYamlString();
+      final yamlB = b.toYamlString();
+      String norm(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();
+      expect(norm(yamlA), norm(yamlB));
       // Street assertion based on variant order
       final street = i == 0 ? 1 : 2;
       expect(a.spots.every((s) => s.street == street), isTrue);

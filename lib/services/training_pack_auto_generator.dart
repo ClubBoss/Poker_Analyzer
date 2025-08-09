@@ -184,24 +184,57 @@ class TrainingPackAutoGenerator {
       if (deduplicate) {
         _dedup.addExisting(existingSpots);
       }
-      final lists = _engine.generateOutputs(set, theoryIndex: theoryIndex);
       final results = <TrainingPackTemplateV2>[];
-      for (var i = 0; i < lists.length; i++) {
-        var spots = lists[i];
+      final variants = set.outputVariants.entries.toList()
+        ..sort((a, b) => a.key.compareTo(b.key));
+      if (variants.isEmpty) {
+        var spots = _engine.generate(
+          set,
+          theoryIndex: theoryIndex,
+          seed: set.seed,
+        );
         if (deduplicate) {
           spots = _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
         }
-        final key = set.outputVariants.isNotEmpty
-            ? set.outputVariants[i].key
-            : null;
-        if (key != null) {
-          final tag = 'VARIANT:${key.toUpperCase()}';
+        results.add(_buildPack(set, spots));
+      } else {
+        for (final entry in variants) {
+          final variant = entry.value;
+          final merged = TrainingPackTemplateSet(
+            baseSpot: set.baseSpot,
+            variations: [
+              for (final v in set.variations)
+                _mergeConstraints(v, variant.constraints),
+            ],
+            playerTypeVariations: set.playerTypeVariations,
+            suitAlternation: set.suitAlternation,
+            stackDepthMods: set.stackDepthMods,
+            linePatterns: set.linePatterns,
+            postflopLines: set.postflopLines,
+            boardTexturePreset: set.boardTexturePreset,
+            excludeBoardTexturePresets: set.excludeBoardTexturePresets,
+            requiredBoardClusters: set.requiredBoardClusters,
+            excludedBoardClusters: set.excludedBoardClusters,
+            expandAllLines: set.expandAllLines,
+            postflopLineSeed: set.postflopLineSeed,
+            seed: variant.seed ?? set.seed,
+          );
+          var spots = _engine.generate(
+            merged,
+            theoryIndex: theoryIndex,
+            seed: merged.seed,
+          );
+          if (deduplicate) {
+            spots =
+                _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
+          }
+          final tag = 'VARIANT:${entry.key.toUpperCase()}';
           for (final s in spots) {
             s.tags = {...s.tags, tag}.toList()..sort();
           }
+          final pack = _buildPack(set, spots, variantKey: entry.key);
+          results.add(pack);
         }
-        final pack = _buildPack(set, spots, variantKey: key);
-        results.add(pack);
       }
       status.update(
         'TrainingPackAutoGenerator',
@@ -251,6 +284,31 @@ class TrainingPackAutoGenerator {
       bb: base.hand.stacks['0']?.toInt() ?? 0,
       positions: [base.hand.position.name],
       meta: Map<String, dynamic>.from(base.meta),
+    );
+  }
+
+  ConstraintSet _mergeConstraints(ConstraintSet base, ConstraintSet variant) {
+    return ConstraintSet(
+      boardTags: base.boardTags,
+      positions: base.positions,
+      handGroup: base.handGroup,
+      villainActions: base.villainActions,
+      targetStreet: variant.targetStreet ?? base.targetStreet,
+      requiredTags: {...base.requiredTags, ...variant.requiredTags}.toList(),
+      excludedTags: {...base.excludedTags, ...variant.excludedTags}.toList(),
+      position: base.position,
+      opponentPosition: base.opponentPosition,
+      boardTexture: base.boardTexture,
+      minStack: base.minStack,
+      maxStack: base.maxStack,
+      boardConstraints: [...base.boardConstraints, ...variant.boardConstraints],
+      linePattern: base.linePattern,
+      overrides: base.overrides,
+      tags: base.tags,
+      tagMergeMode: base.tagMergeMode,
+      metadata: base.metadata,
+      metaMergeMode: base.metaMergeMode,
+      theoryLink: base.theoryLink,
     );
   }
 
