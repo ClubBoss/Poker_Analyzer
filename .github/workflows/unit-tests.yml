@@ -11,6 +11,7 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**/*.md'
+  workflow_dispatch:
 
 jobs:
   unit:
@@ -51,8 +52,6 @@ jobs:
         if: steps.dirs.outputs.has_tests == '1'
         shell: bash
         run: |
-          # Последовательно (-j 1) снижает флейки и «зависания» на CI.
-          # expanded — понятные логи. В случае подвисания — увидим, на каком тесте.
           flutter test -r expanded -j 1 ${{ steps.dirs.outputs.list }}
 
       - name: No tests found
