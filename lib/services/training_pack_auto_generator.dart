@@ -33,12 +33,12 @@ class TrainingPackAutoGenerator {
     this.spotsPerPack = 12,
     this.streets = 1,
     this.theoryRatio = 0.5,
-  })  : _engine = engine ?? TrainingPackGeneratorEngineV2(),
-        _dedup = dedup ?? AutoDeduplicationEngine(),
-        _errorClassifier =
-            errorClassifier ?? const AutogenPackErrorClassifierService(),
-        _errorStats = errorStats ?? AutogenErrorStatsLogger(),
-        _registry = registry ?? TrainingPackTemplateRegistryService();
+  }) : _engine = engine ?? TrainingPackGeneratorEngineV2(),
+       _dedup = dedup ?? AutoDeduplicationEngine(),
+       _errorClassifier =
+           errorClassifier ?? const AutogenPackErrorClassifierService(),
+       _errorStats = errorStats ?? AutogenErrorStatsLogger(),
+       _registry = registry ?? TrainingPackTemplateRegistryService();
 
   /// Generates spots from [template] and optionally deduplicates them based on
   /// fingerprints.
@@ -79,7 +79,7 @@ class TrainingPackAutoGenerator {
         existingSpots: existingSpots,
         deduplicate: deduplicate,
       );
-      return all.isNotEmpty ? all.first : [];
+      return all.isNotEmpty ? all.first.spots : [];
     }
     status.update(
       'TrainingPackAutoGenerator',
@@ -93,7 +93,11 @@ class TrainingPackAutoGenerator {
       if (deduplicate) {
         _dedup.addExisting(existingSpots);
       }
-      final spots = _engine.generate(set, theoryIndex: theoryIndex);
+      final spots = _engine.generate(
+        set,
+        theoryIndex: theoryIndex,
+        seed: set.seed,
+      );
       if (spots.isEmpty) {
         final pack = _buildPack(set, spots);
         final type = _errorClassifier.classify(pack, null);
@@ -114,8 +118,10 @@ class TrainingPackAutoGenerator {
       final filtered = _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
       if (spots.isNotEmpty && filtered.isEmpty) {
         final pack = _buildPack(set, spots);
-        final type =
-            _errorClassifier.classify(pack, Exception('duplicate spots'));
+        final type = _errorClassifier.classify(
+          pack,
+          Exception('duplicate spots'),
+        );
         _errorStats?.log(type);
       }
       status.update(
@@ -148,7 +154,7 @@ class TrainingPackAutoGenerator {
   }
 
   /// Generates spot lists for each output variant in [set].
-  Future<List<List<TrainingPackSpot>>> generateAll(
+  Future<List<TrainingPackTemplateV2>> generateAll(
     TrainingPackTemplateSet set, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
     Iterable<TrainingPackSpot> existingSpots = const [],
@@ -179,13 +185,23 @@ class TrainingPackAutoGenerator {
         _dedup.addExisting(existingSpots);
       }
       final lists = _engine.generateOutputs(set, theoryIndex: theoryIndex);
-      final results = <List<TrainingPackSpot>>[];
-      for (final spots in lists) {
+      final results = <TrainingPackTemplateV2>[];
+      for (var i = 0; i < lists.length; i++) {
+        var spots = lists[i];
         if (deduplicate) {
-          results.add(_dedup.deduplicateSpots(spots, source: set.baseSpot.id));
-        } else {
-          results.add(spots);
+          spots = _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
         }
+        final key = set.outputVariants.isNotEmpty
+            ? set.outputVariants[i].key
+            : null;
+        if (key != null) {
+          final tag = 'VARIANT:${key.toUpperCase()}';
+          for (final s in spots) {
+            s.tags = {...s.tags, tag}.toList()..sort();
+          }
+        }
+        final pack = _buildPack(set, spots, variantKey: key);
+        results.add(pack);
       }
       status.update(
         'TrainingPackAutoGenerator',
@@ -212,16 +228,25 @@ class TrainingPackAutoGenerator {
 
   TrainingPackTemplateV2 _buildPack(
     TrainingPackTemplateSet set,
-    List<TrainingPackSpot> spots,
-  ) {
+    List<TrainingPackSpot> spots, {
+    String? variantKey,
+  }) {
     final base = set.baseSpot;
+    final baseId = base.id;
+    final id = variantKey == null ? baseId : '${baseId}__${variantKey}';
+    final nameBase = base.title.isNotEmpty ? base.title : base.id;
+    final name = variantKey == null ? nameBase : '$nameBase - $variantKey';
+    final tagSet = {...base.tags};
+    if (variantKey != null) {
+      tagSet.add('VARIANT:${variantKey.toUpperCase()}');
+    }
     return TrainingPackTemplateV2(
-      id: base.id,
-      name: base.title.isNotEmpty ? base.title : base.id,
+      id: id,
+      name: name,
       trainingType: TrainingType.custom,
       spots: spots,
       spotCount: spots.length,
-      tags: List<String>.from(base.tags),
+      tags: tagSet.toList()..sort(),
       gameType: GameType.cash,
       bb: base.hand.stacks['0']?.toInt() ?? 0,
       positions: [base.hand.position.name],

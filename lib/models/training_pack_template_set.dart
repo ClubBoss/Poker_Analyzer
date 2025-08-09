@@ -5,9 +5,34 @@ import 'constraint_set.dart';
 import 'v2/training_pack_spot.dart';
 import 'line_pattern.dart';
 import 'postflop_line.dart';
+import '../services/training_pack_template_set_validator.dart';
 
 /// Defines a base spot and a list of variation rules that can be expanded
 /// into multiple [TrainingPackSpot]s.
+class OutputVariant {
+  final String key;
+  final ConstraintSet constraints;
+  final int? seed;
+
+  OutputVariant({required this.key, required this.constraints, this.seed});
+
+  factory OutputVariant.fromJson(String key, Map<String, dynamic> json) {
+    final seed = json['seed'];
+    final map = Map<String, dynamic>.from(json);
+    map.remove('seed');
+    return OutputVariant(
+      key: key,
+      constraints: ConstraintSet.fromJson(map),
+      seed: seed is num ? seed.toInt() : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    ...constraints.toJson(),
+    if (seed != null) 'seed': seed,
+  };
+}
+
 class TrainingPackTemplateSet {
   /// Shared logic and metadata for all generated spots.
   final TrainingPackSpot baseSpot;
@@ -22,7 +47,7 @@ class TrainingPackTemplateSet {
   /// such as [ConstraintSet.targetStreet], [ConstraintSet.boardConstraints],
   /// [ConstraintSet.requiredTags], and [ConstraintSet.excludedTags]. A separate
   /// training pack is produced for every variant.
-  final List<ConstraintSet> outputVariants;
+  final List<OutputVariant> outputVariants;
 
   /// Optional player type variants to apply to generated templates.
   ///
@@ -59,6 +84,9 @@ class TrainingPackTemplateSet {
   /// [postflopLines].
   final int? postflopLineSeed;
 
+  /// Optional deterministic seed applied to spot and pack id generation.
+  final int? seed;
+
   /// Optional board texture preset used to filter `postflopLines` expansions.
   ///
   /// When set, the `postflopLines` are only expanded if the base spot's board
@@ -94,6 +122,7 @@ class TrainingPackTemplateSet {
     List<String>? excludedBoardClusters,
     this.expandAllLines = false,
     this.postflopLineSeed,
+    this.seed,
   }) : variations = variations ?? const [],
        outputVariants = outputVariants ?? const [],
        playerTypeVariations = playerTypeVariations ?? const [],
@@ -104,7 +133,11 @@ class TrainingPackTemplateSet {
        requiredBoardClusters = requiredBoardClusters ?? const [],
        excludedBoardClusters = excludedBoardClusters ?? const [];
 
-  factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
+  factory TrainingPackTemplateSet.fromJson(
+    Map<String, dynamic> json, {
+    String source = '',
+  }) {
+    TrainingPackTemplateSetValidator.validate(json, source: source);
     final baseMap = Map<String, dynamic>.from(
       (json['baseSpot'] ?? json['base'] ?? const {}) as Map,
     );
@@ -113,10 +146,17 @@ class TrainingPackTemplateSet {
       for (final v in (json['variations'] as List? ?? []))
         ConstraintSet.fromJson(Map<String, dynamic>.from(v as Map)),
     ];
-    final outputs = <ConstraintSet>[
-      for (final v in (json['outputVariants'] as List? ?? []))
-        ConstraintSet.fromJson(Map<String, dynamic>.from(v as Map)),
-    ];
+    final outputs = <OutputVariant>[];
+    final rawOutputs = json['outputVariants'];
+    if (rawOutputs is Map) {
+      final keys = rawOutputs.keys.map((e) => e.toString()).toList()..sort();
+      for (final k in keys) {
+        final v = rawOutputs[k];
+        if (v is Map) {
+          outputs.add(OutputVariant.fromJson(k, Map<String, dynamic>.from(v)));
+        }
+      }
+    }
     final pTypes = <String>[
       for (final t in (json['playerTypeVariations'] as List? ?? []))
         t.toString(),
@@ -155,6 +195,7 @@ class TrainingPackTemplateSet {
     ];
     final expandAll = json['expandAllLines'] == true;
     final seed = json['postflopLineSeed'];
+    final rootSeed = json['seed'];
     return TrainingPackTemplateSet(
       baseSpot: base,
       variations: vars,
@@ -170,12 +211,13 @@ class TrainingPackTemplateSet {
       excludedBoardClusters: excludedClusters,
       expandAllLines: expandAll,
       postflopLineSeed: seed is num ? seed.toInt() : null,
+      seed: rootSeed is num ? rootSeed.toInt() : null,
     );
   }
 
-  factory TrainingPackTemplateSet.fromYaml(String yaml) {
+  factory TrainingPackTemplateSet.fromYaml(String yaml, {String source = ''}) {
     final map = yamlToDart(loadYaml(yaml)) as Map<String, dynamic>;
-    return TrainingPackTemplateSet.fromJson(map);
+    return TrainingPackTemplateSet.fromJson(map, source: source);
   }
 
   Map<String, dynamic> toJson() => {
@@ -183,7 +225,7 @@ class TrainingPackTemplateSet {
     if (variations.isNotEmpty)
       'variations': [for (final v in variations) v.toJson()],
     if (outputVariants.isNotEmpty)
-      'outputVariants': [for (final v in outputVariants) v.toJson()],
+      'outputVariants': {for (final v in outputVariants) v.key: v.toJson()},
     if (playerTypeVariations.isNotEmpty)
       'playerTypeVariations': playerTypeVariations,
     if (suitAlternation) 'suitAlternation': true,
@@ -206,5 +248,6 @@ class TrainingPackTemplateSet {
       'excludedBoardClusters': excludedBoardClusters,
     if (expandAllLines) 'expandAllLines': true,
     if (postflopLineSeed != null) 'postflopLineSeed': postflopLineSeed,
+    if (seed != null) 'seed': seed,
   };
 }
