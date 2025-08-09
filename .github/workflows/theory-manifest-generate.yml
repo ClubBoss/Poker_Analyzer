@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-baseline:
+  generate:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,27 +17,19 @@ jobs:
           flutter-version: '3.32.8'
           channel: 'stable'
 
-      - name: Disable Flutter analytics
-        run: flutter config --no-analytics
-
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate manifest
+      - name: Generate theory manifest
         run: dart run bin/poker_analyzer.dart manifest generate ${ARGS} --out theory_manifest.json
 
-      - name: Update manifest
+      - name: Update theory manifest
         run: dart run bin/poker_analyzer.dart manifest update ${ARGS}
 
-      - name: Commit changes
+      - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add theory_manifest.json
-          git commit -m "Update theory_manifest.json [skip ci]" || echo "No changes to commit"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          git commit -m "Update theory manifest [CI]" || echo "No changes to commit"
+          git push
