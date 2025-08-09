@@ -2,6 +2,7 @@ library training_pack_play_base;
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../services/recent_packs_service.dart';
 
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
@@ -93,6 +94,12 @@ abstract class TrainingPackPlayBaseState<T extends TrainingPackPlayBase>
   bool _autoAdvance = false;
   SpotFeedback? _feedback;
   Timer? _feedbackTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(RecentPacksService.instance.record(widget.template));
+  }
 
   @override
   TrainingPackTemplate get template => widget.template;

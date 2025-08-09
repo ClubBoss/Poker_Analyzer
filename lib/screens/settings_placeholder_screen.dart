@@ -22,6 +22,7 @@ import '../widgets/sync_status_widget.dart';
 import 'notification_settings_screen.dart';
 import 'goal_overview_screen.dart';
 import 'weakness_overview_screen.dart';
+import '../services/user_preferences_service.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -100,6 +101,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     final dailyReminder = context.watch<DailyReminderService>();
     final streakReminder = context.watch<StreakReminderService>();
     final dailyTarget = context.watch<DailyTargetService>();
+    final prefs = context.watch<UserPreferencesService>();
     final dismissed = reminder.lastDismissed;
     final status = reminder.enabled ? 'Включены' : 'Выключены';
     final info = dismissed != null
@@ -139,6 +141,12 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             value: dailyReminder.enabled,
             onChanged: (v) => dailyReminder.setEnabled(v),
             title: const Text('Daily Reminder'),
+            activeColor: Colors.orange,
+          ),
+          SwitchListTile(
+            value: prefs.showQuickAccess,
+            onChanged: (v) => prefs.setShowQuickAccess(v),
+            title: const Text('Show Quick Access'),
             activeColor: Colors.orange,
           ),
           SwitchListTile(

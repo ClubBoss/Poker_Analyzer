@@ -83,6 +83,7 @@ import 'services/theory_lesson_notification_scheduler.dart';
 import 'services/booster_recall_decay_cleaner.dart';
 import 'services/pinned_comeback_nudge_service.dart';
 import 'route_observer.dart';
+import 'services/recent_packs_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -143,6 +144,7 @@ Future<void> main() async {
   unawaited(PinnedComebackNudgeService.instance.start());
   await BoosterRecallDecayCleaner.instance.init();
   await AppInitService.instance.init();
+  await RecentPacksService.instance.load();
   runApp(
     MultiProvider(
       providers: buildAppProviders(cloud),
