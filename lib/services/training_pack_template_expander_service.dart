@@ -35,18 +35,17 @@ class TrainingPackTemplateExpanderService {
     FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     InlineTheoryNodeLinker? theoryLinker,
-  })
-      : _engine = engine ?? const ConstraintResolverEngine(),
-        _injector = injector ?? AutoSpotTheoryInjectorService(),
-        _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
-        _lineEngine = lineEngine ?? LineGraphEngine(),
-        _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
+  }) : _engine = engine ?? const ConstraintResolverEngine(),
+       _injector = injector ?? AutoSpotTheoryInjectorService(),
+       _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
+       _lineEngine = lineEngine ?? LineGraphEngine(),
+       _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
 
   bool _isManual(TrainingPackTemplateSet set) =>
       set.baseSpot.meta['manualSource'] == true;
 
   /// Generates all spots described by [set] and injects theory links.
-  List<TrainingPackSpot> expand(TrainingPackTemplateSet set) {
+  List<TrainingPackSpot> expand(TrainingPackTemplateSet set, {Random? rng}) {
     if (_isManual(set)) return [];
     final processed = [
       for (final v in set.variations)
@@ -56,7 +55,7 @@ class TrainingPackTemplateExpanderService {
           excludedBoardClusters: set.excludedBoardClusters,
         ),
     ];
-    final spots = _engine.apply(set.baseSpot, processed);
+    final spots = _engine.apply(set.baseSpot, processed, rng: rng);
     if (set.requiredBoardClusters.isNotEmpty ||
         set.excludedBoardClusters.isNotEmpty) {
       spots.retainWhere((s) {
@@ -83,12 +82,13 @@ class TrainingPackTemplateExpanderService {
   /// returned.
   List<List<TrainingPackSpot>> expandOutputs(TrainingPackTemplateSet set) {
     if (set.outputVariants.isEmpty) {
-      return [expand(set)];
+      return [expand(set, rng: set.seed != null ? Random(set.seed!) : null)];
     }
     final results = <List<TrainingPackSpot>>[];
     for (final variant in set.outputVariants) {
       final merged = [
-        for (final v in set.variations) _mergeConstraints(v, variant),
+        for (final v in set.variations)
+          _mergeConstraints(v, variant.constraints),
       ];
       final copy = TrainingPackTemplateSet(
         baseSpot: set.baseSpot,
@@ -104,8 +104,12 @@ class TrainingPackTemplateExpanderService {
         excludedBoardClusters: set.excludedBoardClusters,
         expandAllLines: set.expandAllLines,
         postflopLineSeed: set.postflopLineSeed,
+        seed: variant.seed ?? set.seed,
       );
-      results.add(expand(copy));
+      final rng = copy.seed != null ? Random(copy.seed!) : null;
+      final spots = expand(copy, rng: rng)
+        ..sort((a, b) => a.id.compareTo(b.id));
+      results.add(spots);
     }
     return results;
   }
@@ -117,16 +121,22 @@ class TrainingPackTemplateExpanderService {
       handGroup: base.handGroup,
       villainActions: base.villainActions,
       targetStreet: variant.targetStreet ?? base.targetStreet,
-      requiredTags: {...base.requiredTags, ...variant.requiredTags}.toList(),
-      excludedTags: {...base.excludedTags, ...variant.excludedTags}.toList(),
+      requiredTags: variant.requiredTags.isNotEmpty
+          ? variant.requiredTags
+          : base.requiredTags,
+      excludedTags: variant.excludedTags.isNotEmpty
+          ? variant.excludedTags
+          : base.excludedTags,
       position: base.position,
       opponentPosition: base.opponentPosition,
       boardTexture: base.boardTexture,
       minStack: base.minStack,
       maxStack: base.maxStack,
-      boardConstraints: [...base.boardConstraints, ...variant.boardConstraints],
+      boardConstraints: variant.boardConstraints.isNotEmpty
+          ? variant.boardConstraints
+          : base.boardConstraints,
       linePattern: base.linePattern,
-      overrides: base.overrides,
+      overrides: {...base.overrides, ...variant.overrides},
       tags: base.tags,
       tagMergeMode: base.tagMergeMode,
       metadata: base.metadata,

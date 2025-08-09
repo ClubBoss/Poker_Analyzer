@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'dart:math';
 
 import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
@@ -28,11 +29,10 @@ class TrainingPackGeneratorEngineV2 {
     AutoSpotTheoryInjectorService? injector,
     LineGraphEngine? lineEngine,
     Uuid? uuid,
-  })
-      : _expander = expander ?? TrainingPackTemplateExpanderService(),
-        _injector = injector ?? AutoSpotTheoryInjectorService(),
-        _lineEngine = lineEngine ?? LineGraphEngine(),
-        _uuid = uuid ?? const Uuid();
+  }) : _expander = expander ?? TrainingPackTemplateExpanderService(),
+       _injector = injector ?? AutoSpotTheoryInjectorService(),
+       _lineEngine = lineEngine ?? LineGraphEngine(),
+       _uuid = uuid ?? const Uuid();
 
   /// Generates all spots defined by [set].
   ///
@@ -42,11 +42,13 @@ class TrainingPackGeneratorEngineV2 {
   List<TrainingPackSpot> generate(
     TrainingPackTemplateSet set, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
+    int? seed,
   }) {
     final baseSpot = set.baseSpot;
+    final rng = seed != null ? Random(seed) : null;
 
     // Board-based expansions.
-    final spots = _expander.expand(set);
+    final spots = _expander.expand(set, rng: rng);
     for (final s in spots) {
       s.tags = {...s.tags, ..._autoTags(s)}.toList()..sort();
     }
@@ -54,17 +56,17 @@ class TrainingPackGeneratorEngineV2 {
     // Line pattern expansions.
     final seeds = _expander.expandLines(set, theoryIndex: theoryIndex);
     for (var i = 0; i < seeds.length; i++) {
-      final seed = seeds[i];
+      final seedSpot = seeds[i];
       final pattern = set.linePatterns[i];
       final lineTags = _lineEngine.build(pattern).tags;
-      final copy = _cloneBase(baseSpot);
+      final copy = _cloneBase(baseSpot, rng: rng);
 
-      copy.hand.position = parseHeroPosition(seed.position);
-      final board = [for (final c in seed.board) '${c.rank}${c.suit}'];
+      copy.hand.position = parseHeroPosition(seedSpot.position);
+      final board = [for (final c in seedSpot.board) '${c.rank}${c.suit}'];
       copy.hand.board = List<String>.from(board);
       copy.board = board;
-      if (seed.villainActions.isNotEmpty) {
-        copy.villainAction = seed.villainActions.last;
+      if (seedSpot.villainActions.isNotEmpty) {
+        copy.villainAction = seedSpot.villainActions.last;
       }
       copy.street = _streetFromBoard(board.length);
 
@@ -77,7 +79,7 @@ class TrainingPackGeneratorEngineV2 {
     if (set.postflopLines.isNotEmpty) {
       final lineSeeds = _expander.expandPostflopLines(set);
       for (final seed in lineSeeds) {
-        final copy = _cloneBase(baseSpot);
+        final copy = _cloneBase(baseSpot, rng: rng);
 
         copy.hand.position = parseHeroPosition(seed.position);
         final board = [for (final c in seed.board) '${c.rank}${c.suit}'];
@@ -94,6 +96,7 @@ class TrainingPackGeneratorEngineV2 {
 
     // Inject theory links based on final tag sets.
     _injector.injectAll(spots);
+    spots.sort((a, b) => a.id.compareTo(b.id));
     return spots;
   }
 
@@ -106,14 +109,15 @@ class TrainingPackGeneratorEngineV2 {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
   }) {
     if (set.outputVariants.isEmpty) {
-      return [generate(set, theoryIndex: theoryIndex)];
+      return [generate(set, theoryIndex: theoryIndex, seed: set.seed)];
     }
     final results = <List<TrainingPackSpot>>[];
     for (final variant in set.outputVariants) {
       final merged = TrainingPackTemplateSet(
         baseSpot: set.baseSpot,
         variations: [
-          for (final v in set.variations) _mergeConstraints(v, variant),
+          for (final v in set.variations)
+            _mergeConstraints(v, variant.constraints),
         ],
         playerTypeVariations: set.playerTypeVariations,
         suitAlternation: set.suitAlternation,
@@ -126,8 +130,11 @@ class TrainingPackGeneratorEngineV2 {
         excludedBoardClusters: set.excludedBoardClusters,
         expandAllLines: set.expandAllLines,
         postflopLineSeed: set.postflopLineSeed,
+        seed: variant.seed ?? set.seed,
       );
-      results.add(generate(merged, theoryIndex: theoryIndex));
+      results.add(
+        generate(merged, theoryIndex: theoryIndex, seed: merged.seed),
+      );
     }
     return results;
   }
@@ -157,9 +164,15 @@ class TrainingPackGeneratorEngineV2 {
     );
   }
 
-  TrainingPackSpot _cloneBase(TrainingPackSpot base) {
+  TrainingPackSpot _cloneBase(TrainingPackSpot base, {Random? rng}) {
     final map = Map<String, dynamic>.from(base.toJson());
-    map['id'] = _uuid.v4();
+    map['id'] = rng == null
+        ? _uuid.v4()
+        : _uuid.v4(
+            config: {
+              'rng': () => List<int>.generate(16, (_) => rng.nextInt(256)),
+            },
+          );
     final clone = TrainingPackSpot.fromJson(map);
     clone.templateSourceId = base.id;
     clone.tags = List<String>.from(base.tags);

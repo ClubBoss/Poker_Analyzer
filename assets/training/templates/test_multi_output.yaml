@@ -11,10 +11,15 @@ baseSpot:
   villainAction: check
 variations:
   - {}
+seed: 7
 outputVariants:
-  - targetStreet: flop
+  flop:
+    targetStreet: flop
+    seed: 1
     boardConstraints:
       - targetStreet: flop
-  - targetStreet: turn
+  turn:
+    targetStreet: turn
+    seed: 2
     boardConstraints:
       - targetStreet: turn

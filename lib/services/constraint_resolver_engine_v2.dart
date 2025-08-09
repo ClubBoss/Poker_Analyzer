@@ -11,9 +11,8 @@ import 'package:uuid/uuid.dart';
 class ConstraintResolverEngine {
   final ActionPatternMatcher _actionMatcher;
 
-  const ConstraintResolverEngine({
-    ActionPatternMatcher? actionMatcher,
-  }) : _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
+  const ConstraintResolverEngine({ActionPatternMatcher? actionMatcher})
+    : _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
 
   bool isValid(SpotSeedFormat candidate, ConstraintSet constraints) {
     final posReq = constraints.position?.toLowerCase();
@@ -43,12 +42,13 @@ class ConstraintResolverEngine {
       return false;
     }
 
-    final boardTags = BoardAnalyzerUtils.tags(candidate.board)
-        .map((t) => t.toLowerCase())
-        .toSet();
+    final boardTags = BoardAnalyzerUtils.tags(
+      candidate.board,
+    ).map((t) => t.toLowerCase()).toSet();
     if (constraints.boardTags.isNotEmpty) {
-      final required =
-          constraints.boardTags.map((t) => t.toLowerCase()).toList();
+      final required = constraints.boardTags
+          .map((t) => t.toLowerCase())
+          .toList();
       if (!required.every(boardTags.contains)) {
         return false;
       }
@@ -64,14 +64,14 @@ class ConstraintResolverEngine {
 
     if (constraints.requiredTags.isNotEmpty) {
       final tags = candidate.tags.map((t) => t.toLowerCase()).toSet();
-      final req =
-          constraints.requiredTags.map((t) => t.toLowerCase()).toList();
+      final req = constraints.requiredTags.map((t) => t.toLowerCase()).toList();
       if (!req.every(tags.contains)) return false;
     }
     if (constraints.excludedTags.isNotEmpty) {
       final tags = candidate.tags.map((t) => t.toLowerCase()).toSet();
-      final excl =
-          constraints.excludedTags.map((t) => t.toLowerCase()).toList();
+      final excl = constraints.excludedTags
+          .map((t) => t.toLowerCase())
+          .toList();
       if (excl.any(tags.contains)) return false;
     }
 
@@ -93,8 +93,11 @@ class ConstraintResolverEngine {
     if (constraints.minStack != null || constraints.maxStack != null) {
       final stack = candidate.heroStack;
       if (stack == null ||
-          !StackUtils.inRange(stack,
-              min: constraints.minStack, max: constraints.maxStack)) {
+          !StackUtils.inRange(
+            stack,
+            min: constraints.minStack,
+            max: constraints.maxStack,
+          )) {
         return false;
       }
     }
@@ -109,17 +112,18 @@ class ConstraintResolverEngine {
   /// merged or overridden according to the `MergeMode` settings.
   List<TrainingPackSpot> apply(
     TrainingPackSpot base,
-    List<ConstraintSet> sets,
-  ) {
+    List<ConstraintSet> sets, {
+    Random? rng,
+  }) {
     if (sets.isEmpty) {
-      return [_cloneBase(base)];
+      return [_cloneBase(base, rng: rng)];
     }
 
     final results = <TrainingPackSpot>[];
     for (final set in sets) {
       final combos = _cartesian(set.overrides);
       for (final combo in combos) {
-        final spot = _cloneBase(base);
+        final spot = _cloneBase(base, rng: rng);
 
         combo.forEach((key, value) {
           switch (key) {
@@ -162,9 +166,15 @@ class ConstraintResolverEngine {
     return results;
   }
 
-  TrainingPackSpot _cloneBase(TrainingPackSpot base) {
+  TrainingPackSpot _cloneBase(TrainingPackSpot base, {Random? rng}) {
     final json = Map<String, dynamic>.from(base.toJson());
-    json['id'] = const Uuid().v4();
+    json['id'] = rng == null
+        ? const Uuid().v4()
+        : const Uuid().v4(
+            config: {
+              'rng': () => List<int>.generate(16, (_) => rng.nextInt(256)),
+            },
+          );
     final copy = TrainingPackSpot.fromJson(json);
     copy.templateSourceId = base.id;
     copy.tags = List<String>.from(base.tags);
