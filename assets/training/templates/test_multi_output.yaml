@@ -1,0 +1,20 @@
+baseSpot:
+  id: multi_base
+  title: Multi Base
+  hand:
+    heroCards: Ah Ad
+    position: btn
+    heroIndex: 0
+    playerCount: 2
+    board: []
+  board: []
+  villainAction: check
+variations:
+  - {}
+outputVariants:
+  - targetStreet: flop
+    boardConstraints:
+      - targetStreet: flop
+  - targetStreet: turn
+    boardConstraints:
+      - targetStreet: turn

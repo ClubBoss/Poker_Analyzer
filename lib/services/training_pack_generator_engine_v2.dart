@@ -5,6 +5,7 @@ import '../models/inline_theory_entry.dart';
 import '../models/spot_seed_format.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
+import '../models/constraint_set.dart';
 import 'training_pack_template_expander_service.dart';
 import 'auto_spot_theory_injector_service.dart';
 import 'line_graph_engine.dart';
@@ -94,6 +95,66 @@ class TrainingPackGeneratorEngineV2 {
     // Inject theory links based on final tag sets.
     _injector.injectAll(spots);
     return spots;
+  }
+
+  /// Generates spot lists for each output variant in [set].
+  ///
+  /// When no [TrainingPackTemplateSet.outputVariants] are defined this simply
+  /// returns a single-element list containing [generate]'s result.
+  List<List<TrainingPackSpot>> generateOutputs(
+    TrainingPackTemplateSet set, {
+    Map<String, InlineTheoryEntry> theoryIndex = const {},
+  }) {
+    if (set.outputVariants.isEmpty) {
+      return [generate(set, theoryIndex: theoryIndex)];
+    }
+    final results = <List<TrainingPackSpot>>[];
+    for (final variant in set.outputVariants) {
+      final merged = TrainingPackTemplateSet(
+        baseSpot: set.baseSpot,
+        variations: [
+          for (final v in set.variations) _mergeConstraints(v, variant),
+        ],
+        playerTypeVariations: set.playerTypeVariations,
+        suitAlternation: set.suitAlternation,
+        stackDepthMods: set.stackDepthMods,
+        linePatterns: set.linePatterns,
+        postflopLines: set.postflopLines,
+        boardTexturePreset: set.boardTexturePreset,
+        excludeBoardTexturePresets: set.excludeBoardTexturePresets,
+        requiredBoardClusters: set.requiredBoardClusters,
+        excludedBoardClusters: set.excludedBoardClusters,
+        expandAllLines: set.expandAllLines,
+        postflopLineSeed: set.postflopLineSeed,
+      );
+      results.add(generate(merged, theoryIndex: theoryIndex));
+    }
+    return results;
+  }
+
+  ConstraintSet _mergeConstraints(ConstraintSet base, ConstraintSet variant) {
+    return ConstraintSet(
+      boardTags: base.boardTags,
+      positions: base.positions,
+      handGroup: base.handGroup,
+      villainActions: base.villainActions,
+      targetStreet: variant.targetStreet ?? base.targetStreet,
+      requiredTags: {...base.requiredTags, ...variant.requiredTags}.toList(),
+      excludedTags: {...base.excludedTags, ...variant.excludedTags}.toList(),
+      position: base.position,
+      opponentPosition: base.opponentPosition,
+      boardTexture: base.boardTexture,
+      minStack: base.minStack,
+      maxStack: base.maxStack,
+      boardConstraints: [...base.boardConstraints, ...variant.boardConstraints],
+      linePattern: base.linePattern,
+      overrides: base.overrides,
+      tags: base.tags,
+      tagMergeMode: base.tagMergeMode,
+      metadata: base.metadata,
+      metaMergeMode: base.metaMergeMode,
+      theoryLink: base.theoryLink,
+    );
   }
 
   TrainingPackSpot _cloneBase(TrainingPackSpot base) {

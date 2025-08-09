@@ -16,6 +16,14 @@ class TrainingPackTemplateSet {
   /// and additional tagging/metadata rules.
   final List<ConstraintSet> variations;
 
+  /// Optional pack-level variants that split generation into multiple outputs.
+  ///
+  /// Each entry inherits [variations] and may override high-level constraints
+  /// such as [ConstraintSet.targetStreet], [ConstraintSet.boardConstraints],
+  /// [ConstraintSet.requiredTags], and [ConstraintSet.excludedTags]. A separate
+  /// training pack is produced for every variant.
+  final List<ConstraintSet> outputVariants;
+
   /// Optional player type variants to apply to generated templates.
   ///
   /// Each entry is written to `spot.meta['playerType']` for the resulting
@@ -74,6 +82,7 @@ class TrainingPackTemplateSet {
   const TrainingPackTemplateSet({
     required this.baseSpot,
     List<ConstraintSet>? variations,
+    List<ConstraintSet>? outputVariants,
     List<String>? playerTypeVariations,
     this.suitAlternation = false,
     List<int>? stackDepthMods,
@@ -86,6 +95,7 @@ class TrainingPackTemplateSet {
     this.expandAllLines = false,
     this.postflopLineSeed,
   }) : variations = variations ?? const [],
+       outputVariants = outputVariants ?? const [],
        playerTypeVariations = playerTypeVariations ?? const [],
        stackDepthMods = stackDepthMods ?? const [],
        linePatterns = linePatterns ?? const [],
@@ -101,6 +111,10 @@ class TrainingPackTemplateSet {
     final base = TrainingPackSpot.fromJson(baseMap);
     final vars = <ConstraintSet>[
       for (final v in (json['variations'] as List? ?? []))
+        ConstraintSet.fromJson(Map<String, dynamic>.from(v as Map)),
+    ];
+    final outputs = <ConstraintSet>[
+      for (final v in (json['outputVariants'] as List? ?? []))
         ConstraintSet.fromJson(Map<String, dynamic>.from(v as Map)),
     ];
     final pTypes = <String>[
@@ -144,6 +158,7 @@ class TrainingPackTemplateSet {
     return TrainingPackTemplateSet(
       baseSpot: base,
       variations: vars,
+      outputVariants: outputs,
       playerTypeVariations: pTypes,
       suitAlternation: suitAlt,
       stackDepthMods: depthMods,
@@ -167,6 +182,8 @@ class TrainingPackTemplateSet {
     'baseSpot': baseSpot.toJson(),
     if (variations.isNotEmpty)
       'variations': [for (final v in variations) v.toJson()],
+    if (outputVariants.isNotEmpty)
+      'outputVariants': [for (final v in outputVariants) v.toJson()],
     if (playerTypeVariations.isNotEmpty)
       'playerTypeVariations': playerTypeVariations,
     if (suitAlternation) 'suitAlternation': true,
