@@ -58,6 +58,12 @@ class AutogenStatusDashboardService {
   final ValueNotifier<int> pathModulesCompletedNotifier = ValueNotifier(0);
   final ValueNotifier<double> avgPassRateNotifier = ValueNotifier(0.0);
 
+  final ValueNotifier<Map<String, int>> coverageHistogramNotifier =
+      ValueNotifier(const <String, int>{});
+  final ValueNotifier<int> rejectedByCoverageNotifier = ValueNotifier(0);
+  final ValueNotifier<List<Map<String, int>>> coverageSummariesNotifier =
+      ValueNotifier(const <Map<String, int>>[]);
+
   final ValueNotifier<List<ABArmResult>> abResultsNotifier = ValueNotifier(
     const <ABArmResult>[],
   );
@@ -82,6 +88,8 @@ class AutogenStatusDashboardService {
   final List<String> _recentErrors = [];
   final List<AutogenStatus> _runSummaries = [];
   static const _runSummariesKey = 'autogen.runSummaries';
+  final List<Map<String, int>> _coverageSummaries = [];
+  static const _coverageSummariesKey = 'autogen.coverageSummaries';
   AutogenRunState _previousState = AutogenRunState.idle;
   AutogenStatus _lastStatus = const AutogenStatus();
 
@@ -94,6 +102,8 @@ class AutogenStatusDashboardService {
   Stream<AutogenStatus> get statusStream => _statusStreamController.stream;
   List<String> get recentErrors => List.unmodifiable(_recentErrors);
   List<AutogenStatus> get runSummaries => List.unmodifiable(_runSummaries);
+  List<Map<String, int>> get coverageSummaries =>
+      List.unmodifiable(_coverageSummaries);
 
   Future<void> bindExecutor(AutogenPipelineExecutor executor) async {
     await bindStream(executor.status$);
@@ -130,6 +140,16 @@ class AutogenStatusDashboardService {
     final encoded =
         _runSummaries.map((s) => jsonEncode(s.toJson())).toList();
     await prefs.setStringList(_runSummariesKey, encoded);
+    final covList = prefs.getStringList(_coverageSummariesKey) ?? [];
+    covList.insert(0, jsonEncode(coverageHistogramNotifier.value));
+    if (covList.length > 10) covList.removeLast();
+    await prefs.setStringList(_coverageSummariesKey, covList);
+    _coverageSummaries
+      ..insert(0, Map<String, int>.from(coverageHistogramNotifier.value));
+    if (_coverageSummaries.length > 10) {
+      _coverageSummaries.removeLast();
+    }
+    coverageSummariesNotifier.value = List.unmodifiable(_coverageSummaries);
   }
 
   Future<void> loadSummaries() async {
@@ -138,6 +158,11 @@ class AutogenStatusDashboardService {
     _runSummaries
       ..clear()
       ..addAll(list.map((e) => AutogenStatus.fromJson(jsonDecode(e))));
+    final cov = prefs.getStringList(_coverageSummariesKey) ?? [];
+    _coverageSummaries
+      ..clear()
+      ..addAll(cov.map((e) => Map<String, int>.from(jsonDecode(e))));
+    coverageSummariesNotifier.value = List.unmodifiable(_coverageSummaries);
   }
 
   void registerSession(AutogenSessionMeta meta) {
@@ -243,6 +268,29 @@ class AutogenStatusDashboardService {
     final total = pathModulesCompletedNotifier.value;
     avgPassRateNotifier.value =
         ((avgPassRateNotifier.value * (total - 1)) + passRate) / total;
+  }
+
+  void recordCoverageEval(double pct, {bool rejected = false}) {
+    final bucket = _bucketize(pct);
+    final map = Map<String, int>.from(coverageHistogramNotifier.value);
+    map[bucket] = (map[bucket] ?? 0) + 1;
+    coverageHistogramNotifier.value = Map.unmodifiable(map);
+    if (rejected) {
+      rejectedByCoverageNotifier.value = rejectedByCoverageNotifier.value + 1;
+    }
+  }
+
+  String _bucketize(double pct) {
+    if (pct < 0.2) return '0-20';
+    if (pct < 0.4) return '20-40';
+    if (pct < 0.6) return '40-60';
+    if (pct < 0.8) return '60-80';
+    return '80-100';
+  }
+
+  void resetCoverageMetrics() {
+    coverageHistogramNotifier.value = const <String, int>{};
+    rejectedByCoverageNotifier.value = 0;
   }
 
   /// Append [issues] for [seedId] to the lint feed.
