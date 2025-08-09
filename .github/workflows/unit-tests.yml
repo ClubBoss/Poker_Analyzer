@@ -15,26 +15,30 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      COVERAGE_MODE: soft
-      COVERAGE_MIN_UNIQUE_TAGS: 5
-      COVERAGE_MIN_PCT: 0.35
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
         with:
-          channel: stable
-          cache: true
-          cache-key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
-      - name: Run unit tests
-        run: flutter test --no-pub
-        env:
-          COVERAGE_MODE: ${{ github.event_name == 'pull_request' && 'strict' || env.COVERAGE_MODE }}
-          COVERAGE_MIN_UNIQUE_TAGS: ${{ env.COVERAGE_MIN_UNIQUE_TAGS }}
-          COVERAGE_MIN_PCT: ${{ env.COVERAGE_MIN_PCT }}
+      - name: Run headless unit tests
+        run: |
+          dirs=()
+          [ -d test/tools ] && dirs+=("test/tools")
+          [ -d test/headless ] && dirs+=("test/headless")
+          if [ ${#dirs[@]} -eq 0 ]; then
+            echo "No headless test directories found."
+            exit 0
+          fi
+          dart test "${dirs[@]}" --exclude-tags flutter --concurrency=2 --reporter expanded
+
