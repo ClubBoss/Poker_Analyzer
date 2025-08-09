@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'autogen_pipeline_executor.dart';
 import 'training_pack_auto_generator.dart';
 import 'training_pack_template_set_library_service.dart';
+import 'autogen_status_dashboard_service.dart';
 
 /// Service exposing start/stop controls and running status for the
 /// [AutogenPipelineExecutor].
@@ -28,6 +29,7 @@ class AutogenPipelineExecutorStatusService {
     final generator = TrainingPackAutoGenerator();
     _generator = generator;
     final executor = AutogenPipelineExecutor(generator: generator);
+    await AutogenStatusDashboardService.instance.bindExecutor(executor);
     try {
       await executor.execute(sets, existingYamlPath: 'packs/generated');
     } finally {

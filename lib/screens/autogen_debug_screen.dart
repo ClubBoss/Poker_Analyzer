@@ -11,6 +11,7 @@ import '../services/autogen_stats_dashboard_service.dart';
 import '../services/autogen_status_dashboard_service.dart';
 import '../widgets/seed_lint_panel_widget.dart';
 import '../services/autogen_pipeline_executor.dart';
+import '../widgets/autogen_status_panel.dart';
 import '../services/training_pack_auto_generator.dart';
 import '../services/training_pack_template_set_library_service.dart';
 import '../services/yaml_pack_exporter.dart';
@@ -79,7 +80,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     });
   }
 
-  void _startAutogen() {
+  Future<void> _startAutogen() async {
     if (_status == _AutogenStatus.running) return;
     final dashboard = AutogenStatsDashboardService.instance;
     dashboard.start();
@@ -101,9 +102,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     final executor = AutogenPipelineExecutor(
       generator: generator,
       dashboard: dashboard,
-      status: status,
       exporter: exporter,
     );
+    await status.bindExecutor(executor);
     setState(() {
       _status = _AutogenStatus.running;
       _sessionId = sessionId;
@@ -170,6 +171,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
               ],
             ),
           ),
+          const AutogenStatusPanel(),
           const AutogenPipelineDebugControlPanel(),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -179,7 +181,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                 ElevatedButton(
                   onPressed: _status == _AutogenStatus.running
                       ? null
-                      : _startAutogen,
+                      : () => _startAutogen(),
                   child: const Text('Start Autogen'),
                 ),
                 OutlinedButton(
