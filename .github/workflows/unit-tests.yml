@@ -16,25 +16,27 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Set up Flutter (for tooling + pub)
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Flutter version
-        run: flutter --version
+      - name: Versions
+        run: |
+          flutter --version
+          dart --version
 
       - name: Install dependencies
         run: flutter pub get
 
-      # Берём только быстрые headless-наборы для CI-мерджа
-      - name: Detect fast test dirs
+      # Берём только быстрые headless-наборы, которые НЕ требуют flutter_test
+      - name: Detect pure-dart test dirs
         id: dirs
         shell: bash
         run: |
@@ -50,13 +52,13 @@ jobs:
             echo "list=$(cat dirs.txt)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run tests (Flutter, compact, serialized)
+      - name: Run tests (Dart, compact)
         if: steps.dirs.outputs.has_tests == '1'
         shell: bash
         run: |
-          # Компактный вывод и последовательный прогон для стабильности
-          flutter test -r compact -j 1 ${{ steps.dirs.outputs.list }}
+          # Запускаем как pure Dart, чтобы не триггерить валидацию плагинов Flutter.
+          dart test -r compact ${{ steps.dirs.outputs.list }}
 
-      - name: No tests found
+      - name: No pure-dart tests found
         if: steps.dirs.outputs.has_tests != '1'
-        run: echo "No fast test directories found. Skipping."
+        run: echo "No pure-dart test directories found. Skipping."
