@@ -24,3 +24,6 @@ variations:
         flop: [bet, villainCall]
         turn: [bet, villainCall]
         river: [bet]
+outputVariants:
+  A:
+    targetStreet: river
