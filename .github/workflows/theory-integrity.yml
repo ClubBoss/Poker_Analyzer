@@ -34,7 +34,7 @@ jobs:
         run: flutter config --no-analytics
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       # Быстрый список затронутых YAML (если есть helper-скрипт — используем; если нет — не падаем)
       - name: Collect changed YAML paths
