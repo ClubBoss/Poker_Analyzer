@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 
 import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
@@ -70,6 +71,10 @@ class AutogenPipelineExecutor {
   final TheoryAutoInjector autoInjector;
   final PackNoveltyGuardService noveltyGuard;
   final bool failOnSeedErrors;
+  final StreamController<AutogenStatus> _statusController =
+      StreamController.broadcast();
+
+  Stream<AutogenStatus> get status$ => _statusController.stream;
 
   AutogenPipelineExecutor({
     TrainingPackAutoGenerator? generator,
@@ -116,10 +121,14 @@ class AutogenPipelineExecutor {
        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
        formatSelector = formatSelector ?? AutoFormatSelector(),
        autoInjector = autoInjector ?? TheoryAutoInjector(),
-       noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
-       failOnSeedErrors =
-           failOnSeedErrors ?? (Platform.environment['CI'] == 'true') {
+      noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
+      failOnSeedErrors =
+          failOnSeedErrors ?? (Platform.environment['CI'] == 'true') {
     this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
+  }
+
+  void _emitStatus(AutogenStatus status) {
+    _statusController.add(status);
   }
 
   /// Convert and validate raw seed inputs using USF. Legacy formats are
@@ -212,6 +221,7 @@ class AutogenPipelineExecutor {
     var rejectedCount = 0;
     var totalQualityScore = 0.0;
     var processedCount = 0;
+    final startedAt = DateTime.now();
     final existingFingerprints = <PackFingerprint>[];
     final spotGen = const SpotFingerprintGenerator();
     if (remediationPlan.isNotEmpty && existingYamlPath.isNotEmpty) {
@@ -223,9 +233,16 @@ class AutogenPipelineExecutor {
         dryRun: injectDryRun,
       );
     }
-    status.update(
-      'pipeline',
-      const AutogenStatus(isRunning: true, currentStage: 'init', progress: 0),
+    _emitStatus(
+      AutogenStatus(
+        state: AutogenRunState.running,
+        currentStep: 'init',
+        queueDepth: sets.length,
+        processed: 0,
+        errorsCount: 0,
+        startedAt: startedAt,
+        updatedAt: DateTime.now(),
+      ),
     );
     policyEngine.outputDir = existingYamlPath;
     await policyEngine.loadPolicies();
@@ -254,24 +271,30 @@ class AutogenPipelineExecutor {
     try {
       for (var i = 0; i < sets.length; i++) {
         final set = sets[i];
-        status.update(
-          'pipeline',
+        _emitStatus(
           AutogenStatus(
-            isRunning: true,
-            currentStage: 'template:${set.baseSpot.id}',
-            progress: i / sets.length,
+            state: AutogenRunState.running,
+            currentStep: 'template:${set.baseSpot.id}',
+            queueDepth: sets.length - i,
+            processed: i,
+            errorsCount: 0,
+            startedAt: startedAt,
+            updatedAt: DateTime.now(),
           ),
         );
         if (generator.shouldAbort) break;
         var spots = await generator.generate(set, theoryIndex: theoryIndex);
         if (generator.shouldAbort) break;
         if (spots.isEmpty) {
-          status.update(
-            'pipeline',
+          _emitStatus(
             AutogenStatus(
-              isRunning: true,
-              currentStage: 'template:${set.baseSpot.id}',
-              progress: (i + 1) / sets.length,
+              state: AutogenRunState.running,
+              currentStep: 'template:${set.baseSpot.id}',
+              queueDepth: sets.length - (i + 1),
+              processed: i + 1,
+              errorsCount: 0,
+              startedAt: startedAt,
+              updatedAt: DateTime.now(),
             ),
           );
           continue;
@@ -371,12 +394,15 @@ class AutogenPipelineExecutor {
         await policyEngine.applyPolicies(duplicates);
         existingFingerprints.add(pf);
         await noveltyGuard.registerExport(pack);
-        status.update(
-          'pipeline',
+        _emitStatus(
           AutogenStatus(
-            isRunning: true,
-            currentStage: 'template:${set.baseSpot.id}',
-            progress: (i + 1) / sets.length,
+            state: AutogenRunState.running,
+            currentStep: 'template:${set.baseSpot.id}',
+            queueDepth: sets.length - (i + 1),
+            processed: i + 1,
+            errorsCount: 0,
+            startedAt: startedAt,
+            updatedAt: DateTime.now(),
           ),
         );
       }
@@ -438,23 +464,29 @@ class AutogenPipelineExecutor {
         format: appliedFormat,
       );
       await TheoryInjectionSchedulerService.instance.runNow(force: true);
-      status.update(
-        'pipeline',
-        const AutogenStatus(
-          isRunning: false,
-          currentStage: 'complete',
-          progress: 1,
+      _emitStatus(
+        AutogenStatus(
+          state: AutogenRunState.idle,
+          currentStep: 'complete',
+          queueDepth: 0,
+          processed: processedCount,
+          errorsCount: 0,
+          startedAt: startedAt,
+          updatedAt: DateTime.now(),
         ),
       );
       return files;
     } catch (e) {
-      status.update(
-        'pipeline',
+      _emitStatus(
         AutogenStatus(
-          isRunning: false,
-          currentStage: 'error',
-          progress: 0,
-          lastError: e.toString(),
+          state: AutogenRunState.idle,
+          currentStep: 'error',
+          queueDepth: 0,
+          processed: processedCount,
+          errorsCount: 1,
+          startedAt: startedAt,
+          updatedAt: DateTime.now(),
+          lastErrorMsg: e.toString(),
         ),
       );
       rethrow;

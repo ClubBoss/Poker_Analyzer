@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/autogen_status.dart';
 import '../models/autogen_session_meta.dart';
 import '../models/training_run_record.dart';
 import '../core/models/spot_seed/seed_issue.dart';
 import 'training_run_ab_comparator.dart';
+import 'autogen_pipeline_executor.dart';
 
 class DuplicatePackInfo {
   final String candidateId;
@@ -70,9 +73,71 @@ class AutogenStatusDashboardService {
       StreamController.broadcast();
   static const _sessionTtl = Duration(hours: 24);
 
+  // Real-time pipeline status.
+  final ValueNotifier<AutogenStatus> pipelineStatusNotifier =
+      ValueNotifier(const AutogenStatus());
+  final StreamController<AutogenStatus> _statusStreamController =
+      StreamController.broadcast();
+  StreamSubscription<AutogenStatus>? _statusSub;
+  final List<String> _recentErrors = [];
+  final List<AutogenStatus> _runSummaries = [];
+  static const _runSummariesKey = 'autogen.runSummaries';
+  AutogenRunState _previousState = AutogenRunState.idle;
+  AutogenStatus _lastStatus = const AutogenStatus();
+
   void update(String module, AutogenStatus status) {
     _statuses[module] = status;
     notifier.value = Map.unmodifiable(_statuses);
+  }
+
+  ValueListenable<AutogenStatus> get pipelineStatus => pipelineStatusNotifier;
+  Stream<AutogenStatus> get statusStream => _statusStreamController.stream;
+  List<String> get recentErrors => List.unmodifiable(_recentErrors);
+  List<AutogenStatus> get runSummaries => List.unmodifiable(_runSummaries);
+
+  Future<void> bindExecutor(AutogenPipelineExecutor executor) async {
+    await bindStream(executor.status$);
+  }
+
+  Future<void> bindStream(Stream<AutogenStatus> stream) async {
+    await _statusSub?.cancel();
+    _statusSub = stream.listen(_handleStatus);
+  }
+
+  void _handleStatus(AutogenStatus status) {
+    pipelineStatusNotifier.value = status;
+    _statusStreamController.add(status);
+    if (status.lastErrorMsg != null && status.lastErrorMsg!.isNotEmpty) {
+      _recentErrors.add(status.lastErrorMsg!);
+      if (_recentErrors.length > 20) {
+        _recentErrors.removeAt(0);
+      }
+    }
+    if (_previousState == AutogenRunState.running &&
+        status.state != AutogenRunState.running) {
+      _persistSummary(_lastStatus);
+    }
+    _previousState = status.state;
+    _lastStatus = status;
+  }
+
+  Future<void> _persistSummary(AutogenStatus summary) async {
+    final prefs = await SharedPreferences.getInstance();
+    _runSummaries.insert(0, summary);
+    if (_runSummaries.length > 10) {
+      _runSummaries.removeLast();
+    }
+    final encoded =
+        _runSummaries.map((s) => jsonEncode(s.toJson())).toList();
+    await prefs.setStringList(_runSummariesKey, encoded);
+  }
+
+  Future<void> loadSummaries() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_runSummariesKey) ?? [];
+    _runSummaries
+      ..clear()
+      ..addAll(list.map((e) => AutogenStatus.fromJson(jsonDecode(e))));
   }
 
   void registerSession(AutogenSessionMeta meta) {
@@ -232,5 +297,11 @@ class AutogenStatusDashboardService {
     avgPassRateNotifier.value = 0.0;
     theoryClustersInjectedNotifier.value = 0;
     theoryLinksInjectedNotifier.value = 0;
+    pipelineStatusNotifier.value = const AutogenStatus();
+    _recentErrors.clear();
+    _runSummaries.clear();
+    _statusSub?.cancel();
+    _previousState = AutogenRunState.idle;
+    _lastStatus = const AutogenStatus();
   }
 }
