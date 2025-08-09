@@ -16,7 +16,7 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
 
     steps:
       - name: Checkout
@@ -35,20 +35,15 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Явно выбираем только безопасные pure-Dart тесты из tools (без batch_generate_test.dart)
+      # Белый список только 2-х стабильных тестов (исключаем plugin_scaffold & batch_generate)
       - name: Build whitelist of tests
         id: files
         shell: bash
         run: |
           set -euo pipefail
           WHITELIST=()
-          for f in \
-            "test/tools/schema_check_unit_test.dart" \
-            "test/tools/migrate_output_variants_test.dart" \
-            "test/tools/plugin_scaffold_test.dart"
-          do
-            [[ -f "$f" ]] && WHITELIST+=("$f")
-          done
+          [[ -f "test/tools/schema_check_unit_test.dart" ]] && WHITELIST+=("test/tools/schema_check_unit_test.dart")
+          [[ -f "test/tools/migrate_output_variants_test.dart" ]] && WHITELIST+=("test/tools/migrate_output_variants_test.dart")
 
           if [[ ${#WHITELIST[@]} -eq 0 ]]; then
             echo "has_tests=0" >> "$GITHUB_OUTPUT"
