@@ -1,4 +1,1058 @@
 {
-  "version": 1,
-  "files": {}
+  "l10n.yaml": {
+    "path": "l10n.yaml",
+    "sha1": "0f8bd8e99485f416b834ed2482c2951b659d6546",
+    "sizeBytes": 128,
+    "mtime": "2025-08-09T00:56:11.844Z"
+  },
+  "build.yaml": {
+    "path": "build.yaml",
+    "sha1": "473ef7a7e7ba770662608cbb6a5760a8e216c936",
+    "sizeBytes": 82,
+    "mtime": "2025-08-09T00:56:11.841Z"
+  },
+  "analysis_options.yaml": {
+    "path": "analysis_options.yaml",
+    "sha1": "e87023d0cdaa1dacc438513081c52a2459b4ceb7",
+    "sizeBytes": 234,
+    "mtime": "2025-08-09T00:56:11.827Z"
+  },
+  "tool/config.yaml": {
+    "path": "tool/config.yaml",
+    "sha1": "76eb9d3ee56f7b6ad8ec31b28df7dd74cdd7aead",
+    "sizeBytes": 305,
+    "mtime": "2025-08-09T00:56:12.031Z"
+  },
+  "codex.yaml": {
+    "path": "codex.yaml",
+    "sha1": "b2c13429dcfe3d2ba0bb89f7779499779a38d588",
+    "sizeBytes": 86,
+    "mtime": "2025-08-09T00:56:11.841Z"
+  },
+  "pubspec.yaml": {
+    "path": "pubspec.yaml",
+    "sha1": "d75b75d41acc66979e2a2aaf82d0f5007ac55d67",
+    "sizeBytes": 4490,
+    "mtime": "2025-08-09T00:56:11.999Z"
+  },
+  ".github/workflows/ci.yaml": {
+    "path": ".github/workflows/ci.yaml",
+    "sha1": "ae6335ef1dcaac50af7569b00dd13c11e5cd22e4",
+    "sizeBytes": 847,
+    "mtime": "2025-08-09T00:56:11.827Z"
+  },
+  ".git/logs/refs/remotes/origin/codex/fix-dependency-conflict-in-pubspec.yaml": {
+    "path": ".git/logs/refs/remotes/origin/codex/fix-dependency-conflict-in-pubspec.yaml",
+    "sha1": "bfb8a2ff2b5456934886406fba313ccbcc4c0138",
+    "sizeBytes": 303,
+    "mtime": "2025-08-09T00:56:11.169Z"
+  },
+  ".git/logs/refs/remotes/origin/codex/add-github-actions-workflow-ci_lint_agent.yaml": {
+    "path": ".git/logs/refs/remotes/origin/codex/add-github-actions-workflow-ci_lint_agent.yaml",
+    "sha1": "770a5efe51067582d15ec48f65336975000a40ca",
+    "sizeBytes": 303,
+    "mtime": "2025-08-09T00:56:10.594Z"
+  },
+  ".git/logs/refs/remotes/origin/codex/add-pull_request-section-to-ci.yaml": {
+    "path": ".git/logs/refs/remotes/origin/codex/add-pull_request-section-to-ci.yaml",
+    "sha1": "f1b4e6f3fbc66ad9d32e65800e236b73cf529f53",
+    "sizeBytes": 303,
+    "mtime": "2025-08-09T00:56:10.777Z"
+  },
+  ".git/logs/refs/remotes/origin/codex/update-asset-bundle-in-pubspec.yaml": {
+    "path": ".git/logs/refs/remotes/origin/codex/update-asset-bundle-in-pubspec.yaml",
+    "sha1": "d88f8fa3a1b2f8a45004eb27b4595fc59500f465",
+    "sizeBytes": 303,
+    "mtime": "2025-08-09T00:56:11.574Z"
+  },
+  ".git/logs/refs/remotes/origin/codex/update-uuid-dependency-in-pubspec.yaml": {
+    "path": ".git/logs/refs/remotes/origin/codex/update-uuid-dependency-in-pubspec.yaml",
+    "sha1": "53439c0f2295864de35da7d03ca5b56e3db180e4",
+    "sizeBytes": 303,
+    "mtime": "2025-08-09T00:56:11.600Z"
+  },
+  ".git/logs/refs/remotes/origin/codex/fix-yaml-syntax-error-in-pubspec.yaml": {
+    "path": ".git/logs/refs/remotes/origin/codex/fix-yaml-syntax-error-in-pubspec.yaml",
+    "sha1": "d710f9f0e789d229ecc2b147c944e9018e33afa1",
+    "sizeBytes": 303,
+    "mtime": "2025-08-09T00:56:11.188Z"
+  },
+  ".git/refs/remotes/origin/codex/fix-dependency-conflict-in-pubspec.yaml": {
+    "path": ".git/refs/remotes/origin/codex/fix-dependency-conflict-in-pubspec.yaml",
+    "sha1": "c56d4691c64e2c0ac934bfe427ff633bfbbe50d9",
+    "sizeBytes": 41,
+    "mtime": "2025-08-09T00:56:11.169Z"
+  },
+  ".git/refs/remotes/origin/codex/add-github-actions-workflow-ci_lint_agent.yaml": {
+    "path": ".git/refs/remotes/origin/codex/add-github-actions-workflow-ci_lint_agent.yaml",
+    "sha1": "0201f8dd5dcb665b6090a2f655d7794d03bf5e28",
+    "sizeBytes": 41,
+    "mtime": "2025-08-09T00:56:10.594Z"
+  },
+  ".git/refs/remotes/origin/codex/add-pull_request-section-to-ci.yaml": {
+    "path": ".git/refs/remotes/origin/codex/add-pull_request-section-to-ci.yaml",
+    "sha1": "ac8b3bd73b5f7f03dd480ad81e8ac206d35ec038",
+    "sizeBytes": 41,
+    "mtime": "2025-08-09T00:56:10.777Z"
+  },
+  ".git/refs/remotes/origin/codex/update-asset-bundle-in-pubspec.yaml": {
+    "path": ".git/refs/remotes/origin/codex/update-asset-bundle-in-pubspec.yaml",
+    "sha1": "a75694da8bf2cb38ba2cf13ce15ad28d983eedc5",
+    "sizeBytes": 41,
+    "mtime": "2025-08-09T00:56:11.574Z"
+  },
+  ".git/refs/remotes/origin/codex/update-uuid-dependency-in-pubspec.yaml": {
+    "path": ".git/refs/remotes/origin/codex/update-uuid-dependency-in-pubspec.yaml",
+    "sha1": "98663dc6c62c223f9884974f3b49171a2fa56e22",
+    "sizeBytes": 41,
+    "mtime": "2025-08-09T00:56:11.600Z"
+  },
+  ".git/refs/remotes/origin/codex/fix-yaml-syntax-error-in-pubspec.yaml": {
+    "path": ".git/refs/remotes/origin/codex/fix-yaml-syntax-error-in-pubspec.yaml",
+    "sha1": "6044d1c5ef4f8c32572a15acdbc2150e1d66218a",
+    "sizeBytes": 41,
+    "mtime": "2025-08-09T00:56:11.188Z"
+  },
+  "assets/paths/cash_online.yaml": {
+    "path": "assets/paths/cash_online.yaml",
+    "sha1": "e8e89629abe8e2bc69564811559b460e686a46ea",
+    "sizeBytes": 915,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/training_paths.yaml": {
+    "path": "assets/training_paths.yaml",
+    "sha1": "612f7fef30c6a1af66924de60659813cd39bacb9",
+    "sizeBytes": 148,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/theory_blocks/welcome_ru.yaml": {
+    "path": "assets/theory_blocks/welcome_ru.yaml",
+    "sha1": "3de51ef9d5189a74855a6163afead91482f5b5f0",
+    "sizeBytes": 115,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_blocks/block_open_vs_bb_15bb.yaml": {
+    "path": "assets/theory_blocks/block_open_vs_bb_15bb.yaml",
+    "sha1": "56dd69bdb1bb77e5010003a792fed3174e885f51",
+    "sizeBytes": 235,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_blocks/welcome.yaml": {
+    "path": "assets/theory_blocks/welcome.yaml",
+    "sha1": "f61b0150efc5ebde2c3e0b903cb2a5277e04f97a",
+    "sizeBytes": 71,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/learning_path_tracks.yaml": {
+    "path": "assets/learning_path_tracks.yaml",
+    "sha1": "ae98c65f52bff701b8365f3904ca2d01117591be",
+    "sizeBytes": 366,
+    "mtime": "2025-08-09T00:56:11.833Z"
+  },
+  "assets/lesson_tracks/sample_track.yaml": {
+    "path": "assets/lesson_tracks/sample_track.yaml",
+    "sha1": "c6ea12e65c533b6b515ead65104c5a84b71116a7",
+    "sizeBytes": 198,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/mini_lessons/level_2_bb_defense_vs_btn_open.yaml": {
+    "path": "assets/mini_lessons/level_2_bb_defense_vs_btn_open.yaml",
+    "sha1": "e28e1499aa95e861f7f993092346d905e79d8ff2",
+    "sizeBytes": 737,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/mini_lessons/level_2_open_fold_btn_vs_bb.yaml": {
+    "path": "assets/mini_lessons/level_2_open_fold_btn_vs_bb.yaml",
+    "sha1": "fb66191834fef863c9657b3f04507549cfecf5a0",
+    "sizeBytes": 730,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/mini_lessons/iso_vs_limp.yaml": {
+    "path": "assets/mini_lessons/iso_vs_limp.yaml",
+    "sha1": "260dd54a2304df88a93a05d03cddf6af5809e714",
+    "sizeBytes": 118,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/mini_lessons/bubble_fold.yaml": {
+    "path": "assets/mini_lessons/bubble_fold.yaml",
+    "sha1": "bd37824ae493c8ce35b3a6361156cb671ec3ebd2",
+    "sizeBytes": 118,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/learning_paths/open_fold_lj_mtt.yaml": {
+    "path": "assets/learning_paths/open_fold_lj_mtt.yaml",
+    "sha1": "fc995da716ed17fd837c8d3cc3f4bbff1a0eeb8e",
+    "sizeBytes": 279,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/open_fold_early_mtt.yaml": {
+    "path": "assets/learning_paths/open_fold_early_mtt.yaml",
+    "sha1": "52ee79b7cb734d7aedf312be93015c12ca4696d2",
+    "sizeBytes": 283,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/open_fold_utg_mtt.yaml": {
+    "path": "assets/learning_paths/open_fold_utg_mtt.yaml",
+    "sha1": "0aa60bbc90a6c8ef0b1e07e5f0d0cc1fdaa66b1d",
+    "sizeBytes": 288,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/cash_path.yaml": {
+    "path": "assets/learning_paths/cash_path.yaml",
+    "sha1": "fe743bebf849224a52ccdf7f90103c05eee7ecd3",
+    "sizeBytes": 888,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/intermediate_path.yaml": {
+    "path": "assets/learning_paths/intermediate_path.yaml",
+    "sha1": "d7b57da6ee72d865962bb12db9d3cdb223aebc84",
+    "sizeBytes": 508,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/no_sections_path.yaml": {
+    "path": "assets/learning_paths/no_sections_path.yaml",
+    "sha1": "68c1129f30beabd4bb86972e4f8fade799389e9c",
+    "sizeBytes": 320,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/open_fold_mid_cash.yaml": {
+    "path": "assets/learning_paths/open_fold_mid_cash.yaml",
+    "sha1": "ec21d9131825a62fa8362111717cf9ddd7e053ab",
+    "sizeBytes": 331,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_bb_vs_lj.yaml": {
+    "path": "assets/learning_paths/3bet_push_bb_vs_lj.yaml",
+    "sha1": "d2a578ce09e6ef0e8ae761ae54794bf0af6be13d",
+    "sizeBytes": 272,
+    "mtime": "2025-08-09T00:56:11.833Z"
+  },
+  "assets/learning_paths/3bet_push_sb_vs_co.yaml": {
+    "path": "assets/learning_paths/3bet_push_sb_vs_co.yaml",
+    "sha1": "a075079a266a92b156b822f4ea3621454205b0fb",
+    "sizeBytes": 272,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_co_vs_btn.yaml": {
+    "path": "assets/learning_paths/3bet_push_co_vs_btn.yaml",
+    "sha1": "11a6abce5b620238a28877ad73af69ea19727d8c",
+    "sizeBytes": 278,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_btn_vs_sb.yaml": {
+    "path": "assets/learning_paths/3bet_push_btn_vs_sb.yaml",
+    "sha1": "d04f9678452f990d37570ec10b7e8c9fee9c1714",
+    "sizeBytes": 278,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/live_path.yaml": {
+    "path": "assets/learning_paths/live_path.yaml",
+    "sha1": "086b233cca172837b0f7e75157af7b710c8737d5",
+    "sizeBytes": 254,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_btn_vs_co.yaml": {
+    "path": "assets/learning_paths/3bet_push_btn_vs_co.yaml",
+    "sha1": "2fbc1d42e34dae97bed5112a243f6b164faeaef8",
+    "sizeBytes": 278,
+    "mtime": "2025-08-09T00:56:11.833Z"
+  },
+  "assets/learning_paths/threebet_push_late_cash.yaml": {
+    "path": "assets/learning_paths/threebet_push_late_cash.yaml",
+    "sha1": "c9e79fe8b577850501ea7e67115cd5fc7d51c84c",
+    "sizeBytes": 350,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/icm_postflop_path.yaml": {
+    "path": "assets/learning_paths/icm_postflop_path.yaml",
+    "sha1": "8e323535a322cd9cac41fc974504421d69430f01",
+    "sizeBytes": 236,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/sample_path.yaml": {
+    "path": "assets/learning_paths/sample_path.yaml",
+    "sha1": "6dadbf88ee0a09247d9d8ceb8f215d95a57133db",
+    "sizeBytes": 1052,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_btn_vs_hj.yaml": {
+    "path": "assets/learning_paths/3bet_push_btn_vs_hj.yaml",
+    "sha1": "8754db7c0bf3cf9028e1e986cad5069695979869",
+    "sizeBytes": 278,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/advanced_path.yaml": {
+    "path": "assets/learning_paths/advanced_path.yaml",
+    "sha1": "401203c5f70f824d72eaeb4e060e54d160a5fa1b",
+    "sizeBytes": 774,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_co_vs_lj.yaml": {
+    "path": "assets/learning_paths/3bet_push_co_vs_lj.yaml",
+    "sha1": "103e30cbf94f106932114f992d7fc5bcd7226fcf",
+    "sizeBytes": 272,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_bb_vs_hj.yaml": {
+    "path": "assets/learning_paths/3bet_push_bb_vs_hj.yaml",
+    "sha1": "3e5d4ac3475bd751daf2493c0a0ceecb4c1b5c02",
+    "sizeBytes": 272,
+    "mtime": "2025-08-09T00:56:11.833Z"
+  },
+  "assets/learning_paths/beginner_path.yaml": {
+    "path": "assets/learning_paths/beginner_path.yaml",
+    "sha1": "8e72646a7f45cc34fed157b2d7b2c7175d97bc4d",
+    "sizeBytes": 324,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_bb_vs_btn.yaml": {
+    "path": "assets/learning_paths/3bet_push_bb_vs_btn.yaml",
+    "sha1": "2b30861178a85c8dfdecb555b6175f0da2d0fb1b",
+    "sizeBytes": 278,
+    "mtime": "2025-08-09T00:56:11.833Z"
+  },
+  "assets/learning_paths/icm_multiway_path.yaml": {
+    "path": "assets/learning_paths/icm_multiway_path.yaml",
+    "sha1": "8e323535a322cd9cac41fc974504421d69430f01",
+    "sizeBytes": 236,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_sb_vs_lj.yaml": {
+    "path": "assets/learning_paths/3bet_push_sb_vs_lj.yaml",
+    "sha1": "3de1f3f133ef8fd6c517f4dd7003e82f719b63df",
+    "sizeBytes": 272,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/section_gating.yaml": {
+    "path": "assets/learning_paths/section_gating.yaml",
+    "sha1": "02d7a66b0bb2f8b139a9f9565e0176c71a095a5e",
+    "sizeBytes": 605,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_hj_vs_lj.yaml": {
+    "path": "assets/learning_paths/3bet_push_hj_vs_lj.yaml",
+    "sha1": "cd2c79f2aedf99eb910eb078bbe933147c5cd4ae",
+    "sizeBytes": 272,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/unlock_after.yaml": {
+    "path": "assets/learning_paths/unlock_after.yaml",
+    "sha1": "ce8dfcdfcedee2e448776c7f9c6491b40bee2744",
+    "sizeBytes": 633,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/threebet_push_mid_mtt.yaml": {
+    "path": "assets/learning_paths/threebet_push_mid_mtt.yaml",
+    "sha1": "fe76c5fc2ffca6a4f3e6aa3c601a80e93ad02e84",
+    "sizeBytes": 276,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/section_chain.yaml": {
+    "path": "assets/learning_paths/section_chain.yaml",
+    "sha1": "95856f1b100feaeabb649149880e4ccb47f63095",
+    "sizeBytes": 640,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_btn_vs_lj.yaml": {
+    "path": "assets/learning_paths/3bet_push_btn_vs_lj.yaml",
+    "sha1": "b9c2f2058dfb816bdad18ad5dabed55c7422566e",
+    "sizeBytes": 278,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/push_fold_cash.yaml": {
+    "path": "assets/learning_paths/push_fold_cash.yaml",
+    "sha1": "f81edca5ccffa426831e58c4c4d5b380c835502c",
+    "sizeBytes": 281,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_sb_vs_btn.yaml": {
+    "path": "assets/learning_paths/3bet_push_sb_vs_btn.yaml",
+    "sha1": "b4293aa2cecb6776d989dc0caa6171a2d8d9bcd2",
+    "sizeBytes": 279,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/learning_paths/3bet_push_sb_vs_hj.yaml": {
+    "path": "assets/learning_paths/3bet_push_sb_vs_hj.yaml",
+    "sha1": "c0d3afbaf43635bc20cab46f69c258d736a04f6e",
+    "sizeBytes": 272,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/theory_lessons/level3/postflop_utg_call_vs_hj_3bet_cash.yaml": {
+    "path": "assets/theory_lessons/level3/postflop_utg_call_vs_hj_3bet_cash.yaml",
+    "sha1": "49c0017e4a3fe4bfcac4be80caaa19cd447a991d",
+    "sizeBytes": 439,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/openfold_hj_vs_utg_cash.yaml": {
+    "path": "assets/theory_lessons/level2/openfold_hj_vs_utg_cash.yaml",
+    "sha1": "566c59085f36ac928105b2eb4a77b3f436d0fc6d",
+    "sizeBytes": 391,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/openfold_btn_vs_utg_cash.yaml": {
+    "path": "assets/theory_lessons/level2/openfold_btn_vs_utg_cash.yaml",
+    "sha1": "b839047610fdb0ec84b77368372f4623f7b49a2b",
+    "sizeBytes": 443,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/threebet_btn_vs_co_cash.yaml": {
+    "path": "assets/theory_lessons/level2/threebet_btn_vs_co_cash.yaml",
+    "sha1": "6e3a737fdee53cf1a396badbf4a94f73552d7149",
+    "sizeBytes": 417,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/threebet_co_vs_hj_cash.yaml": {
+    "path": "assets/theory_lessons/level2/threebet_co_vs_hj_cash.yaml",
+    "sha1": "5437788f8ab07ba47aef83548c47fe0b2f7daa97",
+    "sizeBytes": 406,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/threebet_hj_vs_utg_cash.yaml": {
+    "path": "assets/theory_lessons/level2/threebet_hj_vs_utg_cash.yaml",
+    "sha1": "00adda0d228bf893f98ab2efeb8284556bbaf2c5",
+    "sizeBytes": 374,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/openfold_co_vs_hj_cash.yaml": {
+    "path": "assets/theory_lessons/level2/openfold_co_vs_hj_cash.yaml",
+    "sha1": "84eda9df1d44a7e17e6b69c34eb383195c7f770b",
+    "sizeBytes": 442,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/openfold_3bb_cash.yaml": {
+    "path": "assets/theory_lessons/level2/openfold_3bb_cash.yaml",
+    "sha1": "2e6aceee32081ef47f49371fa942468ae44a6098",
+    "sizeBytes": 571,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level2/defend_utg_vs_hj_3bet_cash.yaml": {
+    "path": "assets/theory_lessons/level2/defend_utg_vs_hj_3bet_cash.yaml",
+    "sha1": "f360552c568376648491e4e31e14f928132b5738",
+    "sizeBytes": 392,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level1/effective_stack_sizes.yaml": {
+    "path": "assets/theory_lessons/level1/effective_stack_sizes.yaml",
+    "sha1": "471256dc534e3e8dfab569f3e2d5fe9c9053179a",
+    "sizeBytes": 289,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level1/basic_range_logic.yaml": {
+    "path": "assets/theory_lessons/level1/basic_range_logic.yaml",
+    "sha1": "32c6c01d1b8fb20ca4cd16791ca9b7a163420571",
+    "sizeBytes": 278,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level1/positional_decisions.yaml": {
+    "path": "assets/theory_lessons/level1/positional_decisions.yaml",
+    "sha1": "0e8cbc2d7e646d32c8748f852152c96c2b57be4a",
+    "sizeBytes": 249,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level1/push_fold_intro.yaml": {
+    "path": "assets/theory_lessons/level1/push_fold_intro.yaml",
+    "sha1": "e2ad41f331a5b8d70823489ab25d715758485853",
+    "sizeBytes": 291,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_lessons/level1/risk_reward_tradeoff.yaml": {
+    "path": "assets/theory_lessons/level1/risk_reward_tradeoff.yaml",
+    "sha1": "653d855127189d2a236bd205246921b2913dd9d1",
+    "sizeBytes": 292,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/learning_tracks/sample_track.yaml": {
+    "path": "assets/learning_tracks/sample_track.yaml",
+    "sha1": "6ba2fe806dd9add19e28e9a9e229d2200073670a",
+    "sizeBytes": 126,
+    "mtime": "2025-08-09T00:56:11.834Z"
+  },
+  "assets/theory_tracks/track_level_2_opening.yaml": {
+    "path": "assets/theory_tracks/track_level_2_opening.yaml",
+    "sha1": "9539f40fdb42d5c03e40b0d29a8420ec1b11f5e1",
+    "sizeBytes": 95,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/theory_tracks/pushfold_basics.yaml": {
+    "path": "assets/theory_tracks/pushfold_basics.yaml",
+    "sha1": "988483ad81475dbc640ba8fe1e446be08b8f3bc0",
+    "sizeBytes": 124,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/skills/cash/postflop.yaml": {
+    "path": "assets/skills/cash/postflop.yaml",
+    "sha1": "0e4231df99172f5450e366b6a90a87624eb9269e",
+    "sizeBytes": 69,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/skills/cash/push_fold.yaml": {
+    "path": "assets/skills/cash/push_fold.yaml",
+    "sha1": "916728a55537c7f367f7930b8a00d2aed7276bd2",
+    "sizeBytes": 333,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/theory_mini_lessons/theory_push_fold_intro.yaml": {
+    "path": "assets/theory_mini_lessons/theory_push_fold_intro.yaml",
+    "sha1": "d15a3fab000e4f40ff1155f767eeb7456d372675",
+    "sizeBytes": 804,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/theory_mini_lessons/lesson_push_fold_btn_cash.yaml": {
+    "path": "assets/theory_mini_lessons/lesson_push_fold_btn_cash.yaml",
+    "sha1": "21c3c6fd5cfd0e2dc7d56de9ac9b80fc2a5c785e",
+    "sizeBytes": 846,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/theory_packs/sample_theory.yaml": {
+    "path": "assets/theory_packs/sample_theory.yaml",
+    "sha1": "201bf3204ab91b31f4e3111a9d235b6c32a3222b",
+    "sizeBytes": 181,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/theory_packs/level_2_open_vs_bb_15bb.yaml": {
+    "path": "assets/theory_packs/level_2_open_vs_bb_15bb.yaml",
+    "sha1": "65219cee78370a3057f0acfe306129856c19492f",
+    "sizeBytes": 327,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/templates/pack_templates.yaml": {
+    "path": "assets/templates/pack_templates.yaml",
+    "sha1": "ec6d34190868d4756d9add5d35fa4ee279a1ca65",
+    "sizeBytes": 530,
+    "mtime": "2025-08-09T00:56:11.839Z"
+  },
+  "assets/mini_lesson_library.yaml": {
+    "path": "assets/mini_lesson_library.yaml",
+    "sha1": "550e540059793ceee10cd98d3b0804a38e7916b6",
+    "sizeBytes": 1936,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/training_packs/training_pack_push_fold_btn_cash.yaml": {
+    "path": "assets/training_packs/training_pack_push_fold_btn_cash.yaml",
+    "sha1": "c3155aa658aeea0cedfcaedd9689d7610beace19",
+    "sizeBytes": 2997,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/training_packs/training_pack_push_fold_mvp.yaml": {
+    "path": "assets/training_packs/training_pack_push_fold_mvp.yaml",
+    "sha1": "b6cf5dc45d09d540b76df4c98eabee8fbb9a997b",
+    "sizeBytes": 2249,
+    "mtime": "2025-08-09T00:56:11.840Z"
+  },
+  "assets/lessons/test_lesson.yaml": {
+    "path": "assets/lessons/test_lesson.yaml",
+    "sha1": "f986721db072eddb87c138bcd035d780c5d1e159",
+    "sizeBytes": 456,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced_icm/btn_open_bb_call_sb_shove.yaml": {
+    "path": "assets/packs/advanced_icm/btn_open_bb_call_sb_shove.yaml",
+    "sha1": "e545e4fe8085797761466bea5680f9ee1680e743",
+    "sizeBytes": 885,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced_icm/limp_limp_hero_bb.yaml": {
+    "path": "assets/packs/advanced_icm/limp_limp_hero_bb.yaml",
+    "sha1": "01dcfc2fff6d123697c5912eb1d4b6d62444b48e",
+    "sizeBytes": 846,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced_icm/icm_final6_sb_vs_bb_reshove.yaml": {
+    "path": "assets/packs/advanced_icm/icm_final6_sb_vs_bb_reshove.yaml",
+    "sha1": "6f5c340459d142163470f54463300904469f7abe",
+    "sizeBytes": 815,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced_icm/icm_btn_shove_bb.yaml": {
+    "path": "assets/packs/advanced_icm/icm_btn_shove_bb.yaml",
+    "sha1": "3a3223363d7af6382c450f21a4c240c75e90692a",
+    "sizeBytes": 774,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/overpair_vs_aggression.yaml": {
+    "path": "assets/packs/advanced/overpair_vs_aggression.yaml",
+    "sha1": "eb66310c56e019d7ba03960fc6104f538542ead4",
+    "sizeBytes": 870,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/river_bluffcatch_overbet.yaml": {
+    "path": "assets/packs/advanced/river_bluffcatch_overbet.yaml",
+    "sha1": "1de335bc6b4b611e61224290bcb79651e266c4af",
+    "sizeBytes": 946,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/draw_or_shove_flop.yaml": {
+    "path": "assets/packs/advanced/draw_or_shove_flop.yaml",
+    "sha1": "ef167001f642681e37a6bb08452fbfc36e2fa81c",
+    "sizeBytes": 873,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/delayed_shove_vs_missed_cbet.yaml": {
+    "path": "assets/packs/advanced/delayed_shove_vs_missed_cbet.yaml",
+    "sha1": "5eabb5cba7d610ef9ad70e5c9cb77bae4dc22301",
+    "sizeBytes": 905,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/marginal_bluffcatch_shove.yaml": {
+    "path": "assets/packs/advanced/marginal_bluffcatch_shove.yaml",
+    "sha1": "653cfb5155ea4300aecb6ff850b8152beac889ab",
+    "sizeBytes": 953,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/double_barrel_jam.yaml": {
+    "path": "assets/packs/advanced/double_barrel_jam.yaml",
+    "sha1": "52ef99484053bdd01244d937cace0c79ad4a6d18",
+    "sizeBytes": 888,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/flop_draw_shove_check.yaml": {
+    "path": "assets/packs/advanced/flop_draw_shove_check.yaml",
+    "sha1": "6ba9533c764ee643dc43fb91c27d31e26478ce3b",
+    "sizeBytes": 884,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/barrel_jam_drawy.yaml": {
+    "path": "assets/packs/advanced/barrel_jam_drawy.yaml",
+    "sha1": "b2c21e03c5401c4b132d10243ccf483c9dbf201a",
+    "sizeBytes": 897,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/overpair_vs_late_aggression.yaml": {
+    "path": "assets/packs/advanced/overpair_vs_late_aggression.yaml",
+    "sha1": "8eb6c7d9cd31c262cc591ba8c47e64099d973f34",
+    "sizeBytes": 881,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/advanced/turn_xcall_vs_barrel.yaml": {
+    "path": "assets/packs/advanced/turn_xcall_vs_barrel.yaml",
+    "sha1": "27b6d2a9cfee2867f16fc0b17cb065503c57c2af",
+    "sizeBytes": 898,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/intermediate/call_open_vs_isopush.yaml": {
+    "path": "assets/packs/intermediate/call_open_vs_isopush.yaml",
+    "sha1": "dbd907ff46b0a981828a1e63d6eb167d4f4c847b",
+    "sizeBytes": 1258,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/intermediate/open_fold_btn_co_lj.yaml": {
+    "path": "assets/packs/intermediate/open_fold_btn_co_lj.yaml",
+    "sha1": "52b585c26522d77bfdc6d40f6af6f01a1c810c8c",
+    "sizeBytes": 1198,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/intermediate/threebet_push_vs_open_low.yaml": {
+    "path": "assets/packs/intermediate/threebet_push_vs_open_low.yaml",
+    "sha1": "28158061c1e35c4b7e9d54b39fe218e0e6fd5fab",
+    "sizeBytes": 1271,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/intermediate/bb_defense_vs_minraise.yaml": {
+    "path": "assets/packs/intermediate/bb_defense_vs_minraise.yaml",
+    "sha1": "d1775907bdbbdadc81d81d8df1ac05a3bf0377f5",
+    "sizeBytes": 894,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/intermediate/sb_limp_repush.yaml": {
+    "path": "assets/packs/intermediate/sb_limp_repush.yaml",
+    "sha1": "2ba9f8073eaa8666c70bedf4407c7585c4a2020b",
+    "sizeBytes": 894,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/intermediate/bvb_push_call_adjustments.yaml": {
+    "path": "assets/packs/intermediate/bvb_push_call_adjustments.yaml",
+    "sha1": "f459d76e6cbdcdf0a6f25435036ab877ea7258d7",
+    "sizeBytes": 775,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/intermediate/limp_call_fold.yaml": {
+    "path": "assets/packs/intermediate/limp_call_fold.yaml",
+    "sha1": "6139bc74fbfaee7fb4f7128b38c18bf5f066cda9",
+    "sizeBytes": 852,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/intermediate/bb_vs_limp_raise.yaml": {
+    "path": "assets/packs/intermediate/bb_vs_limp_raise.yaml",
+    "sha1": "899389495d546432778d77816ce23cb256685653",
+    "sizeBytes": 951,
+    "mtime": "2025-08-09T00:56:11.835Z"
+  },
+  "assets/packs/intermediate/threebet_push_vs_steal.yaml": {
+    "path": "assets/packs/intermediate/threebet_push_vs_steal.yaml",
+    "sha1": "073081b35c8a9bae3bc1833bee92c0b323b0dc5f",
+    "sizeBytes": 1232,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/cbet_ip.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/cbet_ip.yaml",
+    "sha1": "d59938b609b683168c8183d9e01753f4691bd109",
+    "sizeBytes": 759,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/donk_bet_flop.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/donk_bet_flop.yaml",
+    "sha1": "bd3464a67857d94620fa0676f6bb0b718e2159ea",
+    "sizeBytes": 493,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/postflop_utg_call_vs_hj_3bet_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/postflop_utg_call_vs_hj_3bet_cash.yaml",
+    "sha1": "49954b85c7a9dc3b384b08edf4d72123a6a1ebc1",
+    "sizeBytes": 1184,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/check_raise_oop.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/check_raise_oop.yaml",
+    "sha1": "a7cd1b58a82b8218758d6f029d0de391b198a27c",
+    "sizeBytes": 536,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/delayed_cbet_turn_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/delayed_cbet_turn_jam_decision_template.yaml",
+    "sha1": "56cc484d5d4e6ea2965c34eac86bd18dec4bed13",
+    "sizeBytes": 511,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/btn_cbet_xr_call_turn_jam_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/btn_cbet_xr_call_turn_jam_template.yaml",
+    "sha1": "46be5f328893f328607eb16eb06e80a587b5bec7",
+    "sizeBytes": 494,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/flop_check_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/flop_check_jam_decision_template.yaml",
+    "sha1": "31ecb04344d15e0771f6862d9f45ab43a033fd0e",
+    "sizeBytes": 452,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/flop_cbet_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/flop_cbet_template.yaml",
+    "sha1": "454db4520c504c5607b38c9628bfd834d09209d8",
+    "sizeBytes": 476,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_decision_template.yaml",
+    "sha1": "0cf7cde1d766263d027a7a2324ba2a8cf71e25b4",
+    "sizeBytes": 530,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_jam_decision_template.yaml",
+    "sha1": "c91a901071e68b5b37356a861aa3e741c8869add",
+    "sizeBytes": 464,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_after_flop_xr_check_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_after_flop_xr_check_jam_decision_template.yaml",
+    "sha1": "6ff59a3272bc6f677c7ad6d788fb7bc5e8a246e5",
+    "sizeBytes": 548,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/turn_barrel_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/turn_barrel_template.yaml",
+    "sha1": "90eba92300fbccd7653cd48bd33f7732f0de2f72",
+    "sizeBytes": 475,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/donk_flop_check_turn_river_jam_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/donk_flop_check_turn_river_jam_template.yaml",
+    "sha1": "39cba099971701f9b531bed0767dd002c9df8775",
+    "sizeBytes": 536,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_donk_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_donk_jam_decision_template.yaml",
+    "sha1": "65429bf5e2c0cc84ba099fd7a09b7c5c3a31d7f4",
+    "sizeBytes": 486,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/delayed_turn_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/delayed_turn_jam_decision_template.yaml",
+    "sha1": "75573bfecb3f79e82087adbda00d69b331e41ecd",
+    "sizeBytes": 443,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_blockbet_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_blockbet_jam_decision_template.yaml",
+    "sha1": "021b7e437345be99a33d0e0578f62a80404c957b",
+    "sizeBytes": 489,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/turn_after_flop_cc_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/turn_after_flop_cc_jam_decision_template.yaml",
+    "sha1": "bac6b031674aafd61bad3ae5258e025fa66ddabb",
+    "sizeBytes": 519,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/flop_xr_turn_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/flop_xr_turn_jam_decision_template.yaml",
+    "sha1": "5ecbfeb9b6a852f7e6bee65e1580e7bac5dd532f",
+    "sizeBytes": 457,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_thin_value_bet_face_jam_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_thin_value_bet_face_jam_template.yaml",
+    "sha1": "ee6b67fd552789ab001cd3cddf6ca78d70f663ca",
+    "sizeBytes": 490,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_after_turn_lead_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_after_turn_lead_jam_decision_template.yaml",
+    "sha1": "ce53f33e62420bed7d51c1038a569dd0244c8995",
+    "sizeBytes": 529,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_probe_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_probe_jam_decision_template.yaml",
+    "sha1": "478d69eba9cf74d04a55f349a20cc49532876078",
+    "sizeBytes": 469,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/flop_cbet_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/flop_cbet_jam_decision_template.yaml",
+    "sha1": "56935e9f9f89649ac547e51893d910e3601e598c",
+    "sizeBytes": 445,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/turn_cbet_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/turn_cbet_jam_decision_template.yaml",
+    "sha1": "0bbef8b94389a36bf681db3a31a08d9da89b66e0",
+    "sizeBytes": 453,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/templates/river_after_flop_cc_jam_decision_template.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/templates/river_after_flop_cc_jam_decision_template.yaml",
+    "sha1": "3032c4990f26532a6e731af1657d684b43fc3fca",
+    "sizeBytes": 514,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/float_turn.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/float_turn.yaml",
+    "sha1": "9984c56f1e75386fab682bc0a6ac9e5005369a7f",
+    "sizeBytes": 500,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/postflop/river_bluffcatch.yaml": {
+    "path": "assets/packs/v2/manual_legacy/postflop/river_bluffcatch.yaml",
+    "sha1": "dfde731933944117113d2ba3a3ade1b193f569b8",
+    "sizeBytes": 513,
+    "mtime": "2025-08-09T00:56:11.836Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/open_fold_lj_mtt.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/open_fold_lj_mtt.yaml",
+    "sha1": "f534a7bd2cb71afdc7c59d2012d69e3e0ced48a9",
+    "sizeBytes": 898,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/open_fold_early_mtt.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/open_fold_early_mtt.yaml",
+    "sha1": "e6e132670bff83d0f745550b3005622db2fc30a0",
+    "sizeBytes": 917,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/openfold_hj_vs_utg_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/openfold_hj_vs_utg_cash.yaml",
+    "sha1": "a20ce740899e4f9c71974709fc46364781b31791",
+    "sizeBytes": 1295,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/bb_vs_sb_25bb_call_push_fold.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/bb_vs_sb_25bb_call_push_fold.yaml",
+    "sha1": "9238519ca620f737884495548ff281b3c44d1fce",
+    "sizeBytes": 7811,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/open_fold_utg_mtt.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/open_fold_utg_mtt.yaml",
+    "sha1": "78061dc13d3fb21a32e8bd94673fcc20f548e23d",
+    "sizeBytes": 909,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/openfold_btn_vs_utg_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/openfold_btn_vs_utg_cash.yaml",
+    "sha1": "2bd00a62937758b5c685dfac86cd2d5cbc20c77b",
+    "sizeBytes": 1308,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/threebet_btn_vs_co_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/threebet_btn_vs_co_cash.yaml",
+    "sha1": "cff13444ec5fcc6225560dc044dc7927633cac9b",
+    "sizeBytes": 1304,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/open_fold_mid_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/open_fold_mid_cash.yaml",
+    "sha1": "97fe6370f8ed6aa1f3d6ee51514d72f8d8ceeed0",
+    "sizeBytes": 968,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_lj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_lj.yaml",
+    "sha1": "34f3a1dbe08d7d63aaf7fb2e1c3e058fbf994a21",
+    "sizeBytes": 2262,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_co.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_co.yaml",
+    "sha1": "2e8b622db460f74924327b213fc8c80bee6311f8",
+    "sizeBytes": 2262,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_co_vs_btn.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_co_vs_btn.yaml",
+    "sha1": "a87311621c718ff276d227cb130ebef8976ffb2c",
+    "sizeBytes": 2277,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_sb.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_sb.yaml",
+    "sha1": "0bd3c604e751015e7c5415ecb1c2963c0d871ae9",
+    "sizeBytes": 2272,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/threebet_co_vs_hj_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/threebet_co_vs_hj_cash.yaml",
+    "sha1": "2734354b629b8ac34e750cc1cd370a18ce00e06c",
+    "sizeBytes": 1291,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_co.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_co.yaml",
+    "sha1": "37f12b80d5c6a99aa8f92b89d5ed914f80018ee6",
+    "sizeBytes": 1617,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/threebet_push_late_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/threebet_push_late_cash.yaml",
+    "sha1": "b819b4a7230edf15543eb1ad4450830a287e56d7",
+    "sizeBytes": 1013,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_hj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_hj.yaml",
+    "sha1": "bed058c32f123c4b483416dd4bc5f2c486540c96",
+    "sizeBytes": 2284,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_co_vs_lj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_co_vs_lj.yaml",
+    "sha1": "6dcc235abbeceb8d3968f19267aaeb40dd017267",
+    "sizeBytes": 2262,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_hj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_hj.yaml",
+    "sha1": "2175878efaaea486d5a3492de6e79806d4811b9a",
+    "sizeBytes": 2262,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/bb_vs_btn_20bb_call_push_fold.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/bb_vs_btn_20bb_call_push_fold.yaml",
+    "sha1": "b3cbea34bc4ddbe032cb924b979626858a51bc8e",
+    "sizeBytes": 7748,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/sb_vs_btn_20bb_call_push_fold.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/sb_vs_btn_20bb_call_push_fold.yaml",
+    "sha1": "454261c8ed93ab82fd3723bca4051e46a1b7b93c",
+    "sizeBytes": 7748,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/bb_vs_co_20bb_call_push_fold.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/bb_vs_co_20bb_call_push_fold.yaml",
+    "sha1": "cc6bdc909f414ee5e51fb51834a45fa5b21e103e",
+    "sizeBytes": 7767,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_btn.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_bb_vs_btn.yaml",
+    "sha1": "b6e0df1ec3a32921a3ee8814db53a73d57b59e58",
+    "sizeBytes": 946,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_lj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_lj.yaml",
+    "sha1": "2b259ede20c5476533860cbb9d7cc09401e11096",
+    "sizeBytes": 2262,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/threebet_hj_vs_utg_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/threebet_hj_vs_utg_cash.yaml",
+    "sha1": "aad4065a3230a68d274b7cbbd37b044ac68b48aa",
+    "sizeBytes": 1300,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/openfold_co_vs_hj_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/openfold_co_vs_hj_cash.yaml",
+    "sha1": "52b2b7b3a266ca401a1f4248923d3e00e0f67252",
+    "sizeBytes": 1286,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_hj_vs_lj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_hj_vs_lj.yaml",
+    "sha1": "3918328544595930be492795e1000ed993b2360a",
+    "sizeBytes": 2262,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/bb_vs_btn_25bb_call_push_fold.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/bb_vs_btn_25bb_call_push_fold.yaml",
+    "sha1": "3ddfe7382107a264cedca9efc7413d6a8fe03e27",
+    "sizeBytes": 8468,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/btn_vs_co_20bb_call_push_fold.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/btn_vs_co_20bb_call_push_fold.yaml",
+    "sha1": "10a94a2c4598d6a0786e932027060d9ebf938407",
+    "sizeBytes": 7081,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/openfold_3bb_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/openfold_3bb_cash.yaml",
+    "sha1": "6d9c3b18fba7871779be25b677754520280b1c1b",
+    "sizeBytes": 633,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/threebet_push_mid_mtt.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/threebet_push_mid_mtt.yaml",
+    "sha1": "2d66596572b30f886c82f4144c08e94c6f1f0010",
+    "sizeBytes": 908,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/defend_utg_vs_hj_3bet_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/defend_utg_vs_hj_3bet_cash.yaml",
+    "sha1": "f37243a6d6c90da02081b77c5d2e2e8908d34d0d",
+    "sizeBytes": 1334,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_lj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_btn_vs_lj.yaml",
+    "sha1": "a080e2c6041db7e085c01282df9ac03ca5980198",
+    "sizeBytes": 2284,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/push_fold_cash.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/push_fold_cash.yaml",
+    "sha1": "1a0adcf3252e7f7c5475c9a176a71302b08af151",
+    "sizeBytes": 743,
+    "mtime": "2025-08-09T00:56:11.838Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_btn.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_btn.yaml",
+    "sha1": "a2ccd509bc3b8786d277d7ebb4248e7f31eb268f",
+    "sizeBytes": 2277,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_hj.yaml": {
+    "path": "assets/packs/v2/manual_legacy/preflop/3bet_push_sb_vs_hj.yaml",
+    "sha1": "17d75b6caf7ab7b3558168a4a5961ba25237702b",
+    "sizeBytes": 2262,
+    "mtime": "2025-08-09T00:56:11.837Z"
+  },
+  "assets/built_in_packs.yaml": {
+    "path": "assets/built_in_packs.yaml",
+    "sha1": "2d954657313f65443ffc84f64a77df79980f63a2",
+    "sizeBytes": 193,
+    "mtime": "2025-08-09T00:56:11.829Z"
+  }
 }
