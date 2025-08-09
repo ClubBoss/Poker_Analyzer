@@ -68,6 +68,10 @@ jobs:
             echo "has_yaml=0" >> "$GITHUB_OUTPUT"
           fi
 
+      # Schema check soft
+      - name: Schema check (soft)
+        run: dart run tool/schema_check.dart --soft
+
       # Мягкая проверка всегда (даже если YAML не найден — шаг пройдёт)
       - name: Soft verify (summary & annotations)
         env:
@@ -86,7 +90,11 @@ jobs:
             dart run bin/poker_analyzer.dart verify --mode=soft --manifest theory_manifest.json || true
           fi
 
-      # Строгая проверка только на PR (ломаем сборку, если есть ошибки)
+        # Schema check strict
+      - name: Schema check (strict)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: dart run tool/schema_check.dart
+        # Строгая проверка только на PR (ломаем сборку, если есть ошибки)
       - name: Strict verify (PR only)
         if: ${{ github.event_name == 'pull_request' }}
         env:
