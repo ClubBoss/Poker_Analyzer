@@ -27,6 +27,7 @@ import '../widgets/streak_chart.dart';
 import '../widgets/continue_training_button.dart';
 import '../widgets/spot_of_the_day_card.dart';
 import '../widgets/decay_booster_shortcut_consolidator_widget.dart';
+import '../widgets/quick_access_menu.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
@@ -74,6 +75,8 @@ import '../services/training_reminder_banner_engine.dart';
 import '../services/session_log_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/template_storage_service.dart';
+import '../services/recent_packs_service.dart';
+import '../screens/v2/training_pack_play_screen.dart';
 import 'dart:async';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -160,6 +163,24 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   Future<void> _handleDeepLink() async {
     final uri = Uri.base;
+    if (uri.scheme == 'app' && uri.host == 'pack' && uri.pathSegments.isNotEmpty) {
+      final packId = uri.pathSegments.first;
+      final storage = context.read<TemplateStorageService>();
+      final template = storage.templates.firstWhereOrNull((t) => t.id == packId);
+      if (template != null) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingPackPlayScreen(template: template),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Pack not found')));
+        await RecentPacksService.instance.remove(packId);
+      }
+      return;
+    }
     // Handle direct link to a theory cluster detail.
     if (uri.path == '/theory/cluster') {
       final clusterId = uri.queryParameters['clusterId'];
@@ -312,8 +333,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   Widget _home() {
     final ab = context.watch<AbTestEngine>();
+    final prefs = context.watch<UserPreferencesService>();
     return Column(
       children: [
+        if (prefs.showQuickAccess) const QuickAccessMenu(),
         ab.isVariant('resume_card', 'B')
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),

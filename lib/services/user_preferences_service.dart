@@ -19,6 +19,7 @@ class UserPreferencesService extends ChangeNotifier {
   static const _evRangeStartKey = 'ev_range_start';
   static const _evRangeEndKey = 'ev_range_end';
   static const _tagGoalBannerKey = 'show_tag_goal_banner';
+  static const _quickAccessKey = 'show_quick_access';
 
   bool _showPotAnimation = true;
   bool _showCardReveal = true;
@@ -32,6 +33,7 @@ class UserPreferencesService extends ChangeNotifier {
   int _weakCatCount = 5;
   RangeValues _evRange = const RangeValues(0, 5);
   bool _showTagGoalBanner = true;
+  bool _showQuickAccess = true;
   final CloudSyncService? cloud;
   final ThemeService theme;
 
@@ -57,6 +59,7 @@ class UserPreferencesService extends ChangeNotifier {
   int get weaknessCategoryCount => _weakCatCount;
   RangeValues get evRange => _evRange;
   bool get showTagGoalBanner => _showTagGoalBanner;
+  bool get showQuickAccess => _showQuickAccess;
   Color get accentColor => theme.accentColor;
 
   Future<void> load() async {
@@ -70,6 +73,7 @@ class UserPreferencesService extends ChangeNotifier {
     _tutorialCompleted = _boolPref(prefs, _tutorialCompletedKey, false);
     _simpleNavigation = _boolPref(prefs, _simpleNavKey, false);
     _showTagGoalBanner = _boolPref(prefs, _tagGoalBannerKey, true);
+    _showQuickAccess = _boolPref(prefs, _quickAccessKey, true);
     final startStr = prefs.getString(_weakRangeStartKey);
     final endStr = prefs.getString(_weakRangeEndKey);
     if (startStr != null && endStr != null) {
@@ -95,6 +99,7 @@ class UserPreferencesService extends ChangeNotifier {
         'tutorialCompleted': _tutorialCompleted,
         'simpleNavigation': _simpleNavigation,
         'showTagGoalBanner': _showTagGoalBanner,
+        'showQuickAccess': _showQuickAccess,
         if (_weakRange != null) 'weakRangeStart': _weakRange!.start.toIso8601String(),
         if (_weakRange != null) 'weakRangeEnd': _weakRange!.end.toIso8601String(),
         'evRangeStart': _evRange.start,
@@ -197,6 +202,10 @@ class UserPreferencesService extends ChangeNotifier {
   Future<void> setShowTagGoalBanner(bool value) =>
       _setBool(_tagGoalBannerKey, _showTagGoalBanner, value,
           (v) => _showTagGoalBanner = v);
+
+  Future<void> setShowQuickAccess(bool value) =>
+      _setBool(_quickAccessKey, _showQuickAccess, value,
+          (v) => _showQuickAccess = v);
 
   Future<void> setAccentColor(Color value) => theme.setAccentColor(value);
 }
