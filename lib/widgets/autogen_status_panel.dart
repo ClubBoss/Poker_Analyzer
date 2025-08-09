@@ -48,6 +48,20 @@ class _AutogenStatusPanelState extends State<AutogenStatusPanel> {
                 Text('Processed: ${status.processed}'),
                 Text('Errors: ${status.errorsCount}'),
                 Text('ETA: ${_formatDuration(status.eta)}'),
+                ValueListenableBuilder<Map<String, int>>(
+                  valueListenable: _service.coverageHistogramNotifier,
+                  builder: (context, hist, _) {
+                    final summary = hist.entries
+                        .map((e) => '${e.key}:${e.value}')
+                        .join(', ');
+                    return Text('Coverage: $summary');
+                  },
+                ),
+                ValueListenableBuilder<int>(
+                  valueListenable: _service.rejectedByCoverageNotifier,
+                  builder: (context, count, _) =>
+                      Text('Rejected by coverage: $count'),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -86,6 +100,14 @@ class _AutogenStatusPanelState extends State<AutogenStatusPanel> {
                       for (final r in _service.runSummaries)
                         Text(
                             '${r.startedAt?.toIso8601String() ?? ''}: processed ${r.processed}, errors ${r.errorsCount}'),
+                    ],
+                    if (_service.coverageSummaries.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      const Text('Coverage Summaries'),
+                      for (final h in _service.coverageSummaries)
+                        Text(h.entries
+                            .map((e) => '${e.key}:${e.value}')
+                            .join(', ')),
                     ],
                   ],
                 ),

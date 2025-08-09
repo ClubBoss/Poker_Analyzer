@@ -14,6 +14,8 @@ import 'auto_deduplication_engine.dart';
 import 'training_pack_auto_generator.dart';
 import 'yaml_pack_exporter.dart';
 import 'skill_tag_coverage_tracker.dart';
+import 'skill_tag_coverage_guard_service.dart';
+import '../models/coverage_report.dart';
 import 'autogen_stats_dashboard_service.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'inline_theory_link_auto_injector.dart';
@@ -54,6 +56,7 @@ class AutogenPipelineExecutor {
   final AutoDeduplicationEngine dedup;
   final YamlPackExporter exporter;
   final SkillTagCoverageTracker coverage;
+  final SkillTagCoverageGuardService coverageGuard;
   final InlineTheoryLinkAutoInjector theoryInjector;
   final BoardTextureClassifier? boardClassifier;
   final SkillTreeAutoLinker skillLinker;
@@ -81,6 +84,7 @@ class AutogenPipelineExecutor {
     AutoDeduplicationEngine? dedup,
     YamlPackExporter? exporter,
     SkillTagCoverageTracker? coverage,
+    SkillTagCoverageGuardService? coverageGuard,
     InlineTheoryLinkAutoInjector? theoryInjector,
     BoardTextureClassifier? boardClassifier,
     SkillTreeAutoLinker? skillLinker,
@@ -101,6 +105,7 @@ class AutogenPipelineExecutor {
   }) : dedup = dedup ?? AutoDeduplicationEngine(),
        exporter = exporter ?? const YamlPackExporter(),
        coverage = coverage ?? SkillTagCoverageTracker(),
+       coverageGuard = coverageGuard ?? SkillTagCoverageGuardService(),
        theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
        boardClassifier = boardClassifier,
        skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
@@ -212,6 +217,7 @@ class AutogenPipelineExecutor {
   }) async {
     // Load existing YAMLs to prime deduplication engine.
     dashboard.start();
+    status.resetCoverageMetrics();
     await formatSelector.load();
     final appliedFormat = formatSelector.effectiveFormat(audience: audience);
     if (formatSelector.autoApply) {
@@ -356,6 +362,27 @@ class AutogenPipelineExecutor {
           );
           continue;
         }
+        final CoverageReport cov = await coverageGuard.evaluate(pack);
+        status.recordCoverageEval(cov.coveragePct, rejected: !cov.passes);
+        if (!cov.passes) {
+          rejectedCount++;
+          AutogenPipelineEventLoggerService.log(
+            'coverage.reject',
+            'Pack ${pack.id} coverage ${cov.coveragePct.toStringAsFixed(2)}',
+          );
+          _emitStatus(
+            AutogenStatus(
+              state: AutogenRunState.running,
+              currentStep: 'template:${set.baseSpot.id}',
+              queueDepth: sets.length - (i + 1),
+              processed: i + 1,
+              errorsCount: 0,
+              startedAt: startedAt,
+              updatedAt: DateTime.now(),
+            ),
+          );
+          continue;
+        }
         generatedCount++;
         AutogenPipelineDebugStatsService.incrementCurated();
         AutogenPipelineEventLoggerService.log(
@@ -421,6 +448,15 @@ class AutogenPipelineExecutor {
           tags: List<String>.from(pack.tags),
           metadata: Map<String, dynamic>.from(pack.meta),
         );
+        final CoverageReport cov = await coverageGuard.evaluate(pack);
+        status.recordCoverageEval(cov.coveragePct, rejected: !cov.passes);
+        if (!cov.passes) {
+          AutogenPipelineEventLoggerService.log(
+            'coverage.reject',
+            'Boosted pack ${pack.id} coverage ${cov.coveragePct.toStringAsFixed(2)}',
+          );
+          continue;
+        }
         coverage.analyzePack(model);
         dashboard.recordCoverage(coverage.aggregateReport);
         dashboard.recordPack(pack.spots.length);
