@@ -24,54 +24,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Classify changes: docs, CI, or code
-      - name: Detect changes (docs / ci / code)
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            docs:
-              - '**/*.md'
-              - 'docs/**'
-              - '**/*.mdx'
-              - '**/*.rst'
-            ci:
-              - '.github/workflows/**'
-            code:
-              - '!**/*.md'
-              - '!docs/**'
-              - '!**/*.mdx'
-              - '!**/*.rst'
-              - '!.github/workflows/**'
-              - '**/*.dart'
-              - 'lib/**'
-              - 'packages/**'
-              - 'bin/**'
-              - 'android/**'
-              - 'ios/**'
-              - 'macos/**'
-              - 'linux/**'
-              - 'windows/**'
-              - 'web/**'
-
-      - name: Compute fast-path flag
+      # Robust fast-path: doc/CI-only check via git diff
+      - name: Compute fast-path (doc/CI-only)
         id: compute
+        shell: bash
         run: |
-          DOCS="${{ steps.changes.outputs.docs }}"
-          CI="${{ steps.changes.outputs.ci }}"
-          CODE="${{ steps.changes.outputs.code }}"
-          if { [ "$DOCS" = "true" ] || [ "$CI" = "true" ]; } && [ "$CODE" != "true" ]; then
-            echo "fast_path=true" >> $GITHUB_OUTPUT
-          else
-            echo "fast_path=false" >> $GITHUB_OUTPUT
-          fi
+          set -euo pipefail
+          echo "base_ref=${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}":"refs/remotes/origin/${{ github.base_ref }}" --depth=0
+          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD | tr -s '\n' ' ')
+          echo "changed_files=$CHANGED"
 
-      - name: Debug flags
-        run: |
-          echo "docs=${{ steps.changes.outputs.docs }}"
-          echo "ci=${{ steps.changes.outputs.ci }}"
-          echo "code=${{ steps.changes.outputs.code }}"
-          echo "fast_path=${{ steps.compute.outputs.fast_path }}"
+          FAST=true
+          for f in $CHANGED; do
+            if [[ "$f" =~ \.md$ || "$f" =~ \.mdx$ || "$f" =~ \.rst$ || "$f" == docs/* || "$f" == .github/workflows/* ]]; then
+              : # ok – doc/CI
+            else
+              FAST=false; break
+            fi
+          done
+
+          echo "fast_path=$FAST" >> "$GITHUB_OUTPUT"
+          echo "fast_path=$FAST"
 
       # ---------- FAST-PATH (docs/CI-only) ----------
       - name: Fast-path mock run
