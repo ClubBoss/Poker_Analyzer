@@ -3,6 +3,12 @@ name: Theory Integrity
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'assets/**/*.yml'
+      - 'assets/**/*.yaml'
+      - 'assets/**/theory/**'
+      - 'theory/**'
+      - 'yaml_out/**'
   workflow_dispatch:
 
 concurrency:
@@ -14,7 +20,7 @@ permissions:
 
 jobs:
   theory-integrity:
-    name: Theory Integrity
+    name: Theory Integrity (strict on theory changes)
     runs-on: ubuntu-latest
 
     steps:
@@ -23,60 +29,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Что изменилось в PR
-      - name: Detect changes (theory vs other)
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            theory:
-              - 'assets/**/*.yml'
-              - 'assets/**/*.yaml'
-              - 'assets/**/theory/**'
-              - 'theory/**'
-              - 'yaml_out/**'
-            docs:
-              - '**/*.md'
-              - 'docs/**'
-            code:
-              - '**/*.dart'
-              - 'lib/**'
-              - 'packages/**'
-              - 'bin/**'
-              - '!**/*.md'
-
-      - name: Compute mode (strict only if theory changed)
-        id: mode
-        run: |
-          if [ "${{ steps.changes.outputs.theory }}" = "true" ]; then
-            echo "mode=strict" >> $GITHUB_OUTPUT
-            echo "theory_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "mode=soft" >> $GITHUB_OUTPUT
-            echo "theory_changed=false" >> $GITHUB_OUTPUT
-          fi
-
-      # Fast-path: если теория не менялась — зелёный чек без тяжёлого ранa
-      - name: Fast-path (no theory changes)
-        if: ${{ steps.mode.outputs.theory_changed == 'false' }}
-        run: |
-          echo "No theory YAML changes detected — skipping strict verify."
-          echo "Theory Integrity (fast-path) passed ✅"
-
-      # Полная проверка только при изменениях в теории
       - name: Set up Flutter
-        if: ${{ steps.mode.outputs.theory_changed == 'true' }}
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
       - name: Flutter version
-        if: ${{ steps.mode.outputs.theory_changed == 'true' }}
         run: flutter --version
 
       - name: Pub deps cache
-        if: ${{ steps.mode.outputs.theory_changed == 'true' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -86,11 +48,9 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Install deps
-        if: ${{ steps.mode.outputs.theory_changed == 'true' }}
         run: flutter pub get
 
       - name: Run Theory Integrity (strict)
-        if: ${{ steps.mode.outputs.theory_changed == 'true' }}
         env:
           MODE: strict
         run: |
