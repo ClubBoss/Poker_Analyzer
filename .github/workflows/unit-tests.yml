@@ -1,57 +1,87 @@
-name: Unit tests
+name: Unit Tests
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
   pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+concurrency:
+  group: unit-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  unit:
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          fetch-depth: 0
 
-      - name: Flutter version
-        run: flutter --version
+      - name: Detect changes (docs vs code)
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            docs:
+              - '**/*.md'
+              - 'docs/**'
+              - '**/*.mdx'
+              - '**/*.rst'
+            code:
+              - '!**/*.md'
+              - '!docs/**'
+              - '!**/*.mdx'
+              - '!**/*.rst'
+              - '**/*'
 
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Detect test dirs
-        id: dirs
-        shell: bash
+      - name: Compute doc-only flag
+        id: compute
         run: |
-          set -euo pipefail
-          DIRS=()
-          [[ -d test ]] && DIRS+=("test")
-          if [[ ${#DIRS[@]} -eq 0 ]]; then
-            echo "has_tests=0" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.changes.outputs.docs }}" = "true" ] && [ "${{ steps.changes.outputs.code }}" != "true" ]; then
+            echo "doc_only=true" >> $GITHUB_OUTPUT
           else
-            printf '%s ' "${DIRS[@]}" > dirs.txt
-            echo "has_tests=1" >> "$GITHUB_OUTPUT"
-            echo "list=$(cat dirs.txt)" >> "$GITHUB_OUTPUT"
+            echo "doc_only=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run tests (Flutter)
-        if: steps.dirs.outputs.has_tests == '1'
+      # ---------- FAST-PATH (doc-only PR) ----------
+      - name: Fast-path mock run (doc-only PR)
+        if: ${{ steps.compute.outputs.doc_only == 'true' }}
         run: |
-          # Flutter-тесты корректно выполняют и pure-Dart тесты
-          flutter test -r expanded ${{ steps.dirs.outputs.list }}
+          echo "Doc-only PR detected — skipping heavy build/tests."
+          echo "Unit Tests (fast-path) passed ✅"
 
-      - name: No tests found
-        if: steps.dirs.outputs.has_tests != '1'
-        run: echo "No tests found. Skipping."
+      # ---------- FULL TESTS (code PR) ----------
+      - name: Set up Flutter
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Flutter version
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        run: flutter --version
+
+      - name: Cache Pub dependencies
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install deps
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        run: flutter pub get
+
+      - name: Run unit tests (parallel)
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        run: flutter test --coverage --concurrency=6
