@@ -66,6 +66,13 @@ jobs:
             echo "fast_path=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Debug flags
+        run: |
+          echo "docs=${{ steps.changes.outputs.docs }}"
+          echo "ci=${{ steps.changes.outputs.ci }}"
+          echo "code=${{ steps.changes.outputs.code }}"
+          echo "fast_path=${{ steps.compute.outputs.fast_path }}"
+
       # ---------- FAST-PATH (docs/CI-only) ----------
       - name: Fast-path mock run
         if: ${{ steps.compute.outputs.fast_path == 'true' }}
