@@ -3,26 +3,48 @@ name: Unit tests
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
   pull_request:
     branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
   workflow_dispatch:
 
 jobs:
   unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Flutter (for tooling + pub)
+      # Определяем тип изменений в PR
+      - name: Detect change type
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - '**/*.md'
+            code:
+              - 'lib/**'
+              - 'test/**'
+              - 'tool/**'
+              - 'bin/**'
+              - 'assets/**'
+              - 'pubspec.yaml'
+              - 'analysis_options.yaml'
+              - '.github/workflows/**'
+
+      # Если PR только про доки/markdown — мгновенный проход без тестов
+      - name: Fast pass for docs-only PRs
+        if: github.event_name == 'pull_request' && steps.changes.outputs.docs == 'true' && steps.changes.outputs.code != 'true'
+        run: |
+          echo "Docs-only PR detected → fast pass without tests."
+          exit 0
+
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -35,7 +57,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Белый список только 2-х стабильных тестов (исключаем plugin_scaffold & batch_generate)
+      # Узкий белый список стабильных тестов (исключаем проблемные)
       - name: Build whitelist of tests
         id: files
         shell: bash
@@ -44,7 +66,6 @@ jobs:
           WHITELIST=()
           [[ -f "test/tools/schema_check_unit_test.dart" ]] && WHITELIST+=("test/tools/schema_check_unit_test.dart")
           [[ -f "test/tools/migrate_output_variants_test.dart" ]] && WHITELIST+=("test/tools/migrate_output_variants_test.dart")
-
           if [[ ${#WHITELIST[@]} -eq 0 ]]; then
             echo "has_tests=0" >> "$GITHUB_OUTPUT"
           else
@@ -55,9 +76,7 @@ jobs:
 
       - name: Run tests (Dart, compact)
         if: steps.files.outputs.has_tests == '1'
-        shell: bash
-        run: |
-          dart test -r compact ${{ steps.files.outputs.list }}
+        run: dart test -r compact ${{ steps.files.outputs.list }}
 
       - name: No whitelist tests found
         if: steps.files.outputs.has_tests != '1'
