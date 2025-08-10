@@ -9,7 +9,7 @@ Poker Analyzer is a production‑ready platform for training and analyzing tourn
 - Postflop decision practice with mistake tracking
 - Theory injection and interactive lessons
 - Automated pack generation and plug‑in converters
-- Adaptive learning paths with progress charts
+- Adaptive learning paths with progress charts 
 
 ## Architecture Overview
 ```
