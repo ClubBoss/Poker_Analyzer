@@ -16,7 +16,13 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [0, 1, 2, 3] # 4 шардa — параллельный прогон
+    env:
+      TOTAL_SHARDS: 4
 
     steps:
       - name: Checkout
@@ -24,46 +30,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Robust fast-path: doc/CI-only check via git diff (без --depth)
+      # --- Надёжное определение fast-path (docs/CI-only) через git diff ---
       - name: Compute fast-path (doc/CI-only)
         id: compute
         shell: bash
         run: |
           set -euo pipefail
-          BASE="${{ github.base_ref }}"
-          if [ -z "$BASE" ]; then BASE="main"; fi
-          echo "base_ref=$BASE"
-
-          # подтянуть base-ветку целиком (без --depth)
-          git fetch --no-tags origin "$BASE:refs/remotes/origin/$BASE" >/dev/null 2>&1 || true
-
+          BASE="${{ github.base_ref || 'main' }}"
+          git fetch --no-tags origin "$BASE:refs/remotes/origin/$BASE" || true
           CHANGED=$(git diff --name-only "origin/$BASE"...HEAD || git diff --name-only "origin/$BASE")
-          echo "changed_files=$CHANGED"
-
+          echo "changed_files:"
+          echo "$CHANGED" | sed 's/^/  - /'
           FAST=true
-          for f in $CHANGED; do
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
             if [[ "$f" =~ \.md$ || "$f" =~ \.mdx$ || "$f" =~ \.rst$ || "$f" == docs/* || "$f" == .github/workflows/* ]]; then
-              : # ok — docs/CI
+              : # остаёмся в fast
             else
               FAST=false; break
             fi
-          done
-
+          done <<< "$CHANGED"
           echo "fast_path=$FAST" | tee -a "$GITHUB_OUTPUT"
 
-      # ---------- FAST-PATH (docs/CI-only) ----------
+      # --- Быстрый проход для docs/CI-only PR (все шарды выполняют этот короткий шаг и завершаются) ---
       - name: Fast-path mock run
         if: ${{ steps.compute.outputs.fast_path == 'true' }}
         run: |
           echo "Docs/CI-only PR detected — skipping heavy build/tests."
           echo "Unit Tests (fast-path) passed ✅"
 
-      # ---------- FULL TESTS (code PR) ----------
+      # --- Полный прогон: настройка Flutter ---
       - name: Set up Flutter
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
           cache: true
 
       - name: Flutter version
@@ -74,8 +75,7 @@ jobs:
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.pub-cache
+          path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-pub-
@@ -84,6 +84,50 @@ jobs:
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
         run: flutter pub get
 
-      - name: Run unit tests (parallel)
+      # --- Распределение тестов по шардaм + таймауты и логирование ---
+      - name: Select tests for shard ${{ matrix.shard }}/${{ env.TOTAL_SHARDS }}
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
-        run: flutter test --coverage --concurrency=6
+        id: shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Собираем список тестов
+          mapfile -t ALL < <(find test -type f -name "*_test.dart" | sort)
+          if [ ${#ALL[@]} -eq 0 ]; then
+            echo "no_tests=true" >> "$GITHUB_OUTPUT"
+            echo "No *_test.dart files found under ./test"
+            exit 0
+          fi
+          SHARD_IDX=${{ matrix.shard }}
+          TOTAL=${{ env.TOTAL_SHARDS }}
+          SEL=()
+          i=0
+          for f in "${ALL[@]}"; do
+            if (( i % TOTAL == SHARD_IDX )); then
+              SEL+=("$f")
+            fi
+            ((i++))
+          done
+          if [ ${#SEL[@]} -eq 0 ]; then
+            echo "no_tests=true" >> "$GITHUB_OUTPUT"
+            echo "This shard has no assigned tests — skipping."
+            exit 0
+          fi
+          printf "%s\n" "${SEL[@]}" | tee shard_tests.txt
+          echo "no_tests=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run unit tests for shard ${{ matrix.shard }}
+        if: ${{ steps.compute.outputs.fast_path != 'true' && steps.shard.outputs.no_tests == 'false' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Running tests in shard ${{ matrix.shard }} of ${{ env.TOTAL_SHARDS }}:"
+          cat shard_tests.txt | sed 's/^/  - /'
+          # Таймаут по умолчанию для каждого теста (примерно) и явный прогресс
+          flutter test --concurrency=6 --timeout=5m $(cat shard_tests.txt)
+
+      # --- Покрытие собираем только на шарде 0, чтобы не дублировать ---
+      - name: Collect coverage (shard 0 only)
+        if: ${{ steps.compute.outputs.fast_path != 'true' && matrix.shard == 0 && steps.shard.outputs.no_tests == 'false' }}
+        run: flutter test --coverage --concurrency=6 --timeout=5m $(cat shard_tests.txt)
+
