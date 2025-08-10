@@ -16,6 +16,7 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -23,7 +24,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Detect changes (docs vs code)
+      # Classify changes: docs, CI, or code
+      - name: Detect changes (docs / ci / code)
         id: changes
         uses: dorny/paths-filter@v3
         with:
@@ -33,43 +35,49 @@ jobs:
               - 'docs/**'
               - '**/*.mdx'
               - '**/*.rst'
+            ci:
+              - '.github/workflows/**'
             code:
               - '!**/*.md'
               - '!docs/**'
               - '!**/*.mdx'
               - '!**/*.rst'
+              - '!.github/workflows/**'
               - '**/*'
 
-      - name: Compute doc-only flag
+      - name: Compute fast-path flag
         id: compute
         run: |
-          if [ "${{ steps.changes.outputs.docs }}" = "true" ] && [ "${{ steps.changes.outputs.code }}" != "true" ]; then
-            echo "doc_only=true" >> $GITHUB_OUTPUT
+          DOCS="${{ steps.changes.outputs.docs }}"
+          CI="${{ steps.changes.outputs.ci }}"
+          CODE="${{ steps.changes.outputs.code }}"
+          if { [ "$DOCS" = "true" ] || [ "$CI" = "true" ]; } && [ "$CODE" != "true" ]; then
+            echo "fast_path=true" >> $GITHUB_OUTPUT
           else
-            echo "doc_only=false" >> $GITHUB_OUTPUT
+            echo "fast_path=false" >> $GITHUB_OUTPUT
           fi
 
-      # ---------- FAST-PATH (doc-only PR) ----------
-      - name: Fast-path mock run (doc-only PR)
-        if: ${{ steps.compute.outputs.doc_only == 'true' }}
+      # ---------- FAST-PATH (docs-only или CI-only PR) ----------
+      - name: Fast-path mock run
+        if: ${{ steps.compute.outputs.fast_path == 'true' }}
         run: |
-          echo "Doc-only PR detected — skipping heavy build/tests."
+          echo "Docs/CI-only PR detected — skipping heavy build/tests."
           echo "Unit Tests (fast-path) passed ✅"
 
       # ---------- FULL TESTS (code PR) ----------
       - name: Set up Flutter
-        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
       - name: Flutter version
-        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
         run: flutter --version
 
       - name: Cache Pub dependencies
-        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -79,9 +87,9 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Install deps
-        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
         run: flutter pub get
 
       - name: Run unit tests (parallel)
-        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
         run: flutter test --coverage --concurrency=6
