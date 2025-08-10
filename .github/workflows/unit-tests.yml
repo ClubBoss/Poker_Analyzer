@@ -1,16 +1,21 @@
-name: Unit tests
+name: Unit Tests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
+concurrency:
+  group: unit-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  unit:
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -18,66 +23,69 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Определяем тип изменений в PR
-      - name: Detect change type
+      - name: Detect changes (docs vs code)
         id: changes
         uses: dorny/paths-filter@v3
         with:
           filters: |
             docs:
-              - 'docs/**'
               - '**/*.md'
+              - 'docs/**'
+              - '**/*.mdx'
+              - '**/*.rst'
             code:
-              - 'lib/**'
-              - 'test/**'
-              - 'tool/**'
-              - 'bin/**'
-              - 'assets/**'
-              - 'pubspec.yaml'
-              - 'analysis_options.yaml'
-              - '.github/workflows/**'
+              - '!**/*.md'
+              - '!docs/**'
+              - '!**/*.mdx'
+              - '!**/*.rst'
+              - '**/*'
 
-      # Если PR только про доки/markdown — мгновенный проход без тестов
-      - name: Fast pass for docs-only PRs
-        if: github.event_name == 'pull_request' && steps.changes.outputs.docs == 'true' && steps.changes.outputs.code != 'true'
+      - name: Compute doc-only flag
+        id: compute
         run: |
-          echo "Docs-only PR detected → fast pass without tests."
-          exit 0
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-
-      - name: Versions
-        run: |
-          flutter --version
-          dart --version
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      # Узкий белый список стабильных тестов (исключаем проблемные)
-      - name: Build whitelist of tests
-        id: files
-        shell: bash
-        run: |
-          set -euo pipefail
-          WHITELIST=()
-          [[ -f "test/tools/schema_check_unit_test.dart" ]] && WHITELIST+=("test/tools/schema_check_unit_test.dart")
-          [[ -f "test/tools/migrate_output_variants_test.dart" ]] && WHITELIST+=("test/tools/migrate_output_variants_test.dart")
-          if [[ ${#WHITELIST[@]} -eq 0 ]]; then
-            echo "has_tests=0" >> "$GITHUB_OUTPUT"
+          DOCS="${{ steps.changes.outputs.docs }}"
+          CODE="${{ steps.changes.outputs.code }}"
+          if [ "$DOCS" = "true" ] && [ "$CODE" != "true" ]; then
+            echo "doc_only=true" >> $GITHUB_OUTPUT
           else
-            printf '%s\n' "${WHITELIST[@]}" | tee whitelist.txt
-            echo "has_tests=1" >> "$GITHUB_OUTPUT"
-            echo "list=$(tr '\n' ' ' < whitelist.txt)" >> "$GITHUB_OUTPUT"
+            echo "doc_only=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run tests (Dart, compact)
-        if: steps.files.outputs.has_tests == '1'
-        run: dart test -r compact ${{ steps.files.outputs.list }}
+      # ---------- FAST-PATH (doc-only PR) ----------
+      - name: Fast-path mock run (doc-only PR)
+        if: ${{ steps.compute.outputs.doc_only == 'true' }}
+        run: |
+          echo "Doc-only PR detected — skipping heavy build/tests."
+          echo "Unit Tests (fast-path) passed ✅"
 
-      - name: No whitelist tests found
-        if: steps.files.outputs.has_tests != '1'
-        run: echo "No whitelisted tests found. Skipping."
+      # ---------- FULL TESTS (code PR) ----------
+      - name: Set up Flutter
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Flutter version
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        run: flutter --version
+
+      - name: Cache Pub dependencies
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install deps
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        run: flutter pub get
+
+      - name: Run unit tests (parallel)
+        if: ${{ steps.compute.outputs.doc_only != 'true' }}
+        run: |
+          # "--concurrency" распараллеливает тесты по ядрам
+          flutter test --coverage --concurrency=6
