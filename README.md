@@ -11,7 +11,7 @@ Poker Analyzer is a production‑ready platform for training and analyzing tourn
 - Automated pack generation and plug‑in converters
 - Adaptive learning paths with progress charts
 
-## Architecture Overview
+## Architecture Overview 
 ```
 +-------------+       +-----------------+
 | Flutter UI  |<----->| Learning Engine |
