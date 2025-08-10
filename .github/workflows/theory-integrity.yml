@@ -2,18 +2,25 @@ name: Theory Integrity
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'assets/**/*.yml'
+      - 'assets/**/*.yaml'
+      - 'assets/**/theory/**'
+      - 'theory/**'
+      - 'yaml_out/**'
   workflow_dispatch:
+
+concurrency:
+  group: theory-integrity-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
-  pull-requests: write
-
-env:
-  # Каталоги, где лежит теория (можно расширить при необходимости)
-  THEORY_DIRS: assets,yaml_out,theory
 
 jobs:
-  verify:
+  theory-integrity:
+    name: Theory Integrity (strict on theory changes)
     runs-on: ubuntu-latest
 
     steps:
@@ -25,40 +32,27 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: 'stable'
+          cache: true
 
-      - name: Install dependencies
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Pub deps cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install deps
         run: flutter pub get
 
-      - name: Collect YAML files
-        id: yml
-        shell: bash
+      - name: Run Theory Integrity (strict)
+        env:
+          MODE: strict
         run: |
-          set -euo pipefail
-          IFS=',' read -ra DIRS <<< "${THEORY_DIRS}"
-          FILES=()
-          for d in "${DIRS[@]}"; do
-            [[ -d "$d" ]] || continue
-            while IFS= read -r -d '' f; do FILES+=("$f"); done < <(find "$d" -type f \( -name '*.yml' -o -name '*.yaml' \) -print0)
-          done
-          if [[ ${#FILES[@]} -eq 0 ]]; then
-            echo "has_yaml=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          printf '%s\n' "${FILES[@]}" > yaml_files.txt
-          echo "has_yaml=1" >> "$GITHUB_OUTPUT"
-
-      - name: Strict verify
-        if: steps.yml.outputs.has_yaml == '1'
-        shell: bash
-        run: |
-          # ci_report сам вернёт ненулевой код при ошибках
-          dart run bin/ci_report.dart --mode=strict --markdown | tee theory_summary.md
-
-      - name: Upload summary artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: theory-summary
-          path: theory_summary.md
-          if-no-files-found: ignore
+          echo "mode=$MODE"
+          dart run bin/ci_report.dart --mode $MODE
