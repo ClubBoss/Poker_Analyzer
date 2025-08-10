@@ -11,7 +11,7 @@ Poker Analyzer is a production‑ready platform for training and analyzing tourn
 - Automated pack generation and plug‑in converters
 - Adaptive learning paths with progress charts
 
-## Architecture Overview
+## Architecture Overview 
 ```
 +-------------+       +-----------------+
 | Flutter UI  |<----->| Learning Engine |
@@ -78,3 +78,4 @@ Set these in CI to adjust thresholds or switch modes (PRs run with `COVERAGE_MOD
 © 2024 Poker Analyzer contributors. License pending.
 
 ![screenshot](flutter_01.png)
+- fast-path test Mon Aug 11 01:16:01 +04 2025

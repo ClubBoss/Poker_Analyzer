@@ -2,18 +2,26 @@ name: Theory Integrity
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    # Триггерим только когда меняются файлы теории
+    paths:
+      - 'assets/**/*.yml'
+      - 'assets/**/*.yaml'
+      - 'assets/**/theory/**'
+      - 'theory/**'
+      - 'yaml_out/**'
   workflow_dispatch:
+
+concurrency:
+  group: theory-integrity-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
-  pull-requests: write
-
-env:
-  # Каталоги, где лежит теория (можно расширить при необходимости)
-  THEORY_DIRS: assets,yaml_out,theory
 
 jobs:
   verify:
+    name: verify
     runs-on: ubuntu-latest
 
     steps:
@@ -22,43 +30,41 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Доп. предохранитель: если GH почему-то запустил workflow без изменений теории — быстро выходим.
+      - name: Detect theory changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            theory:
+              - 'assets/**/*.yml'
+              - 'assets/**/*.yaml'
+              - 'assets/**/theory/**'
+              - 'theory/**'
+              - 'yaml_out/**'
+
+      - name: No theory changes → skip
+        if: ${{ steps.changes.outputs.theory != 'true' }}
+        run: |
+          echo "No theory YAML changed; skipping Theory Integrity."
+          exit 0
+
       - name: Set up Flutter
+        if: ${{ steps.changes.outputs.theory == 'true' }}
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: 'stable'
+          cache: true
 
       - name: Install dependencies
+        if: ${{ steps.changes.outputs.theory == 'true' }}
         run: flutter pub get
 
-      - name: Collect YAML files
-        id: yml
-        shell: bash
-        run: |
-          set -euo pipefail
-          IFS=',' read -ra DIRS <<< "${THEORY_DIRS}"
-          FILES=()
-          for d in "${DIRS[@]}"; do
-            [[ -d "$d" ]] || continue
-            while IFS= read -r -d '' f; do FILES+=("$f"); done < <(find "$d" -type f \( -name '*.yml' -o -name '*.yaml' \) -print0)
-          done
-          if [[ ${#FILES[@]} -eq 0 ]]; then
-            echo "has_yaml=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          printf '%s\n' "${FILES[@]}" > yaml_files.txt
-          echo "has_yaml=1" >> "$GITHUB_OUTPUT"
-
       - name: Strict verify
-        if: steps.yml.outputs.has_yaml == '1'
-        shell: bash
+        if: ${{ steps.changes.outputs.theory == 'true' }}
+        env:
+          MODE: strict
         run: |
-          # ci_report сам вернёт ненулевой код при ошибках
-          dart run bin/ci_report.dart --mode=strict --markdown | tee theory_summary.md
-
-      - name: Upload summary artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: theory-summary
-          path: theory_summary.md
-          if-no-files-found: ignore
+          echo "mode=$MODE"
+          # ваш строгий чекер — оставляю как было
+          dart run bin/ci_report.dart --mode $MODE
