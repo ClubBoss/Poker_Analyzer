@@ -2,8 +2,7 @@ name: Unit Tests (Nightly Full)
 
 on:
   schedule:
-    # 02:00 UTC ежедневно (06:00 Asia/Baku)
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * *'  # 02:00 UTC ежедневно
   workflow_dispatch:
 
 concurrency:
@@ -18,32 +17,20 @@ jobs:
     name: Nightly Full Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
-
-      - name: Flutter version
-        run: flutter --version
-
-      - name: Cache Pub dependencies
-        uses: actions/cache@v4
+      - run: flutter --version
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-pub-
-
-      - name: Install deps
-        run: flutter pub get
-
-      - name: Run unit tests (parallel)
-        run: |
-          flutter test --coverage --concurrency=6
+      - run: flutter pub get
+      - run: flutter test --coverage --concurrency=6

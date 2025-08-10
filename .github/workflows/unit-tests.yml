@@ -43,9 +43,7 @@ jobs:
       - name: Compute doc-only flag
         id: compute
         run: |
-          DOCS="${{ steps.changes.outputs.docs }}"
-          CODE="${{ steps.changes.outputs.code }}"
-          if [ "$DOCS" = "true" ] && [ "$CODE" != "true" ]; then
+          if [ "${{ steps.changes.outputs.docs }}" = "true" ] && [ "${{ steps.changes.outputs.code }}" != "true" ]; then
             echo "doc_only=true" >> $GITHUB_OUTPUT
           else
             echo "doc_only=false" >> $GITHUB_OUTPUT
@@ -86,6 +84,4 @@ jobs:
 
       - name: Run unit tests (parallel)
         if: ${{ steps.compute.outputs.doc_only != 'true' }}
-        run: |
-          # "--concurrency" распараллеливает тесты по ядрам
-          flutter test --coverage --concurrency=6
+        run: flutter test --coverage --concurrency=6
