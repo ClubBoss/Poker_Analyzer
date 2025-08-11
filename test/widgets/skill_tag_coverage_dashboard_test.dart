@@ -122,7 +122,7 @@ void main() {
     expect(find.text('a'), findsNothing);
   });
 
-  testWidgets('table has equal number of columns and cells', (tester) async {
+  testWidgets('columns == cells in SkillTagCoverageDashboard', (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: SkillTagCoverageDashboard(
         statsStream: Stream.value(stats),

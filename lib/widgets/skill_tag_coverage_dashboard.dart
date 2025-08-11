@@ -128,7 +128,13 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             DataCell(Text(r.category)),
                             DataCell(Text('${r.packs}')),
                             DataCell(Text('${r.spots}')),
-                            DataCell(Text('${r.coverage.toStringAsFixed(1)}%')),
+                            DataCell(
+                              Text(
+                                r.spots == 0
+                                    ? '—'
+                                    : '${r.coverage.toStringAsFixed(1)}%',
+                              ),
+                            ),
                             DataCell(Text(r.lastUpdated != null
                                 ? df.format(r.lastUpdated!)
                                 : '')),
