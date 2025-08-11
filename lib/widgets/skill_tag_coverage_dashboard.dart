@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/skill_tag_stats.dart';
 import '../services/skill_tag_coverage_tracker_service.dart';
@@ -127,8 +128,9 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             DataCell(Text('${r.packs}')),
                             DataCell(Text('${r.spots}')),
                             DataCell(Text(r.coverage.toStringAsFixed(1))),
-                            DataCell(
-                                Text(r.lastUpdated?.toIso8601String() ?? '')),
+                            DataCell(Text(r.lastUpdated != null
+                                ? DateFormat('yyyy-MM-dd').format(r.lastUpdated!)
+                                : '')),
                           ],
                           color: MaterialStatePropertyAll(
                             Color.alphaBlend(
@@ -201,9 +203,9 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
             if (at == null && bt == null) {
               cmp = _cmp(0, 0, a.tag, b.tag);
             } else if (at == null) {
-              cmp = 1;
+              cmp = ascending ? 1 : -1;
             } else if (bt == null) {
-              cmp = -1;
+              cmp = ascending ? -1 : 1;
             } else {
               cmp = _cmp(at, bt, a.tag, b.tag);
             }
