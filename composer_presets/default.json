@@ -1,0 +1,9 @@
+{
+  "levels": {
+    "1": {"minDifficulty": 0.0, "maxDifficulty": 0.25, "minCategories": 3, "maxMonotone": 0.10},
+    "2": {"minDifficulty": 0.2, "maxDifficulty": 0.45, "minCategories": 5},
+    "3": {"minDifficulty": 0.4, "maxDifficulty": 0.65, "minDecisionDensity": 0.3},
+    "4": {"minDifficulty": 0.6, "maxDifficulty": 0.8, "requireTheoryHeavy": true},
+    "5": {"minDifficulty": 0.75, "maxDifficulty": 1.0, "textureBalanced": true}
+  }
+}

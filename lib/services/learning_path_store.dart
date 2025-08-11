@@ -148,4 +148,21 @@ class LearningPathStore {
     modules.removeWhere((m) => m.moduleId == moduleId);
     await _save(userId, modules);
   }
+
+  /// Publishes a composed learning path to disk and stores composer metadata.
+  Future<void> publish(
+    String pathId,
+    String yaml, {
+    Map<String, dynamic>? composerMeta,
+  }) async {
+    final yamlFile = File('$rootDir/$pathId.yaml');
+    yamlFile.parent.createSync(recursive: true);
+    await yamlFile.writeAsString(yaml);
+    final meta = {
+      'timestamp': DateTime.now().toIso8601String(),
+      if (composerMeta != null) ...composerMeta,
+    };
+    final metaFile = File('$rootDir/$pathId.meta.json');
+    await metaFile.writeAsString(jsonEncode(meta));
+  }
 }

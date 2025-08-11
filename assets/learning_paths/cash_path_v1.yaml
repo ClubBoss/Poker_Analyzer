@@ -1,0 +1,23 @@
+id: cash_path_v1
+title: Cash Path v1
+description: Auto-generated sample path
+stages:
+  - id: L1P0
+    title: Pack p1
+    description: ''
+    packId: p1
+    requiredAccuracy: 0.7
+    requiredHands: 20
+    tags: [L1]
+    order: 0
+    unlockAfter: []
+  - id: L2P0
+    title: Pack p2
+    description: ''
+    packId: p2
+    requiredAccuracy: 0.7
+    requiredHands: 20
+    tags: [L2]
+    order: 1
+    unlockAfter: [L1P0]
+tags: [auto]
