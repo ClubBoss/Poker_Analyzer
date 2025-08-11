@@ -28,6 +28,9 @@ jobs:
       - name: Check Flutter version
         run: flutter --version
 
+      - name: Bootstrap Flutter local.properties
+        run: bash scripts/setup_flutter_localprops.sh
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -35,6 +38,5 @@ jobs:
       # - name: Analyze
       #   run: flutter analyze
 
-      # Временно отключаем тесты, если они падают
-      # - name: Run tests
-      #   run: flutter test
+      - name: Run tests
+        run: flutter test

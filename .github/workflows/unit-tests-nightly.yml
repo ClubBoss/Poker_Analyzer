@@ -32,5 +32,6 @@ jobs:
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-pub-
+      - run: bash scripts/setup_flutter_localprops.sh
       - run: flutter pub get
       - run: flutter test --coverage --concurrency=6

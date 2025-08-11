@@ -97,6 +97,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
+      - name: Bootstrap Flutter local.properties
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
+        run: bash scripts/setup_flutter_localprops.sh
+
       - name: Install deps
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
         run: flutter pub get
