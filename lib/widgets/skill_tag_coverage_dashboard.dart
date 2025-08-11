@@ -114,12 +114,12 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             DataCell(
                               Text(r.tag),
                               onTap: () {
-                                final nav = Navigator.of(context);
-                                if (nav.canPop() ||
-                                    ModalRoute.of(context)?.settings.name !=
-                                        null) {
-                                  nav.pushNamed('/trainingPacks',
-                                      arguments: r.tag);
+                                try {
+                                  Navigator.of(context)
+                                      .pushNamed('/trainingPacks',
+                                          arguments: r.tag);
+                                } catch (_) {
+                                  // Optionally handle missing route silently.
                                 }
                               },
                             ),

@@ -122,6 +122,21 @@ void main() {
     expect(find.text('a'), findsNothing);
   });
 
+  testWidgets('table has equal number of columns and cells', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: SkillTagCoverageDashboard(
+        statsStream: Stream.value(stats),
+        allTags: allTags,
+        tagCategoryMap: tagCategoryMap,
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    final table = tester.widget<DataTable>(find.byType(DataTable));
+    expect(table.columns.length, 6);
+    expect(table.rows.every((r) => r.cells.length == 6), isTrue);
+  });
+
   test('computeCategorySummary aggregates', () {
     final summary = computeCategorySummary(stats, allTags, tagCategoryMap);
     final cat1 = summary['cat1']!;
