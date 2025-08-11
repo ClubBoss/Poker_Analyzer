@@ -55,17 +55,21 @@ class IcmPostflopPathSeeder {
     if ((name.contains('hero call') ||
             name.contains('hero-call') ||
             tags.contains('hero-call')) &&
-        (tags.contains('icm') || tags.contains('icm-postflop')))
+        (tags.contains('icm') || tags.contains('icm-postflop'))) {
       return 0;
+    }
     if (name.contains('overbet') ||
         tags.contains('overbet') ||
         (name.contains('marginal') && name.contains('call')) ||
-        tags.contains('marginal-call'))
+        tags.contains('marginal-call')) {
       return 1;
+    }
     if (name.contains('float') ||
         tags.contains('float') ||
         name.contains('bluffcatch') ||
-        tags.contains('bluffcatch')) return 2;
+        tags.contains('bluffcatch')) {
+      return 2;
+    }
     return 3;
   }
 

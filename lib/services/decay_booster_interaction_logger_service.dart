@@ -74,7 +74,7 @@ class DecayBoosterInteractionLoggerService {
   /// Returns a summary map of event type to timestamp for [tag].
   Future<Map<String, DateTime?>> getStatsFor(String tag) async {
     final prefs = await SharedPreferences.getInstance();
-    DateTime? _read(String key) {
+    DateTime? read(String key) {
       final millis = prefs.getInt(key);
       return millis == null
           ? null
@@ -82,9 +82,9 @@ class DecayBoosterInteractionLoggerService {
     }
 
     return {
-      'opened': _read(_openedKey(tag)),
-      'dismissed': _read(_dismissedKey(tag)),
-      'completed': _read(_completedKey(tag)),
+      'opened': read(_openedKey(tag)),
+      'dismissed': read(_dismissedKey(tag)),
+      'completed': read(_completedKey(tag)),
     };
   }
 

@@ -50,7 +50,7 @@ class TheoryReinforcementQueueService {
   Future<void> registerSuccess(String lessonId) async {
     final map = await _load();
     final entry = map[lessonId];
-    var level = entry?.level ?? 0;
+    final level = entry?.level ?? 0;
     if (level >= _intervals.length) {
       map.remove(lessonId);
     } else {

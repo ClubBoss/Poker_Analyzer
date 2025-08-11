@@ -31,6 +31,7 @@ class TrainingSpot implements SpotModel {
   final String? gameType;
   final int anteBb;
   final String? category;
+  @override
   final List<String> tags;
   final List<String> inlineLessons;
   final int difficulty;

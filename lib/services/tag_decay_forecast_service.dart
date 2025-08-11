@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import '../models/decay_tag_reinforcement_event.dart';
 import 'decay_session_tag_impact_recorder.dart';
 import 'decay_tag_retention_tracker_service.dart';
 import 'inbox_booster_tuner_service.dart';
@@ -60,7 +59,7 @@ class TagDecayForecastService {
                   .map((d) => math.pow(d - avg, 2))
                   .reduce((a, b) => a + b) /
               intervals.length);
-      final next = last != null ? last.add(Duration(days: avg.round())) : null;
+      final next = last?.add(Duration(days: avg.round()));
       final sinceLast = last != null ? current.difference(last) : Duration.zero;
       result[entry.key] = TagDecayStats(
         tag: entry.key,

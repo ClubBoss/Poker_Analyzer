@@ -1,4 +1,3 @@
-import '../models/theory_mini_lesson_node.dart';
 import 'mini_lesson_library_service.dart';
 
 /// Result of [TheoryLessonReachabilityValidator] run.

@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class TheoryLessonTrailTracker {
   static const _prefsKey = 'theory_lesson_trail';
 
-  TheoryLessonTrailTracker._({this.recentFirst = true});
+  TheoryLessonTrailTracker._();
   static final TheoryLessonTrailTracker instance = TheoryLessonTrailTracker._();
 
   /// If true, [recordVisit] inserts new lesson ids at the beginning of the trail.

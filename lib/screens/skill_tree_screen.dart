@@ -98,7 +98,6 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
   void _showStageUnlockConfetti() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final controller = ConfettiController(
       duration: const Duration(milliseconds: 1500),
     );

@@ -11,7 +11,7 @@ import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  TrainingPackTemplateV2 _pack(List<TrainingPackSpot> spots, List<String> tags) {
+  TrainingPackTemplateV2 pack(List<TrainingPackSpot> spots, List<String> tags) {
     return TrainingPackTemplateV2(
       id: 'p',
       name: 'Pack',
@@ -36,7 +36,7 @@ void main() {
       ),
       explanation: 'A',
     );
-    final oldPack = _pack([spotA], ['btnPush']);
+    final oldPack = pack([spotA], ['btnPush']);
 
     final spotB = TrainingPackSpot(
       id: 's1',
@@ -48,7 +48,7 @@ void main() {
       explanation: 'B',
     );
     final spotC = TrainingPackSpot(id: 's2', hand: HandData());
-    final newPack = _pack([spotB, spotC], ['btnPush', 'new']);
+    final newPack = pack([spotB, spotC], ['btnPush', 'new']);
 
     final md = const BoosterPackChangelogGenerator()
         .buildChangelog(oldPack, newPack);

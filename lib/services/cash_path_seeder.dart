@@ -63,8 +63,9 @@ class CashPathSeeder {
     if (tags.contains('deepstack') || tags.contains('postflop-deep')) return 0;
     if (tags.contains('100bb+') ||
         tags.contains('isoraise') ||
-        tags.contains('light3bet'))
+        tags.contains('light3bet')) {
       return 1;
+    }
     if (tags.contains('cash') || tags.contains('nonicm')) return 2;
     return 3;
   }

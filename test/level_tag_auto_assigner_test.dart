@@ -6,7 +6,7 @@ import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 void main() {
   const assigner = LevelTagAutoAssigner();
 
-  TrainingPackTemplateV2 _tpl({
+  TrainingPackTemplateV2 tpl0({
     List<String>? tags,
     TrainingType trainingType = TrainingType.custom,
   }) {
@@ -19,25 +19,25 @@ void main() {
   }
 
   test('assigns level 1 for pushFold training type', () {
-    final tpl = _tpl(trainingType: TrainingType.pushFold);
+    final tpl = tpl0(trainingType: TrainingType.pushFold);
     assigner.assign([tpl]);
     expect(tpl.meta['level'], 1);
   });
 
   test('assigns level 2 for open tag', () {
-    final tpl = _tpl(tags: ['open']);
+    final tpl = tpl0(tags: ['open']);
     assigner.assign([tpl]);
     expect(tpl.meta['level'], 2);
   });
 
   test('assigns level 3 for jamDecision tag', () {
-    final tpl = _tpl(tags: ['jamDecision']);
+    final tpl = tpl0(tags: ['jamDecision']);
     assigner.assign([tpl]);
     expect(tpl.meta['level'], 3);
   });
 
   test('defaults to level 0 when no rules match', () {
-    final tpl = _tpl(tags: ['random']);
+    final tpl = tpl0(tags: ['random']);
     assigner.assign([tpl]);
     expect(tpl.meta['level'], 0);
   });

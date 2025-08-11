@@ -8,7 +8,6 @@ import 'package:poker_analyzer/services/smart_theory_booster_bridge.dart';
 import 'package:poker_analyzer/services/theory_lesson_tag_clusterer.dart';
 import 'package:poker_analyzer/services/theory_cluster_summary_service.dart';
 import 'package:poker_analyzer/services/booster_library_service.dart';
-import 'package:poker_analyzer/services/theory_booster_recommender.dart';
 import 'package:collection/collection.dart';
 
 TrainingPackTemplateV2 booster(String id, String tag) {

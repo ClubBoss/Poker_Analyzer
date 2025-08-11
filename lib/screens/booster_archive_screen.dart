@@ -67,7 +67,9 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
 
   List<String> get _allTags {
     final set = <String>{};
-    for (final e in _entries) set.addAll(e.tags);
+    for (final e in _entries) {
+      set.addAll(e.tags);
+    }
     final list = set.toList()..sort();
     return list;
   }
@@ -82,7 +84,7 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
   }
 
   List<_Entry> get _filtered {
-    var list = _entries.where((e) {
+    final list = _entries.where((e) {
       final tagOk = _tagFilter.isEmpty || e.tags.contains(_tagFilter);
       final originOk = _originFilter.isEmpty || e.origin == _originFilter;
       final dateOk = _dateRange == null ||

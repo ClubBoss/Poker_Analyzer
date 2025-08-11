@@ -38,6 +38,7 @@ class TrainingPackTemplateModel
   factory TrainingPackTemplateModel.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackTemplateModelFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => _$TrainingPackTemplateModelToJson(this);
 
   @override

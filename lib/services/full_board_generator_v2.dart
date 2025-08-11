@@ -1,5 +1,4 @@
 import '../models/board_stages.dart';
-import '../models/card_model.dart';
 import '../helpers/board_filtering_params_builder.dart';
 import 'board_texture_filter_service.dart';
 import 'card_deck_service.dart';

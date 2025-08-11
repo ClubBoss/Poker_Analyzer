@@ -410,7 +410,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String plannerBadge(Object count) {
-    return '$count left';
+    return '$count осталось';
   }
 
   @override

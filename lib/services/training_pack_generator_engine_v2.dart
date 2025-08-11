@@ -3,10 +3,8 @@ import 'dart:math';
 
 import '../models/training_pack_template_set.dart';
 import '../models/inline_theory_entry.dart';
-import '../models/spot_seed_format.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
-import '../models/constraint_set.dart';
 import 'training_pack_template_expander_service.dart';
 import 'auto_spot_theory_injector_service.dart';
 import 'line_graph_engine.dart';

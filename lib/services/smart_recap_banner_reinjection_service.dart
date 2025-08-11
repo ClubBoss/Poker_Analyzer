@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
 
 import 'mini_lesson_library_service.dart';
 import 'recap_auto_repeat_scheduler.dart';

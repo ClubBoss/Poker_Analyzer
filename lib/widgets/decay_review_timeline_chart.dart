@@ -121,18 +121,18 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
     DateTime? maxDate;
     for (final t in tags) {
       for (final d in _events[t] ?? []) {
-        if (minDate == null || d.isBefore(minDate!)) minDate = d;
-        if (maxDate == null || d.isAfter(maxDate!)) maxDate = d;
+        if (minDate == null || d.isBefore(minDate)) minDate = d;
+        if (maxDate == null || d.isAfter(maxDate)) maxDate = d;
       }
       final next = widget.stats[t]?.nextReview;
       if (next != null) {
-        if (minDate == null || next.isBefore(minDate!)) minDate = next;
-        if (maxDate == null || next.isAfter(maxDate!)) maxDate = next;
+        if (minDate == null || next.isBefore(minDate)) minDate = next;
+        if (maxDate == null || next.isAfter(maxDate)) maxDate = next;
       }
     }
     minDate ??= DateTime.now();
     maxDate ??= minDate.add(const Duration(days: 1));
-    final totalDays = math.max(1, maxDate!.difference(minDate!).inDays.toDouble());
+    final totalDays = math.max(1, maxDate.difference(minDate).inDays.toDouble());
 
     final colors = [
       Colors.greenAccent,
@@ -151,7 +151,7 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
       final events = _events[tag] ?? [];
       final spots = [
         for (final d in events)
-          FlSpot(d.difference(minDate!).inDays.toDouble(), i.toDouble()),
+          FlSpot(d.difference(minDate).inDays.toDouble(), i.toDouble()),
       ];
       bars.add(
         LineChartBarData(
@@ -164,7 +164,7 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
       );
       final next = widget.stats[tag]?.nextReview;
       if (next != null) {
-        final x = next.difference(minDate!).inDays.toDouble();
+        final x = next.difference(minDate).inDays.toDouble();
         vertical.add(
           VerticalLine(
             x: x,

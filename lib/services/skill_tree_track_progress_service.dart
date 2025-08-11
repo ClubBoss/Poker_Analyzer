@@ -121,7 +121,7 @@ class SkillTreeTrackProgressService {
     return completed.where(tree.nodes.containsKey).toSet();
   }
 
-  static String _startedKey(String id) => 'skill_track_started_' + id;
+  static String _startedKey(String id) => 'skill_track_started_$id';
 
   /// Marks [trackId] as started.
   Future<void> markStarted(String trackId) async {

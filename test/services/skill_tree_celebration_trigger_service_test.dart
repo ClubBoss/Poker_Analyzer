@@ -6,7 +6,6 @@ import 'package:poker_analyzer/models/skill_tree_node_model.dart';
 import 'package:poker_analyzer/services/skill_tree_builder_service.dart';
 import 'package:poker_analyzer/services/skill_tree_node_progress_tracker.dart';
 import 'package:poker_analyzer/services/skill_tree_progress_analytics_service.dart';
-import 'package:poker_analyzer/services/skill_tree_final_node_completion_detector.dart';
 import 'package:poker_analyzer/services/skill_tree_celebration_trigger_service.dart';
 import 'package:poker_analyzer/services/skill_tree_milestone_overlay_service.dart';
 import 'package:poker_analyzer/services/skill_tree_motivational_hint_engine.dart';

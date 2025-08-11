@@ -10,7 +10,7 @@ class SkillTreePathProgressEstimator {
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
   })  : library = library ?? SkillTreeLibraryService.instance,
-        this.progress = progress ?? SkillTreeNodeProgressTracker.instance;
+        progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns progress for [trackId] as a value from 0 to 100.
   ///

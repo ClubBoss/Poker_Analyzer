@@ -79,8 +79,8 @@ class TrainingPackMetadataEnricherService {
       // stack spread using hero stack
       final heroKey = s.hand.heroIndex.toString();
       final stack = s.hand.stacks[heroKey] ?? 0;
-      minStack = (minStack == null) ? stack : (stack < minStack! ? stack : minStack);
-      maxStack = (maxStack == null) ? stack : (stack > maxStack! ? stack : maxStack);
+      minStack = (minStack == null) ? stack : (stack < minStack ? stack : minStack);
+      maxStack = (maxStack == null) ? stack : (stack > maxStack ? stack : maxStack);
       stackTotal += stack;
       stackCount++;
     }

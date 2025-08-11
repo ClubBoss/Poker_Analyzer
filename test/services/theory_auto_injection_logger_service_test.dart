@@ -73,7 +73,7 @@ void main() {
 
   test('getDailyInjectionCounts groups by day', () async {
     final now = DateTime.now();
-    final format = (DateTime d) =>
+    String format(DateTime d) =>
         DateTime(d.year, d.month, d.day).toIso8601String().split('T').first;
 
     await TheoryAutoInjectionLoggerService.instance.logAutoInjection(

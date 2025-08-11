@@ -153,7 +153,7 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Welcome back!', style: Theme.of(context).textTheme.headline6),
+          Text('Welcome back!', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Text('$percent% complete · $completed of $total stages'),
           if (streakText != null) Text(streakText),

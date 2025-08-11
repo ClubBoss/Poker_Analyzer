@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../models/decay_retention_summary.dart';
 import '../services/decay_retention_summary_service.dart';
-import '../services/tag_decay_forecast_service.dart';
 import '../services/inbox_booster_delivery_controller.dart';
 
 class DecayStatsDashboardScreen extends StatefulWidget {

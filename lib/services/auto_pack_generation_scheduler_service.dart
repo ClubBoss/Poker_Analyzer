@@ -57,7 +57,7 @@ class AutoPackGenerationSchedulerService {
         return data
             .whereType<Map>()
             .map((e) => ScheduledAutogenJob.fromJson(
-                Map<String, dynamic>.from(e as Map)))
+                Map<String, dynamic>.from(e)))
             .toList();
       }
     } catch (_) {}

@@ -57,7 +57,7 @@ class DecayRecallMasteryIntegrator {
         final newVal = (entry.value + delta).clamp(0.0, 1.0);
         updated[tag] = newVal;
         if (_logger != null) {
-          await _logger!.add(TagMasteryAdjustmentEntry(
+          await _logger.add(TagMasteryAdjustmentEntry(
             tag: tag,
             delta: delta,
             timestamp: current,

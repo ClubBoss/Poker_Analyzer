@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:yaml/yaml.dart';
 
-import '../models/training_pack_model.dart';
 import 'training_pack_library_importer.dart';
 
 class TrainingPackLibraryQAReport {

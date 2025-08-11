@@ -32,7 +32,7 @@ class TheoryPackImporterService {
           if (item is Map) {
             lessons.add(
               TheoryMiniLessonNode.fromYaml(
-                Map<String, dynamic>.from(item as Map),
+                Map<String, dynamic>.from(item),
               ),
             );
           }

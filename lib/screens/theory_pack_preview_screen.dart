@@ -183,7 +183,7 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      spot.title.isNotEmpty ? spot.title : 'Spot ${i}',
+                      spot.title.isNotEmpty ? spot.title : 'Spot $i',
                       style: const TextStyle(fontSize: 16),
                     ),
                     if (subtitle.isNotEmpty)

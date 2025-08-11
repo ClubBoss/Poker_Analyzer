@@ -45,7 +45,9 @@ class BoosterExhaustionOverlayManager {
   bool _shouldWarn() {
     if (_dialogOpen) return false;
     if (_suppressedUntil != null &&
-        DateTime.now().isBefore(_suppressedUntil!)) return false;
+        DateTime.now().isBefore(_suppressedUntil!)) {
+      return false;
+    }
     return _history.length >= maxCount;
   }
 

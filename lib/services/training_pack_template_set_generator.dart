@@ -24,7 +24,7 @@ class TrainingPackTemplateSetGenerator {
     for (final variant in set.variants) {
       var json = baseJson;
       variant.forEach((key, value) {
-        json = json.replaceAll('{{${key}}}', value.toString());
+        json = json.replaceAll('{{$key}}', value.toString());
       });
       final map = jsonDecode(json) as Map<String, dynamic>;
       result.add(TrainingPackTemplateV2.fromJson(map));

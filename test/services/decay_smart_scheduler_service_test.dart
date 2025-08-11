@@ -64,7 +64,7 @@ void main() {
   test('generateTodayPlan limits number of tags', () async {
     final scores = <String, double>{};
     for (var i = 0; i < 12; i++) {
-      scores['t' + i.toString()] = 0.8;
+      scores['t$i'] = 0.8;
     }
     final service = DecaySmartSchedulerService(
       retention: _FakeRetention(scores),

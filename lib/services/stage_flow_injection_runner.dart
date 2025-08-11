@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../models/learning_path_block.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/theory_and_booster_flow_composer.dart';
 import '../services/booster_injection_orchestrator.dart';

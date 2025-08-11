@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../services/learning_path_stage_library.dart';
-import '../models/learning_path_stage_model.dart';
 import '../models/stage_type.dart';
 import '../theme/app_colors.dart';
 

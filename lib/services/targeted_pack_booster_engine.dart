@@ -8,7 +8,6 @@ import '../models/autogen_status.dart';
 import '../models/training_pack_model.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template_v2.dart';
-import '../core/training/library/training_pack_library_v2.dart';
 import 'autogen_status_dashboard_service.dart';
 import 'autogen_stats_dashboard_service.dart';
 import 'pack_library_service.dart';

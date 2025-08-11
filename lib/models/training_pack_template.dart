@@ -48,6 +48,7 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
 
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackTemplateFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$TrainingPackTemplateToJson(this);
 
   @override

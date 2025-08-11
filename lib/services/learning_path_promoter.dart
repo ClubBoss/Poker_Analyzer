@@ -1,4 +1,3 @@
-import '../models/learning_path_template_v2.dart';
 import 'learning_path_library.dart';
 
 /// Updates [target] library with paths from [staged] when IDs match.

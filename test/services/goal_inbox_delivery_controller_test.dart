@@ -13,7 +13,7 @@ void main() {
     InboxBoosterTrackerService.instance.resetForTest();
   });
 
-  XPGuidedGoal _goal(String id, int xp) =>
+  XPGuidedGoal goal(String id, int xp) =>
       XPGuidedGoal(id: id, label: id, xp: xp, source: 't', onComplete: () {});
 
   test('filters by slot and prioritizes by xp', () async {
@@ -21,9 +21,9 @@ void main() {
       tracker: InboxBoosterTrackerService.instance,
     );
     controller.updateAssignments([
-      GoalSlotAssignment(goal: _goal('g1', 10), slot: 'theory'),
-      GoalSlotAssignment(goal: _goal('g2', 20), slot: 'home'),
-      GoalSlotAssignment(goal: _goal('g3', 5), slot: 'postrecap'),
+      GoalSlotAssignment(goal: goal('g1', 10), slot: 'theory'),
+      GoalSlotAssignment(goal: goal('g2', 20), slot: 'home'),
+      GoalSlotAssignment(goal: goal('g3', 5), slot: 'postrecap'),
     ]);
     final res = await controller.getInboxGoals();
     expect(res.length, 2);
@@ -37,8 +37,8 @@ void main() {
       tracker: InboxBoosterTrackerService.instance,
     );
     controller.updateAssignments([
-      GoalSlotAssignment(goal: _goal('g1', 10), slot: 'theory'),
-      GoalSlotAssignment(goal: _goal('g2', 20), slot: 'home'),
+      GoalSlotAssignment(goal: goal('g1', 10), slot: 'theory'),
+      GoalSlotAssignment(goal: goal('g2', 20), slot: 'home'),
     ]);
     final res = await controller.getInboxGoals();
     expect(res.length, 1);
@@ -50,7 +50,7 @@ void main() {
       tracker: InboxBoosterTrackerService.instance,
     );
     controller.updateAssignments([
-      GoalSlotAssignment(goal: _goal('g1', 10), slot: 'theory'),
+      GoalSlotAssignment(goal: goal('g1', 10), slot: 'theory'),
     ]);
     final res = await controller.getInboxGoals();
     expect(res.length, 1);

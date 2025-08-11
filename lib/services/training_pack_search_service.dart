@@ -23,7 +23,7 @@ class TrainingPackSearchService {
   void init() {
     _sub?.cancel();
     if (_libraryChanges != null) {
-      _sub = _libraryChanges!.listen((_) => rebuild());
+      _sub = _libraryChanges.listen((_) => rebuild());
     }
     rebuild();
   }

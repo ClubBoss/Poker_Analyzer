@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
@@ -102,7 +101,7 @@ void main(List<String> args) {
       }
     } catch (e) {
       failures++;
-      stderr.writeln('Failed to process ' + file.path + ': ' + e.toString());
+      stderr.writeln('Failed to process ${file.path}: $e');
     }
   }
 
@@ -110,15 +109,12 @@ void main(List<String> args) {
     stdout.writeln('No legacy outputVariants found.');
   } else {
     stdout.writeln('Migrated outputVariants:');
-    stdout.writeln('File'.padRight(60) + 'Before After');
+    stdout.writeln('${'File'.padRight(60)}Before After');
     for (final c in changes) {
       final path = c['path'] as String;
       final before = c['before'];
       final after = c['after'];
-      stdout.writeln(path.padRight(60) +
-          before.toString().padLeft(6) +
-          ' ' +
-          after.toString().padLeft(5));
+      stdout.writeln('${path.padRight(60)}${before.toString().padLeft(6)} ${after.toString().padLeft(5)}');
     }
   }
 

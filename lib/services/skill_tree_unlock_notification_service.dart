@@ -13,8 +13,8 @@ class SkillTreeUnlockNotificationService {
   SkillTreeUnlockNotificationService({SkillTreeNodeProgressTracker? progress})
       : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
-  static String _nodeKey(String id) => 'skill_tree_unlocked_nodes_' + id;
-  static String _stageKey(String id) => 'skill_tree_unlocked_stages_' + id;
+  static String _nodeKey(String id) => 'skill_tree_unlocked_nodes_$id';
+  static String _stageKey(String id) => 'skill_tree_unlocked_stages_$id';
 
   /// Checks [tree] for newly unlocked nodes or stages and shows notifications.
   Future<void> maybeNotify(BuildContext context, SkillTree tree) async {

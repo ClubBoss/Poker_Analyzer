@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/services/decay_streak_badge_notifier.dart';
 import 'package:poker_analyzer/services/decay_streak_tracker_service.dart';
-import 'package:poker_analyzer/models/decay_streak_badge.dart';
 
 class _FakeTracker extends DecayStreakTrackerService {
   final int streak;

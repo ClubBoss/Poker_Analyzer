@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/training_pack.dart';
-import '../models/session_task_result.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/training_session_launcher.dart';
 import '../theme/app_colors.dart';

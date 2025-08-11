@@ -168,7 +168,7 @@ class LineGraphEngine {
       final nodes = <HandActionNode>[];
       for (final act in actions) {
         final actor = _inferActor(act);
-        final tag = '${street}${_capitalize(act)}';
+        final tag = '$street${_capitalize(act)}';
         nodes.add(HandActionNode(actor: actor, action: act, tag: tag));
         tags.add(tag);
       }
@@ -222,7 +222,7 @@ class LineGraphEngine {
     for (var i = 0; i < streets.length; i++) {
       final street = streets[i];
       final tags = grouped[i]
-          .map((act) => '${street}${_capitalize(act)}')
+          .map((act) => '$street${_capitalize(act)}')
           .toList();
       accumulatedTags.addAll(tags);
       seeds.add(

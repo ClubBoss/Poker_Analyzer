@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/theory_mini_lesson_node.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'mini_lesson_library_service.dart';
 import 'pack_library_loader_service.dart';

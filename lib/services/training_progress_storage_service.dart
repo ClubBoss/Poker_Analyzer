@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class TrainingProgressStorageService {
   const TrainingProgressStorageService();
 
-  String _key(String packId) => 'pack_progress_' + packId;
+  String _key(String packId) => 'pack_progress_$packId';
 
   Future<Set<String>> loadCompletedSpotIds(String packId) async {
     final prefs = await SharedPreferences.getInstance();

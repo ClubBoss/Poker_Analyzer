@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_analyzer/models/training_path_node.dart';
 import 'package:poker_analyzer/services/training_path_breadcrumb_service.dart';
 import 'package:poker_analyzer/services/training_path_node_definition_service.dart';
 

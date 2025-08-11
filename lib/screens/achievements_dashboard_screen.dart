@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../models/goal_completion_event.dart';
 import '../services/goal_completion_event_service.dart';

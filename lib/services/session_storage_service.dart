@@ -17,7 +17,7 @@ class SessionStorageService {
   /// Returns the last updated timestamp for [key] if any.
   Future<DateTime?> getTimestamp(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    final str = prefs.getString('${key}${_timeSuffix}');
+    final str = prefs.getString('$key$_timeSuffix');
     return str == null ? null : DateTime.tryParse(str);
   }
 
@@ -26,13 +26,13 @@ class SessionStorageService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(key, value);
     await prefs.setString(
-        '${key}${_timeSuffix}', DateTime.now().toIso8601String());
+        '$key$_timeSuffix', DateTime.now().toIso8601String());
   }
 
   /// Removes value and timestamp associated with [key].
   Future<void> remove(String key) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(key);
-    await prefs.remove('${key}${_timeSuffix}');
+    await prefs.remove('$key$_timeSuffix');
   }
 }

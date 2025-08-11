@@ -78,7 +78,7 @@ class BoosterSessionTracker {
     } else {
       streak = 1;
     }
-    await prefs
+    prefs
       ..setString(_lastKey, today.toIso8601String())
       ..setInt(_streakKey, streak);
 

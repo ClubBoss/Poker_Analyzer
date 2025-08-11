@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 /// Basic achievement model used by [AchievementsEngine].
 class AchievementBasic {

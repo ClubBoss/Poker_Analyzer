@@ -21,7 +21,7 @@ class TheoryContentService {
     locale ??= PlatformDispatcher.instance.locale.languageCode;
     final byId = _localized[id];
     if (byId == null) return null;
-    if (locale != null && byId.containsKey(locale)) {
+    if (byId.containsKey(locale)) {
       return byId[locale];
     }
     return byId[''];

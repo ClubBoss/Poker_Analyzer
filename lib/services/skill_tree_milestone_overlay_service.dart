@@ -24,7 +24,6 @@ class SkillTreeMilestoneOverlayService {
     final message = await engine.getMotivationalMessage(stats);
     if (message == null) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     late OverlayEntry entry;
     entry = OverlayEntry(

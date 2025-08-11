@@ -34,8 +34,9 @@ class StarterLearningPathSeeder {
     for (final p in packs) {
       final aud = p.audience?.toLowerCase();
       final tags = p.tags.map((t) => t.toLowerCase()).toList();
-      if (aud == 'beginner') list.add(p);
-      else if (tags.contains('beginner') || tags.contains('starter')) list.add(p);
+      if (aud == 'beginner') {
+        list.add(p);
+      } else if (tags.contains('beginner') || tags.contains('starter')) list.add(p);
     }
     list.sort((a, b) {
       final cmp = _rank(a).compareTo(_rank(b));

@@ -39,7 +39,7 @@ String formatDuration(Duration d) {
   final hours = d.inHours;
   final minutes = d.inMinutes.remainder(60);
   final parts = <String>[];
-  if (hours > 0) parts.add('${hours}ч');
-  parts.add('${minutes}м');
+  if (hours > 0) parts.add('$hoursч');
+  parts.add('$minutesм');
   return parts.join(' ');
 }

@@ -50,7 +50,7 @@ class _TrainingPackListWidgetState extends State<TrainingPackListWidget> {
 
   Future<void> _open(TrainingPackTemplateV2 tpl) async {
     if (widget.onOpen != null) {
-      await widget.onOpen!(tpl);
+      widget.onOpen!(tpl);
     }
   }
 

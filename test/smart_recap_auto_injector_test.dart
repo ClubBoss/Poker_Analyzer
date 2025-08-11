@@ -69,12 +69,12 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<void> _pump(WidgetTester tester) async {
+  Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(navigatorKey: navigatorKey, home: const SizedBox()));
   }
 
   testWidgets('injects recap when opportunity available', (tester) async {
-    await _pump(tester);
+    await pump(tester);
     final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final service = SmartRecapAutoInjector(
       detector: _FakeDetector(true),
@@ -88,7 +88,7 @@ void main() {
   });
 
   testWidgets('respects cooldown between injections', (tester) async {
-    await _pump(tester);
+    await pump(tester);
     final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final service = SmartRecapAutoInjector(
       detector: _FakeDetector(true),

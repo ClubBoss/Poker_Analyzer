@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../main.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 import 'app_usage_tracker.dart';

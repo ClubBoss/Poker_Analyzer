@@ -188,7 +188,7 @@ class AdaptiveTrainingPlanner {
       for (final k in ratios.keys) k: (ratios[k]! / total) * tagCount
     };
     final result = {for (final k in raw.keys) k: raw[k]!.floor()};
-    var used = result.values.fold<int>(0, (a, b) => a + b);
+    final used = result.values.fold<int>(0, (a, b) => a + b);
 
     if (used < tagCount) {
       final remainder = tagCount - used;

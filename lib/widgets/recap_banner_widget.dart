@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../models/theory_mini_lesson_node.dart';
 import '../screens/theory_lesson_viewer_screen.dart';

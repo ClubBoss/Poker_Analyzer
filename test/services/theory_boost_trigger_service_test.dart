@@ -6,7 +6,6 @@ import 'package:poker_analyzer/services/theory_boost_trigger_service.dart';
 import 'package:poker_analyzer/services/recap_completion_tracker.dart';
 import 'package:poker_analyzer/services/recap_effectiveness_analyzer.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
-import 'package:poker_analyzer/services/theory_replay_cooldown_manager.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 
 class _FakeTracker extends RecapCompletionTracker {

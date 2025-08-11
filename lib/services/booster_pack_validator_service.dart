@@ -30,8 +30,12 @@ class BoosterPackValidatorService {
 
     debugPrint(
         'BoosterPackValidatorService: ${errors.length} errors, ${warnings.length} warnings');
-    for (final e in errors) debugPrint('Error: $e');
-    for (final w in warnings) debugPrint('Warning: $w');
+    for (final e in errors) {
+      debugPrint('Error: $e');
+    }
+    for (final w in warnings) {
+      debugPrint('Warning: $w');
+    }
 
     return BoosterValidationReport(
       errors: errors,

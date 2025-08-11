@@ -81,7 +81,7 @@ class RecapFatigueEvaluator {
       if (!k.startsWith(_lessonPrefix)) continue;
       final str = prefs.getString(k);
       final ts = str != null ? DateTime.tryParse(str) : null;
-      if (ts != null && (until == null || ts.isAfter(until!))) {
+      if (ts != null && (until == null || ts.isAfter(until))) {
         until = ts;
       }
     }

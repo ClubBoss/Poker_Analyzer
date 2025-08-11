@@ -61,7 +61,9 @@ class SmartBoosterDiversitySchedulerService {
       added = false;
       for (final tag in tags) {
         if (result.length >=
-            SmartBoosterInboxLimiterService.maxPerDay) break;
+            SmartBoosterInboxLimiterService.maxPerDay) {
+          break;
+        }
         final list = byTag[tag]!;
         if (list.isNotEmpty) {
           // add slight randomness to avoid deterministic ordering within same score

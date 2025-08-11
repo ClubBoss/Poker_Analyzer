@@ -101,11 +101,9 @@ class TrainingRunABComparator {
       final best = results.first;
       final arm = armsConfig.firstWhere((a) => a['id'] == best.armId,
           orElse: () => null);
-      if (arm != null) {
-        await prefs.setString(
-            _recommendedKey, jsonEncode(arm['format'] ?? {}));
-      }
-    }
+      await prefs.setString(
+          _recommendedKey, jsonEncode(arm['format'] ?? {}));
+        }
     return results;
   }
 

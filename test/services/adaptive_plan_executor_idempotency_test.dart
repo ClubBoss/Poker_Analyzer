@@ -125,7 +125,7 @@ void main() {
     );
     expect(res1, hasLength(1));
 
-    var modules = await store.listModules('u1');
+    final modules = await store.listModules('u1');
     final aged = modules
         .map((m) => InjectedPathModule(
               moduleId: m.moduleId,

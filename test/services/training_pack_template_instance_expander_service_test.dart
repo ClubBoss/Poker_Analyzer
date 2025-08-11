@@ -7,7 +7,7 @@ import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/services/training_pack_template_instance_expander_service.dart';
 
 void main() {
-  TrainingPackSpot _baseSpot() => TrainingPackSpot(
+  TrainingPackSpot baseSpot() => TrainingPackSpot(
         id: 'base',
         title: 'Base',
         tags: ['init'],
@@ -24,7 +24,7 @@ void main() {
 
   test('expands set into one-pack-per-spot', () {
     final set = TrainingPackTemplateSet(
-      baseSpot: _baseSpot(),
+      baseSpot: baseSpot(),
       variations: [
         ConstraintSet(overrides: {
           'board': [

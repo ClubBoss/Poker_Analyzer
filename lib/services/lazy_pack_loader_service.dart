@@ -24,7 +24,7 @@ class LazyPackLoaderService {
     if (_metadata.isNotEmpty) return;
     final manifest = await AssetManifest.instance;
     final reader = const YamlReader();
-    Iterable<String> paths = manifest.keys.where(
+    final Iterable<String> paths = manifest.keys.where(
       (p) => p.startsWith(path) && p.endsWith('.yaml'),
     );
     for (final p in paths) {

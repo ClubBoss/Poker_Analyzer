@@ -34,7 +34,7 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
           .toList();
     }
 
-    Widget body = visibleLogs.isEmpty
+    final Widget body = visibleLogs.isEmpty
         ? const Center(
             child: Text(
               'No sessions',
@@ -64,7 +64,7 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Acc ${acc.toStringAsFixed(1)}% · $total рук · EV ${evText}%',
+                        'Acc ${acc.toStringAsFixed(1)}% · $total рук · EV $evText%',
                         style: const TextStyle(color: Colors.white70),
                       ),
                       if (tagText != null)

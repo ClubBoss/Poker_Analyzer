@@ -23,7 +23,7 @@ class DecaySessionTagImpactRecorder {
         return [
           for (final e in data.whereType<Map>())
             DecayTagReinforcementEvent.fromJson(
-                Map<String, dynamic>.from(e as Map)),
+                Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}
@@ -47,7 +47,7 @@ class DecaySessionTagImpactRecorder {
         return [
           for (final e in data.whereType<Map>())
             DecayTagReinforcementEvent.fromJson(
-                Map<String, dynamic>.from(e as Map)),
+                Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}

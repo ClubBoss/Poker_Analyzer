@@ -17,7 +17,7 @@ class LearningPathFunnelTrackerService {
     int? minHands,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'locked_pack_viewed_' + packId;
+    final key = 'locked_pack_viewed_$packId';
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);
     unawaited(
@@ -40,7 +40,7 @@ class LearningPathFunnelTrackerService {
     int? minHands,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'cta_tapped_' + packId;
+    final key = 'cta_tapped_$packId';
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);
     unawaited(
@@ -63,7 +63,7 @@ class LearningPathFunnelTrackerService {
     int? minHands,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'unlock_logged_' + packId;
+    final key = 'unlock_logged_$packId';
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);
     unawaited(
@@ -75,7 +75,7 @@ class LearningPathFunnelTrackerService {
         'min_hands': minHands,
       }),
     );
-    final ctaKey = 'cta_tapped_' + packId;
+    final ctaKey = 'cta_tapped_$packId';
     if (prefs.getBool(ctaKey) == true) {
       await logFunnelComplete(
         packId,
@@ -96,7 +96,7 @@ class LearningPathFunnelTrackerService {
     int? minHands,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'unlock_funnel_complete_' + packId;
+    final key = 'unlock_funnel_complete_$packId';
     if (prefs.getBool(key) == true) return;
     await prefs.setBool(key, true);
     unawaited(

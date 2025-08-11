@@ -19,6 +19,7 @@ class TrainingPackSpot
   String title;
   String note;
   HandData hand;
+  @override
   List<String> tags;
   List<String> categories;
   DateTime editedAt;

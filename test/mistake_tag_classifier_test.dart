@@ -9,7 +9,7 @@ import 'package:poker_analyzer/services/mistake_tag_classifier.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  TrainingSpotAttempt _attempt() {
+  TrainingSpotAttempt attempt() {
     final spot = TrainingPackSpot(
       id: 's1',
       hand: HandData(heroCards: 'As Ad', position: HeroPosition.btn),
@@ -23,14 +23,14 @@ void main() {
   }
 
   test('classifies major overfold', () {
-    final cls = const MistakeTagClassifier().classify(_attempt());
+    final cls = const MistakeTagClassifier().classify(attempt());
     expect(cls, isNotNull);
     expect(cls!.tag, MistakeTag.overfoldBtn);
     expect(cls.severity, greaterThan(0.8));
   });
 
   test('provides theory tags for overfold', () {
-    final tags = const MistakeTagClassifier().classifyTheory(_attempt());
+    final tags = const MistakeTagClassifier().classifyTheory(attempt());
     expect(tags, contains('pushRange'));
     expect(tags, contains('overfold'));
   });

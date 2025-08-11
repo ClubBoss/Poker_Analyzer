@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import 'package:poker_analyzer/models/recall_failure_spotting.dart';
 import 'package:poker_analyzer/models/recall_success_entry.dart';
 import 'package:poker_analyzer/services/decay_hotspot_stats_aggregator_service.dart';
-import 'package:poker_analyzer/models/decay_hotspot_stats.dart';
 
 void main() {
   test('aggregates decay stats by tag and spotId', () async {

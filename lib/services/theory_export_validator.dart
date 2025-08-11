@@ -50,8 +50,9 @@ class TheoryExportValidator {
         } else {
           for (final s in tpl.spots) {
             if (s.id.trim().isEmpty) errors.add((path, 'spot_missing_id'));
-            if (s.title.trim().isEmpty)
+            if (s.title.trim().isEmpty) {
               errors.add((path, 'spot_missing_title'));
+            }
           }
         }
       } catch (_) {

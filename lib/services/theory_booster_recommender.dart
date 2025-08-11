@@ -64,7 +64,7 @@ class TheoryBoosterRecommender {
     if (best == null) return null;
 
     return BoosterRecommendationResult(
-      boosterId: best!.id,
+      boosterId: best.id,
       reasonTag: bestTag ?? '',
       priority: bestScore,
       origin: 'lesson',

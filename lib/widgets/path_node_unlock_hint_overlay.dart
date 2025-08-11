@@ -13,7 +13,7 @@ class PathNodeUnlockHintOverlay {
     final overlay = Overlay.of(context, rootOverlay: true);
     final renderBox =
         targetKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlay == null || renderBox == null) return;
+    if (renderBox == null) return;
 
     final target = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;

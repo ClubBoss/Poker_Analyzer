@@ -55,10 +55,10 @@ class LearningTrackProgressService {
       }
       final snap = LearningPathProgressSnapshot(
         pathId: pathId,
-        stageId: currentId!,
+        stageId: currentId,
         subProgress: sub,
-        handsPlayed: progress.getStageHands(currentId!),
-        accuracy: progress.getStageAccuracy(currentId!),
+        handsPlayed: progress.getStageHands(currentId),
+        accuracy: progress.getStageAccuracy(currentId),
       );
       await snapshots.save(pathId, snap);
     }

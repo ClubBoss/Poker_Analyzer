@@ -45,7 +45,7 @@ class TrainingPackTemplateSetValidator {
         if (bc is! List) {
           _fail('outputVariants.$key.boardConstraints must be a list', source);
         }
-        for (var i = 0; i < (bc as List).length; i++) {
+        for (var i = 0; i < (bc).length; i++) {
           final entry = bc[i];
           if (entry is! Map) {
             _fail(

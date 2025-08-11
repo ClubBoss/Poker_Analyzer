@@ -37,20 +37,20 @@ class PackPreviewScreenMetadataSection extends StatelessWidget {
 
     final items = <Widget>[];
     if (level != null) {
-      items.add(_MetaItem(icon: Icons.school, label: _levelLabel(level!)));
+      items.add(_MetaItem(icon: Icons.school, label: _levelLabel(level)));
     }
     if (topic != null) {
-      items.add(_MetaItem(icon: Icons.topic, label: _topicLabel(topic!)));
+      items.add(_MetaItem(icon: Icons.topic, label: _topicLabel(topic)));
     }
     if (format != null) {
       final icon = format == TrainingPackFormat.cash
           ? Icons.attach_money
           : Icons.emoji_events;
-      items.add(_MetaItem(icon: icon, label: _formatLabel(format!)));
+      items.add(_MetaItem(icon: icon, label: _formatLabel(format)));
     }
     if (complexity != null) {
       items.add(
-        _MetaItem(icon: Icons.tune, label: _complexityLabel(complexity!)),
+        _MetaItem(icon: Icons.tune, label: _complexityLabel(complexity)),
       );
     }
 

@@ -8,7 +8,6 @@ import 'package:poker_analyzer/services/theory_integrity_sweeper.dart';
 import 'package:poker_analyzer/services/theory_yaml_canonicalizer.dart';
 import 'package:poker_analyzer/services/theory_yaml_safe_reader.dart';
 import 'package:test/test.dart';
-import 'package:yaml/yaml.dart';
 
 void main() {
   test('upgrades legacy headers and prunes backups', () async {

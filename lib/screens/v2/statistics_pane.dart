@@ -17,14 +17,14 @@ class StatisticsPane extends StatelessWidget {
     return Container(
       width: 250,
       padding: const EdgeInsets.all(16),
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Statistics', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text('Total spots: '+total.toString()),
-          Text('Pinned spots: '+pinned.toString()),
+          Text('Total spots: $total'),
+          Text('Pinned spots: $pinned'),
         ],
       ),
     );

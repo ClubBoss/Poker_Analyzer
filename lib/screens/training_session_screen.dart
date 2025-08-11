@@ -18,8 +18,6 @@ import '../services/tag_review_history_service.dart';
 import '../services/skill_boost_log_service.dart';
 import '../models/skill_boost_log_entry.dart';
 import '../models/v2/training_session.dart';
-import 'pack_stats_screen.dart';
-import 'training_recap_screen.dart';
 import '../services/pack_library_completion_service.dart';
 import '../models/v2/training_pack_v2.dart';
 import '../models/v2/training_pack_template.dart';
@@ -28,7 +26,6 @@ import '../services/training_history_service_v2.dart';
 import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
-import 'booster_recap_screen.dart';
 import '../services/tag_mastery_service.dart';
 import '../services/user_goal_engine.dart';
 import '../services/goal_toast_service.dart';
@@ -47,7 +44,6 @@ import 'dart:math';
 import '../services/mistake_tag_history_service.dart';
 import '../services/auto_mistake_tagger_engine.dart';
 import '../models/training_spot_attempt.dart';
-import '../models/training_pack.dart';
 import '../services/booster_completion_tracker.dart';
 import '../services/user_action_logger.dart';
 import '../services/booster_auto_retry_suggester.dart';
@@ -503,8 +499,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         _boosterRecapShown = true;
         if (boosterAccuracy != null && boosterTpl != null) {
           await BoosterAutoRetrySuggester.instance.maybeSuggestRetry(
-            boosterTpl!,
-            boosterAccuracy!,
+            boosterTpl,
+            boosterAccuracy,
           );
         }
       }
@@ -720,11 +716,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                               textAlign: TextAlign.center,
                             ),
                           ),
-                        if (tpl != null && tpl.description.isNotEmpty) ...[
+                        if (tpl.description.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           _linkedText(tpl.description, spot, tpl),
                         ],
-                        if (tpl != null && tpl.goal.isNotEmpty) ...[
+                        if (tpl.goal.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           _linkedText(tpl.goal, spot, tpl),
                         ],

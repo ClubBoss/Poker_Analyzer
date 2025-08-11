@@ -1,5 +1,4 @@
 import '../models/theory_tag_heatmap_stats.dart';
-import '../models/theory_mini_lesson_node.dart';
 import 'mini_lesson_library_service.dart';
 
 /// Computes tag-level heatmap metrics for theory mini lessons.

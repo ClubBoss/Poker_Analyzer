@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 import '../models/inbox_card_model.dart';
 import '../services/pinned_block_tracker_service.dart';

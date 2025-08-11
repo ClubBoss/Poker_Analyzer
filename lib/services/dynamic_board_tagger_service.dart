@@ -16,11 +16,11 @@ class DynamicBoardTaggerService {
 
     if (_isPaired(board)) tags.add('paired');
     if (uniqueSuits == 1) {
-      tags..add('monotone');
+      tags.add('monotone');
     } else if (uniqueSuits == 2) {
-      tags..add('twoTone');
+      tags.add('twoTone');
     } else if (_isRainbow(board)) {
-      tags..add('rainbow');
+      tags.add('rainbow');
     }
 
     if (_isLow(board)) tags.add('low');

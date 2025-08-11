@@ -14,8 +14,9 @@ class PackGenerationMetricsTrackerService {
     if (await file.exists()) {
       try {
         final data = jsonDecode(await file.readAsString());
-        if (data is Map<String, dynamic>)
+        if (data is Map<String, dynamic>) {
           return Map<String, dynamic>.from(data);
+        }
       } catch (_) {}
     }
     return {

@@ -5,7 +5,6 @@ import 'package:poker_analyzer/services/smart_recall_booster_scheduler.dart';
 import 'package:poker_analyzer/services/decay_tag_retention_tracker_service.dart';
 import 'package:poker_analyzer/services/recall_success_logger_service.dart';
 import 'package:poker_analyzer/services/inbox_booster_tuner_service.dart';
-import 'package:poker_analyzer/models/scheduled_booster_entry.dart';
 import 'package:poker_analyzer/models/recall_success_entry.dart';
 
 class _FakeRetention extends DecayTagRetentionTrackerService {

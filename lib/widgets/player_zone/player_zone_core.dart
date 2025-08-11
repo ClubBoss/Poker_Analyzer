@@ -1622,7 +1622,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           )
         },
       ],
-    );
+    )
 
     final panel = PlayerZoneActionPanel(
       child: column,

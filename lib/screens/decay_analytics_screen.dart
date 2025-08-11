@@ -110,7 +110,7 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
         for (final e in _filtered)
           DataRow(cells: [
             DataCell(Text(e.tag)),
-            DataCell(Text('${(e.decay * 100).toStringAsFixed(0)}')),
+            DataCell(Text((e.decay * 100).toStringAsFixed(0))),
             DataCell(Text(_adaptationLabel(e.adaptation))),
             DataCell(Text(e.lastInteraction != null
                 ? DateFormat('yyyy-MM-dd').format(e.lastInteraction!)

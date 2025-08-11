@@ -173,7 +173,7 @@ class _PathOverviewScreenState extends State<PathOverviewScreen> {
     }
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text('${index}. ${stage.title}'),
+      title: Text('$index. ${stage.title}'),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

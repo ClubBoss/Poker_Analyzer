@@ -478,8 +478,9 @@ class _TrainingSessionSummaryScreenState
                     if (list.length >= 3) break;
                     list.add(p);
                   }
-                  if (adv.isEmpty && list.isEmpty)
+                  if (adv.isEmpty && list.isEmpty) {
                     return const SizedBox.shrink();
+                  }
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),

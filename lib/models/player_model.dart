@@ -50,6 +50,7 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
           PokerStreet.river: [],
         };
 
+  @override
   Map<String, dynamic> toJson() => {
         'name': name,
         'cards': cards,

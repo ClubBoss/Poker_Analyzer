@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import '../core/training/generation/yaml_reader.dart';
-import '../models/v2/training_pack_template_v2.dart';
 import 'pack_validation_engine.dart';
 
 class PackLibraryGenerationEngine {

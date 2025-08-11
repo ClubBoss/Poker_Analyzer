@@ -86,7 +86,7 @@ void main() {
     final modules2 = await store.listModules(user);
     expect(modules2.length, modules1.length);
     final status = AutogenStatusDashboardService.instance.getStatus('PathHardening');
-    final data = jsonDecode(status!.currentStage!) as Map<String, dynamic>;
+    final data = jsonDecode(status!.currentStage) as Map<String, dynamic>;
     expect(data['action'], 'skip');
     await tempDir.delete(recursive: true);
   });

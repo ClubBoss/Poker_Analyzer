@@ -131,7 +131,7 @@ class Open3betSpotTemplateGeneratorService {
     );
 
     return TrainingPackSpot(
-      id: 'spot_${index}',
+      id: 'spot_$index',
       hand: handData,
       villainAction: 'open 2.5',
       heroOptions: const ['3betPush', 'fold'],

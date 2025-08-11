@@ -91,10 +91,10 @@ class AchievementsEngine extends ChangeNotifier {
 
   Future<void> _save(AchievementBasic a) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('${_pref}${a.id}', a.isUnlocked);
+    await prefs.setBool('$_pref${a.id}', a.isUnlocked);
     if (a.unlockDate != null) {
       await prefs.setString(
-          '${_pref}${a.id}_date', a.unlockDate!.toIso8601String());
+          '$_pref${a.id}_date', a.unlockDate!.toIso8601String());
     }
   }
 

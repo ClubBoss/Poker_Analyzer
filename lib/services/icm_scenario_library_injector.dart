@@ -142,12 +142,12 @@ class ICMScenarioLibraryInjector {
     // Novelty guard evaluation and fallback
     if (_noveltyGuard != null) {
       var tpl = _toTemplate(model);
-      final res = await _noveltyGuard!.evaluate(tpl);
+      final res = await _noveltyGuard.evaluate(tpl);
       if (res.isDuplicate && selected.length > 1) {
         final reduced = selected.sublist(0, selected.length - 1);
         model = _applyScenarios(input, reduced);
         tpl = _toTemplate(model);
-        final res2 = await _noveltyGuard!.evaluate(tpl);
+        final res2 = await _noveltyGuard.evaluate(tpl);
         if (res2.isDuplicate) {
           return input; // skip injection
         }

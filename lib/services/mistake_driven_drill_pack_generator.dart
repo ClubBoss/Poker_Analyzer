@@ -1,6 +1,5 @@
 import 'package:uuid/uuid.dart';
 
-import '../models/mistake_history_entry.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/hero_position.dart';

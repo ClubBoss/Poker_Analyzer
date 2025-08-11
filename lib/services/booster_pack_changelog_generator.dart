@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:collection/collection.dart';
 import '../models/v2/training_pack_template_v2.dart';
-import '../models/v2/training_pack_spot.dart';
 import 'booster_snapshot_archiver.dart';
 
 /// Generates a markdown changelog comparing the latest two archived

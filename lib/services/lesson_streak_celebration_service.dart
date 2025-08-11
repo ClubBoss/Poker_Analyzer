@@ -22,7 +22,6 @@ class LessonStreakCelebrationService {
     if (current <= previousBest) return;
 
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     _shown = true;
     late OverlayEntry entry;

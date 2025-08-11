@@ -7,7 +7,7 @@ import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/services/training_pack_template_set_expander_service.dart';
 
 void main() {
-  TrainingPackSpot _baseSpot() => TrainingPackSpot(
+  TrainingPackSpot baseSpot() => TrainingPackSpot(
         id: 'base',
         hand: HandData(
           heroCards: 'Ah Kh',
@@ -21,7 +21,7 @@ void main() {
 
   test('expands multiple variations', () {
     final set = TrainingPackTemplateSet(
-      baseSpot: _baseSpot(),
+      baseSpot: baseSpot(),
       variations: [
         ConstraintSet(overrides: {
           'board': [
@@ -39,7 +39,7 @@ void main() {
 
   test('filters by required clusters', () {
     final set = TrainingPackTemplateSet(
-      baseSpot: _baseSpot(),
+      baseSpot: baseSpot(),
       variations: [
         ConstraintSet(overrides: {
           'board': [
@@ -58,7 +58,7 @@ void main() {
 
   test('filters by excluded clusters', () {
     final set = TrainingPackTemplateSet(
-      baseSpot: _baseSpot(),
+      baseSpot: baseSpot(),
       variations: [
         ConstraintSet(overrides: {
           'board': [
@@ -76,7 +76,7 @@ void main() {
   });
 
   test('returns base spot when no variations', () {
-    final set = TrainingPackTemplateSet(baseSpot: _baseSpot());
+    final set = TrainingPackTemplateSet(baseSpot: baseSpot());
     final svc = TrainingPackTemplateSetExpanderService();
     final spots = svc.expand(set);
     expect(spots, hasLength(1));

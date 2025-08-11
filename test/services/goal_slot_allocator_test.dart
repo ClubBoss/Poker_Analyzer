@@ -75,7 +75,7 @@ void main() {
           count: 3,
           evLoss: 5,
           shortExplanation: '',
-          examples: const [],
+          examples: [],
         ),
       ]),
       library: _FakeLibrary([lesson]),

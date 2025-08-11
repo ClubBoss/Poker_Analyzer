@@ -66,7 +66,7 @@ void main() {
       ],
       sections: const [],
     );
-    final planner = () async => ['s1', 's2'];
+    Future<List<String>> planner() async => ['s1', 's2'];
     final theoryLib = _FakeTheoryLibrary({
       't1': TheoryPackModel(id: 't1', title: 'Bubble Play', sections: const [], tags: const []),
     });

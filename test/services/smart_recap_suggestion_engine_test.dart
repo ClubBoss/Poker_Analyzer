@@ -6,9 +6,7 @@ import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 import 'package:poker_analyzer/services/mini_lesson_library_service.dart';
 import 'package:poker_analyzer/services/recap_history_tracker.dart';
 import 'package:poker_analyzer/services/smart_recap_suggestion_engine.dart';
-import 'package:poker_analyzer/services/theory_reinforcement_scheduler.dart';
 import 'package:poker_analyzer/services/theory_weakness_repeater.dart';
-import 'package:poker_analyzer/services/recap_fatigue_evaluator.dart';
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final List<TheoryMiniLessonNode> items;

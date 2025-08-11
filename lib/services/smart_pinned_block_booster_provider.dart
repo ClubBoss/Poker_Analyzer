@@ -1,7 +1,6 @@
 import 'pinned_block_tracker_service.dart';
 import 'theory_block_library_service.dart';
 import 'decay_recall_evaluator_service.dart';
-import '../models/theory_block_model.dart';
 
 /// Suggests booster drills for pinned blocks with decayed tags.
 class PinnedBlockBoosterSuggestion {

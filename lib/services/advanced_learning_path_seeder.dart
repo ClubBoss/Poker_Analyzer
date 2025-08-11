@@ -61,13 +61,15 @@ class AdvancedLearningPathSeeder {
     final name = p.name.toLowerCase();
     final tags = p.tags.map((t) => t.toLowerCase()).toList();
     if (name.contains('postflop') && name.contains('jam') ||
-        tags.contains('postflop-jam'))
+        tags.contains('postflop-jam')) {
       return 0;
+    }
     if (name.contains('bluffcatch') || tags.contains('bluffcatch')) return 1;
     if (name.contains('hero call') ||
         name.contains('hero-call') ||
-        tags.contains('hero-call'))
+        tags.contains('hero-call')) {
       return 2;
+    }
     if (tags.contains('icm') || tags.contains('finaltable')) return 3;
     if (name.contains('delayed') || tags.contains('delayed')) return 4;
     if (name.contains('river') || tags.contains('river')) return 5;

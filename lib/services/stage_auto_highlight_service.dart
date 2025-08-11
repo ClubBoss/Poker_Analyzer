@@ -16,7 +16,6 @@ class StageAutoHighlightService {
     final targetContext = stageKeys[stageIndex]?.currentContext;
     if (targetContext == null) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     final box = targetContext.findRenderObject() as RenderBox?;
     if (box == null) return;

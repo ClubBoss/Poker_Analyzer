@@ -1,5 +1,4 @@
 import '../models/theory_lesson_cluster.dart';
-import '../models/theory_mini_lesson_node.dart';
 import 'mini_lesson_library_service.dart';
 
 /// Groups theory mini lessons into connected clusters using tags and links.

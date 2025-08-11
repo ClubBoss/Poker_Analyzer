@@ -195,7 +195,7 @@ class _DupDataSource extends DataTableSource {
       cells: [
         DataCell(Text(d.candidateId)),
         DataCell(Text(d.existingId)),
-        DataCell(Text('${(d.similarity * 100).toStringAsFixed(1)}')),
+        DataCell(Text((d.similarity * 100).toStringAsFixed(1))),
         DataCell(Text(d.reason)),
       ],
       onSelectChanged: (_) => onTap(d),

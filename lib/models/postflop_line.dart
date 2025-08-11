@@ -9,7 +9,7 @@ class PostflopLine {
       return PostflopLine(line: json);
     }
     if (json is Map) {
-      final map = Map<String, dynamic>.from(json as Map);
+      final map = Map<String, dynamic>.from(json);
       final line = map['line']?.toString() ?? '';
       final weight = (map['weight'] as num?)?.toInt() ?? 1;
       return PostflopLine(line: line, weight: weight);

@@ -20,9 +20,7 @@ class PackQualityGatekeeperService {
       {double minScore = 0.7,
       Map<String, List<SeedIssue>> seedIssues = const {}}) {
     var score = pack.metadata['qualityScore'] as double?;
-    if (score == null) {
-      score = _scoreCalculator.calculateQualityScore(pack);
-    }
+    score ??= _scoreCalculator.calculateQualityScore(pack);
     if (score < minScore) {
       debugPrint(
           'PackQualityGatekeeperService: rejected pack ${pack.id} with score ${score.toStringAsFixed(2)} < threshold $minScore');

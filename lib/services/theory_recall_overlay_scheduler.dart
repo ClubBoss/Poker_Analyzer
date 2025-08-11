@@ -60,7 +60,6 @@ class TheoryRecallOverlayScheduler with WidgetsBindingObserver {
       if (lessons.isEmpty) return;
       final lesson = _oldest(lessons);
       final overlay = Overlay.of(ctx);
-      if (overlay == null) return;
       void dismiss() => _remove();
       Future<void> open() async {
         _remove();

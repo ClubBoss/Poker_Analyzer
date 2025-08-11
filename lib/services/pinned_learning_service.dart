@@ -28,7 +28,7 @@ class PinnedLearningService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
     _items
-      ..clear();
+      .clear();
     if (raw != null) {
       try {
         final list = jsonDecode(raw) as List;

@@ -25,7 +25,6 @@ class PostflopJamDecisionTheoryLinker {
       (l) => required.every((t) => l.tags.contains(t)),
       orElse: () => null,
     );
-    if (lesson == null) return;
 
     for (final pack in packs) {
       final topic = pack.meta['topic']?.toString().toLowerCase();

@@ -86,8 +86,8 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
             ];
           }
           if (spots.isNotEmpty) {
-            minX = minX == null || spots.first.x < minX! ? spots.first.x : minX;
-            maxX = maxX == null || spots.last.x > maxX! ? spots.last.x : maxX;
+            minX = minX == null || spots.first.x < minX ? spots.first.x : minX;
+            maxX = maxX == null || spots.last.x > maxX ? spots.last.x : maxX;
           }
           lines.add(LineChartBarData(
             spots: spots,

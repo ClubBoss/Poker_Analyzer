@@ -1,6 +1,5 @@
 import '../models/learning_path_node_v2.dart';
 import '../core/training/library/training_pack_library_v2.dart';
-import '../models/v2/training_pack_template_v2.dart';
 import 'training_session_launcher.dart';
 
 /// Launches a training pack referenced by a learning path node.

@@ -11,7 +11,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  TrainingPackTemplateV2 _packWithTags(
+  TrainingPackTemplateV2 packWithTags(
     List<List<String>> tags, {
     String? audience,
   }) {
@@ -31,7 +31,7 @@ void main() {
 
   test('rejects pack with zero tags', () async {
     final guard = SkillTagCoverageGuardService(mode: CoverageGuardMode.strict);
-    final pack = _packWithTags([[]]);
+    final pack = packWithTags([[]]);
     final report = await guard.evaluate(pack);
     expect(report.coveragePct, 0);
     expect(report.passes, isFalse);
@@ -39,7 +39,7 @@ void main() {
 
   test('single tag dominance fails coverage pct', () async {
     final guard = SkillTagCoverageGuardService(mode: CoverageGuardMode.strict);
-    final pack = _packWithTags([
+    final pack = packWithTags([
       for (var i = 0; i < 10; i++) ['a'],
     ]);
     final report = await guard.evaluate(pack);
@@ -54,7 +54,7 @@ void main() {
       audience: 'pro',
     );
     final guard = SkillTagCoverageGuardService(mode: CoverageGuardMode.strict);
-    final pack = _packWithTags([
+    final pack = packWithTags([
       for (var i = 0; i < 10; i++) ['a'],
     ], audience: 'pro');
     final report = await guard.evaluate(pack);
@@ -67,7 +67,7 @@ void main() {
       'COVERAGE_MIN_UNIQUE_TAGS': '1',
       'COVERAGE_MIN_PCT': '0.1',
     })!;
-    final pack = _packWithTags([
+    final pack = packWithTags([
       ['a'],
     ]);
     final report = await guard.evaluate(pack);

@@ -57,7 +57,7 @@ class MainMenuSuggestedBanner extends StatelessWidget {
                   onPressed: () async {
                     await context
                         .read<TrainingSessionService>()
-                        .startSession(tpl!);
+                        .startSession(tpl);
                     if (!context.mounted) return;
                     await Navigator.push(
                       context,

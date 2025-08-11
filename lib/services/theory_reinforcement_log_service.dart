@@ -19,7 +19,7 @@ class TheoryReinforcementLogService {
       if (data is List) {
         return [
           for (final e in data.whereType<Map>())
-            ReinforcementLog.fromJson(Map<String, dynamic>.from(e as Map)),
+            ReinforcementLog.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}

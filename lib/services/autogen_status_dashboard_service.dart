@@ -145,7 +145,7 @@ class AutogenStatusDashboardService {
     if (covList.length > 10) covList.removeLast();
     await prefs.setStringList(_coverageSummariesKey, covList);
     _coverageSummaries
-      ..insert(0, Map<String, int>.from(coverageHistogramNotifier.value));
+      .insert(0, Map<String, int>.from(coverageHistogramNotifier.value));
     if (_coverageSummaries.length > 10) {
       _coverageSummaries.removeLast();
     }

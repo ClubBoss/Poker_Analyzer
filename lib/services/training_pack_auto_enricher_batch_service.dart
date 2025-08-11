@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 
-import '../models/training_pack_model.dart';
 import 'training_pack_library_importer.dart';
 import 'training_pack_library_exporter.dart';
 import 'training_pack_metadata_enricher_service.dart';

@@ -1,6 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/v2/training_pack_template_v2.dart';
 import 'mistake_driven_drill_pack_generator.dart';
 import 'training_session_launcher.dart';
 import 'recent_pack_store.dart';

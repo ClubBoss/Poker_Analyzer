@@ -17,7 +17,7 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     final uid = auth.uid;
     if (uid != null) {
-      final raw = prefs.getString('theoryScheduler.lastRun.' + uid);
+      final raw = prefs.getString('theoryScheduler.lastRun.$uid');
       if (raw != null) return DateTime.tryParse(raw);
     }
     DateTime? latest;
@@ -103,13 +103,10 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text('Last run: ' + last),
+                        Text('Last run: $last'),
                         const SizedBox(height: 8),
                         Text(
-                          'Runs: '
-                              + runs.toString()
-                              + '  |  Skipped: '
-                              + skipped.toString(),
+                          'Runs: $runs  |  Skipped: $skipped',
                         ),
                         const SizedBox(height: 12),
                         ElevatedButton(

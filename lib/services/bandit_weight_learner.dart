@@ -12,7 +12,7 @@ class BanditWeightLearner {
     final maxVal = prefs.getDouble('bandit.maxAlphaBeta') ?? 10000;
     for (final e in tagDeltas.entries) {
       final tag = e.key;
-      var d = e.value.clamp(-1.0, 1.0);
+      final d = e.value.clamp(-1.0, 1.0);
       final p = 1 / (1 + exp(-d / scale));
       final aKey = 'bandit.alpha.$userId.$tag';
       final bKey = 'bandit.beta.$userId.$tag';

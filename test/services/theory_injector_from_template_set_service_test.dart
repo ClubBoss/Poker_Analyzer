@@ -8,7 +8,7 @@ import 'package:poker_analyzer/services/training_pack_template_instance_expander
 import 'package:poker_analyzer/services/theory_injector_from_template_set_service.dart';
 
 void main() {
-  TrainingPackSpot _baseSpot() => TrainingPackSpot(
+  TrainingPackSpot baseSpot() => TrainingPackSpot(
         id: 'base',
         title: 'Base',
         tags: ['init'],
@@ -25,7 +25,7 @@ void main() {
 
   test('creates mini lessons for each generated pack', () {
     final set = TrainingPackTemplateSet(
-      baseSpot: _baseSpot(),
+      baseSpot: baseSpot(),
       variations: [
         ConstraintSet(overrides: {
           'board': [

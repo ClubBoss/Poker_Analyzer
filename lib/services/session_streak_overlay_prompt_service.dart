@@ -12,7 +12,6 @@ class SessionStreakOverlayPromptService {
     if (streak <= 0) return;
     if (prefs.getBool('reward_10') ?? false) return;
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     late OverlayEntry entry;
     void close() => entry.remove();

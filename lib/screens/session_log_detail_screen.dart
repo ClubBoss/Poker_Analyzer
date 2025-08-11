@@ -32,7 +32,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     final raw = box.get(widget.logId);
     if (raw is Map) {
       final session =
-          TrainingSession.fromJson(Map<String, dynamic>.from(raw as Map));
+          TrainingSession.fromJson(Map<String, dynamic>.from(raw));
       final templates = await TrainingPackStorage.load();
       final template =
           templates.firstWhereOrNull((t) => t.id == session.templateId);

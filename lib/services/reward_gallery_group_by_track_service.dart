@@ -43,7 +43,7 @@ class RewardGalleryGroupByTrackService {
       if (!k.startsWith(prefix) || !(prefs.getBool(k) ?? false)) {
         continue;
       }
-      var id = k.substring(prefix.length);
+      final id = k.substring(prefix.length);
       String trackId = id;
       int? stageIndex;
       if (id.contains('_stage_')) {

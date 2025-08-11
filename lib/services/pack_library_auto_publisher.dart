@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:path/path.dart' as p;
 
 import '../core/training/generation/smart_path_compiler.dart';
-import '../core/training/generation/yaml_reader.dart';
 import '../core/training/generation/learning_path_pack_validator.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'yaml_pack_validator_service.dart';

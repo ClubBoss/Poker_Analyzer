@@ -19,11 +19,11 @@ class TheoryPackCompletionEstimator {
     TheoryPackModel pack, {
     Set<String> readSections = const <String>{},
   }) {
-    int _countWords(String text) =>
+    int countWords(String text) =>
         text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
 
     final words =
-        pack.sections.fold<int>(0, (sum, s) => sum + _countWords(s.text));
+        pack.sections.fold<int>(0, (sum, s) => sum + countWords(s.text));
     final minutes = words == 0 ? 0 : (words / 150).ceil();
     final totalSections = pack.sections.length;
     final readCount = pack.sections

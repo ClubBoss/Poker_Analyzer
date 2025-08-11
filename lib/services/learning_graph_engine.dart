@@ -214,7 +214,7 @@ class LearningPathEngine {
       replacement = target.nextIds.isNotEmpty ? target.nextIds.first : null;
     }
 
-    LearningPathNode _clone(LearningPathNode node) {
+    LearningPathNode clone(LearningPathNode node) {
       if (node is LearningBranchNode) {
         final branches = Map<String, String>.from(node.branches);
         branches.updateAll((key, value) => value == nodeId ? (replacement ?? value) : value);
@@ -229,7 +229,7 @@ class LearningPathEngine {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
-            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement);
           }
         }
         return TrainingStageNode(
@@ -242,7 +242,7 @@ class LearningPathEngine {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
-            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement);
           }
         }
         return TheoryStageNode(
@@ -255,7 +255,7 @@ class LearningPathEngine {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
-            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement);
           }
         }
         return TheoryLessonNode(
@@ -270,7 +270,7 @@ class LearningPathEngine {
         final next = [for (final n in node.nextIds) if (n != nodeId) n];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
-            if (node.nextIds[i] == nodeId) next.insert(i, replacement!);
+            if (node.nextIds[i] == nodeId) next.insert(i, replacement);
           }
         }
         return TheoryMiniLessonNode(
@@ -286,7 +286,7 @@ class LearningPathEngine {
       return node;
     }
 
-    final updated = <LearningPathNode>[for (final n in nodes) if (n.id != nodeId) _clone(n)];
+    final updated = <LearningPathNode>[for (final n in nodes) if (n.id != nodeId) clone(n)];
 
     final state = mapEngine.getState();
     final branchChoices = Map<String, String>.from(state.branchChoices)

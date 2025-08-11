@@ -1,6 +1,5 @@
 import 'package:uuid/uuid.dart';
 import '../models/v2/training_pack_template_v2.dart';
-import '../models/v2/training_spot_v2.dart';
 import '../core/training/engine/training_type_engine.dart';
 import 'training_session_launcher.dart';
 import 'booster_queue_service.dart';

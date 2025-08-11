@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/memory_reminder.dart';
 import 'adaptive_pack_recommender_service.dart';
 import 'decay_booster_reminder_orchestrator.dart';
 import 'inbox_booster_tracker_service.dart';

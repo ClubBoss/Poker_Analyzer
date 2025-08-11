@@ -79,7 +79,7 @@ class AdaptiveOutcomeTracker {
         const [];
     final base = (rec['baselinePass'] as num?)?.toDouble() ?? 0.5;
     final pr = passRate.clamp(0.0, 1.0);
-    var delta = (pr - base.clamp(0.0, 1.0)).clamp(-1.0, 1.0);
+    final delta = (pr - base.clamp(0.0, 1.0)).clamp(-1.0, 1.0);
     final perTag = <String, double>{};
     if (tags.isNotEmpty) {
       final share = delta / tags.length;

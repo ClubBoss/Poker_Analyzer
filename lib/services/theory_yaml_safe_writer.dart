@@ -181,7 +181,7 @@ class TheoryYamlSafeWriter {
           p.relative(path),
           ManifestEntry(
             algo: 'sha256-canon@v1',
-            hash: newHash!,
+            hash: newHash,
             ver: version + 1,
             ts: stat.modified,
           ),

@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import '../models/training_pack_model.dart';
-import '../models/v2/training_pack_spot.dart';
 import 'spot_fingerprint_generator.dart';
 
 class PackQualityScoreCalculatorService {

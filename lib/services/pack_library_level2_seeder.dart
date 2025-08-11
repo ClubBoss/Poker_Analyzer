@@ -33,7 +33,9 @@ class PackLibraryLevel2Seeder {
       );
 
       final tags = <String>{'level2'};
-      for (final s in spots) tags.addAll(s.tags);
+      for (final s in spots) {
+        tags.addAll(s.tags);
+      }
       final positions = <String>{for (final s in spots) s.hand.position.name};
 
       final tpl = TrainingPackTemplateV2(

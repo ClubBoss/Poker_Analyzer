@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/models/injected_path_module.dart';
 import 'package:poker_analyzer/services/learning_path_store.dart';
 import 'package:poker_analyzer/services/adaptive_training_planner.dart';
-import 'package:poker_analyzer/services/user_skill_model_service.dart';
 
 InjectedPathModule _module(String id, List<String> tags) => InjectedPathModule(
       moduleId: id,

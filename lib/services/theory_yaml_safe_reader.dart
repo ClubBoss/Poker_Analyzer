@@ -159,7 +159,7 @@ class TheoryYamlSafeReader {
 
       _enforceSchema(map ?? _parse(body), schema, strict);
       AutogenPipelineEventLoggerService.log('theory.read_ok', path);
-      return map!;
+      return map;
     } catch (e) {
       if (e is TheoryReadCorruption) rethrow;
       AutogenPipelineEventLoggerService.log(

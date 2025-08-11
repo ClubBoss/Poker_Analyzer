@@ -109,7 +109,7 @@ void main() {
     final status = AutogenStatusDashboardService.instance
         .getStatus('PathHardening');
     expect(status, isNotNull);
-    final data = jsonDecode(status!.currentStage!) as Map<String, dynamic>;
+    final data = jsonDecode(status!.currentStage) as Map<String, dynamic>;
     expect(data['action'], 'locked');
     await f1;
     final modules = await store.listModules(user);

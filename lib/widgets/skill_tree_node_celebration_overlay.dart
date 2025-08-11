@@ -51,7 +51,6 @@ class _SkillTreeNodeCelebrationOverlayState
 /// Shows [SkillTreeNodeCelebrationOverlay] above the current screen.
 void showSkillTreeNodeCelebrationOverlay(BuildContext context) {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
 
   late OverlayEntry entry;
   entry = OverlayEntry(

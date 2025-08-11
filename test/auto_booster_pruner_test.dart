@@ -7,7 +7,6 @@ import 'package:poker_analyzer/services/training_path_progress_service_v2.dart';
 import 'package:poker_analyzer/services/session_log_service.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';
 import 'package:poker_analyzer/services/theory_booster_reinjection_policy.dart';
-import 'package:poker_analyzer/models/learning_branch_node.dart';
 import 'package:poker_analyzer/models/learning_path_node.dart';
 import 'package:poker_analyzer/models/theory_lesson_node.dart';
 import 'package:shared_preferences/shared_preferences.dart';

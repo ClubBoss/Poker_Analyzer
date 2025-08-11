@@ -93,7 +93,7 @@ class InlineReportViewerWidget extends StatelessWidget {
                     ),
                   ];
 
-                  if (errors.isNotEmpty)
+                  if (errors.isNotEmpty) {
                     children.add(
                       ExpansionTile(
                         title: Text('Errors (${errors.length})'),
@@ -110,8 +110,9 @@ class InlineReportViewerWidget extends StatelessWidget {
                             .toList(),
                       ),
                     );
+                  }
 
-                  if (meta != null)
+                  if (meta != null) {
                     children.add(
                       FutureBuilder<String?>(
                         future: _loadYaml(meta.packId),
@@ -134,6 +135,7 @@ class InlineReportViewerWidget extends StatelessWidget {
                         },
                       ),
                     );
+                  }
 
                   return ListView(children: children);
                 },

@@ -3,7 +3,6 @@ import 'package:poker_analyzer/models/learning_path_node.dart';
 import 'package:poker_analyzer/services/graph_path_template_parser.dart';
 import 'package:poker_analyzer/services/learning_graph_engine.dart';
 import 'package:poker_analyzer/services/learning_path_graph_orchestrator.dart';
-import 'package:poker_analyzer/services/path_map_engine.dart';
 import 'package:poker_analyzer/services/training_path_progress_service_v2.dart';
 import 'package:poker_analyzer/services/session_log_service.dart';
 import 'package:poker_analyzer/services/training_session_service.dart';

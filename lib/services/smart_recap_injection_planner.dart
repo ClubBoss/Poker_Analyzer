@@ -78,7 +78,7 @@ class SmartRecapInjectionPlanner {
     final candidates = <_Candidate>[];
     stats.forEach((tag, eff) {
       final hist = histMap[tag];
-      if (hist != null && now.difference(hist.lastInteraction) < excludeRecent) {
+      if (now.difference(hist.lastInteraction) < excludeRecent) {
         return;
       }
       final urgency =

@@ -21,7 +21,7 @@ class AutoDecaySpotGenerator {
         _mastery = masteryLoader ?? MasteryPersistenceService().load,
         _stats = statsLoader ??
             () => TrainingTagPerformanceEngine.computeTagStats(),
-        _spotLoader = spotLoader ?? TrainingSpotLibrary().indexByTag;
+        final _spotLoader = spotLoader ?? TrainingSpotLibrary().indexByTag;
 
   Future<List<TrainingSpotV2>> generate({
     int limit = 10,

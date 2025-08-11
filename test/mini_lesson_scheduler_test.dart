@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:poker_analyzer/services/mini_lesson_progress_tracker.dart';
 import 'package:poker_analyzer/services/mini_lesson_scheduler.dart';
 
 void main() {

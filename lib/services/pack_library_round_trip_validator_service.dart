@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 
 import '../models/training_pack_model.dart';
-import '../models/v2/training_pack_spot.dart';
 import 'training_pack_library_exporter.dart';
 import 'training_pack_library_importer.dart';
 

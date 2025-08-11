@@ -9,7 +9,6 @@ import 'learning_graph_engine.dart';
 import 'learning_path_stage_library.dart';
 import 'theory_stage_progress_tracker.dart';
 import '../models/stage_type.dart';
-import '../models/learning_path_node.dart';
 import 'path_map_engine.dart';
 
 /// Blocks low priority theory boosters when higher priority content is pending.

@@ -1,6 +1,5 @@
 import '../models/mistake_tag.dart';
 import '../models/training_spot_attempt.dart';
-import '../models/mistake.dart';
 import 'mistake_categorization_engine.dart';
 import 'auto_mistake_tagger_engine.dart';
 

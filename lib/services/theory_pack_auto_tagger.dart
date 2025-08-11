@@ -33,8 +33,9 @@ class TheoryPackAutoTagger {
       tags.add('final table');
     }
     if (text.contains('preflop')) tags.add('preflop');
-    if (containsAny(['postflop', 'flop', 'turn', 'river']))
+    if (containsAny(['postflop', 'flop', 'turn', 'river'])) {
       tags.add('postflop');
+    }
     if (text.contains('exploit')) tags.add('exploit');
     if (text.contains('live')) tags.add('live');
 

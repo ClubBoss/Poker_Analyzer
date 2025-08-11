@@ -26,8 +26,8 @@ class DecayTopicSuppressorService {
   static const String _prefsKey = 'ignored_decay_tags_v2';
   static const String _decayKey = 'ignored_decay_tags_since';
 
-  Map<String, int> _ignored = {};
-  Map<String, DateTime> _since = {};
+  final Map<String, int> _ignored = {};
+  final Map<String, DateTime> _since = {};
   bool _loaded = false;
 
   Future<void> _load() async {

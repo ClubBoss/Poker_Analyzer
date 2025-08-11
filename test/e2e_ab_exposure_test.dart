@@ -51,38 +51,38 @@ void main() {
     await exec.planAndInjectForUser(ctrlUser!, durationMinutes: 10);
     expect(prefs.getDouble('planner.weight.impact'), 0.15);
 
-    final arms1 = await svc.resolveActiveArms(hiUser!, 'regular');
-    final arms2 = await svc.resolveActiveArms(hiUser!, 'regular');
+    final arms1 = await svc.resolveActiveArms(hiUser, 'regular');
+    final arms2 = await svc.resolveActiveArms(hiUser, 'regular');
     expect(arms1.single.armId, arms2.single.armId);
 
     final planner = AdaptiveTrainingPlanner();
     final abHi = arms1.map((a) => '${a.expId}:${a.armId}').join(',');
     final planHi = await planner.plan(
-      userId: hiUser!,
+      userId: hiUser,
       durationMinutes: 10,
       audience: 'regular',
       format: 'standard',
       abArm: abHi,
     );
     final sigHi = await PlanSignatureBuilder().build(
-      userId: hiUser!,
+      userId: hiUser,
       plan: planHi,
       audience: 'regular',
       format: 'standard',
       budgetMinutes: 10,
       abArm: abHi,
     );
-    final armsCtrl = await svc.resolveActiveArms(ctrlUser!, 'regular');
+    final armsCtrl = await svc.resolveActiveArms(ctrlUser, 'regular');
     final abCtrl = armsCtrl.map((a) => '${a.expId}:${a.armId}').join(',');
     final planCtrl = await planner.plan(
-      userId: ctrlUser!,
+      userId: ctrlUser,
       durationMinutes: 10,
       audience: 'regular',
       format: 'standard',
       abArm: abCtrl,
     );
     final sigCtrl = await PlanSignatureBuilder().build(
-      userId: ctrlUser!,
+      userId: ctrlUser,
       plan: planCtrl,
       audience: 'regular',
       format: 'standard',

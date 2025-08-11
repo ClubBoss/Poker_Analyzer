@@ -18,11 +18,11 @@ class BoosterSnapshotArchiver {
     final directory = Directory(dir);
     await directory.create(recursive: true);
     var ts = DateFormat('yyyyMMddTHHmmss').format(DateTime.now());
-    var file = File(p.join(directory.path, '${id}__${ts}.bak.yaml'));
+    var file = File(p.join(directory.path, '${id}__$ts.bak.yaml'));
     // Ensure unique filename in case of collisions.
     while (await file.exists()) {
       ts = DateFormat('yyyyMMddTHHmmss').format(DateTime.now());
-      file = File(p.join(directory.path, '${id}__${ts}.bak.yaml'));
+      file = File(p.join(directory.path, '${id}__$ts.bak.yaml'));
     }
     await file.writeAsString(pack.toYamlString());
     return file;

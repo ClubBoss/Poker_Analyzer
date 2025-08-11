@@ -11,7 +11,7 @@ import 'package:poker_analyzer/services/theory_yaml_safe_reader.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Future<ConfigSource> _config() async {
+  Future<ConfigSource> config0() async {
     final cfg = File('config.yaml')..writeAsStringSync('theory.reader.strict: false\n');
     return ConfigSource.from(configFile: cfg.path);
   }
@@ -34,7 +34,7 @@ void main() {
     // touch file without changing content
     file.writeAsStringSync(file.readAsStringSync());
 
-    final config = await _config();
+    final config = await config0();
     final sweeper = TheoryIntegritySweeper(
       config: config,
       reader: TheoryYamlSafeReader(config: config),
@@ -73,7 +73,7 @@ void main() {
     file.writeAsStringSync(
         '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\nname: bad\n');
 
-    final config = await _config();
+    final config = await config0();
     final sweeper = TheoryIntegritySweeper(
       config: config,
       reader: TheoryYamlSafeReader(config: config),
@@ -101,7 +101,7 @@ void main() {
     await manifest.generate([dir.path]);
     await manifest.save();
 
-    var config = await _config();
+    var config = await config0();
     var sweeper = TheoryIntegritySweeper(
       config: config,
       reader: TheoryYamlSafeReader(config: config),
@@ -121,7 +121,7 @@ void main() {
     await manifest.update([dir.path]);
     await manifest.save();
 
-    config = await _config();
+    config = await config0();
     sweeper = TheoryIntegritySweeper(
       config: config,
       reader: TheoryYamlSafeReader(config: config),

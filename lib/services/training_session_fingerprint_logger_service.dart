@@ -151,7 +151,7 @@ class TrainingSessionFingerprintLoggerService {
         for (final e in list)
           if (e is Map)
             TrainingSessionFingerprint.fromJson(
-                Map<String, dynamic>.from(e as Map)),
+                Map<String, dynamic>.from(e)),
       ];
     } catch (_) {
       return [];

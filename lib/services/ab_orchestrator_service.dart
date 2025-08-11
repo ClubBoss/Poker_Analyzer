@@ -91,7 +91,7 @@ class ABOrchestratorService {
           }
         }
         assigned ??= 'control';
-        await prefs.setString(key, assigned!);
+        await prefs.setString(key, assigned);
         final cKey = 'ab.assignments.$expId.$assigned.n';
         await prefs.setInt(cKey, (prefs.getInt(cKey) ?? 0) + 1);
       }
@@ -109,7 +109,7 @@ class ABOrchestratorService {
       results.add(
         ResolvedArm(
           expId: expId,
-          armId: assigned!,
+          armId: assigned,
           prefs: prefsOv,
           audience: audienceOv,
           format: formatOv,

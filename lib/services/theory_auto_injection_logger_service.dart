@@ -25,7 +25,7 @@ class TheoryAutoInjectionLoggerService {
           _logs.addAll(
             data.whereType<Map>().map(
                   (e) => TheoryAutoInjectionLogEntry.fromJson(
-                    Map<String, dynamic>.from(e as Map),
+                    Map<String, dynamic>.from(e),
                   ),
                 ),
           );

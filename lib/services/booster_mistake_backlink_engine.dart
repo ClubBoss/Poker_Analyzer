@@ -25,7 +25,7 @@ class BoosterMistakeBacklinkEngine {
       }
     }
 
-    Set<String> tags = {
+    final Set<String> tags = {
       for (final t in booster.tags) t.trim().toLowerCase()
     }..removeWhere((t) => t.isEmpty);
     Set<String> matchingTags = {};

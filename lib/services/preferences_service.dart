@@ -1,6 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../utils/shared_prefs_keys.dart';
 
 /// Provides a cached [SharedPreferences] instance and exports preference keys.
 class PreferencesService {

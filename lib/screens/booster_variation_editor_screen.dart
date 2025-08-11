@@ -135,10 +135,12 @@ class _BoosterVariationEditorScreenState
     if (pack == null) return map;
     final originals =
         pack.spots.where((s) => !_isVariation(s)).toList();
-    for (final o in originals) map[o] = [];
+    for (final o in originals) {
+      map[o] = [];
+    }
     for (final varSpot in pack.spots.where(_isVariation)) {
       final m = RegExp(r'^(.*)_var').firstMatch(varSpot.id);
-      final id = m != null ? m.group(1) : null;
+      final id = m?.group(1);
       final orig = originals.firstWhereOrNull((e) => e.id == id);
       if (orig != null) {
         map[orig]!.add(varSpot);

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/v2/training_pack_template_v2.dart';
 import 'pack_library_service.dart';
 import 'weekly_planner_booster_engine.dart';
 

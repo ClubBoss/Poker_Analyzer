@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/learning_path_stage_model.dart';
-import 'package:poker_analyzer/models/sub_stage_model.dart';
 import 'package:poker_analyzer/core/training/generation/yaml_reader.dart';
 
 void main() {

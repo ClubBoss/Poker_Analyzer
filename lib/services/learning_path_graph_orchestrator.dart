@@ -21,7 +21,7 @@ class LearningPathGraphOrchestrator {
   Future<List<LearningPathNode>> loadGraph() async {
     final profile = profiles.getActiveProfile();
     final fileName = _fileNameForProfile(profile);
-    final path = 'assets/paths/' + fileName;
+    final path = 'assets/paths/$fileName';
     String? raw;
     try {
       raw = await rootBundle.loadString(path);

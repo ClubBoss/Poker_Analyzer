@@ -54,7 +54,7 @@ Future<void> main(List<String> args) async {
     final newHash = e['newHash'] ?? '';
     final msg = '$action: $oldHash -> $newHash';
     final level = action == 'needs_upgrade' ? 'warning' : 'error';
-    stderr.writeln('::${level} file=$file::$msg');
+    stderr.writeln('::$level file=$file::$msg');
     issues[action]!.add(file);
   }
 
@@ -70,7 +70,7 @@ Future<void> main(List<String> args) async {
       if (entry.value.isEmpty) continue;
       buffer.writeln('- **${entry.key}**');
       for (final f in entry.value) {
-        buffer.writeln('  - `${f}`');
+        buffer.writeln('  - `$f`');
       }
     }
     stdout.write(buffer.toString());

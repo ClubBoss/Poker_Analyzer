@@ -14,12 +14,12 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<void> _pump(WidgetTester tester) async {
+  Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
   }
 
   testWidgets('shows recap when tag matches weakness', (tester) async {
-    await _pump(tester);
+    await pump(tester);
     final spot =
         TrainingPackSpot(id: 's1', hand: HandData(), tags: ['overfoldBtn']);
     const injector = BoosterTheoryInjector();
@@ -33,7 +33,7 @@ void main() {
   });
 
   testWidgets('respects cooldown per tag', (tester) async {
-    await _pump(tester);
+    await pump(tester);
     final spot =
         TrainingPackSpot(id: 's1', hand: HandData(), tags: ['overfoldBtn']);
     const injector = BoosterTheoryInjector();

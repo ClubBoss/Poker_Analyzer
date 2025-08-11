@@ -1,4 +1,3 @@
-import '../models/mistake_tag.dart';
 import 'mistake_tag_history_service.dart';
 
 class MistakeTagData {

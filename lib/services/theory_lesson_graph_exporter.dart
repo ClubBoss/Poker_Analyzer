@@ -49,7 +49,7 @@ class TheoryLessonGraphExporter {
 
     for (final l in lessons) {
       for (final next in l.nextIds) {
-        buffer.writeln('  "${l.id}" -> "${next}";');
+        buffer.writeln('  "${l.id}" -> "$next";');
       }
     }
 

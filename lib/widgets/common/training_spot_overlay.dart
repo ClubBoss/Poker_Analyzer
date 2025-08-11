@@ -14,7 +14,7 @@ class TrainingSpotOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DragTarget<List<TrainingSpot>>(
-      onAccept: onSpotsDropped,
+      onAcceptWithDetails: onSpotsDropped,
       builder: (context, _, __) => child,
     );
   }

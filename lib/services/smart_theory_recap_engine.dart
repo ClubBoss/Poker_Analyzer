@@ -86,7 +86,7 @@ class SmartTheoryRecapEngine {
     final tags = await retention.getDecayedTags();
     if (tags.isEmpty) return null;
     final tag = tags.first;
-    TheoryMiniLessonNode? lesson =
+    final TheoryMiniLessonNode? lesson =
         await const TheoryBoostRecapLinker().fetchLesson(tag);
     if (lesson != null) return lesson;
     await MiniLessonLibraryService.instance.loadAll();

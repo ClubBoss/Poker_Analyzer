@@ -56,8 +56,9 @@ Future<void> _loadLibrary() async {
       (message) async {
     final key = utf8.decoder.convert(message);
     final data = bundle.data[key];
-    if (data != null)
+    if (data != null) {
       return ByteData.view(Uint8List.fromList(utf8.encode(data)).buffer);
+    }
     return null;
   });
   // force reload

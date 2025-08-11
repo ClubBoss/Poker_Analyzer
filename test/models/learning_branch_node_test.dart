@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/learning_branch_node.dart';
-import 'package:poker_analyzer/models/learning_path_node.dart';
 
 void main() {
   test('targetFor returns mapped node id', () {

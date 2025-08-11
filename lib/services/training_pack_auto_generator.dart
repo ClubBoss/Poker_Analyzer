@@ -266,7 +266,7 @@ class TrainingPackAutoGenerator {
   }) {
     final base = set.baseSpot;
     final baseId = base.id;
-    final id = variantKey == null ? baseId : '${baseId}__${variantKey}';
+    final id = variantKey == null ? baseId : '${baseId}__$variantKey';
     final nameBase = base.title.isNotEmpty ? base.title : base.id;
     final name = variantKey == null ? nameBase : '$nameBase - $variantKey';
     final tagSet = {...base.tags};

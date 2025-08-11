@@ -5,8 +5,6 @@ import 'mini_lesson_progress_tracker.dart';
 import 'booster_completion_tracker.dart';
 import 'mini_lesson_library_service.dart';
 import 'pack_library_loader_service.dart';
-import 'training_pack_stats_service.dart';
-import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Scores theory lessons for recall based on relevance and recency.

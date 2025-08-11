@@ -40,7 +40,7 @@ void main() {
     InboxBoosterTrackerService.instance.resetForTest();
   });
 
-  TrainingPackTemplateV2 _pack(String id) => TrainingPackTemplateV2(
+  TrainingPackTemplateV2 pack(String id) => TrainingPackTemplateV2(
         id: id,
         name: id,
         trainingType: TrainingType.pushFold,
@@ -48,7 +48,7 @@ void main() {
 
   test('adds high score pack to inbox', () async {
     final recs = [
-      AdaptivePackRecommendation(pack: _pack('p1'), score: 4.5),
+      AdaptivePackRecommendation(pack: pack('p1'), score: 4.5),
     ];
     final notifier = AdaptivePackInboxNotifier(
       recommender: _FakeRecommender(recs),
@@ -63,7 +63,7 @@ void main() {
 
   test('skips when memory reminders exist', () async {
     final recs = [
-      AdaptivePackRecommendation(pack: _pack('p1'), score: 4.5),
+      AdaptivePackRecommendation(pack: pack('p1'), score: 4.5),
     ];
     final notifier = AdaptivePackInboxNotifier(
       recommender: _FakeRecommender(recs),

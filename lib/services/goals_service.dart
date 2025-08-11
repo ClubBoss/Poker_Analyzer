@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'dart:math';
 import 'dart:convert';
-import 'xp_tracker_service.dart';
 import 'training_stats_service.dart';
 import '../screens/progress_screen.dart';
 import '../models/goal_progress_entry.dart';
@@ -11,7 +9,6 @@ import '../models/saved_hand.dart';
 import '../models/ev_recovery_goal.dart';
 import '../models/training_pack.dart';
 import 'saved_hand_manager_service.dart';
-import 'streak_service.dart';
 import 'user_action_logger.dart';
 import 'goal_persistence.dart';
 import 'achievement_manager.dart';

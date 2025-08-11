@@ -19,7 +19,7 @@ class TheoryBoosterEffectivenessService {
       if (data is List) {
         return [
           for (final e in data.whereType<Map>())
-            BoosterEffectLog.fromJson(Map<String, dynamic>.from(e as Map)),
+            BoosterEffectLog.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}

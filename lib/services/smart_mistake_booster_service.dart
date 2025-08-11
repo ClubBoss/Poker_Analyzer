@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 
 import '../models/mistake_tag_history_entry.dart';
 import '../models/v2/training_pack_template_v2.dart';

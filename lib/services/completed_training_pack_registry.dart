@@ -53,7 +53,7 @@ class CompletedTrainingPackRegistry {
     try {
       final data = jsonDecode(raw);
       if (data is Map) {
-        return Map<String, dynamic>.from(data as Map);
+        return Map<String, dynamic>.from(data);
       }
     } catch (_) {}
     return null;

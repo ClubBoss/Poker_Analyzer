@@ -15,7 +15,6 @@ import '../core/training/library/training_pack_library_v2.dart';
 import '../services/training_session_launcher.dart';
 import '../services/theory_lesson_completion_logger.dart';
 import '../services/training_progress_tracker_service.dart';
-import '../services/training_pack_stats_service.dart';
 import '../services/training_pack_performance_tracker_service.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../screens/mini_lesson_screen.dart';
@@ -277,7 +276,7 @@ class _PackCardState extends State<PackCard>
             children: [
               if (needsTheory)
                 Text(
-                  'Теория: ' + (_theoryCompleted ? 'пройдена' : 'не пройдена'),
+                  'Теория: ${_theoryCompleted ? 'пройдена' : 'не пройдена'}',
                 ),
               if (reqAcc != null)
                 Text(
@@ -486,7 +485,7 @@ class _PackCardState extends State<PackCard>
                       Padding(
                         padding: const EdgeInsets.only(left: 4),
                         child: Chip(
-                          label: Text(levelLabel!),
+                          label: Text(levelLabel),
                           backgroundColor: levelColor,
                           labelStyle: const TextStyle(
                             color: Colors.black,

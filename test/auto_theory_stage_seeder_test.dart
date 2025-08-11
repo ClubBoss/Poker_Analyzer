@@ -5,7 +5,6 @@ import 'package:poker_analyzer/services/auto_theory_stage_seeder.dart';
 import 'package:poker_analyzer/services/learning_path_stage_library.dart';
 import 'package:poker_analyzer/services/smart_theory_suggestion_engine.dart';
 import 'package:poker_analyzer/models/stage_type.dart';
-import 'package:poker_analyzer/models/learning_path_stage_model.dart';
 
 class _FakeEngine extends SmartTheorySuggestionEngine {
   final List<TheorySuggestion> list;

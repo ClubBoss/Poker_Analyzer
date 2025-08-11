@@ -7,7 +7,7 @@ import 'package:poker_analyzer/services/smart_theory_booster_linker.dart';
 class _StubLinker extends SmartTheoryBoosterLinker {
   final String? lessonLink;
   final String? tagLink;
-  const _StubLinker({this.lessonLink, this.tagLink});
+  const _StubLinker({this.lessonLink});
   @override
   Future<String?> linkForLesson(String lessonId) async => lessonLink;
   @override

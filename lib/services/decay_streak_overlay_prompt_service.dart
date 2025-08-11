@@ -49,7 +49,6 @@ class DecayStreakOverlayPromptService {
     }
 
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     void remove() {
       _entry?.remove();

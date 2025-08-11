@@ -3,7 +3,6 @@ import '../services/decay_tag_retention_tracker_service.dart';
 import '../services/inline_theory_linker_service.dart';
 import '../services/theory_mini_lesson_usage_tracker.dart';
 import '../services/theory_auto_injection_logger_service.dart';
-import '../models/theory_mini_lesson_usage_event.dart';
 
 /// Injects dynamic theory lesson links into decayed review spots.
 class TheoryRecallAutoLinkInjector {

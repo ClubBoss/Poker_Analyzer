@@ -43,7 +43,7 @@ class BoosterEffectivenessAnalyzerService {
     for (var i = 0; i < box.length; i++) {
       final raw = box.getAt(i);
       if (raw is! Map) continue;
-      final data = Map<String, dynamic>.from(raw as Map);
+      final data = Map<String, dynamic>.from(raw);
       final accMap = Map<String, dynamic>.from(data['accuracyPerTag'] ?? {});
       final ts = DateTime.fromMillisecondsSinceEpoch(
           (data['date'] as num?)?.toInt() ?? 0);

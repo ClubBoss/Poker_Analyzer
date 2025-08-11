@@ -1,4 +1,3 @@
-import '../models/recap_completion_log.dart';
 import 'recap_completion_tracker.dart';
 
 /// Evaluates recap tag effectiveness based on completion analytics.

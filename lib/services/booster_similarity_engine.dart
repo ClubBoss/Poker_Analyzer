@@ -79,7 +79,7 @@ class BoosterSimilarityEngine {
     if (actions.isEmpty) return '';
     return actions
         .map((a) =>
-            '${a.playerIndex}:${a.action}${a.amount != null ? a.amount : ''}')
+            '${a.playerIndex}:${a.action}${a.amount ?? ''}')
         .join('|');
   }
 }

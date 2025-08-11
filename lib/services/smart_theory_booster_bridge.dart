@@ -78,13 +78,13 @@ class SmartTheoryBoosterBridge {
       }
 
       if (best != null && bestTag != null) {
-        if (await TheoryReplayCooldownManager.isUnderCooldown(bestTag!)) {
+        if (await TheoryReplayCooldownManager.isUnderCooldown(bestTag)) {
           continue;
         }
         results.add(
           BoosterRecommendationResult(
-            boosterId: best!.id,
-            reasonTag: bestTag!,
+            boosterId: best.id,
+            reasonTag: bestTag,
             priority: bestScore,
             origin: 'weakTheory',
           ),

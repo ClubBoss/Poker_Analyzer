@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 

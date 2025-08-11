@@ -38,10 +38,8 @@ class MistakeBoosterPathNodeDecorator {
         recoveredFromMistake: flag,
       );
     }
-    if (node is LearningPathNode) {
-      return _clone(node);
-    }
-    return node;
+    return _clone(node);
+      return node;
   }
 
   LearningPathNode _clone(LearningPathNode node) {

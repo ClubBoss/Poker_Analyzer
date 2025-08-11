@@ -44,11 +44,11 @@ class BoosterRecapHook {
     DateTime? last;
     for (final k in keys) {
       final ts = await TheoryBoosterRecapDelayManager.lastPromptTime(k);
-      if (ts != null && (last == null || ts.isAfter(last!))) {
+      if (ts != null && (last == null || ts.isAfter(last))) {
         last = ts;
       }
     }
-    return last == null ? null : DateTime.now().difference(last!);
+    return last == null ? null : DateTime.now().difference(last);
   }
 
   Future<int> _incrementReview(String id) async {
@@ -160,15 +160,16 @@ class BoosterRecapHook {
         lessonId = backlink.relatedLessonIds.first;
       }
     }
-    lessonId ??= tags != null && tags.isNotEmpty
+    lessonId ??= tags.isNotEmpty
         ? const TheoryBoostRecapLinker().getLinkedLesson(tags.first)
         : null;
     final keys = <String>[];
     if (lessonId != null) {
       keys.add('lesson:$lessonId');
-    } else if (tags != null) {
+    } else {
       keys.addAll(tags.map((t) => 'tag:$t'));
     }
+  
     for (final k in keys) {
       if (await memory.shouldThrottle(k)) {
         await analytics.logEvent(

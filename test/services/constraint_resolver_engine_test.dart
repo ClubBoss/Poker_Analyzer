@@ -6,7 +6,7 @@ import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/models/player_model.dart';
 
 void main() {
-  TrainingSpot _buildSpot({List<CardModel>? board, String heroPos = 'btn'}) {
+  TrainingSpot buildSpot({List<CardModel>? board, String heroPos = 'btn'}) {
     return TrainingSpot(
       playerCards: [
         [CardModel(rank: 'A', suit: 's'), CardModel(rank: 'K', suit: 'd')],
@@ -29,7 +29,7 @@ void main() {
   }
 
   test('validates position and street', () {
-    final spot = _buildSpot();
+    final spot = buildSpot();
     final params = ConstraintResolverEngine.normalizeParams({
       'positions': ['btn'],
       'streets': ['flop'],
@@ -43,7 +43,7 @@ void main() {
   });
 
   test('applies board texture filter', () {
-    final spot = _buildSpot(
+    final spot = buildSpot(
       board: [
         CardModel(rank: 'A', suit: 's'),
         CardModel(rank: 'K', suit: 'h'),

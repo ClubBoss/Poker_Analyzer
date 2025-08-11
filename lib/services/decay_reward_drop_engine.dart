@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'decay_reward_fatigue_limiter.dart';
 
-import '../main.dart';
 import '../widgets/confetti_overlay.dart';
 import 'coins_service.dart';
 import 'decay_streak_tracker_service.dart';

@@ -173,6 +173,7 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
     return tpl;
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     'id': id,
     'slug': slug,
@@ -269,7 +270,7 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
   }
 
   void recountCoverage([List<TrainingPackSpot>? all]) {
-    TemplateCoverageUtils.recountAll(this).applyTo(this.meta);
+    TemplateCoverageUtils.recountAll(this).applyTo(meta);
   }
 
   Future<List<TrainingPackSpot>> generateSpots() async {

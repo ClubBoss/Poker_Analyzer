@@ -75,7 +75,6 @@ class OverlayBoosterManager with WidgetsBindingObserver {
       if (lessons.isEmpty) return;
       final lesson = lessons.first;
       final overlay = Overlay.of(ctx);
-      if (overlay == null) return;
       void dismiss() {
         _remove();
         BoosterCooldownBlockerService.instance.markDismissed('skill_gap');

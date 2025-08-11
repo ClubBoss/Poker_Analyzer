@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 import '../models/inline_theory_linked_text.dart';
 import '../models/theory_mini_lesson_node.dart';
@@ -43,7 +42,7 @@ class InlineTheoryLinkerService {
       if (lesson.tags.isEmpty) continue;
       for (final tag in lesson.tags) {
         final regex = RegExp(
-          '\\b' + RegExp.escape(tag) + '\\b',
+          '\\b${RegExp.escape(tag)}\\b',
           caseSensitive: false,
         );
         for (final m in regex.allMatches(description)) {
@@ -55,7 +54,7 @@ class InlineTheoryLinkerService {
       for (final k in keywords) {
         if (k.isEmpty) continue;
         final regex = RegExp(
-          '\\b' + RegExp.escape(k) + '\\b',
+          '\\b${RegExp.escape(k)}\\b',
           caseSensitive: false,
         );
         for (final m in regex.allMatches(description)) {

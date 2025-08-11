@@ -38,10 +38,10 @@ class GraphPathTemplateParser {
               var candidate = b;
               if (ids.contains(candidate)) {
                 var i = 1;
-                while (ids.contains('${candidate}#$i')) {
+                while (ids.contains('$candidate#$i')) {
                   i++;
                 }
-                candidate = '${candidate}#$i';
+                candidate = '$candidate#$i';
               }
               generatedIds.add(candidate);
               ids.add(candidate);
