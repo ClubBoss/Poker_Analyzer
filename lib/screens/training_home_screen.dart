@@ -36,7 +36,6 @@ import '../widgets/resume_lesson_card.dart';
 import '../widgets/next_learning_step_card.dart';
 import '../widgets/pinned_learning_section.dart';
 import '../widgets/pinned_top_pick_card.dart';
-import '../widgets/next_up_banner.dart';
 import '../widgets/smart_recap_preview_widget.dart';
 import '../widgets/theory_inbox_banner.dart';
 import '../widgets/training_recommender_banner.dart';
@@ -155,7 +154,6 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
         children: [
           const StarterPathCard(),
           const LessonStreakSummaryCard(),
-          const NextUpBanner(),
           const SmartRecapPreviewWidget(),
           const TheoryInboxBanner(),
           const LeakInsightBanner(),

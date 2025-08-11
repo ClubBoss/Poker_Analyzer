@@ -15,7 +15,6 @@ import '../services/weakness_review_engine.dart';
 import '../services/tag_insight_reminder_engine.dart';
 import '../widgets/weakness_review_section.dart';
 import '../widgets/feed_recommendation_widget.dart';
-import '../widgets/next_up_banner.dart';
 import '../widgets/learning_path_planner_banner.dart';
 import '../widgets/skill_loss_banner_v2.dart';
 import '../widgets/tag_insight_reminder_card.dart';
@@ -246,7 +245,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
                 ),
                 const SizedBox(height: 12),
               ] else if (data.nextPack != null) ...[
-                const NextUpBanner(),
+                // NextUpBanner is now shown globally in [main.dart].
                 const SizedBox(height: 12),
               ],
               const LearningPathPlannerBanner(),
