@@ -34,12 +34,17 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
   @override
   void initState() {
     super.initState();
-    AppBootstrap.registry
-        .get<TrainingSessionFingerprintService>()
-        .startSession();
-    PackRunSessionState.load().then((state) {
-      setState(() {
-        _packController = PackRunController(state: state);
+    final fpService =
+        AppBootstrap.registry.get<TrainingSessionFingerprintService>();
+    fpService.startSession().then((sessionId) {
+      final key = PackRunSessionState.keyFor(
+        packId: 'default',
+        sessionId: sessionId,
+      );
+      PackRunSessionState.load(key).then((state) {
+        setState(() {
+          _packController = PackRunController(state: state);
+        });
       });
     });
   }
@@ -67,7 +72,8 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     await AppBootstrap.registry
         .get<TrainingSessionFingerprintService>()
         .logAttempt(attempt, shownTheoryTags: tags);
-    final snippet = await _packController?.onResult(spot.id, res.correct, tags);
+    final snippet =
+        await _packController?.onResult(packSpot.id, res.correct, tags);
     setState(() {
       _result = res;
       _theoryLink = link;
