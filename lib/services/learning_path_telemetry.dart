@@ -29,6 +29,7 @@ class LearningPathTelemetry {
   String? deviceId;
   String? userId;
   String? _appVersion;
+  Future<void> _queue = Future.value();
 
   Future<String> _version() async {
     return _appVersion ??= (await PackageInfo.fromPlatform()).version;
@@ -94,5 +95,4 @@ class LearningPathTelemetry {
     }
   }
 
-  Future<void> _queue = Future.value();
 }
