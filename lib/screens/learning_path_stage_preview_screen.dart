@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/learning_path_template_v2.dart';
 import '../models/learning_path_stage_model.dart';
 import '../services/pack_library_service.dart';
@@ -8,6 +9,9 @@ import '../services/learning_path_stage_launcher.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/theory_pack_model.dart';
 import '../screens/theory_pack_reader_screen.dart';
+import '../services/learning_path_theory_injector_service.dart';
+import '../services/learning_path_progress_service.dart';
+import '../services/learning_path_telemetry.dart';
 import '../widgets/stage_share_button.dart';
 
 /// Simple preview page for a learning path stage.
@@ -31,6 +35,8 @@ class _LearningPathStagePreviewScreenState
   TheoryPackModel? _theory;
   double _progress = 0.0;
   bool _loading = true;
+  List<TheorySnippet> _snippets = [];
+  bool _theoryExpanded = false;
 
   @override
   void initState() {
@@ -48,11 +54,14 @@ class _LearningPathStagePreviewScreenState
       await TheoryPackLibraryService.instance.loadAll();
       theory = TheoryPackLibraryService.instance.getById(theoryId);
     }
+    final injector = LearningPathTheoryInjectorService();
+    final snippets = await injector.getTheoryForTags(widget.stage.tags);
     if (mounted) {
       setState(() {
         _pack = pack;
         _theory = theory;
         _progress = prog;
+        _snippets = snippets;
         _loading = false;
       });
     }
@@ -133,6 +142,10 @@ class _LearningPathStagePreviewScreenState
                     child: const Text('Открыть теорию'),
                   ),
                 ],
+                if (_snippets.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildTheoryCard(),
+                ],
                 const SizedBox(height: 24),
                 Align(
                   alignment: Alignment.centerRight,
@@ -143,6 +156,52 @@ class _LearningPathStagePreviewScreenState
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildTheoryCard() {
+    return Card(
+      child: ExpansionTile(
+        title: const Text('Theory Recap'),
+        initiallyExpanded: _theoryExpanded,
+        onExpansionChanged: (v) async {
+          setState(() => _theoryExpanded = v);
+          if (v) {
+            await LearningPathProgressService.instance
+                .markTheoryViewed(widget.stage.id);
+            await const LearningPathTelemetry().logTheoryShown(
+              pathId: widget.path.id,
+              stageId: widget.stage.id,
+              snippetIds: _snippets.map((e) => e.id).toList(),
+            );
+          }
+        },
+        children: [
+          for (final s in _snippets)
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  MarkdownBody(data: s.markdownContent),
+                  for (final m in s.mediaRefs)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Image.asset(
+                        m,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

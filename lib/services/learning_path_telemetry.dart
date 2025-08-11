@@ -33,5 +33,16 @@ class LearningPathTelemetry {
     final file = File('autogen_report.log');
     await file.writeAsString(line, mode: FileMode.append, flush: true);
   }
+
+  Future<void> logTheoryShown({
+    required String pathId,
+    required String stageId,
+    required List<String> snippetIds,
+  }) async {
+    final line =
+        'theoryShown pathId=$pathId stageId=$stageId snippets=${snippetIds.join(',')}\n';
+    final file = File('autogen_report.log');
+    await file.writeAsString(line, mode: FileMode.append, flush: true);
+  }
 }
 
