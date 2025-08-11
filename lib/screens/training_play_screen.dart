@@ -13,6 +13,9 @@ import '../models/training_spot_attempt.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../app_bootstrap.dart';
 import '../services/training_session_fingerprint_service.dart';
+import '../controllers/pack_run_controller.dart';
+import '../models/theory_snippet.dart';
+import '../widgets/inline_theory_recall_card.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   const TrainingPlayScreen({super.key});
@@ -24,6 +27,8 @@ class TrainingPlayScreen extends StatefulWidget {
 class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
   EvaluationResult? _result;
   InlineTheoryLink? _theoryLink;
+  final PackRunController _packController = PackRunController();
+  TheorySnippet? _recall;
 
   @override
   void initState() {
@@ -56,9 +61,11 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     await AppBootstrap.registry
         .get<TrainingSessionFingerprintService>()
         .logAttempt(attempt, shownTheoryTags: tags);
+    final snippet = await _packController.onResult(spot.id, res.correct, tags);
     setState(() {
       _result = res;
       _theoryLink = link;
+      _recall = snippet;
     });
   }
 
@@ -125,10 +132,18 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+              if (_recall != null) ...[
+                InlineTheoryRecallCard(
+                  snippet: _recall!,
+                  onDismiss: () => setState(() => _recall = null),
+                ),
+                const SizedBox(height: 8),
+              ],
               ElevatedButton(
                 onPressed: () => setState(() {
                   _result = null;
                   _theoryLink = null;
+                  _recall = null;
                 }),
                 child: const Text('Try Again'),
               ),
