@@ -24,6 +24,7 @@ import '../widgets/autogen_duplicate_table_widget.dart';
 import 'pack_fingerprint_comparer_report_ui.dart';
 import '../widgets/deduplication_policy_editor.dart';
 import '../widgets/theory_coverage_panel_widget.dart';
+import '../models/texture_filter_config.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -64,6 +65,16 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     text: 'packs/generated',
   );
   String? _sessionId;
+  final Set<String> _include = {};
+  final Set<String> _exclude = {};
+  final Map<String, double> _targetMix = {};
+  static const List<String> _textures = [
+    'low',
+    'paired',
+    'monotone',
+    'twoTone',
+    'rainbow'
+  ];
 
   @override
   void initState() {
@@ -103,6 +114,13 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       generator: generator,
       dashboard: dashboard,
       exporter: exporter,
+      textureFilters: TextureFilterConfig(
+        include: _include,
+        exclude: _exclude,
+        targetMix: Map.fromEntries(
+          _targetMix.entries.where((e) => e.value > 0),
+        ),
+      ),
     );
     await status.bindExecutor(executor);
     setState(() {
@@ -167,6 +185,81 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Output Directory',
                   ),
+                ),
+                const SizedBox(height: 8),
+                const Text('Include Textures'),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final t in _textures)
+                      FilterChip(
+                        label: Text(t),
+                        selected: _include.contains(t),
+                        onSelected: (v) {
+                          setState(() {
+                            if (v) {
+                              _include.add(t);
+                            } else {
+                              _include.remove(t);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text('Exclude Textures'),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final t in _textures)
+                      FilterChip(
+                        label: Text(t),
+                        selected: _exclude.contains(t),
+                        onSelected: (v) {
+                          setState(() {
+                            if (v) {
+                              _exclude.add(t);
+                            } else {
+                              _exclude.remove(t);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text('Target Mix'),
+                Column(
+                  children: [
+                    for (final t in _textures)
+                      Row(
+                        children: [
+                          SizedBox(width: 80, child: Text(t)),
+                          Expanded(
+                            child: Slider(
+                              value: _targetMix[t] ?? 0,
+                              onChanged: (v) {
+                                setState(() {
+                                  _targetMix[t] = v;
+                                });
+                              },
+                            ),
+                          ),
+                          Text('${((_targetMix[t] ?? 0) * 100).toStringAsFixed(0)}%'),
+                        ],
+                      ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _include.clear();
+                      _exclude.clear();
+                      _targetMix.clear();
+                    });
+                  },
+                  child: const Text('Reset Textures'),
                 ),
               ],
             ),
