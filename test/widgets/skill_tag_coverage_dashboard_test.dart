@@ -15,6 +15,17 @@ void main() {
   );
   final allTags = {'a', 'b', 'c'};
   final tagCategoryMap = {'a': 'cat1', 'b': 'cat1', 'c': 'cat2'};
+  final statsWithDates = SkillTagStats(
+    tagCounts: {'a': 1, 'b': 1, 'c': 1},
+    totalTags: 3,
+    unusedTags: const [],
+    overloadedTags: const [],
+    packsPerTag: const {'a': 1, 'b': 1, 'c': 1},
+    tagLastUpdated: {
+      'a': DateTime(2023, 5, 1),
+      'b': DateTime(2022, 1, 1),
+    },
+  );
 
   testWidgets('sorts by spots covered', (tester) async {
     await tester.pumpWidget(MaterialApp(
@@ -35,6 +46,63 @@ void main() {
 
     expect(cPos < bPos, true);
     expect(bPos < aPos, true);
+  });
+
+  testWidgets('falls back to stats when allTags empty', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: SkillTagCoverageDashboard(
+        statsStream: Stream.value(stats),
+        allTags: {},
+        tagCategoryMap: tagCategoryMap,
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('a'), findsOneWidget);
+    expect(find.text('b'), findsOneWidget);
+    expect(find.text('c'), findsOneWidget);
+  });
+
+  testWidgets('sorts last updated with nulls last', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: SkillTagCoverageDashboard(
+        statsStream: Stream.value(statsWithDates),
+        allTags: const {'a', 'b', 'c'},
+        tagCategoryMap: tagCategoryMap,
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Last Updated'));
+    await tester.pump();
+
+    final bPos = tester.getTopLeft(find.text('b')).dy;
+    final aPos = tester.getTopLeft(find.text('a')).dy;
+    final cPos = tester.getTopLeft(find.text('c')).dy;
+
+    expect(bPos < aPos, true);
+    expect(aPos < cPos, true);
+  });
+
+  testWidgets('row colors vary by category', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: SkillTagCoverageDashboard(
+        statsStream: Stream.value(stats),
+        allTags: allTags,
+        tagCategoryMap: tagCategoryMap,
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    final dataTable = tester.widget<DataTable>(find.byType(DataTable));
+    final base = Theme.of(
+            tester.element(find.byType(DataTable)))
+        .colorScheme
+        .surface;
+    final rowColorA = dataTable.rows[0].color!.resolve({});
+    final rowColorC = dataTable.rows[2].color!.resolve({});
+    expect(rowColorA, isNot(equals(base)));
+    expect(rowColorA, isNot(equals(rowColorC)));
   });
 
   testWidgets('filters uncovered tags', (tester) async {
