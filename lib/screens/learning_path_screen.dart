@@ -68,6 +68,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       trailing: statusIcon,
       onTap: unlocked
           ? () {
+              controller.startStage(stage.id);
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => PackRunScreen(
                   controller: controller,

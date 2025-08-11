@@ -26,6 +26,7 @@ class _PackRunScreenState extends State<PackRunScreen> {
   @override
   void initState() {
     super.initState();
+    widget.controller.startStage(widget.stage.id);
     _load();
   }
 

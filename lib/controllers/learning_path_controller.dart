@@ -68,6 +68,25 @@ class LearningPathController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Marks [stageId] as the active stage and records its start time if
+  /// this is the first attempt. This also persists the state so that the
+  /// "Next Up" widget can resume where the user left off.
+  void startStage(String stageId) {
+    final current = stageProgress(stageId);
+    final updated = current.copyWith(
+      startedAt: current.startedAt ?? DateTime.now(),
+    );
+    _progress = _progress.copyWith(
+      currentStageId: stageId,
+      stages: {
+        ..._progress.stages,
+        stageId: updated,
+      },
+    );
+    _persist();
+    notifyListeners();
+  }
+
   void recordHand({required bool correct}) {
     final stageId = _progress.currentStageId;
     if (stageId == null) return;
