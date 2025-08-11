@@ -159,3 +159,4 @@ flutter:
 flutter_build:
   targets:
     demo: main.dart
+
