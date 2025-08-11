@@ -76,6 +76,8 @@ class AutogenPipelineExecutor {
   final PackNoveltyGuardService noveltyGuard;
   final bool failOnSeedErrors;
   final TextureFilterConfig? textureFilters;
+  final String? presetId;
+  final String? presetName;
   final StreamController<AutogenStatus> _statusController =
       StreamController.broadcast();
 
@@ -105,6 +107,8 @@ class AutogenPipelineExecutor {
     PackNoveltyGuardService? noveltyGuard,
     bool? failOnSeedErrors,
     TextureFilterConfig? textureFilters,
+    String? presetId,
+    String? presetName,
   }) : dedup = dedup ?? AutoDeduplicationEngine(),
        exporter = exporter ?? const YamlPackExporter(),
        coverage = coverage ?? SkillTagCoverageTracker(),
@@ -135,7 +139,9 @@ class AutogenPipelineExecutor {
        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
        failOnSeedErrors =
            failOnSeedErrors ?? (Platform.environment['CI'] == 'true'),
-       textureFilters = textureFilters {
+       textureFilters = textureFilters,
+       presetId = presetId,
+       presetName = presetName {
     this.generator =
         generator ??
         TrainingPackAutoGenerator(
@@ -347,6 +353,8 @@ class AutogenPipelineExecutor {
         );
         pack.meta['uniqueSpotsOnly'] = true;
         pack.meta['autogenMeta'] = {
+          if (presetId != null) 'presetId': presetId,
+          if (presetName != null) 'presetName': presetName,
           if (textureFilters != null) 'textureFilters': textureFilters!.toJson(),
           'textureDistribution': dashboard.textureCounts,
           'theorySummary': theorySummary.toJson(),

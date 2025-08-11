@@ -26,6 +26,9 @@ import '../widgets/deduplication_policy_editor.dart';
 import '../widgets/theory_coverage_panel_widget.dart';
 import '../models/texture_filter_config.dart';
 import '../services/inline_theory_link_auto_injector.dart';
+import '../models/autogen_preset.dart';
+import '../services/autogen_preset_service.dart';
+import '../models/theory_injector_config.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -69,6 +72,12 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   final Set<String> _include = {};
   final Set<String> _exclude = {};
   final Map<String, double> _targetMix = {};
+  final AutogenPresetService _presetService = AutogenPresetService.instance;
+  List<AutogenPreset> _presets = [];
+  AutogenPreset? _selectedPreset;
+  int _spotsPerPack = 12;
+  int _streets = 1;
+  double _theoryRatio = 0.5;
   static const List<String> _textures = [
     'low',
     'paired',
@@ -97,6 +106,18 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   @override
   void initState() {
     super.initState();
+    _presetService.load().then((_) async {
+      final last = await _presetService.loadLastUsed();
+      if (mounted) {
+        setState(() {
+          _presets = _presetService.presets;
+          _selectedPreset = last;
+        });
+        if (last != null) {
+          _applyPreset(last, showToast: false);
+        }
+      }
+    });
     TrainingPackTemplateSetLibraryService.instance.loadAll().then((_) {
       if (mounted) {
         setState(() {
@@ -113,6 +134,10 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     if (_status == _AutogenStatus.running) return;
     final dashboard = AutogenStatsDashboardService.instance;
     dashboard.start();
+    final selectedPreset = _selectedPreset;
+    if (selectedPreset != null) {
+      dashboard.logPreset(selectedPreset);
+    }
     final status = AutogenStatusDashboardService.instance;
     final sessionId = DateTime.now().millisecondsSinceEpoch.toString();
     status.registerSession(
@@ -123,7 +148,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
         status: 'running',
       ),
     );
-    final generator = TrainingPackAutoGenerator();
+    final generator = TrainingPackAutoGenerator(spotsPerPack: _spotsPerPack);
     _generator = generator;
     final exporter = YamlPackExporter(
       delegate: _DirExporter(_outputDirController.text),
@@ -148,6 +173,8 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
         wCluster: _wCluster,
         preferNovelty: _preferNovelty,
       ),
+      presetId: selectedPreset?.id,
+      presetName: selectedPreset?.name,
     );
     await status.bindExecutor(executor);
     setState(() {
@@ -177,6 +204,169 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     }
   }
 
+  AutogenPreset _currentPreset({required String id, required String name}) {
+    return AutogenPreset(
+      id: id,
+      name: name,
+      textures: TextureFilterConfig(
+        include: Set.from(_include),
+        exclude: Set.from(_exclude),
+        targetMix: Map.from(_targetMix),
+      ),
+      theory: TheoryInjectorConfig(
+        enabled: _theoryEnabled,
+        maxLinksPerSpot: _maxLinks,
+        minScore: _minScore,
+        wTag: _wTag,
+        wTex: _wTex,
+        wCluster: _wCluster,
+        preferNovelty: _preferNovelty,
+      ),
+      spotsPerPack: _spotsPerPack,
+      streets: _streets,
+      theoryRatio: _theoryRatio,
+      outputDir: _outputDirController.text,
+    );
+  }
+
+  void _applyPreset(AutogenPreset preset, {bool showToast = true}) {
+    setState(() {
+      _include
+        ..clear()
+        ..addAll(preset.textures.include);
+      _exclude
+        ..clear()
+        ..addAll(preset.textures.exclude);
+      _targetMix
+        ..clear()
+        ..addAll(preset.textures.targetMix);
+      final total = _targetMix.values.fold(0.0, (a, b) => a + b);
+      if (total > 1 && total > 0) {
+        _targetMix.updateAll((key, value) => value / total);
+      }
+      _theoryEnabled = preset.theory.enabled;
+      _maxLinks = preset.theory.maxLinksPerSpot;
+      _minScore = preset.theory.minScore;
+      _wTag = preset.theory.wTag.clamp(0, 1);
+      _wTex = preset.theory.wTex.clamp(0, 1);
+      _wCluster = preset.theory.wCluster.clamp(0, 1);
+      _preferNovelty = preset.theory.preferNovelty;
+      _maxLinksController.text = _maxLinks.toString();
+      _minScoreController.text = _minScore.toString();
+      _wTagController.text = _wTag.toString();
+      _wTexController.text = _wTex.toString();
+      _wClusterController.text = _wCluster.toString();
+      _outputDirController.text = preset.outputDir;
+      _spotsPerPack = preset.spotsPerPack;
+      _streets = preset.streets;
+      _theoryRatio = preset.theoryRatio;
+    });
+    _presetService.persistLastUsed(preset.id);
+    if (showToast) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Preset "${preset.name}" applied')),
+      );
+    }
+  }
+
+  void _applySelectedPreset() {
+    final p = _selectedPreset;
+    if (p != null) {
+      _applyPreset(p);
+    }
+  }
+
+  Future<void> _saveAsPreset() async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Save Preset'),
+        content: TextField(controller: controller, decoration: const InputDecoration(labelText: 'Name')),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (name == null || name.isEmpty) return;
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final preset = _currentPreset(id: id, name: name);
+    await _presetService.savePreset(preset);
+    setState(() {
+      _presets = _presetService.presets;
+      _selectedPreset = preset;
+    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Preset saved')));
+  }
+
+  Future<void> _updatePreset() async {
+    final p = _selectedPreset;
+    if (p == null) return;
+    final updated = _currentPreset(id: p.id, name: p.name);
+    await _presetService.savePreset(updated);
+    setState(() {
+      _presets = _presetService.presets;
+      _selectedPreset = updated;
+    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Preset updated')));
+  }
+
+  Future<void> _deletePreset() async {
+    final p = _selectedPreset;
+    if (p == null) return;
+    await _presetService.deletePreset(p.id);
+    setState(() {
+      _presets = _presetService.presets;
+      _selectedPreset = null;
+    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Preset deleted')));
+  }
+
+  void _exportPresets() {
+    final json = _presetService.exportPresets();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Export Presets'),
+        content: SingleChildScrollView(child: SelectableText(json)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _importPresets() async {
+    final controller = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Import Presets'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'JSON'),
+          maxLines: 8,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Import')),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await _presetService.importPresets(controller.text);
+      setState(() {
+        _presets = _presetService.presets;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Presets imported')));
+    }
+  }
+
   @override
   void dispose() {
     _outputDirController.dispose();
@@ -202,6 +392,42 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Text('Presets'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButton<AutogenPreset>(
+                        isExpanded: true,
+                        value: _selectedPreset,
+                        hint: const Text('Select Preset'),
+                        items: [
+                          for (final p in _presets)
+                            DropdownMenuItem(value: p, child: Text(p.name)),
+                        ],
+                        onChanged: (v) => setState(() => _selectedPreset = v),
+                      ),
+                    ),
+                    TextButton(
+                        onPressed: _applySelectedPreset,
+                        child: const Text('Apply')),
+                    TextButton(
+                        onPressed: _saveAsPreset,
+                        child: const Text('Save as…')),
+                  ],
+                ),
+                Row(
+                  children: [
+                    TextButton(
+                        onPressed: _updatePreset, child: const Text('Update')),
+                    TextButton(
+                        onPressed: _deletePreset, child: const Text('Delete')),
+                    TextButton(
+                        onPressed: _exportPresets, child: const Text('Export')),
+                    TextButton(
+                        onPressed: _importPresets, child: const Text('Import')),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 DropdownButton<TrainingPackTemplateSet>(
                   isExpanded: true,
                   value: _selectedSet,

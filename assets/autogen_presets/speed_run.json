@@ -1,0 +1,18 @@
+{
+  "id": "speed_run",
+  "name": "Speed-Run",
+  "textures": {},
+  "theory": {
+    "enabled": false,
+    "maxLinksPerSpot": 0,
+    "minScore": 0.0,
+    "wTag": 0.0,
+    "wTex": 0.0,
+    "wCluster": 0.0,
+    "preferNovelty": false
+  },
+  "spotsPerPack": 6,
+  "streets": 1,
+  "theoryRatio": 0.0,
+  "outputDir": "packs/generated"
+}

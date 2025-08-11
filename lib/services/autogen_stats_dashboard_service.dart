@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
 import '../models/autogen_stats_model.dart';
 import '../models/skill_tag_stats.dart';
+import '../models/autogen_preset.dart';
 
 /// Centralized logger aggregating key metrics during hyperscale autogeneration.
 class AutogenStatsDashboardService extends ChangeNotifier {
@@ -129,6 +131,13 @@ class AutogenStatsDashboardService extends ChangeNotifier {
     categoryCoverage = Map.from(report.categoryCoverage);
     categoryCounts = Map.from(report.categoryCounts);
     notifyListeners();
+  }
+
+  void logPreset(AutogenPreset preset) {
+    _logFile.writeAsString(
+      'Preset: ${preset.id} ${jsonEncode(preset.toJson())}\n',
+      mode: FileMode.append,
+    );
   }
 
   /// Logs final aggregated statistics to console and to a log file.

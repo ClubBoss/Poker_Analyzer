@@ -1,0 +1,26 @@
+{
+  "id": "balanced",
+  "name": "Balanced",
+  "textures": {
+    "targetMix": {
+      "low": 0.2,
+      "paired": 0.2,
+      "monotone": 0.2,
+      "twoTone": 0.2,
+      "rainbow": 0.2
+    }
+  },
+  "theory": {
+    "enabled": true,
+    "maxLinksPerSpot": 2,
+    "minScore": 0.5,
+    "wTag": 0.6,
+    "wTex": 0.25,
+    "wCluster": 0.15,
+    "preferNovelty": true
+  },
+  "spotsPerPack": 12,
+  "streets": 1,
+  "theoryRatio": 0.5,
+  "outputDir": "packs/generated"
+}
