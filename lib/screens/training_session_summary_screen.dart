@@ -138,6 +138,7 @@ class _TrainingSessionSummaryScreenState
           MaterialPageRoute(
             builder: (_) => StageCompletedScreen(
               pathId: path.id,
+              stageId: stage.id,
               stageTitle: stage.title,
               accuracy: stats.accuracy,
               hands: stats.hands,

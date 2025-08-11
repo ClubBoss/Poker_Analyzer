@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
+import 'dart:convert';
 
 import '../models/learning_path_template_v2.dart';
 import '../models/learning_path_stage_model.dart';
@@ -29,6 +30,9 @@ import '../widgets/stage_progress_chip.dart';
 import '../widgets/stage_preview_dialog.dart';
 import '../widgets/stage_completed_dialog.dart';
 import '../constants/app_constants.dart';
+import '../models/stage_remedial_meta.dart';
+import '../services/remedial_generation_controller.dart';
+import '../services/learning_path_telemetry.dart';
 
 /// Displays all stages of a learning path and allows launching each pack.
 class LearningPathScreen extends StatefulWidget {
@@ -52,6 +56,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   final _gatekeeper = const LearningPathStageGatekeeperService();
   late SmartStageUnlockService _smartUnlock;
   final _progressTracker = const LearningPathProgressTrackerService();
+
+  final _remedialController = RemedialGenerationController();
+  Map<String, StageRemedialMeta> _remedialMeta = {};
+  String? _remedialLoadingStageId;
 
   bool _loading = true;
   Map<String, LearningStageUIState> _stageStates = {};
@@ -84,6 +92,31 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     }
   }
 
+  Future<void> _startRemedial(String stageId) async {
+    setState(() => _remedialLoadingStageId = stageId);
+    LearningPathTelemetry.instance
+        .log('remedial_requested', {'pathId': widget.template.id, 'stageId': stageId});
+    try {
+      final uri = await _remedialController.createRemedialPack(
+        pathId: widget.template.id,
+        stageId: stageId,
+      );
+      if (!mounted) return;
+      await Navigator.of(context)
+          .pushNamed(uri.path, arguments: uri.queryParameters);
+      if (!mounted) return;
+      await _load();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to generate side-quest')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _remedialLoadingStageId = null);
+    }
+  }
+
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
@@ -108,10 +141,18 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final prefs = await SharedPreferences.getInstance();
     final theoryMap = <String, bool>{};
     final boosterMap = <String, String?>{};
+    final remedialMap = <String, StageRemedialMeta>{};
     for (final stage in widget.template.stages) {
       final id = stage.theoryPackId;
       if (id != null) {
         theoryMap[stage.id] = prefs.getBool('completed_tpl_$id') ?? false;
+      }
+      final raw = prefs.getString('learning.remedial.${widget.template.id}.${stage.id}');
+      if (raw != null) {
+        try {
+          remedialMap[stage.id] =
+              StageRemedialMeta.fromJson(jsonDecode(raw));
+        } catch (_) {}
       }
       String? boosterId;
       final boosters = stage.boosterTheoryPackIds;
@@ -172,6 +213,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       _reinforced = extra;
       _theoryDone = theoryMap;
       _nextBooster = boosterMap;
+      _remedialMeta = remedialMap;
       _loading = false;
     });
 
@@ -534,6 +576,35 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       }
     } else if (stage.description.isNotEmpty) {
       subtitle = Text(stage.description, style: TextStyle(color: grey));
+    }
+    final meta = _remedialMeta[stage.id];
+    if (meta != null) {
+      final isLoading = _remedialLoadingStageId == stage.id;
+      final rChip = ActionChip(
+        label: isLoading
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Text('Side-quest'),
+        avatar: meta.completed
+            ? const Icon(Icons.check, color: Colors.green, size: 16)
+            : null,
+        onPressed: isLoading ? null : () => _startRemedial(stage.id),
+      );
+      if (subtitle == null) {
+        subtitle = rChip;
+      } else {
+        subtitle = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            subtitle!,
+            const SizedBox(height: 4),
+            rChip,
+          ],
+        );
+      }
     }
     final highlight = widget.highlightedStageId == stage.id;
     final key = _stageKeys.putIfAbsent(stage.id, () => GlobalKey());
