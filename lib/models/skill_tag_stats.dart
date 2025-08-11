@@ -6,6 +6,8 @@ class SkillTagStats {
   final Map<String, List<String>> spotTags;
   final Map<String, int> categoryCounts;
   final Map<String, double> categoryCoverage;
+  final Map<String, int> packsPerTag;
+  final Map<String, DateTime> tagLastUpdated;
 
   const SkillTagStats({
     required this.tagCounts,
@@ -15,5 +17,7 @@ class SkillTagStats {
     this.spotTags = const {},
     this.categoryCounts = const {},
     this.categoryCoverage = const {},
+    this.packsPerTag = const {},
+    this.tagLastUpdated = const {},
   });
 }
