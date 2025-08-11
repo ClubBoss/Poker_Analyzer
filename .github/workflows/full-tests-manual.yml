@@ -1,19 +1,14 @@
-name: Unit Tests (Nightly Full)
+name: Full Tests (Manual)
 
 on:
-  schedule:
-    - cron: '0 2 * * *'  # 02:00 UTC ежедневно
-
-concurrency:
-  group: unit-tests-nightly
-  cancel-in-progress: true
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   full-run:
-    name: Nightly Full Tests
+    name: Manual Full Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +16,7 @@ jobs:
           fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
           cache: true
       - run: flutter --version
       - uses: actions/cache@v4
