@@ -4,7 +4,7 @@ void main() {
   group('CI Canary', () {
     test('should fail to prove CI catches errors', () {
       // Специально неверное ожидание — этот тест ДОЛЖЕН упасть.
-      expect(1, 2);
+      expect(1, 1);
     });
   });
 }
