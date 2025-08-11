@@ -3,6 +3,7 @@ name: Theory Integrity
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    # Триггерим только когда меняются файлы теории
     paths:
       - 'assets/**/*.yml'
       - 'assets/**/*.yaml'
@@ -19,8 +20,8 @@ permissions:
   contents: read
 
 jobs:
-  theory-integrity:
-    name: Theory Integrity (strict on theory changes)
+  verify:
+    name: verify
     runs-on: ubuntu-latest
 
     steps:
@@ -29,30 +30,41 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Доп. предохранитель: если GH почему-то запустил workflow без изменений теории — быстро выходим.
+      - name: Detect theory changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            theory:
+              - 'assets/**/*.yml'
+              - 'assets/**/*.yaml'
+              - 'assets/**/theory/**'
+              - 'theory/**'
+              - 'yaml_out/**'
+
+      - name: No theory changes → skip
+        if: ${{ steps.changes.outputs.theory != 'true' }}
+        run: |
+          echo "No theory YAML changed; skipping Theory Integrity."
+          exit 0
+
       - name: Set up Flutter
+        if: ${{ steps.changes.outputs.theory == 'true' }}
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Flutter version
-        run: flutter --version
-
-      - name: Pub deps cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Install deps
+      - name: Install dependencies
+        if: ${{ steps.changes.outputs.theory == 'true' }}
         run: flutter pub get
 
-      - name: Run Theory Integrity (strict)
+      - name: Strict verify
+        if: ${{ steps.changes.outputs.theory == 'true' }}
         env:
           MODE: strict
         run: |
           echo "mode=$MODE"
+          # ваш строгий чекер — оставляю как было
           dart run bin/ci_report.dart --mode $MODE
