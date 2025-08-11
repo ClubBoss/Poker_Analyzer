@@ -1,13 +1,13 @@
 import '../models/autogen_preset.dart';
 import '../models/texture_filter_config.dart';
 import '../models/theory_injector_config.dart';
-import '../models/remedial_spec.dart';
+import '../models/pack_spec.dart';
 import 'learning_path_telemetry.dart';
 
 class RemedialPackGenerator {
-  AutogenPreset build(String pathId, String stageId, RemedialSpec spec,
-      {int spotsPerPack = 6}) {
-    final bounded = spotsPerPack.clamp(6, 12);
+  AutogenPreset build(String pathId, String stageId, PackSpec spec,
+      {int? spotsPerPack}) {
+    final bounded = (spotsPerPack ?? 6).clamp(6, 12);
     final total = spec.textureCounts.values.fold<int>(0, (a, b) => a + b);
     final mix = <String, double>{};
     if (total > 0) {
