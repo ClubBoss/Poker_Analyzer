@@ -101,7 +101,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                           numeric: true,
                           onSort: _onSort),
                       DataColumn(
-                          label: const Text('Coverage %'),
+                          label: const Text('Occurrence %'),
                           numeric: true,
                           onSort: _onSort),
                       DataColumn(
@@ -144,11 +144,9 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
 
   List<_TagRow> _buildRows(
     SkillTagStats stats,
-    Set<String> allTagsInput,
+    Set<String> allTags,
     Map<String, String> catMap,
   ) {
-    final allTags =
-        allTagsInput.isEmpty ? stats.tagCounts.keys.toSet() : allTagsInput;
     final totalSpots = stats.spotTags.length;
     return allTags.map((tag) {
       final norm = tag.toLowerCase();
@@ -212,42 +210,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
 
   void _applySort() {
     if (_sortColumnIndex == null) return;
-    _rows.sort((a, b) {
-      int cmp;
-      switch (_sortColumnIndex) {
-        case 0:
-          cmp = _cmp(a.tag, b.tag);
-          break;
-        case 1:
-          cmp = _cmp(a.category, b.category, a.tag, b.tag);
-          break;
-        case 2:
-          cmp = _cmp(a.packs, b.packs, a.tag, b.tag);
-          break;
-        case 3:
-          cmp = _cmp(a.spots, b.spots, a.tag, b.tag);
-          break;
-        case 4:
-          cmp = _cmp(a.coverage, b.coverage, a.tag, b.tag);
-          break;
-        case 5:
-          final at = a.lastUpdated?.millisecondsSinceEpoch;
-          final bt = b.lastUpdated?.millisecondsSinceEpoch;
-          if (at == null && bt == null) {
-            cmp = _cmp(0, 0, a.tag, b.tag);
-          } else if (at == null) {
-            cmp = 1;
-          } else if (bt == null) {
-            cmp = -1;
-          } else {
-            cmp = _cmp(at, bt, a.tag, b.tag);
-          }
-          break;
-        default:
-          cmp = 0;
-      }
-      return _sortAscending ? cmp : -cmp;
-    });
+    _onSort(_sortColumnIndex!, _sortAscending); // reuse
   }
 
   int _cmp<T extends Comparable>(T a, T b, [T? a2, T? b2]) {
