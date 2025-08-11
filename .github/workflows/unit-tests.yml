@@ -85,6 +85,19 @@ jobs:
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
         run: flutter pub get
 
+      # Канарейка: запускаем один маленький тест раньше всех, чтобы быстро упасть если CI сломан
+      - name: Run CI canary test (quick fail if broken)
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [ -f test/ci_canary_test.dart ]; then
+            echo "Running canary test first…"
+            flutter test -r expanded --concurrency=1 --timeout=2m test/ci_canary_test.dart
+          else
+            echo "No canary test file found (test/ci_canary_test.dart). Skipping."
+          fi
+
       # Статанализ — advisory (не блокирует), чтобы сейчас тестировались именно юниты
       - name: Dart analyze (advisory)
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
