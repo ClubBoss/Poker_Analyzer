@@ -1,48 +1,98 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
-import '../models/learning_path_player_progress.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
-/// Lightweight telemetry writer for learning path sessions.
+import 'analytics_adapter.dart';
+
+/// Production-ready telemetry writer for learning path events.
 class LearningPathTelemetry {
-  const LearningPathTelemetry();
+  LearningPathTelemetry._({Directory? dir, this.maxBytes = 2 * 1024 * 1024})
+      : _dirOverride = dir;
 
-  Future<void> logSummary(
-      {required String pathId, required LearningPathProgress progress}) async {
-    final stagesCompleted =
-        progress.stages.values.where((s) => s.completed).length;
-    final handsPlayed =
-        progress.stages.values.fold<int>(0, (a, b) => a + b.handsPlayed);
-    final avgAcc = progress.stages.isEmpty
-        ? 0.0
-        : progress.stages.values
-                .fold<double>(0, (a, b) => a + b.accuracy) /
-            progress.stages.length;
-    final line =
-        'pathId=$pathId stagesCompleted=$stagesCompleted handsPlayed=$handsPlayed avgAccuracy=${avgAcc.toStringAsFixed(2)}\n';
-    final file = File('autogen_report.log');
-    await file.writeAsString(line, mode: FileMode.append, flush: true);
+  /// Default singleton instance.
+  static final LearningPathTelemetry instance = LearningPathTelemetry._();
+
+  /// Creates a test instance with custom [dir] and [maxBytes].
+  factory LearningPathTelemetry.test({Directory? dir, int? maxBytes}) {
+    return LearningPathTelemetry._(
+        dir: dir, maxBytes: maxBytes ?? 2 * 1024 * 1024);
   }
 
-  Future<void> logStageComplete({
-    required String pathId,
-    required String stageId,
-    required StageProgress progress,
-  }) async {
-    final line =
-        'stageComplete pathId=$pathId stageId=$stageId hands=${progress.handsPlayed} acc=${progress.accuracy.toStringAsFixed(2)}\n';
-    final file = File('autogen_report.log');
-    await file.writeAsString(line, mode: FileMode.append, flush: true);
+  final Directory? _dirOverride;
+  final int maxBytes;
+
+  AnalyticsAdapter adapter = const NullAnalyticsAdapter();
+
+  String? deviceId;
+  String? userId;
+  String? _appVersion;
+
+  Future<String> _version() async {
+    return _appVersion ??= (await PackageInfo.fromPlatform()).version;
   }
 
-  Future<void> logTheoryShown({
-    required String pathId,
-    required String stageId,
-    required List<String> snippetIds,
-  }) async {
-    final line =
-        'theoryShown pathId=$pathId stageId=$stageId snippets=${snippetIds.join(',')}\n';
-    final file = File('autogen_report.log');
-    await file.writeAsString(line, mode: FileMode.append, flush: true);
+  Future<Directory> get _logDir async {
+    if (_dirOverride != null) return _dirOverride!;
+    return await getApplicationDocumentsDirectory();
   }
+
+  Future<File> get _logFile async {
+    final dir = await _logDir;
+    return File('${dir.path}/autogen_report.log');
+  }
+
+  Future<File> _rotated(int n) async {
+    final dir = await _logDir;
+    return File('${dir.path}/autogen_report.log.$n');
+  }
+
+  Future<void> log(String event, Map<String, Object?> data) async {
+    final payload = <String, Object?>{
+      'event': event,
+      ...data,
+      'tsIso': DateTime.now().toIso8601String(),
+      'appVersion': await _version(),
+      if (deviceId != null) 'deviceId': deviceId,
+      if (userId != null) 'userId': userId,
+    };
+    final line = jsonEncode(payload);
+    _queue = _queue.then((_) async {
+      try {
+        await _rotateIfNeeded();
+        final file = await _logFile;
+        final sink = file.openWrite(mode: FileMode.append);
+        sink.writeln(line);
+        await sink.flush();
+        await sink.close();
+      } catch (_) {}
+    }).then((_) async {
+      try {
+        await adapter.send(event, payload);
+      } catch (_) {}
+    });
+    await _queue;
+  }
+
+  Future<void> _rotateIfNeeded() async {
+    final file = await _logFile;
+    if (await file.exists()) {
+      final length = await file.length();
+      if (length > maxBytes) {
+        final f1 = await _rotated(1);
+        final f2 = await _rotated(2);
+        if (await f2.exists()) {
+          await f2.delete();
+        }
+        if (await f1.exists()) {
+          await f1.rename(f2.path);
+        }
+        await file.rename(f1.path);
+      }
+    }
+  }
+
+  Future<void> _queue = Future.value();
 }
-

@@ -44,7 +44,11 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       PackRunSessionState.load(key).then((state) {
         if (!mounted) return;
         setState(() {
-          _packController = PackRunController(state: state);
+          _packController = PackRunController(
+            packId: packId,
+            sessionId: sessionId,
+            state: state,
+          );
         });
       });
     });

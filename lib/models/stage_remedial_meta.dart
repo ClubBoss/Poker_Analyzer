@@ -1,3 +1,5 @@
+import '../services/learning_path_telemetry.dart';
+
 class StageRemedialMeta {
   final String remedialPackId;
   final int sourceAttempts;
@@ -44,5 +46,24 @@ class StageRemedialMeta {
         'createdAt': createdAt.toIso8601String(),
         if (completed) 'completed': true,
       };
+
+  StageRemedialMeta copyWith({bool? completed}) {
+    return StageRemedialMeta(
+      remedialPackId: remedialPackId,
+      sourceAttempts: sourceAttempts,
+      missTags: missTags,
+      missTextures: missTextures,
+      createdAt: createdAt,
+      completed: completed ?? this.completed,
+    );
+  }
+
+  StageRemedialMeta markCompleted(double accuracyAfter) {
+    LearningPathTelemetry.instance.log('remedial_completed', {
+      'remedialPackId': remedialPackId,
+      'accuracyAfter': accuracyAfter,
+    });
+    return copyWith(completed: true);
+  }
 }
 

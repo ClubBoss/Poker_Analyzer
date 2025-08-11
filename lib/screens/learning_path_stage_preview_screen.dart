@@ -169,11 +169,11 @@ class _LearningPathStagePreviewScreenState
           if (v) {
             await LearningPathProgressService.instance
                 .markTheoryViewed(widget.stage.id);
-            await const LearningPathTelemetry().logTheoryShown(
-              pathId: widget.path.id,
-              stageId: widget.stage.id,
-              snippetIds: _snippets.map((e) => e.id).toList(),
-            );
+            await LearningPathTelemetry.instance.log('theory_shown', {
+              'pathId': widget.path.id,
+              'stageId': widget.stage.id,
+              'snippetIds': _snippets.map((e) => e.id).toList(),
+            });
           }
         },
         children: [
