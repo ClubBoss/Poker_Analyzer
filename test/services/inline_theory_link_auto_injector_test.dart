@@ -2,77 +2,87 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/models/hand_data.dart';
 import 'package:poker_analyzer/models/inline_theory_entry.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
-import 'package:poker_analyzer/models/training_pack_model.dart';
 import 'package:poker_analyzer/services/inline_theory_link_auto_injector.dart';
 
 void main() {
   group('InlineTheoryLinkAutoInjector', () {
-    test('injects matching theory entry', () {
-      final spots = [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSB']),
-      ];
-      final model = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
+    test('scores and selects top theory links', () {
+      final spot = TrainingPackSpot(
+        id: 's1',
+        hand: HandData(),
+        tags: ['a', 'b'],
+        meta: {
+          'boardTextureTags': ['monotone'],
+          'clusterIds': ['c1'],
+        },
+      );
       final index = {
-        'openSB': const InlineTheoryEntry(
-          tag: 'openSB',
-          id: 'sb_vs_bb_open_range',
-          title: 'SB Opening Range vs BB',
-          htmlSnippet: '<p>SB open</p>',
+        't1': InlineTheoryEntry(
+          tag: 't1',
+          id: 't1',
+          title: 'T1',
+          htmlSnippet: '<p>t1</p>',
+          tags: ['a'],
+          textureBuckets: ['monotone'],
+          clusterIds: ['c1'],
+        ),
+        't2': InlineTheoryEntry(
+          tag: 't2',
+          id: 't2',
+          title: 'T2',
+          htmlSnippet: '<p>t2</p>',
+          tags: ['a', 'b'],
         ),
       };
-      const injector = InlineTheoryLinkAutoInjector();
-
-      injector.injectLinks(model, index);
-
-      final entry = spots.first.inlineTheory;
-      expect(entry, isNotNull);
-      expect(entry!.id, 'sb_vs_bb_open_range');
-      expect(entry.title, 'SB Opening Range vs BB');
-      expect(entry.tag, 'openSB');
+      final injector = InlineTheoryLinkAutoInjector();
+      injector.injectAll([spot], index);
+      final links = spot.meta['theoryLinks'] as List;
+      expect(links.length, 2);
+      expect(links.first['id'], 't1');
     });
 
-    test('falls back to fuzzy tag matches', () {
-      final spots = [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSBWide']),
-      ];
-      final model = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
+    test('respects minScore threshold', () {
+      final spot = TrainingPackSpot(
+        id: 's1',
+        hand: HandData(),
+        tags: ['x'],
+      );
       final index = {
-        'openSB': const InlineTheoryEntry(
-          tag: 'openSB',
-          id: 'sb_vs_bb_open_range',
-          title: 'SB Opening Range',
-          htmlSnippet: '<p>SB open</p>',
+        't1': InlineTheoryEntry(
+          tag: 't1',
+          id: 't1',
+          title: 'T1',
+          htmlSnippet: '<p>t1</p>',
+          tags: ['y'],
         ),
       };
-      const injector = InlineTheoryLinkAutoInjector();
-
-      injector.injectLinks(model, index);
-
-      final entry = spots.first.inlineTheory;
-      expect(entry, isNotNull);
-      expect(entry!.tag, 'openSB');
+      final injector = InlineTheoryLinkAutoInjector(minScore: 0.5);
+      final result = injector.injectAll([spot], index);
+      expect(result.linkedCount, 0);
+      expect(result.rejectedLowScore, 1);
     });
 
-    test('avoids duplicate theory ids across pack', () {
-      final spots = [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['openSB']),
-        TrainingPackSpot(id: 's2', hand: HandData(), tags: ['openSB']),
-      ];
-      final model = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
+    test('idempotent on re-run', () {
+      final spot = TrainingPackSpot(
+        id: 's1',
+        hand: HandData(),
+        tags: ['a'],
+      );
       final index = {
-        'openSB': const InlineTheoryEntry(
-          tag: 'openSB',
-          id: 'sb_vs_bb_open_range',
-          title: 'SB Opening Range',
-          htmlSnippet: '<p>SB open</p>',
+        't1': InlineTheoryEntry(
+          tag: 't1',
+          id: 't1',
+          title: 'T1',
+          htmlSnippet: '<p>t1</p>',
+          tags: ['a'],
         ),
       };
-      const injector = InlineTheoryLinkAutoInjector();
-
-      injector.injectLinks(model, index);
-
-      expect(spots[0].inlineTheory, isNotNull);
-      expect(spots[1].inlineTheory, isNull);
+      final injector = InlineTheoryLinkAutoInjector();
+      injector.injectAll([spot], index);
+      final first = spot.meta['theoryLinks'];
+      injector.injectAll([spot], index);
+      final second = spot.meta['theoryLinks'];
+      expect(first, second);
     });
   });
 }
