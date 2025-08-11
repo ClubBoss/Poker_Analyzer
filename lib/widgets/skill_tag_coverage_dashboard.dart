@@ -111,16 +111,24 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                       for (final r in _filteredRows())
                         DataRow(
                           cells: [
-                            DataCell(Text(r.tag),
-                                onTap: () => Navigator.of(context)
-                                    .pushNamed('/trainingPacks',
-                                        arguments: r.tag)),
+                            DataCell(
+                              Text(r.tag),
+                              onTap: () {
+                                final nav = Navigator.of(context);
+                                if (nav.canPop() ||
+                                    ModalRoute.of(context)?.settings.name !=
+                                        null) {
+                                  nav.pushNamed('/trainingPacks',
+                                      arguments: r.tag);
+                                }
+                              },
+                            ),
                             DataCell(Text(r.category)),
                             DataCell(Text('${r.packs}')),
                             DataCell(Text('${r.spots}')),
                             DataCell(Text(r.coverage.toStringAsFixed(1))),
-                            DataCell(Text(
-                                r.lastUpdated?.toIso8601String() ?? '')),
+                            DataCell(
+                                Text(r.lastUpdated?.toIso8601String() ?? '')),
                           ],
                           color: MaterialStatePropertyAll(
                             Color.alphaBlend(
