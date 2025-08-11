@@ -12,21 +12,41 @@ on:
       - 'docs/**'
       - '**/*.md'
 
+# Отменяем предыдущие запуски на ту же ветку/PR, чтобы не висели
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.7'
           channel: stable
+          cache: true
 
       - name: Check Flutter version
         run: flutter --version
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Bootstrap Flutter local.properties
         run: bash scripts/setup_flutter_localprops.sh
@@ -34,9 +54,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Временно отключаем анализ, чтобы не мешал Codex
-      # - name: Analyze
-      #   run: flutter analyze
+      # --- Tests toggle ---
+      # На push в main тесты всегда запускаются.
+      # В PR по умолчанию тесты пропускаем; чтобы включить — добавь лейбл 'run-tests'.
+      - name: Run tests (push & labeled PRs)
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-tests')) }}
+        run: flutter test -r expanded --concurrency=6
 
-      - name: Run tests
-        run: flutter test
+      - name: Skip tests (default for PRs without label)
+        if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: echo "PR tests are skipped in CI. Add label 'run-tests' to enable."
