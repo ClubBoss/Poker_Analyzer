@@ -12,7 +12,6 @@ on:
       - 'docs/**'
       - '**/*.md'
 
-# Отменяем предыдущие запуски на ту же ветку/PR, чтобы не висели
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -54,13 +53,28 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # --- Tests toggle ---
-      # На push в main тесты всегда запускаются.
-      # В PR по умолчанию тесты пропускаем; чтобы включить — добавь лейбл 'run-tests'.
+      # Определяем, есть ли изменения кода (а не только docs/CI/медиа)
+      - name: Compute scope
+        id: scope
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          BASE="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before || 'HEAD~1' }}"
+          HEAD="${{ github.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD" || true)
+          echo "Changed files:" && echo "$CHANGED" | sed 's/^/• /'
+          if echo "$CHANGED" | grep -Evq '^(docs/|\.github/workflows/|.*\.(md|png|jpg|jpeg|gif|svg|pdf)$)'; then
+            echo "run_tests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_tests=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # На push тесты идут только при изменениях кода.
+      # В PR — включаются лейблом 'run-tests' и при изменениях кода.
       - name: Run tests (push & labeled PRs)
-        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-tests')) }}
+        if: ${{ steps.scope.outputs.run_tests == 'true' && (github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-tests'))) }}
         run: flutter test -r expanded --concurrency=6
 
-      - name: Skip tests (default for PRs without label)
-        if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: echo "PR tests are skipped in CI. Add label 'run-tests' to enable."
+      - name: Skip tests
+        if: ${{ steps.scope.outputs.run_tests != 'true' || (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests')) }}
+        run: echo "Skipping tests (no code changes or PR without 'run-tests' label)."
