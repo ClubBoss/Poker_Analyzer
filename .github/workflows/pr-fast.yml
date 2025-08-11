@@ -1,63 +1,37 @@
-name: PR Fast Checks
+name: CI — Fast PR Checks
 
 on:
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-concurrency:
-  group: pr-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+    branches:
+      - main
+      - develop
+      - feature/**
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+      - '**/docs/**'
 
 jobs:
   fast-checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Официальный Flutter SDK (stable) + кэш SDK
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: '3.24.3' # укажи актуальную версию из проекта
           cache: true
 
-      # Кэш pub-зависимостей и .dart_tool по хэшу lockfile
-      - name: Cache pub
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: flutter pub get
+      - name: Install dependencies
         run: flutter pub get
 
-      # Точечный анализ только по актуальным директориям маршрута
-      - name: flutter analyze (targeted)
-        run: |
-          flutter analyze \
-            lib/services \
-            lib/controllers \
-            lib/models \
-            lib/screens \
-            lib/widgets/skill_tag_coverage_dashboard.dart \
-            test/services \
-            test/widgets \
-            test/remedial_generation_controller_test.dart
+      - name: Flutter analyze
+        run: flutter analyze
 
-      # Быстрые тесты: сначала пробуем тег @unit, иначе прогоняем дефолтно
-      - name: flutter test (fast)
-        run: |
-          if flutter test -r expanded -t unit; then
-            echo "Ran tagged unit tests."
-          else
-            echo "No tagged unit tests; running default fast suite."
-            flutter test -r expanded
-          fi
+      - name: Run minimal tests with coverage
+        run: flutter test --no-pub --coverage
