@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:Poker_Analyzer/models/stage_remedial_meta.dart';
-import 'package:Poker_Analyzer/services/remedial_generation_controller.dart';
+import 'package:poker_analyzer/models/stage_remedial_meta.dart';
+import 'package:poker_analyzer/services/remedial_generation_controller.dart';
 
 void main() {
   setUp(() {
