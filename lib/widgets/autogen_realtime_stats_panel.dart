@@ -17,13 +17,32 @@ class AutogenRealtimeStatsPanel extends StatelessWidget {
           final stats = dashboard.stats;
           return Container(
             padding: const EdgeInsets.all(8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                Text('🧠 Packs: ${stats.totalPacks}'),
-                Text('🎯 Spots: ${stats.totalSpots}'),
-                Text('⚠️ Skipped: ${stats.skippedSpots}'),
-                Text('🔐 Fingerprints: ${stats.fingerprintCount}'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text('🧠 Packs: ${stats.totalPacks}'),
+                    Text('🎯 Spots: ${stats.totalSpots}'),
+                    Text('⚠️ Skipped: ${stats.skippedSpots}'),
+                    Text('🔐 Fingerprints: ${stats.fingerprintCount}'),
+                  ],
+                ),
+                if (dashboard.targetTextureMix.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Wrap(
+                      spacing: 8,
+                      children: [
+                        for (final entry in dashboard.targetTextureMix.entries)
+                          Text(
+                            '${entry.key}: '
+                            '${(dashboard.textureCounts[entry.key] ?? 0)}'
+                            '/${(entry.value * 100).toStringAsFixed(0)}%',
+                          ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           );

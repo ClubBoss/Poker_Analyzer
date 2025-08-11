@@ -24,6 +24,9 @@ class AutogenStatsDashboardService extends ChangeNotifier {
     unusedTags: [],
     overloadedTags: [],
   );
+  Map<String, int> textureCounts = {};
+  Map<String, int> textureRejects = {};
+  Map<String, double> targetTextureMix = {};
   DateTime? _start;
   int _yamlFiles = 0;
 
@@ -41,6 +44,9 @@ class AutogenStatsDashboardService extends ChangeNotifier {
       unusedTags: [],
       overloadedTags: [],
     );
+    textureCounts = {};
+    textureRejects = {};
+    targetTextureMix = {};
     _yamlFiles = 0;
     notifyListeners();
   }
@@ -63,6 +69,20 @@ class AutogenStatsDashboardService extends ChangeNotifier {
   void recordFingerprint(String _) {
     stats.fingerprintCount++;
     notifyListeners();
+  }
+
+  void setTargetTextureMix(Map<String, double> mix) {
+    targetTextureMix = Map.from(mix);
+    notifyListeners();
+  }
+
+  void recordTexture(String tex) {
+    textureCounts[tex] = (textureCounts[tex] ?? 0) + 1;
+    notifyListeners();
+  }
+
+  void recordRejectedTexture(String tex) {
+    textureRejects[tex] = (textureRejects[tex] ?? 0) + 1;
   }
 
   /// Updates coverage statistics for dashboard preview.
@@ -90,6 +110,12 @@ class AutogenStatsDashboardService extends ChangeNotifier {
       ..sort((a, b) => b.value.compareTo(a.value));
     for (final entry in sorted.take(10)) {
       buffer.writeln('  ${entry.key}: ${entry.value}');
+    }
+
+    if (targetTextureMix.isNotEmpty) {
+      buffer.writeln('Texture target: $targetTextureMix');
+      buffer.writeln('Texture achieved: $textureCounts');
+      buffer.writeln('Texture rejects: $textureRejects');
     }
 
     final report = buffer.toString();

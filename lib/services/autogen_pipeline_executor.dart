@@ -49,6 +49,7 @@ import 'path_write_lock_service.dart';
 import 'path_transaction_manager.dart';
 import 'learning_path_store.dart';
 import 'ab_orchestrator_service.dart';
+import '../models/texture_filter_config.dart';
 
 /// Centralized orchestrator running the full auto-generation pipeline.
 class AutogenPipelineExecutor {
@@ -74,6 +75,7 @@ class AutogenPipelineExecutor {
   final TheoryAutoInjector autoInjector;
   final PackNoveltyGuardService noveltyGuard;
   final bool failOnSeedErrors;
+  final TextureFilterConfig? textureFilters;
   final StreamController<AutogenStatus> _statusController =
       StreamController.broadcast();
 
@@ -102,6 +104,7 @@ class AutogenPipelineExecutor {
     TheoryAutoInjector? autoInjector,
     PackNoveltyGuardService? noveltyGuard,
     bool? failOnSeedErrors,
+    TextureFilterConfig? textureFilters,
   }) : dedup = dedup ?? AutoDeduplicationEngine(),
        exporter = exporter ?? const YamlPackExporter(),
        coverage = coverage ?? SkillTagCoverageTracker(),
@@ -131,8 +134,18 @@ class AutogenPipelineExecutor {
        autoInjector = autoInjector ?? TheoryAutoInjector(),
        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
        failOnSeedErrors =
-           failOnSeedErrors ?? (Platform.environment['CI'] == 'true') {
-    this.generator = generator ?? TrainingPackAutoGenerator(dedup: this.dedup);
+           failOnSeedErrors ?? (Platform.environment['CI'] == 'true'),
+       textureFilters = textureFilters {
+    this.generator =
+        generator ??
+        TrainingPackAutoGenerator(
+          dedup: this.dedup,
+          boardClassifier: boardClassifier,
+          textureFilters: textureFilters,
+        );
+    if (generator != null) {
+      generator.textureFilters = textureFilters;
+    }
   }
 
   void _emitStatus(AutogenStatus status) {
@@ -278,6 +291,7 @@ class AutogenPipelineExecutor {
 
     final files = <File>[];
     try {
+      dashboard.setTargetTextureMix(textureFilters?.targetMix ?? {});
       for (var i = 0; i < sets.length; i++) {
         final set = sets[i];
         _emitStatus(
@@ -332,6 +346,10 @@ class AutogenPipelineExecutor {
           meta: Map<String, dynamic>.from(base.meta),
         );
         pack.meta['uniqueSpotsOnly'] = true;
+        pack.meta['autogenMeta'] = {
+          if (textureFilters != null) 'textureFilters': textureFilters!.toJson(),
+          'textureDistribution': dashboard.textureCounts,
+        };
 
         var model = TrainingPackModel(
           id: pack.id,
