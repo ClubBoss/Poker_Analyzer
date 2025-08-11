@@ -8,8 +8,6 @@ on:
       - feature/**
     paths-ignore:
       - '**.md'
-      - '**.yml'
-      - '**.yaml'
       - '**/docs/**'
 
 jobs:
@@ -21,11 +19,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
+      - name: Setup Flutter (stable channel)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.3' # укажи актуальную версию из проекта
+          channel: 'stable' # всегда актуальный стабильный Flutter с последним Dart
           cache: true
+
+      - name: Show Flutter & Dart versions
+        run: |
+          flutter --version
+          dart --version
 
       - name: Install dependencies
         run: flutter pub get
