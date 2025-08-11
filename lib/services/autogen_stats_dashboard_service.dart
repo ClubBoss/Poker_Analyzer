@@ -24,6 +24,8 @@ class AutogenStatsDashboardService extends ChangeNotifier {
     unusedTags: [],
     overloadedTags: [],
   );
+  Map<String, double> categoryCoverage = {};
+  Map<String, int> categoryCounts = {};
   Map<String, int> textureCounts = {};
   Map<String, int> textureRejects = {};
   Map<String, double> targetTextureMix = {};
@@ -44,6 +46,8 @@ class AutogenStatsDashboardService extends ChangeNotifier {
       unusedTags: [],
       overloadedTags: [],
     );
+    categoryCoverage = {};
+    categoryCounts = {};
     textureCounts = {};
     textureRejects = {};
     targetTextureMix = {};
@@ -88,6 +92,8 @@ class AutogenStatsDashboardService extends ChangeNotifier {
   /// Updates coverage statistics for dashboard preview.
   void recordCoverage(SkillTagStats report) {
     coverage = report;
+    categoryCoverage = Map.from(report.categoryCoverage);
+    categoryCounts = Map.from(report.categoryCounts);
     notifyListeners();
   }
 
@@ -95,6 +101,8 @@ class AutogenStatsDashboardService extends ChangeNotifier {
   Future<void> logFinalStats(SkillTagStats coverage, {int? yamlFiles}) async {
     final end = DateTime.now();
     final start = _start ?? end;
+    categoryCoverage = Map.from(coverage.categoryCoverage);
+    categoryCounts = Map.from(coverage.categoryCounts);
     final buffer = StringBuffer()
       ..writeln('=== Autogen Stats Report ===')
       ..writeln('Start: $start')
@@ -118,10 +126,35 @@ class AutogenStatsDashboardService extends ChangeNotifier {
       buffer.writeln('Texture rejects: $textureRejects');
     }
 
+    if (categoryCoverage.isNotEmpty) {
+      buffer.writeln('Category coverage:');
+      final cats = categoryCoverage.entries.toList()
+        ..sort((a, b) => a.key.compareTo(b.key));
+      for (final entry in cats) {
+        final pct = (entry.value * 100).toStringAsFixed(1);
+        final count = categoryCounts[entry.key] ?? 0;
+        buffer.writeln('  ${entry.key}: $pct% ($count)');
+      }
+      final under = underrepresentedCategories();
+      if (under.isNotEmpty) {
+        buffer.writeln('Underrepresented: '
+            '${under.map((e) => e.key).join(', ')}');
+      }
+    }
+
     final report = buffer.toString();
     // Output to console for immediate visibility.
     print(report);
     // Persist to log file.
     await _logFile.writeAsString(report);
+  }
+
+  List<MapEntry<String, double>> underrepresentedCategories(
+      [double threshold = 0.6]) {
+    final entries = categoryCoverage.entries
+        .where((e) => e.value < threshold)
+        .toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    return entries;
   }
 }

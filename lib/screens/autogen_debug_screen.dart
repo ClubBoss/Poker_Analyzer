@@ -303,6 +303,42 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                   },
                   child: const Text('Edit Policies'),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    final dashboard =
+                        AutogenStatsDashboardService.instance;
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Category Coverage'),
+                        content: SizedBox(
+                          width: double.maxFinite,
+                          child: ListView(
+                            shrinkWrap: true,
+                            children: [
+                              for (final entry
+                                  in dashboard.categoryCoverage.entries)
+                                ListTile(
+                                  title: Text(entry.key),
+                                  trailing: Text(
+                                    '${dashboard.categoryCounts[entry.key] ?? 0} - '
+                                    '${(entry.value * 100).toStringAsFixed(0)}%',
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: const Text('Coverage View'),
+                ),
                 ValueListenableBuilder<List<DuplicatePackInfo>>(
                   valueListenable: statusService.duplicatesNotifier,
                   builder: (context, dups, _) {
