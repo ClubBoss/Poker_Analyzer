@@ -1,6 +1,7 @@
 import 'unlock_condition.dart';
 import 'sub_stage_model.dart';
 import 'stage_type.dart';
+import 'side_quest_model.dart';
 import '../utils/yaml_utils.dart';
 
 class LearningPathStageModel {
@@ -23,6 +24,7 @@ class LearningPathStageModel {
   final int order;
   final bool isOptional;
   final UnlockCondition? unlockCondition;
+  final List<SideQuestModel> sideQuests;
 
   const LearningPathStageModel({
     required this.id,
@@ -39,6 +41,7 @@ class LearningPathStageModel {
     List<String>? tags,
     List<String>? unlockAfter,
     List<String>? objectives,
+    List<SideQuestModel>? sideQuests,
     this.order = 0,
     this.isOptional = false,
     this.unlockCondition,
@@ -48,7 +51,8 @@ class LearningPathStageModel {
         unlockAfter = unlockAfter ?? const [],
         tags = tags ?? const [],
         objectives = objectives ?? const [],
-        subStages = subStages ?? const [];
+        subStages = subStages ?? const [],
+        sideQuests = sideQuests ?? const [];
 
   factory LearningPathStageModel.fromJson(Map<String, dynamic> json) {
     return LearningPathStageModel(
@@ -73,6 +77,10 @@ class LearningPathStageModel {
       tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       objectives: [
         for (final o in (json['objectives'] as List? ?? [])) o.toString()
+      ],
+      sideQuests: [
+        for (final q in (json['sideQuests'] as List? ?? []))
+          SideQuestModel.fromJson(Map<String, dynamic>.from(q)),
       ],
       order: (json['order'] as num?)?.toInt() ?? 0,
       isOptional: json['isOptional'] as bool? ?? false,
@@ -120,6 +128,8 @@ class LearningPathStageModel {
           'unlockCondition': unlockCondition!.toJson(),
         if (subStages.isNotEmpty)
           'subStages': [for (final s in subStages) s.toJson()],
+        if (sideQuests.isNotEmpty)
+          'sideQuests': [for (final q in sideQuests) q.toJson()],
       };
 
   factory LearningPathStageModel.fromYaml(Map yaml) {
