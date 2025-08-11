@@ -1,46 +1,57 @@
-import '../models/learning_path_node_v2.dart';
-import '../models/v2/training_pack_template_v2.dart';
-import '../services/learning_graph_engine.dart';
-import '../services/mini_lesson_library_service.dart';
-import '../services/pack_library_service.dart';
+import 'dart:convert';
+import 'dart:io';
 
-class LearningPathLoadResult {
-  final List<LearningPathNodeV2> nodes;
-  final LearningPathNodeV2? current;
-  final Map<String, TrainingPackTemplateV2> packs;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:yaml/yaml.dart';
 
-  LearningPathLoadResult({
-    required this.nodes,
-    required this.current,
-    required this.packs,
-  });
-}
+import '../models/learning_path_template_v2.dart';
 
-Future<LearningPathLoadResult> loadLearningPathData() async {
-  await LearningPathEngine.instance.initialize();
-  await MiniLessonLibraryService.instance.loadAll();
-  final nodes = LearningPathEngine.instance
-      .getAllNodes()
-      .whereType<LearningPathNodeV2>()
-      .toList();
-  final current =
-      LearningPathEngine.instance.getCurrentNode() as LearningPathNodeV2?;
-  final packIds = <String>{};
-  for (final n in nodes) {
-    if (n.type == LearningPathNodeType.training) {
-      if (n.trainingPackTemplateId != null) {
-        packIds.add(n.trainingPackTemplateId!);
-      }
-      if (n.dynamicPackId != null) {
-        packIds.add(n.dynamicPackId!);
-      }
+/// Loads [LearningPathTemplateV2] definitions from YAML files under
+/// `assets/learning_paths/`.
+class LearningPathLoader {
+  const LearningPathLoader();
+
+  /// Loads a path by [pathId]. The file name should match the id.
+  Future<LearningPathTemplateV2> load(String pathId) async {
+    final raw = await rootBundle
+        .loadString('assets/learning_paths/' + pathId + '.yaml');
+    final yaml = loadYaml(raw);
+    if (yaml is Map) {
+      return LearningPathTemplateV2.fromYaml(Map.from(yaml));
     }
+    throw Exception('Invalid learning path yaml for id: ' + pathId);
   }
-  final packs = <String, TrainingPackTemplateV2>{};
-  for (final id in packIds) {
-    final tpl = await PackLibraryService.instance.getById(id);
-    if (tpl != null) packs[id] = tpl;
+
+  /// Loads all path templates available in the asset manifest.
+  Future<List<LearningPathTemplateV2>> loadAll() async {
+    final manifestRaw = await rootBundle.loadString('AssetManifest.json');
+    final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
+    final paths = manifest.keys
+        .where((e) =>
+            e.startsWith('assets/learning_paths/') && e.endsWith('.yaml'))
+        .toList()
+      ..sort();
+    final list = <LearningPathTemplateV2>[];
+    for (final p in paths) {
+      try {
+        final raw = await rootBundle.loadString(p);
+        final yaml = loadYaml(raw);
+        if (yaml is Map) {
+          list.add(LearningPathTemplateV2.fromYaml(Map.from(yaml)));
+        }
+      } catch (_) {}
+    }
+    return list;
   }
-  return LearningPathLoadResult(nodes: nodes, current: current, packs: packs);
+
+  /// Loads a path from [file] on disk. Used by tests or tools.
+  Future<LearningPathTemplateV2> loadFromFile(File file) async {
+    final raw = await file.readAsString();
+    final yaml = loadYaml(raw);
+    if (yaml is Map) {
+      return LearningPathTemplateV2.fromYaml(Map.from(yaml));
+    }
+    throw Exception('Invalid learning path yaml in ' + file.path);
+  }
 }
 
