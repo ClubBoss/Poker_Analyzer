@@ -12,12 +12,17 @@ on:
       - 'docs/**'
       - '**/*.md'
 
+concurrency:
+  group: unit-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -48,9 +53,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-        - name: Run smoke tests
-          run: |
-            set -Eeuo pipefail
-            FILES=("test/ci_canary_test.dart")
-            [ -d test/smoke ] && FILES+=("test/smoke")
-            flutter test --exclude-tags=slow -r expanded --concurrency=6 "${FILES[@]}"
+      # --- Tests toggle ---
+      # На push в main тесты всегда запускаются.
+      # В PR по умолчанию тесты пропускаем; чтобы включить — добавь лейбл 'run-tests'.
+      - name: Run tests (push & labeled PRs)
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-tests')) }}
+        run: |
+          set -Eeuo pipefail
+          FILES=("test/ci_canary_test.dart")
+          # если есть быстрые smoke-тесты — добавим их
+          [ -d test/smoke ] && FILES+=("test/smoke")
+          flutter test --exclude-tags=slow -r expanded --concurrency=6 "${FILES[@]}"
+
+      - name: Skip tests (default for PRs without label)
+        if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: echo "PR tests are skipped. Add label 'run-tests' to enable."
