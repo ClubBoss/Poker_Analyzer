@@ -1,10 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
 void main() {
-  group('CI Canary', () {
-    test('should fail to prove CI catches errors', () {
-      // Специально неверное ожидание — этот тест ДОЛЖЕН упасть.
-      expect(1, 1);
-    });
+  test('ci canary', () {
+    expect(1, 1);
   });
 }
+

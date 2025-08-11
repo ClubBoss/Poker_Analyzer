@@ -14,6 +14,7 @@ import 'training_pack_template_registry_service.dart';
 import 'board_texture_classifier.dart';
 import 'autogen_stats_dashboard_service.dart';
 import '../models/texture_filter_config.dart';
+import '../core/autogen/texture_filter_engine.dart';
 
 /// Wrapper around [TrainingPackGeneratorEngineV2] that skips duplicate spots.
 class TrainingPackAutoGenerator {
@@ -24,6 +25,7 @@ class TrainingPackAutoGenerator {
   final TrainingPackTemplateRegistryService _registry;
   final BoardTextureClassifier _boardClassifier;
   TextureFilterConfig? textureFilters;
+  final TextureFilterEngine _textureEngine;
   int spotsPerPack;
   int streets;
   double theoryRatio;
@@ -37,17 +39,19 @@ class TrainingPackAutoGenerator {
     TrainingPackTemplateRegistryService? registry,
     BoardTextureClassifier? boardClassifier,
     TextureFilterConfig? textureFilters,
+    TextureFilterEngine? textureEngine,
     this.spotsPerPack = 12,
     this.streets = 1,
     this.theoryRatio = 0.5,
-  }) : _engine = engine ?? TrainingPackGeneratorEngineV2(),
-       _dedup = dedup ?? AutoDeduplicationEngine(),
-       _errorClassifier =
-           errorClassifier ?? const AutogenPackErrorClassifierService(),
-       _errorStats = errorStats ?? AutogenErrorStatsLogger(),
-       _registry = registry ?? TrainingPackTemplateRegistryService(),
-       _boardClassifier = boardClassifier ?? const BoardTextureClassifier(),
-       textureFilters = textureFilters;
+  })  : _engine = engine ?? TrainingPackGeneratorEngineV2(),
+        _dedup = dedup ?? AutoDeduplicationEngine(),
+        _errorClassifier =
+            errorClassifier ?? const AutogenPackErrorClassifierService(),
+        _errorStats = errorStats ?? AutogenErrorStatsLogger(),
+        _registry = registry ?? TrainingPackTemplateRegistryService(),
+        _boardClassifier = boardClassifier ?? const BoardTextureClassifier(),
+        textureFilters = textureFilters,
+        _textureEngine = textureEngine ?? TextureFilterEngine();
 
   /// Generates spots from [template] and optionally deduplicates them based on
   /// fingerprints.
@@ -122,7 +126,6 @@ class TrainingPackAutoGenerator {
             progress: 1,
           ),
         );
-        _recordTextureDistribution(filtered);
         return filtered;
       }
 
@@ -143,7 +146,6 @@ class TrainingPackAutoGenerator {
           progress: 1,
         ),
       );
-      _recordTextureDistribution(deduped);
       return deduped;
     } catch (e) {
       final pack = _buildPack(set, const []);
@@ -209,7 +211,6 @@ class TrainingPackAutoGenerator {
         if (deduplicate) {
           spots = _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
         }
-        _recordTextureDistribution(spots);
         results.add(_buildPack(set, spots));
       } else {
         for (final entry in variants) {
@@ -243,7 +244,6 @@ class TrainingPackAutoGenerator {
             spots =
                 _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
           }
-          _recordTextureDistribution(spots);
           final tag = 'VARIANT:${entry.key.toUpperCase()}';
           for (final s in spots) {
             s.tags = {...s.tags, tag}.toList()..sort();
@@ -331,67 +331,18 @@ class TrainingPackAutoGenerator {
   List<TrainingPackSpot> _applyTextureFilters(List<TrainingPackSpot> spots) {
     final config = textureFilters;
     if (config == null) return spots;
-    final include = config.include;
-    final exclude = config.exclude;
-    final target = config.targetMix;
-    final maxCounts = <String, int>{};
-    final counts = <String, int>{};
-    final tol = (spotsPerPack * 0.02).round();
-    target.forEach((k, v) {
-      maxCounts[k] = (spotsPerPack * v).round();
-    });
     final dashboard = AutogenStatsDashboardService.instance;
-    final result = <TrainingPackSpot>[];
-    for (final s in spots) {
-      final flop = s.hand.board.take(3).join();
-      final tags = _boardClassifier.classify(flop);
-      final suits = s.hand.board.take(3).map((c) => c.substring(1)).toSet();
-      if (suits.length == 2) tags.add('twoTone');
-      if (include.isNotEmpty && include.intersection(tags).isEmpty) {
-        for (final t in tags) {
-          if (target.containsKey(t)) dashboard.recordRejectedTexture(t);
-        }
-        continue;
-      }
-      if (exclude.intersection(tags).isNotEmpty) {
-        for (final t in tags) {
-          if (target.containsKey(t)) dashboard.recordRejectedTexture(t);
-        }
-        continue;
-      }
-      var over = false;
-      for (final entry in maxCounts.entries) {
-        if (tags.contains(entry.key) &&
-            (counts[entry.key] ?? 0) >= entry.value + tol) {
-          dashboard.recordRejectedTexture(entry.key);
-          over = true;
-          break;
-        }
-      }
-      if (over) continue;
-      result.add(s);
-      for (final key in target.keys) {
-        if (tags.contains(key)) {
-          counts[key] = (counts[key] ?? 0) + 1;
-        }
-      }
-    }
-    return result;
-  }
-
-  void _recordTextureDistribution(List<TrainingPackSpot> spots) {
-    final config = textureFilters;
-    final dashboard = AutogenStatsDashboardService.instance;
-    for (final s in spots) {
-      final flop = s.hand.board.take(3).join();
-      final tags = _boardClassifier.classify(flop);
-      final suits = s.hand.board.take(3).map((c) => c.substring(1)).toSet();
-      if (suits.length == 2) tags.add('twoTone');
-      final keys = config?.targetMix.keys ?? tags;
-      for (final t in keys) {
-        if (tags.contains(t)) dashboard.recordTexture(t);
-      }
-    }
+    return _textureEngine.filter<TrainingPackSpot>(
+      spots,
+      (s) => s.hand.board.take(3).join(),
+      config.include,
+      config.exclude,
+      config.targetMix,
+      spotsPerPack: spotsPerPack,
+      classifier: _boardClassifier,
+      onAccept: dashboard.recordTexture,
+      onReject: dashboard.recordRejectedTexture,
+    );
   }
 
   /// Requests the generator to stop processing.
