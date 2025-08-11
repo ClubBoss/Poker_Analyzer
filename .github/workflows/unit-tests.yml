@@ -20,9 +20,10 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        shard: [0, 1, 2, 3]               # 4 параллельных шарда
+        shard: [0, 1, 2, 3]          # 4 параллельных шарда (быстро)
     env:
       TOTAL_SHARDS: 4
+      FAIL_ON_ZERO_TESTS: false      # поставишь true, когда захочешь enforce
 
     steps:
       - name: Checkout
@@ -30,7 +31,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Надёжный doc/CI-only fast-path (без --depth)
+      # Надёжный fast-path (doc/CI-only) без --depth
       - name: Compute fast-path (doc/CI-only)
         id: compute
         shell: bash
@@ -88,7 +89,16 @@ jobs:
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
         run: flutter pub get
 
-      # Разбивка тестов по шардaм с безопасной обработкой пустых наборов
+      # Быстрый статанализ, даёт ценность даже без тестов
+      - name: Flutter analyze
+        if: ${{ steps.compute.outputs.fast_path != 'true' }}
+        run: flutter analyze
+
+      # - name: Check formatting (optional)
+      #   if: ${{ steps.compute.outputs.fast_path != 'true' }}
+      #   run: dart format --output=none --set-exit-if-changed .
+
+      # Разбивка тестов на шарды (поддержка test/ и integration_test/ во всём монорепо)
       - name: Select tests for shard ${{ matrix.shard }}/${{ env.TOTAL_SHARDS }}
         if: ${{ steps.compute.outputs.fast_path != 'true' }}
         id: shard
@@ -96,13 +106,17 @@ jobs:
         run: |
           set -Eeuo pipefail
           echo "Collecting test files tracked by git…"
-          # Берём только отслеживаемые файлы *_test.dart под каталогами test/
-          mapfile -t ALL < <(git ls-files '*_test.dart' | grep -E '/test/.*_test\.dart$' | sort || true)
+          # Любые пакеты/модули: test/ и integration_test/ во всех подпапках
+          mapfile -t ALL < <(git ls-files '*_test.dart' | grep -E '/(test|integration_test)/.*_test\.dart$' | sort || true)
 
           echo "Total *_test.dart found: ${#ALL[@]}"
           if [ ${#ALL[@]} -eq 0 ]; then
-            echo "No *_test.dart files found under /test — nothing to run in any shard."
+            echo "No *_test.dart files found under /(test|integration_test) — nothing to run in any shard."
             echo "no_tests=true" >> "$GITHUB_OUTPUT"
+            if [ "${FAIL_ON_ZERO_TESTS:-false}" = "true" ]; then
+              echo "FAIL_ON_ZERO_TESTS=true → failing the job."
+              exit 1
+            fi
             exit 0
           fi
 
@@ -125,7 +139,6 @@ jobs:
           printf "%s\n" "${SEL[@]}" | tee shard_tests.txt
           echo "Assigned to shard $SHARD_IDX:"
           sed 's/^/  - /' shard_tests.txt
-
           echo "no_tests=false" >> "$GITHUB_OUTPUT"
 
       - name: Run unit tests for shard ${{ matrix.shard }}
@@ -135,10 +148,10 @@ jobs:
           set -Eeuo pipefail
           echo "Running tests in shard ${{ matrix.shard }} of ${{ env.TOTAL_SHARDS }}:"
           sed 's/^/  - /' shard_tests.txt
-          # Таймаут на каждый тестовый файл, явный прогресс
+          # Явный список файлов, ограничение таймаута на каждый тестовый файл
           flutter test --concurrency=6 --timeout=5m $(cat shard_tests.txt)
 
-      # Покрытие считаем только в шарде 0 (чтобы не дублировать нагрузку)
+      # Покрытие считаем только в шарде 0 (если есть что гонять)
       - name: Collect coverage (shard 0 only)
         if: ${{ steps.compute.outputs.fast_path != 'true' && matrix.shard == 0 && steps.shard.outputs.no_tests == 'false' }}
         run: flutter test --coverage --concurrency=6 --timeout=5m $(cat shard_tests.txt)
