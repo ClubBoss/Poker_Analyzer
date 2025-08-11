@@ -61,6 +61,7 @@ class LearningPathProgressService {
   bool _mockCustomPathStarted = false;
   bool _mockCustomPathCompleted = false;
   bool unlockAllStages = false;
+  final Map<String, bool> _mockTheoryViewed = {};
 
   /// Clears all learning path progress. Used for development/testing only.
   Future<void> resetProgress() async {
@@ -78,6 +79,7 @@ class LearningPathProgressService {
   }
 
   static String _key(String id) => 'learning_completed_$id';
+  static String _theoryKey(String id) => 'learning_theory_viewed_$id';
 
   Future<bool> hasSeenIntro() async {
     if (mock) return _mockIntroSeen;
@@ -110,6 +112,21 @@ class LearningPathProgressService {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_customPathKey, true);
+  }
+
+  Future<void> markTheoryViewed(String stageId) async {
+    if (mock) {
+      _mockTheoryViewed[stageId] = true;
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_theoryKey(stageId), true);
+  }
+
+  Future<bool> isTheoryViewed(String stageId) async {
+    if (mock) return _mockTheoryViewed[stageId] == true;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_theoryKey(stageId)) ?? false;
   }
 
   Future<bool> isCustomPathStarted() async {
