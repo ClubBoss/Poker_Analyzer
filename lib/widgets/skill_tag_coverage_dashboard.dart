@@ -50,14 +50,12 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
   @override
   Widget build(BuildContext context) {
     final stream = widget.statsStream ??
-        Stream.periodic(
-          const Duration(seconds: 1),
-          (_) => SkillTagCoverageTrackerService.instance.getCoverageStats(),
-        );
-    final tagCategoryMap =
-        widget.tagCategoryMap ??
-            SkillTagCoverageTrackerService.instance.tagCategoryMap;
-    final allTags = widget.allTags ??
+        Stream.periodic(const Duration(seconds: 10), (_) {
+          return SkillTagCoverageTrackerService.instance.getCoverageStats();
+        });
+    final tagCategoryMap = widget.tagCategoryMap ??
+        SkillTagCoverageTrackerService.instance.tagCategoryMap;
+    final allTagsInput = widget.allTags ??
         SkillTagCoverageTrackerService.instance.allSkillTags;
 
     return StreamBuilder<SkillTagStats>(
@@ -67,10 +65,13 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
         if (stats == null) {
           return const Center(child: CircularProgressIndicator());
         }
+        final allTags =
+            allTagsInput.isEmpty ? stats.tagCounts.keys.toSet() : allTagsInput;
         _rows = _buildRows(stats, allTags, tagCategoryMap);
         _applySort();
         final categorySummary =
             computeCategorySummary(stats, allTags, tagCategoryMap);
+        final baseColor = Theme.of(context).colorScheme.surface;
         return Column(
           children: [
             SwitchListTile(
@@ -121,11 +122,14 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             DataCell(Text(
                                 r.lastUpdated?.toIso8601String() ?? '')),
                           ],
-                          color: MaterialStateProperty.resolveWith<Color?>((_) {
-                            final index =
-                                r.category.hashCode % Colors.primaries.length;
-                            return Colors.primaries[index].withOpacity(0.1);
-                          }),
+                          color: MaterialStatePropertyAll(
+                            Color.alphaBlend(
+                              Colors.primaries[r.category.hashCode %
+                                      Colors.primaries.length]
+                                  .withOpacity(0.08),
+                              baseColor,
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -140,21 +144,22 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
 
   List<_TagRow> _buildRows(
     SkillTagStats stats,
-    Set<String> allTags,
+    Set<String> allTagsInput,
     Map<String, String> catMap,
   ) {
-    final total = stats.totalTags == 0 ? 1 : stats.totalTags;
-    final rows = <_TagRow>[];
-    for (final tag in allTags) {
+    final allTags =
+        allTagsInput.isEmpty ? stats.tagCounts.keys.toSet() : allTagsInput;
+    final totalSpots = stats.spotTags.length;
+    return allTags.map((tag) {
       final norm = tag.toLowerCase();
       final spots = stats.tagCounts[norm] ?? 0;
       final packs = stats.packsPerTag[norm] ?? 0;
-      final coverage = spots / total * 100;
       final last = stats.tagLastUpdated[norm];
       final cat = catMap[norm] ?? 'uncategorized';
-      rows.add(_TagRow(tag, cat, packs, spots, coverage, last));
-    }
-    return rows;
+      final coverage =
+          totalSpots > 0 ? (spots / totalSpots) * 100 : 0.0;
+      return _TagRow(tag, cat, packs, spots, coverage, last);
+    }).toList();
   }
 
   List<_TagRow> _filteredRows() {
@@ -170,24 +175,32 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
         int cmp;
         switch (columnIndex) {
           case 0:
-            cmp = a.tag.compareTo(b.tag);
+            cmp = _cmp(a.tag, b.tag);
             break;
           case 1:
-            cmp = a.category.compareTo(b.category);
+            cmp = _cmp(a.category, b.category, a.tag, b.tag);
             break;
           case 2:
-            cmp = a.packs.compareTo(b.packs);
+            cmp = _cmp(a.packs, b.packs, a.tag, b.tag);
             break;
           case 3:
-            cmp = a.spots.compareTo(b.spots);
+            cmp = _cmp(a.spots, b.spots, a.tag, b.tag);
             break;
           case 4:
-            cmp = a.coverage.compareTo(b.coverage);
+            cmp = _cmp(a.coverage, b.coverage, a.tag, b.tag);
             break;
           case 5:
-            final at = a.lastUpdated?.millisecondsSinceEpoch ?? 0;
-            final bt = b.lastUpdated?.millisecondsSinceEpoch ?? 0;
-            cmp = at.compareTo(bt);
+            final at = a.lastUpdated?.millisecondsSinceEpoch;
+            final bt = b.lastUpdated?.millisecondsSinceEpoch;
+            if (at == null && bt == null) {
+              cmp = _cmp(0, 0, a.tag, b.tag);
+            } else if (at == null) {
+              cmp = 1;
+            } else if (bt == null) {
+              cmp = -1;
+            } else {
+              cmp = _cmp(at, bt, a.tag, b.tag);
+            }
             break;
           default:
             cmp = 0;
@@ -203,30 +216,44 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
       int cmp;
       switch (_sortColumnIndex) {
         case 0:
-          cmp = a.tag.compareTo(b.tag);
+          cmp = _cmp(a.tag, b.tag);
           break;
         case 1:
-          cmp = a.category.compareTo(b.category);
+          cmp = _cmp(a.category, b.category, a.tag, b.tag);
           break;
         case 2:
-          cmp = a.packs.compareTo(b.packs);
+          cmp = _cmp(a.packs, b.packs, a.tag, b.tag);
           break;
         case 3:
-          cmp = a.spots.compareTo(b.spots);
+          cmp = _cmp(a.spots, b.spots, a.tag, b.tag);
           break;
         case 4:
-          cmp = a.coverage.compareTo(b.coverage);
+          cmp = _cmp(a.coverage, b.coverage, a.tag, b.tag);
           break;
         case 5:
-          final at = a.lastUpdated?.millisecondsSinceEpoch ?? 0;
-          final bt = b.lastUpdated?.millisecondsSinceEpoch ?? 0;
-          cmp = at.compareTo(bt);
+          final at = a.lastUpdated?.millisecondsSinceEpoch;
+          final bt = b.lastUpdated?.millisecondsSinceEpoch;
+          if (at == null && bt == null) {
+            cmp = _cmp(0, 0, a.tag, b.tag);
+          } else if (at == null) {
+            cmp = 1;
+          } else if (bt == null) {
+            cmp = -1;
+          } else {
+            cmp = _cmp(at, bt, a.tag, b.tag);
+          }
           break;
         default:
           cmp = 0;
       }
       return _sortAscending ? cmp : -cmp;
     });
+  }
+
+  int _cmp<T extends Comparable>(T a, T b, [T? a2, T? b2]) {
+    final c = a.compareTo(b);
+    if (c != 0 || a2 == null || b2 == null) return c;
+    return a2.compareTo(b2);
   }
 
   Widget _buildCategoryTable(Map<String, CategorySummary> summary) {
