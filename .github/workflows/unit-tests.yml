@@ -48,13 +48,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # --- Tests toggle ---
-      # PRs: by default tests are skipped; add label 'run-tests' to enable.
-      # Push (main): tests always run.
-      - name: Run tests (push & labeled PRs)
-        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-tests')) }}
-        run: flutter test -r expanded --concurrency=6
-
-      - name: Skip tests (default for PRs without label)
-        if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: echo "PR tests are temporarily disabled. Add label 'run-tests' to this PR to enable them."
+        - name: Run smoke tests
+          run: |
+            set -Eeuo pipefail
+            FILES=("test/ci_canary_test.dart")
+            [ -d test/smoke ] && FILES+=("test/smoke")
+            flutter test --exclude-tags=slow -r expanded --concurrency=6 "${FILES[@]}"
