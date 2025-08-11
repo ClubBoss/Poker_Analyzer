@@ -6,6 +6,7 @@ class StageRemedialMeta {
   final Map<String, int> missTags;
   final Map<String, int> missTextures;
   final DateTime createdAt;
+  final double accuracyAfter;
   final bool completed;
 
   StageRemedialMeta({
@@ -14,6 +15,7 @@ class StageRemedialMeta {
     Map<String, int>? missTags,
     Map<String, int>? missTextures,
     DateTime? createdAt,
+    this.accuracyAfter = 0.0,
     this.completed = false,
   })  : missTags = missTags ?? const {},
         missTextures = missTextures ?? const {},
@@ -34,6 +36,7 @@ class StageRemedialMeta {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
           : DateTime.now(),
+      accuracyAfter: (json['accuracyAfter'] as num?)?.toDouble() ?? 0.0,
       completed: json['completed'] as bool? ?? false,
     );
   }
@@ -44,16 +47,18 @@ class StageRemedialMeta {
         if (missTags.isNotEmpty) 'missTags': missTags,
         if (missTextures.isNotEmpty) 'missTextures': missTextures,
         'createdAt': createdAt.toIso8601String(),
+        if (accuracyAfter > 0) 'accuracyAfter': accuracyAfter,
         if (completed) 'completed': true,
       };
 
-  StageRemedialMeta copyWith({bool? completed}) {
+  StageRemedialMeta copyWith({bool? completed, double? accuracyAfter}) {
     return StageRemedialMeta(
       remedialPackId: remedialPackId,
       sourceAttempts: sourceAttempts,
       missTags: missTags,
       missTextures: missTextures,
       createdAt: createdAt,
+      accuracyAfter: accuracyAfter ?? this.accuracyAfter,
       completed: completed ?? this.completed,
     );
   }
@@ -63,7 +68,7 @@ class StageRemedialMeta {
       'remedialPackId': remedialPackId,
       'accuracyAfter': accuracyAfter,
     });
-    return copyWith(completed: true);
+    return copyWith(completed: true, accuracyAfter: accuracyAfter);
   }
 }
 

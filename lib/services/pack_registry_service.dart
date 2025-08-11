@@ -1,4 +1,6 @@
 import '../models/v2/training_pack_template_v2.dart';
+import '../models/training_pack_model.dart';
+import '../models/game_type.dart';
 import '../core/training/library/training_pack_library_v2.dart';
 import 'training_pack_template_storage_service.dart';
 
@@ -13,6 +15,28 @@ class PackRegistryService {
   /// Registers [pack] in memory for subsequent lookups.
   void register(TrainingPackTemplateV2 pack) {
     _cache[pack.id] = pack;
+  }
+
+  /// Registers a generated pack by [id] with optional [source] and [meta].
+  ///
+  /// Used for runtime-generated packs that are not part of the static
+  /// library. Only minimal template data is stored in memory.
+  void registerGenerated(String id,
+      {String source = '', Map<String, dynamic>? meta}) {
+    final tpl = TrainingPackTemplateV2(
+      id: id,
+      name: id,
+      trainingType: TrainingType.custom,
+      spots: [],
+      spotCount: 0,
+      tags: const [],
+      gameType: GameType.cash,
+      positions: const [],
+      bb: 0,
+      meta: {'source': source, if (meta != null) ...meta},
+      isGeneratedPack: true,
+    );
+    register(tpl);
   }
 
   /// Loads a pack by [id] checking memory cache, assets and disk cache.
