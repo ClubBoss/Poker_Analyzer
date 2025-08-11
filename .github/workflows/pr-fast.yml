@@ -1,0 +1,48 @@
+name: PR Fast Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Устанавливаем официальный Flutter SDK (stable), с кэшем SDK
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Кэш pub-зависимостей и .dart_tool по хэшу lockfile
+      - name: Cache pub
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: flutter pub get
+        run: flutter pub get
+
+      - name: flutter analyze
+        run: flutter analyze
+
+      # Быстрые юнит-тесты (если в проекте используются теги @unit).
+      # Сделаем шаг необязательным для fast-path: быстрый фидбэк важнее.
+      - name: flutter test (unit-tag, optional)
+        run: flutter test -r expanded -t unit
+        continue-on-error: true
