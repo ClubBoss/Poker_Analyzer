@@ -56,8 +56,8 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
         });
     final tagCategoryMap = widget.tagCategoryMap ??
         SkillTagCoverageTrackerService.instance.tagCategoryMap;
-    final allTagsInput = widget.allTags ??
-        SkillTagCoverageTrackerService.instance.allSkillTags;
+    final allTagsInput =
+        widget.allTags ?? SkillTagCoverageTrackerService.instance.allSkillTags;
 
     return StreamBuilder<SkillTagStats>(
       stream: stream,
@@ -117,9 +117,9 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                               Text(r.tag),
                               onTap: () {
                                 try {
-                                  Navigator.of(context)
-                                      .pushNamed('/trainingPacks',
-                                          arguments: r.tag);
+                                  Navigator.of(context).pushNamed(
+                                      '/trainingPacks',
+                                      arguments: r.tag);
                                 } catch (_) {
                                   // Optionally handle missing route silently.
                                 }
@@ -128,8 +128,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             DataCell(Text(r.category)),
                             DataCell(Text('${r.packs}')),
                             DataCell(Text('${r.spots}')),
-                            DataCell(
-                                Text('${r.coverage.toStringAsFixed(1)}%')),
+                            DataCell(Text('${r.coverage.toStringAsFixed(1)}%')),
                             DataCell(Text(r.lastUpdated != null
                                 ? df.format(r.lastUpdated!)
                                 : '')),
@@ -166,8 +165,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
       final packs = stats.packsPerTag[norm] ?? 0;
       final last = stats.tagLastUpdated[norm];
       final cat = catMap[norm] ?? 'uncategorized';
-      final coverage =
-          totalSpots > 0 ? (spots / totalSpots) * 100 : 0.0;
+      final coverage = totalSpots > 0 ? (spots / totalSpots) * 100 : 0.0;
       return _TagRow(tag, cat, packs, spots, coverage, last);
     }).toList();
   }
@@ -260,4 +258,3 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
     );
   }
 }
-
