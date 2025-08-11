@@ -1,4 +1,5 @@
 import '../models/skill_tag_coverage_report.dart';
+import '../models/skill_tag_stats.dart';
 import 'training_pack_library_service.dart';
 import 'skill_tag_coverage_tracker.dart';
 
@@ -25,6 +26,13 @@ class SkillTagCoverageTrackerService {
   /// Returns current tag usage statistics.
   Map<String, int> getTagStats() =>
       Map<String, int>.from(_tracker.skillTagCounts);
+
+  /// Returns the aggregated coverage statistics including per-category data.
+  SkillTagStats getCoverageStats() => _tracker.aggregateReport;
+
+  /// Exposes the tag-to-category mapping.
+  Map<String, String> get tagCategoryMap =>
+      Map<String, String>.from(_tracker.tagCategoryMap);
 
   /// Resets the underlying tracker.
   void reset() => _tracker.reset();

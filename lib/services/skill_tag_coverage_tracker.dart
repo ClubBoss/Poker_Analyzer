@@ -19,6 +19,8 @@ class SkillTagCoverageTracker {
       <String, Set<String>>{};
   final Map<String, Set<String>> _allTagsByCategory =
       <String, Set<String>>{};
+  final Map<String, Set<String>> _tagPacks = <String, Set<String>>{};
+  final Map<String, DateTime> _tagLastUpdated = <String, DateTime>{};
   int _totalTags = 0;
 
   SkillTagCoverageTracker({
@@ -54,10 +56,11 @@ class SkillTagCoverageTracker {
   }
 
   /// Analyzes [pack] and updates global coverage counts.
-  SkillTagStats analyzePack(TrainingPackModel pack) => analyze(pack.spots);
+  SkillTagStats analyzePack(TrainingPackModel pack) =>
+      analyze(pack.spots, packId: pack.id);
 
   /// Computes tag coverage statistics for [spots].
-  SkillTagStats analyze(List<TrainingPackSpot> spots) {
+  SkillTagStats analyze(List<TrainingPackSpot> spots, {String? packId}) {
     final counts = <String, int>{};
     final perSpot = <String, List<String>>{};
     final localCategoryCounts = <String, int>{};
@@ -75,6 +78,10 @@ class SkillTagCoverageTracker {
         localCategoryCounts[cat] = (localCategoryCounts[cat] ?? 0) + 1;
         (_seenTagsByCategory[cat] ??= <String>{}).add(tag);
         (localSeenByCategory[cat] ??= <String>{}).add(tag);
+        if (packId != null) {
+          (_tagPacks[tag] ??= <String>{}).add(packId);
+        }
+        _tagLastUpdated[tag] = DateTime.now();
       }
     }
     _totalTags += total;
@@ -148,6 +155,8 @@ class SkillTagCoverageTracker {
       overloadedTags: overloaded,
       categoryCounts: Map<String, int>.from(categoryCounts),
       categoryCoverage: coverage,
+      packsPerTag: _tagPacks.map((k, v) => MapEntry(k, v.length)),
+      tagLastUpdated: Map<String, DateTime>.from(_tagLastUpdated),
     );
   }
 
@@ -236,6 +245,8 @@ class SkillTagCoverageTracker {
     skillTagCounts.clear();
     categoryCounts.clear();
     _seenTagsByCategory.clear();
+    _tagPacks.clear();
+    _tagLastUpdated.clear();
     _totalTags = 0;
   }
 
