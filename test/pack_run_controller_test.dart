@@ -2,19 +2,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_analyzer/controllers/pack_run_controller.dart';
 import 'package:poker_analyzer/models/theory_snippet.dart';
 import 'package:poker_analyzer/services/theory_index_service.dart';
+import 'package:poker_analyzer/models/recall_snippet_result.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FakeTheoryIndexService extends TheoryIndexService {
   final TheorySnippet? snippet;
   FakeTheoryIndexService(this.snippet);
 
   @override
-  Future<TheorySnippet?> matchSnippet(List<String> tags,
-      {Set<String>? exclude}) async {
-    return snippet;
+  Future<List<TheorySnippet>> snippetsForTag(String tag) async {
+    if (snippet == null) return [];
+    return [snippet!];
   }
 }
 
 void main() {
+  SharedPreferences.setMockInitialValues({});
   test('spot with missing tags -> no card', () async {
     final controller =
         PackRunController(theoryIndex: FakeTheoryIndexService(null));
@@ -30,8 +33,9 @@ void main() {
     );
     final controller =
         PackRunController(theoryIndex: FakeTheoryIndexService(snippet));
-    final result = await controller.onResult('s1', false, ['push']);
-    expect(result?.id, snippet.id);
-    expect(result?.title, snippet.title);
+    final RecallSnippetResult? result =
+        await controller.onResult('s1', false, ['push']);
+    expect(result?.snippet.id, snippet.id);
+    expect(result?.snippet.title, snippet.title);
   });
 }

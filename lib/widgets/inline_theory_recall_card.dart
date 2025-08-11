@@ -5,8 +5,14 @@ import '../models/theory_snippet.dart';
 
 class InlineTheoryRecallCard extends StatefulWidget {
   final TheorySnippet snippet;
+  final List<TheorySnippet> snippets;
   final VoidCallback onDismiss;
-  const InlineTheoryRecallCard({super.key, required this.snippet, required this.onDismiss});
+  const InlineTheoryRecallCard({
+    super.key,
+    required this.snippet,
+    this.snippets = const [],
+    required this.onDismiss,
+  });
 
   @override
   State<InlineTheoryRecallCard> createState() => _InlineTheoryRecallCardState();
@@ -35,6 +41,33 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
 
   void _handleDismiss() {
     if (mounted) widget.onDismiss();
+  }
+
+  void _showMore() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SizedBox(
+        height: 300,
+        child: PageView(
+          children: [
+            for (final s in widget.snippets)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: ListView(
+                  children: [
+                    Text(s.title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18)),
+                    const SizedBox(height: 8),
+                    for (final b in s.bullets)
+                      Text('• $b', style: const TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -66,6 +99,11 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
                       }
                     },
                     child: const Text('Learn More'),
+                  ),
+                if (widget.snippets.length > 1)
+                  TextButton(
+                    onPressed: _showMore,
+                    child: const Text('More on this...'),
                   ),
               ],
             ),
