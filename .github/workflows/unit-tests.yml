@@ -121,9 +121,8 @@ jobs:
           set -Eeuo pipefail
           echo "Running quick smoke subset…"
           FILES=()
-          # Choose a small, representative set (exists in repo)
-          FILES+=("test/utils/theory_cluster_id_hasher_test.dart")
-          FILES+=("test/tools/compile_path_test.dart")
+          # Use only the lightweight canary as smoke to avoid pulling heavy app deps
+          FILES+=("test/ci_canary_test.dart")
           # If any file is missing (older branches), skip gracefully
           EXISTING=()
           for f in "${FILES[@]}"; do
