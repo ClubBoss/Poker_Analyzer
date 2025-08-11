@@ -24,19 +24,23 @@ class NextUpBanner extends StatelessWidget {
           stage = null;
         }
         if (stage == null) return const SizedBox.shrink();
-        return Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => PackRunScreen(
-                        controller: controller,
-                        stage: stage!,
-                      )));
-            },
-            icon: const Icon(Icons.play_arrow),
-            label: Text('Next: ' + stage.title),
+        return SafeArea(
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => PackRunScreen(
+                            controller: controller,
+                            stage: stage!,
+                          )));
+                },
+                icon: const Icon(Icons.play_arrow),
+                label: Text('Next: ' + stage.title),
+              ),
+            ),
           ),
         );
       },

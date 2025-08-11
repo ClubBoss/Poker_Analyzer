@@ -7,7 +7,8 @@ import 'pack_run_screen.dart';
 /// Displays stages of a learning path and allows launching a stage run.
 class LearningPathScreen extends StatefulWidget {
   final String pathId;
-  const LearningPathScreen({super.key, required this.pathId});
+  final LearningPathController? controller;
+  const LearningPathScreen({super.key, this.pathId = 'default', this.controller});
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
@@ -19,7 +20,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   @override
   void initState() {
     super.initState();
-    controller = LearningPathController();
+    controller = widget.controller ?? LearningPathController();
     controller.addListener(_onUpdate);
     controller.load(widget.pathId);
   }
@@ -27,7 +28,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   @override
   void dispose() {
     controller.removeListener(_onUpdate);
-    controller.dispose();
+    if (widget.controller == null) {
+      controller.dispose();
+    }
     super.dispose();
   }
 

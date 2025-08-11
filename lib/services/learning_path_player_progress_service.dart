@@ -20,6 +20,7 @@ class LearningPathProgressService {
       final map = jsonDecode(raw) as Map<String, dynamic>;
       return LearningPathProgress.fromJson(map);
     } catch (_) {
+      await prefs.setString('${key}.bak', raw);
       await prefs.remove(key);
       return LearningPathProgress();
     }

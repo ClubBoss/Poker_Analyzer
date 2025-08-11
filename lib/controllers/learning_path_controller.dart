@@ -5,6 +5,7 @@ import '../models/learning_path_stage_model.dart';
 import '../models/learning_path_player_progress.dart';
 import '../services/learning_path_loader.dart';
 import '../services/learning_path_player_progress_service.dart';
+import '../services/learning_path_telemetry.dart';
 
 /// Controller that manages an active learning path session. It keeps track of
 /// progress and exposes the currently unlocked stage.
@@ -12,16 +13,20 @@ class LearningPathController extends ChangeNotifier {
   LearningPathController({
     LearningPathLoader? loader,
     LearningPathProgressService? progressService,
+    LearningPathTelemetry? telemetry,
   })  : _loader = loader ?? const LearningPathLoader(),
         _progressService =
-            progressService ?? LearningPathProgressService.instance;
+            progressService ?? LearningPathProgressService.instance,
+        _telemetry = telemetry ?? const LearningPathTelemetry();
 
   final LearningPathLoader _loader;
   final LearningPathProgressService _progressService;
+  final LearningPathTelemetry _telemetry;
 
   LearningPathTemplateV2? _path;
   LearningPathProgress _progress = LearningPathProgress();
   String? _pathId;
+  DateTime? _lastRecord;
 
   LearningPathTemplateV2? get path => _path;
   String? get currentStageId => _progress.currentStageId;
@@ -66,6 +71,12 @@ class LearningPathController extends ChangeNotifier {
   void recordHand({required bool correct}) {
     final stageId = _progress.currentStageId;
     if (stageId == null) return;
+    final now = DateTime.now();
+    if (_lastRecord != null &&
+        now.difference(_lastRecord!).inMilliseconds < 100) {
+      return;
+    }
+    _lastRecord = now;
     final stage =
         _path!.stages.firstWhere((s) => s.id == stageId, orElse: () => _path!.stages.first);
     final current = stageProgress(stageId).recordHand(correct: correct);
@@ -77,6 +88,11 @@ class LearningPathController extends ChangeNotifier {
         completedAt: DateTime.now(),
       );
       _unlockNext(stageId);
+      final id = _pathId;
+      if (id != null) {
+        _telemetry.logStageComplete(
+            pathId: id, stageId: stageId, progress: updated);
+      }
     }
     _progress = _progress.copyWith(
       stages: {
@@ -121,6 +137,15 @@ class LearningPathController extends ChangeNotifier {
     if (id != null) {
       await _progressService.save(id, _progress);
     }
+  }
+
+  @override
+  void dispose() {
+    final id = _pathId;
+    if (id != null) {
+      _telemetry.logSummary(pathId: id, progress: _progress);
+    }
+    super.dispose();
   }
 
   Future<void> reset() async {

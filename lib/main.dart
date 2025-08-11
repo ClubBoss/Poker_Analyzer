@@ -78,6 +78,8 @@ import 'services/suggested_pack_push_service.dart';
 import 'services/lesson_path_reminder_scheduler.dart';
 import 'services/decay_reminder_scheduler.dart';
 import 'services/decay_booster_notification_service.dart';
+import 'controllers/learning_path_controller.dart';
+import 'widgets/next_up_banner.dart';
 import 'services/decay_booster_cron_job.dart';
 import 'services/theory_lesson_notification_scheduler.dart';
 import 'services/booster_recall_decay_cleaner.dart';
@@ -162,6 +164,7 @@ class PokerAIAnalyzerApp extends StatefulWidget {
 
 class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   late final ConnectivitySyncController _sync;
+  final LearningPathController _lpController = LearningPathController();
 
   Future<void> _maybeShowIntroTutorial() async {
     final prefs = await SharedPreferences.getInstance();
@@ -394,6 +397,12 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
               Locale('pt'),
               Locale('de'),
             ],
+            builder: (ctx, child) => Stack(
+              children: [
+                if (child != null) child,
+                NextUpBanner(controller: _lpController),
+              ],
+            ),
             onGenerateRoute: _onGenerateRoute,
             routes: {
               WeaknessOverviewScreen.route: (_) =>
