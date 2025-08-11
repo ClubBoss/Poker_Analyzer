@@ -73,6 +73,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
         final categorySummary =
             computeCategorySummary(stats, allTags, tagCategoryMap);
         final baseColor = Theme.of(context).colorScheme.surface;
+        final df = DateFormat('yyyy-MM-dd');
         return Column(
           children: [
             SwitchListTile(
@@ -127,9 +128,10 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             DataCell(Text(r.category)),
                             DataCell(Text('${r.packs}')),
                             DataCell(Text('${r.spots}')),
-                            DataCell(Text(r.coverage.toStringAsFixed(1))),
+                            DataCell(
+                                Text('${r.coverage.toStringAsFixed(1)}%')),
                             DataCell(Text(r.lastUpdated != null
-                                ? DateFormat('yyyy-MM-dd').format(r.lastUpdated!)
+                                ? df.format(r.lastUpdated!)
                                 : '')),
                           ],
                           color: MaterialStatePropertyAll(
@@ -203,9 +205,9 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
             if (at == null && bt == null) {
               cmp = _cmp(0, 0, a.tag, b.tag);
             } else if (at == null) {
-              cmp = ascending ? 1 : -1;
+              cmp = 1;
             } else if (bt == null) {
-              cmp = ascending ? -1 : 1;
+              cmp = -1;
             } else {
               cmp = _cmp(at, bt, a.tag, b.tag);
             }
