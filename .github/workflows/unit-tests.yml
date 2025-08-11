@@ -122,7 +122,6 @@ jobs:
           echo "Running quick smoke subset…"
           FILES=()
           # Choose a small, representative set (exists in repo)
-          FILES+=("test/coverage_summary_test.dart")
           FILES+=("test/utils/theory_cluster_id_hasher_test.dart")
           FILES+=("test/tools/compile_path_test.dart")
           # If any file is missing (older branches), skip gracefully
