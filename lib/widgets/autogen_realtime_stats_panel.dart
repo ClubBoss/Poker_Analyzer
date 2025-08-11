@@ -43,6 +43,28 @@ class AutogenRealtimeStatsPanel extends StatelessWidget {
                       ],
                     ),
                   ),
+                if (dashboard.categoryCoverage.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Low coverage: ${dashboard.underrepresentedCategories().take(3).map((e) => '${e.key} ${(e.value * 100).toStringAsFixed(0)}%').join(', ')}',
+                    ),
+                  ),
+                  ExpansionTile(
+                    title: const Text('Category Breakdown'),
+                    children: [
+                      for (final entry in dashboard.categoryCoverage.entries)
+                        ListTile(
+                          title: Text(entry.key),
+                          trailing: Text(
+                            '${dashboard.categoryCounts[entry.key] ?? 0} '
+                            '- ${(entry.value * 100).toStringAsFixed(0)}%',
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ],
             ),
           );

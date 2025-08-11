@@ -1,0 +1,6 @@
+{
+  "push": "actions",
+  "call": "actions",
+  "fold": "actions",
+  "math": "theory"
+}
