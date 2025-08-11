@@ -54,18 +54,30 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   Widget _buildStageTile(LearningPathStageModel stage) {
     final progress = controller.stageProgress(stage.id);
     final unlocked = controller.isStageUnlocked(stage.id);
-    final statusIcon = progress.completed
+    final pct = stage.requiredHands == 0
+        ? 0.0
+        : (progress.handsPlayed / stage.requiredHands).clamp(0.0, 1.0);
+    String status;
+    if (progress.completed) {
+      status = 'Done';
+    } else if (!unlocked) {
+      status = 'Locked';
+    } else if (progress.handsPlayed > 0) {
+      status = 'In Progress';
+    } else {
+      status = 'Not Started';
+    }
+    final icon = progress.completed
         ? const Icon(Icons.check, color: Colors.green)
-        : unlocked
-            ? controller.currentStageId == stage.id
+        : !unlocked
+            ? const Icon(Icons.lock)
+            : controller.currentStageId == stage.id
                 ? const Icon(Icons.play_arrow)
-                : const SizedBox.shrink()
-            : const Icon(Icons.lock);
+                : const SizedBox.shrink();
     return ListTile(
       title: Text(stage.title),
-      subtitle: Text(
-          'Hands ${progress.handsPlayed}/${stage.requiredHands} · Acc ${(progress.accuracy * 100).toStringAsFixed(0)}%'),
-      trailing: statusIcon,
+      subtitle: Text('${(pct * 100).toStringAsFixed(0)}% · $status'),
+      trailing: icon,
       onTap: unlocked
           ? () {
               Navigator.of(context).push(MaterialPageRoute(

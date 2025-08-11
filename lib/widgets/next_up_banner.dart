@@ -24,21 +24,50 @@ class NextUpBanner extends StatelessWidget {
           stage = null;
         }
         if (stage == null) return const SizedBox.shrink();
+        final progress = controller.stageProgress(stage.id);
+        final pct = stage.requiredHands == 0
+            ? 0.0
+            : (progress.handsPlayed / stage.requiredHands)
+                .clamp(0.0, 1.0);
+        final btnLabel = progress.handsPlayed > 0 ? 'Resume' : 'Start';
         return SafeArea(
           child: Align(
             alignment: Alignment.bottomRight,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => PackRunScreen(
-                            controller: controller,
-                            stage: stage!,
-                          )));
-                },
-                icon: const Icon(Icons.play_arrow),
-                label: Text('Next: ' + stage.title),
+              child: Material(
+                elevation: 6,
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(stage.title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold)),
+                          Text('${(pct * 100).toStringAsFixed(0)}%'),
+                        ],
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => PackRunScreen(
+                                    controller: controller,
+                                    stage: stage!,
+                                  )));
+                        },
+                        child: Text(btnLabel),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

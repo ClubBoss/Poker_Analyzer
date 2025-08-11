@@ -68,6 +68,27 @@ class LearningPathController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Marks [stageId] as the current stage and records a start timestamp if
+  /// none exists yet.
+  void startStage(String stageId) {
+    final stage = _path?.stages
+        .firstWhere((s) => s.id == stageId, orElse: () => _path!.stages.first);
+    if (stage == null) return;
+    final current = stageProgress(stageId);
+    final updated = current.startedAt == null
+        ? current.copyWith(startedAt: DateTime.now())
+        : current;
+    _progress = _progress.copyWith(
+      currentStageId: stageId,
+      stages: {
+        ..._progress.stages,
+        stageId: updated,
+      },
+    );
+    _persist();
+    notifyListeners();
+  }
+
   void recordHand({required bool correct}) {
     final stageId = _progress.currentStageId;
     if (stageId == null) return;

@@ -7,6 +7,7 @@ import '../services/pack_registry_service.dart';
 import '../services/missing_pack_resolver.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import 'v2/training_pack_play_screen.dart';
+import '../services/session_log_service.dart';
 
 /// Screen allowing a user to run a stage's training pack.
 class PackRunScreen extends StatefulWidget {
@@ -52,10 +53,22 @@ class _PackRunScreenState extends State<PackRunScreen> {
   Future<void> _start() async {
     final tpl = _pack;
     if (tpl == null) return;
+    widget.controller.startStage(widget.stage.id);
+    final logs = context.read<SessionLogService>();
+    final before = logs.getStats(widget.stage.packId);
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
     ));
-    widget.controller.recordHand(correct: true);
+    final after = logs.getStats(widget.stage.packId);
+    final correctBefore =
+        (before.handsPlayed * before.accuracy / 100).round();
+    final correctAfter =
+        (after.handsPlayed * after.accuracy / 100).round();
+    final deltaHands = after.handsPlayed - before.handsPlayed;
+    final deltaCorrect = correctAfter - correctBefore;
+    for (var i = 0; i < deltaHands; i++) {
+      widget.controller.recordHand(correct: i < deltaCorrect);
+    }
     setState(() {});
   }
 
