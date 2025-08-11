@@ -29,6 +29,11 @@ class AutogenStatsDashboardService extends ChangeNotifier {
   Map<String, int> textureCounts = {};
   Map<String, int> textureRejects = {};
   Map<String, double> targetTextureMix = {};
+  int theoryLinked = 0;
+  int theoryRejectedLowScore = 0;
+  int uniqueTheoryUsed = 0;
+  double avgTheoryScore = 0;
+  final Set<String> _theoryIds = {};
   DateTime? _start;
   int _yamlFiles = 0;
 
@@ -51,6 +56,11 @@ class AutogenStatsDashboardService extends ChangeNotifier {
     textureCounts = {};
     textureRejects = {};
     targetTextureMix = {};
+    theoryLinked = 0;
+    theoryRejectedLowScore = 0;
+    uniqueTheoryUsed = 0;
+    avgTheoryScore = 0;
+    _theoryIds.clear();
     _yamlFiles = 0;
     notifyListeners();
   }
@@ -87,6 +97,30 @@ class AutogenStatsDashboardService extends ChangeNotifier {
 
   void recordRejectedTexture(String tex) {
     textureRejects[tex] = (textureRejects[tex] ?? 0) + 1;
+  }
+
+  /// Records theory linking statistics for dashboard preview and logs.
+  void recordTheoryLinking({
+    required int linked,
+    required int rejectedLowScore,
+    required Set<String> ids,
+    required double avgScore,
+  }) {
+    theoryLinked += linked;
+    theoryRejectedLowScore += rejectedLowScore;
+    _theoryIds.addAll(ids);
+    uniqueTheoryUsed = _theoryIds.length;
+    if (theoryLinked > 0) {
+      avgTheoryScore =
+          ((avgTheoryScore * (theoryLinked - linked)) + avgScore * linked) /
+              theoryLinked;
+    }
+    _logFile.writeAsString(
+      'Theory linked: $linked avg:${avgScore.toStringAsFixed(2)} '
+      'unique:${ids.length} rejected:$rejectedLowScore\n',
+      mode: FileMode.append,
+    );
+    notifyListeners();
   }
 
   /// Updates coverage statistics for dashboard preview.

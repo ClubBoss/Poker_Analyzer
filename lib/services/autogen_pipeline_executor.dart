@@ -328,7 +328,7 @@ class AutogenPipelineExecutor {
           'Generated ${spots.length} spots for template ${set.baseSpot.id}',
         );
 
-        theoryInjector.injectAll(spots, theoryIndex);
+        final theorySummary = theoryInjector.injectAll(spots, theoryIndex);
         boardClassifier?.classifyAll(spots);
         skillLinker.linkAll(spots);
 
@@ -349,6 +349,7 @@ class AutogenPipelineExecutor {
         pack.meta['autogenMeta'] = {
           if (textureFilters != null) 'textureFilters': textureFilters!.toJson(),
           'textureDistribution': dashboard.textureCounts,
+          'theorySummary': theorySummary.toJson(),
         };
 
         var model = TrainingPackModel(

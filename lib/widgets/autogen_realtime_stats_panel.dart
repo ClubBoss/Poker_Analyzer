@@ -28,6 +28,15 @@ class AutogenRealtimeStatsPanel extends StatelessWidget {
                     Text('🔐 Fingerprints: ${stats.fingerprintCount}'),
                   ],
                 ),
+                if (dashboard.theoryLinked > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      'Theory: ${dashboard.theoryLinked} linked • '
+                      '${dashboard.avgTheoryScore.toStringAsFixed(2)} avg • '
+                      '${dashboard.uniqueTheoryUsed} unique',
+                    ),
+                  ),
                 if (dashboard.targetTextureMix.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),

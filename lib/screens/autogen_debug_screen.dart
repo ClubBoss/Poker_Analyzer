@@ -25,6 +25,7 @@ import 'pack_fingerprint_comparer_report_ui.dart';
 import '../widgets/deduplication_policy_editor.dart';
 import '../widgets/theory_coverage_panel_widget.dart';
 import '../models/texture_filter_config.dart';
+import '../services/inline_theory_link_auto_injector.dart';
 
 class _DirExporter extends TrainingPackExporterV2 {
   final String outDir;
@@ -75,6 +76,23 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     'twoTone',
     'rainbow'
   ];
+  bool _theoryEnabled = true;
+  int _maxLinks = 2;
+  double _minScore = 0.5;
+  double _wTag = 0.6;
+  double _wTex = 0.25;
+  double _wCluster = 0.15;
+  bool _preferNovelty = true;
+  final TextEditingController _maxLinksController =
+      TextEditingController(text: '2');
+  final TextEditingController _minScoreController =
+      TextEditingController(text: '0.5');
+  final TextEditingController _wTagController =
+      TextEditingController(text: '0.6');
+  final TextEditingController _wTexController =
+      TextEditingController(text: '0.25');
+  final TextEditingController _wClusterController =
+      TextEditingController(text: '0.15');
 
   @override
   void initState() {
@@ -121,6 +139,15 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
           _targetMix.entries.where((e) => e.value > 0),
         ),
       ),
+      theoryInjector: InlineTheoryLinkAutoInjector(
+        enabled: _theoryEnabled,
+        maxLinksPerSpot: _maxLinks,
+        minScore: _minScore,
+        wTag: _wTag,
+        wTex: _wTex,
+        wCluster: _wCluster,
+        preferNovelty: _preferNovelty,
+      ),
     );
     await status.bindExecutor(executor);
     setState(() {
@@ -153,6 +180,11 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   @override
   void dispose() {
     _outputDirController.dispose();
+    _maxLinksController.dispose();
+    _minScoreController.dispose();
+    _wTagController.dispose();
+    _wTexController.dispose();
+    _wClusterController.dispose();
     super.dispose();
   }
 
@@ -260,6 +292,84 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                     });
                   },
                   child: const Text('Reset Textures'),
+                ),
+                const SizedBox(height: 16),
+                const Text('Theory Injector'),
+                SwitchListTile(
+                  title: const Text('Enable'),
+                  value: _theoryEnabled,
+                  onChanged: (v) => setState(() => _theoryEnabled = v),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _maxLinksController,
+                        decoration: const InputDecoration(
+                          labelText: 'Max links per spot',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) =>
+                            _maxLinks = int.tryParse(v) ?? _maxLinks,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _minScoreController,
+                        decoration: const InputDecoration(
+                          labelText: 'Min score',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) =>
+                            _minScore = double.tryParse(v) ?? _minScore,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _wTagController,
+                        decoration: const InputDecoration(
+                          labelText: 'w_tag',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) =>
+                            _wTag = double.tryParse(v) ?? _wTag,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _wTexController,
+                        decoration: const InputDecoration(
+                          labelText: 'w_tex',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) =>
+                            _wTex = double.tryParse(v) ?? _wTex,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _wClusterController,
+                        decoration: const InputDecoration(
+                          labelText: 'w_cluster',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) =>
+                            _wCluster = double.tryParse(v) ?? _wCluster,
+                      ),
+                    ),
+                  ],
+                ),
+                SwitchListTile(
+                  title: const Text('Prefer novelty'),
+                  value: _preferNovelty,
+                  onChanged: (v) => setState(() => _preferNovelty = v),
                 ),
               ],
             ),
