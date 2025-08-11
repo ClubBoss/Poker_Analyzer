@@ -153,6 +153,7 @@ flutter:
     - assets/precompiled_packs/
     - assets/icm_scenarios/
     - assets/ab_experiments.json
+    - assets/autogen_presets/
     - assets/skill_tag_categories.json
 
 # Release build configuration for the demo entry point. Run

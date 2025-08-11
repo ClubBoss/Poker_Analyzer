@@ -1,0 +1,26 @@
+{
+  "id": "monotone_focus",
+  "name": "Monotone Focus",
+  "textures": {
+    "targetMix": {
+      "monotone": 0.5,
+      "low": 0.125,
+      "paired": 0.125,
+      "twoTone": 0.125,
+      "rainbow": 0.125
+    }
+  },
+  "theory": {
+    "enabled": true,
+    "maxLinksPerSpot": 2,
+    "minScore": 0.5,
+    "wTag": 0.6,
+    "wTex": 0.25,
+    "wCluster": 0.15,
+    "preferNovelty": true
+  },
+  "spotsPerPack": 12,
+  "streets": 1,
+  "theoryRatio": 0.5,
+  "outputDir": "packs/generated"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "theory_heavy",
+  "name": "Theory-Heavy",
+  "textures": {},
+  "theory": {
+    "enabled": true,
+    "maxLinksPerSpot": 3,
+    "minScore": 0.45,
+    "wTag": 0.5,
+    "wTex": 0.3,
+    "wCluster": 0.2,
+    "preferNovelty": true
+  },
+  "spotsPerPack": 12,
+  "streets": 1,
+  "theoryRatio": 0.5,
+  "outputDir": "packs/generated"
+}
