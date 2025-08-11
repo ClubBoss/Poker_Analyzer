@@ -9,6 +9,7 @@ import '../models/spot_attempt_summary.dart';
 class TrainingSessionFingerprintService {
   static const _storageKey = 'training_session_fingerprints';
   String? _currentSessionId;
+  String? get currentSessionId => _currentSessionId;
 
   Future<String> startSession() async {
     final prefs = await SharedPreferences.getInstance();

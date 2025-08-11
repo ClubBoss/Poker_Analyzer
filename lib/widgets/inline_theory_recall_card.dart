@@ -43,8 +43,9 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
     if (mounted) widget.onDismiss();
   }
 
-  void _showMore() {
-    showModalBottomSheet(
+  Future<void> _showMore() async {
+    _timer?.cancel();
+    await showModalBottomSheet(
       context: context,
       builder: (_) => SizedBox(
         height: 300,
@@ -68,6 +69,9 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
         ),
       ),
     );
+    if (mounted) {
+      _timer = Timer(const Duration(seconds: 12), _handleDismiss);
+    }
   }
 
   @override

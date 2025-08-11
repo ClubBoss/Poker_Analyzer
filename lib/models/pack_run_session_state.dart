@@ -4,7 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists per-tag cooldowns and recall history for a training session.
 class PackRunSessionState {
+  final String scopeKey;
   PackRunSessionState({
+    this.scopeKey = 'packRunState.default',
     this.handCounter = 0,
     this.lastShownAt = -3,
     Map<String, int>? tagLastShown,
@@ -23,7 +25,8 @@ class PackRunSessionState {
   final Map<String, bool> recallShownBySpot;
   final Map<String, int> attemptsBySpot;
 
-  static const _prefsKey = 'packRunSessionState';
+  static String keyFor({required String packId, required String sessionId}) =>
+      'packRunState.$packId.$sessionId';
 
   Map<String, dynamic> toJson() => {
         'handCounter': handCounter,
@@ -34,8 +37,10 @@ class PackRunSessionState {
         'lastShownAt': lastShownAt,
       };
 
-  factory PackRunSessionState.fromJson(Map<String, dynamic> json) {
+  factory PackRunSessionState.fromJson(Map<String, dynamic> json,
+      {required String scopeKey}) {
     return PackRunSessionState(
+      scopeKey: scopeKey,
       handCounter: json['handCounter'] as int? ?? 0,
       tagLastShown: (json['tagLastShown'] as Map?)?.map((key, value) =>
               MapEntry(key as String, value as int)) ??
@@ -53,21 +58,21 @@ class PackRunSessionState {
     );
   }
 
-  static Future<PackRunSessionState> load() async {
+  static Future<PackRunSessionState> load(String scopeKey) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_prefsKey);
-    if (raw == null) return PackRunSessionState();
+    final raw = prefs.getString(scopeKey);
+    if (raw == null) return PackRunSessionState(scopeKey: scopeKey);
     try {
       final map = jsonDecode(raw) as Map<String, dynamic>;
-      return PackRunSessionState.fromJson(map);
+      return PackRunSessionState.fromJson(map, scopeKey: scopeKey);
     } catch (_) {
-      return PackRunSessionState();
+      return PackRunSessionState(scopeKey: scopeKey);
     }
   }
 
   Future<void> save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsKey, jsonEncode(toJson()));
+    await prefs.setString(scopeKey, jsonEncode(toJson()));
   }
 }
 
