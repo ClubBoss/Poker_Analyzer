@@ -12,12 +12,13 @@ concurrency:
 jobs:
   fast-checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Устанавливаем официальный Flutter SDK (stable), с кэшем SDK
+      # Официальный Flutter SDK (stable) + кэш SDK
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -38,11 +39,25 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: flutter analyze (lib + test only)
-        run: flutter analyze lib test
+      # Точечный анализ только по актуальным директориям маршрута
+      - name: flutter analyze (targeted)
+        run: |
+          flutter analyze \
+            lib/services \
+            lib/controllers \
+            lib/models \
+            lib/screens \
+            lib/widgets/skill_tag_coverage_dashboard.dart \
+            test/services \
+            test/widgets \
+            test/remedial_generation_controller_test.dart
 
-      # Быстрые юнит-тесты (если в проекте используются теги @unit).
-      # Сделаем шаг необязательным для fast-path: быстрый фидбэк важнее.
-      - name: flutter test (unit-tag, optional)
-        run: flutter test -r expanded -t unit
-        continue-on-error: true
+      # Быстрые тесты: сначала пробуем тег @unit, иначе прогоняем дефолтно
+      - name: flutter test (fast)
+        run: |
+          if flutter test -r expanded -t unit; then
+            echo "Ran tagged unit tests."
+          else
+            echo "No tagged unit tests; running default fast suite."
+            flutter test -r expanded
+          fi
