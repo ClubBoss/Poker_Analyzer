@@ -2,9 +2,10 @@ import '../models/autogen_preset.dart';
 import '../models/texture_filter_config.dart';
 import '../models/theory_injector_config.dart';
 import '../models/remedial_spec.dart';
+import 'learning_path_telemetry.dart';
 
 class RemedialPackGenerator {
-  AutogenPreset build(String stageId, RemedialSpec spec,
+  AutogenPreset build(String pathId, String stageId, RemedialSpec spec,
       {int spotsPerPack = 6}) {
     final bounded = spotsPerPack.clamp(6, 12);
     final total = spec.textureCounts.values.fold<int>(0, (a, b) => a + b);
@@ -21,7 +22,7 @@ class RemedialPackGenerator {
       minScore: 0.7,
       preferNovelty: false,
     );
-    return AutogenPreset(
+    final preset = AutogenPreset(
       id: 'remedial_v1',
       name: 'Remedial Pack',
       textures: textures,
@@ -32,5 +33,13 @@ class RemedialPackGenerator {
         'stageId': stageId,
       },
     );
+    LearningPathTelemetry.instance.log('remedial_created', {
+      'pathId': pathId,
+      'stageId': stageId,
+      'remedialPackId': preset.id,
+      'missTags': spec.topTags,
+      'missTextures': spec.textureCounts,
+    });
+    return preset;
   }
 }

@@ -17,7 +17,7 @@ class LearningPathController extends ChangeNotifier {
   })  : _loader = loader ?? const LearningPathLoader(),
         _progressService =
             progressService ?? LearningPathProgressService.instance,
-        _telemetry = telemetry ?? const LearningPathTelemetry();
+        _telemetry = telemetry ?? LearningPathTelemetry.instance;
 
   final LearningPathLoader _loader;
   final LearningPathProgressService _progressService;
@@ -109,8 +109,12 @@ class LearningPathController extends ChangeNotifier {
       _unlockNext(stageId);
       final id = _pathId;
       if (id != null) {
-        _telemetry.logStageComplete(
-            pathId: id, stageId: stageId, progress: updated);
+      _telemetry.log('stage_completed', {
+        'pathId': id,
+        'stageId': stageId,
+        'hands': updated.handsPlayed,
+        'accuracy': updated.accuracy,
+      });
       }
     }
     _progress = _progress.copyWith(
@@ -162,7 +166,21 @@ class LearningPathController extends ChangeNotifier {
   void dispose() {
     final id = _pathId;
     if (id != null) {
-      _telemetry.logSummary(pathId: id, progress: _progress);
+      final stagesCompleted =
+          _progress.stages.values.where((s) => s.completed).length;
+      final handsPlayed =
+          _progress.stages.values.fold<int>(0, (a, b) => a + b.handsPlayed);
+      final avgAcc = _progress.stages.isEmpty
+          ? 0.0
+          : _progress.stages.values
+                  .fold<double>(0, (a, b) => a + b.accuracy) /
+              _progress.stages.length;
+      _telemetry.log('path_summary', {
+        'pathId': id,
+        'stagesCompleted': stagesCompleted,
+        'handsPlayed': handsPlayed,
+        'avgAccuracy': double.parse(avgAcc.toStringAsFixed(2)),
+      });
     }
     super.dispose();
   }

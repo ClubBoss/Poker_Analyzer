@@ -11,7 +11,7 @@ void main() {
       minAccuracyTarget: 0.7,
     );
     final gen = RemedialPackGenerator();
-    final preset = gen.build('stage1', spec, spotsPerPack: 20);
+    final preset = gen.build('path1', 'stage1', spec, spotsPerPack: 20);
     expect(preset.spotsPerPack, 12);
     expect(preset.textures.targetMix.values.every((v) => v <= 0.4), true);
     expect(preset.theory.enabled, true);
