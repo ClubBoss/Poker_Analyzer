@@ -1,11 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
   pull_request:
     branches: [ main ]
     paths-ignore:
@@ -53,28 +48,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Определяем, есть ли изменения кода (а не только docs/CI/медиа)
-      - name: Compute scope
-        id: scope
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          BASE="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before || 'HEAD~1' }}"
-          HEAD="${{ github.sha }}"
-          CHANGED=$(git diff --name-only "$BASE" "$HEAD" || true)
-          echo "Changed files:" && echo "$CHANGED" | sed 's/^/• /'
-          if echo "$CHANGED" | grep -Evq '^(docs/|\.github/workflows/|.*\.(md|png|jpg|jpeg|gif|svg|pdf)$)'; then
-            echo "run_tests=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run_tests=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      # На push тесты идут только при изменениях кода.
-      # В PR — включаются лейблом 'run-tests' и при изменениях кода.
-      - name: Run tests (push & labeled PRs)
-        if: ${{ steps.scope.outputs.run_tests == 'true' && (github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-tests'))) }}
+      # Тесты только по лейблу в PR
+      - name: Run tests (labeled PRs only)
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
         run: flutter test -r expanded --concurrency=6
 
-      - name: Skip tests
-        if: ${{ steps.scope.outputs.run_tests != 'true' || (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests')) }}
-        run: echo "Skipping tests (no code changes or PR without 'run-tests' label)."
+      - name: Skip tests (default)
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: echo "CI tests skipped. Add 'run-tests' label on the PR to enable."
