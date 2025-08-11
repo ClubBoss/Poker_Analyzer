@@ -22,5 +22,16 @@ class LearningPathTelemetry {
     final file = File('autogen_report.log');
     await file.writeAsString(line, mode: FileMode.append, flush: true);
   }
+
+  Future<void> logStageComplete({
+    required String pathId,
+    required String stageId,
+    required StageProgress progress,
+  }) async {
+    final line =
+        'stageComplete pathId=$pathId stageId=$stageId hands=${progress.handsPlayed} acc=${progress.accuracy.toStringAsFixed(2)}\n';
+    final file = File('autogen_report.log');
+    await file.writeAsString(line, mode: FileMode.append, flush: true);
+  }
 }
 

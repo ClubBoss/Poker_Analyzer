@@ -12,6 +12,7 @@ class LearningPathTemplateV2 {
   final List<String> prerequisitePathIds;
   final String? coverAsset;
   final PathDifficulty? difficulty;
+  final Map<String, dynamic>? composerMeta;
 
   const LearningPathTemplateV2({
     required this.id,
@@ -24,6 +25,7 @@ class LearningPathTemplateV2 {
     List<String>? prerequisitePathIds,
     this.coverAsset,
     this.difficulty,
+    this.composerMeta,
   })  : stages = stages ?? const [],
         sections = sections ?? const [],
         tags = tags ?? const [],
@@ -62,6 +64,9 @@ class LearningPathTemplateV2 {
         for (final id in (json['prerequisitePathIds'] as List? ?? []))
           id.toString()
       ],
+      composerMeta: json['composerMeta'] is Map
+          ? Map<String, dynamic>.from(json['composerMeta'])
+          : null,
     );
   }
 
@@ -89,6 +94,7 @@ class LearningPathTemplateV2 {
         if (recommendedFor != null) 'recommendedFor': recommendedFor,
         if (coverAsset != null) 'cover': coverAsset,
         if (difficulty != null) 'difficulty': difficulty!.name,
+        if (composerMeta != null) 'composerMeta': composerMeta,
         if (prerequisitePathIds.isNotEmpty)
           'prerequisitePathIds': prerequisitePathIds,
       };
