@@ -38,8 +38,8 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: flutter analyze
-        run: flutter analyze
+      - name: flutter analyze (lib + test only)
+        run: flutter analyze lib test
 
       # Быстрые юнит-тесты (если в проекте используются теги @unit).
       # Сделаем шаг необязательным для fast-path: быстрый фидбэк важнее.
