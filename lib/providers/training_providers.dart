@@ -13,6 +13,7 @@ import '../services/real_time_stack_range_service.dart';
 import '../services/progress_forecast_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/dynamic_pack_adjustment_service.dart';
+import '../services/spaced_review_service.dart';
 import '../services/mistake_streak_service.dart';
 import '../services/session_note_service.dart';
 import '../services/session_pin_service.dart';
@@ -162,6 +163,11 @@ List<SingleChildWidget> buildTrainingProviders() {
       create: (context) => MistakeReviewPackService(
         hands: context.read<SavedHandManagerService>(),
         cloud: mistakeCloud,
+      )..init(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => SpacedReviewService(
+        templates: context.read<TemplateStorageService>(),
       )..init(),
     ),
     Provider(

@@ -20,6 +20,7 @@ import '../widgets/mistake_inline_theory_prompt.dart';
 import '../services/analytics_service.dart';
 import '../services/mistake_tag_classifier.dart';
 import '../services/user_error_rate_service.dart';
+import '../services/spaced_review_service.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   final LessonMatchProvider? lessonMatchProvider;
@@ -157,6 +158,13 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       isCorrect: res.correct,
       ts: DateTime.now(),
     );
+    if (!res.correct) {
+      await context
+          .read<SpacedReviewService>()
+          .recordMistake(spot.id, controller.template?.id ?? controller.packId);
+    }
+    await context.read<SpacedReviewService>().recordReviewOutcome(
+          spot.id, controller.template?.id ?? controller.packId, res.correct);
     await AppBootstrap.registry
         .get<TrainingSessionFingerprintService>()
         .logAttempt(attempt, shownTheoryTags: tags.toList());

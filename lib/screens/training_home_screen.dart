@@ -11,6 +11,7 @@ import '../services/training_pack_stats_service.dart';
 import '../services/adaptive_training_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/dynamic_pack_adjustment_service.dart';
+import '../services/spaced_review_service.dart';
 import 'training_session_screen.dart';
 import '../services/weak_spot_recommendation_service.dart';
 import '../services/daily_spotlight_service.dart';
@@ -274,6 +275,8 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
         .read<WeakSpotRecommendationService>()
         .buildPack();
     if (weak != null) list.insert(0, weak);
+    final sr = await context.read<SpacedReviewService>().duePack(log: false);
+    if (sr != null) list.insert(0, sr);
     final review = await MistakeReviewPackService.latestTemplate(context);
     if (review != null) list.insert(0, review);
     final adjust = context.read<DynamicPackAdjustmentService>();
@@ -517,6 +520,9 @@ class _PackCard extends StatelessWidget {
             onPressed: completed
                 ? null
                 : () async {
+                    if (template.id == SpacedReviewService.dueTemplateId) {
+                      await context.read<SpacedReviewService>().logDueOpened();
+                    }
                     await context.read<TrainingSessionService>().startSession(
                       template,
                     );
