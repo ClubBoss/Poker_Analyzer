@@ -72,6 +72,12 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get starter_packs_start => 'Начать';
 
+  @override
+  String get starter_packs_continue => 'Продолжить';
+
+  @override
+  String get starter_packs_choose => 'Выбрать пак';
+
 
   @override
   String accuracySemantics(Object value) {

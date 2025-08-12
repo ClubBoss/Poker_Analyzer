@@ -9,6 +9,7 @@ import '../core/error_logger.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../services/pack_library_service.dart';
 import '../services/starter_pack_telemetry.dart';
+import '../services/training_pack_stats_service.dart';
 import '../services/training_session_launcher.dart';
 import '../services/training_session_service.dart';
 import '../theme/app_colors.dart';
@@ -27,6 +28,8 @@ class _StarterPacksOnboardingBannerState
   TrainingPackTemplateV2? _pack;
   bool _loading = true;
   bool _launching = false;
+  int? _handsCompleted;
+  bool _hasChooser = false;
 
   @override
   void initState() {
@@ -53,12 +56,28 @@ class _StarterPacksOnboardingBannerState
         setState(() => _loading = false);
         return;
       }
-      final pack = await PackLibraryService.instance.recommendedStarter();
+      final packFuture = PackLibraryService.instance.recommendedStarter();
+      final listFuture = PackLibraryService.instance.listStarters();
+      final pack = await packFuture;
+      List<TrainingPackTemplateV2> list = const [];
+      try {
+        list = await listFuture;
+      } catch (_) {
+        // ignore
+      }
       if (!mounted) return;
       setState(() {
         _pack = pack;
+        _hasChooser = list.isNotEmpty;
         _loading = false;
       });
+      if (pack != null) {
+        unawaited(TrainingPackStatsService.getHandsCompleted(pack.id)
+            .then((value) {
+          if (!mounted) return;
+          setState(() => _handsCompleted = value);
+        }).catchError((_) {}));
+      }
       if (!_shownLogged && pack != null) {
         _shownLogged = true;
         final count =
@@ -75,7 +94,7 @@ class _StarterPacksOnboardingBannerState
   }
 
   Future<void> _launchPack(TrainingPackTemplateV2 p,
-      {bool logStartTapped = true}) async {
+      {String? tapEvent}) async {
     if (_launching) return;
     if (!mounted) return;
     setState(() => _launching = true);
@@ -83,9 +102,9 @@ class _StarterPacksOnboardingBannerState
       final full = await PackLibraryService.instance.getById(p.id) ?? p;
       final count =
           full.spotCount != 0 ? full.spotCount : full.spots.length;
-      if (logStartTapped) {
+      if (tapEvent != null) {
         unawaited(const StarterPackTelemetry()
-            .logBanner('starter_banner_start_tapped', full.id, count));
+            .logBanner(tapEvent, full.id, count));
       }
       if (!mounted) return;
       await const TrainingSessionLauncher()
@@ -113,42 +132,77 @@ class _StarterPacksOnboardingBannerState
   Future<void> _start() async {
     final p = _pack;
     if (p == null) return;
-    await _launchPack(p);
+    final done = _handsCompleted ?? 0;
+    final event =
+        done > 0 ? 'starter_banner_continue_tapped' : 'starter_banner_start_tapped';
+    await _launchPack(p, tapEvent: event);
   }
 
   Future<void> _choose() async {
     if (_launching) return;
     unawaited(const StarterPackTelemetry().logPickerOpened());
-    final list = await PackLibraryService.instance.listStarters();
-    if (!mounted) return;
+    List<TrainingPackTemplateV2> list = const [];
+    try {
+      list = await PackLibraryService.instance.listStarters();
+    } catch (_) {
+      // ignore
+    }
+    if (!mounted || list.isEmpty) return;
     final t = AppLocalizations.of(context)!;
+    final progressNotifier = ValueNotifier<Map<String, int>>({});
+    for (final p in list) {
+      unawaited(TrainingPackStatsService.getHandsCompleted(p.id).then((v) {
+        final map = Map<String, int>.from(progressNotifier.value);
+        map[p.id] = v;
+        progressNotifier.value = map;
+      }).catchError((_) {}));
+    }
     final selected = await showModalBottomSheet<TrainingPackTemplateV2>(
       context: context,
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final p in list)
-                ListTile(
-                  title: Text(p.name),
-                  subtitle: Text(
-                      '${p.spotCount != 0 ? p.spotCount : p.spots.length} ${t.hands}'),
-                  onTap: () => Navigator.of(context).pop(p),
-                ),
-            ],
+          child: ValueListenableBuilder<Map<String, int>>(
+            valueListenable: progressNotifier,
+            builder: (context, progress, _) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final p in list)
+                    ListTile(
+                      title: Text(p.name),
+                      subtitle: Text(() {
+                        final total =
+                            p.spotCount != 0 ? p.spotCount : p.spots.length;
+                        final done = progress[p.id];
+                        if (done != null && done > 0) {
+                          return '$done / $total ${t.hands}';
+                        }
+                        return '$total ${t.hands}';
+                      }()),
+                      onTap: () => Navigator.of(context).pop(p),
+                    ),
+                ],
+              );
+            },
           ),
         );
       },
     );
     if (selected == null) return;
     if (!mounted) return;
-    setState(() => _pack = selected);
+    setState(() {
+      _pack = selected;
+      _handsCompleted = null;
+    });
+    unawaited(TrainingPackStatsService.getHandsCompleted(selected.id).then((v) {
+      if (!mounted) return;
+      setState(() => _handsCompleted = v);
+    }).catchError((_) {}));
     final count =
         selected.spotCount != 0 ? selected.spotCount : selected.spots.length;
     unawaited(const StarterPackTelemetry()
         .logPickerSelected(selected.id, count));
-    await _launchPack(selected, logStartTapped: false);
+    await _launchPack(selected);
   }
 
   Future<void> _dismiss() async {
@@ -176,6 +230,7 @@ class _StarterPacksOnboardingBannerState
     final accent = Theme.of(context).colorScheme.secondary;
     final hands =
         _pack!.spotCount != 0 ? _pack!.spotCount : _pack!.spots.length;
+    final done = _handsCompleted ?? 0;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: const EdgeInsets.all(12),
@@ -214,7 +269,7 @@ class _StarterPacksOnboardingBannerState
             ),
           if (hands > 0)
             Text(
-              '$hands ${t.hands}',
+              done > 0 ? '$done/$hands ${t.hands}' : '$hands ${t.hands}',
               style: const TextStyle(color: Colors.white70),
             ),
           const SizedBox(height: 8),
@@ -223,15 +278,18 @@ class _StarterPacksOnboardingBannerState
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextButton(
-                  onPressed: _launching ? null : _choose,
-                  child: const Text('Choose pack'),
-                ),
-                const SizedBox(width: 8),
+                if (_hasChooser)
+                  TextButton(
+                    onPressed: _launching ? null : _choose,
+                    child: Text(t.starter_packs_choose),
+                  ),
+                if (_hasChooser) const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _launching ? null : _start,
                   style: ElevatedButton.styleFrom(backgroundColor: accent),
-                  child: Text(t.starter_packs_start),
+                  child: Text(done > 0
+                      ? t.starter_packs_continue
+                      : t.starter_packs_start),
                 ),
               ],
             ),
