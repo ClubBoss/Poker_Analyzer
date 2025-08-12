@@ -200,6 +200,8 @@ class SpacedReviewService extends ChangeNotifier {
     } catch (_) {}
   }
 
+  String? packIdForSpot(String spotId) => _data[spotId]?.packId;
+
   List<String> _spotTags(String packId, String spotId) {
     final tpl = templates.templates.firstWhereOrNull((t) => t.id == packId);
     final spot = tpl?.spots.firstWhereOrNull((s) => s.id == spotId);

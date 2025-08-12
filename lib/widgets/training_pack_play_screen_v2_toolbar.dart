@@ -11,7 +11,9 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
   final VoidCallback onExit;
   final VoidCallback onModeToggle;
   final VoidCallback onAdaptiveToggle;
+  final VoidCallback onSRToggle;
   final bool adaptive;
+  final bool srEnabled;
   final bool mini;
   final int? streetIndex;
   const TrainingPackPlayScreenV2Toolbar({
@@ -22,7 +24,9 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
     required this.onExit,
     required this.onModeToggle,
     required this.onAdaptiveToggle,
+    required this.onSRToggle,
     required this.adaptive,
+    required this.srEnabled,
     this.mini = false,
     this.streetIndex,
   });
@@ -86,7 +90,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(hint)));
                   },
-                ),
+              ),
               IconButton(
                 icon: Icon(
                     adaptive ? Icons.scatter_plot : Icons.scatter_plot_outlined),
@@ -95,6 +99,14 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                     : iconColor,
                 tooltip: 'Adaptive mode',
                 onPressed: onAdaptiveToggle,
+              ),
+              IconButton(
+                icon: const Icon(Icons.history),
+                color: srEnabled
+                    ? Theme.of(context).colorScheme.primary
+                    : iconColor,
+                tooltip: 'Interleave SR',
+                onPressed: onSRToggle,
               ),
               IconButton(
                 icon: Icon(isIcm ? Icons.monetization_on : Icons.stacked_line_chart),
