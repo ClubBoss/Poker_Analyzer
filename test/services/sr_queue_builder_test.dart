@@ -32,4 +32,39 @@ void main() {
     queue.removeAt(0);
     expect(queue.isEmpty, true);
   });
+
+  test('buildSrQueue filters by modality tag', () async {
+    final storage = TemplateStorageService();
+    final spot1 = TrainingPackSpot(id: 's1');
+    final spot2 = TrainingPackSpot(id: 's2');
+    storage
+      ..addTemplate(
+        TrainingPackTemplate(
+          id: 'p1',
+          name: 'P1',
+          createdAt: DateTime.now(),
+          spots: [spot1],
+          tags: ['pushfold'],
+        ),
+      )
+      ..addTemplate(
+        TrainingPackTemplate(
+          id: 'p2',
+          name: 'P2',
+          createdAt: DateTime.now(),
+          spots: [spot2],
+        ),
+      );
+    final svc = SpacedReviewService(templates: storage);
+    await svc.recordMistake('s1', 'p1');
+    await svc.recordMistake('s2', 'p2');
+    final queue = buildSrQueue(
+      svc,
+      {},
+      now: DateTime.now().add(const Duration(days: 1)),
+      modalityTag: 'pushfold',
+    );
+    expect(queue.length, 1);
+    expect(queue.first.spot.id, 's1');
+  });
 }
