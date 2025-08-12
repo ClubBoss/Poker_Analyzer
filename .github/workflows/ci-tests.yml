@@ -46,6 +46,13 @@ jobs:
             pub-${{ runner.os }}-
 
       - run: flutter pub get
-
+      - name: Generate L2 packs (seed 111)
+        run: dart run tool/autogen/l2_pack_generator.dart --preset all --seed 111 --out build/tmp/l2/111
+      - name: Generate L2 packs (seed 222)
+        run: dart run tool/autogen/l2_pack_generator.dart --preset all --seed 222 --out build/tmp/l2/222
+      - name: Generate L2 packs (seed 333)
+        run: dart run tool/autogen/l2_pack_generator.dart --preset all --seed 333 --out build/tmp/l2/333
+      - name: Validate presets
+        run: dart run tool/validators/preset_validator.dart --dir build/tmp/l2
       - name: Run L2 tests
         run: dart test test/l2_*
