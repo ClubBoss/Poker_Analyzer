@@ -169,7 +169,7 @@ class _LearningStageTileState extends State<LearningStageTile> {
       );
     }
     return ListTile(
-      tileColor: highlight ? Colors.blue.withOpacity(0.1) : null,
+      tileColor: highlight ? Colors.blue.withValues(alpha: 0.1) : null,
       title: Text(sub.title, style: TextStyle(color: grey)),
       subtitle:
           sub.description.isNotEmpty ? Text(sub.description, style: TextStyle(color: grey)) : null,

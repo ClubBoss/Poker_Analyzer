@@ -33,7 +33,7 @@ class BetChip extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withValues(alpha: 0.4),
                     blurRadius: 3 * scale,
                     offset: const Offset(1, 2),
                   ),

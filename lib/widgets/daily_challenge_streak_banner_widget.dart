@@ -52,7 +52,7 @@ class _DailyChallengeStreakBannerWidgetState extends State<DailyChallengeStreakB
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.deepOrangeAccent.withOpacity(0.2),
+          color: Colors.deepOrangeAccent.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(

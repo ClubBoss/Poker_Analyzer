@@ -135,7 +135,7 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: Text(
                 'No actions',
-                style: TextStyle(color: textColor().withOpacity(0.6)),
+                style: TextStyle(color: textColor().withValues(alpha: 0.6)),
               ),
             )
           else

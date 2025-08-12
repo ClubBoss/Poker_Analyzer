@@ -65,7 +65,7 @@ class SkillTreeNodeCard extends StatelessWidget {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Colors.greenAccent.withOpacity(value),
+                color: Colors.greenAccent.withValues(alpha: value),
                 blurRadius: 12 * value,
                 spreadRadius: 2 * value,
               ),

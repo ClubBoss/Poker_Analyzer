@@ -15,7 +15,7 @@ class BetSizeLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = color.withOpacity(0.9);
+    final bg = color.withValues(alpha: 0.9);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
       decoration: BoxDecoration(
@@ -23,7 +23,7 @@ class BetSizeLabel extends StatelessWidget {
         borderRadius: BorderRadius.circular(12 * scale),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.8),
+            color: color.withValues(alpha: 0.8),
             blurRadius: 8 * scale,
             spreadRadius: 1 * scale,
           ),

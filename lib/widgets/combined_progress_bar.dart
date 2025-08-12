@@ -36,7 +36,7 @@ class _CombinedProgressBarState extends State<CombinedProgressBar> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: 6,
-            color: _highlight ? Colors.green.withOpacity(0.3) : Colors.white24,
+            color: _highlight ? Colors.green.withValues(alpha: 0.3) : Colors.white24,
             child: Stack(
               children: [
                 AnimatedContainer(
@@ -47,7 +47,7 @@ class _CombinedProgressBarState extends State<CombinedProgressBar> {
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   width: icmWidth,
-                  color: Colors.blue.withOpacity(.5),
+                  color: Colors.blue.withValues(alpha: .5),
                 ),
               ],
             ),

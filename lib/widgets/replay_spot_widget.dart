@@ -127,7 +127,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: kCardPadding,
       decoration: BoxDecoration(
-        color: highlight ? Colors.redAccent.withOpacity(0.2) : Colors.white10,
+        color: highlight ? Colors.redAccent.withValues(alpha: 0.2) : Colors.white10,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

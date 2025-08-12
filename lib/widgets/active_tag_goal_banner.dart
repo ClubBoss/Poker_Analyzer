@@ -48,7 +48,7 @@ class _ActiveTagGoalBannerState extends State<ActiveTagGoalBanner> {
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(

@@ -80,7 +80,7 @@ class _StageHighlightState extends State<_StageHighlight>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.orangeAccent, width: 4),
-          color: Colors.orangeAccent.withOpacity(0.3),
+          color: Colors.orangeAccent.withValues(alpha: 0.3),
         ),
       ),
     );

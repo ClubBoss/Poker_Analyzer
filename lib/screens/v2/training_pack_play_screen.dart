@@ -871,7 +871,7 @@ class _TrainingPackPlayScreenState
                                           _handTotals[g.label]!
                                       : 0,
                                   color: Colors.purpleAccent,
-                                  backgroundColor: Colors.purpleAccent.withOpacity(0.3),
+                                  backgroundColor: Colors.purpleAccent.withValues(alpha: 0.3),
                                   minHeight: 6 * scale,
                                 ),
                                 SizedBox(height: 4 * scale),
@@ -891,7 +891,7 @@ class _TrainingPackPlayScreenState
                                           _handTotals[g.label]!
                                       : 0,
                                   color: Colors.purpleAccent,
-                                  backgroundColor: Colors.purpleAccent.withOpacity(0.3),
+                                  backgroundColor: Colors.purpleAccent.withValues(alpha: 0.3),
                                   minHeight: 6 * scale,
                                 ),
                               ),

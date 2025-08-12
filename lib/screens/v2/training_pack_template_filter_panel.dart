@@ -120,7 +120,7 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
     items.add(LinearProgressIndicator(
       value: progVal,
       color: progColor,
-      backgroundColor: progColor.withOpacity(0.3),
+      backgroundColor: progColor.withValues(alpha: 0.3),
     ));
     items.add(const SizedBox(height: 4));
     if (t.targetStreet != null && t.streetGoal > 0) {
@@ -149,7 +149,7 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
                 child: LinearProgressIndicator(
                   value: val,
                   color: Colors.purpleAccent,
-                  backgroundColor: Colors.purpleAccent.withOpacity(0.3),
+                  backgroundColor: Colors.purpleAccent.withValues(alpha: 0.3),
                 ),
               ),
               const SizedBox(width: 8),

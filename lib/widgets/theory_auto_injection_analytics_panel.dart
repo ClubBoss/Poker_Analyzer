@@ -194,7 +194,7 @@ class _TheoryAutoInjectionAnalyticsPanelState
               borderRadius: BorderRadius.circular(4),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
                   Theme.of(context).colorScheme.secondary,
                 ],
                 begin: Alignment.bottomCenter,

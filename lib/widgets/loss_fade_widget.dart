@@ -67,7 +67,7 @@ class _LossFadeWidgetState extends State<LossFadeWidget>
         borderRadius: BorderRadius.circular(6 * widget.scale),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 3 * widget.scale,
             offset: const Offset(1, 2),
           )

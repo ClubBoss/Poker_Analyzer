@@ -52,7 +52,7 @@ class PngExporter {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
               alignment: Alignment.center,
               child: Text(

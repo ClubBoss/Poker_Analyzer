@@ -117,7 +117,7 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
           color: Colors.black,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               blurRadius: 4 * widget.scale,
               offset: const Offset(1, 2),
             )

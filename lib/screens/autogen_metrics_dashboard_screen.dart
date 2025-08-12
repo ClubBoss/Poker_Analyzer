@@ -316,12 +316,12 @@ class _AutogenMetricsDashboardScreenState
                   HorizontalRangeAnnotation(
                     y1: 0,
                     y2: 60,
-                    color: Colors.red.withOpacity(0.2),
+                    color: Colors.red.withValues(alpha: 0.2),
                   ),
                   HorizontalRangeAnnotation(
                     y1: 60,
                     y2: 70,
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                   ),
                 ],
               ),

@@ -49,7 +49,7 @@ class _TheoryLessonFeedbackBarState extends State<TheoryLessonFeedbackBar> {
         style: OutlinedButton.styleFrom(
           foregroundColor: selected ? Colors.white : accent,
           side: BorderSide(color: accent),
-          backgroundColor: selected ? accent.withOpacity(0.2) : null,
+          backgroundColor: selected ? accent.withValues(alpha: 0.2) : null,
         ),
       ),
     );

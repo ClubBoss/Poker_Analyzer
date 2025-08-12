@@ -11,14 +11,14 @@ class PokerTablePainter extends CustomPainter {
     final rect = Offset.zero & size;
     final path = Path()..addOval(rect);
 
-    canvas.drawShadow(path, Colors.black.withOpacity(0.5), 12.0, true);
+    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.5), 12.0, true);
 
     final gradient = _gradientForTheme();
     final feltPaint = Paint()..shader = gradient.createShader(rect);
     canvas.drawOval(rect, feltPaint);
 
     final borderPaint = Paint()
-      ..color = _borderColor().withOpacity(0.3)
+      ..color = _borderColor().withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.shortestSide * 0.03;
     canvas.drawOval(rect.deflate(borderPaint.strokeWidth / 2), borderPaint);

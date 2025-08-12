@@ -17,7 +17,7 @@ class TagMatrixCoverageTable extends StatelessWidget {
 
   Color _color(int n) {
     if (n == 0) return Colors.black26;
-    if (n == 1) return Colors.orange.withOpacity(.4);
+    if (n == 1) return Colors.orange.withValues(alpha: .4);
     final t = n / max;
     return Color.lerp(Colors.blueGrey.shade300, Colors.greenAccent, t)!;
   }

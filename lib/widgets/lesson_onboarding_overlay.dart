@@ -36,7 +36,7 @@ class _LessonOnboardingOverlayState extends State<LessonOnboardingOverlay>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor =
-        isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.8);
+        isDark ? Colors.black.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.8);
     final cardColor = isDark ? Colors.black54 : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black;
     final secondary = isDark ? Colors.white70 : Colors.black54;

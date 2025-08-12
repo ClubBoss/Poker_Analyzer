@@ -55,7 +55,7 @@ class FoldChipOverlay extends StatelessWidget {
                         color: AppColors.accent,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             blurRadius: 4 * scale,
                             offset: const Offset(1, 2),
                           ),
@@ -206,7 +206,7 @@ class _WinnerCelebrationState extends State<WinnerCelebration>
               vertical: 4 * widget.scale,
             ),
             decoration: BoxDecoration(
-              color: Colors.amberAccent.withOpacity(0.9),
+              color: Colors.amberAccent.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(12 * widget.scale),
               boxShadow: const [
                 BoxShadow(color: Colors.black45, blurRadius: 6),
@@ -348,7 +348,7 @@ class ChipWinOverlay extends StatelessWidget {
                         color: AppColors.accent,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             blurRadius: 4 * scale,
                             offset: const Offset(1, 2),
                           ),

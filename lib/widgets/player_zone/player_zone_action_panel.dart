@@ -96,7 +96,7 @@ class PlayerZoneActionPanel extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8 * scale),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.accent.withOpacity(0.6),
+                        color: AppColors.accent.withValues(alpha: 0.6),
                         blurRadius: 6 * scale,
                       ),
                     ],
@@ -229,7 +229,7 @@ class _ActionLabelOverlayState extends State<ActionLabelOverlay>
               vertical: 4 * widget.scale,
             ),
             decoration: BoxDecoration(
-              color: widget.color.withOpacity(0.9),
+              color: widget.color.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(8 * widget.scale),
               boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
             ),
@@ -304,7 +304,7 @@ class _BetAmountOverlayState extends State<BetAmountOverlay>
           height: radius * 2,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: widget.color.withOpacity(0.9),
+            color: widget.color.withValues(alpha: 0.9),
             shape: BoxShape.circle,
             boxShadow: const [
               BoxShadow(color: Colors.black45, blurRadius: 4),
@@ -398,7 +398,7 @@ class _RefundMessageOverlayState extends State<RefundMessageOverlay>
             vertical: 4 * widget.scale,
           ),
           decoration: BoxDecoration(
-            color: Colors.lightGreenAccent.withOpacity(0.9),
+            color: Colors.lightGreenAccent.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(8 * widget.scale),
             boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
           ),

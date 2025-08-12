@@ -82,7 +82,7 @@ class BoosterTheoryWidget extends StatelessWidget {
         : AppColors.lightCard;
     switch (slot) {
       case BoosterSlot.recap:
-        return Colors.amber.withOpacity(0.15);
+        return Colors.amber.withValues(alpha: 0.15);
       default:
         return base;
     }

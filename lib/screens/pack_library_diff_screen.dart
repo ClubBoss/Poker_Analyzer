@@ -196,11 +196,11 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
   Color _color(_DiffType type) {
     switch (type) {
       case _DiffType.added:
-        return Colors.green.withOpacity(.2);
+        return Colors.green.withValues(alpha: .2);
       case _DiffType.removed:
-        return Colors.red.withOpacity(.2);
+        return Colors.red.withValues(alpha: .2);
       case _DiffType.changed:
-        return Colors.amber.withOpacity(.2);
+        return Colors.amber.withValues(alpha: .2);
     }
   }
 }

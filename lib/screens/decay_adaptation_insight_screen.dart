@@ -141,9 +141,9 @@ class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScr
   Color? _colorFor(BoosterAdaptation a) {
     switch (a) {
       case BoosterAdaptation.increase:
-        return Colors.red.withOpacity(.2);
+        return Colors.red.withValues(alpha: .2);
       case BoosterAdaptation.reduce:
-        return Colors.green.withOpacity(.2);
+        return Colors.green.withValues(alpha: .2);
       default:
         return null;
     }

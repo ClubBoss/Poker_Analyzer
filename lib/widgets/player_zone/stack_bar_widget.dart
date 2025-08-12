@@ -57,7 +57,7 @@ class StackBarWidget extends StatelessWidget {
                 ? BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.accent.withOpacity(glow),
+                        color: AppColors.accent.withValues(alpha: glow),
                         blurRadius: 8 * glow * scale,
                         spreadRadius: 2 * glow * scale,
                       ),

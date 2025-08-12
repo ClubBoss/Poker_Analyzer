@@ -143,7 +143,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             Color.alphaBlend(
                               Colors.primaries[r.category.hashCode %
                                       Colors.primaries.length]
-                                  .withOpacity(0.08),
+                                  .withValues(alpha: 0.08),
                               baseColor,
                             ),
                           ),

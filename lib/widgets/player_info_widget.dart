@@ -140,7 +140,7 @@ class PlayerInfoWidget extends StatelessWidget {
     final Widget box = Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
             color: borderColor ?? Colors.white24, width: borderColor != null ? 2 : 1),
@@ -252,7 +252,7 @@ class PlayerInfoWidget extends StatelessWidget {
                     width: 22,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                      color: Colors.white.withValues(alpha: card == null ? 0.3 : 1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     alignment: Alignment.center,
@@ -288,7 +288,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.greenAccent.withOpacity(0.8),
+                  color: Colors.greenAccent.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -307,13 +307,13 @@ class PlayerInfoWidget extends StatelessWidget {
                   Icon(
                     Icons.circle,
                     size: 12,
-                    color: AppColors.accent.withOpacity(0.8),
+                    color: AppColors.accent.withValues(alpha: 0.8),
                   ),
                   const SizedBox(width: 2),
                   Text(
                     '$streetInvestment',
                     style: TextStyle(
-                      color: AppColors.accent.withOpacity(0.8),
+                      color: AppColors.accent.withValues(alpha: 0.8),
                       fontSize: 12,
                     ),
                   ),
@@ -331,7 +331,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 builder: (context) => StatefulBuilder(
                   builder: (context, setState) {
                     return AlertDialog(
-                      backgroundColor: Colors.black.withOpacity(0.3),
+                      backgroundColor: Colors.black.withValues(alpha: 0.3),
                       title: const Text(
                         'Edit Stack',
                         style: TextStyle(color: Colors.white),
@@ -567,7 +567,7 @@ class _ActivePlayerGlowState extends State<_ActivePlayerGlow>
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Colors.orange.withOpacity(0.5 + (t * 0.3)),
+                color: Colors.orange.withValues(alpha: 0.5 + (t * 0.3)),
                 blurRadius: 8 + (8 * t),
                 spreadRadius: 1,
               ),

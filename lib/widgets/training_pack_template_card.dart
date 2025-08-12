@@ -128,7 +128,7 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(0.9),
+                    color: Colors.orangeAccent.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(

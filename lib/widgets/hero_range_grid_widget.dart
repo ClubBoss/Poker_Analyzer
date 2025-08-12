@@ -39,7 +39,7 @@ class HeroRangeGridWidget extends StatelessWidget {
     if (clamped >= 0.2) {
       return Colors.red.shade900;
     }
-    return Colors.grey.withOpacity(0.3);
+    return Colors.grey.withValues(alpha: 0.3);
   }
 
   @override

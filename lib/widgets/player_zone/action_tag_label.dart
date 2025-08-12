@@ -18,7 +18,7 @@ class ActionTagLabel extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.6),
+        color: color.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(6 * scale),
       ),
       child: Text(

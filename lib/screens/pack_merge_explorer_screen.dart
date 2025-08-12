@@ -64,7 +64,7 @@ class _PackMergeExplorerScreenState extends State<PackMergeExplorerScreen> {
                       for (final c in g.pairs)
                         ListTile(
                           tileColor: c.overlap > 0.5
-                              ? Colors.green.withOpacity(.2)
+                              ? Colors.green.withValues(alpha: .2)
                               : null,
                           title: Text('${c.a.name} ↔ ${c.b.name}'),
                           subtitle: Text(

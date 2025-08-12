@@ -86,7 +86,7 @@ class _TheoryQuickAccessBannerWidgetState
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.lightBlueAccent.withOpacity(0.2),
+        color: Colors.lightBlueAccent.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

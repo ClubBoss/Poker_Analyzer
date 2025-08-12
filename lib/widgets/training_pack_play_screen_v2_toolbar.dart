@@ -45,7 +45,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
         color: Theme.of(context)
             .colorScheme
             .surface
-            .withOpacity(0.9),
+            .withValues(alpha: 0.9),
         padding: EdgeInsets.symmetric(
             horizontal: mini ? 8 : 16, vertical: mini ? 4 : 8),
         child: SafeArea(

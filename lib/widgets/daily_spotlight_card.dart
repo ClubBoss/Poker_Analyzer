@@ -39,7 +39,7 @@ class _DailySpotlightCardState extends State<DailySpotlightCard> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [accent.withOpacity(0.4), accent],
+          colors: [accent.withValues(alpha: 0.4), accent],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

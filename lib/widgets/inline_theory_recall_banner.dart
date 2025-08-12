@@ -30,7 +30,7 @@ class InlineTheoryRecallBanner extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.amber.withOpacity(0.2),
+              color: Colors.amber.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(

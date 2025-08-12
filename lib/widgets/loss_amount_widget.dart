@@ -75,7 +75,7 @@ class _LossAmountWidgetState extends State<LossAmountWidget>
             fontSize: 16 * widget.scale,
             shadows: [
               Shadow(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 blurRadius: 4 * widget.scale,
               ),
             ],

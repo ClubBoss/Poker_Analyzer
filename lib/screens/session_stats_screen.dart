@@ -774,7 +774,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
             Container(
               padding: EdgeInsets.all(12 * scale),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.2),
+                color: Colors.redAccent.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(

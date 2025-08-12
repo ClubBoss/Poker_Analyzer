@@ -77,7 +77,7 @@ class EvLossBar extends StatelessWidget {
                         'Street: ${streetName(acts[i].street)} • EV loss: ${deltas[i].toStringAsFixed(1)} bb',
                     child: Container(
                       color: (deltas[i] > 0 ? Colors.red : Colors.green)
-                          .withOpacity(i < playbackIndex ? 1 : 0.3),
+                          .withValues(alpha: i < playbackIndex ? 1 : 0.3),
                     ),
                   ),
                 ),
