@@ -7,8 +7,6 @@ import '../widgets/training_spot_diagram.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/sync_status_widget.dart';
 import '../models/training_spot.dart';
-import '../services/inline_theory_linker.dart';
-import '../services/mistake_tag_classifier.dart';
 import '../models/training_spot_attempt.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../app_bootstrap.dart';
@@ -17,6 +15,7 @@ import '../controllers/pack_run_controller.dart';
 import '../models/recall_snippet_result.dart';
 import '../models/pack_run_session_state.dart';
 import '../widgets/inline_theory_recall_card.dart';
+import '../widgets/mistake_inline_theory_prompt.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   const TrainingPlayScreen({super.key});
@@ -27,7 +26,6 @@ class TrainingPlayScreen extends StatefulWidget {
 
 class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
   EvaluationResult? _result;
-  InlineTheoryLink? _theoryLink;
   PackRunController? _packController;
   RecallSnippetResult? _recall;
 
@@ -65,15 +63,7 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       correctAction: res.expectedAction.toLowerCase(),
       evDiff: res.userEquity - res.expectedEquity,
     );
-    List<String> tags;
-    InlineTheoryLink? link;
-    if (res.correct) {
-      tags = spot.tags;
-      link = InlineTheoryLinker().getLink(tags);
-    } else {
-      tags = const MistakeTagClassifier().classifyTheory(attempt);
-      link = InlineTheoryLinker().getLink(tags);
-    }
+    final tags = spot.tags;
     await AppBootstrap.registry
         .get<TrainingSessionFingerprintService>()
         .logAttempt(attempt, shownTheoryTags: tags);
@@ -81,7 +71,6 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
         await _packController?.onResult(packSpot.id, res.correct, tags);
     setState(() {
       _result = res;
-      _theoryLink = link;
       _recall = snippet;
     });
   }
@@ -92,9 +81,6 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     final spot = controller.currentSpot!;
     final correct = _result?.correct ?? false;
     final expected = _result?.expectedAction;
-    if (_result == null && _theoryLink == null) {
-      _theoryLink = InlineTheoryLinker().getLink(spot.tags);
-    }
     final actionsEnabled = _packController != null && _result == null;
     return Scaffold(
       appBar: AppBar(
@@ -165,19 +151,19 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
               ElevatedButton(
                 onPressed: () => setState(() {
                   _result = null;
-                  _theoryLink = null;
                   _recall = null;
                 }),
                 child: const Text('Try Again'),
               ),
-              if (_theoryLink != null) ...[
-                const SizedBox(height: 8),
-                ActionChip(
-                  avatar: const Icon(Icons.school, size: 16),
-                  label: Text('Theory: ${_theoryLink!.title}'),
-                  onPressed: _theoryLink!.onTap,
+              if (!correct)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: MistakeInlineTheoryPrompt(
+                    tags: spot.tags,
+                    packId: controller.template?.id ?? controller.packId,
+                    spotId: spot.id,
+                  ),
                 ),
-              ],
               if (spot.actions.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
