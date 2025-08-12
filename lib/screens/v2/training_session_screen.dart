@@ -52,10 +52,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final boardCards = [
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
     ];
-    // Deep copy actions to avoid mutating original hand data
-    final List<ActionEntry> actions = hand.actions.values
-        .expand((list) => list.map((a) => a.copy()))
-        .toList();
+    // Flatten actions; ActionEntry is immutable so no per-item copy needed
+    final List<ActionEntry> actions =
+        hand.actions.values.expand((list) => list).toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
     ];

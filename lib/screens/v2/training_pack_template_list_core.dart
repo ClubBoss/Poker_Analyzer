@@ -1452,9 +1452,10 @@ class _TrainingPackTemplateListScreenState
         .map((c) => '${c.rank}${c.suit}')
         .join(' ');
     final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
-    for (final a in actions) {
+    for (var i = 0; i < actions.length; i++) {
+      final a = actions[i];
       if (a.playerIndex == hand.heroIndex) {
-        a.ev = hand.evLoss ?? 0;
+        actions[i] = a.copyWith(ev: hand.evLoss ?? 0);
         break;
       }
     }

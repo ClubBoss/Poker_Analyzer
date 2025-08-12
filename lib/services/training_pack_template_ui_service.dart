@@ -64,13 +64,14 @@ class TrainingPackTemplateUiService {
                     heroHand: hand,
                     anteBb: template.anteBb,
                   );
-                  actions[0]![0].ev = ev;
-                  actions[0]![0].icmEv = computeIcmPushEV(
+                  final icm = computeIcmPushEV(
                     chipStacksBb: template.playerStacksBb,
                     heroIndex: 0,
                     heroHand: hand,
                     chipPushEv: ev,
                   );
+                  actions[0]![0] =
+                      actions[0]![0].copyWith(ev: ev, icmEv: icm);
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
                       '$j': template.playerStacksBb[j].toDouble()
@@ -176,13 +177,14 @@ class TrainingPackTemplateUiService {
                     heroHand: hand,
                     anteBb: template.anteBb,
                   );
-                  actions[0]![0].ev = ev;
-                  actions[0]![0].icmEv = computeIcmPushEV(
+                  final icm = computeIcmPushEV(
                     chipStacksBb: template.playerStacksBb,
                     heroIndex: 0,
                     heroHand: hand,
                     chipPushEv: ev,
                   );
+                  actions[0]![0] =
+                      actions[0]![0].copyWith(ev: ev, icmEv: icm);
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
                       '$j': template.playerStacksBb[j].toDouble()

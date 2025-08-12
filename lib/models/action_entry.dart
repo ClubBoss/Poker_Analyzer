@@ -20,21 +20,21 @@ class ActionEntry {
   final bool generated;
 
   /// Пользовательская оценка качества действия, заданная вручную
-  String? manualEvaluation;
+  final String? manualEvaluation;
 
   /// Пользовательская метка действия при типе 'custom'
-  String? customLabel;
+  final String? customLabel;
 
   /// Размер банка после применения действия
-  double potAfter;
+  final double potAfter;
 
-  double? potOdds;
+  final double? potOdds;
 
-  double? equity;
+  final double? equity;
 
-  double? ev;
+  final double? ev;
 
-  double? icmEv;
+  final double? icmEv;
 
   /// Время, когда было совершено действие
   final DateTime timestamp;

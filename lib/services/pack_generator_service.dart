@@ -390,13 +390,13 @@ class PackGeneratorService {
         heroHand: range[i],
         anteBb: 0,
       );
-      actions[0]![0].ev = chipEv;
-      actions[0]![0].icmEv = computeIcmPushEV(
+      final icmEv = computeIcmPushEV(
         chipStacksBb: stacks,
         heroIndex: heroIndex,
         heroHand: range[i],
         chipPushEv: chipEv,
       );
+      actions[0]![0] = actions[0]![0].copyWith(ev: chipEv, icmEv: icmEv);
       spots.add(
         TrainingPackSpot(
           id: 'finaltable_${i + 1}',

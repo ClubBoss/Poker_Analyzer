@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:poker_analyzer/models/action_entry.dart';
 
 void main() {
@@ -7,8 +7,6 @@ void main() {
     final b = a.copy();
     expect(identical(a, b), isFalse);
     expect(b.ev, 1.0);
-    b.manualEvaluation = 'good';
-    expect(a.manualEvaluation, isNull);
   });
 
   test('ActionEntry.copyWith overrides selected fields', () {
@@ -18,5 +16,12 @@ void main() {
     expect(b.ev, 2.0);
     expect(a.action, 'push');
     expect(a.ev, 1.0);
+  });
+
+  test('Attempting mutation throws', () {
+    final a = ActionEntry(0, 1, 'push');
+    expect(() {
+      (a as dynamic).manualEvaluation = 'good';
+    }, throwsNoSuchMethodError);
   });
 }
