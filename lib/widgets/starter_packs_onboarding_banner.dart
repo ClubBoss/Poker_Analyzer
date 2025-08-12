@@ -66,24 +66,35 @@ class _StarterPacksOnboardingBannerState
       try {
         list = await listFuture;
       } catch (_) {/* swallow */}
+      TrainingPackTemplateV2? chosen = pack;
+      final selectedId = prefs.getString('starter_pack_selected_id');
+      if (selectedId != null) {
+        for (final p in list) {
+          if (p.id == selectedId) {
+            chosen = p;
+            break;
+          }
+        }
+      }
       if (!mounted) return;
       setState(() {
-        _pack = pack;
+        _pack = chosen;
         _hasChooser = list.length > 1;
         _loading = false;
       });
-      if (pack != null) {
-        unawaited(TrainingPackStatsService.getHandsCompleted(pack.id).then((v) {
+      if (chosen != null) {
+        unawaited(TrainingPackStatsService.getHandsCompleted(chosen.id)
+            .then((v) {
           if (!mounted) return;
           setState(() => _handsCompleted = v);
         }).catchError((_) {}));
       }
 
-      if (!_shownLogged && pack != null) {
+      if (!_shownLogged && chosen != null) {
         _shownLogged = true;
-        final count = _totalHands(pack);
+        final count = _totalHands(chosen);
         unawaited(const StarterPackTelemetry()
-            .logBanner('starter_banner_shown', pack.id, count));
+            .logBanner('starter_banner_shown', chosen.id, count));
       }
     } catch (e, st) {
       ErrorLogger.instance.logError('starter_pack_banner_load_failed', e, st);
@@ -179,6 +190,8 @@ class _StarterPacksOnboardingBannerState
                             ? '$done / $total ${t.hands}'
                             : '$total ${t.hands}';
                       }()),
+                      trailing:
+                          p.id == _pack?.id ? const Icon(Icons.check) : null,
                       onTap: () => Navigator.of(context).pop(p),
                     ),
                 ],
@@ -202,6 +215,9 @@ class _StarterPacksOnboardingBannerState
         setState(() => _handsCompleted = v);
       }).catchError((_) {}),
     );
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('starter_pack_selected_id', selected.id);
 
     final count = _totalHands(selected);
     unawaited(
