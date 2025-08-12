@@ -173,9 +173,9 @@ class TrainingPackSpot
         ? spot.playerCards[spot.heroIndex]
         : <CardModel>[];
     final cardStr = heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
-    final actions = <int, List<ActionEntry>>{};
+    final actionsByStreet = <int, List<ActionEntry>>{};
     for (final a in spot.actions) {
-      actions.putIfAbsent(a.street, () => []).add(a);
+      actionsByStreet.putIfAbsent(a.street, () => []).add(a);
     }
     final stacks = <String, double>{};
     for (var i = 0; i < spot.stacks.length; i++) {
@@ -187,7 +187,7 @@ class TrainingPackSpot
       position: parseHeroPosition(spot.heroPosition ?? ''),
       heroIndex: spot.heroIndex,
       playerCount: spot.numberOfPlayers,
-      actions: actions,
+      actions: actionsByStreet,
       stacks: stacks,
       board: boardList,
     );

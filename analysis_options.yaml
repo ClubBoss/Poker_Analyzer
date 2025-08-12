@@ -52,20 +52,14 @@ analyzer:
     unnecessary_mutable_fields: error
     prefer_const_constructors: error
     prefer_final_fields: error
-    prefer_const_literals_to_create_immutables: ignore
-    prefer_const_declarations: ignore
-    lines_longer_than_80_chars: ignore
-    always_declare_return_types: ignore
-    annotate_overrides: ignore
-    constant_identifier_names: ignore
 
 linter:
   rules:
     # без строгих правил до момента, когда вернёмся к сервисам
-    avoid_unused_constructor_parameters: true
-    unnecessary_import: true
-    unused_local_variable: true
-    avoid_mutable_fields: true
-    unnecessary_mutable_fields: true
-    prefer_final_fields: true
-    prefer_const_constructors: true
+    - avoid_unused_constructor_parameters
+    - unnecessary_import
+    - unused_local_variable
+    - avoid_mutable_fields
+    - unnecessary_mutable_fields
+    - prefer_final_fields
+    - prefer_const_constructors

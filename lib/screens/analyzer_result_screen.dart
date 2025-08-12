@@ -43,9 +43,9 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
     final hero = h.playerCards[h.heroIndex]
         .map((c) => '${c.rank}${c.suit}')
         .join(' ');
-    final actions = <int, List<ActionEntry>>{for (var s = 0; s < 4; s++) s: []};
+    final actionsByStreet = <int, List<ActionEntry>>{for (var s = 0; s < 4; s++) s: []};
     for (final a in h.actions) {
-      actions[a.street]!.add(a);
+      actionsByStreet[a.street]!.add(a);
     }
     final stacks = <String, double>{
       for (int i = 0; i < h.numberOfPlayers; i++)
@@ -60,7 +60,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
         playerCount: h.numberOfPlayers,
         stacks: stacks,
         board: [for (final c in h.boardCards) '${c.rank}${c.suit}'],
-        actions: actions,
+        actions: actionsByStreet,
         anteBb: h.anteBb,
       ),
     );
