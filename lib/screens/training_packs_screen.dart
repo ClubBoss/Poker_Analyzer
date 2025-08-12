@@ -29,6 +29,7 @@ import 'training_session_screen.dart';
 import '../models/saved_hand.dart';
 import 'top_packs_screen.dart';
 import 'popular_now_screen.dart';
+import '../widgets/starter_packs_onboarding_banner.dart';
 
 enum _PackSort { recommended, newest, hardest }
 
@@ -363,6 +364,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
               const TrainingLibraryHeaderCard(),
               const WeeklyDrillStatsCard(),
               const XPProgressCard(),
+              const StarterPacksOnboardingBanner(),
               const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
               const SizedBox(height: 24),
               draftWidget,

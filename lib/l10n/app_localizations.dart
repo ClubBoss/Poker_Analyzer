@@ -214,6 +214,24 @@ abstract class AppLocalizations {
   /// **'{value} %'**
   String percentLabel(Object value);
 
+  /// No description provided for @starter_packs_title.
+  ///
+  /// In ru, this message translates to:
+  /// **'Стартовый пак'**
+  String get starter_packs_title;
+
+  /// No description provided for @starter_packs_subtitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Начните тренировку одним нажатием'**
+  String get starter_packs_subtitle;
+
+  /// No description provided for @starter_packs_start.
+  ///
+  /// In ru, this message translates to:
+  /// **'Начать'**
+  String get starter_packs_start;
+
   /// No description provided for @accuracySemantics.
   ///
   /// In ru, this message translates to:
