@@ -39,6 +39,9 @@ class _StarterPacksOnboardingBannerState
   bool _hasChooser = false;
   final Map<String, TrainingPackTemplateV2> _packCache = {};
   final Map<String, Future<int>> _handsFetches = {};
+  Future<SharedPreferences>? _prefsFuture;
+  Future<SharedPreferences> _getPrefs() =>
+      _prefsFuture ??= SharedPreferences.getInstance();
 
   int _totalHands(TrainingPackTemplateV2 p) =>
       p.spotCount != 0 ? p.spotCount : p.spots.length;
@@ -116,7 +119,7 @@ class _StarterPacksOnboardingBannerState
 
   Future<void> _load() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _getPrefs();
       final now = DateTime.now().millisecondsSinceEpoch;
 
       final legacyDismissed = prefs.getBool(_kPrefDismissedLegacy) ?? false;
@@ -230,7 +233,7 @@ class _StarterPacksOnboardingBannerState
         full,
         source: 'starter_banner',
       );
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _getPrefs();
       await prefs.setBool(_kPrefSeen, true);
       unawaited(
         const StarterPackTelemetry().logBanner(
@@ -275,7 +278,7 @@ class _StarterPacksOnboardingBannerState
     try {
       unawaited(const StarterPackTelemetry().logPickerOpened());
 
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _getPrefs();
       final selectedId = prefs.getString(_kPrefSelectedId);
 
       final recommended = await PackLibraryService.instance
@@ -461,7 +464,7 @@ class _StarterPacksOnboardingBannerState
       );
     }
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _getPrefs();
       await prefs.setInt(
         _kPrefDismissedAt,
         DateTime.now().millisecondsSinceEpoch,
