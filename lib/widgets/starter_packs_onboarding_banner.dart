@@ -345,7 +345,12 @@ class _StarterPacksOnboardingBannerState
                   final aTotal = _totalHands(a);
                   final bTotal = _totalHands(b);
                   if (aTotal != bTotal) return bTotal.compareTo(aTotal);
-                  return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                  final nameCmp =
+                      a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                  if (nameCmp != 0) return nameCmp;
+
+                  // New deterministic tiebreaker:
+                  return a.id.compareTo(b.id);
                 });
 
                 final isPinnedFirst =
