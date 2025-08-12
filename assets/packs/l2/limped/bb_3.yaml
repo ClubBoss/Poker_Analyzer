@@ -1,0 +1,415 @@
+id: l2_limped_bb_3
+name: L2 Limped BB Pack 3
+stage:
+  id: L2
+  unlockAfter: l2_limped_bb_2
+subtype: limped
+position: BB
+limped: true
+objective: Play limped pot correctly
+tags:
+  - l2
+  - limped
+  - bb
+  - bb-limped
+spots:
+  -
+    id: l2_limped_bb_3_s001
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s002
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s003
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s004
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s005
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s006
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s007
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s008
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s009
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s010
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s011
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s012
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s013
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s014
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s015
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s016
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s017
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s018
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s019
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s020
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s021
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s022
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s023
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s024
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s025
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s026
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s027
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s028
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s029
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s030
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s031
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s032
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s033
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s034
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s035
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s036
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s037
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s038
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s039
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s040
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s041
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s042
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s043
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s044
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s045
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s046
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s047
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s048
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s049
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s050
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s051
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s052
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s053
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s054
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s055
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s056
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s057
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s058
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s059
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s060
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s061
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s062
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s063
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s064
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s065
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s066
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s067
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s068
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s069
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s070
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s071
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s072
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s073
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s074
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s075
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s076
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s077
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s078
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
+  -
+    id: l2_limped_bb_3_s079
+    actionType: limped
+    heroCards: AsAh
+    correctAction: check
+  -
+    id: l2_limped_bb_3_s080
+    actionType: limped
+    heroCards: AdAc
+    correctAction: raise
