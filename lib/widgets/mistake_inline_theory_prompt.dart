@@ -6,12 +6,14 @@ import '../services/inline_theory_linker_cache.dart';
 import '../services/analytics_service.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 
-typedef LessonMatchProvider = Future<List<TheoryMiniLessonNode>> Function(
-    List<String> tags);
-typedef AnalyticsLogger = Future<void> Function(
-    String event, Map<String, dynamic> params);
+typedef LessonMatchProvider =
+    Future<List<TheoryMiniLessonNode>> Function(List<String> tags);
+typedef AnalyticsLogger =
+    Future<void> Function(String event, Map<String, dynamic> params);
 
-Future<List<TheoryMiniLessonNode>> _defaultMatchProvider(List<String> tags) async {
+Future<List<TheoryMiniLessonNode>> _defaultMatchProvider(
+  List<String> tags,
+) async {
   final cache = InlineTheoryLinkerCache.instance;
   await cache.ensureReady();
   return cache.getMatchesForTags(tags);
@@ -27,6 +29,8 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
   final String spotId;
   final LessonMatchProvider matchProvider;
   final AnalyticsLogger log;
+  final void Function(String spotId, String packId, String? lessonId)?
+  onTheoryViewed;
 
   const MistakeInlineTheoryPrompt({
     super.key,
@@ -35,8 +39,9 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
     required this.spotId,
     LessonMatchProvider? matchProvider,
     AnalyticsLogger? log,
-  })  : matchProvider = matchProvider ?? _defaultMatchProvider,
-        log = log ?? _defaultLog;
+    this.onTheoryViewed,
+  }) : matchProvider = matchProvider ?? _defaultMatchProvider,
+       log = log ?? _defaultLog;
 
   @override
   State<MistakeInlineTheoryPrompt> createState() =>
@@ -77,6 +82,7 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
         fullscreenDialog: true,
       ),
     );
+    widget.onTheoryViewed?.call(widget.spotId, widget.packId, lesson.id);
   }
 
   Future<void> _open() async {
