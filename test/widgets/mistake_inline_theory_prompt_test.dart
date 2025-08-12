@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:poker_analyzer/widgets/mistake_inline_theory_prompt.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
+import 'package:poker_analyzer/models/training_spot_attempt.dart';
+import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
 
 class _FakeProvider {
   final List<TheoryMiniLessonNode> lessons;
@@ -33,10 +35,17 @@ void main() {
       final provider = _FakeProvider([lesson]);
       final logger = _EventLogger();
 
+      final spot = TrainingPackSpot(id: 's1', tags: ['a']);
+      final attempt = TrainingSpotAttempt(
+        spot: spot,
+        userAction: 'fold',
+        correctAction: 'call',
+        evDiff: -1,
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: MistakeInlineTheoryPrompt(
-            tags: const ['a'],
+            attempt: attempt,
             packId: 'p1',
             spotId: 's1',
             matchProvider: provider.call,
@@ -50,7 +59,9 @@ void main() {
       expect(
         logger.events.any(
           (e) =>
-              e['event'] == 'theory_suggested_after_mistake' && e['count'] == 1,
+              e['event'] == 'theory_suggestion_shown' &&
+              e['count'] == 1 &&
+              e['topLessonId'] == 'l1',
         ),
         isTrue,
       );
@@ -60,7 +71,10 @@ void main() {
 
       expect(find.text('L1'), findsOneWidget);
       expect(
-        logger.events.any((e) => e['event'] == 'theory_link_opened'),
+        logger.events.any(
+          (e) =>
+              e['event'] == 'theory_link_opened' && e.containsKey('rank_score'),
+        ),
         isTrue,
       );
     });
@@ -74,10 +88,17 @@ void main() {
       final provider = _FakeProvider(lessons);
       final logger = _EventLogger();
 
+      final spot = TrainingPackSpot(id: 's1', tags: ['a']);
+      final attempt = TrainingSpotAttempt(
+        spot: spot,
+        userAction: 'fold',
+        correctAction: 'call',
+        evDiff: -1,
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: MistakeInlineTheoryPrompt(
-            tags: const ['a'],
+            attempt: attempt,
             packId: 'p1',
             spotId: 's1',
             matchProvider: provider.call,
@@ -119,10 +140,17 @@ void main() {
       final provider = _FakeProvider([lesson]);
       final logger = _EventLogger();
 
+      final spot = TrainingPackSpot(id: 's1', tags: ['a']);
+      final attempt = TrainingSpotAttempt(
+        spot: spot,
+        userAction: 'fold',
+        correctAction: 'call',
+        evDiff: -1,
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: MistakeInlineTheoryPrompt(
-            tags: const ['a'],
+            attempt: attempt,
             packId: 'p1',
             spotId: 's1',
             matchProvider: provider.call,
@@ -140,7 +168,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: MistakeInlineTheoryPrompt(
-            tags: const ['a'],
+            attempt: attempt,
             packId: 'p1',
             spotId: 's1',
             matchProvider: provider.call,
@@ -165,10 +193,17 @@ void main() {
       final logger = _EventLogger();
       final viewed = <List<String?>>[];
 
+      final spot = TrainingPackSpot(id: 's1', tags: ['a']);
+      final attempt = TrainingSpotAttempt(
+        spot: spot,
+        userAction: 'fold',
+        correctAction: 'call',
+        evDiff: -1,
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: MistakeInlineTheoryPrompt(
-            tags: const ['a'],
+            attempt: attempt,
             packId: 'p1',
             spotId: 's1',
             matchProvider: provider.call,

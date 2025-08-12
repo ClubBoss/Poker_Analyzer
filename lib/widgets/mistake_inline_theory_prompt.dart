@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/theory_mini_lesson_node.dart';
+import '../models/training_spot_attempt.dart';
 import '../services/inline_theory_linker_cache.dart';
 import '../services/analytics_service.dart';
+import '../services/mistake_tag_classifier.dart';
+import '../services/theory_suggestion_ranker.dart';
+import '../services/last_viewed_theory_store.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 
 typedef LessonMatchProvider =
@@ -24,9 +28,10 @@ Future<void> _defaultLog(String event, Map<String, dynamic> params) {
 }
 
 class MistakeInlineTheoryPrompt extends StatefulWidget {
-  final List<String> tags;
+  final TrainingSpotAttempt attempt;
   final String packId;
   final String spotId;
+  final Map<String, double> userErrorRates;
   final LessonMatchProvider matchProvider;
   final AnalyticsLogger log;
   final void Function(String spotId, String packId, String? lessonId)?
@@ -34,9 +39,10 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
 
   const MistakeInlineTheoryPrompt({
     super.key,
-    required this.tags,
+    required this.attempt,
     required this.packId,
     required this.spotId,
+    this.userErrorRates = const {},
     LessonMatchProvider? matchProvider,
     AnalyticsLogger? log,
     this.onTheoryViewed,
@@ -49,7 +55,7 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
 }
 
 class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
-  List<TheoryMiniLessonNode>? _lessons;
+  List<RankedTheoryLesson>? _lessons;
 
   @override
   void initState() {
@@ -61,38 +67,53 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
     final prefs = await SharedPreferences.getInstance();
     final hide = prefs.getBool('hide_theory_prompt_${widget.packId}') ?? false;
     if (hide) return;
-    final matches = await widget.matchProvider(widget.tags);
+    final baseTags = <String>{
+      for (final t in widget.attempt.spot.tags) t.toLowerCase(),
+    };
+    baseTags.addAll(const MistakeTagClassifier()
+        .classifyTheory(widget.attempt)
+        .map((e) => e.toLowerCase()));
+    final matches = await widget.matchProvider(baseTags.toList());
     if (matches.isEmpty) return;
-    await widget.log('theory_suggested_after_mistake', {
+    final ranked = await TheorySuggestionRanker(
+      userErrorRate: widget.userErrorRates,
+      packId: widget.packId,
+    ).rank(matches);
+    await widget.log('theory_suggestion_shown', {
       'packId': widget.packId,
       'spotId': widget.spotId,
-      'count': matches.length,
+      'count': ranked.length,
+      'topLessonId': ranked.first.lesson.id,
     });
-    setState(() => _lessons = matches);
+    setState(() => _lessons = ranked);
   }
 
-  Future<void> _openLesson(TheoryMiniLessonNode lesson, int total) async {
+  Future<void> _openLesson(RankedTheoryLesson lesson, int total) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => TheoryLessonViewerScreen(
-          lesson: lesson,
+          lesson: lesson.lesson,
           currentIndex: 1,
           totalCount: total,
         ),
         fullscreenDialog: true,
       ),
     );
-    widget.onTheoryViewed?.call(widget.spotId, widget.packId, lesson.id);
+    widget.onTheoryViewed
+        ?.call(widget.spotId, widget.packId, lesson.lesson.id);
   }
 
   Future<void> _open() async {
     final lessons = _lessons!;
     if (lessons.length == 1) {
+      final l = lessons.first;
       await widget.log('theory_link_opened', {
         'packId': widget.packId,
         'spotId': widget.spotId,
+        'rank_score': l.score,
       });
-      await _openLesson(lessons.first, lessons.length);
+      await LastViewedTheoryStore.instance.add(widget.packId, l.lesson.id);
+      await _openLesson(l, lessons.length);
       return;
     }
     await widget.log('theory_list_opened', {
@@ -100,15 +121,17 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
       'spotId': widget.spotId,
       'count': lessons.length,
     });
-    final selected = await showModalBottomSheet<TheoryMiniLessonNode>(
+    final selected = await showModalBottomSheet<RankedTheoryLesson>(
       context: context,
       builder: (_) => ListView(
         children: [
-          for (final l in lessons)
+          for (var i = 0; i < lessons.length; i++)
             ListTile(
-              title: Text(l.resolvedTitle),
-              subtitle: Text(l.tags.join(', ')),
-              onTap: () => Navigator.pop(context, l),
+              title: Text(lessons[i].lesson.resolvedTitle),
+              subtitle: Text(lessons[i].lesson.tags.join(', ')),
+              trailing:
+                  i == 0 ? const _TopBadge() : null,
+              onTap: () => Navigator.pop(context, lessons[i]),
             ),
         ],
       ),
@@ -117,7 +140,10 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
       await widget.log('theory_link_opened', {
         'packId': widget.packId,
         'spotId': widget.spotId,
+        'rank_score': selected.score,
       });
+      await LastViewedTheoryStore.instance
+          .add(widget.packId, selected.lesson.id);
       await _openLesson(selected, lessons.length);
     }
   }
@@ -144,6 +170,25 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
           child: const Text("Don't show for this pack"),
         ),
       ],
+    );
+  }
+}
+
+class _TopBadge extends StatelessWidget {
+  const _TopBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.orangeAccent,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Text(
+        'Top',
+        style: TextStyle(fontSize: 10, color: Colors.black),
+      ),
     );
   }
 }
