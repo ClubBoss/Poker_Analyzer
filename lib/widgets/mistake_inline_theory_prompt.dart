@@ -8,6 +8,7 @@ import '../services/analytics_service.dart';
 import '../services/mistake_tag_classifier.dart';
 import '../services/theory_suggestion_ranker.dart';
 import '../services/last_viewed_theory_store.dart';
+import '../services/user_error_rate_service.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 
 typedef LessonMatchProvider =
@@ -31,7 +32,6 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
   final TrainingSpotAttempt attempt;
   final String packId;
   final String spotId;
-  final Map<String, double> userErrorRates;
   final LessonMatchProvider matchProvider;
   final AnalyticsLogger log;
   final void Function(String spotId, String packId, String? lessonId)?
@@ -42,7 +42,6 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
     required this.attempt,
     required this.packId,
     required this.spotId,
-    this.userErrorRates = const {},
     LessonMatchProvider? matchProvider,
     AnalyticsLogger? log,
     this.onTheoryViewed,
@@ -75,8 +74,12 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
         .map((e) => e.toLowerCase()));
     final matches = await widget.matchProvider(baseTags.toList());
     if (matches.isEmpty) return;
+    final rates = await UserErrorRateService.instance.getRates(
+      packId: widget.packId,
+      tags: baseTags,
+    );
     final ranked = await TheorySuggestionRanker(
-      userErrorRate: widget.userErrorRates,
+      userErrorRate: rates,
       packId: widget.packId,
     ).rank(matches);
     await widget.log('theory_suggestion_shown', {
