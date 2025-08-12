@@ -10,6 +10,12 @@ Map<String, Object?> starterBannerPayload(String packId, int spotCount) => {
       'spotCount': spotCount,
     };
 
+Map<String, Object?> starterPickerOpenedPayload() => {};
+
+Map<String, Object?> starterPickerSelectedPayload(
+        String packId, int spotCount) =>
+    {'packId': packId, 'spotCount': spotCount};
+
 class StarterPackTelemetry {
   const StarterPackTelemetry({AnalyticsService? analytics})
       : _analytics = analytics ?? AnalyticsService.instance;
@@ -24,6 +30,20 @@ class StarterPackTelemetry {
     await _analytics.logEvent(
       event,
       starterBannerPayload(packId, spotCount),
+    );
+  }
+
+  Future<void> logPickerOpened() async {
+    await _analytics.logEvent(
+      'starter_banner_picker_opened',
+      starterPickerOpenedPayload(),
+    );
+  }
+
+  Future<void> logPickerSelected(String packId, int spotCount) async {
+    await _analytics.logEvent(
+      'starter_banner_picker_selected',
+      starterPickerSelectedPayload(packId, spotCount),
     );
   }
 }

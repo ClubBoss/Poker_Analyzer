@@ -28,6 +28,13 @@ class PackLibraryService {
     return List<String>.unmodifiable(packLibrary.keys);
   }
 
+  Future<List<TrainingPackTemplateV2>> listStarters() async {
+    await TrainingPackLibraryV2.instance.loadFromFolder();
+    final list =
+        TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
+    return list.where((p) => p.tags.contains('starter')).toList();
+  }
+
   Future<TrainingPackTemplateV2?> recommendedStarter() async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
     final list =

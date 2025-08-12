@@ -11,4 +11,14 @@ void main() {
     final payload = starterBannerPayload('p2', 10);
     expect(payload, {'packId': 'p2', 'spotCount': 10});
   });
+
+  test('starter picker opened payload', () {
+    final payload = starterPickerOpenedPayload();
+    expect(payload, {});
+  });
+
+  test('starter picker selected payload', () {
+    final payload = starterPickerSelectedPayload('p3', 15);
+    expect(payload, {'packId': 'p3', 'spotCount': 15});
+  });
 }
