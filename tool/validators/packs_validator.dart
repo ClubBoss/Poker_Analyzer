@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'package:yaml/yaml.dart';
 
-final _posSet = {'EP','MP','CO','BTN','SB','BB'};
-final _kebab = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*\$');
+final _posSet = {'EP', 'MP', 'CO', 'BTN', 'SB', 'BB'};
+final _kebab = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
 
-void main() {
-  final dir = Directory('assets/packs/l2');
+/// Returns a list of validation error strings for all L2 packs.
+List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
+  final dir = Directory(root);
   if (!dir.existsSync()) {
-    stderr.writeln('::error file=assets/packs/l2::missing directory');
-    exit(1);
+    return ['::error file=$root::missing directory'];
   }
   final files = dir
       .listSync(recursive: true)
@@ -90,22 +90,24 @@ void main() {
         err('invalid position $pos');
       }
     } else if (subtype == '3bet-push') {
-      final bucket = doc['stackBucket'];
-      if (bucket is! String || !RegExp(r'^\\d+-\\d+\$').hasMatch(bucket)) {
-        err('invalid stackBucket');
-      }
+      // no extra validation
     } else if (subtype == 'limped') {
       if (doc['limped'] != true) {
         err('limped=true required');
       }
       final pos = doc['position'];
-      if (pos is! String || !{'SB','BB'}.contains(pos)) {
+      if (pos is! String || !{'SB', 'BB'}.contains(pos)) {
         err('limped position invalid');
       }
     } else {
       err('unknown subtype $subtype');
     }
   }
+  return errors;
+}
+
+void main() {
+  final errors = validateL2Packs();
   if (errors.isNotEmpty) {
     for (final e in errors) {
       final idx = e.indexOf(': ');

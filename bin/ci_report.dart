@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:path/path.dart' as p;
+import '../tool/metrics/recall_accuracy_aggregator.dart';
 
 Future<void> main(List<String> args) async {
   final parser = ArgParser()
     ..addOption('report', defaultsTo: 'theory_sweep_report.json')
     ..addFlag('markdown', negatable: false)
-    ..addOption('mode',
-        allowed: ['soft', 'strict'], defaultsTo: 'strict');
+    ..addOption('mode', allowed: ['soft', 'strict'], defaultsTo: 'strict');
   final opts = parser.parse(args);
 
   final mode = opts['mode'] as String;
@@ -46,8 +46,7 @@ Future<void> main(List<String> args) async {
   }
   final data =
       jsonDecode(await reportFile.readAsString()) as Map<String, dynamic>;
-  final entries =
-      (data['entries'] as List? ?? []).cast<Map<String, dynamic>>();
+  final entries = (data['entries'] as List? ?? []).cast<Map<String, dynamic>>();
 
   if (entries.isEmpty) {
     if (mode == 'soft') {
@@ -94,5 +93,10 @@ Future<void> main(List<String> args) async {
     }
     stdout.write(buffer.toString());
   }
-}
 
+  // Inline recall accuracy summary (best-effort).
+  final recallSummary = RecallAccuracyAggregator().summarize('l2');
+  if (recallSummary.isNotEmpty) {
+    stdout.writeln(recallSummary);
+  }
+}
