@@ -4,8 +4,9 @@ import 'package:yaml/yaml.dart';
 
 void main(List<String> args) {
   final dirs = [
-    'assets/packs/l2/open_fold',
-    'assets/packs/l2/3bet_push',
+    'assets/packs/l2/open-fold',
+    'assets/packs/l2/3bet-push',
+    'assets/packs/l2/limped',
   ];
   var ok = true;
   for (final dir in dirs) {

@@ -1,414 +1,415 @@
-id: l2_3bet_push_8_12
-name: L2 3bet Push 8-12bb
+id: l2-3bet-push-13-18bb
+name: L2 3bet Push 13-18bb
 stage:
   id: L2
+  unlockAfter: l2-3bet-push-8-12bb
 subtype: 3bet-push
-stackBucket: 8-12
+stackBucket: 13-18
 objective: Decide the correct action
 tags:
   - l2
   - 3bet-push
-  - 8-12bb
+  - 13-18bb
   - vs-open
   - pushfold
 spots:
   -
-    id: l2_3bet_push_8_12_s001
+    id: l2-3bet-push-13-18bb-s001
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s002
+    id: l2-3bet-push-13-18bb-s002
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s003
+    id: l2-3bet-push-13-18bb-s003
+    actionType: 3bet-push
+    heroCards: KsKh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s004
+    actionType: 3bet-push
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s005
+    actionType: 3bet-push
+    heroCards: QsQh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s006
+    actionType: 3bet-push
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s007
+    actionType: 3bet-push
+    heroCards: JsJh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s008
+    actionType: 3bet-push
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s009
+    actionType: 3bet-push
+    heroCards: TsTh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s010
+    actionType: 3bet-push
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s011
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s004
+    id: l2-3bet-push-13-18bb-s012
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s005
+    id: l2-3bet-push-13-18bb-s013
+    actionType: 3bet-push
+    heroCards: KsKh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s014
+    actionType: 3bet-push
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s015
+    actionType: 3bet-push
+    heroCards: QsQh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s016
+    actionType: 3bet-push
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s017
+    actionType: 3bet-push
+    heroCards: JsJh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s018
+    actionType: 3bet-push
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s019
+    actionType: 3bet-push
+    heroCards: TsTh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s020
+    actionType: 3bet-push
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s021
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s006
+    id: l2-3bet-push-13-18bb-s022
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s007
+    id: l2-3bet-push-13-18bb-s023
+    actionType: 3bet-push
+    heroCards: KsKh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s024
+    actionType: 3bet-push
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s025
+    actionType: 3bet-push
+    heroCards: QsQh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s026
+    actionType: 3bet-push
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s027
+    actionType: 3bet-push
+    heroCards: JsJh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s028
+    actionType: 3bet-push
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s029
+    actionType: 3bet-push
+    heroCards: TsTh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s030
+    actionType: 3bet-push
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s031
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s008
+    id: l2-3bet-push-13-18bb-s032
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s009
+    id: l2-3bet-push-13-18bb-s033
+    actionType: 3bet-push
+    heroCards: KsKh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s034
+    actionType: 3bet-push
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s035
+    actionType: 3bet-push
+    heroCards: QsQh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s036
+    actionType: 3bet-push
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s037
+    actionType: 3bet-push
+    heroCards: JsJh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s038
+    actionType: 3bet-push
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s039
+    actionType: 3bet-push
+    heroCards: TsTh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s040
+    actionType: 3bet-push
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s041
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s010
+    id: l2-3bet-push-13-18bb-s042
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s011
+    id: l2-3bet-push-13-18bb-s043
+    actionType: 3bet-push
+    heroCards: KsKh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s044
+    actionType: 3bet-push
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s045
+    actionType: 3bet-push
+    heroCards: QsQh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s046
+    actionType: 3bet-push
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s047
+    actionType: 3bet-push
+    heroCards: JsJh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s048
+    actionType: 3bet-push
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s049
+    actionType: 3bet-push
+    heroCards: TsTh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s050
+    actionType: 3bet-push
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s051
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s012
+    id: l2-3bet-push-13-18bb-s052
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s013
+    id: l2-3bet-push-13-18bb-s053
+    actionType: 3bet-push
+    heroCards: KsKh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s054
+    actionType: 3bet-push
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s055
+    actionType: 3bet-push
+    heroCards: QsQh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s056
+    actionType: 3bet-push
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s057
+    actionType: 3bet-push
+    heroCards: JsJh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s058
+    actionType: 3bet-push
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s059
+    actionType: 3bet-push
+    heroCards: TsTh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s060
+    actionType: 3bet-push
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s061
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s014
+    id: l2-3bet-push-13-18bb-s062
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s015
+    id: l2-3bet-push-13-18bb-s063
+    actionType: 3bet-push
+    heroCards: KsKh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s064
+    actionType: 3bet-push
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s065
+    actionType: 3bet-push
+    heroCards: QsQh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s066
+    actionType: 3bet-push
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s067
+    actionType: 3bet-push
+    heroCards: JsJh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s068
+    actionType: 3bet-push
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s069
+    actionType: 3bet-push
+    heroCards: TsTh
+    correctAction: push
+  -
+    id: l2-3bet-push-13-18bb-s070
+    actionType: 3bet-push
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-3bet-push-13-18bb-s071
     actionType: 3bet-push
     heroCards: AsAh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s016
+    id: l2-3bet-push-13-18bb-s072
     actionType: 3bet-push
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s017
+    id: l2-3bet-push-13-18bb-s073
     actionType: 3bet-push
-    heroCards: AsAh
+    heroCards: KsKh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s018
+    id: l2-3bet-push-13-18bb-s074
     actionType: 3bet-push
-    heroCards: AdAc
+    heroCards: KdKc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s019
+    id: l2-3bet-push-13-18bb-s075
     actionType: 3bet-push
-    heroCards: AsAh
+    heroCards: QsQh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s020
+    id: l2-3bet-push-13-18bb-s076
     actionType: 3bet-push
-    heroCards: AdAc
+    heroCards: QdQc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s021
+    id: l2-3bet-push-13-18bb-s077
     actionType: 3bet-push
-    heroCards: AsAh
+    heroCards: JsJh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s022
+    id: l2-3bet-push-13-18bb-s078
     actionType: 3bet-push
-    heroCards: AdAc
+    heroCards: JdJc
     correctAction: fold
   -
-    id: l2_3bet_push_8_12_s023
+    id: l2-3bet-push-13-18bb-s079
     actionType: 3bet-push
-    heroCards: AsAh
+    heroCards: TsTh
     correctAction: push
   -
-    id: l2_3bet_push_8_12_s024
+    id: l2-3bet-push-13-18bb-s080
     actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s025
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s026
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s027
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s028
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s029
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s030
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s031
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s032
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s033
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s034
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s035
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s036
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s037
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s038
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s039
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s040
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s041
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s042
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s043
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s044
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s045
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s046
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s047
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s048
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s049
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s050
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s051
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s052
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s053
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s054
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s055
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s056
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s057
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s058
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s059
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s060
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s061
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s062
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s063
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s064
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s065
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s066
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s067
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s068
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s069
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s070
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s071
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s072
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s073
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s074
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s075
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s076
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s077
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s078
-    actionType: 3bet-push
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_3bet_push_8_12_s079
-    actionType: 3bet-push
-    heroCards: AsAh
-    correctAction: push
-  -
-    id: l2_3bet_push_8_12_s080
-    actionType: 3bet-push
-    heroCards: AdAc
+    heroCards: TdTc
     correctAction: fold

@@ -3,8 +3,8 @@ import 'package:yaml/yaml.dart';
 
 void main() {
   final subtypes = {
-    'open-fold': 'assets/packs/l2/open_fold',
-    '3bet-push': 'assets/packs/l2/3bet_push',
+    'open-fold': 'assets/packs/l2/open-fold',
+    '3bet-push': 'assets/packs/l2/3bet-push',
     'limped': 'assets/packs/l2/limped',
   };
   for (final entry in subtypes.entries) {
@@ -13,7 +13,8 @@ void main() {
         final doc = loadYaml(file.readAsStringSync());
         final spots = doc['spots'] as YamlList?;
         if (spots == null || spots.isEmpty) {
-          stderr.writeln('::error file=' + file.path + '::empty spots in ' + entry.key);
+          stderr.writeln(
+              '::error file=' + file.path + '::empty spots in ' + entry.key);
           exit(1);
         }
       }
