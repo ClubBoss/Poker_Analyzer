@@ -25,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Гейт: запускаем строгую проверку только если затронута теория/пакеты/верификатор
+      # Гейтим дальнейшие шаги: срабатываем только если менялась "теория"
       - name: Detect theory changes
         id: filter
         uses: dorny/paths-filter@v3
@@ -33,22 +33,22 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           filters: |
             theory:
+              # корень/legacy
               - 'theory/**'
               - 'content/theory/**'
               - 'theory_index.json'
-              - 'training_packs/**/*.yaml'
               - 'packs/**/*.yaml'
-              - 'assets/**/*.yaml'
-              - 'yaml_out/**'
-              # если правили сам проверяющий код — тоже запускаем
-              - 'bin/ci_report.dart'
-              - 'tool/theory_verify.sh'
+              - 'training_packs/**/*.yaml'
+              # наши актуальные пути под assets/*
+              - 'assets/**/theory/**'
+              - 'assets/theory_index.json'
+              - 'assets/packs/**/*.yaml'
 
       - name: Set up Flutter
         if: steps.filter.outputs.theory == 'true'
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: 'stable'
           cache: true
 
       - name: Install dependencies
