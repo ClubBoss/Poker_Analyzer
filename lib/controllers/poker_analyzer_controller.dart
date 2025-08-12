@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
@@ -78,21 +79,28 @@ class PokerAnalyzerController extends ChangeNotifier {
   /// table state.
   void loadSpot(TrainingSpot spot) {
     _update(() {
-      _numberOfPlayers = spot.numberOfPlayers;
+      final playerCount = [
+        spot.numberOfPlayers,
+        spot.positions.length,
+        spot.playerTypes.length,
+        spot.stacks.length,
+      ].reduce(math.min);
+
+      _numberOfPlayers = playerCount;
       _playerPositions
         ..clear()
         ..addAll({
-          for (var i = 0; i < spot.positions.length; i++) i: spot.positions[i]
+          for (var i = 0; i < playerCount; i++) i: spot.positions[i]
         });
       _playerTypes
         ..clear()
         ..addAll({
-          for (var i = 0; i < spot.playerTypes.length; i++) i: spot.playerTypes[i]
+          for (var i = 0; i < playerCount; i++) i: spot.playerTypes[i]
         });
       _players
         ..clear()
         ..addAll([
-          for (var i = 0; i < spot.numberOfPlayers; i++)
+          for (var i = 0; i < playerCount; i++)
             PlayerModel(
               name: 'Player ${i + 1}',
               type: spot.playerTypes[i],
