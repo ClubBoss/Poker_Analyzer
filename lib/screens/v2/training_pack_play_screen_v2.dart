@@ -12,6 +12,7 @@ import '../../services/spaced_review_service.dart';
 import '../../services/sr_queue_builder.dart';
 import '../../services/pinned_learning_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../models/action_entry.dart';
 
 class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
   const TrainingPackPlayScreenV2({
@@ -112,6 +113,7 @@ class _TrainingPackPlayScreenV2State
       await _startNew();
     }
     final sr = context.read<SpacedReviewService>();
+    final tag = widget.template.tags.contains('pushfold') ? 'pushfold' : null;
     final queue = _srEnabled
         ? buildSrQueue(
             sr,
@@ -120,6 +122,7 @@ class _TrainingPackPlayScreenV2State
               ..._pool.map((s) => s.id),
               ...widget.template.spots.map((s) => s.id),
             }.toSet(),
+            modalityTag: tag,
           )
         : const <SRQueueItem>[];
     setState(() {
@@ -145,6 +148,7 @@ class _TrainingPackPlayScreenV2State
         .logEvent('sr_interleave_enabled_toggled', {'enabled': _srEnabled}));
     if (enabling) {
       final sr = context.read<SpacedReviewService>();
+      final tag = widget.template.tags.contains('pushfold') ? 'pushfold' : null;
       final queue = buildSrQueue(
         sr,
         {
@@ -152,6 +156,7 @@ class _TrainingPackPlayScreenV2State
           ..._pool.map((s) => s.id),
           ...widget.template.spots.map((s) => s.id),
         }.toSet(),
+        modalityTag: tag,
       );
       setState(() {
         _srQueue
@@ -867,17 +872,22 @@ class _TrainingPackPlayScreenV2State
     final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _srCurrent?.spot ?? _spots[_index];
 
-    // Debug guard: this screen assumes push/fold UI; trip in dev if a non-P/F spot slips in.
-    assert(() {
-      final acts = spot.hand.actions[_currentStreet] ?? const [];
+    if (widget.template.tags.contains('pushfold')) {
+      final List<ActionEntry> acts =
+          spot.hand.actions[_currentStreet] ?? const <ActionEntry>[];
       final heroIdx = spot.hand.heroIndex;
       final hasPush = acts.any((a) =>
           a.playerIndex == heroIdx && a.action.toLowerCase() == 'push');
       final hasFold = acts.any((a) =>
           a.playerIndex != heroIdx && a.action.toLowerCase() == 'fold');
-      return hasPush && hasFold;
-    }(),
-        'Expected push/fold spot; missing "push" or "fold" action for players on current street');
+      final ok = hasPush && hasFold;
+      assert(ok,
+          'Expected push/fold spot; missing "push" or "fold" action for players on current street');
+      if (!ok) {
+        return const Scaffold(
+            body: Center(child: Text('Unsupported spot')));
+      }
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),

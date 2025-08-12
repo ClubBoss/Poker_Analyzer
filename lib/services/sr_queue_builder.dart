@@ -14,6 +14,7 @@ List<SRQueueItem> buildSrQueue(
   Set<String> baseSpotIds, {
   DateTime? now,
   int limit = 50,
+  String? modalityTag,
 }) {
   final ids = service.dueSpotIds(now ?? DateTime.now(), limit: limit);
   final res = <SRQueueItem>[];
@@ -21,8 +22,11 @@ List<SRQueueItem> buildSrQueue(
     if (baseSpotIds.contains(id)) continue;
     final packId = service.packIdForSpot(id);
     if (packId == null) continue;
-    final tpl = service.templates.templates.firstWhereOrNull((t) => t.id == packId);
-    final s = tpl?.spots.firstWhereOrNull((s) => s.id == id);
+    final tpl =
+        service.templates.templates.firstWhereOrNull((t) => t.id == packId);
+    if (tpl == null) continue;
+    if (modalityTag != null && !tpl.tags.contains(modalityTag)) continue;
+    final s = tpl.spots.firstWhereOrNull((s) => s.id == id);
     if (s != null) {
       res.add(
         SRQueueItem(
