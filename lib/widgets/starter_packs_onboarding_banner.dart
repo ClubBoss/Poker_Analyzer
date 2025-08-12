@@ -30,6 +30,7 @@ class _StarterPacksOnboardingBannerState
   static const _kPrefDismissedAt = 'starter_pack_dismissed_at';
   static const _kPrefSelectedId = 'starter_pack_selected_id';
   static String _kPrefProgress(String id) => 'starter_pack_progress:$id';
+  static const int _packCacheLimit = 12;
   TrainingPackTemplateV2? _pack;
   bool _loading = true;
   bool _launching = false;
@@ -57,10 +58,20 @@ class _StarterPacksOnboardingBannerState
     return clamped / total;
   }
 
+  void _cachePut(String id, TrainingPackTemplateV2 full) {
+    if (_packCache.containsKey(id)) {
+      _packCache.remove(id);
+    }
+    _packCache[id] = full;
+    if (_packCache.length > _packCacheLimit) {
+      _packCache.remove(_packCache.keys.first);
+    }
+  }
+
   void _prefetchPack(TrainingPackTemplateV2 t) {
     unawaited(
       (PackLibraryService.instance.getById(t.id) ?? Future.value(t))
-          .then((full) => _packCache[t.id] = full)
+          .then((full) => _cachePut(t.id, full))
           .catchError((_) {}),
     );
   }
@@ -207,7 +218,7 @@ class _StarterPacksOnboardingBannerState
       final full =
           cached ??
           await (PackLibraryService.instance.getById(p.id) ?? Future.value(p));
-      _packCache[full.id] = full;
+      _cachePut(full.id, full);
       final count = _totalHands(full);
       if (tapEvent != null) {
         unawaited(
