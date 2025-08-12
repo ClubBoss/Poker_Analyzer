@@ -79,35 +79,43 @@ class _InlineTheoryBadgeState extends State<InlineTheoryBadge> {
     }
   }
 
-  void _handleTap() {
+  Future<void> _handleTap() async {
     final lessons = _lessons;
     if (lessons.isEmpty) return;
     if (lessons.length == 1) {
-      _openLesson(lessons.first);
+      await _openLesson(lessons.first);
       return;
     }
-    AnalyticsService.instance.logEvent('theory_list_opened', {
-      'spot_id': widget.spotId,
-      if (widget.packId != null) 'pack_id': widget.packId,
-      'count': lessons.length,
-    });
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => ListView(
-        shrinkWrap: true,
-        children: [
-          for (final l in lessons)
-            ListTile(
-              title: Text(l.resolvedTitle),
-              subtitle: Text(l.tags.join(', ')),
-              onTap: () {
-                Navigator.pop(ctx);
-                Future.microtask(() => _openLesson(l));
-              },
-            ),
-        ],
-      ),
-    );
+    try {
+      await AnalyticsService.instance.logEvent('theory_list_opened', {
+        'spot_id': widget.spotId,
+        if (widget.packId != null) 'pack_id': widget.packId,
+        'count': lessons.length,
+      });
+      await showModalBottomSheet(
+        context: context,
+        builder: (ctx) => ListView(
+          shrinkWrap: true,
+          children: [
+            for (final l in lessons)
+              ListTile(
+                title: Text(l.resolvedTitle),
+                subtitle: Text(l.tags.join(', ')),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Future.microtask(() => _openLesson(l));
+                },
+              ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to open lessons')),
+        );
+      }
+    }
   }
 
   @override
@@ -124,4 +132,3 @@ class _InlineTheoryBadgeState extends State<InlineTheoryBadge> {
     );
   }
 }
-
