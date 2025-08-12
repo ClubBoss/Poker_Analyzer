@@ -323,43 +323,52 @@ class _StarterPacksOnboardingBannerState
                   }
                 }
 
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (recommended != null)
-                      ListTile(
-                        leading: const Icon(Icons.star),
-                        title: Text(recommended.name),
-                        subtitle: Text(() {
-                          final total = _totalHands(recommended);
-                          final done = prog[recommended.id] ?? 0;
-                          return _progressText(done, total, t);
-                        }()),
-                        trailing:
-                            selectedId == null && _pack?.id == recommended.id
-                            ? const Icon(Icons.check)
-                            : null,
-                        onTap: () => Navigator.of(context).pop(recommended),
-                      ),
-                    if (recommended != null && items.isNotEmpty)
-                      const Divider(height: 0),
-                    for (var i = 0; i < items.length; i++) ...[
-                      if (i == dividerIndex && dividerIndex > 0)
-                        const Divider(height: 0),
-                      ListTile(
-                        title: Text(items[i].name),
-                        subtitle: Text(() {
-                          final total = _totalHands(items[i]);
-                          final done = prog[items[i].id] ?? 0;
-                          return _progressText(done, total, t);
-                        }()),
-                        trailing: items[i].id == _pack?.id
-                            ? const Icon(Icons.check)
-                            : null,
-                        onTap: () => Navigator.of(context).pop(items[i]),
-                      ),
-                    ],
-                  ],
+                final maxH = MediaQuery.of(context).size.height * 0.7;
+                return ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: maxH),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (recommended != null)
+                          ListTile(
+                            leading: const Icon(Icons.star),
+                            title: Text(recommended.name),
+                            subtitle: Text(() {
+                              final total = _totalHands(recommended);
+                              final done = prog[recommended.id] ?? 0;
+                              return _progressText(done, total, t);
+                            }()),
+                            selected:
+                                selectedId == null && _pack?.id == recommended.id,
+                            trailing:
+                                selectedId == null && _pack?.id == recommended.id
+                                    ? const Icon(Icons.check)
+                                    : null,
+                            onTap: () => Navigator.of(context).pop(recommended),
+                          ),
+                        if (recommended != null && items.isNotEmpty)
+                          const Divider(height: 0),
+                        for (var i = 0; i < items.length; i++) ...[
+                          if (i == dividerIndex && dividerIndex > 0)
+                            const Divider(height: 0),
+                          ListTile(
+                            title: Text(items[i].name),
+                            subtitle: Text(() {
+                              final total = _totalHands(items[i]);
+                              final done = prog[items[i].id] ?? 0;
+                              return _progressText(done, total, t);
+                            }()),
+                            selected: items[i].id == _pack?.id,
+                            trailing: items[i].id == _pack?.id
+                                ? const Icon(Icons.check)
+                                : null,
+                            onTap: () => Navigator.of(context).pop(items[i]),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
