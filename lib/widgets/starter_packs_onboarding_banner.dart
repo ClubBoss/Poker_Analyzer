@@ -35,6 +35,15 @@ class _StarterPacksOnboardingBannerState
   int _totalHands(TrainingPackTemplateV2 p) =>
       p.spotCount != 0 ? p.spotCount : p.spots.length;
 
+  String _progressText(int done, int total, AppLocalizations t) {
+    if (total <= 0) return '0 ${t.hands}';
+    final clamped = done.clamp(0, total);
+    final percent = (clamped * 100) ~/ total;
+    return clamped > 0
+        ? '$clamped / $total ${t.hands} • ${t.percentLabel(percent)}'
+        : '$total ${t.hands}';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -245,10 +254,8 @@ class _StarterPacksOnboardingBannerState
                         title: Text(recommended.name),
                         subtitle: Text(() {
                           final total = _totalHands(recommended);
-                          final done = prog[recommended.id];
-                          return done != null && done > 0
-                              ? '$done / $total ${t.hands}'
-                              : '$total ${t.hands}';
+                          final done = prog[recommended.id] ?? 0;
+                          return _progressText(done, total, t);
                         }()),
                         trailing: selectedId == null &&
                                 _pack?.id == recommended.id
@@ -265,10 +272,8 @@ class _StarterPacksOnboardingBannerState
                         title: Text(items[i].name),
                         subtitle: Text(() {
                           final total = _totalHands(items[i]);
-                          final done = prog[items[i].id];
-                          return done != null && done > 0
-                              ? '$done / $total ${t.hands}'
-                              : '$total ${t.hands}';
+                          final done = prog[items[i].id] ?? 0;
+                          return _progressText(done, total, t);
                         }()),
                         trailing: items[i].id == _pack?.id
                             ? const Icon(Icons.check)
@@ -399,7 +404,7 @@ class _StarterPacksOnboardingBannerState
             ),
           if (hands > 0)
             Text(
-              (done > 0 ? '$done/$hands' : '$hands') + ' ${t.hands}',
+              _progressText(done, hands, t),
               style: const TextStyle(color: Colors.white70),
             ),
           const SizedBox(height: 8),
