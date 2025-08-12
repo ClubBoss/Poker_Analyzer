@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/training_spot.dart';
 import '../../utils/shared_prefs_keys.dart';
+import '../../services/inline_theory_linker_cache.dart';
 import 'training_spot_tile.dart';
 import 'training_spot_filter_panel.dart';
 import 'training_spot_overlay.dart';
@@ -13,6 +14,7 @@ class TrainingSpotList extends StatefulWidget {
   final ValueChanged<int>? onEdit;
   final VoidCallback? onChanged;
   final ReorderCallback? onReorder;
+  final String? packId;
 
   const TrainingSpotList({
     super.key,
@@ -21,6 +23,7 @@ class TrainingSpotList extends StatefulWidget {
     this.onEdit,
     this.onChanged,
     this.onReorder,
+    this.packId,
   });
 
   @override
@@ -36,6 +39,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     super.initState();
     _filtered = [...widget.spots];
     _loadPrefs();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => InlineTheoryLinkerCache.instance.ensureReady());
   }
 
   Future<void> _loadPrefs() async {
@@ -85,6 +90,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                       ? () => widget.onRemove!(index)
                       : null,
                   onTap: widget.onChanged,
+                  packId: widget.packId,
                 );
               },
             ),

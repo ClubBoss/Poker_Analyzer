@@ -8,6 +8,7 @@ class TrainingSpotTile extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onRemove;
   final VoidCallback? onTap;
+  final String? packId;
 
   const TrainingSpotTile({
     super.key,
@@ -15,12 +16,22 @@ class TrainingSpotTile extends StatelessWidget {
     this.onEdit,
     this.onRemove,
     this.onTap,
+    this.packId,
   });
 
   @override
   Widget build(BuildContext context) {
     final pos = spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
     final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
+    final spotId = (() {
+      try {
+        final dynamic s = spot;
+        final id = s.id;
+        if (id is String && id.isNotEmpty) return id;
+      } catch (_) {}
+      return spot.createdAt.toIso8601String();
+    })();
+
     return ListTile(
       title: Text('$pos ${stack}bb'),
       subtitle: spot.tags.isNotEmpty ? Text(spot.tags.join(', ')) : null,
@@ -30,7 +41,8 @@ class TrainingSpotTile extends StatelessWidget {
         children: [
           InlineTheoryBadge(
             tags: spot.tags,
-            spotId: spot.createdAt.toIso8601String(),
+            spotId: spotId,
+            packId: packId,
           ),
           if (onEdit != null)
             IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
