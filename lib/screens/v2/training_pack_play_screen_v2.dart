@@ -3,6 +3,9 @@ import 'training_pack_result_screen_v2.dart';
 import '../../widgets/training_pack_play_screen_v2_toolbar.dart';
 import '../../services/app_settings_service.dart';
 import '../../services/user_preferences_service.dart';
+import '../../services/adaptive_spot_scheduler.dart';
+import '../../services/user_error_rate_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
   const TrainingPackPlayScreenV2({
@@ -46,6 +49,10 @@ class _TrainingPackPlayScreenV2State
   String? _pressedAction;
   int _street = 0;
   bool _streetAnswered = false;
+  bool _adaptiveMode = true;
+  late AdaptiveSpotScheduler _scheduler;
+  final List<TrainingPackSpot> _pool = [];
+  final List<String> _recent = [];
 
   int get _targetStreetIndex {
     switch (widget.template.targetStreet) {
@@ -81,6 +88,7 @@ class _TrainingPackPlayScreenV2State
       _autoAdvance =
           widget.template.targetStreet == null &&
               (prefs.getBool('auto_adv_${widget.template.id}') ?? false);
+      _adaptiveMode = prefs.getBool('adaptive_mode_enabled') ?? true;
     });
     final seqKey = 'tpl_seq_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
@@ -89,6 +97,12 @@ class _TrainingPackPlayScreenV2State
     } else {
       await _startNew();
     }
+  }
+
+  Future<void> _toggleAdaptive() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _adaptiveMode = !_adaptiveMode);
+    await prefs.setBool('adaptive_mode_enabled', _adaptiveMode);
   }
 
   Future<void> _load() async {
@@ -183,7 +197,8 @@ class _TrainingPackPlayScreenV2State
 
 
   Future<void> _startNew() async {
-    var spots = List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
+    var spots =
+        List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
     if (_order == PlayOrder.random) {
       spots.shuffle();
     } else if (_order == PlayOrder.mistakes) {
@@ -195,18 +210,43 @@ class _TrainingPackPlayScreenV2State
             ans != 'false' &&
             exp.toLowerCase() != ans.toLowerCase();
       }).toList();
-      if (spots.isEmpty) spots = List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
+      if (spots.isEmpty) {
+        spots = List<TrainingPackSpot>.from(
+            widget.spots ?? widget.template.spots);
+      }
+    }
+    if (_adaptiveMode) {
+      _scheduler = AdaptiveSpotScheduler(
+        seed: DateTime.now().millisecondsSinceEpoch,
+        packTags: spots.expand((e) => e.tags).toSet(),
+      );
+      _pool
+        ..clear()
+        ..addAll(spots);
+      _spots = [];
+      _recent.clear();
+      final first = await _scheduler.next(
+        packId: widget.template.id,
+        pool: _pool,
+        recentSpotIds: _recent,
+      );
+      _spots.add(first);
+      _pool.removeWhere((s) => s.id == first.id);
+      _recent.add(first.id);
+      spots = _spots;
     }
     setState(() {
       _spots = spots;
       _index = 0;
-      _street = widget.template.targetStreet != null ? _targetStreetIndex : 0;
+      _street =
+          widget.template.targetStreet != null ? _targetStreetIndex : 0;
       _streetAnswered = false;
       _streetCount = 0;
       _summaryShown = false;
       _handCounts
         ..clear()
-        ..addEntries(widget.template.focusHandTypes.map((e) => MapEntry(e.label, 0)));
+        ..addEntries(widget.template.focusHandTypes
+            .map((e) => MapEntry(e.label, 0)));
       _loading = false;
     });
     await save();
@@ -506,6 +546,27 @@ class _TrainingPackPlayScreenV2State
 
   Future<void> _next() async {
     _hideFeedback();
+    if (_adaptiveMode && _pool.isNotEmpty) {
+      final nextSpot = await _scheduler.next(
+        packId: widget.template.id,
+        pool: _pool,
+        recentSpotIds: _recent,
+      );
+      setState(() {
+        _spots.add(nextSpot);
+        _pool.removeWhere((s) => s.id == nextSpot.id);
+        _index++;
+        _street =
+            widget.template.targetStreet != null ? _targetStreetIndex : 0;
+        _streetAnswered = false;
+        _recent.add(nextSpot.id);
+        if (_recent.length > AdaptiveSpotScheduler.noRepeatWindow) {
+          _recent.removeAt(0);
+        }
+      });
+      save();
+      return;
+    }
     if (_index + 1 < _spots.length) {
       setState(() {
         _index++;
@@ -514,61 +575,59 @@ class _TrainingPackPlayScreenV2State
         _streetAnswered = false;
       });
       save();
-    } else {
-      _index = _spots.length - 1;
-      save();
-      await context.read<StreakService>().onFinish();
+      return;
+    }
+    _index = _spots.length - 1;
+    save();
+    await context.read<StreakService>().onFinish();
+    await context.read<StreakTrackerService>().markActiveToday(context);
+    await NotificationService.cancel(101);
+    await NotificationService.cancel(102);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'last_training_day', DateTime.now().toIso8601String().split('T').first);
+    await NotificationService.scheduleDailyReminder(context);
+    await NotificationService.scheduleDailyProgress(context);
+    final ids = _wrongIds();
+    if (ids.isNotEmpty) {
+      final template = widget.template.copyWith(
+        id: const Uuid().v4(),
+        name: 'Review mistakes',
+        spots: [for (final s in widget.template.spots) if (ids.contains(s.id)) s],
+      );
+      MistakeReviewPackService.setLatestTemplate(template);
       await context
-          .read<StreakTrackerService>()
-          .markActiveToday(context);
-      await NotificationService.cancel(101);
-      await NotificationService.cancel(102);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('last_training_day',
-          DateTime.now().toIso8601String().split('T').first);
-      await NotificationService.scheduleDailyReminder(context);
-      await NotificationService.scheduleDailyProgress(context);
-      final ids = _wrongIds();
-      if (ids.isNotEmpty) {
-        final template = widget.template.copyWith(
-          id: const Uuid().v4(),
-          name: 'Review mistakes',
-          spots: [for (final s in widget.template.spots) if (ids.contains(s.id)) s],
-        );
-        MistakeReviewPackService.setLatestTemplate(template);
-        await context
-            .read<MistakeReviewPackService>()
-            .addPack(ids, templateId: widget.original.id);
-        final start = await showDialog<bool>(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Review mistakes now?'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(_, false),
-                  child: const Text('Later')),
-              TextButton(
-                  onPressed: () => Navigator.pop(_, true),
-                  child: const Text('Start')),
-            ],
+          .read<MistakeReviewPackService>()
+          .addPack(ids, templateId: widget.original.id);
+      final start = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Review mistakes now?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(_, false),
+                child: const Text('Later')),
+            TextButton(
+                onPressed: () => Navigator.pop(_, true),
+                child: const Text('Start')),
+          ],
+        ),
+      );
+      if (!mounted) return;
+      if (start == true) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingPackPlayScreen(
+              template: MistakeReviewPackService.cachedTemplate!,
+              original: null,
+            ),
           ),
         );
-        if (!mounted) return;
-        if (start == true) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => TrainingPackPlayScreen(
-                template: MistakeReviewPackService.cachedTemplate!,
-                original: null,
-              ),
-            ),
-          );
-          return;
-        }
+        return;
       }
-      await _showCompletion();
     }
+    await _showCompletion();
   }
 
   Future<void> _choose(String? act) async {
@@ -631,6 +690,12 @@ class _TrainingPackPlayScreenV2State
               .read<MistakeReviewPackService>()
               .packs
               .any((p) => p.spotIds.contains(spot.id));
+      await UserErrorRateService.instance.recordAttempt(
+        packId: widget.template.id,
+        tags: spot.tags.toSet(),
+        isCorrect: !incorrect,
+        ts: DateTime.now(),
+      );
       if (incorrect && first) {
         await context
             .read<MistakeReviewPackService>()
@@ -781,6 +846,8 @@ class _TrainingPackPlayScreenV2State
                   await AppSettingsService.instance.setUseIcm(val);
                   setState(() {});
                 },
+                onAdaptiveToggle: _toggleAdaptive,
+                adaptive: _adaptiveMode,
                 mini: scale < 0.9,
               ),
             ),

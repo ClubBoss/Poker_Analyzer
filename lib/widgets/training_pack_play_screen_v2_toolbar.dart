@@ -10,6 +10,8 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
   final int total;
   final VoidCallback onExit;
   final VoidCallback onModeToggle;
+  final VoidCallback onAdaptiveToggle;
+  final bool adaptive;
   final bool mini;
   final int? streetIndex;
   const TrainingPackPlayScreenV2Toolbar({
@@ -19,6 +21,8 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
     required this.total,
     required this.onExit,
     required this.onModeToggle,
+    required this.onAdaptiveToggle,
+    required this.adaptive,
     this.mini = false,
     this.streetIndex,
   });
@@ -83,6 +87,15 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                         .showSnackBar(SnackBar(content: Text(hint)));
                   },
                 ),
+              IconButton(
+                icon: Icon(
+                    adaptive ? Icons.scatter_plot : Icons.scatter_plot_outlined),
+                color: adaptive
+                    ? Theme.of(context).colorScheme.primary
+                    : iconColor,
+                tooltip: 'Adaptive mode',
+                onPressed: onAdaptiveToggle,
+              ),
               IconButton(
                 icon: Icon(isIcm ? Icons.monetization_on : Icons.stacked_line_chart),
                 color: iconColor,
