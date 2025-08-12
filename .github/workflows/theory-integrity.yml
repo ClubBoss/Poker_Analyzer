@@ -26,54 +26,34 @@ jobs:
           fetch-depth: 0
 
       - name: Detect theory changes
-        id: detect
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Determine diff base safely for PRs vs pushes
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          else
-            # Fallback: compare with default branch
-            BASE_REF="${{ github.base_ref || 'origin/main' }}"
-            git fetch --no-tags --depth=1 origin "${BASE_REF#origin/}" || true
-            BASE_SHA="$(git rev-parse ${BASE_REF#origin/} || echo '')"
-          fi
-
-          if [[ -z "${BASE_SHA}" ]]; then
-            echo "No BASE_SHA — treating as changes present"
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Paths that define theory
-          CHANGED="$(git diff --name-only "${BASE_SHA}"...HEAD | grep -E '^(assets/.*\\.ya?ml|assets/.*/theory/|theory/|yaml_out/)' || true)"
-
-          if [[ -n "${CHANGED}" ]]; then
-            echo "Theory changes detected:"
-            echo "${CHANGED}"
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No theory changes -> skip strict verify"
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          fi
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            theory:
+              - 'theory/**'
+              - 'content/theory/**'
+              - 'theory_index.json'
+              - 'training_packs/**.yaml'
+              - 'packs/**.yaml'
 
       - name: Set up Flutter
-        if: steps.detect.outputs.has_changes == 'true'
+        if: steps.filter.outputs.theory == 'true'
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
       - name: Install dependencies
-        if: steps.detect.outputs.has_changes == 'true'
+        if: steps.filter.outputs.theory == 'true'
         run: flutter pub get
 
       - name: Strict verify
-        if: steps.detect.outputs.has_changes == 'true'
+        if: steps.filter.outputs.theory == 'true'
         env:
           MODE: strict
         run: |
           echo "mode=$MODE"
-          tool/theory_verify.sh --mode "$MODE"
+          bash tool/theory_verify.sh
 
