@@ -80,7 +80,7 @@ class _WinnerGlowWidgetState extends State<WinnerGlowWidget>
             borderRadius: BorderRadius.circular(8 * widget.scale),
             boxShadow: [
               BoxShadow(
-                color: Colors.amberAccent.withOpacity(0.7),
+                color: Colors.amberAccent.withValues(alpha: 0.7),
                 blurRadius: 8 * widget.scale,
                 spreadRadius: 1 * widget.scale,
               ),

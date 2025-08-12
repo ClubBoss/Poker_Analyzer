@@ -79,7 +79,7 @@ class _WinTextWidgetState extends State<WinTextWidget>
               vertical: 4 * widget.scale,
             ),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(8 * widget.scale),
           ),
           child: Text(

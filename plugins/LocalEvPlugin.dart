@@ -4,6 +4,7 @@ import 'package:poker_analyzer/services/push_fold_ev_service.dart';
 import 'package:poker_analyzer/services/icm_push_ev_service.dart';
 import 'package:poker_analyzer/helpers/hand_utils.dart';
 import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/plugins/service_extension.dart';
 
 class LocalEvService {
   const LocalEvService();
@@ -78,6 +79,12 @@ class LocalEvPlugin implements Plugin {
   void register(ServiceRegistry registry) {
     registry.registerIfAbsent<LocalEvService>(const LocalEvService());
   }
+
+  @override
+  void unregister(ServiceRegistry registry) {}
+
+  @override
+  List<ServiceExtension<dynamic>> get extensions => const [];
 
   @override
   String get name => 'Local EV';

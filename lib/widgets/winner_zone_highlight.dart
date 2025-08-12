@@ -90,7 +90,7 @@ class _WinnerZoneHighlightState extends State<WinnerZoneHighlight>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.amberAccent.withOpacity(0.8),
+                    color: Colors.amberAccent.withValues(alpha: 0.8),
                     blurRadius: 20 * widget.scale,
                     spreadRadius: 4 * widget.scale,
                   ),

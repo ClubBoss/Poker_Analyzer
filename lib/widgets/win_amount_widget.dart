@@ -77,11 +77,11 @@ class _WinAmountWidgetState extends State<WinAmountWidget>
             fontSize: 16 * widget.scale,
             shadows: [
               Shadow(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 blurRadius: 4 * widget.scale,
               ),
               Shadow(
-                color: Colors.greenAccent.withOpacity(0.8),
+                color: Colors.greenAccent.withValues(alpha: 0.8),
                 blurRadius: 6 * widget.scale,
               ),
             ],
