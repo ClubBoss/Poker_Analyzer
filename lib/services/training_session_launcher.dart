@@ -30,6 +30,7 @@ class TrainingSessionLauncher {
     TrainingPackTemplateV2 template, {
     int startIndex = 0,
     List<String>? sessionTags,
+    String? source,
   }) async {
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
@@ -123,8 +124,11 @@ class TrainingSessionLauncher {
     await Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (_) =>
-            TrainingSessionScreen(pack: pack, startIndex: startIndex),
+        builder: (_) => TrainingSessionScreen(
+          pack: pack,
+          startIndex: startIndex,
+          source: source,
+        ),
       ),
     );
     unawaited(AchievementsEngine.instance.checkAll());
@@ -151,9 +155,15 @@ class TrainingSessionLauncher {
     String yaml, {
     int startIndex = 0,
     List<String>? sessionTags,
+    String? source,
   }) async {
     final tpl = TrainingPackTemplateV2.fromYamlString(yaml);
-    await launch(tpl, startIndex: startIndex, sessionTags: sessionTags);
+    await launch(
+      tpl,
+      startIndex: startIndex,
+      sessionTags: sessionTags,
+      source: source,
+    );
   }
 
   /// Finds and launches a booster drill relevant to [lesson].

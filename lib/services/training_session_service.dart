@@ -364,6 +364,7 @@ class TrainingSessionService extends ChangeNotifier {
     bool persist = true,
     int startIndex = 0,
     List<String>? sessionTags,
+    String source = 'manual',
   }) async {
     if (persist) await _openBox();
     unawaited(DailyReminderScheduler.instance.cancelAll());
@@ -378,7 +379,7 @@ class TrainingSessionService extends ChangeNotifier {
         ...template.tags,
         ...?sessionTags,
       ],
-      source: 'manual',
+      source: source,
     );
     _template = template;
     _sessionTags
