@@ -381,51 +381,58 @@ class _StarterPacksOnboardingBannerState
 
                 final maxH =
                     MediaQuery.of(context).size.height * _kChooserMaxHeightFactor;
+                final headerCount = recommended != null ? 1 : 0;
+                final totalCount = headerCount + items.length;
                 return ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: maxH),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (recommended != null)
-                          ListTile(
-                            leading: const Icon(Icons.star),
-                            title: Text(recommended.name),
-                            subtitle: Text(() {
-                              final total =
-                                  totals[recommended.id] ?? _totalHands(recommended);
-                              final done = prog[recommended.id] ?? 0;
-                              return _progressText(done, total, t);
-                            }()),
-                            selected:
-                                selectedId == null && _pack?.id == recommended.id,
-                            trailing:
-                                selectedId == null && _pack?.id == recommended.id
-                                    ? const Icon(Icons.check)
-                                    : null,
-                            onTap: () => Navigator.of(context).pop(recommended),
-                          ),
-                        if (recommended != null && items.isNotEmpty)
-                          const Divider(height: 0),
-                        for (var i = 0; i < items.length; i++) ...[
-                          if (i == dividerIndex && dividerIndex >= pinStart)
-                            const Divider(height: 0),
-                          ListTile(
-                            title: Text(items[i].name),
-                            subtitle: Text(() {
-                              final total = totals[items[i].id] ?? 0;
-                              final done = prog[items[i].id] ?? 0;
-                              return _progressText(done, total, t);
-                            }()),
-                            selected: items[i].id == _pack?.id,
-                            trailing: items[i].id == _pack?.id
-                                ? const Icon(Icons.check)
-                                : null,
-                            onTap: () => Navigator.of(context).pop(items[i]),
-                          ),
-                        ],
-                      ],
-                    ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemBuilder: (context, i) {
+                      if (recommended != null && i == 0) {
+                        final total =
+                            totals[recommended.id] ?? _totalHands(recommended);
+                        final done = prog[recommended.id] ?? 0;
+                        return ListTile(
+                          key: const ValueKey('recommended'),
+                          leading: const Icon(Icons.star),
+                          title: Text(recommended.name),
+                          subtitle: Text(_progressText(done, total, t)),
+                          selected:
+                              selectedId == null && _pack?.id == recommended.id,
+                          trailing: selectedId == null && _pack?.id == recommended.id
+                              ? const Icon(Icons.check)
+                              : null,
+                          onTap: () => Navigator.of(context).pop(recommended),
+                        );
+                      }
+                      final idx = i - headerCount;
+                      final p = items[idx];
+                      final total = totals[p.id] ?? 0;
+                      final done = prog[p.id] ?? 0;
+                      return ListTile(
+                        key: ValueKey(p.id),
+                        title: Text(p.name),
+                        subtitle: Text(_progressText(done, total, t)),
+                        selected: p.id == _pack?.id,
+                        trailing:
+                            p.id == _pack?.id ? const Icon(Icons.check) : null,
+                        onTap: () => Navigator.of(context).pop(p),
+                      );
+                    },
+                    separatorBuilder: (context, i) {
+                      if (recommended != null &&
+                          items.isNotEmpty &&
+                          i == 0) {
+                        return const Divider(height: 0);
+                      }
+                      if (i == headerCount + dividerIndex - 1 &&
+                          dividerIndex >= pinStart) {
+                        return const Divider(height: 0);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    itemCount: totalCount,
                   ),
                 );
               },
