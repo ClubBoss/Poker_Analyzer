@@ -71,12 +71,10 @@ class _StarterPacksOnboardingBannerState
       });
       if (pack != null) {
         unawaited(
-          TrainingPackStatsService.getHandsCompleted(pack.id)
-              .then((v) {
-                if (!mounted) return;
-                setState(() => _handsCompleted = v);
-              })
-              .catchError((_) {}),
+          TrainingPackStatsService.getHandsCompleted(pack.id).then((v) {
+            if (!mounted) return;
+            setState(() => _handsCompleted = v);
+          }).catchError((_) {}),
         );
       }
 
@@ -87,8 +85,7 @@ class _StarterPacksOnboardingBannerState
             .logBanner('starter_banner_shown', pack.id, count));
       }
     } catch (e, st) {
-      ErrorLogger.instance
-          .logError('starter_pack_banner_load_failed', e, st);
+      ErrorLogger.instance.logError('starter_pack_banner_load_failed', e, st);
       if (!mounted) return;
       setState(() => _loading = false);
     }
@@ -103,27 +100,22 @@ class _StarterPacksOnboardingBannerState
       final count = full.spotCount != 0 ? full.spotCount : full.spots.length;
       if (tapEvent != null) {
         unawaited(
-          const StarterPackTelemetry().logBanner(tapEvent, full.id, count),
-        );
+            const StarterPackTelemetry().logBanner(tapEvent, full.id, count));
       }
       if (!mounted) return;
-      await const TrainingSessionLauncher().launch(full, source: 'starter_banner');
+      await const TrainingSessionLauncher()
+          .launch(full, source: 'starter_banner');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('starter_pack_seen', true);
-      unawaited(
-        const StarterPackTelemetry()
-            .logBanner('starter_banner_launch_success', full.id, count),
-      );
+      unawaited(const StarterPackTelemetry()
+          .logBanner('starter_banner_launch_success', full.id, count));
       if (!mounted) return;
       setState(() => _pack = null);
     } catch (e, st) {
       final count = p.spotCount != 0 ? p.spotCount : p.spots.length;
-      unawaited(
-        const StarterPackTelemetry()
-            .logBanner('starter_banner_launch_failed', p.id, count),
-      );
-      ErrorLogger.instance
-          .logError('starter_pack_banner_start_failed', e, st);
+      unawaited(const StarterPackTelemetry()
+          .logBanner('starter_banner_launch_failed', p.id, count));
+      ErrorLogger.instance.logError('starter_pack_banner_start_failed', e, st);
       if (!mounted) return;
       setState(() => _pack = null);
     } finally {
@@ -136,8 +128,9 @@ class _StarterPacksOnboardingBannerState
     final p = _pack;
     if (p == null) return;
     final done = _handsCompleted ?? 0;
-    final event =
-        done > 0 ? 'starter_banner_continue_tapped' : 'starter_banner_start_tapped';
+    final event = done > 0
+        ? 'starter_banner_continue_tapped'
+        : 'starter_banner_start_tapped';
     await _launchPack(p, tapEvent: event);
   }
 
@@ -213,8 +206,8 @@ class _StarterPacksOnboardingBannerState
 
     final count =
         selected.spotCount != 0 ? selected.spotCount : selected.spots.length;
-    unawaited(const StarterPackTelemetry()
-        .logPickerSelected(selected.id, count));
+    unawaited(
+        const StarterPackTelemetry().logPickerSelected(selected.id, count));
 
     // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
     await _launchPack(selected);
@@ -261,8 +254,8 @@ class _StarterPacksOnboardingBannerState
               Expanded(
                 child: Text(
                   t.starter_packs_title,
-                  style:
-                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
               IconButton(
@@ -314,4 +307,3 @@ class _StarterPacksOnboardingBannerState
     );
   }
 }
-
