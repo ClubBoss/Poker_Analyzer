@@ -337,33 +337,6 @@ class _TrainingPackPlayScreenV2State
     return null;
   }
 
-  List<String> _heroActions(TrainingPackSpot spot) {
-    final idx = widget.template.targetStreet != null ? _targetStreetIndex : 0;
-    final acts = spot.hand.actions[idx] ?? [];
-    final hero = spot.hand.heroIndex;
-    final res = <String>[];
-    for (final a in acts) {
-      if (a.playerIndex == hero) {
-        final name = a.action.toLowerCase();
-        if (!res.contains(name)) res.add(name);
-      }
-    }
-    return res;
-  }
-
-  List<String> _heroActionsStreet(TrainingPackSpot spot, int street) {
-    final acts = spot.hand.actions[street] ?? [];
-    final hero = spot.hand.heroIndex;
-    final res = <String>[];
-    for (final a in acts) {
-      if (a.playerIndex == hero) {
-        final name = a.action.toLowerCase();
-        if (!res.contains(name)) res.add(name);
-      }
-    }
-    return res;
-  }
-
   bool _matchHandTypeLabel(TrainingPackSpot spot, String label) {
     final code = handCode(spot.hand.heroCards);
     if (code == null) return false;
@@ -893,8 +866,7 @@ class _TrainingPackPlayScreenV2State
     final width = MediaQuery.of(context).size.width;
     final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _srCurrent?.spot ?? _spots[_index];
-    final actions = _heroActions(spot);
-    final pushAction = actions.isEmpty ? 'push' : actions.first;
+    // final actions = _heroActions(spot); // uncomment if used later
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),
       body: Builder(builder: (context) {
@@ -1004,7 +976,7 @@ class _TrainingPackPlayScreenV2State
                 onHorizontalDragEnd: (details) {
                   if (details.primaryVelocity == null) return;
                   if (details.primaryVelocity! > 0) {
-                    _handleAction(pushAction);
+                    _handleAction('push');
                   } else if (details.primaryVelocity! < 0) {
                     _handleAction('fold');
                   }
@@ -1039,10 +1011,10 @@ class _TrainingPackPlayScreenV2State
                     Expanded(
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTapDown: (_) => _handleAction(pushAction),
+                        onTapDown: (_) => _handleAction('push'),
                         child: AnimatedScale(
                           duration: const Duration(milliseconds: 100),
-                          scale: _pressedAction == pushAction ? 0.95 : 1.0,
+                          scale: _pressedAction == 'push' ? 0.95 : 1.0,
                           child: AnimatedOpacity(
                             duration: const Duration(milliseconds: 300),
                             opacity: _showActionHints ? 0.3 : 0.0,
@@ -1050,7 +1022,7 @@ class _TrainingPackPlayScreenV2State
                               alignment: Alignment.center,
                               color: Colors.black26,
                               child: Text(
-                                pushAction.toUpperCase(),
+                                'PUSH',
                                 style: TextStyle(
                                   fontSize: 24 * scale,
                                   color: Colors.white,
