@@ -1,414 +1,414 @@
-id: l2_open_fold_co
-name: L2 Open/Fold CO
+id: l2-open-fold-bb
+name: L2 Open/Fold BB
 stage:
   id: L2
-  unlockAfter: l2_open_fold_mp
+  unlockAfter: l2-open-fold-sb
 subtype: open-fold
-position: CO
+position: BB
 objective: Decide the correct action
 tags:
   - l2
   - open-fold
-  - co
+  - bb
   - pushfold
 spots:
   -
-    id: l2_open_fold_co_s001
+    id: l2-open-fold-bb-s001
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s002
+    id: l2-open-fold-bb-s002
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s003
+    id: l2-open-fold-bb-s003
+    actionType: open-fold
+    heroCards: KsKh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s004
+    actionType: open-fold
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s005
+    actionType: open-fold
+    heroCards: QsQh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s006
+    actionType: open-fold
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s007
+    actionType: open-fold
+    heroCards: JsJh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s008
+    actionType: open-fold
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s009
+    actionType: open-fold
+    heroCards: TsTh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s010
+    actionType: open-fold
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s011
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s004
+    id: l2-open-fold-bb-s012
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s005
+    id: l2-open-fold-bb-s013
+    actionType: open-fold
+    heroCards: KsKh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s014
+    actionType: open-fold
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s015
+    actionType: open-fold
+    heroCards: QsQh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s016
+    actionType: open-fold
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s017
+    actionType: open-fold
+    heroCards: JsJh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s018
+    actionType: open-fold
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s019
+    actionType: open-fold
+    heroCards: TsTh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s020
+    actionType: open-fold
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s021
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s006
+    id: l2-open-fold-bb-s022
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s007
+    id: l2-open-fold-bb-s023
+    actionType: open-fold
+    heroCards: KsKh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s024
+    actionType: open-fold
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s025
+    actionType: open-fold
+    heroCards: QsQh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s026
+    actionType: open-fold
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s027
+    actionType: open-fold
+    heroCards: JsJh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s028
+    actionType: open-fold
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s029
+    actionType: open-fold
+    heroCards: TsTh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s030
+    actionType: open-fold
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s031
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s008
+    id: l2-open-fold-bb-s032
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s009
+    id: l2-open-fold-bb-s033
+    actionType: open-fold
+    heroCards: KsKh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s034
+    actionType: open-fold
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s035
+    actionType: open-fold
+    heroCards: QsQh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s036
+    actionType: open-fold
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s037
+    actionType: open-fold
+    heroCards: JsJh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s038
+    actionType: open-fold
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s039
+    actionType: open-fold
+    heroCards: TsTh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s040
+    actionType: open-fold
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s041
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s010
+    id: l2-open-fold-bb-s042
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s011
+    id: l2-open-fold-bb-s043
+    actionType: open-fold
+    heroCards: KsKh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s044
+    actionType: open-fold
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s045
+    actionType: open-fold
+    heroCards: QsQh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s046
+    actionType: open-fold
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s047
+    actionType: open-fold
+    heroCards: JsJh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s048
+    actionType: open-fold
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s049
+    actionType: open-fold
+    heroCards: TsTh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s050
+    actionType: open-fold
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s051
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s012
+    id: l2-open-fold-bb-s052
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s013
+    id: l2-open-fold-bb-s053
+    actionType: open-fold
+    heroCards: KsKh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s054
+    actionType: open-fold
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s055
+    actionType: open-fold
+    heroCards: QsQh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s056
+    actionType: open-fold
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s057
+    actionType: open-fold
+    heroCards: JsJh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s058
+    actionType: open-fold
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s059
+    actionType: open-fold
+    heroCards: TsTh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s060
+    actionType: open-fold
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s061
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s014
+    id: l2-open-fold-bb-s062
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s015
+    id: l2-open-fold-bb-s063
+    actionType: open-fold
+    heroCards: KsKh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s064
+    actionType: open-fold
+    heroCards: KdKc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s065
+    actionType: open-fold
+    heroCards: QsQh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s066
+    actionType: open-fold
+    heroCards: QdQc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s067
+    actionType: open-fold
+    heroCards: JsJh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s068
+    actionType: open-fold
+    heroCards: JdJc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s069
+    actionType: open-fold
+    heroCards: TsTh
+    correctAction: open
+  -
+    id: l2-open-fold-bb-s070
+    actionType: open-fold
+    heroCards: TdTc
+    correctAction: fold
+  -
+    id: l2-open-fold-bb-s071
     actionType: open-fold
     heroCards: AsAh
     correctAction: open
   -
-    id: l2_open_fold_co_s016
+    id: l2-open-fold-bb-s072
     actionType: open-fold
     heroCards: AdAc
     correctAction: fold
   -
-    id: l2_open_fold_co_s017
+    id: l2-open-fold-bb-s073
     actionType: open-fold
-    heroCards: AsAh
+    heroCards: KsKh
     correctAction: open
   -
-    id: l2_open_fold_co_s018
+    id: l2-open-fold-bb-s074
     actionType: open-fold
-    heroCards: AdAc
+    heroCards: KdKc
     correctAction: fold
   -
-    id: l2_open_fold_co_s019
+    id: l2-open-fold-bb-s075
     actionType: open-fold
-    heroCards: AsAh
+    heroCards: QsQh
     correctAction: open
   -
-    id: l2_open_fold_co_s020
+    id: l2-open-fold-bb-s076
     actionType: open-fold
-    heroCards: AdAc
+    heroCards: QdQc
     correctAction: fold
   -
-    id: l2_open_fold_co_s021
+    id: l2-open-fold-bb-s077
     actionType: open-fold
-    heroCards: AsAh
+    heroCards: JsJh
     correctAction: open
   -
-    id: l2_open_fold_co_s022
+    id: l2-open-fold-bb-s078
     actionType: open-fold
-    heroCards: AdAc
+    heroCards: JdJc
     correctAction: fold
   -
-    id: l2_open_fold_co_s023
+    id: l2-open-fold-bb-s079
     actionType: open-fold
-    heroCards: AsAh
+    heroCards: TsTh
     correctAction: open
   -
-    id: l2_open_fold_co_s024
+    id: l2-open-fold-bb-s080
     actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s025
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s026
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s027
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s028
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s029
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s030
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s031
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s032
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s033
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s034
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s035
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s036
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s037
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s038
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s039
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s040
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s041
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s042
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s043
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s044
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s045
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s046
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s047
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s048
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s049
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s050
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s051
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s052
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s053
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s054
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s055
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s056
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s057
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s058
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s059
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s060
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s061
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s062
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s063
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s064
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s065
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s066
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s067
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s068
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s069
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s070
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s071
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s072
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s073
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s074
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s075
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s076
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s077
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s078
-    actionType: open-fold
-    heroCards: AdAc
-    correctAction: fold
-  -
-    id: l2_open_fold_co_s079
-    actionType: open-fold
-    heroCards: AsAh
-    correctAction: open
-  -
-    id: l2_open_fold_co_s080
-    actionType: open-fold
-    heroCards: AdAc
+    heroCards: TdTc
     correctAction: fold
