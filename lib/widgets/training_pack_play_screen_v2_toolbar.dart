@@ -90,7 +90,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(hint)));
                   },
-              ),
+                ),
               IconButton(
                 icon: Icon(
                     adaptive ? Icons.scatter_plot : Icons.scatter_plot_outlined),
