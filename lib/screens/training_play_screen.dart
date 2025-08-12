@@ -21,6 +21,7 @@ import '../services/analytics_service.dart';
 import '../services/mistake_tag_classifier.dart';
 import '../services/user_error_rate_service.dart';
 import '../services/spaced_review_service.dart';
+import '../services/inline_recall_metrics.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   final LessonMatchProvider? lessonMatchProvider;
@@ -138,6 +139,7 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
   Future<void> _choose(String action) async {
     final controller = context.read<TrainingSessionController>();
     final spot = controller.currentSpot!;
+    final prevRecallTag = _recall?.tagId;
     final res = await controller.evaluateSpot(context, spot, action);
     final packSpot = TrainingPackSpot.fromTrainingSpot(spot);
     final attempt = TrainingSpotAttempt(
@@ -159,15 +161,26 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       ts: DateTime.now(),
     );
     if (!res.correct) {
-      await context
-          .read<SpacedReviewService>()
-          .recordMistake(spot.id, controller.template?.id ?? controller.packId);
+      await context.read<SpacedReviewService>().recordMistake(
+        spot.id,
+        controller.template?.id ?? controller.packId,
+      );
     }
     await context.read<SpacedReviewService>().recordReviewOutcome(
-          spot.id, controller.template?.id ?? controller.packId, res.correct);
+      spot.id,
+      controller.template?.id ?? controller.packId,
+      res.correct,
+    );
     await AppBootstrap.registry
         .get<TrainingSessionFingerprintService>()
         .logAttempt(attempt, shownTheoryTags: tags.toList());
+    if (prevRecallTag != null) {
+      await recordInlineRecallOutcome(
+        stage: 'l2',
+        tag: prevRecallTag,
+        correct: res.correct,
+      );
+    }
     final snippet = await _packController?.onResult(
       packSpot.id,
       res.correct,

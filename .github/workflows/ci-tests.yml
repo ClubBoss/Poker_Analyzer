@@ -1,0 +1,51 @@
+name: L2 Tests (conditional)
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: l2-tests-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  l2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Запускаем тесты только если есть релевантные изменения
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            l2:
+              - 'assets/packs/l2/**'
+              - 'tool/validators/**'
+              - 'tool/metrics/**'
+              - 'test/l2_*.dart'
+              - 'pubspec.*'
+
+      - name: Skip (no relevant L2 changes)
+        if: steps.filter.outputs.l2 != 'true'
+        run: echo "No relevant L2 changes — skipping." && exit 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Cache pub
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            pub-${{ runner.os }}-
+
+      - run: flutter pub get
+
+      - name: Run L2 tests
+        run: dart test test/l2_*
