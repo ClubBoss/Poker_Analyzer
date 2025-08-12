@@ -18,6 +18,8 @@ import '../models/pack_run_session_state.dart';
 import '../widgets/inline_theory_recall_card.dart';
 import '../widgets/mistake_inline_theory_prompt.dart';
 import '../services/analytics_service.dart';
+import '../services/mistake_tag_classifier.dart';
+import '../services/user_error_rate_service.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   final LessonMatchProvider? lessonMatchProvider;
@@ -143,14 +145,25 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       correctAction: res.expectedAction.toLowerCase(),
       evDiff: res.userEquity - res.expectedEquity,
     );
-    final tags = spot.tags;
+    final tags = {
+      for (final t in spot.tags) t.toLowerCase(),
+      ...const MistakeTagClassifier()
+          .classifyTheory(attempt)
+          .map((e) => e.toLowerCase()),
+    };
+    await UserErrorRateService.instance.recordAttempt(
+      packId: controller.template?.id ?? controller.packId,
+      tags: tags,
+      isCorrect: res.correct,
+      ts: DateTime.now(),
+    );
     await AppBootstrap.registry
         .get<TrainingSessionFingerprintService>()
-        .logAttempt(attempt, shownTheoryTags: tags);
+        .logAttempt(attempt, shownTheoryTags: tags.toList());
     final snippet = await _packController?.onResult(
       packSpot.id,
       res.correct,
-      tags,
+      tags.toList(),
     );
     setState(() {
       _result = res;

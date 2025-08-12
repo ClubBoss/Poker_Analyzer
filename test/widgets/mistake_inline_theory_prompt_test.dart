@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:poker_analyzer/services/user_error_rate_service.dart';
 
 import 'package:poker_analyzer/widgets/mistake_inline_theory_prompt.dart';
 import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
@@ -23,9 +24,13 @@ class _EventLogger {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await UserErrorRateService.instance.reset();
+  });
+
   group('MistakeInlineTheoryPrompt', () {
     testWidgets('shows and opens single lesson', (tester) async {
-      SharedPreferences.setMockInitialValues({});
       final lesson = TheoryMiniLessonNode(
         id: 'l1',
         title: 'L1',
@@ -80,7 +85,6 @@ void main() {
     });
 
     testWidgets('shows list when multiple lessons', (tester) async {
-      SharedPreferences.setMockInitialValues({});
       final lessons = [
         TheoryMiniLessonNode(id: 'l1', title: 'L1', content: 'c', tags: ['a']),
         TheoryMiniLessonNode(id: 'l2', title: 'L2', content: 'c', tags: ['a']),
@@ -130,7 +134,6 @@ void main() {
     });
 
     testWidgets('preference disables prompt', (tester) async {
-      SharedPreferences.setMockInitialValues({});
       final lesson = TheoryMiniLessonNode(
         id: 'l1',
         title: 'L1',
@@ -182,7 +185,6 @@ void main() {
     });
 
     testWidgets('fires onTheoryViewed after closing lesson', (tester) async {
-      SharedPreferences.setMockInitialValues({});
       final lesson = TheoryMiniLessonNode(
         id: 'l1',
         title: 'L1',
@@ -224,6 +226,47 @@ void main() {
       expect(viewed, [
         ['s1', 'p1', 'l1'],
       ]);
+    });
+
+    testWidgets('ranks lessons using error rates', (tester) async {
+      final service = UserErrorRateService.instance;
+      await service.recordAttempt(
+        packId: 'p1',
+        tags: {'b'},
+        isCorrect: false,
+        ts: DateTime.now(),
+      );
+      final lessons = [
+        TheoryMiniLessonNode(id: 'l1', title: 'L1', content: 'c', tags: ['a']),
+        TheoryMiniLessonNode(id: 'l2', title: 'L2', content: 'c', tags: ['b']),
+      ];
+      final provider = _FakeProvider(lessons);
+      final logger = _EventLogger();
+
+      final spot = TrainingPackSpot(id: 's1', tags: ['a', 'b']);
+      final attempt = TrainingSpotAttempt(
+        spot: spot,
+        userAction: 'fold',
+        correctAction: 'call',
+        evDiff: -1,
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MistakeInlineTheoryPrompt(
+            attempt: attempt,
+            packId: 'p1',
+            spotId: 's1',
+            matchProvider: provider.call,
+            log: logger.call,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        logger.events.any((e) =>
+            e['event'] == 'theory_suggestion_shown' && e['topLessonId'] == 'l2'),
+        isTrue,
+      );
     });
   });
 }
