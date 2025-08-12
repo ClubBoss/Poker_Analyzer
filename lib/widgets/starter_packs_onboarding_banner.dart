@@ -69,11 +69,17 @@ class _StarterPacksOnboardingBannerState
       TrainingPackTemplateV2? chosen = pack;
       final selectedId = prefs.getString('starter_pack_selected_id');
       if (selectedId != null) {
+        var found = false;
         for (final p in list) {
           if (p.id == selectedId) {
             chosen = p;
+            found = true;
             break;
           }
+        }
+        if (!found) {
+          await prefs.remove('starter_pack_selected_id');
+          chosen = pack;
         }
       }
       if (!mounted) return;
@@ -150,17 +156,26 @@ class _StarterPacksOnboardingBannerState
 
     unawaited(const StarterPackTelemetry().logPickerOpened());
 
+    final prefs = await SharedPreferences.getInstance();
+    final selectedId = prefs.getString('starter_pack_selected_id');
+
+    final recommended = await PackLibraryService.instance.recommendedStarter();
+
     List<TrainingPackTemplateV2> list = const [];
     try {
       list = await PackLibraryService.instance.listStarters();
     } catch (_) {/* swallow */}
-    if (!mounted || list.isEmpty) return;
+    if (!mounted || list.isEmpty && recommended == null) return;
+
+    if (recommended != null) {
+      list = [for (final p in list) if (p.id != recommended.id) p];
+    }
 
     final t = AppLocalizations.of(context)!;
 
     // Не блокируем UI: показываем сразу и донаполняем прогрессом
     final progress = ValueNotifier<Map<String, int>>({});
-    for (final p in list) {
+    for (final p in [...list, if (recommended != null) recommended]) {
       unawaited(
         TrainingPackStatsService.getHandsCompleted(p.id).then((v) {
           final map = Map<String, int>.from(progress.value);
@@ -180,6 +195,25 @@ class _StarterPacksOnboardingBannerState
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (recommended != null)
+                    ListTile(
+                      leading: const Icon(Icons.star),
+                      title: Text(recommended.name),
+                      subtitle: Text(() {
+                        final total = _totalHands(recommended);
+                        final done = prog[recommended.id];
+                        return done != null && done > 0
+                            ? '$done / $total ${t.hands}'
+                            : '$total ${t.hands}';
+                      }()),
+                      trailing: selectedId == null &&
+                              _pack?.id == recommended.id
+                          ? const Icon(Icons.check)
+                          : null,
+                      onTap: () => Navigator.of(context).pop(recommended),
+                    ),
+                  if (recommended != null && list.isNotEmpty)
+                    const Divider(height: 0),
                   for (final p in list)
                     ListTile(
                       title: Text(p.name),
@@ -204,6 +238,30 @@ class _StarterPacksOnboardingBannerState
 
     if (selected == null || !mounted) return;
 
+    if (recommended != null && selected.id == recommended.id) {
+      setState(() {
+        _pack = recommended;
+        _handsCompleted = null;
+      });
+
+      unawaited(
+        TrainingPackStatsService.getHandsCompleted(recommended.id).then((v) {
+          if (!mounted) return;
+          setState(() => _handsCompleted = v);
+        }).catchError((_) {}),
+      );
+
+      await prefs.remove('starter_pack_selected_id');
+
+      final count = _totalHands(recommended);
+      unawaited(const StarterPackTelemetry()
+          .logPickerSelected(recommended.id, count));
+
+      // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
+      await _launchPack(recommended);
+      return;
+    }
+
     setState(() {
       _pack = selected;
       _handsCompleted = null;
@@ -216,7 +274,6 @@ class _StarterPacksOnboardingBannerState
       }).catchError((_) {}),
     );
 
-    final prefs = await SharedPreferences.getInstance();
     await prefs.setString('starter_pack_selected_id', selected.id);
 
     final count = _totalHands(selected);
