@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/training_spot.dart';
+import 'inline_theory_badge.dart';
 
 class TrainingSpotTile extends StatelessWidget {
   final TrainingSpot spot;
@@ -27,6 +28,10 @@ class TrainingSpotTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          InlineTheoryBadge(
+            tags: spot.tags,
+            spotId: spot.createdAt.toIso8601String(),
+          ),
           if (onEdit != null)
             IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
           if (onRemove != null)
