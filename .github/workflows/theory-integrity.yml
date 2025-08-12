@@ -3,13 +3,8 @@ name: Theory Integrity
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    # Триггерим только когда меняются файлы теории
-    paths:
-      - 'assets/**/*.yml'
-      - 'assets/**/*.yaml'
-      - 'assets/**/theory/**'
-      - 'theory/**'
-      - 'yaml_out/**'
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 concurrency:
@@ -32,16 +27,35 @@ jobs:
 
       - name: Detect theory changes
         id: detect
+        shell: bash
         run: |
           set -euo pipefail
-          CHANGED="$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '^(assets/.*\.ya?ml|assets/.*/theory/|theory/|yaml_out/)')"
-          if [ -n "$CHANGED" ]; then
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "Theory changes detected:"
-            echo "$CHANGED"
+          # Determine diff base safely for PRs vs pushes
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
           else
+            # Fallback: compare with default branch
+            BASE_REF="${{ github.base_ref || 'origin/main' }}"
+            git fetch --no-tags --depth=1 origin "${BASE_REF#origin/}" || true
+            BASE_SHA="$(git rev-parse ${BASE_REF#origin/} || echo '')"
+          fi
+
+          if [[ -z "${BASE_SHA}" ]]; then
+            echo "No BASE_SHA — treating as changes present"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Paths that define theory
+          CHANGED="$(git diff --name-only "${BASE_SHA}"...HEAD | grep -E '^(assets/.*\\.ya?ml|assets/.*/theory/|theory/|yaml_out/)' || true)"
+
+          if [[ -n "${CHANGED}" ]]; then
+            echo "Theory changes detected:"
+            echo "${CHANGED}"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No theory changes -> skip strict verify"
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
-            echo "No theory changes -> skip"
           fi
 
       - name: Set up Flutter
@@ -62,3 +76,4 @@ jobs:
         run: |
           echo "mode=$MODE"
           tool/theory_verify.sh --mode "$MODE"
+
