@@ -127,8 +127,16 @@ class _StarterPacksOnboardingBannerState
         _loading = false;
       });
       if (chosen != null) {
+        final cached =
+            prefs.getInt('starter_pack_progress:${chosen.id}');
+        if (cached != null && cached >= 0 && mounted) {
+          setState(() => _handsCompleted = cached);
+        }
         unawaited(TrainingPackStatsService.getHandsCompleted(chosen.id)
-            .then((v) {
+            .then((v) async {
+          if (v >= 0) {
+            await prefs.setInt('starter_pack_progress:${chosen.id}', v);
+          }
           if (!mounted) return;
           setState(() => _handsCompleted = v);
         }).catchError((_) {}));
@@ -308,10 +316,16 @@ class _StarterPacksOnboardingBannerState
       });
 
       unawaited(
-        TrainingPackStatsService.getHandsCompleted(recommended.id).then((v) {
-          if (!mounted) return;
-          setState(() => _handsCompleted = v);
-        }).catchError((_) {}),
+        TrainingPackStatsService.getHandsCompleted(recommended.id).then(
+          (v) async {
+            if (v >= 0) {
+              await prefs.setInt(
+                  'starter_pack_progress:${recommended.id}', v);
+            }
+            if (!mounted) return;
+            setState(() => _handsCompleted = v);
+          },
+        ).catchError((_) {}),
       );
 
       await prefs.remove('starter_pack_selected_id');
@@ -331,10 +345,15 @@ class _StarterPacksOnboardingBannerState
     });
 
     unawaited(
-      TrainingPackStatsService.getHandsCompleted(selected.id).then((v) {
-        if (!mounted) return;
-        setState(() => _handsCompleted = v);
-      }).catchError((_) {}),
+      TrainingPackStatsService.getHandsCompleted(selected.id).then(
+        (v) async {
+          if (v >= 0) {
+            await prefs.setInt('starter_pack_progress:${selected.id}', v);
+          }
+          if (!mounted) return;
+          setState(() => _handsCompleted = v);
+        },
+      ).catchError((_) {}),
     );
 
     await prefs.setString('starter_pack_selected_id', selected.id);
