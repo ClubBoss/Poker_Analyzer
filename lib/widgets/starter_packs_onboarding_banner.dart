@@ -28,6 +28,7 @@ class _StarterPacksOnboardingBannerState
   TrainingPackTemplateV2? _pack;
   bool _loading = true;
   bool _launching = false;
+  bool _choosing = false;
   int? _handsCompleted;
   bool _hasChooser = false;
 
@@ -170,116 +171,118 @@ class _StarterPacksOnboardingBannerState
   }
 
   Future<void> _choose() async {
-    if (_launching) return;
-
-    unawaited(const StarterPackTelemetry().logPickerOpened());
-
-    final prefs = await SharedPreferences.getInstance();
-    final selectedId = prefs.getString('starter_pack_selected_id');
-
-    final recommended = await PackLibraryService.instance.recommendedStarter();
-
-    List<TrainingPackTemplateV2> list = const [];
+    if (_launching || _choosing) return;
+    if (mounted) setState(() => _choosing = true);
     try {
-      list = await PackLibraryService.instance.listStarters();
-    } catch (_) {/* swallow */}
-    if (!mounted || list.isEmpty && recommended == null) return;
+      unawaited(const StarterPackTelemetry().logPickerOpened());
 
-    if (recommended != null) {
-      list = [for (final p in list) if (p.id != recommended.id) p];
-    }
+      final prefs = await SharedPreferences.getInstance();
+      final selectedId = prefs.getString('starter_pack_selected_id');
 
-    final t = AppLocalizations.of(context)!;
+      final recommended =
+          await PackLibraryService.instance.recommendedStarter();
 
-    // Не блокируем UI: показываем сразу и донаполняем прогрессом
-    final progress = ValueNotifier<Map<String, int>>({});
-    for (final p in [...list, if (recommended != null) recommended]) {
-      unawaited(
-        TrainingPackStatsService.getHandsCompleted(p.id).then((v) {
-          final map = Map<String, int>.from(progress.value);
-          map[p.id] = v;
-          progress.value = map;
-        }).catchError((_) {}),
-      );
-    }
+      List<TrainingPackTemplateV2> list = const [];
+      try {
+        list = await PackLibraryService.instance.listStarters();
+      } catch (_) {/* swallow */}
+      if (!mounted || list.isEmpty && recommended == null) return;
 
-    final selected = await showModalBottomSheet<TrainingPackTemplateV2>(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: ValueListenableBuilder<Map<String, int>>(
-            valueListenable: progress,
-            builder: (_, prog, __) {
-              final items = [...list];
-              items.sort((a, b) {
-                final aSelected = a.id == _pack?.id;
-                final bSelected = b.id == _pack?.id;
-                if (aSelected != bSelected) return aSelected ? -1 : 1;
-                final aDone = prog[a.id] ?? 0;
-                final bDone = prog[b.id] ?? 0;
-                if (aDone != bDone) return bDone.compareTo(aDone);
-                final aTotal = _totalHands(a);
-                final bTotal = _totalHands(b);
-                if (aTotal != bTotal) return bTotal.compareTo(aTotal);
-                return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-              });
+      if (recommended != null) {
+        list = [for (final p in list) if (p.id != recommended.id) p];
+      }
 
-              var dividerIndex = -1;
-              for (var i = 0; i < items.length; i++) {
-                final done = prog[items[i].id] ?? 0;
-                if (done == 0) {
-                  dividerIndex = i;
-                  break;
-                }
-              }
+      final t = AppLocalizations.of(context)!;
 
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (recommended != null)
-                    ListTile(
-                      leading: const Icon(Icons.star),
-                      title: Text(recommended.name),
-                      subtitle: Text(() {
-                        final total = _totalHands(recommended);
-                        final done = prog[recommended.id];
-                        return done != null && done > 0
-                            ? '$done / $total ${t.hands}'
-                            : '$total ${t.hands}';
-                      }()),
-                      trailing: selectedId == null &&
-                              _pack?.id == recommended.id
-                          ? const Icon(Icons.check)
-                          : null,
-                      onTap: () => Navigator.of(context).pop(recommended),
-                    ),
-                  if (recommended != null && items.isNotEmpty)
-                    const Divider(height: 0),
-                  for (var i = 0; i < items.length; i++) ...[
-                    if (i == dividerIndex && dividerIndex > 0)
-                      const Divider(height: 0),
-                    ListTile(
-                      title: Text(items[i].name),
-                      subtitle: Text(() {
-                        final total = _totalHands(items[i]);
-                        final done = prog[items[i].id];
-                        return done != null && done > 0
-                            ? '$done / $total ${t.hands}'
-                            : '$total ${t.hands}';
-                      }()),
-                      trailing: items[i].id == _pack?.id
-                          ? const Icon(Icons.check)
-                          : null,
-                      onTap: () => Navigator.of(context).pop(items[i]),
-                    ),
-                  ],
-                ],
-              );
-            },
-          ),
+      // Не блокируем UI: показываем сразу и донаполняем прогрессом
+      final progress = ValueNotifier<Map<String, int>>({});
+      for (final p in [...list, if (recommended != null) recommended]) {
+        unawaited(
+          TrainingPackStatsService.getHandsCompleted(p.id).then((v) {
+            final map = Map<String, int>.from(progress.value);
+            map[p.id] = v;
+            progress.value = map;
+          }).catchError((_) {}),
         );
-      },
-    );
+      }
+
+      final selected = await showModalBottomSheet<TrainingPackTemplateV2>(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: ValueListenableBuilder<Map<String, int>>(
+              valueListenable: progress,
+              builder: (_, prog, __) {
+                final items = [...list];
+                items.sort((a, b) {
+                  final aSelected = a.id == _pack?.id;
+                  final bSelected = b.id == _pack?.id;
+                  if (aSelected != bSelected) return aSelected ? -1 : 1;
+                  final aDone = prog[a.id] ?? 0;
+                  final bDone = prog[b.id] ?? 0;
+                  if (aDone != bDone) return bDone.compareTo(aDone);
+                  final aTotal = _totalHands(a);
+                  final bTotal = _totalHands(b);
+                  if (aTotal != bTotal) return bTotal.compareTo(aTotal);
+                  return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                });
+
+                var dividerIndex = -1;
+                for (var i = 0; i < items.length; i++) {
+                  final done = prog[items[i].id] ?? 0;
+                  if (done == 0) {
+                    dividerIndex = i;
+                    break;
+                  }
+                }
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (recommended != null)
+                      ListTile(
+                        leading: const Icon(Icons.star),
+                        title: Text(recommended.name),
+                        subtitle: Text(() {
+                          final total = _totalHands(recommended);
+                          final done = prog[recommended.id];
+                          return done != null && done > 0
+                              ? '$done / $total ${t.hands}'
+                              : '$total ${t.hands}';
+                        }()),
+                        trailing: selectedId == null &&
+                                _pack?.id == recommended.id
+                            ? const Icon(Icons.check)
+                            : null,
+                        onTap: () => Navigator.of(context).pop(recommended),
+                      ),
+                    if (recommended != null && items.isNotEmpty)
+                      const Divider(height: 0),
+                    for (var i = 0; i < items.length; i++) ...[
+                      if (i == dividerIndex && dividerIndex > 0)
+                        const Divider(height: 0),
+                      ListTile(
+                        title: Text(items[i].name),
+                        subtitle: Text(() {
+                          final total = _totalHands(items[i]);
+                          final done = prog[items[i].id];
+                          return done != null && done > 0
+                              ? '$done / $total ${t.hands}'
+                              : '$total ${t.hands}';
+                        }()),
+                        trailing: items[i].id == _pack?.id
+                            ? const Icon(Icons.check)
+                            : null,
+                        onTap: () => Navigator.of(context).pop(items[i]),
+                      ),
+                    ],
+                  ],
+                );
+              },
+            ),
+          );
+        },
+      );
 
     if (selected == null || !mounted) return;
 
@@ -327,6 +330,9 @@ class _StarterPacksOnboardingBannerState
 
     // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
     await _launchPack(selected);
+    } finally {
+      if (mounted) setState(() => _choosing = false);
+    }
   }
 
   Future<void> _dismiss() async {
