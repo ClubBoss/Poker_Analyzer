@@ -15,7 +15,6 @@ import '../../services/pinned_learning_service.dart';
 import '../../utils/push_fold.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../models/action_entry.dart';
 
 class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
   const TrainingPackPlayScreenV2({
@@ -511,22 +510,7 @@ class _TrainingPackPlayScreenV2State
     final boardCards = [
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
-    final actions = <ActionEntry>[];
-    for (final list in hand.actions.values) {
-      for (final a in list) {
-        actions.add(
-          ActionEntry(
-            a.street,
-            a.playerIndex,
-            a.action,
-            amount: a.amount,
-            generated: a.generated,
-            manualEvaluation: a.manualEvaluation,
-            customLabel: a.customLabel,
-          ),
-        );
-      }
-    }
+    final actions = hand.actions.values.expand((list) => list).toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
         hand.stacks['$i']?.round() ?? 0,
