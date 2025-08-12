@@ -44,6 +44,12 @@ class _StarterPacksOnboardingBannerState
         : '$total ${t.hands}';
   }
 
+  double _progressValue(int done, int total) {
+    if (total <= 0) return 0.0;
+    final clamped = done.clamp(0, total);
+    return clamped / total;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -406,11 +412,20 @@ class _StarterPacksOnboardingBannerState
               _pack!.name,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-          if (hands > 0)
+          if (hands > 0) ...[
             Text(
               _progressText(done, hands, t),
               style: const TextStyle(color: Colors.white70),
             ),
+            const SizedBox(height: 4),
+            Semantics(
+              label: _progressText(done, hands, t),
+              child: LinearProgressIndicator(
+                value: _progressValue(done, hands),
+                minHeight: 4,
+              ),
+            ),
+          ],
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
