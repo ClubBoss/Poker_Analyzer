@@ -70,12 +70,10 @@ class _StarterPacksOnboardingBannerState
         _loading = false;
       });
       if (pack != null) {
-        unawaited(
-          TrainingPackStatsService.getHandsCompleted(pack.id).then((v) {
-            if (!mounted) return;
-            setState(() => _handsCompleted = v);
-          }).catchError((_) {}),
-        );
+        unawaited(TrainingPackStatsService.getHandsCompleted(pack.id).then((v) {
+          if (!mounted) return;
+          setState(() => _handsCompleted = v);
+        }).catchError((_) {}));
       }
 
       if (!_shownLogged && pack != null) {
@@ -103,8 +101,7 @@ class _StarterPacksOnboardingBannerState
             const StarterPackTelemetry().logBanner(tapEvent, full.id, count));
       }
       if (!mounted) return;
-      await const TrainingSessionLauncher()
-          .launch(full, source: 'starter_banner');
+      await const TrainingSessionLauncher().launch(full, source: 'starter_banner');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('starter_pack_seen', true);
       unawaited(const StarterPackTelemetry()
