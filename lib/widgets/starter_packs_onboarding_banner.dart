@@ -348,8 +348,12 @@ class _StarterPacksOnboardingBannerState
                   return a.name.toLowerCase().compareTo(b.name.toLowerCase());
                 });
 
+                final isPinnedFirst =
+                    items.isNotEmpty && items.first.id == _pack?.id;
+                final pinStart = isPinnedFirst ? 1 : 0;
+
                 var dividerIndex = -1;
-                for (var i = 0; i < items.length; i++) {
+                for (var i = pinStart; i < items.length; i++) {
                   final done = prog[items[i].id] ?? 0;
                   if (done == 0) {
                     dividerIndex = i;
@@ -385,7 +389,7 @@ class _StarterPacksOnboardingBannerState
                         if (recommended != null && items.isNotEmpty)
                           const Divider(height: 0),
                         for (var i = 0; i < items.length; i++) ...[
-                          if (i == dividerIndex && dividerIndex > 0)
+                          if (i == dividerIndex && dividerIndex >= pinStart)
                             const Divider(height: 0),
                           ListTile(
                             title: Text(items[i].name),
