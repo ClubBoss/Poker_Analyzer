@@ -369,6 +369,11 @@ class _StarterPacksOnboardingBannerState
           _handsCompleted = null;
         });
 
+        final cached = prefs.getInt(_kPrefProgress(recommended.id));
+        if (cached != null && cached >= 0 && mounted) {
+          setState(() => _handsCompleted = cached);
+        }
+
         unawaited(
           (PackLibraryService.instance.getById(recommended.id) ??
                   Future.value(recommended))
@@ -404,6 +409,11 @@ class _StarterPacksOnboardingBannerState
         _pack = selected;
         _handsCompleted = null;
       });
+
+      final cached = prefs.getInt(_kPrefProgress(selected.id));
+      if (cached != null && cached >= 0 && mounted) {
+        setState(() => _handsCompleted = cached);
+      }
 
       unawaited(
         (PackLibraryService.instance.getById(selected.id) ??
