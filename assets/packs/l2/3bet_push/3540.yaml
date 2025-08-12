@@ -1,0 +1,333 @@
+id: l2_tb_3540
+name: L2 3bet Push 35-40bb
+stage:
+  id: L2
+  unlockAfter: l2_tb_3035
+subtype: 3bet_push
+stacks: 35-40
+objective: Decide the correct action
+tags:
+  - L2
+  - 3bet_push
+  - stack:35-40
+spots:
+  - id: l2_tb_3540_s1
+    actionType: 3bet_push
+    heroCards: As Ah
+    correctAction: push
+  - id: l2_tb_3540_s2
+    actionType: 3bet_push
+    heroCards: Ad Ac
+    correctAction: push
+  - id: l2_tb_3540_s3
+    actionType: 3bet_push
+    heroCards: Ks Kh
+    correctAction: push
+  - id: l2_tb_3540_s4
+    actionType: 3bet_push
+    heroCards: Kd Kc
+    correctAction: push
+  - id: l2_tb_3540_s5
+    actionType: 3bet_push
+    heroCards: Qs Qh
+    correctAction: push
+  - id: l2_tb_3540_s6
+    actionType: 3bet_push
+    heroCards: Qd Qc
+    correctAction: push
+  - id: l2_tb_3540_s7
+    actionType: 3bet_push
+    heroCards: Js Jh
+    correctAction: push
+  - id: l2_tb_3540_s8
+    actionType: 3bet_push
+    heroCards: Jd Jc
+    correctAction: push
+  - id: l2_tb_3540_s9
+    actionType: 3bet_push
+    heroCards: Ts Th
+    correctAction: push
+  - id: l2_tb_3540_s10
+    actionType: 3bet_push
+    heroCards: Td Tc
+    correctAction: push
+  - id: l2_tb_3540_s11
+    actionType: 3bet_push
+    heroCards: 9s 9h
+    correctAction: push
+  - id: l2_tb_3540_s12
+    actionType: 3bet_push
+    heroCards: 9d 9c
+    correctAction: push
+  - id: l2_tb_3540_s13
+    actionType: 3bet_push
+    heroCards: 8s 8h
+    correctAction: push
+  - id: l2_tb_3540_s14
+    actionType: 3bet_push
+    heroCards: 8d 8c
+    correctAction: push
+  - id: l2_tb_3540_s15
+    actionType: 3bet_push
+    heroCards: 7s 7h
+    correctAction: push
+  - id: l2_tb_3540_s16
+    actionType: 3bet_push
+    heroCards: 7d 7c
+    correctAction: push
+  - id: l2_tb_3540_s17
+    actionType: 3bet_push
+    heroCards: 6s 6h
+    correctAction: push
+  - id: l2_tb_3540_s18
+    actionType: 3bet_push
+    heroCards: 6d 6c
+    correctAction: push
+  - id: l2_tb_3540_s19
+    actionType: 3bet_push
+    heroCards: 5s 5h
+    correctAction: push
+  - id: l2_tb_3540_s20
+    actionType: 3bet_push
+    heroCards: 5d 5c
+    correctAction: push
+  - id: l2_tb_3540_s21
+    actionType: 3bet_push
+    heroCards: 4s 4h
+    correctAction: push
+  - id: l2_tb_3540_s22
+    actionType: 3bet_push
+    heroCards: 4d 4c
+    correctAction: push
+  - id: l2_tb_3540_s23
+    actionType: 3bet_push
+    heroCards: 3s 3h
+    correctAction: push
+  - id: l2_tb_3540_s24
+    actionType: 3bet_push
+    heroCards: 3d 3c
+    correctAction: push
+  - id: l2_tb_3540_s25
+    actionType: 3bet_push
+    heroCards: 2s 2h
+    correctAction: push
+  - id: l2_tb_3540_s26
+    actionType: 3bet_push
+    heroCards: 2d 2c
+    correctAction: push
+  - id: l2_tb_3540_s27
+    actionType: 3bet_push
+    heroCards: As Ah
+    correctAction: push
+  - id: l2_tb_3540_s28
+    actionType: 3bet_push
+    heroCards: Ad Ac
+    correctAction: push
+  - id: l2_tb_3540_s29
+    actionType: 3bet_push
+    heroCards: Ks Kh
+    correctAction: push
+  - id: l2_tb_3540_s30
+    actionType: 3bet_push
+    heroCards: Kd Kc
+    correctAction: push
+  - id: l2_tb_3540_s31
+    actionType: 3bet_push
+    heroCards: Qs Qh
+    correctAction: push
+  - id: l2_tb_3540_s32
+    actionType: 3bet_push
+    heroCards: Qd Qc
+    correctAction: push
+  - id: l2_tb_3540_s33
+    actionType: 3bet_push
+    heroCards: Js Jh
+    correctAction: push
+  - id: l2_tb_3540_s34
+    actionType: 3bet_push
+    heroCards: Jd Jc
+    correctAction: push
+  - id: l2_tb_3540_s35
+    actionType: 3bet_push
+    heroCards: Ts Th
+    correctAction: push
+  - id: l2_tb_3540_s36
+    actionType: 3bet_push
+    heroCards: Td Tc
+    correctAction: push
+  - id: l2_tb_3540_s37
+    actionType: 3bet_push
+    heroCards: 9s 9h
+    correctAction: push
+  - id: l2_tb_3540_s38
+    actionType: 3bet_push
+    heroCards: 9d 9c
+    correctAction: push
+  - id: l2_tb_3540_s39
+    actionType: 3bet_push
+    heroCards: 8s 8h
+    correctAction: push
+  - id: l2_tb_3540_s40
+    actionType: 3bet_push
+    heroCards: 8d 8c
+    correctAction: push
+  - id: l2_tb_3540_s41
+    actionType: 3bet_push
+    heroCards: 7s 7h
+    correctAction: push
+  - id: l2_tb_3540_s42
+    actionType: 3bet_push
+    heroCards: 7d 7c
+    correctAction: push
+  - id: l2_tb_3540_s43
+    actionType: 3bet_push
+    heroCards: 6s 6h
+    correctAction: push
+  - id: l2_tb_3540_s44
+    actionType: 3bet_push
+    heroCards: 6d 6c
+    correctAction: push
+  - id: l2_tb_3540_s45
+    actionType: 3bet_push
+    heroCards: 5s 5h
+    correctAction: push
+  - id: l2_tb_3540_s46
+    actionType: 3bet_push
+    heroCards: 5d 5c
+    correctAction: push
+  - id: l2_tb_3540_s47
+    actionType: 3bet_push
+    heroCards: 4s 4h
+    correctAction: push
+  - id: l2_tb_3540_s48
+    actionType: 3bet_push
+    heroCards: 4d 4c
+    correctAction: push
+  - id: l2_tb_3540_s49
+    actionType: 3bet_push
+    heroCards: 3s 3h
+    correctAction: push
+  - id: l2_tb_3540_s50
+    actionType: 3bet_push
+    heroCards: 3d 3c
+    correctAction: push
+  - id: l2_tb_3540_s51
+    actionType: 3bet_push
+    heroCards: 2s 2h
+    correctAction: push
+  - id: l2_tb_3540_s52
+    actionType: 3bet_push
+    heroCards: 2d 2c
+    correctAction: push
+  - id: l2_tb_3540_s53
+    actionType: 3bet_push
+    heroCards: As Ah
+    correctAction: push
+  - id: l2_tb_3540_s54
+    actionType: 3bet_push
+    heroCards: Ad Ac
+    correctAction: push
+  - id: l2_tb_3540_s55
+    actionType: 3bet_push
+    heroCards: Ks Kh
+    correctAction: push
+  - id: l2_tb_3540_s56
+    actionType: 3bet_push
+    heroCards: Kd Kc
+    correctAction: push
+  - id: l2_tb_3540_s57
+    actionType: 3bet_push
+    heroCards: Qs Qh
+    correctAction: push
+  - id: l2_tb_3540_s58
+    actionType: 3bet_push
+    heroCards: Qd Qc
+    correctAction: push
+  - id: l2_tb_3540_s59
+    actionType: 3bet_push
+    heroCards: Js Jh
+    correctAction: push
+  - id: l2_tb_3540_s60
+    actionType: 3bet_push
+    heroCards: Jd Jc
+    correctAction: push
+  - id: l2_tb_3540_s61
+    actionType: 3bet_push
+    heroCards: Ts Th
+    correctAction: push
+  - id: l2_tb_3540_s62
+    actionType: 3bet_push
+    heroCards: Td Tc
+    correctAction: push
+  - id: l2_tb_3540_s63
+    actionType: 3bet_push
+    heroCards: 9s 9h
+    correctAction: push
+  - id: l2_tb_3540_s64
+    actionType: 3bet_push
+    heroCards: 9d 9c
+    correctAction: push
+  - id: l2_tb_3540_s65
+    actionType: 3bet_push
+    heroCards: 8s 8h
+    correctAction: push
+  - id: l2_tb_3540_s66
+    actionType: 3bet_push
+    heroCards: 8d 8c
+    correctAction: push
+  - id: l2_tb_3540_s67
+    actionType: 3bet_push
+    heroCards: 7s 7h
+    correctAction: push
+  - id: l2_tb_3540_s68
+    actionType: 3bet_push
+    heroCards: 7d 7c
+    correctAction: push
+  - id: l2_tb_3540_s69
+    actionType: 3bet_push
+    heroCards: 6s 6h
+    correctAction: push
+  - id: l2_tb_3540_s70
+    actionType: 3bet_push
+    heroCards: 6d 6c
+    correctAction: push
+  - id: l2_tb_3540_s71
+    actionType: 3bet_push
+    heroCards: 5s 5h
+    correctAction: push
+  - id: l2_tb_3540_s72
+    actionType: 3bet_push
+    heroCards: 5d 5c
+    correctAction: push
+  - id: l2_tb_3540_s73
+    actionType: 3bet_push
+    heroCards: 4s 4h
+    correctAction: push
+  - id: l2_tb_3540_s74
+    actionType: 3bet_push
+    heroCards: 4d 4c
+    correctAction: push
+  - id: l2_tb_3540_s75
+    actionType: 3bet_push
+    heroCards: 3s 3h
+    correctAction: push
+  - id: l2_tb_3540_s76
+    actionType: 3bet_push
+    heroCards: 3d 3c
+    correctAction: push
+  - id: l2_tb_3540_s77
+    actionType: 3bet_push
+    heroCards: 2s 2h
+    correctAction: push
+  - id: l2_tb_3540_s78
+    actionType: 3bet_push
+    heroCards: 2d 2c
+    correctAction: push
+  - id: l2_tb_3540_s79
+    actionType: 3bet_push
+    heroCards: As Ah
+    correctAction: push
+  - id: l2_tb_3540_s80
+    actionType: 3bet_push
+    heroCards: Ad Ac
+    correctAction: push
