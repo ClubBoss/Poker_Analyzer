@@ -32,21 +32,21 @@ class _StarterPacksOnboardingBannerState
 
   Future<void> _load() async {
     try {
-      final session = context.read<TrainingSessionService>();
-      if (session.currentSession != null) {
-        setState(() => _loading = false);
-        return;
-      }
       final prefs = await SharedPreferences.getInstance();
       final seen = prefs.getBool('starter_pack_seen') ?? false;
       final dismissed = prefs.getBool('starter_pack_dismissed:v1') ?? false;
+      final firstRun = !seen;
       if (seen || dismissed) {
-        if (mounted) setState(() => _loading = false);
+        if (!mounted) return;
+        setState(() => _loading = false);
         return;
       }
-      final firstRun = !seen;
-      if (PackLibraryService.instance.count() != 0 && !firstRun) {
-        if (mounted) setState(() => _loading = false);
+      final session = context.read<TrainingSessionService>();
+      final hasSession = session.currentSession != null;
+      final libraryEmpty = PackLibraryService.instance.count() == 0;
+      if (hasSession || !(firstRun || libraryEmpty)) {
+        if (!mounted) return;
+        setState(() => _loading = false);
         return;
       }
       final pack = await PackLibraryService.instance.recommendedStarter();
@@ -58,13 +58,15 @@ class _StarterPacksOnboardingBannerState
     } catch (e, st) {
       ErrorLogger.instance
           .logError('starter_pack_banner_load_failed', e, st);
-      if (mounted) setState(() => _loading = false);
+      if (!mounted) return;
+      setState(() => _loading = false);
     }
   }
 
   Future<void> _start() async {
     final p = _pack;
     if (p == null || _launching) return;
+    if (!mounted) return;
     setState(() => _launching = true);
     try {
       final full = await PackLibraryService.instance.getById(p.id) ?? p;
@@ -72,13 +74,16 @@ class _StarterPacksOnboardingBannerState
       await const TrainingSessionLauncher().launch(full);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('starter_pack_seen', true);
-      if (mounted) setState(() => _pack = null);
+      if (!mounted) return;
+      setState(() => _pack = null);
     } catch (e, st) {
       ErrorLogger.instance
           .logError('starter_pack_banner_start_failed', e, st);
-      if (mounted) setState(() => _pack = null);
+      if (!mounted) return;
+      setState(() => _pack = null);
     } finally {
-      if (mounted) setState(() => _launching = false);
+      if (!mounted) return;
+      setState(() => _launching = false);
     }
   }
 
@@ -89,7 +94,8 @@ class _StarterPacksOnboardingBannerState
     } catch (_) {
       // ignore
     } finally {
-      if (mounted) setState(() => _pack = null);
+      if (!mounted) return;
+      setState(() => _pack = null);
     }
   }
 
