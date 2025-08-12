@@ -62,9 +62,7 @@ class _StarterPacksOnboardingBannerState
       List<TrainingPackTemplateV2> list = const [];
       try {
         list = await listFuture;
-      } catch (_) {
-        // ignore
-      }
+      } catch (_) {/* swallow */}
       if (!mounted) return;
       setState(() {
         _pack = pack;
@@ -72,16 +70,19 @@ class _StarterPacksOnboardingBannerState
         _loading = false;
       });
       if (pack != null) {
-        unawaited(TrainingPackStatsService.getHandsCompleted(pack.id)
-            .then((value) {
-          if (!mounted) return;
-          setState(() => _handsCompleted = value);
-        }).catchError((_) {}));
+        unawaited(
+          TrainingPackStatsService.getHandsCompleted(pack.id)
+              .then((v) {
+                if (!mounted) return;
+                setState(() => _handsCompleted = v);
+              })
+              .catchError((_) {}),
+        );
       }
+
       if (!_shownLogged && pack != null) {
         _shownLogged = true;
-        final count =
-            pack.spotCount != 0 ? pack.spotCount : pack.spots.length;
+        final count = pack.spotCount != 0 ? pack.spotCount : pack.spots.length;
         unawaited(const StarterPackTelemetry()
             .logBanner('starter_banner_shown', pack.id, count));
       }
@@ -93,32 +94,34 @@ class _StarterPacksOnboardingBannerState
     }
   }
 
-  Future<void> _launchPack(TrainingPackTemplateV2 p,
-      {String? tapEvent}) async {
-    if (_launching) return;
-    if (!mounted) return;
+  Future<void> _launchPack(TrainingPackTemplateV2 p, {String? tapEvent}) async {
+    if (_launching || !mounted) return;
     setState(() => _launching = true);
     try {
-      final full = await PackLibraryService.instance.getById(p.id) ?? p;
-      final count =
-          full.spotCount != 0 ? full.spotCount : full.spots.length;
+      final full =
+          await (PackLibraryService.instance.getById(p.id) ?? Future.value(p));
+      final count = full.spotCount != 0 ? full.spotCount : full.spots.length;
       if (tapEvent != null) {
-        unawaited(const StarterPackTelemetry()
-            .logBanner(tapEvent, full.id, count));
+        unawaited(
+          const StarterPackTelemetry().logBanner(tapEvent, full.id, count),
+        );
       }
       if (!mounted) return;
-      await const TrainingSessionLauncher()
-          .launch(full, source: 'starter_banner');
+      await const TrainingSessionLauncher().launch(full, source: 'starter_banner');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('starter_pack_seen', true);
-      unawaited(const StarterPackTelemetry()
-          .logBanner('starter_banner_launch_success', full.id, count));
+      unawaited(
+        const StarterPackTelemetry()
+            .logBanner('starter_banner_launch_success', full.id, count),
+      );
       if (!mounted) return;
       setState(() => _pack = null);
     } catch (e, st) {
       final count = p.spotCount != 0 ? p.spotCount : p.spots.length;
-      unawaited(const StarterPackTelemetry()
-          .logBanner('starter_banner_launch_failed', p.id, count));
+      unawaited(
+        const StarterPackTelemetry()
+            .logBanner('starter_banner_launch_failed', p.id, count),
+      );
       ErrorLogger.instance
           .logError('starter_pack_banner_start_failed', e, st);
       if (!mounted) return;
@@ -140,30 +143,36 @@ class _StarterPacksOnboardingBannerState
 
   Future<void> _choose() async {
     if (_launching) return;
+
     unawaited(const StarterPackTelemetry().logPickerOpened());
+
     List<TrainingPackTemplateV2> list = const [];
     try {
       list = await PackLibraryService.instance.listStarters();
-    } catch (_) {
-      // ignore
-    }
+    } catch (_) {/* swallow */}
     if (!mounted || list.isEmpty) return;
+
     final t = AppLocalizations.of(context)!;
-    final progressNotifier = ValueNotifier<Map<String, int>>({});
+
+    // Не блокируем UI: показываем сразу и донаполняем прогрессом
+    final progress = ValueNotifier<Map<String, int>>({});
     for (final p in list) {
-      unawaited(TrainingPackStatsService.getHandsCompleted(p.id).then((v) {
-        final map = Map<String, int>.from(progressNotifier.value);
-        map[p.id] = v;
-        progressNotifier.value = map;
-      }).catchError((_) {}));
+      unawaited(
+        TrainingPackStatsService.getHandsCompleted(p.id).then((v) {
+          final map = Map<String, int>.from(progress.value);
+          map[p.id] = v;
+          progress.value = map;
+        }).catchError((_) {}),
+      );
     }
+
     final selected = await showModalBottomSheet<TrainingPackTemplateV2>(
       context: context,
       builder: (context) {
         return SafeArea(
           child: ValueListenableBuilder<Map<String, int>>(
-            valueListenable: progressNotifier,
-            builder: (context, progress, _) {
+            valueListenable: progress,
+            builder: (_, prog, __) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -173,11 +182,10 @@ class _StarterPacksOnboardingBannerState
                       subtitle: Text(() {
                         final total =
                             p.spotCount != 0 ? p.spotCount : p.spots.length;
-                        final done = progress[p.id];
-                        if (done != null && done > 0) {
-                          return '$done / $total ${t.hands}';
-                        }
-                        return '$total ${t.hands}';
+                        final done = prog[p.id];
+                        return done != null && done > 0
+                            ? '$done / $total ${t.hands}'
+                            : '$total ${t.hands}';
                       }()),
                       onTap: () => Navigator.of(context).pop(p),
                     ),
@@ -188,20 +196,27 @@ class _StarterPacksOnboardingBannerState
         );
       },
     );
-    if (selected == null) return;
-    if (!mounted) return;
+
+    if (selected == null || !mounted) return;
+
     setState(() {
       _pack = selected;
       _handsCompleted = null;
     });
-    unawaited(TrainingPackStatsService.getHandsCompleted(selected.id).then((v) {
-      if (!mounted) return;
-      setState(() => _handsCompleted = v);
-    }).catchError((_) {}));
+
+    unawaited(
+      TrainingPackStatsService.getHandsCompleted(selected.id).then((v) {
+        if (!mounted) return;
+        setState(() => _handsCompleted = v);
+      }).catchError((_) {}),
+    );
+
     final count =
         selected.spotCount != 0 ? selected.spotCount : selected.spots.length;
     unawaited(const StarterPackTelemetry()
         .logPickerSelected(selected.id, count));
+
+    // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
     await _launchPack(selected);
   }
 
@@ -269,7 +284,7 @@ class _StarterPacksOnboardingBannerState
             ),
           if (hands > 0)
             Text(
-              done > 0 ? '$done/$hands ${t.hands}' : '$hands ${t.hands}',
+              (done > 0 ? '$done/$hands' : '$hands') + ' ${t.hands}',
               style: const TextStyle(color: Colors.white70),
             ),
           const SizedBox(height: 8),
