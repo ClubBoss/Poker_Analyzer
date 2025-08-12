@@ -6,6 +6,8 @@ import '../../services/user_preferences_service.dart';
 import '../../services/adaptive_spot_scheduler.dart';
 import '../../services/user_error_rate_service.dart';
 import '../../services/spaced_review_service.dart';
+import '../../services/sr_queue_builder.dart';
+import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
@@ -54,6 +56,12 @@ class _TrainingPackPlayScreenV2State
   late AdaptiveSpotScheduler _scheduler;
   final List<TrainingPackSpot> _pool = [];
   final List<String> _recent = [];
+  bool _srEnabled = true;
+  final List<SRQueueItem> _srQueue = [];
+  SRQueueItem? _srCurrent;
+  int _srCounter = 0;
+  bool _srShowCTA = false;
+  bool _srUptakeLogged = false;
 
   int get _targetStreetIndex {
     switch (widget.template.targetStreet) {
@@ -90,6 +98,7 @@ class _TrainingPackPlayScreenV2State
           widget.template.targetStreet == null &&
               (prefs.getBool('auto_adv_${widget.template.id}') ?? false);
       _adaptiveMode = prefs.getBool('adaptive_mode_enabled') ?? true;
+      _srEnabled = prefs.getBool('interleave_sr_enabled') ?? true;
     });
     final seqKey = 'tpl_seq_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
@@ -98,12 +107,28 @@ class _TrainingPackPlayScreenV2State
     } else {
       await _startNew();
     }
+    final sr = context.read<SpacedReviewService>();
+    final queue = buildSrQueue(sr, _spots.map((s) => s.id).toSet());
+    setState(() {
+      _srQueue
+        ..clear()
+        ..addAll(queue);
+      _srShowCTA = _srQueue.isNotEmpty;
+    });
   }
 
   Future<void> _toggleAdaptive() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() => _adaptiveMode = !_adaptiveMode);
     await prefs.setBool('adaptive_mode_enabled', _adaptiveMode);
+  }
+
+  Future<void> _toggleSRInterleave() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _srEnabled = !_srEnabled);
+    await prefs.setBool('interleave_sr_enabled', _srEnabled);
+    unawaited(AnalyticsService.instance.logEvent(
+        'sr_interleave_enabled_toggled', {'enabled': _srEnabled}));
   }
 
   Future<void> _load() async {
@@ -194,6 +219,26 @@ class _TrainingPackPlayScreenV2State
         ..addAll(handCounts);
       _loading = false;
     });
+  }
+
+  void _maybeInjectSR({bool force = false}) {
+    if (!_srEnabled || _srQueue.isEmpty) return;
+    if (!force && _srCounter < 2) return;
+    final item = _srQueue.removeAt(0);
+    setState(() {
+      _srCurrent = item;
+      _srCounter = 0;
+      _srShowCTA = _srQueue.isNotEmpty;
+    });
+    unawaited(AnalyticsService.instance.logEvent('sr_interleave_injected', {
+      'spotId': item.spot.id,
+      'packId': item.packId,
+      'cadence': force ? 0 : 2,
+    }));
+    if (!_srUptakeLogged) {
+      unawaited(AnalyticsService.instance.logEvent('sr_interleave_uptake', {}));
+      _srUptakeLogged = true;
+    }
   }
 
 
@@ -632,23 +677,24 @@ class _TrainingPackPlayScreenV2State
   }
 
   Future<void> _choose(String? act) async {
-    final spot = _spots[_index];
+    final isSr = _srCurrent != null;
+    final spot = isSr ? _srCurrent!.spot : _spots[_index];
     if (act != null) {
       final key = spot.id;
-      final first = !_results.containsKey(key);
-      _results[key] = act.toLowerCase();
-      if (first && matchStreet(spot)) {
-        _streetCount++;
-      }
-      if (first) {
-        for (final g in widget.template.focusHandTypes) {
-          if (_matchHandTypeLabel(spot, g.label)) {
-            _handCounts[g.label] = (_handCounts[g.label] ?? 0) + 1;
+      final first = !isSr && !_results.containsKey(key);
+      if (!isSr) {
+        _results[key] = act.toLowerCase();
+        if (first && matchStreet(spot)) {
+          _streetCount++;
+        }
+        if (first) {
+          for (final g in widget.template.focusHandTypes) {
+            if (_matchHandTypeLabel(spot, g.label)) {
+              _handCounts[g.label] = (_handCounts[g.label] ?? 0) + 1;
+            }
           }
         }
       }
-
-      // Street-based progression removed
 
       final evalSpot = _toSpot(spot);
       final evaluation = context
@@ -686,18 +732,19 @@ class _TrainingPackPlayScreenV2State
         );
         category = engine.categorize(m);
       }
-      final repeated = incorrect &&
+      final repeated = !isSr &&
+          incorrect &&
           context
               .read<MistakeReviewPackService>()
               .packs
               .any((p) => p.spotIds.contains(spot.id));
       await UserErrorRateService.instance.recordAttempt(
-        packId: widget.template.id,
+        packId: isSr ? _srCurrent!.packId : widget.template.id,
         tags: spot.tags.toSet(),
         isCorrect: !incorrect,
         ts: DateTime.now(),
       );
-      if (incorrect && first) {
+      if (!isSr && incorrect && first) {
         await context
             .read<MistakeReviewPackService>()
             .addSpot(widget.original, spot);
@@ -710,10 +757,16 @@ class _TrainingPackPlayScreenV2State
           );
         }
       }
-      await context
-          .read<SpacedReviewService>()
-          .recordReviewOutcome(spot.id, widget.template.id, !incorrect);
-      if (_autoAdvance && !incorrect) {
+      await context.read<SpacedReviewService>().recordReviewOutcome(
+            spot.id,
+            isSr ? _srCurrent!.packId : widget.template.id,
+            !incorrect);
+      if (_autoAdvance && !incorrect && !isSr) {
+        _srCounter++;
+        if (_srEnabled && _srQueue.isNotEmpty && _srCounter >= 2) {
+          _maybeInjectSR();
+          return;
+        }
         await Future.delayed(const Duration(seconds: 2));
         if (!mounted) return;
         await _next();
@@ -781,6 +834,18 @@ class _TrainingPackPlayScreenV2State
       _showFeedback(spot, _expected(spot) ?? '', heroEv, evDiff, icmDiff,
           evaluation.correct, repeated);
     }
+    if (isSr) {
+      unawaited(AnalyticsService.instance.logEvent(
+          'sr_interleave_completed', {'correct': !incorrect}));
+      _srCurrent = null;
+      await _next();
+      return;
+    }
+    _srCounter++;
+    if (_srEnabled && _srQueue.isNotEmpty && _srCounter >= 2) {
+      _maybeInjectSR();
+      return;
+    }
     if (!_autoAdvance) await _next();
   }
 
@@ -791,7 +856,7 @@ class _TrainingPackPlayScreenV2State
     }
     final width = MediaQuery.of(context).size.width;
     final scale = (width / 375).clamp(0.8, 1.0);
-    final spot = _spots[_index];
+    final spot = _srCurrent?.spot ?? _spots[_index];
     final progress = (_index + 1) / _spots.length;
     final actions = _heroActions(spot);
     final pushAction = actions.isEmpty ? 'push' : actions.first;
@@ -854,10 +919,27 @@ class _TrainingPackPlayScreenV2State
                   setState(() {});
                 },
                 onAdaptiveToggle: _toggleAdaptive,
+                onSRToggle: _toggleSRInterleave,
                 adaptive: _adaptiveMode,
+                srEnabled: _srEnabled,
                 mini: scale < 0.9,
               ),
             ),
+            if (_srShowCTA && _srCurrent == null)
+              Positioned(
+                top: 48,
+                child: ActionChip(
+                  label: Text('Review due (${_srQueue.length})'),
+                  onPressed: () {
+                    _maybeInjectSR(force: true);
+                  },
+                ),
+              ),
+            if (_srCurrent != null)
+              const Positioned(
+                top: 48,
+                child: Chip(label: Text('Review mode')),
+              ),
             IgnorePointer(
               child: PokerTableView(
                 heroIndex: spot.hand.heroIndex,
