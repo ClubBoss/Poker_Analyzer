@@ -1,5 +1,16 @@
 [
   {"id":"th_push","title":"Push/Fold Basics","uri":"theory/push_fold_basics","tags":["push","icm"]},
   {"id":"th_bb_def","title":"BB Defense vs 2.5x","uri":"theory/bb_defense_2_5x","tags":["bb","defense"]},
-  {"id":"th_mono","title":"Monotone Flops Strategy","uri":"theory/monotone_flops","tags":["monotone","postflop"]}
+  {"id":"th_mono","title":"Monotone Flops Strategy","uri":"theory/monotone_flops","tags":["monotone","postflop"]},
+  {"id":"open_fold_overview","title":"Open/Fold Overview","uri":"theory/open_fold_overview","tags":["open_fold","overview"]},
+  {"id":"open_fold_ep_ranges","title":"Open/Fold EP Ranges","uri":"theory/open_fold_ep_ranges","tags":["open_fold","ep"]},
+  {"id":"open_fold_mp_ranges","title":"Open/Fold MP Ranges","uri":"theory/open_fold_mp_ranges","tags":["open_fold","mp"]},
+  {"id":"open_fold_co_ranges","title":"Open/Fold CO Ranges","uri":"theory/open_fold_co_ranges","tags":["open_fold","co"]},
+  {"id":"open_fold_btn_ranges","title":"Open/Fold BTN Ranges","uri":"theory/open_fold_btn_ranges","tags":["open_fold","btn"]},
+  {"id":"open_fold_sb_ranges","title":"Open/Fold SB Ranges","uri":"theory/open_fold_sb_ranges","tags":["open_fold","sb"]},
+  {"id":"3bp_overview","title":"3-Bet Push Overview","uri":"theory/3bp_overview","tags":["3bet_push","overview"]},
+  {"id":"3bp_10_15_bb","title":"3-Bet Push 10-15BB","uri":"theory/3bp_10_15_bb","tags":["3bet_push","10-15bb"]},
+  {"id":"3bp_15_20_bb","title":"3-Bet Push 15-20BB","uri":"theory/3bp_15_20_bb","tags":["3bet_push","15-20bb"]},
+  {"id":"3bp_20_25_bb","title":"3-Bet Push 20-25BB","uri":"theory/3bp_20_25_bb","tags":["3bet_push","20-25bb"]},
+  {"id":"3bp_25_30_bb","title":"3-Bet Push 25-30BB","uri":"theory/3bp_25_30_bb","tags":["3bet_push","25-30bb"]}
 ]
