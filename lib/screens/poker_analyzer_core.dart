@@ -39,6 +39,12 @@ class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   void loadTrainingSpot(TrainingSpot spot) {
     _controller.loadSpot(spot);
   }
