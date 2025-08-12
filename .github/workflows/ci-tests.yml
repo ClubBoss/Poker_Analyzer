@@ -1,19 +1,75 @@
-name: L2 Tests
+name: L2 Tests (conditional)
 
 on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  l2:
+  changes:
+    name: Detect relevant changes
     runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.filter.outputs.run }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
-      - uses: actions/cache@v4
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            run:
+              - 'assets/packs/l2/**'
+              - 'tool/validators/**'
+              - 'tool/metrics/**'
+              - 'test/l2_*.dart'
+              - 'lib/services/inline_recall_metrics.dart'
+              - 'bin/ci_report.dart'
+              - 'pubspec.yaml'
+              - 'pubspec.lock'
+
+  l2:
+    name: Run L2 tests
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Cache pub packages
+        uses: actions/cache@v4
         with:
           path: ~/.pub-cache
-          key: pub-cache
-      - run: dart pub get
-      - run: dart test test/l2_*
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test test/l2_*
+
+  skipped:
+    name: Skip (no relevant L2 changes)
+    needs: changes
+    if: needs.changes.outputs.run != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No relevant L2 changes detected – skipping tests."
