@@ -15,6 +15,25 @@ Future<void> main(List<String> args) async {
   final mode = opts['mode'] as String;
   stdout.writeln('mode=$mode');
 
+  // Run lightweight validators
+  final validators = [
+    ['dart', 'run', 'tool/validators/packs_validator.dart'],
+    ['dart', 'run', 'tool/validators/smoke_gen.dart'],
+  ];
+  var validatorFailed = false;
+  for (final cmd in validators) {
+    final r = await Process.run(cmd[0], cmd.sublist(1));
+    stdout.write(r.stdout);
+    stderr.write(r.stderr);
+    if (r.exitCode != 0) {
+      validatorFailed = true;
+    }
+  }
+  if (validatorFailed && mode == 'strict') {
+    exitCode = 1;
+    return;
+  }
+
   final reportFile = File(opts['report'] as String);
   if (!reportFile.existsSync()) {
     if (mode == 'soft') {
