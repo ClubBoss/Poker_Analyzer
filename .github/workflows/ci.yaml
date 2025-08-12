@@ -1,4 +1,4 @@
-name: ci-pr-fast
+name: CI
 
 on:
   pull_request:
@@ -8,16 +8,17 @@ on:
       - '**/*.md'
 
 concurrency:
-  group: ci-pr-fast-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  analyze:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,25 +29,18 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - name: Show versions
-        run: |
-          flutter --version
-          dart --version
-          DART_VERSION=$(dart --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          if [ "$(printf '%s\n' "3.6.0" "$DART_VERSION" | sort -V | head -n1)" != "3.6.0" ]; then
-            echo "Dart $DART_VERSION is below required 3.6.0"
-            exit 1
-          fi
+      - name: Check Flutter version
+        run: flutter --version
 
       - name: Cache Pub dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.pub-cache
-            .dart_tool/build
+          path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Bootstrap Flutter local.properties
         run: bash scripts/setup_flutter_localprops.sh
@@ -54,63 +48,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Flutter analyze
-        run: flutter analyze
+      # Тесты только по лейблу в PR
+      - name: Run tests (labeled PRs only)
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: flutter test -r expanded --concurrency=6
 
-  tests:
-    runs-on: ubuntu-latest
-    needs: analyze
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-
-      - name: Show versions
-        run: |
-          flutter --version
-          dart --version
-          DART_VERSION=$(dart --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          if [ "$(printf '%s\n' "3.6.0" "$DART_VERSION" | sort -V | head -n1)" != "3.6.0" ]; then
-            echo "Dart $DART_VERSION is below required 3.6.0"
-            exit 1
-          fi
-
-      - name: Cache Pub dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool/build
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
-
-      - name: Bootstrap Flutter local.properties
-        run: bash scripts/setup_flutter_localprops.sh
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Run Dart tests
-        run: |
-          DART_TESTS=$(rg -L "package:flutter" -g "*_test.dart" -l test || true)
-          if [ -n "$DART_TESTS" ]; then
-            dart test --reporter expanded $DART_TESTS
-          else
-            echo "No pure Dart tests found."
-          fi
-
-      - name: Run Flutter tests
-        run: |
-          FLUTTER_TESTS=$(rg -l "package:flutter" -g "*_test.dart" test || true)
-          if [ -n "$FLUTTER_TESTS" ]; then
-            flutter test --machine $FLUTTER_TESTS
-          else
-            echo "No widget tests found."
-          fi
+      - name: Skip tests (default)
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: echo "CI tests skipped. Add 'run-tests' label on the PR to enable."

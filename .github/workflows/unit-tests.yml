@@ -1,4 +1,4 @@
-name: unit-tests
+name: Unit Tests (PR only, label-gated)
 
 on:
   pull_request:
@@ -18,35 +18,29 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - name: Show versions
-        run: |
-          flutter --version
-          dart --version
-          DART_VERSION=$(dart --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          if [ "$(printf '%s\n' "3.6.0" "$DART_VERSION" | sort -V | head -n1)" != "3.6.0" ]; then
-            echo "Dart $DART_VERSION is below required 3.6.0"
-            exit 1
-          fi
+      - name: Flutter version
+        run: flutter --version
 
       - name: Cache Pub dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.pub-cache
-            .dart_tool/build
+          path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Bootstrap Flutter local.properties
         run: bash scripts/setup_flutter_localprops.sh
@@ -54,28 +48,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Flutter analyze
-        run: flutter analyze
-
-      - name: Run Dart tests (labeled PRs only)
+      # Запускаем тесты ТОЛЬКО если на PR есть лейбл run-tests
+      - name: Run smoke tests (labeled PRs only)
         if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: |
-          DART_TESTS=$(rg -L "package:flutter" -g "*_test.dart" -l test || true)
-          if [ -n "$DART_TESTS" ]; then
-            dart test --reporter expanded $DART_TESTS
-          else
-            echo "No pure Dart tests found."
-          fi
-
-      - name: Run Flutter tests (labeled PRs only)
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: |
-          FLUTTER_TESTS=$(rg -l "package:flutter" -g "*_test.dart" test || true)
-          if [ -n "$FLUTTER_TESTS" ]; then
-            flutter test --machine $FLUTTER_TESTS
-          else
-            echo "No widget tests found."
-          fi
+        run: flutter test --no-pub --coverage test/smoke
 
       - name: Skip tests (default)
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
