@@ -110,10 +110,14 @@ class _StarterPacksOnboardingBannerState
           chosen = pack;
         }
       }
+      final uniqueIds = <String>{
+        if (pack != null) pack.id,
+        for (final p in list) p.id,
+      };
       if (!mounted) return;
       setState(() {
         _pack = chosen;
-        _hasChooser = list.length > 1;
+        _hasChooser = uniqueIds.length >= 2;
         _loading = false;
       });
       if (chosen != null) {
