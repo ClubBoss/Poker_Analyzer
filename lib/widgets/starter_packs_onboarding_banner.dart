@@ -43,10 +43,28 @@ class _StarterPacksOnboardingBannerState
   Future<void> _load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final legacyDismissed = prefs.getBool('starter_pack_dismissed:v1') ?? false;
+      int? dismissedAt = prefs.getInt('starter_pack_dismissed_at');
+      if (legacyDismissed && dismissedAt == null) {
+        await prefs.setInt('starter_pack_dismissed_at', now);
+        await prefs.remove('starter_pack_dismissed:v1');
+        dismissedAt = now;
+      }
+
       final seen = prefs.getBool('starter_pack_seen') ?? false;
-      final dismissed = prefs.getBool('starter_pack_dismissed:v1') ?? false;
+      if (dismissedAt != null) {
+        if (now - dismissedAt < const Duration(days: 14).inMilliseconds) {
+          if (!mounted) return;
+          setState(() => _loading = false);
+          return;
+        } else {
+          await prefs.remove('starter_pack_dismissed_at');
+        }
+      }
       final firstRun = !seen;
-      if (seen || dismissed) {
+      if (seen) {
         if (!mounted) return;
         setState(() => _loading = false);
         return;
@@ -293,7 +311,8 @@ class _StarterPacksOnboardingBannerState
     }
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('starter_pack_dismissed:v1', true);
+      await prefs.setInt(
+          'starter_pack_dismissed_at', DateTime.now().millisecondsSinceEpoch);
     } catch (_) {
       // ignore
     } finally {
