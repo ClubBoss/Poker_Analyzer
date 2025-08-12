@@ -175,6 +175,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noContent => 'No content';
 
   @override
+  String get unsupportedSpot => 'Situação não suportada';
+
+  @override
   String get startTrainingSessionPrompt => 'Start training session now?';
 
   @override

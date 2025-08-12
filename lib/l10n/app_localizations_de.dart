@@ -175,6 +175,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noContent => 'No content';
 
   @override
+  String get unsupportedSpot => 'Nicht unterstützte Hand';
+
+  @override
   String get startTrainingSessionPrompt => 'Start training session now?';
 
   @override

@@ -54,6 +54,7 @@
   "presetSb20bb": "SB 20BB Push/Fold"
   ,"generateSpots": "Generate spots"
   ,"noContent": "No content"
+  ,"unsupportedSpot": "Unsupported spot"
   ,"startTrainingSessionPrompt": "Start training session now?"
   ,"trainingSummary": "Training Summary"
   ,"noMistakes": "No mistakes"

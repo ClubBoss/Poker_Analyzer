@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'training_pack_play_base.dart';
 import 'training_pack_result_screen_v2.dart';
@@ -11,6 +12,7 @@ import '../../services/user_error_rate_service.dart';
 import '../../services/spaced_review_service.dart';
 import '../../services/sr_queue_builder.dart';
 import '../../services/pinned_learning_service.dart';
+import '../../utils/push_fold.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/action_entry.dart';
 
@@ -31,15 +33,6 @@ class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
 class _TrainingPackPlayScreenV2State
     extends TrainingPackPlayBaseState<TrainingPackPlayScreenV2> {
   static const int _kInterleaveCadence = 2;
-  static const Set<String> _kPushSynonyms = {
-    'push',
-    'shove',
-    'jam',
-    'allin',
-    'all-in',
-    'all_in',
-  };
-  static const String _pushKey = 'push';
   List<TrainingPackSpot> get _spots => spots;
   set _spots(List<TrainingPackSpot> value) => spots = value;
   Map<String, String> get _results => results;
@@ -76,18 +69,6 @@ class _TrainingPackPlayScreenV2State
   int _srCounter = 0;
   bool _srShowCTA = false;
   bool _srUptakeLogged = false;
-
-  String _normalize(String a) {
-    final v = a.toLowerCase();
-    if (_kPushSynonyms.contains(v)) return _pushKey;
-    return v;
-  }
-
-  List<ActionEntry> _actsForStreet(TrainingPackSpot spot, int street) {
-    final acts = spot.hand.actions;
-    if (street < 0 || street >= acts.length) return const <ActionEntry>[];
-    return (acts[street] ?? const <ActionEntry>[]) as List<ActionEntry>;
-  }
 
   int get _targetStreetIndex {
     switch (widget.template.targetStreet) {
@@ -134,7 +115,8 @@ class _TrainingPackPlayScreenV2State
       await _startNew();
     }
     final sr = context.read<SpacedReviewService>();
-    final tag = widget.template.tags.contains('pushfold') ? 'pushfold' : null;
+    final List<String>? tags = widget.template.tags;
+    final tag = (tags?.contains('pushfold') ?? false) ? 'pushfold' : null;
     final queue = _srEnabled
         ? buildSrQueue(
             sr,
@@ -172,7 +154,8 @@ class _TrainingPackPlayScreenV2State
     );
     if (enabling) {
       final sr = context.read<SpacedReviewService>();
-      final tag = widget.template.tags.contains('pushfold') ? 'pushfold' : null;
+      final List<String>? tags = widget.template.tags;
+      final tag = (tags?.contains('pushfold') ?? false) ? 'pushfold' : null;
       final queue = buildSrQueue(
         sr,
         {
@@ -291,16 +274,13 @@ class _TrainingPackPlayScreenV2State
     SRQueueItem? item;
     while (_srQueue.isNotEmpty && item == null) {
       final cand = _srQueue.removeAt(0);
-      if (!widget.template.tags.contains('pushfold')) break;
-      final acts = _actsForStreet(cand.spot, _currentStreet);
-      final heroIdx = cand.spot.hand.heroIndex;
-      final ok =
-          acts.any(
-            (a) => a.playerIndex == heroIdx && _normalize(a.action) == _pushKey,
-          ) &&
-          acts.any(
-            (a) => a.playerIndex != heroIdx && _normalize(a.action) == 'fold',
-          );
+      final List<String>? tags = widget.template.tags;
+      if (!(tags?.contains('pushfold') ?? false)) break;
+      final ok = isPushFoldSpot(
+        cand.spot.hand.actions,
+        _currentStreet,
+        cand.spot.hand.heroIndex,
+      );
       if (ok) item = cand;
     }
     if (item == null) return;
@@ -616,7 +596,7 @@ class _TrainingPackPlayScreenV2State
       await context.read<UserPreferencesService>().setShowActionHints(false);
       if (mounted) setState(() => _showActionHints = false);
     }
-    final norm = _normalize(action);
+    final norm = normalizeAction(action);
     setState(() => _pressedAction = norm);
     HapticFeedback.selectionClick();
     await Future.delayed(const Duration(milliseconds: 100));
@@ -984,21 +964,23 @@ class _TrainingPackPlayScreenV2State
     final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _srCurrent?.spot ?? _spots[_index];
 
-    if (widget.template.tags.contains('pushfold')) {
-      final acts = _actsForStreet(spot, _currentStreet);
-      final heroIdx = spot.hand.heroIndex;
-      final hasPush = acts.any(
-        (a) => a.playerIndex == heroIdx && _normalize(a.action) == _pushKey,
-      );
-      final hasFold = acts.any(
-        (a) => a.playerIndex != heroIdx && _normalize(a.action) == 'fold',
+    final List<String>? tags = widget.template.tags;
+    if (tags?.contains('pushfold') ?? false) {
+      final ok = isPushFoldSpot(
+        spot.hand.actions,
+        _currentStreet,
+        spot.hand.heroIndex,
       );
       assert(
-        hasPush && hasFold,
+        ok,
         'Expected push/fold spot; missing push/fold actions on current street',
       );
-      if (!(hasPush && hasFold)) {
-        return const Scaffold(body: Center(child: Text('Unsupported spot')));
+      if (!ok) {
+        return Scaffold(
+          body: Center(
+            child: Text(AppLocalizations.of(context)!.unsupportedSpot),
+          ),
+        );
       }
     }
 
@@ -1116,7 +1098,7 @@ class _TrainingPackPlayScreenV2State
                   onHorizontalDragEnd: (details) {
                     if (details.primaryVelocity == null) return;
                     if (details.primaryVelocity! > 0) {
-                      _handleAction(_pushKey);
+                      _handleAction(kPushKey);
                     } else if (details.primaryVelocity! < 0) {
                       _handleAction('fold');
                     }
@@ -1151,10 +1133,10 @@ class _TrainingPackPlayScreenV2State
                       Expanded(
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTapDown: (_) => _handleAction(_pushKey),
+                          onTapDown: (_) => _handleAction(kPushKey),
                           child: AnimatedScale(
                             duration: const Duration(milliseconds: 100),
-                            scale: _pressedAction == _pushKey ? 0.95 : 1.0,
+                            scale: _pressedAction == kPushKey ? 0.95 : 1.0,
                             child: AnimatedOpacity(
                               duration: const Duration(milliseconds: 300),
                               opacity: _showActionHints ? 0.3 : 0.0,
