@@ -866,7 +866,16 @@ class _TrainingPackPlayScreenV2State
     final width = MediaQuery.of(context).size.width;
     final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _srCurrent?.spot ?? _spots[_index];
-    // final actions = _heroActions(spot); // uncomment if used later
+
+    // Debug guard: this screen assumes push/fold UI; trip in dev if a non-P/F spot slips in.
+    assert(() {
+      final acts = spot.hand.actions[_currentStreet] ?? const [];
+      final hasPush = acts.any((a) =>
+          a.playerIndex == spot.hand.heroIndex &&
+          a.action.toLowerCase() == 'push');
+      return hasPush;
+    }(), 'Expected push/fold spot; missing "push" action for hero on current street');
+
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),
       body: Builder(builder: (context) {
