@@ -113,14 +113,16 @@ class _TrainingPackPlayScreenV2State
       await _startNew();
     }
     final sr = context.read<SpacedReviewService>();
-    final queue = buildSrQueue(
-      sr,
-      {
-        ..._spots.map((s) => s.id),
-        ..._pool.map((s) => s.id),
-        ...widget.template.spots.map((s) => s.id),
-      }.toSet(),
-    );
+    final queue = _srEnabled
+        ? buildSrQueue(
+            sr,
+            {
+              ..._spots.map((s) => s.id),
+              ..._pool.map((s) => s.id),
+              ...widget.template.spots.map((s) => s.id),
+            }.toSet(),
+          )
+        : const <SRQueueItem>[];
     setState(() {
       _srQueue
         ..clear()
@@ -892,7 +894,6 @@ class _TrainingPackPlayScreenV2State
     final width = MediaQuery.of(context).size.width;
     final scale = (width / 375).clamp(0.8, 1.0);
     final spot = _srCurrent?.spot ?? _spots[_index];
-    final progress = (_index + 1) / _spots.length;
     final actions = _heroActions(spot);
     final pushAction = actions.isEmpty ? 'push' : actions.first;
     return Scaffold(
