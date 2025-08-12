@@ -3,13 +3,8 @@ name: Theory Integrity
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    # Триггерим только когда меняются файлы теории
-    paths:
-      - 'assets/**/*.yml'
-      - 'assets/**/*.yaml'
-      - 'assets/**/theory/**'
-      - 'theory/**'
-      - 'yaml_out/**'
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 concurrency:
@@ -30,41 +25,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Доп. предохранитель: если GH почему-то запустил workflow без изменений теории — быстро выходим.
+      # Гейт: запускаем строгую проверку только если затронута теория/пакеты/верификатор
       - name: Detect theory changes
-        id: changes
+        id: filter
         uses: dorny/paths-filter@v3
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           filters: |
             theory:
-              - 'assets/**/*.yml'
-              - 'assets/**/*.yaml'
-              - 'assets/**/theory/**'
               - 'theory/**'
+              - 'content/theory/**'
+              - 'theory_index.json'
+              - 'training_packs/**/*.yaml'
+              - 'packs/**/*.yaml'
+              - 'assets/**/*.yaml'
               - 'yaml_out/**'
-
-      - name: No theory changes → skip
-        if: ${{ steps.changes.outputs.theory != 'true' }}
-        run: |
-          echo "No theory YAML changed; skipping Theory Integrity."
-          exit 0
+              # если правили сам проверяющий код — тоже запускаем
+              - 'bin/ci_report.dart'
+              - 'tool/theory_verify.sh'
 
       - name: Set up Flutter
-        if: ${{ steps.changes.outputs.theory == 'true' }}
+        if: steps.filter.outputs.theory == 'true'
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
           cache: true
 
       - name: Install dependencies
-        if: ${{ steps.changes.outputs.theory == 'true' }}
+        if: steps.filter.outputs.theory == 'true'
         run: flutter pub get
 
       - name: Strict verify
-        if: ${{ steps.changes.outputs.theory == 'true' }}
+        if: steps.filter.outputs.theory == 'true'
         env:
           MODE: strict
         run: |
           echo "mode=$MODE"
-          # ваш строгий чекер — оставляю как было
-          dart run bin/ci_report.dart --mode $MODE
+          bash tool/theory_verify.sh
