@@ -49,13 +49,9 @@ jobs:
         run: flutter pub get
 
       # Запускаем тесты ТОЛЬКО если на PR есть лейбл run-tests
-      - name: Run tests (labeled PRs only)
+      - name: Run smoke tests (labeled PRs only)
         if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: |
-          set -Eeuo pipefail
-          FILES=("test/ci_canary_test.dart")
-          [ -d test/smoke ] && FILES+=("test/smoke")
-          flutter test --exclude-tags=slow -r expanded --concurrency=6 "${FILES[@]}"
+        run: flutter test --no-pub --coverage test/smoke
 
       - name: Skip tests (default)
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
