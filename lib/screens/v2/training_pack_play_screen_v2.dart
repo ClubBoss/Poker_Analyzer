@@ -5,6 +5,7 @@ import '../../services/app_settings_service.dart';
 import '../../services/user_preferences_service.dart';
 import '../../services/adaptive_spot_scheduler.dart';
 import '../../services/user_error_rate_service.dart';
+import '../../services/spaced_review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
@@ -700,12 +701,18 @@ class _TrainingPackPlayScreenV2State
         await context
             .read<MistakeReviewPackService>()
             .addSpot(widget.original, spot);
+        await context
+            .read<SpacedReviewService>()
+            .recordMistake(spot.id, widget.template.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Сохранено в Повторы ошибок')),
           );
         }
       }
+      await context
+          .read<SpacedReviewService>()
+          .recordReviewOutcome(spot.id, widget.template.id, !incorrect);
       if (_autoAdvance && !incorrect) {
         await Future.delayed(const Duration(seconds: 2));
         if (!mounted) return;
