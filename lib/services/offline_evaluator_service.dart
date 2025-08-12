@@ -44,9 +44,11 @@ class OfflineEvaluatorService {
       if (cached != null && cached['ev'] != null) {
         final hero = spot.hand.heroIndex;
         final acts = spot.hand.actions[0] ?? [];
-        for (final a in acts) {
+        for (var i = 0; i < acts.length; i++) {
+          final a = acts[i];
           if (a.playerIndex == hero && a.action == 'push') {
-            a.ev = (cached['ev'] as num).toDouble();
+            acts[i] =
+                a.copyWith(ev: (cached['ev'] as num).toDouble());
             return;
           }
         }
@@ -72,10 +74,15 @@ class OfflineEvaluatorService {
       if (cached != null && cached['icm'] != null) {
         final hero = spot.hand.heroIndex;
         final acts = spot.hand.actions[0] ?? [];
-        for (final a in acts) {
+        for (var i = 0; i < acts.length; i++) {
+          final a = acts[i];
           if (a.playerIndex == hero && a.action == 'push') {
-            a.icmEv = (cached['icm'] as num).toDouble();
-            if (cached['ev'] != null) a.ev ??= (cached['ev'] as num).toDouble();
+            acts[i] = a.copyWith(
+              icmEv: (cached['icm'] as num).toDouble(),
+              ev: cached['ev'] != null
+                  ? (cached['ev'] as num).toDouble()
+                  : a.ev,
+            );
             return;
           }
         }
@@ -100,10 +107,10 @@ class OfflineEvaluatorService {
           anteBb: anteBb,
         );
         final acts = spot.hand.actions[0] ?? [];
-        for (final a in acts) {
+        for (var i = 0; i < acts.length; i++) {
+          final a = acts[i];
           if (a.playerIndex == hero && a.action == 'push') {
-            a.ev = ev;
-            a.icmEv = icm;
+            acts[i] = a.copyWith(ev: ev, icmEv: icm);
             break;
           }
         }

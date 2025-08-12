@@ -70,10 +70,16 @@ void main(List<String> args) {
         final heroEv = _double(_cell(row, idx['heroEv']));
         final heroIcm = _double(_cell(row, idx['heroIcmEv']));
         if (heroEv != null || heroIcm != null) {
-          for (final a in acts[0] ?? []) {
-            if (a.playerIndex == 0) {
-              if (heroEv != null) a.ev = heroEv;
-              if (heroIcm != null) a.icmEv = heroIcm;
+          final list0 = acts[0];
+          if (list0 != null) {
+            for (var k = 0; k < list0.length; k++) {
+              final a = list0[k];
+              if (a.playerIndex == 0) {
+                list0[k] = a.copyWith(
+                  ev: heroEv ?? a.ev,
+                  icmEv: heroIcm ?? a.icmEv,
+                );
+              }
             }
           }
         }

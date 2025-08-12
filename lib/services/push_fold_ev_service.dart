@@ -50,13 +50,16 @@ class PushFoldEvService {
     final stack = spot.hand.stacks['$hero']?.round();
     if (hand == null || stack == null) return;
     final acts = spot.hand.actions[0] ?? [];
-    for (final a in acts) {
+    for (var i = 0; i < acts.length; i++) {
+      final a = acts[i];
       if (a.playerIndex == hero && a.action == 'push') {
-        a.ev = computePushEV(
-          heroBbStack: stack,
-          bbCount: spot.hand.playerCount - 1,
-          heroHand: hand,
-          anteBb: anteBb,
+        acts[i] = a.copyWith(
+          ev: computePushEV(
+            heroBbStack: stack,
+            bbCount: spot.hand.playerCount - 1,
+            heroHand: hand,
+            anteBb: anteBb,
+          ),
         );
         break;
       }
@@ -74,7 +77,8 @@ class PushFoldEvService {
       for (var i = 0; i < spot.hand.playerCount; i++)
         spot.hand.stacks['$i']?.round() ?? 0
     ];
-    for (final a in acts) {
+    for (var i = 0; i < acts.length; i++) {
+      final a = acts[i];
       if (a.playerIndex == hero && a.action == 'push') {
         final chipEv = a.ev ?? computePushEV(
           heroBbStack: stack,
@@ -82,12 +86,15 @@ class PushFoldEvService {
           heroHand: hand,
           anteBb: anteBb,
         );
-        a.icmEv = computeIcmPushEV(
-          chipStacksBb: stacks,
-          heroIndex: hero,
-          heroHand: hand,
-          chipPushEv: chipEv,
-          payouts: payouts,
+        acts[i] = a.copyWith(
+          ev: a.ev ?? chipEv,
+          icmEv: computeIcmPushEV(
+            chipStacksBb: stacks,
+            heroIndex: hero,
+            heroHand: hand,
+            chipPushEv: chipEv,
+            payouts: payouts,
+          ),
         );
         break;
       }

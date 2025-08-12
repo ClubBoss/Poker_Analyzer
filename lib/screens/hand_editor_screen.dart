@@ -110,7 +110,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     final heroEv = List<double?>.filled(4, null);
     int street = 0;
     void apply(List<ActionEntry> list) {
-      for (final a in list) {
+      for (var i = 0; i < list.length; i++) {
+        final a = list[i];
         final prevBet = bets[a.playerIndex];
         switch (a.action) {
           case 'fold':
@@ -155,21 +156,24 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             actions[a.playerIndex] = PlayerAction.push;
             break;
         }
-        a.potAfter = pot;
+        var updated = a.copyWith(potAfter: pot);
         if (a.playerIndex == _heroIndex &&
             (a.action == 'call' || a.action == 'push')) {
-          final toCall = (bets[a.playerIndex] - prevBet).clamp(0, double.infinity);
-          a.potOdds = toCall == 0 ? null : (toCall / pot * 100);
-          heroPo[street] = a.potOdds;
+          final toCall =
+              (bets[a.playerIndex] - prevBet).clamp(0, double.infinity);
+          final potOdds = toCall == 0 ? null : (toCall / pot * 100);
+          heroPo[street] = potOdds;
           final potAfter = pot;
-          a.ev = a.equity == null
+          final ev = a.equity == null
               ? null
               : (a.equity! / 100) * (potAfter) - toCall;
-          heroEv[street] = a.ev;
+          heroEv[street] = ev;
+          updated =
+              updated.copyWith(potOdds: potOdds, ev: ev);
         } else {
-          a.potOdds = null;
-          a.ev = null;
+          updated = updated.copyWith(potOdds: null, ev: null);
         }
+        list[i] = updated;
       }
     }
 

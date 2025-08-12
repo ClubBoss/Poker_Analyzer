@@ -14,16 +14,24 @@ class LocalEvService {
     final hand = handCode(spot.hand.heroCards);
     final stack = spot.hand.stacks['$hero']?.round();
     if (hand == null || stack == null) return;
-    for (final a in spot.hand.actions[0] ?? []) {
-      if (a.playerIndex == hero &&
-          (a.action == 'push' || a.action == 'call' || a.action == 'raise')) {
-        a.ev = computePushEV(
-          heroBbStack: stack,
-          bbCount: spot.hand.playerCount - 1,
-          heroHand: hand,
-          anteBb: anteBb,
-        );
-        break;
+    final acts = spot.hand.actions[0];
+    if (acts != null) {
+      for (var i = 0; i < acts.length; i++) {
+        final a = acts[i];
+        if (a.playerIndex == hero &&
+            (a.action == 'push' ||
+                a.action == 'call' ||
+                a.action == 'raise')) {
+          acts[i] = a.copyWith(
+            ev: computePushEV(
+              heroBbStack: stack,
+              bbCount: spot.hand.playerCount - 1,
+              heroHand: hand,
+              anteBb: anteBb,
+            ),
+          );
+          break;
+        }
       }
     }
   }
@@ -42,33 +50,38 @@ class LocalEvService {
       for (final a in spot.hand.actions[0] ?? [])
         if (a.playerIndex != hero && a.action == 'call') a.playerIndex
     ];
-    for (final a in spot.hand.actions[0] ?? []) {
-      if (a.playerIndex == hero &&
-          (a.action == 'push' || a.action == 'call' || a.action == 'raise')) {
-        final ev = computePushEV(
-          heroBbStack: stack,
-          bbCount: spot.hand.playerCount - 1,
-          heroHand: hand,
-          anteBb: anteBb,
-        );
-        final icm = callers.length > 1
-            ? computeMultiwayIcmEV(
-                chipStacksBb: stacks,
-                heroIndex: hero,
-                chipPushEv: ev,
-                callerIndices: callers,
-                payouts: payouts,
-              )
-            : computeLocalIcmPushEV(
-                chipStacksBb: stacks,
-                heroIndex: hero,
-                heroHand: hand,
-                anteBb: anteBb,
-                payouts: payouts,
-              );
-        a.ev = ev;
-        a.icmEv = icm;
-        break;
+    final acts = spot.hand.actions[0];
+    if (acts != null) {
+      for (var i = 0; i < acts.length; i++) {
+        final a = acts[i];
+        if (a.playerIndex == hero &&
+            (a.action == 'push' ||
+                a.action == 'call' ||
+                a.action == 'raise')) {
+          final ev = computePushEV(
+            heroBbStack: stack,
+            bbCount: spot.hand.playerCount - 1,
+            heroHand: hand,
+            anteBb: anteBb,
+          );
+          final icm = callers.length > 1
+              ? computeMultiwayIcmEV(
+                  chipStacksBb: stacks,
+                  heroIndex: hero,
+                  chipPushEv: ev,
+                  callerIndices: callers,
+                  payouts: payouts,
+                )
+              : computeLocalIcmPushEV(
+                  chipStacksBb: stacks,
+                  heroIndex: hero,
+                  heroHand: hand,
+                  anteBb: anteBb,
+                  payouts: payouts,
+                );
+          acts[i] = a.copyWith(ev: ev, icmEv: icm);
+          break;
+        }
       }
     }
   }

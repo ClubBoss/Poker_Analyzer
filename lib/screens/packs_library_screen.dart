@@ -401,10 +401,11 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     if (ok != true) return;
     for (final s in pack.spots) {
       final hero = s.hand.heroIndex;
-      for (final a in s.hand.actions[0] ?? []) {
+      final acts = s.hand.actions[0] ?? [];
+      for (var i = 0; i < acts.length; i++) {
+        final a = acts[i];
         if (a.playerIndex == hero) {
-          a.ev = null;
-          a.icmEv = null;
+          acts[i] = a.copyWith(ev: null, icmEv: null);
         }
       }
       s.evalResult = null;

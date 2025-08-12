@@ -15,7 +15,9 @@ TrainingPackSpot _spot(
   if (board != null) hand.board.addAll(board);
   if (ev != null) {
     final acts = hand.actions[0];
-    if (acts.isNotEmpty) acts.first.ev = ev;
+    if (acts.isNotEmpty) {
+      acts[0] = acts.first.copyWith(ev: ev);
+    }
   }
   return TrainingPackSpot(id: id, hand: hand);
 }

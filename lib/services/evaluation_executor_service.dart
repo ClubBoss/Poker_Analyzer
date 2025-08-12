@@ -482,10 +482,13 @@ class EvaluationExecutorService implements EvaluationExecutor {
             },
           );
           final acts = spot.hand.actions[0] ?? [];
-          for (final a in acts) {
+          for (var i = 0; i < acts.length; i++) {
+            final a = acts[i];
             if (a.playerIndex == hero && a.action == heroAct) {
-              a.ev = res['ev'] as double;
-              if (withIcm) a.icmEv = res['icm'] as double;
+              acts[i] = a.copyWith(
+                ev: res['ev'] as double,
+                icmEv: withIcm ? res['icm'] as double : a.icmEv,
+              );
               break;
             }
           }

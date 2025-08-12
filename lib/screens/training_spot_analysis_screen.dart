@@ -68,7 +68,11 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
 
   void _setManualEvaluation(ActionEntry entry, String? value) {
     setState(() {
-      entry.manualEvaluation = value;
+      final idx = widget.spot.actions.indexOf(entry);
+      if (idx != -1) {
+        widget.spot.actions[idx] =
+            entry.copyWith(manualEvaluation: value);
+      }
     });
   }
 

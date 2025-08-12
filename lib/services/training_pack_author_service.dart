@@ -146,13 +146,14 @@ class TrainingPackAuthorService {
           heroHand: hand,
           anteBb: 0,
         );
-        actions[0]![0].ev = chipEv;
-        actions[0]![0].icmEv = computeIcmPushEV(
+        final icmEv = computeIcmPushEV(
           chipStacksBb: playerStacks,
           heroIndex: heroIndex,
           heroHand: hand,
           chipPushEv: chipEv,
         );
+        actions[0]![0] =
+            actions[0]![0].copyWith(ev: chipEv, icmEv: icmEv);
         stacks = {
           for (var j = 0; j < playerStacks.length; j++)
             '$j': playerStacks[j].toDouble()

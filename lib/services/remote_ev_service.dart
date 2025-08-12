@@ -90,10 +90,10 @@ class RemoteEvService {
   void _apply(TrainingPackSpot spot, {double? ev, double? icm}) {
     final hero = spot.hand.heroIndex;
     final acts = spot.hand.actions[0] ?? [];
-    for (final a in acts) {
+    for (var i = 0; i < acts.length; i++) {
+      final a = acts[i];
       if (a.playerIndex == hero && a.action == 'push') {
-        if (ev != null) a.ev = ev;
-        if (icm != null) a.icmEv = icm;
+        acts[i] = a.copyWith(ev: ev ?? a.ev, icmEv: icm ?? a.icmEv);
         break;
       }
     }
