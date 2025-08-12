@@ -25,6 +25,11 @@ class StarterPacksOnboardingBanner extends StatefulWidget {
 class _StarterPacksOnboardingBannerState
     extends State<StarterPacksOnboardingBanner> {
   static bool _shownLogged = false;
+  static const _kPrefSeen = 'starter_pack_seen';
+  static const _kPrefDismissedLegacy = 'starter_pack_dismissed:v1';
+  static const _kPrefDismissedAt = 'starter_pack_dismissed_at';
+  static const _kPrefSelectedId = 'starter_pack_selected_id';
+  static String _kPrefProgress(String id) => 'starter_pack_progress:$id';
   TrainingPackTemplateV2? _pack;
   bool _loading = true;
   bool _launching = false;
@@ -62,22 +67,22 @@ class _StarterPacksOnboardingBannerState
       final prefs = await SharedPreferences.getInstance();
       final now = DateTime.now().millisecondsSinceEpoch;
 
-      final legacyDismissed = prefs.getBool('starter_pack_dismissed:v1') ?? false;
-      int? dismissedAt = prefs.getInt('starter_pack_dismissed_at');
+      final legacyDismissed = prefs.getBool(_kPrefDismissedLegacy) ?? false;
+      int? dismissedAt = prefs.getInt(_kPrefDismissedAt);
       if (legacyDismissed && dismissedAt == null) {
-        await prefs.setInt('starter_pack_dismissed_at', now);
-        await prefs.remove('starter_pack_dismissed:v1');
+        await prefs.setInt(_kPrefDismissedAt, now);
+        await prefs.remove(_kPrefDismissedLegacy);
         dismissedAt = now;
       }
 
-      final seen = prefs.getBool('starter_pack_seen') ?? false;
+      final seen = prefs.getBool(_kPrefSeen) ?? false;
       if (dismissedAt != null) {
         if (now - dismissedAt < const Duration(days: 14).inMilliseconds) {
           if (!mounted) return;
           setState(() => _loading = false);
           return;
         } else {
-          await prefs.remove('starter_pack_dismissed_at');
+          await prefs.remove(_kPrefDismissedAt);
         }
       }
       final firstRun = !seen;
@@ -100,9 +105,11 @@ class _StarterPacksOnboardingBannerState
       List<TrainingPackTemplateV2> list = const [];
       try {
         list = await listFuture;
-      } catch (_) {/* swallow */}
+      } catch (_) {
+        /* swallow */
+      }
       TrainingPackTemplateV2? chosen = pack;
-      final selectedId = prefs.getString('starter_pack_selected_id');
+      final selectedId = prefs.getString(_kPrefSelectedId);
       if (selectedId != null) {
         var found = false;
         for (final p in list) {
@@ -113,7 +120,7 @@ class _StarterPacksOnboardingBannerState
           }
         }
         if (!found) {
-          await prefs.remove('starter_pack_selected_id');
+          await prefs.remove(_kPrefSelectedId);
           chosen = pack;
         }
       }
@@ -134,26 +141,33 @@ class _StarterPacksOnboardingBannerState
               .then((full) => _packCache[chosen.id] = full)
               .catchError((_) {}),
         );
-        final cached =
-            prefs.getInt('starter_pack_progress:${chosen.id}');
+        final cached = prefs.getInt(_kPrefProgress(chosen.id));
         if (cached != null && cached >= 0 && mounted) {
           setState(() => _handsCompleted = cached);
         }
-        unawaited(TrainingPackStatsService.getHandsCompleted(chosen.id)
-            .then((v) async {
-          if (v >= 0) {
-            await prefs.setInt('starter_pack_progress:${chosen.id}', v);
-          }
-          if (!mounted) return;
-          setState(() => _handsCompleted = v);
-        }).catchError((_) {}));
+        unawaited(
+          TrainingPackStatsService.getHandsCompleted(chosen.id)
+              .then((v) async {
+                if (v >= 0) {
+                  await prefs.setInt(_kPrefProgress(chosen.id), v);
+                }
+                if (!mounted) return;
+                setState(() => _handsCompleted = v);
+              })
+              .catchError((_) {}),
+        );
       }
 
       if (!_shownLogged && chosen != null) {
         _shownLogged = true;
         final count = _totalHands(chosen);
-        unawaited(const StarterPackTelemetry()
-            .logBanner('starter_banner_shown', chosen.id, count));
+        unawaited(
+          const StarterPackTelemetry().logBanner(
+            'starter_banner_shown',
+            chosen.id,
+            count,
+          ),
+        );
       }
     } catch (e, st) {
       ErrorLogger.instance.logError('starter_pack_banner_load_failed', e, st);
@@ -167,26 +181,41 @@ class _StarterPacksOnboardingBannerState
     setState(() => _launching = true);
     try {
       final cached = _packCache[p.id];
-      final full = cached ??
+      final full =
+          cached ??
           await (PackLibraryService.instance.getById(p.id) ?? Future.value(p));
       _packCache[full.id] = full;
       final count = _totalHands(full);
       if (tapEvent != null) {
         unawaited(
-            const StarterPackTelemetry().logBanner(tapEvent, full.id, count));
+          const StarterPackTelemetry().logBanner(tapEvent, full.id, count),
+        );
       }
       if (!mounted) return;
-      await const TrainingSessionLauncher().launch(full, source: 'starter_banner');
+      await const TrainingSessionLauncher().launch(
+        full,
+        source: 'starter_banner',
+      );
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('starter_pack_seen', true);
-      unawaited(const StarterPackTelemetry()
-          .logBanner('starter_banner_launch_success', full.id, count));
+      await prefs.setBool(_kPrefSeen, true);
+      unawaited(
+        const StarterPackTelemetry().logBanner(
+          'starter_banner_launch_success',
+          full.id,
+          count,
+        ),
+      );
       if (!mounted) return;
       setState(() => _pack = null);
     } catch (e, st) {
       final count = _totalHands(p);
-      unawaited(const StarterPackTelemetry()
-          .logBanner('starter_banner_launch_failed', p.id, count));
+      unawaited(
+        const StarterPackTelemetry().logBanner(
+          'starter_banner_launch_failed',
+          p.id,
+          count,
+        ),
+      );
       ErrorLogger.instance.logError('starter_pack_banner_start_failed', e, st);
       if (!mounted) return;
       setState(() => _pack = null);
@@ -213,19 +242,24 @@ class _StarterPacksOnboardingBannerState
       unawaited(const StarterPackTelemetry().logPickerOpened());
 
       final prefs = await SharedPreferences.getInstance();
-      final selectedId = prefs.getString('starter_pack_selected_id');
+      final selectedId = prefs.getString(_kPrefSelectedId);
 
-      final recommended =
-          await PackLibraryService.instance.recommendedStarter();
+      final recommended = await PackLibraryService.instance
+          .recommendedStarter();
 
       List<TrainingPackTemplateV2> list = const [];
       try {
         list = await PackLibraryService.instance.listStarters();
-      } catch (_) {/* swallow */}
+      } catch (_) {
+        /* swallow */
+      }
       if (!mounted || list.isEmpty && recommended == null) return;
 
       if (recommended != null) {
-        list = [for (final p in list) if (p.id != recommended.id) p];
+        list = [
+          for (final p in list)
+            if (p.id != recommended.id) p,
+        ];
       }
 
       final t = AppLocalizations.of(context)!;
@@ -234,20 +268,22 @@ class _StarterPacksOnboardingBannerState
       final all = [...list, if (recommended != null) recommended];
       final prefill = <String, int>{};
       for (final p in all) {
-        final c = prefs.getInt('starter_pack_progress:${p.id}');
+        final c = prefs.getInt(_kPrefProgress(p.id));
         if (c != null && c >= 0) prefill[p.id] = c;
       }
       final progress = ValueNotifier<Map<String, int>>(prefill);
       for (final p in all) {
         unawaited(
-          TrainingPackStatsService.getHandsCompleted(p.id).then((v) async {
-            final map = Map<String, int>.from(progress.value);
-            map[p.id] = v;
-            progress.value = map;
-            if (v >= 0) {
-              await prefs.setInt('starter_pack_progress:${p.id}', v);
-            }
-          }).catchError((_) {}),
+          TrainingPackStatsService.getHandsCompleted(p.id)
+              .then((v) async {
+                final map = Map<String, int>.from(progress.value);
+                map[p.id] = v;
+                progress.value = map;
+                if (v >= 0) {
+                  await prefs.setInt(_kPrefProgress(p.id), v);
+                }
+              })
+              .catchError((_) {}),
         );
       }
 
@@ -293,8 +329,8 @@ class _StarterPacksOnboardingBannerState
                           final done = prog[recommended.id] ?? 0;
                           return _progressText(done, total, t);
                         }()),
-                        trailing: selectedId == null &&
-                                _pack?.id == recommended.id
+                        trailing:
+                            selectedId == null && _pack?.id == recommended.id
                             ? const Icon(Icons.check)
                             : null,
                         onTap: () => Navigator.of(context).pop(recommended),
@@ -325,77 +361,78 @@ class _StarterPacksOnboardingBannerState
         },
       );
 
-    if (selected == null || !mounted) return;
+      if (selected == null || !mounted) return;
 
-    if (recommended != null && selected.id == recommended.id) {
+      if (recommended != null && selected.id == recommended.id) {
+        setState(() {
+          _pack = recommended;
+          _handsCompleted = null;
+        });
+
+        unawaited(
+          (PackLibraryService.instance.getById(recommended.id) ??
+                  Future.value(recommended))
+              .then((full) => _packCache[recommended.id] = full)
+              .catchError((_) {}),
+        );
+
+        unawaited(
+          TrainingPackStatsService.getHandsCompleted(recommended.id)
+              .then((v) async {
+                if (v >= 0) {
+                  await prefs.setInt(_kPrefProgress(recommended.id), v);
+                }
+                if (!mounted) return;
+                setState(() => _handsCompleted = v);
+              })
+              .catchError((_) {}),
+        );
+
+        await prefs.remove(_kPrefSelectedId);
+
+        final count = _totalHands(recommended);
+        unawaited(
+          const StarterPackTelemetry().logPickerSelected(recommended.id, count),
+        );
+
+        // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
+        await _launchPack(recommended);
+        return;
+      }
+
       setState(() {
-        _pack = recommended;
+        _pack = selected;
         _handsCompleted = null;
       });
 
       unawaited(
-        (PackLibraryService.instance.getById(recommended.id) ??
-                Future.value(recommended))
-            .then((full) => _packCache[recommended.id] = full)
+        (PackLibraryService.instance.getById(selected.id) ??
+                Future.value(selected))
+            .then((full) => _packCache[selected.id] = full)
             .catchError((_) {}),
       );
 
       unawaited(
-        TrainingPackStatsService.getHandsCompleted(recommended.id).then(
-          (v) async {
-            if (v >= 0) {
-              await prefs.setInt(
-                  'starter_pack_progress:${recommended.id}', v);
-            }
-            if (!mounted) return;
-            setState(() => _handsCompleted = v);
-          },
-        ).catchError((_) {}),
+        TrainingPackStatsService.getHandsCompleted(selected.id)
+            .then((v) async {
+              if (v >= 0) {
+                await prefs.setInt(_kPrefProgress(selected.id), v);
+              }
+              if (!mounted) return;
+              setState(() => _handsCompleted = v);
+            })
+            .catchError((_) {}),
       );
 
-      await prefs.remove('starter_pack_selected_id');
+      await prefs.setString(_kPrefSelectedId, selected.id);
 
-      final count = _totalHands(recommended);
-      unawaited(const StarterPackTelemetry()
-          .logPickerSelected(recommended.id, count));
+      final count = _totalHands(selected);
+      unawaited(
+        const StarterPackTelemetry().logPickerSelected(selected.id, count),
+      );
 
       // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
-      await _launchPack(recommended);
-      return;
-    }
-
-    setState(() {
-      _pack = selected;
-      _handsCompleted = null;
-    });
-
-    unawaited(
-      (PackLibraryService.instance.getById(selected.id) ??
-              Future.value(selected))
-          .then((full) => _packCache[selected.id] = full)
-          .catchError((_) {}),
-    );
-
-    unawaited(
-      TrainingPackStatsService.getHandsCompleted(selected.id).then(
-        (v) async {
-          if (v >= 0) {
-            await prefs.setInt('starter_pack_progress:${selected.id}', v);
-          }
-          if (!mounted) return;
-          setState(() => _handsCompleted = v);
-        },
-      ).catchError((_) {}),
-    );
-
-    await prefs.setString('starter_pack_selected_id', selected.id);
-
-    final count = _totalHands(selected);
-    unawaited(
-        const StarterPackTelemetry().logPickerSelected(selected.id, count));
-
-    // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
-    await _launchPack(selected);
+      await _launchPack(selected);
     } finally {
       if (mounted) setState(() => _choosing = false);
     }
@@ -405,13 +442,20 @@ class _StarterPacksOnboardingBannerState
     final p = _pack;
     if (p != null) {
       final count = _totalHands(p);
-      unawaited(const StarterPackTelemetry()
-          .logBanner('starter_banner_dismissed', p.id, count));
+      unawaited(
+        const StarterPackTelemetry().logBanner(
+          'starter_banner_dismissed',
+          p.id,
+          count,
+        ),
+      );
     }
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(
-          'starter_pack_dismissed_at', DateTime.now().millisecondsSinceEpoch);
+        _kPrefDismissedAt,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } catch (_) {
       // ignore
     } finally {
@@ -443,7 +487,9 @@ class _StarterPacksOnboardingBannerState
                 child: Text(
                   t.starter_packs_title,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               IconButton(
@@ -492,9 +538,9 @@ class _StarterPacksOnboardingBannerState
                 ElevatedButton(
                   onPressed: _launching ? null : _start,
                   style: ElevatedButton.styleFrom(backgroundColor: accent),
-                  child: Text(done > 0
-                      ? t.starter_packs_continue
-                      : t.starter_packs_start),
+                  child: Text(
+                    done > 0 ? t.starter_packs_continue : t.starter_packs_start,
+                  ),
                 ),
               ],
             ),
