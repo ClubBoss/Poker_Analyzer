@@ -121,5 +121,5 @@ class _SummaryData {
   final int hands;
   final double accuracy;
   final List<MapEntry<String, double>> tags;
-  _SummaryData(this.hands, this.accuracy, this.tags);
+  const _SummaryData(this.hands, this.accuracy, this.tags);
 }
