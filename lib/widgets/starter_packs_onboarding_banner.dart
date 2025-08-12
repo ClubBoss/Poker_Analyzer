@@ -31,6 +31,8 @@ class _StarterPacksOnboardingBannerState
   static const _kPrefSelectedId = 'starter_pack_selected_id';
   static String _kPrefProgress(String id) => 'starter_pack_progress:$id';
   static const int _packCacheLimit = 12;
+  static const Duration _kDismissCooldown = Duration(days: 14);
+  static const double _kChooserMaxHeightFactor = 0.7;
   TrainingPackTemplateV2? _pack;
   bool _loading = true;
   bool _launching = false;
@@ -134,7 +136,7 @@ class _StarterPacksOnboardingBannerState
 
       final seen = prefs.getBool(_kPrefSeen) ?? false;
       if (dismissedAt != null) {
-        if (now - dismissedAt < const Duration(days: 14).inMilliseconds) {
+        if (now - dismissedAt < _kDismissCooldown.inMilliseconds) {
           if (!mounted) return;
           setState(() => _loading = false);
           return;
@@ -355,7 +357,8 @@ class _StarterPacksOnboardingBannerState
                   }
                 }
 
-                final maxH = MediaQuery.of(context).size.height * 0.7;
+                final maxH =
+                    MediaQuery.of(context).size.height * _kChooserMaxHeightFactor;
                 return ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: maxH),
                   child: SingleChildScrollView(
