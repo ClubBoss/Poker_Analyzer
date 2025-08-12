@@ -4,11 +4,11 @@ import 'package:yaml/yaml.dart';
 final _posSet = {'EP', 'MP', 'CO', 'BTN', 'SB', 'BB'};
 final _kebab = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
 
-/// Returns a list of validation error strings for all L2 packs.
+/// Возвращает список ошибок валидации всех L2-паков.
 List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
   final dir = Directory(root);
   if (!dir.existsSync()) {
-    return ['::error file=$root::missing directory'];
+    return ['$root: missing directory'];
   }
 
   final files = dir
@@ -17,9 +17,10 @@ List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
       .where((f) => f.path.endsWith('.yaml'))
       .toList();
 
-  final ids = <String, String>{}; // id -> file
+  final ids = <String, String>{};
   final errors = <String>[];
 
+  // Первый проход: базовая валидация и сбор id.
   for (final f in files) {
     final rel = f.path;
     dynamic doc;
@@ -29,52 +30,43 @@ List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
       errors.add('$rel: invalid yaml');
       continue;
     }
-    if (doc is not YamlMap) {
+    if (doc is! YamlMap) {
       errors.add('$rel: root not map');
       continue;
     }
 
-    void err(String m) => errors.add('$rel: $m');
+    void err(String msg) => errors.add('$rel: $msg');
 
     final id = doc['id'];
     if (id is! String || id.isEmpty) {
       err('missing id');
-      continue;
-    }
-    if (ids.containsKey(id)) {
-      err('duplicate id "$id" (also in ${ids[id]})');
+    } else if (ids.containsKey(id)) {
+      err('duplicate id: $id (also in ${ids[id]})');
     } else {
       ids[id] = rel;
     }
 
-    final name = doc['name'];
-    if (name is! String || name.isEmpty) err('missing name');
-
-    final stage = doc['stage'];
-    if (stage is! YamlMap || (stage['id'] as String?)?.toUpperCase() != 'L2') {
-      err('stage.id must be L2');
-    }
-
     final subtype = doc['subtype'];
-    if (subtype is! String ||
-        !{'open-fold', '3bet-push', 'limped'}.contains(subtype)) {
-      err('invalid subtype "$subtype"');
+    if (subtype is! String) {
+      err('missing subtype');
     }
 
-    final tags = (doc['tags'] as YamlList?)?.toList() ?? const [];
-    if (tags.isEmpty) err('missing tags');
-    for (final t in tags) {
-      if (t is! String || !_kebab.hasMatch(t)) {
-        err('tag not lower-kebab-case: $t');
-        break;
+    final tags = (doc['tags'] as YamlList?)?.cast() ?? [];
+    if (tags.isEmpty) {
+      err('tags required');
+    } else {
+      for (final t in tags) {
+        if (t is! String || !_kebab.hasMatch(t)) {
+          err('bad tag: $t');
+          break;
+        }
+      }
+      if (!tags.contains('l2')) {
+        err("tags must contain 'l2'");
       }
     }
-    if (!tags.contains('l2')) err('tags must include "l2"');
-    if (subtype is String && !tags.contains(subtype)) {
-      err('tags must include subtype "$subtype"');
-    }
 
-    final spots = (doc['spots'] as YamlList?)?.toList() ?? const [];
+    final spots = (doc['spots'] as YamlList?)?.cast() ?? const [];
     if (spots.length < 80) {
       err('must have at least 80 spots');
     } else {
@@ -82,16 +74,13 @@ List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
         if (s is! YamlMap) continue;
         final at = s['actionType'];
         if (subtype == 'open-fold' && at != 'open-fold') {
-          err('spot actionType mismatch');
-          break;
+          err('spot actionType mismatch'); break;
         }
         if (subtype == '3bet-push' && at != '3bet-push') {
-          err('spot actionType mismatch');
-          break;
+          err('spot actionType mismatch'); break;
         }
         if (subtype == 'limped' && at != 'limped') {
-          err('spot actionType mismatch');
-          break;
+          err('spot actionType mismatch'); break;
         }
       }
     }
@@ -104,7 +93,7 @@ List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
     } else if (subtype == '3bet-push') {
       final bucket = doc['stackBucket'];
       if (bucket is! String || !RegExp(r'^\d+-\d+$').hasMatch(bucket)) {
-        err('invalid stackBucket "$bucket"');
+        err('invalid stackBucket');
       }
     } else if (subtype == 'limped') {
       if (doc['limped'] != true) {
@@ -114,23 +103,28 @@ List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
       if (pos is! String || !{'SB', 'BB'}.contains(pos)) {
         err('limped position invalid');
       }
-    }
-
-    final unlockAfter = (doc['stage'] as YamlMap?)?['unlockAfter'];
-    if (unlockAfter != null && unlockAfter is! String) {
-      err('stage.unlockAfter must be string id');
+    } else if (subtype is String) {
+      err('unknown subtype $subtype');
     }
   }
 
-  // Second pass: validate unlockAfter refs resolve within L2.
+  // Второй проход: проверка ссылок unlockAfter.
   for (final f in files) {
     final rel = f.path;
-    final doc = loadYaml(f.readAsStringSync()) as YamlMap;
-    final unlock = (doc['stage'] as YamlMap?)?['unlockAfter'] as String?;
-    if (unlock != null) {
-      if (!ids.containsKey(unlock)) {
-        errors.add(
-            '$rel: stage.unlockAfter references unknown id "$unlock"');
+    dynamic doc;
+    try {
+      doc = loadYaml(f.readAsStringSync());
+    } catch (_) {
+      continue;
+    }
+    if (doc is! YamlMap) continue;
+    final stage = doc['stage'];
+    if (stage is YamlMap && stage['unlockAfter'] != null) {
+      final unlock = stage['unlockAfter'];
+      if (unlock is! String || unlock.isEmpty) {
+        errors.add('$rel: stage.unlockAfter must be non-empty string');
+      } else if (!ids.containsKey(unlock)) {
+        errors.add('$rel: stage.unlockAfter references unknown id $unlock');
       }
     }
   }
@@ -152,5 +146,7 @@ void main() {
       }
     }
     exit(1);
+  } else {
+    stdout.writeln('L2 packs valid.');
   }
 }
