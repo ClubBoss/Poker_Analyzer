@@ -5,5 +5,19 @@
     "locale": "en",
     "file": "pf_basic_cash_v1.json",
     "version": 1
+  },
+  {
+    "id": "pf_pf10bb_v1",
+    "title": "Push/Fold — 10BB",
+    "locale": "en",
+    "file": "pf_pf10bb_v1.json",
+    "version": 1
+  },
+  {
+    "id": "pf_pf15bb_v1",
+    "title": "Push/Fold — 15BB",
+    "locale": "en",
+    "file": "pf_pf15bb_v1.json",
+    "version": 1
   }
 ]

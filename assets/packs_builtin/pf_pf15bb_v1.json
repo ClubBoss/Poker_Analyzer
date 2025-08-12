@@ -1,0 +1,13 @@
+{
+  "id": "pf_pf15bb_v1",
+  "name": "Push/Fold — 15BB",
+  "trainingType": "pushFold",
+  "gameType": "tournament",
+  "bb": 15,
+  "tags": ["starter"],
+  "spots": [
+    {"id": "s1"}
+  ],
+  "spotCount": 326,
+  "meta": {"schemaVersion": "2.0"}
+}

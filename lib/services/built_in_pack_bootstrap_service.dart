@@ -17,7 +17,7 @@ class BuiltInPackBootstrapService {
   final SharedPreferences? _prefs;
 
   /// Current bootstrap version.
-  static const int _version = 1;
+  static const int _version = 2;
   static const String _manifestPath = 'assets/packs_builtin/manifest.json';
 
   Future<void> importIfNeeded() async {
