@@ -1,0 +1,13 @@
+{
+  "id": "pf_pf10bb_v1",
+  "name": "Push/Fold — 10BB",
+  "trainingType": "pushFold",
+  "gameType": "tournament",
+  "bb": 10,
+  "tags": ["starter"],
+  "spots": [
+    {"id": "s1"}
+  ],
+  "spotCount": 169,
+  "meta": {"schemaVersion": "2.0"}
+}

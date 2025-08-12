@@ -30,11 +30,14 @@ class PackLibraryService {
 
   Future<TrainingPackTemplateV2?> recommendedStarter() async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
-    final list = TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
-    for (final p in list) {
-      if (p.tags.contains('starter')) return p;
-    }
-    return list.isNotEmpty ? list.first : null;
+    final list =
+        TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
+    if (list.isEmpty) return null;
+
+    final starters = list.where((p) => p.tags.contains('starter')).toList();
+    if (starters.isEmpty) return list.first;
+    starters.sort((a, b) => b.spotCount.compareTo(a.spotCount));
+    return starters.first;
   }
 
   /// Loads a template by [id] from the library.
