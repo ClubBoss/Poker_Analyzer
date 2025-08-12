@@ -50,7 +50,6 @@ analyzer:
     dead_code: ignore
     avoid_mutable_fields: error
     unnecessary_mutable_fields: error
-    prefer_const_constructors: error
     prefer_final_fields: error
 
 linter:
@@ -59,7 +58,4 @@ linter:
     - avoid_unused_constructor_parameters
     - unnecessary_import
     - unused_local_variable
-    - avoid_mutable_fields
-    - unnecessary_mutable_fields
-    - prefer_final_fields
     - prefer_const_constructors

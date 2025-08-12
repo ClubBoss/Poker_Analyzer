@@ -97,7 +97,7 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
   }
 
   Future<void> _save() async {
-    final actions = _actions.values.expand((l) => l).toList();
+    var actions = _actions.values.expand((l) => l).toList();
     final stacks = {
       for (int i = 0; i < widget.hand.numberOfPlayers; i++)
         i: int.tryParse(_stacks[i]?.text ?? '') ?? 0
@@ -129,10 +129,9 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
       await context
           .read<EvaluationExecutorService>()
           .evaluateSingle(context, spot, hand: hand, anteBb: hand.anteBb);
-      final evalActions =
-          spot.hand.actions.values.expand((l) => l).toList();
+      actions = spot.hand.actions.values.expand((l) => l).toList();
       hand = hand.copyWith(
-        actions: evalActions,
+        actions: actions,
         gtoAction: spot.correctAction,
       );
       await context.read<SavedHandManagerService>().save(hand);
