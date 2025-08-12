@@ -31,6 +31,7 @@ class _StarterPacksOnboardingBannerState
   bool _choosing = false;
   int? _handsCompleted;
   bool _hasChooser = false;
+  final Map<String, TrainingPackTemplateV2> _packCache = {};
 
   int _totalHands(TrainingPackTemplateV2 p) =>
       p.spotCount != 0 ? p.spotCount : p.spots.length;
@@ -127,6 +128,12 @@ class _StarterPacksOnboardingBannerState
         _loading = false;
       });
       if (chosen != null) {
+        unawaited(
+          (PackLibraryService.instance.getById(chosen.id) ??
+                  Future.value(chosen))
+              .then((full) => _packCache[chosen.id] = full)
+              .catchError((_) {}),
+        );
         final cached =
             prefs.getInt('starter_pack_progress:${chosen.id}');
         if (cached != null && cached >= 0 && mounted) {
@@ -159,8 +166,10 @@ class _StarterPacksOnboardingBannerState
     if (_launching || !mounted) return;
     setState(() => _launching = true);
     try {
-      final full =
+      final cached = _packCache[p.id];
+      final full = cached ??
           await (PackLibraryService.instance.getById(p.id) ?? Future.value(p));
+      _packCache[full.id] = full;
       final count = _totalHands(full);
       if (tapEvent != null) {
         unawaited(
@@ -316,6 +325,13 @@ class _StarterPacksOnboardingBannerState
       });
 
       unawaited(
+        (PackLibraryService.instance.getById(recommended.id) ??
+                Future.value(recommended))
+            .then((full) => _packCache[recommended.id] = full)
+            .catchError((_) {}),
+      );
+
+      unawaited(
         TrainingPackStatsService.getHandsCompleted(recommended.id).then(
           (v) async {
             if (v >= 0) {
@@ -343,6 +359,13 @@ class _StarterPacksOnboardingBannerState
       _pack = selected;
       _handsCompleted = null;
     });
+
+    unawaited(
+      (PackLibraryService.instance.getById(selected.id) ??
+              Future.value(selected))
+          .then((full) => _packCache[selected.id] = full)
+          .catchError((_) {}),
+    );
 
     unawaited(
       TrainingPackStatsService.getHandsCompleted(selected.id).then(
