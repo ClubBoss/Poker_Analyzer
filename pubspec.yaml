@@ -148,6 +148,8 @@ flutter:
     - assets/skills/cash/
     - assets/paths/
     - assets/precompiled_packs/
+    - assets/packs_builtin/manifest.json
+    - assets/packs_builtin/
     - assets/icm_scenarios/
     - assets/ab_experiments.json
     - assets/autogen_presets/
