@@ -36,7 +36,6 @@ class PokerAnalyzerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  int get numberOfPlayers => _numberOfPlayers;
   set numberOfPlayers(int value) {
     if (_numberOfPlayers == value) return;
     _update(() {
@@ -44,7 +43,6 @@ class PokerAnalyzerController extends ChangeNotifier {
     });
   }
 
-  Map<int, String> get playerPositions => UnmodifiableMapView(_playerPositions);
   void setPlayerPosition(int index, String position) {
     final current = _playerPositions[index];
     if (current == position) return;
@@ -121,4 +119,8 @@ class PokerAnalyzerController extends ChangeNotifier {
 
   /// Convenience getter for the current player count.
   int get playerCount => _players.length;
+
+  /// Public getters used by tests/consumers.
+  int get numberOfPlayers => _numberOfPlayers;
+  Map<int, String> get playerPositions => UnmodifiableMapView(_playerPositions);
 }
