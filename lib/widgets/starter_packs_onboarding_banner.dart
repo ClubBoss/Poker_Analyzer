@@ -231,13 +231,22 @@ class _StarterPacksOnboardingBannerState
       final t = AppLocalizations.of(context)!;
 
       // Не блокируем UI: показываем сразу и донаполняем прогрессом
-      final progress = ValueNotifier<Map<String, int>>({});
-      for (final p in [...list, if (recommended != null) recommended]) {
+      final all = [...list, if (recommended != null) recommended];
+      final prefill = <String, int>{};
+      for (final p in all) {
+        final c = prefs.getInt('starter_pack_progress:${p.id}');
+        if (c != null && c >= 0) prefill[p.id] = c;
+      }
+      final progress = ValueNotifier<Map<String, int>>(prefill);
+      for (final p in all) {
         unawaited(
-          TrainingPackStatsService.getHandsCompleted(p.id).then((v) {
+          TrainingPackStatsService.getHandsCompleted(p.id).then((v) async {
             final map = Map<String, int>.from(progress.value);
             map[p.id] = v;
             progress.value = map;
+            if (v >= 0) {
+              await prefs.setInt('starter_pack_progress:${p.id}', v);
+            }
           }).catchError((_) {}),
         );
       }
