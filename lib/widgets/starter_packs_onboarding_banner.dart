@@ -415,7 +415,7 @@ class _StarterPacksOnboardingBannerState
               children: [
                 if (_hasChooser)
                   TextButton(
-                    onPressed: _launching ? null : _choose,
+                    onPressed: (_launching || _choosing) ? null : _choose,
                     child: Text(t.starter_packs_choose),
                   ),
                 if (_hasChooser) const SizedBox(width: 8),
