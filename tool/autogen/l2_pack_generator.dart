@@ -1,11 +1,45 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:args/args.dart';
+import 'package:path/path.dart' as p;
+
+import 'l2_presets.dart';
+
 void main(List<String> args) {
-  final rng = Random(42);
-  generateOpenFold(rng);
-  generate3betPush(rng);
-  generateLimped(rng);
+  final parser = ArgParser()
+    ..addOption('preset', defaultsTo: 'all')
+    ..addOption('seed', defaultsTo: '42')
+    ..addOption('out', defaultsTo: 'build/tmp/l2_smoke');
+  final argResults = parser.parse(args);
+  final seed = int.parse(argResults['seed'] as String);
+  final presetArg = argResults['preset'] as String;
+  final outDir = argResults['out'] as String;
+
+  final presetsToRun = presetArg == 'all' ? allPresets : [presetArg];
+  final rng = Random(seed);
+
+  var hadEmpty = false;
+  for (final name in presetsToRun) {
+    final preset = l2Presets[name];
+    if (preset == null) {
+      stderr.writeln('Unknown preset $name');
+      exit(1);
+    }
+    switch (preset.subtype) {
+      case 'open-fold':
+        hadEmpty |= generateOpenFold(rng, outDir, preset);
+        break;
+      case '3bet-push':
+        hadEmpty |= generate3betPush(rng, outDir, preset);
+        break;
+      case 'limped':
+        hadEmpty |= generateLimped(rng, outDir, preset);
+        break;
+    }
+  }
+
+  if (hadEmpty) exit(1);
 }
 
 final _cards = [
@@ -34,7 +68,7 @@ String _spotAction(String subtype, int i) {
   }
 }
 
-void _writePack({
+int _writePack({
   required String path,
   required String id,
   required String name,
@@ -65,7 +99,8 @@ void _writePack({
     sb.writeln('  - $t');
   }
   sb.writeln('spots:');
-  for (var i = 0; i < 80; i++) {
+  const spotCount = 80;
+  for (var i = 0; i < spotCount; i++) {
     final card = _cards[i % _cards.length];
     final action = _spotAction(subtype, i);
     final spotId = '${id}-s${(i + 1).toString().padLeft(3, '0')}';
@@ -76,15 +111,16 @@ void _writePack({
     sb.writeln('    correctAction: $action');
   }
   file.writeAsStringSync(sb.toString());
+  return spotCount;
 }
-
-void generateOpenFold(Random rng) {
-  final dir = 'assets/packs/l2/open-fold';
+bool generateOpenFold(Random rng, String outDir, L2Preset preset) {
+  final dir = p.join(outDir, 'open-fold');
   var unlockAfter;
-  for (final pos in ['EP', 'MP', 'CO', 'BTN', 'SB', 'BB']) {
+  var hadEmpty = false;
+  for (final pos in preset.positions) {
     final id = 'l2-open-fold-${pos.toLowerCase()}';
-    final path = '$dir/$id.yaml';
-    _writePack(
+    final path = p.join(dir, '$id.yaml');
+    final spots = _writePack(
       path: path,
       id: id,
       name: 'L2 Open/Fold $pos',
@@ -93,17 +129,20 @@ void generateOpenFold(Random rng) {
       tags: ['l2', 'open-fold', pos.toLowerCase(), 'pushfold'],
       unlockAfter: unlockAfter,
     );
+    if (spots == 0) hadEmpty = true;
     unlockAfter = id;
   }
+  return hadEmpty;
 }
 
-void generate3betPush(Random rng) {
-  final dir = 'assets/packs/l2/3bet-push';
+bool generate3betPush(Random rng, String outDir, L2Preset preset) {
+  final dir = p.join(outDir, '3bet-push');
   var unlockAfter;
-  for (final bucket in ['8-12', '13-18', '19-25', '26-32', '33-40', '41-50']) {
+  var hadEmpty = false;
+  for (final bucket in preset.stackBuckets) {
     final id = 'l2-3bet-push-${bucket}bb';
-    final path = '$dir/$id.yaml';
-    _writePack(
+    final path = p.join(dir, '$id.yaml');
+    final spots = _writePack(
       path: path,
       id: id,
       name: 'L2 3bet Push $bucket' 'bb',
@@ -112,13 +151,16 @@ void generate3betPush(Random rng) {
       tags: ['l2', '3bet-push', '${bucket}bb', 'vs-open', 'pushfold'],
       unlockAfter: unlockAfter,
     );
+    if (spots == 0) hadEmpty = true;
     unlockAfter = id;
   }
+  return hadEmpty;
 }
 
-void generateLimped(Random rng) {
-  final dir = 'assets/packs/l2/limped';
+bool generateLimped(Random rng, String outDir, L2Preset preset) {
+  final dir = p.join(outDir, 'limped');
   var unlockAfter;
+  var hadEmpty = false;
   for (final entry in [
     {'pos': 'SB', 'idx': 1},
     {'pos': 'SB', 'idx': 2},
@@ -128,10 +170,13 @@ void generateLimped(Random rng) {
     {'pos': 'BB', 'idx': 3},
   ]) {
     final pos = entry['pos'] as String;
+    if (!preset.positions.contains(pos)) {
+      continue;
+    }
     final idx = entry['idx'] as int;
     final id = 'l2-limped-${pos.toLowerCase()}-$idx';
-    final path = '$dir/$id.yaml';
-    _writePack(
+    final path = p.join(dir, '$id.yaml');
+    final spots = _writePack(
       path: path,
       id: id,
       name: 'L2 Limped $pos Pack $idx',
@@ -141,6 +186,8 @@ void generateLimped(Random rng) {
       tags: ['l2', 'limped', pos.toLowerCase()],
       unlockAfter: unlockAfter,
     );
+    if (spots == 0) hadEmpty = true;
     unlockAfter = id;
   }
+  return hadEmpty;
 }
