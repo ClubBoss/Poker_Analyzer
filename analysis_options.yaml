@@ -48,9 +48,7 @@ analyzer:
     undefined_prefixed_name: ignore
     # и типовой «линт-шум»
     dead_code: ignore
-    unused_import: ignore
     unused_element: ignore
-    unnecessary_import: ignore
     prefer_const_constructors: ignore
     prefer_final_fields: ignore
     prefer_const_literals_to_create_immutables: ignore
