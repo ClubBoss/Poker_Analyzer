@@ -37,6 +37,7 @@ class _StarterPacksOnboardingBannerState
   int? _handsCompleted;
   bool _hasChooser = false;
   final Map<String, TrainingPackTemplateV2> _packCache = {};
+  final Map<String, Future<int>> _handsFetches = {};
 
   int _totalHands(TrainingPackTemplateV2 p) =>
       p.spotCount != 0 ? p.spotCount : p.spots.length;
@@ -71,13 +72,28 @@ class _StarterPacksOnboardingBannerState
     }
   }
 
-  void _refreshHandsAndCache(SharedPreferences prefs, String id) {
+  void _refreshHandsAndCacheOnce(
+    SharedPreferences prefs,
+    String id, {
+    void Function(int value)? onValue,
+  }) {
+    final existing = _handsFetches[id];
+    final fut = existing ?? TrainingPackStatsService.getHandsCompleted(id);
+    if (existing == null) _handsFetches[id] = fut;
+
     unawaited(
-      TrainingPackStatsService.getHandsCompleted(id).then((v) async {
-        if (v >= 0) await prefs.setInt(_kPrefProgress(id), v);
-        if (!mounted) return;
-        setState(() => _handsCompleted = v);
-      }).catchError((_) {}),
+      fut.then((v) async {
+        if (v >= 0) {
+          await prefs.setInt(_kPrefProgress(id), v);
+        }
+        if (onValue != null) {
+          onValue(v);
+        } else if (mounted && _pack?.id == id) {
+          setState(() => _handsCompleted = v);
+        }
+      }).catchError((_) {}).whenComplete(() {
+        if (_handsFetches[id] == fut) _handsFetches.remove(id);
+      }),
     );
   }
 
@@ -162,7 +178,7 @@ class _StarterPacksOnboardingBannerState
       if (chosen != null) {
         _prefetchPack(chosen);
         _setHandsFromCache(prefs, chosen.id);
-        _refreshHandsAndCache(prefs, chosen.id);
+        _refreshHandsAndCacheOnce(prefs, chosen.id);
       }
 
       if (!_shownLogged && chosen != null) {
@@ -286,18 +302,11 @@ class _StarterPacksOnboardingBannerState
       }
       final progress = ValueNotifier<Map<String, int>>(prefill);
       for (final p in all) {
-        unawaited(
-          TrainingPackStatsService.getHandsCompleted(p.id)
-              .then((v) async {
-                final map = Map<String, int>.from(progress.value);
-                map[p.id] = v;
-                progress.value = map;
-                if (v >= 0) {
-                  await prefs.setInt(_kPrefProgress(p.id), v);
-                }
-              })
-              .catchError((_) {}),
-        );
+        _refreshHandsAndCacheOnce(prefs, p.id, onValue: (v) {
+          final map = Map<String, int>.from(progress.value);
+          map[p.id] = v;
+          progress.value = map;
+        });
       }
 
       final selected = await showModalBottomSheet<TrainingPackTemplateV2>(
@@ -392,7 +401,7 @@ class _StarterPacksOnboardingBannerState
         });
         _setHandsFromCache(prefs, recommended.id);
         _prefetchPack(recommended);
-        _refreshHandsAndCache(prefs, recommended.id);
+        _refreshHandsAndCacheOnce(prefs, recommended.id);
 
         await prefs.remove(_kPrefSelectedId);
 
@@ -412,7 +421,7 @@ class _StarterPacksOnboardingBannerState
       });
       _setHandsFromCache(prefs, selected.id);
       _prefetchPack(selected);
-      _refreshHandsAndCache(prefs, selected.id);
+      _refreshHandsAndCacheOnce(prefs, selected.id);
 
       await prefs.setString(_kPrefSelectedId, selected.id);
 
