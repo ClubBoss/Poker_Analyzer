@@ -511,8 +511,9 @@ class _TrainingPackPlayScreenV2State
     final boardCards = [
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
-    final actions = hand.actions.values
-        .expand((list) => list.map((a) => ActionEntry.fromJson(a.toJson())))
+    // Deep copy actions to avoid mutating original hand data in result screen
+    final List<ActionEntry> actions = hand.actions.values
+        .expand((list) => list.map((a) => a.copy()))
         .toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
