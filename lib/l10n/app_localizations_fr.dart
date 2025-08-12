@@ -175,6 +175,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noContent => 'Pas de contenu';
 
   @override
+  String get unsupportedSpot => 'Situation non prise en charge';
+
+  @override
   String get startTrainingSessionPrompt =>
       'Commencer la session d\'entraînement maintenant ?';
 

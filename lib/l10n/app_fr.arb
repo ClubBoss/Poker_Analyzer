@@ -54,6 +54,7 @@
   "presetSb20bb": "SB 20BB Push/Fold",
   "generateSpots": "Générer des spots",
   "noContent": "Pas de contenu",
+  "unsupportedSpot": "Situation non prise en charge",
   "startTrainingSessionPrompt": "Commencer la session d'entraînement maintenant ?",
   "trainingSummary": "Résumé d'entraînement",
   "noMistakes": "Aucune erreur",

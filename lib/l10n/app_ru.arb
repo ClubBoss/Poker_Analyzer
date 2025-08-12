@@ -54,6 +54,7 @@
   "presetSb20bb": "SB 20BB Push/Fold"
   ,"generateSpots": "Сгенерировать раздачи"
   ,"noContent": "Нет контента"
+  ,"unsupportedSpot": "Неподдерживаемая раздача"
   ,"startTrainingSessionPrompt": "Начать тренировку сейчас?"
   ,"trainingSummary": "Результаты тренировки"
   ,"noMistakes": "Ошибок нет"

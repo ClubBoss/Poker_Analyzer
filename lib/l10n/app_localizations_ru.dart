@@ -175,6 +175,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noContent => 'Нет контента';
 
   @override
+  String get unsupportedSpot => 'Неподдерживаемая раздача';
+
+  @override
   String get startTrainingSessionPrompt => 'Начать тренировку сейчас?';
 
   @override

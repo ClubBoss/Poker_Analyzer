@@ -54,6 +54,7 @@
   "presetSb20bb": "SB 20BB Push/Fold"
   ,"generateSpots": "Generar manos"
   ,"noContent": "Sin contenido"
+  ,"unsupportedSpot": "Situación no soportada"
   ,"startTrainingSessionPrompt": "¿Iniciar sesión de entrenamiento ahora?"
   ,"trainingSummary": "Resumen de entrenamiento"
   ,"noMistakes": "Sin errores"
