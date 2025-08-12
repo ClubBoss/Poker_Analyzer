@@ -31,6 +31,9 @@ class _StarterPacksOnboardingBannerState
   int? _handsCompleted;
   bool _hasChooser = false;
 
+  int _totalHands(TrainingPackTemplateV2 p) =>
+      p.spotCount != 0 ? p.spotCount : p.spots.length;
+
   @override
   void initState() {
     super.initState();
@@ -66,7 +69,7 @@ class _StarterPacksOnboardingBannerState
       if (!mounted) return;
       setState(() {
         _pack = pack;
-        _hasChooser = list.isNotEmpty;
+        _hasChooser = list.length > 1;
         _loading = false;
       });
       if (pack != null) {
@@ -78,7 +81,7 @@ class _StarterPacksOnboardingBannerState
 
       if (!_shownLogged && pack != null) {
         _shownLogged = true;
-        final count = pack.spotCount != 0 ? pack.spotCount : pack.spots.length;
+        final count = _totalHands(pack);
         unawaited(const StarterPackTelemetry()
             .logBanner('starter_banner_shown', pack.id, count));
       }
@@ -95,7 +98,7 @@ class _StarterPacksOnboardingBannerState
     try {
       final full =
           await (PackLibraryService.instance.getById(p.id) ?? Future.value(p));
-      final count = full.spotCount != 0 ? full.spotCount : full.spots.length;
+      final count = _totalHands(full);
       if (tapEvent != null) {
         unawaited(
             const StarterPackTelemetry().logBanner(tapEvent, full.id, count));
@@ -109,7 +112,7 @@ class _StarterPacksOnboardingBannerState
       if (!mounted) return;
       setState(() => _pack = null);
     } catch (e, st) {
-      final count = p.spotCount != 0 ? p.spotCount : p.spots.length;
+      final count = _totalHands(p);
       unawaited(const StarterPackTelemetry()
           .logBanner('starter_banner_launch_failed', p.id, count));
       ErrorLogger.instance.logError('starter_pack_banner_start_failed', e, st);
@@ -170,8 +173,7 @@ class _StarterPacksOnboardingBannerState
                     ListTile(
                       title: Text(p.name),
                       subtitle: Text(() {
-                        final total =
-                            p.spotCount != 0 ? p.spotCount : p.spots.length;
+                        final total = _totalHands(p);
                         final done = prog[p.id];
                         return done != null && done > 0
                             ? '$done / $total ${t.hands}'
@@ -201,8 +203,7 @@ class _StarterPacksOnboardingBannerState
       }).catchError((_) {}),
     );
 
-    final count =
-        selected.spotCount != 0 ? selected.spotCount : selected.spots.length;
+    final count = _totalHands(selected);
     unawaited(
         const StarterPackTelemetry().logPickerSelected(selected.id, count));
 
@@ -213,7 +214,7 @@ class _StarterPacksOnboardingBannerState
   Future<void> _dismiss() async {
     final p = _pack;
     if (p != null) {
-      final count = p.spotCount != 0 ? p.spotCount : p.spots.length;
+      final count = _totalHands(p);
       unawaited(const StarterPackTelemetry()
           .logBanner('starter_banner_dismissed', p.id, count));
     }
@@ -233,8 +234,7 @@ class _StarterPacksOnboardingBannerState
     if (_loading || _pack == null) return const SizedBox.shrink();
     final t = AppLocalizations.of(context)!;
     final accent = Theme.of(context).colorScheme.secondary;
-    final hands =
-        _pack!.spotCount != 0 ? _pack!.spotCount : _pack!.spots.length;
+    final hands = _totalHands(_pack!);
     final done = _handsCompleted ?? 0;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
