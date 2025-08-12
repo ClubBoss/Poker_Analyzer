@@ -74,17 +74,19 @@ class _StarterPacksOnboardingBannerState
     }
   }
 
-  Future<void> _start() async {
-    final p = _pack;
-    if (p == null || _launching) return;
+  Future<void> _launchPack(TrainingPackTemplateV2 p,
+      {bool logStartTapped = true}) async {
+    if (_launching) return;
     if (!mounted) return;
     setState(() => _launching = true);
     try {
       final full = await PackLibraryService.instance.getById(p.id) ?? p;
       final count =
           full.spotCount != 0 ? full.spotCount : full.spots.length;
-      unawaited(const StarterPackTelemetry()
-          .logBanner('starter_banner_start_tapped', full.id, count));
+      if (logStartTapped) {
+        unawaited(const StarterPackTelemetry()
+            .logBanner('starter_banner_start_tapped', full.id, count));
+      }
       if (!mounted) return;
       await const TrainingSessionLauncher()
           .launch(full, source: 'starter_banner');
@@ -95,11 +97,9 @@ class _StarterPacksOnboardingBannerState
       if (!mounted) return;
       setState(() => _pack = null);
     } catch (e, st) {
-      final full = p;
-      final count =
-          full.spotCount != 0 ? full.spotCount : full.spots.length;
+      final count = p.spotCount != 0 ? p.spotCount : p.spots.length;
       unawaited(const StarterPackTelemetry()
-          .logBanner('starter_banner_launch_failed', full.id, count));
+          .logBanner('starter_banner_launch_failed', p.id, count));
       ErrorLogger.instance
           .logError('starter_pack_banner_start_failed', e, st);
       if (!mounted) return;
@@ -108,6 +108,47 @@ class _StarterPacksOnboardingBannerState
       if (!mounted) return;
       setState(() => _launching = false);
     }
+  }
+
+  Future<void> _start() async {
+    final p = _pack;
+    if (p == null) return;
+    await _launchPack(p);
+  }
+
+  Future<void> _choose() async {
+    if (_launching) return;
+    unawaited(const StarterPackTelemetry().logPickerOpened());
+    final list = await PackLibraryService.instance.listStarters();
+    if (!mounted) return;
+    final t = AppLocalizations.of(context)!;
+    final selected = await showModalBottomSheet<TrainingPackTemplateV2>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final p in list)
+                ListTile(
+                  title: Text(p.name),
+                  subtitle: Text(
+                      '${p.spotCount != 0 ? p.spotCount : p.spots.length} ${t.hands}'),
+                  onTap: () => Navigator.of(context).pop(p),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+    if (selected == null) return;
+    if (!mounted) return;
+    setState(() => _pack = selected);
+    final count =
+        selected.spotCount != 0 ? selected.spotCount : selected.spots.length;
+    unawaited(const StarterPackTelemetry()
+        .logPickerSelected(selected.id, count));
+    await _launchPack(selected, logStartTapped: false);
   }
 
   Future<void> _dismiss() async {
@@ -179,10 +220,20 @@ class _StarterPacksOnboardingBannerState
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: _launching ? null : _start,
-              style: ElevatedButton.styleFrom(backgroundColor: accent),
-              child: Text(t.starter_packs_start),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: _launching ? null : _choose,
+                  child: const Text('Choose pack'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _launching ? null : _start,
+                  style: ElevatedButton.styleFrom(backgroundColor: accent),
+                  child: Text(t.starter_packs_start),
+                ),
+              ],
             ),
           ),
         ],
