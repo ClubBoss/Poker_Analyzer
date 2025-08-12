@@ -56,6 +56,31 @@ class _StarterPacksOnboardingBannerState
     return clamped / total;
   }
 
+  void _prefetchPack(TrainingPackTemplateV2 t) {
+    unawaited(
+      (PackLibraryService.instance.getById(t.id) ?? Future.value(t))
+          .then((full) => _packCache[t.id] = full)
+          .catchError((_) {}),
+    );
+  }
+
+  void _setHandsFromCache(SharedPreferences prefs, String id) {
+    final c = prefs.getInt(_kPrefProgress(id));
+    if (c != null && c >= 0 && mounted) {
+      setState(() => _handsCompleted = c);
+    }
+  }
+
+  void _refreshHandsAndCache(SharedPreferences prefs, String id) {
+    unawaited(
+      TrainingPackStatsService.getHandsCompleted(id).then((v) async {
+        if (v >= 0) await prefs.setInt(_kPrefProgress(id), v);
+        if (!mounted) return;
+        setState(() => _handsCompleted = v);
+      }).catchError((_) {}),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -135,27 +160,9 @@ class _StarterPacksOnboardingBannerState
         _loading = false;
       });
       if (chosen != null) {
-        unawaited(
-          (PackLibraryService.instance.getById(chosen.id) ??
-                  Future.value(chosen))
-              .then((full) => _packCache[chosen.id] = full)
-              .catchError((_) {}),
-        );
-        final cached = prefs.getInt(_kPrefProgress(chosen.id));
-        if (cached != null && cached >= 0 && mounted) {
-          setState(() => _handsCompleted = cached);
-        }
-        unawaited(
-          TrainingPackStatsService.getHandsCompleted(chosen.id)
-              .then((v) async {
-                if (v >= 0) {
-                  await prefs.setInt(_kPrefProgress(chosen.id), v);
-                }
-                if (!mounted) return;
-                setState(() => _handsCompleted = v);
-              })
-              .catchError((_) {}),
-        );
+        _prefetchPack(chosen);
+        _setHandsFromCache(prefs, chosen.id);
+        _refreshHandsAndCache(prefs, chosen.id);
       }
 
       if (!_shownLogged && chosen != null) {
@@ -383,30 +390,9 @@ class _StarterPacksOnboardingBannerState
           _pack = recommended;
           _handsCompleted = null;
         });
-
-        final cached = prefs.getInt(_kPrefProgress(recommended.id));
-        if (cached != null && cached >= 0 && mounted) {
-          setState(() => _handsCompleted = cached);
-        }
-
-        unawaited(
-          (PackLibraryService.instance.getById(recommended.id) ??
-                  Future.value(recommended))
-              .then((full) => _packCache[recommended.id] = full)
-              .catchError((_) {}),
-        );
-
-        unawaited(
-          TrainingPackStatsService.getHandsCompleted(recommended.id)
-              .then((v) async {
-                if (v >= 0) {
-                  await prefs.setInt(_kPrefProgress(recommended.id), v);
-                }
-                if (!mounted) return;
-                setState(() => _handsCompleted = v);
-              })
-              .catchError((_) {}),
-        );
+        _setHandsFromCache(prefs, recommended.id);
+        _prefetchPack(recommended);
+        _refreshHandsAndCache(prefs, recommended.id);
 
         await prefs.remove(_kPrefSelectedId);
 
@@ -424,30 +410,9 @@ class _StarterPacksOnboardingBannerState
         _pack = selected;
         _handsCompleted = null;
       });
-
-      final cached = prefs.getInt(_kPrefProgress(selected.id));
-      if (cached != null && cached >= 0 && mounted) {
-        setState(() => _handsCompleted = cached);
-      }
-
-      unawaited(
-        (PackLibraryService.instance.getById(selected.id) ??
-                Future.value(selected))
-            .then((full) => _packCache[selected.id] = full)
-            .catchError((_) {}),
-      );
-
-      unawaited(
-        TrainingPackStatsService.getHandsCompleted(selected.id)
-            .then((v) async {
-              if (v >= 0) {
-                await prefs.setInt(_kPrefProgress(selected.id), v);
-              }
-              if (!mounted) return;
-              setState(() => _handsCompleted = v);
-            })
-            .catchError((_) {}),
-      );
+      _setHandsFromCache(prefs, selected.id);
+      _prefetchPack(selected);
+      _refreshHandsAndCache(prefs, selected.id);
 
       await prefs.setString(_kPrefSelectedId, selected.id);
 
