@@ -30,41 +30,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Доп. предохранитель: если GH почему-то запустил workflow без изменений теории — быстро выходим.
       - name: Detect theory changes
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            theory:
-              - 'assets/**/*.yml'
-              - 'assets/**/*.yaml'
-              - 'assets/**/theory/**'
-              - 'theory/**'
-              - 'yaml_out/**'
-
-      - name: No theory changes → skip
-        if: ${{ steps.changes.outputs.theory != 'true' }}
+        id: detect
         run: |
-          echo "No theory YAML changed; skipping Theory Integrity."
-          exit 0
+          set -euo pipefail
+          CHANGED="$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '^(assets/.*\.ya?ml|assets/.*/theory/|theory/|yaml_out/)')"
+          if [ -n "$CHANGED" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Theory changes detected:"
+            echo "$CHANGED"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No theory changes -> skip"
+          fi
 
       - name: Set up Flutter
-        if: ${{ steps.changes.outputs.theory == 'true' }}
+        if: steps.detect.outputs.has_changes == 'true'
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
       - name: Install dependencies
-        if: ${{ steps.changes.outputs.theory == 'true' }}
+        if: steps.detect.outputs.has_changes == 'true'
         run: flutter pub get
 
       - name: Strict verify
-        if: ${{ steps.changes.outputs.theory == 'true' }}
+        if: steps.detect.outputs.has_changes == 'true'
         env:
           MODE: strict
         run: |
           echo "mode=$MODE"
-          # ваш строгий чекер — оставляю как было
-          dart run bin/ci_report.dart --mode $MODE
+          tool/theory_verify.sh --mode "$MODE"
