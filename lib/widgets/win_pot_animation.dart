@@ -19,13 +19,13 @@ class WinPotAnimation extends StatefulWidget {
   final VoidCallback? onCompleted;
 
   const WinPotAnimation({
-    Key? key,
+    super.key,
     required this.start,
     required this.end,
     required this.amount,
     this.scale = 1.0,
     this.onCompleted,
-  }) : super(key: key);
+  });
 
   @override
   State<WinPotAnimation> createState() => _WinPotAnimationState();

@@ -206,13 +206,15 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.textPrimaryDark.withOpacity(0.2),
+                              color: AppColors.textPrimaryDark
+                                  .withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               'Demo Mode Active',
                               style: TextStyle(
-                                color: AppColors.textPrimaryDark.withOpacity(0.8),
+                                color: AppColors.textPrimaryDark
+                                    .withValues(alpha: 0.8),
                                 fontSize: 12,
                               ),
                             ),

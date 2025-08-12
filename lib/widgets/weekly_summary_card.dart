@@ -22,7 +22,7 @@ class WeeklySummaryCard extends StatelessWidget {
     final start = DateTime(now.year, now.month, now.day)
         .subtract(Duration(days: now.weekday - 1));
     final weekLogs = logsService.filter(
-      range: DateTimeRange(start, now),
+      range: DateTimeRange(start: start, end: now),
     );
     int hands = 0;
     int correct = 0;
