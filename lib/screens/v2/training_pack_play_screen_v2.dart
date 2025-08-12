@@ -870,11 +870,14 @@ class _TrainingPackPlayScreenV2State
     // Debug guard: this screen assumes push/fold UI; trip in dev if a non-P/F spot slips in.
     assert(() {
       final acts = spot.hand.actions[_currentStreet] ?? const [];
+      final heroIdx = spot.hand.heroIndex;
       final hasPush = acts.any((a) =>
-          a.playerIndex == spot.hand.heroIndex &&
-          a.action.toLowerCase() == 'push');
-      return hasPush;
-    }(), 'Expected push/fold spot; missing "push" action for hero on current street');
+          a.playerIndex == heroIdx && a.action.toLowerCase() == 'push');
+      final hasFold = acts.any((a) =>
+          a.playerIndex != heroIdx && a.action.toLowerCase() == 'fold');
+      return hasPush && hasFold;
+    }(),
+        'Expected push/fold spot; missing "push" or "fold" action for players on current street');
 
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),
