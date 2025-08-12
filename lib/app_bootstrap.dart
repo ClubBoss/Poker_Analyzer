@@ -31,6 +31,9 @@ class AppBootstrap {
   static ServiceRegistry? _registry;
   static ServiceRegistry get registry => _registry!;
 
+  @visibleForTesting
+  static set testRegistry(ServiceRegistry registry) => _registry = registry;
+
   static Future<ServiceRegistry> init({
     CloudSyncService? cloud,
     required PluginRuntime runtime,
@@ -47,9 +50,11 @@ class AppBootstrap {
     }
     registry.registerIfAbsent<EvaluationExecutor>(EvaluationExecutorService());
     registry.registerIfAbsent<TrainingSessionFingerprintService>(
-        TrainingSessionFingerprintService());
+      TrainingSessionFingerprintService(),
+    );
     registry.registerIfAbsent<TrainingSessionContextService>(
-        TrainingSessionContextService());
+      TrainingSessionContextService(),
+    );
     XpGoalPanelBoosterInjector.instance.inject();
     _registry = registry;
     return registry;
@@ -63,9 +68,18 @@ class AppBootstrap {
 
   static Future<void> _loadAssets() async {
     try {
-      await _run('TrainingPackAssetLoader.loadAll', () => TrainingPackAssetLoader.instance.loadAll());
-      await _run('PackLibraryLoaderService.loadLibrary', () => PackLibraryLoaderService.instance.loadLibrary());
-      await _run('TrainingPackLibraryV2.loadFromFolder', () => TrainingPackLibraryV2.instance.loadFromFolder());
+      await _run(
+        'TrainingPackAssetLoader.loadAll',
+        () => TrainingPackAssetLoader.instance.loadAll(),
+      );
+      await _run(
+        'PackLibraryLoaderService.loadLibrary',
+        () => PackLibraryLoaderService.instance.loadLibrary(),
+      );
+      await _run(
+        'TrainingPackLibraryV2.loadFromFolder',
+        () => TrainingPackLibraryV2.instance.loadFromFolder(),
+      );
     } catch (e, s) {
       ErrorLogger.instance.logError('Failed to load assets', e, s);
       rethrow;
@@ -74,12 +88,30 @@ class AppBootstrap {
 
   static Future<void> _initServices() async {
     try {
-      await _run('PackFavoriteService.load', () => PackFavoriteService.instance.load());
-      await _run('PackRatingService.load', () => PackRatingService.instance.load());
-      await _run('TrainingPackCommentsService.load', () => TrainingPackCommentsService.instance.load());
-      await _run('FavoritePackService.init', () => FavoritePackService.instance.init());
-      await _run('PinnedPackService.init', () => PinnedPackService.instance.init());
-      await _run('UserProfilePreferenceService.load', () => UserProfilePreferenceService.instance.load());
+      await _run(
+        'PackFavoriteService.load',
+        () => PackFavoriteService.instance.load(),
+      );
+      await _run(
+        'PackRatingService.load',
+        () => PackRatingService.instance.load(),
+      );
+      await _run(
+        'TrainingPackCommentsService.load',
+        () => TrainingPackCommentsService.instance.load(),
+      );
+      await _run(
+        'FavoritePackService.init',
+        () => FavoritePackService.instance.init(),
+      );
+      await _run(
+        'PinnedPackService.init',
+        () => PinnedPackService.instance.init(),
+      );
+      await _run(
+        'UserProfilePreferenceService.load',
+        () => UserProfilePreferenceService.instance.load(),
+      );
     } catch (e, s) {
       ErrorLogger.instance.logError('Failed to initialize services', e, s);
       rethrow;
