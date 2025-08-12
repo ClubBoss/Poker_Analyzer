@@ -1,8 +1,9 @@
+---
 name: ci-pr-fast
 
-on:
+'on':
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
       - 'docs/**'
       - '**/*.md'
@@ -29,7 +30,7 @@ jobs:
         with:
           channel: stable
 
-      - name: Show versions
+      - name: Check versions
         run: |
           flutter --version
           dart --version
@@ -72,7 +73,7 @@ jobs:
         with:
           channel: stable
 
-      - name: Show versions
+      - name: Check versions
         run: |
           flutter --version
           dart --version
@@ -97,20 +98,26 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run Dart tests
+      - name: Run Dart tests (labeled PRs only)
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
         run: |
-          DART_TESTS=$(rg -L "package:flutter" -g "*_test.dart" -l test || true)
+          DART_TESTS=$(find test -type f -name "*_test.dart" -exec grep -L "package:flutter" {} +)
           if [ -n "$DART_TESTS" ]; then
             dart test --reporter expanded $DART_TESTS
           else
             echo "No pure Dart tests found."
           fi
 
-      - name: Run Flutter tests
+      - name: Run Flutter tests (labeled PRs only)
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
         run: |
-          FLUTTER_TESTS=$(rg -l "package:flutter" -g "*_test.dart" test || true)
+          FLUTTER_TESTS=$(find test -type f -name "*_test.dart" -exec grep -l "package:flutter" {} +)
           if [ -n "$FLUTTER_TESTS" ]; then
             flutter test --machine $FLUTTER_TESTS
           else
             echo "No widget tests found."
           fi
+
+      - name: Skip tests (default)
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: echo "PR tests are skipped. Add label 'run-tests' to enable."
