@@ -11,7 +11,6 @@ import '../../services/user_error_rate_service.dart';
 import '../../services/spaced_review_service.dart';
 import '../../services/sr_queue_builder.dart';
 import '../../services/pinned_learning_service.dart';
-import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {

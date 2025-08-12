@@ -63,3 +63,6 @@ analyzer:
 linter:
   rules:
     # без строгих правил до момента, когда вернёмся к сервисам
+    avoid_unused_constructor_parameters: true
+    unnecessary_import: true
+    unused_local_variable: true
