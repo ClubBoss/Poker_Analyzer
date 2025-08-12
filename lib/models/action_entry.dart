@@ -58,4 +58,21 @@ class ActionEntry {
   factory ActionEntry.fromJson(Map<String, dynamic> j) =>
       _$ActionEntryFromJson(j);
   Map<String, dynamic> toJson() => _$ActionEntryToJson(this);
+
+  /// Creates a copy of this [ActionEntry].
+  ActionEntry copy() => ActionEntry(
+        street,
+        playerIndex,
+        action,
+        amount: amount,
+        generated: generated,
+        manualEvaluation: manualEvaluation,
+        customLabel: customLabel,
+        timestamp: timestamp,
+        potAfter: potAfter,
+        potOdds: potOdds,
+        equity: equity,
+        ev: ev,
+        icmEv: icmEv,
+      );
 }
