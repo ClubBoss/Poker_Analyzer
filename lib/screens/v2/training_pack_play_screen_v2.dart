@@ -14,6 +14,7 @@ import '../../services/sr_queue_builder.dart';
 import '../../services/pinned_learning_service.dart';
 import '../../utils/push_fold.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/action_entry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
@@ -510,7 +511,9 @@ class _TrainingPackPlayScreenV2State
     final boardCards = [
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
-    final actions = hand.actions.values.expand((list) => list).toList();
+    final actions = hand.actions.values
+        .expand((list) => list.map((a) => ActionEntry.fromJson(a.toJson())))
+        .toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
         hand.stacks['$i']?.round() ?? 0,
