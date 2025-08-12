@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 
 import '../models/player_model.dart';
+import '../models/training_spot.dart';
 
 /// Controller responsible for managing the state of the poker analyzer.
 ///
@@ -70,6 +71,34 @@ class PokerAnalyzerController extends ChangeNotifier {
   void removePlayer(PlayerModel player) {
     _update(() {
       _players.remove(player);
+    });
+  }
+
+  /// Loads a new [TrainingSpot] into the controller, replacing any existing
+  /// table state.
+  void loadSpot(TrainingSpot spot) {
+    _update(() {
+      _numberOfPlayers = spot.numberOfPlayers;
+      _playerPositions
+        ..clear()
+        ..addAll({
+          for (var i = 0; i < spot.positions.length; i++) i: spot.positions[i]
+        });
+      _playerTypes
+        ..clear()
+        ..addAll({
+          for (var i = 0; i < spot.playerTypes.length; i++) i: spot.playerTypes[i]
+        });
+      _players
+        ..clear()
+        ..addAll([
+          for (var i = 0; i < spot.numberOfPlayers; i++)
+            PlayerModel(
+              name: 'Player ${i + 1}',
+              type: spot.playerTypes[i],
+              stack: spot.stacks[i],
+            )
+        ]);
     });
   }
 
