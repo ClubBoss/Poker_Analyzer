@@ -80,16 +80,10 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
     final boardCards = [
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
     ];
-    final actions = <ActionEntry>[];
-    for (final list in hand.actions.values) {
-      for (final a in list) {
-        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
-            amount: a.amount,
-            generated: a.generated,
-            manualEvaluation: a.manualEvaluation,
-            customLabel: a.customLabel));
-      }
-    }
+    // Deep copy actions to avoid mutating original hand data
+    final List<ActionEntry> actions = hand.actions.values
+        .expand((list) => list.map((a) => a.copy()))
+        .toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
         hand.stacks['$i']?.round() ?? 0

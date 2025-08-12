@@ -60,19 +60,73 @@ class ActionEntry {
   Map<String, dynamic> toJson() => _$ActionEntryToJson(this);
 
   /// Creates a copy of this [ActionEntry].
-  ActionEntry copy() => ActionEntry(
+  ActionEntry copy() => copyWith();
+
+  /// Returns a copy of this [ActionEntry] with the given fields replaced.
+  ActionEntry copyWith({
+    int? street,
+    int? playerIndex,
+    String? action,
+    double? amount,
+    bool? generated,
+    String? manualEvaluation,
+    String? customLabel,
+    DateTime? timestamp,
+    double? potAfter,
+    double? potOdds,
+    double? equity,
+    double? ev,
+    double? icmEv,
+  }) =>
+      ActionEntry(
+        street ?? this.street,
+        playerIndex ?? this.playerIndex,
+        action ?? this.action,
+        amount: amount ?? this.amount,
+        generated: generated ?? this.generated,
+        manualEvaluation: manualEvaluation ?? this.manualEvaluation,
+        customLabel: customLabel ?? this.customLabel,
+        timestamp: timestamp ?? this.timestamp,
+        potAfter: potAfter ?? this.potAfter,
+        potOdds: potOdds ?? this.potOdds,
+        equity: equity ?? this.equity,
+        ev: ev ?? this.ev,
+        icmEv: icmEv ?? this.icmEv,
+      );
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ActionEntry &&
+        other.street == street &&
+        other.playerIndex == playerIndex &&
+        other.action == action &&
+        other.amount == amount &&
+        other.generated == generated &&
+        other.manualEvaluation == manualEvaluation &&
+        other.customLabel == customLabel &&
+        other.potAfter == potAfter &&
+        other.potOdds == potOdds &&
+        other.equity == equity &&
+        other.ev == ev &&
+        other.icmEv == icmEv &&
+        other.timestamp == timestamp;
+  }
+
+  @override
+  int get hashCode => Object.hash(
         street,
         playerIndex,
         action,
-        amount: amount,
-        generated: generated,
-        manualEvaluation: manualEvaluation,
-        customLabel: customLabel,
-        timestamp: timestamp,
-        potAfter: potAfter,
-        potOdds: potOdds,
-        equity: equity,
-        ev: ev,
-        icmEv: icmEv,
+        amount,
+        generated,
+        manualEvaluation,
+        customLabel,
+        potAfter,
+        potOdds,
+        equity,
+        ev,
+        icmEv,
+        timestamp,
       );
 }
