@@ -22,17 +22,25 @@ class PokerAnalyzerScreen extends StatefulWidget {
 
 class PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with DemoControllable {
+  late final PokerAnalyzerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PokerAnalyzerController();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => PokerAnalyzerController(),
+    return ChangeNotifierProvider.value(
+      value: _controller,
       child: const _PokerAnalyzerView(),
     );
   }
 
   @override
   void loadTrainingSpot(TrainingSpot spot) {
-    // TODO: Implement training spot loading logic
+    _controller.loadSpot(spot);
   }
 
   @override
