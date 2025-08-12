@@ -1,0 +1,13 @@
+{
+  "id": "pf_basic_cash_v1",
+  "name": "Push/Fold — Cash Basics",
+  "trainingType": "pushFold",
+  "gameType": "cash",
+  "bb": 20,
+  "tags": ["starter"],
+  "spots": [
+    {"id": "s1"}
+  ],
+  "spotCount": 1,
+  "meta": {"schemaVersion": "2.0"}
+}

@@ -9,6 +9,12 @@ class PackLibraryService {
   PackLibraryService._();
   static final instance = PackLibraryService._();
 
+  int count() => packLibrary.length;
+
+  void addOrUpdate(TrainingPackTemplateV2 template) {
+    packLibrary[template.id] = List<TrainingPackSpot>.from(template.spots);
+  }
+
   /// Returns spots for the pack identified by [id].
   ///
   /// If the [id] is unknown, an empty list is returned.

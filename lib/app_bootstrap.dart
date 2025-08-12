@@ -14,6 +14,7 @@ import 'services/evaluation_executor_service.dart';
 import 'services/training_pack_service.dart';
 import 'services/service_registry.dart';
 import 'services/pack_library_loader_service.dart';
+import 'services/built_in_pack_bootstrap_service.dart';
 import 'services/xp_goal_panel_booster_injector.dart';
 import 'services/training_session_fingerprint_service.dart';
 import 'services/training_session_context_service.dart';
@@ -75,6 +76,10 @@ class AppBootstrap {
       await _run(
         'PackLibraryLoaderService.loadLibrary',
         () => PackLibraryLoaderService.instance.loadLibrary(),
+      );
+      await _run(
+        'BuiltInPackBootstrapService.importIfNeeded',
+        () => const BuiltInPackBootstrapService().importIfNeeded(),
       );
       await _run(
         'TrainingPackLibraryV2.loadFromFolder',
