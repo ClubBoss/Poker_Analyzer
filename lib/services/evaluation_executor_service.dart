@@ -16,6 +16,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/mistake_severity.dart';
+import '../models/action_entry.dart';
 import '../helpers/hand_utils.dart';
 import '../helpers/mistake_advice.dart';
 import 'mistake_categorizer.dart';
@@ -386,16 +387,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final boardCards = [
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
     ];
-    final actions = <ActionEntry>[];
-    for (final list in hand.actions.values) {
-      for (final a in list) {
-        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
-            amount: a.amount,
-            generated: a.generated,
-            manualEvaluation: a.manualEvaluation,
-            customLabel: a.customLabel));
-      }
-    }
+    final actions = hand.actions.values.expand((l) => l).toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
     ];

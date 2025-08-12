@@ -175,11 +175,7 @@ class TrainingPackSpot
     final cardStr = heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
     final actions = <int, List<ActionEntry>>{};
     for (final a in spot.actions) {
-      actions
-          .putIfAbsent(a.street, () => [])
-          .add(
-            ActionEntry(a.street, a.playerIndex, a.action, amount: a.amount),
-          );
+      actions.putIfAbsent(a.street, () => []).add(a);
     }
     final stacks = <String, double>{};
     for (var i = 0; i < spot.stacks.length; i++) {

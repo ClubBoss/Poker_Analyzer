@@ -5,7 +5,6 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/training_spot.dart';
 import '../models/card_model.dart';
-import '../models/action_entry.dart';
 import '../models/player_model.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/pack_library_service.dart';
@@ -60,13 +59,7 @@ class _SkillTreeNodeDetailViewState extends State<SkillTreeNodeDetailView> {
       playerCards[hand.heroIndex] = heroCards;
     }
     final boardCards = [for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))];
-    final actions = <ActionEntry>[];
-    for (final list in hand.actions.values) {
-      for (final a in list) {
-        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
-            amount: a.amount, generated: a.generated, manualEvaluation: a.manualEvaluation, customLabel: a.customLabel));
-      }
-    }
+    final actions = hand.actions.values.expand((l) => l).toList();
     final stacks = [for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {

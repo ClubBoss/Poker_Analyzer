@@ -32,9 +32,7 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
     super.initState();
     _actions = {for (var s = 0; s < 4; s++) s: <ActionEntry>[]};
     for (final a in widget.hand.actions) {
-      _actions[a.street]!.add(
-        ActionEntry(a.street, a.playerIndex, a.action, amount: a.amount),
-      );
+      _actions[a.street]!.add(a);
     }
     _position = _posFromString(widget.hand.heroPosition);
     _cards = widget.hand.heroIndex < widget.hand.playerCards.length

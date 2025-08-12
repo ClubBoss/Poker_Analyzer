@@ -1,7 +1,6 @@
 import '../models/saved_hand.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/card_model.dart';
-import '../models/action_entry.dart';
 
 SavedHand handFromPackSpot(TrainingPackSpot spot, {int anteBb = 0}) {
   final parts = spot.hand.heroCards
@@ -14,18 +13,7 @@ SavedHand handFromPackSpot(TrainingPackSpot spot, {int anteBb = 0}) {
     playerCards[spot.hand.heroIndex] = cards;
   }
   final board = [for (final c in spot.hand.board) CardModel(rank: c[0], suit: c.substring(1))];
-  final actions = <ActionEntry>[];
-  for (final list in spot.hand.actions.values) {
-    for (final a in list) {
-      actions.add(ActionEntry(a.street, a.playerIndex, a.action,
-          amount: a.amount,
-          generated: a.generated,
-          manualEvaluation: a.manualEvaluation,
-          customLabel: a.customLabel,
-          ev: a.ev,
-          icmEv: a.icmEv));
-    }
-  }
+  final actions = spot.hand.actions.values.expand((l) => l).toList();
   final stacks = {
     for (int i = 0; i < spot.hand.playerCount; i++)
       i: spot.hand.stacks['$i']?.round() ?? 0

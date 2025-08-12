@@ -74,10 +74,7 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
       hand: _hand,
       anteBb: _hand.anteBb,
     );
-    final acts = <ActionEntry>[];
-    for (final l in spot.hand.actions.values) {
-      acts.addAll(l);
-    }
+    final acts = spot.hand.actions.values.expand((l) => l).toList();
     final updated = _hand.copyWith(
       actions: acts,
       gtoAction: spot.correctAction,
