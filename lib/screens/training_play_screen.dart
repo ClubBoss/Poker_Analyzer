@@ -46,6 +46,7 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
   String? _retestPackId;
   String? _retestSpotId;
   String? _retestLessonId;
+  TrainingSpotAttempt? _lastAttempt;
 
   @override
   void initState() {
@@ -154,6 +155,7 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     setState(() {
       _result = res;
       _recall = snippet;
+      _lastAttempt = attempt;
     });
     if (_retesting) {
       await AnalyticsService.instance.logEvent('retest_outcome_after_theory', {
@@ -275,11 +277,11 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
                     ],
                   ),
                 )
-              else if (!correct)
+              else if (!correct && _lastAttempt != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: MistakeInlineTheoryPrompt(
-                    tags: spot.tags,
+                    attempt: _lastAttempt!,
                     packId: controller.template?.id ?? controller.packId,
                     spotId: spot.id,
                     matchProvider: widget.lessonMatchProvider,
