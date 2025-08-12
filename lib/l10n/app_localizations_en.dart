@@ -72,6 +72,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get starter_packs_start => 'Start';
 
+  @override
+  String get starter_packs_continue => 'Continue';
+
+  @override
+  String get starter_packs_choose => 'Choose pack';
+
 
   @override
   String accuracySemantics(Object value) {

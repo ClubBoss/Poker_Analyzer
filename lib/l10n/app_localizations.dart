@@ -232,6 +232,18 @@ abstract class AppLocalizations {
   /// **'Начать'**
   String get starter_packs_start;
 
+  /// No description provided for @starter_packs_continue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get starter_packs_continue;
+
+  /// No description provided for @starter_packs_choose.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать пак'**
+  String get starter_packs_choose;
+
   /// No description provided for @accuracySemantics.
   ///
   /// In ru, this message translates to:

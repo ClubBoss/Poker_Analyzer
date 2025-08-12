@@ -21,6 +21,8 @@
   "starter_packs_title": "Pack de démarrage",
   "starter_packs_subtitle": "Commencez l'entraînement en un clic",
   "starter_packs_start": "Démarrer",
+  "starter_packs_continue": "Continuer",
+  "starter_packs_choose": "Choisir le pack",
   "accuracySemantics": "Précision {value} pour cent",
   "sortProgress": "Progression",
   "sortNewest": "Le plus récent",

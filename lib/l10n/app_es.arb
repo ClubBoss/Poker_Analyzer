@@ -21,6 +21,8 @@
   "starter_packs_title": "Paquete inicial",
   "starter_packs_subtitle": "Comienza a entrenar al instante",
   "starter_packs_start": "Empezar",
+  "starter_packs_continue": "Continuar",
+  "starter_packs_choose": "Elegir pack",
   "accuracySemantics": "Precisión {value} por ciento",
   "sortProgress": "Progreso",
   "sortNewest": "Más nuevo",
