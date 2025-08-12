@@ -74,9 +74,9 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
       hand: _hand,
       anteBb: _hand.anteBb,
     );
-    final acts = spot.hand.actions.values.expand((l) => l).toList();
+    final actions = spot.hand.actions.values.expand((l) => l).toList();
     final updated = _hand.copyWith(
-      actions: acts,
+      actions: actions,
       gtoAction: spot.correctAction,
     );
     await context.read<SavedHandManagerService>().save(updated);
