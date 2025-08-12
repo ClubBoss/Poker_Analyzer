@@ -31,6 +31,15 @@ class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
 class _TrainingPackPlayScreenV2State
     extends TrainingPackPlayBaseState<TrainingPackPlayScreenV2> {
   static const int _kInterleaveCadence = 2;
+  static const Set<String> _kPushSynonyms = {
+    'push',
+    'shove',
+    'jam',
+    'allin',
+    'all-in',
+    'all_in',
+  };
+  static const String _pushKey = 'push';
   List<TrainingPackSpot> get _spots => spots;
   set _spots(List<TrainingPackSpot> value) => spots = value;
   Map<String, String> get _results => results;
@@ -68,6 +77,18 @@ class _TrainingPackPlayScreenV2State
   bool _srShowCTA = false;
   bool _srUptakeLogged = false;
 
+  String _normalize(String a) {
+    final v = a.toLowerCase();
+    if (_kPushSynonyms.contains(v)) return _pushKey;
+    return v;
+  }
+
+  List<ActionEntry> _actsForStreet(TrainingPackSpot spot, int street) {
+    final acts = spot.hand.actions;
+    if (street < 0 || street >= acts.length) return const <ActionEntry>[];
+    return (acts[street] ?? const <ActionEntry>[]) as List<ActionEntry>;
+  }
+
   int get _targetStreetIndex {
     switch (widget.template.targetStreet) {
       case 'flop':
@@ -101,7 +122,7 @@ class _TrainingPackPlayScreenV2State
     setState(() {
       _autoAdvance =
           widget.template.targetStreet == null &&
-              (prefs.getBool('auto_adv_${widget.template.id}') ?? false);
+          (prefs.getBool('auto_adv_${widget.template.id}') ?? false);
       _adaptiveMode = prefs.getBool('adaptive_mode_enabled') ?? true;
       _srEnabled = prefs.getBool('interleave_sr_enabled') ?? true;
     });
@@ -144,8 +165,11 @@ class _TrainingPackPlayScreenV2State
     final enabling = !_srEnabled;
     setState(() => _srEnabled = enabling);
     await prefs.setBool('interleave_sr_enabled', _srEnabled);
-    unawaited(AnalyticsService.instance
-        .logEvent('sr_interleave_enabled_toggled', {'enabled': _srEnabled}));
+    unawaited(
+      AnalyticsService.instance.logEvent('sr_interleave_enabled_toggled', {
+        'enabled': _srEnabled,
+      }),
+    );
     if (enabling) {
       final sr = context.read<SpacedReviewService>();
       final tag = widget.template.tags.contains('pushfold') ? 'pushfold' : null;
@@ -175,7 +199,9 @@ class _TrainingPackPlayScreenV2State
     final streetKey = 'tpl_street_${widget.template.id}';
     final handKey = 'tpl_hand_${widget.template.id}';
     final seq = prefs.getStringList(seqKey);
-    var spots = List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
+    var spots = List<TrainingPackSpot>.from(
+      widget.spots ?? widget.template.spots,
+    );
     if (seq != null && seq.length == spots.length) {
       final map = {for (final s in spots) s.id: s};
       final ordered = <TrainingPackSpot>[];
@@ -190,7 +216,9 @@ class _TrainingPackPlayScreenV2State
     if (resStr != null) {
       final data = jsonDecode(resStr);
       if (data is Map) {
-        results = {for (final e in data.entries) e.key as String: e.value.toString()};
+        results = {
+          for (final e in data.entries) e.key as String: e.value.toString(),
+        };
       }
     }
     int streetCount = 0;
@@ -259,28 +287,45 @@ class _TrainingPackPlayScreenV2State
 
   void _maybeInjectSR({bool force = false}) {
     if (!_srEnabled || _srQueue.isEmpty) return;
-      if (!force && _srCounter < _kInterleaveCadence) return;
-    final item = _srQueue.removeAt(0);
+    if (!force && _srCounter < _kInterleaveCadence) return;
+    SRQueueItem? item;
+    while (_srQueue.isNotEmpty && item == null) {
+      final cand = _srQueue.removeAt(0);
+      if (!widget.template.tags.contains('pushfold')) break;
+      final acts = _actsForStreet(cand.spot, _currentStreet);
+      final heroIdx = cand.spot.hand.heroIndex;
+      final ok =
+          acts.any(
+            (a) => a.playerIndex == heroIdx && _normalize(a.action) == _pushKey,
+          ) &&
+          acts.any(
+            (a) => a.playerIndex != heroIdx && _normalize(a.action) == 'fold',
+          );
+      if (ok) item = cand;
+    }
+    if (item == null) return;
     setState(() {
       _srCurrent = item;
       _srCounter = 0;
       _srShowCTA = _srQueue.isNotEmpty;
     });
-    unawaited(AnalyticsService.instance.logEvent('sr_interleave_injected', {
-      'spotId': item.spot.id,
-      'packId': item.packId,
+    unawaited(
+      AnalyticsService.instance.logEvent('sr_interleave_injected', {
+        'spotId': item.spot.id,
+        'packId': item.packId,
         'cadence': force ? 0 : _kInterleaveCadence,
-    }));
+      }),
+    );
     if (!_srUptakeLogged) {
       unawaited(AnalyticsService.instance.logEvent('sr_interleave_uptake', {}));
       _srUptakeLogged = true;
     }
   }
 
-
   Future<void> _startNew() async {
-    var spots =
-        List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
+    var spots = List<TrainingPackSpot>.from(
+      widget.spots ?? widget.template.spots,
+    );
     if (_order == PlayOrder.random) {
       spots.shuffle();
     } else if (_order == PlayOrder.mistakes) {
@@ -294,7 +339,8 @@ class _TrainingPackPlayScreenV2State
       }).toList();
       if (spots.isEmpty) {
         spots = List<TrainingPackSpot>.from(
-            widget.spots ?? widget.template.spots);
+          widget.spots ?? widget.template.spots,
+        );
       }
     }
     if (_adaptiveMode) {
@@ -320,15 +366,15 @@ class _TrainingPackPlayScreenV2State
     setState(() {
       _spots = spots;
       _index = 0;
-      _street =
-          widget.template.targetStreet != null ? _targetStreetIndex : 0;
+      _street = widget.template.targetStreet != null ? _targetStreetIndex : 0;
       _streetAnswered = false;
       _streetCount = 0;
       _summaryShown = false;
       _handCounts
         ..clear()
-        ..addEntries(widget.template.focusHandTypes
-            .map((e) => MapEntry(e.label, 0)));
+        ..addEntries(
+          widget.template.focusHandTypes.map((e) => MapEntry(e.label, 0)),
+        );
       _loading = false;
     });
     await save();
@@ -355,7 +401,6 @@ class _TrainingPackPlayScreenV2State
     return false;
   }
 
-
   double? _actionEv(TrainingPackSpot spot, String action) {
     final streets = spot.evalResult?.streets;
     if (streets != null && _currentStreet < streets.length) {
@@ -377,9 +422,12 @@ class _TrainingPackPlayScreenV2State
     final streets = spot.evalResult?.streets;
     if (streets != null && _currentStreet < streets.length) {
       final data = streets[_currentStreet];
-      final val = data['${action.toLowerCase()}Icm'] ?? data['${action.toLowerCase()}_icm'];
+      final val =
+          data['${action.toLowerCase()}Icm'] ??
+          data['${action.toLowerCase()}_icm'];
       if (val is num) return val.toDouble();
-      if (val is Map && val['icmEv'] is num) return (val['icmEv'] as num).toDouble();
+      if (val is Map && val['icmEv'] is num)
+        return (val['icmEv'] as num).toDouble();
     }
     for (final a in spot.hand.actions[_currentStreet] ?? []) {
       if (a.playerIndex == spot.hand.heroIndex &&
@@ -456,7 +504,10 @@ class _TrainingPackPlayScreenV2State
     for (final s in widget.template.spots) {
       final exp = _expected(s);
       final ans = _results[s.id];
-      if (exp != null && ans != null && ans != 'false' && exp.toLowerCase() != ans.toLowerCase()) {
+      if (exp != null &&
+          ans != null &&
+          ans != 'false' &&
+          exp.toLowerCase() != ans.toLowerCase()) {
         ids.add(s.id);
       }
     }
@@ -471,27 +522,33 @@ class _TrainingPackPlayScreenV2State
         .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
         .toList();
     final playerCards = [
-      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[],
     ];
     if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
       playerCards[hand.heroIndex] = heroCards;
     }
     final boardCards = [
-      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     final actions = <ActionEntry>[];
     for (final list in hand.actions.values) {
       for (final a in list) {
-        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
+        actions.add(
+          ActionEntry(
+            a.street,
+            a.playerIndex,
+            a.action,
             amount: a.amount,
             generated: a.generated,
             manualEvaluation: a.manualEvaluation,
-            customLabel: a.customLabel));
+            customLabel: a.customLabel,
+          ),
+        );
       }
     }
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
-        hand.stacks['$i']?.round() ?? 0
+        hand.stacks['$i']?.round() ?? 0,
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
@@ -510,14 +567,29 @@ class _TrainingPackPlayScreenV2State
     );
   }
 
-  void _showFeedback(TrainingPackSpot spot, String action, double? heroEv,
-      double? evDiff, double? icmDiff, bool correct, bool repeated) {
+  void _showFeedback(
+    TrainingPackSpot spot,
+    String action,
+    double? heroEv,
+    double? evDiff,
+    double? icmDiff,
+    bool correct,
+    bool repeated,
+  ) {
     _feedbackTimer?.cancel();
-    final advice =
-        spot.tags.isNotEmpty ? kMistakeAdvice[spot.tags.first] : null;
+    final advice = spot.tags.isNotEmpty
+        ? kMistakeAdvice[spot.tags.first]
+        : null;
     setState(() {
       _feedback = SpotFeedback(
-          action, heroEv, evDiff, icmDiff, correct, repeated, advice);
+        action,
+        heroEv,
+        evDiff,
+        icmDiff,
+        correct,
+        repeated,
+        advice,
+      );
     });
     _feedbackTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) _hideFeedback();
@@ -544,11 +616,12 @@ class _TrainingPackPlayScreenV2State
       await context.read<UserPreferencesService>().setShowActionHints(false);
       if (mounted) setState(() => _showActionHints = false);
     }
-    setState(() => _pressedAction = action);
+    final norm = _normalize(action);
+    setState(() => _pressedAction = norm);
     HapticFeedback.selectionClick();
     await Future.delayed(const Duration(milliseconds: 100));
     if (mounted) setState(() => _pressedAction = null);
-    await _choose(action);
+    await _choose(norm);
   }
 
   String _fmt(double? v, [String suffix = '']) {
@@ -556,15 +629,20 @@ class _TrainingPackPlayScreenV2State
     return '${v >= 0 ? '+' : ''}${v.toStringAsFixed(1)}$suffix';
   }
 
-
   Future<bool> _confirmStartOver(BuildContext context) async {
     final res = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Start over?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('OK')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );
@@ -572,9 +650,10 @@ class _TrainingPackPlayScreenV2State
   }
 
   Future<void> _saveCurrentSpot() async {
-    await context
-        .read<MistakeReviewPackService>()
-        .addSpot(widget.original, _spots[_index]);
+    await context.read<MistakeReviewPackService>().addSpot(
+      widget.original,
+      _spots[_index],
+    );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Сохранено в Повторы ошибок')),
@@ -611,8 +690,7 @@ class _TrainingPackPlayScreenV2State
         _spots.add(nextSpot);
         _pool.removeWhere((s) => s.id == nextSpot.id);
         _index++;
-        _street =
-            widget.template.targetStreet != null ? _targetStreetIndex : 0;
+        _street = widget.template.targetStreet != null ? _targetStreetIndex : 0;
         _streetAnswered = false;
         _recent.add(nextSpot.id);
         if (_recent.length > AdaptiveSpotScheduler.noRepeatWindow) {
@@ -625,8 +703,7 @@ class _TrainingPackPlayScreenV2State
     if (_index + 1 < _spots.length) {
       setState(() {
         _index++;
-        _street =
-            widget.template.targetStreet != null ? _targetStreetIndex : 0;
+        _street = widget.template.targetStreet != null ? _targetStreetIndex : 0;
         _streetAnswered = false;
       });
       save();
@@ -640,7 +717,9 @@ class _TrainingPackPlayScreenV2State
     await NotificationService.cancel(102);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        'last_training_day', DateTime.now().toIso8601String().split('T').first);
+      'last_training_day',
+      DateTime.now().toIso8601String().split('T').first,
+    );
     await NotificationService.scheduleDailyReminder(context);
     await NotificationService.scheduleDailyProgress(context);
     final ids = _wrongIds();
@@ -648,23 +727,29 @@ class _TrainingPackPlayScreenV2State
       final template = widget.template.copyWith(
         id: const Uuid().v4(),
         name: 'Review mistakes',
-        spots: [for (final s in widget.template.spots) if (ids.contains(s.id)) s],
+        spots: [
+          for (final s in widget.template.spots)
+            if (ids.contains(s.id)) s,
+        ],
       );
       MistakeReviewPackService.setLatestTemplate(template);
-      await context
-          .read<MistakeReviewPackService>()
-          .addPack(ids, templateId: widget.original.id);
+      await context.read<MistakeReviewPackService>().addPack(
+        ids,
+        templateId: widget.original.id,
+      );
       final start = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
           title: const Text('Review mistakes now?'),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(_, false),
-                child: const Text('Later')),
+              onPressed: () => Navigator.pop(_, false),
+              child: const Text('Later'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(_, true),
-                child: const Text('Start')),
+              onPressed: () => Navigator.pop(_, true),
+              child: const Text('Start'),
+            ),
           ],
         ),
       );
@@ -706,17 +791,19 @@ class _TrainingPackPlayScreenV2State
       }
 
       final evalSpot = _toSpot(spot);
-      final evaluation = context
-          .read<EvaluationExecutorService>()
-          .evaluateSpot(context, evalSpot, act);
+      final evaluation = context.read<EvaluationExecutorService>().evaluateSpot(
+        context,
+        evalSpot,
+        act,
+      );
       final heroEv = _actionEv(spot, act);
       final bestEv = _bestEv(spot);
       final heroIcm = _actionIcmEv(spot, act);
       final bestIcm = _bestIcmEv(spot);
-      final evDiff =
-          heroEv != null && bestEv != null ? heroEv - bestEv : null;
-      final icmDiff =
-          heroIcm != null && bestIcm != null ? heroIcm - bestIcm : null;
+      final evDiff = heroEv != null && bestEv != null ? heroEv - bestEv : null;
+      final icmDiff = heroIcm != null && bestIcm != null
+          ? heroIcm - bestIcm
+          : null;
       final goodEv = evDiff == null || evDiff >= 0;
       final goodIcm = icmDiff == null || icmDiff >= 0;
       if (goodEv && goodIcm) {
@@ -741,12 +828,12 @@ class _TrainingPackPlayScreenV2State
         );
         category = engine.categorize(m);
       }
-      final repeated = !isSr &&
+      final repeated =
+          !isSr &&
           incorrect &&
-          context
-              .read<MistakeReviewPackService>()
-              .packs
-              .any((p) => p.spotIds.contains(spot.id));
+          context.read<MistakeReviewPackService>().packs.any(
+            (p) => p.spotIds.contains(spot.id),
+          );
       await UserErrorRateService.instance.recordAttempt(
         packId: isSr ? _srCurrent!.packId : widget.template.id,
         tags: spot.tags.toSet(),
@@ -754,12 +841,14 @@ class _TrainingPackPlayScreenV2State
         ts: DateTime.now(),
       );
       if (!isSr && incorrect && first) {
-        await context
-            .read<MistakeReviewPackService>()
-            .addSpot(widget.original, spot);
-        await context
-            .read<SpacedReviewService>()
-            .recordMistake(spot.id, widget.template.id);
+        await context.read<MistakeReviewPackService>().addSpot(
+          widget.original,
+          spot,
+        );
+        await context.read<SpacedReviewService>().recordMistake(
+          spot.id,
+          widget.template.id,
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Сохранено в Повторы ошибок')),
@@ -767,16 +856,18 @@ class _TrainingPackPlayScreenV2State
         }
       }
       await context.read<SpacedReviewService>().recordReviewOutcome(
-            spot.id,
-            isSr ? _srCurrent!.packId : widget.template.id,
-            !incorrect);
-        if (_autoAdvance && !incorrect && !isSr) {
-          _srCounter++;
-          if (_srEnabled && _srQueue.isNotEmpty &&
-              _srCounter >= _kInterleaveCadence) {
-            _maybeInjectSR();
-            return;
-          }
+        spot.id,
+        isSr ? _srCurrent!.packId : widget.template.id,
+        !incorrect,
+      );
+      if (_autoAdvance && !incorrect && !isSr) {
+        _srCounter++;
+        if (_srEnabled &&
+            _srQueue.isNotEmpty &&
+            _srCounter >= _kInterleaveCadence) {
+          _maybeInjectSR();
+          return;
+        }
         await Future.delayed(const Duration(seconds: 2));
         if (!mounted) return;
         await _next();
@@ -813,53 +904,74 @@ class _TrainingPackPlayScreenV2State
                 SizedBox(height: 12 * scale),
                 ElevatedButton(
                   onPressed: () async {
-                    final tpl = await TrainingPackService.createDrillFromCategory(
-                        context, category!);
+                    final tpl =
+                        await TrainingPackService.createDrillFromCategory(
+                          context,
+                          category!,
+                        );
                     if (tpl == null) return;
-                    await context.read<TrainingSessionService>().startSession(tpl);
+                    await context.read<TrainingSessionService>().startSession(
+                      tpl,
+                    );
                     if (context.mounted) {
                       Navigator.pop(ctx);
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
+                          builder: (_) => const TrainingSessionScreen(),
+                        ),
                       );
                     }
                   },
-                  child: Text('Тренироваться на похожих',
-                      style: TextStyle(fontSize: 14 * scale)),
+                  child: Text(
+                    'Тренироваться на похожих',
+                    style: TextStyle(fontSize: 14 * scale),
+                  ),
                 ),
               ],
               SizedBox(height: 16 * scale),
               ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
-                child:
-                    Text('Continue', style: TextStyle(fontSize: 14 * scale)),
+                child: Text('Continue', style: TextStyle(fontSize: 14 * scale)),
               ),
             ],
           ),
         ),
       );
       if (!mounted) return;
-      _showFeedback(spot, _expected(spot) ?? '', heroEv, evDiff, icmDiff,
-          evaluation.correct, repeated);
+      _showFeedback(
+        spot,
+        _expected(spot) ?? '',
+        heroEv,
+        evDiff,
+        icmDiff,
+        evaluation.correct,
+        repeated,
+      );
     }
-      if (isSr) {
-        unawaited(AnalyticsService.instance.logEvent('sr_interleave_completed', {
+    if (isSr) {
+      unawaited(
+        AnalyticsService.instance.logEvent('sr_interleave_completed', {
           'spotId': spot.id,
           'packId': _srCurrent!.packId,
-          'correct': !incorrect
-        }));
-        _srCurrent = null;
-        await _next();
-        return;
+          'correct': !incorrect,
+        }),
+      );
+      if (!_recent.contains(spot.id) &&
+          _recent.length < AdaptiveSpotScheduler.noRepeatWindow) {
+        _recent.add(spot.id);
       }
-      _srCounter++;
-      if (_srEnabled && _srQueue.isNotEmpty &&
-          _srCounter >= _kInterleaveCadence) {
-        _maybeInjectSR();
-        return;
-      }
+      _srCurrent = null;
+      await _next();
+      return;
+    }
+    _srCounter++;
+    if (_srEnabled &&
+        _srQueue.isNotEmpty &&
+        _srCounter >= _kInterleaveCadence) {
+      _maybeInjectSR();
+      return;
+    }
     if (!_autoAdvance) await _next();
   }
 
@@ -873,87 +985,93 @@ class _TrainingPackPlayScreenV2State
     final spot = _srCurrent?.spot ?? _spots[_index];
 
     if (widget.template.tags.contains('pushfold')) {
-      final List<ActionEntry> acts =
-          spot.hand.actions[_currentStreet] ?? const <ActionEntry>[];
+      final acts = _actsForStreet(spot, _currentStreet);
       final heroIdx = spot.hand.heroIndex;
-      final hasPush = acts.any((a) =>
-          a.playerIndex == heroIdx && a.action.toLowerCase() == 'push');
-      final hasFold = acts.any((a) =>
-          a.playerIndex != heroIdx && a.action.toLowerCase() == 'fold');
-      final ok = hasPush && hasFold;
-      assert(ok,
-          'Expected push/fold spot; missing "push" or "fold" action for players on current street');
-      if (!ok) {
-        return const Scaffold(
-            body: Center(child: Text('Unsupported spot')));
+      final hasPush = acts.any(
+        (a) => a.playerIndex == heroIdx && _normalize(a.action) == _pushKey,
+      );
+      final hasFold = acts.any(
+        (a) => a.playerIndex != heroIdx && _normalize(a.action) == 'fold',
+      );
+      assert(
+        hasPush && hasFold,
+        'Expected push/fold spot; missing push/fold actions on current street',
+      );
+      if (!(hasPush && hasFold)) {
+        return const Scaffold(body: Center(child: Text('Unsupported spot')));
       }
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFF1B1C1E),
-      body: Builder(builder: (context) {
-        final heroCards = spot.hand.heroCards
-            .split(RegExp(r'\s+'))
-            .where((e) => e.isNotEmpty)
-            .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
-            .toList();
-        final boardCards = [
-          for (final c in spot.hand.boardCardsForStreet(_currentStreet))
-            CardModel(rank: c[0], suit: c.substring(1))
-        ];
-        final count = spot.hand.playerCount;
-        final names = [for (int i = 0; i < count; i++) 'P${i + 1}'];
-        final stacks = [for (int i = 0; i < count; i++) spot.hand.stacks['$i']?.toDouble() ?? 0.0];
-        final hint = spot.note.trim().isNotEmpty
-            ? spot.note.trim()
-            : (spot.evalResult?.hint ?? '');
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: TrainingPackPlayScreenV2Toolbar(
-                title: widget.template.name,
-                index: _index,
-                total: _spots.length,
-                streetIndex: null,
-                onExit: () async {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title:
-                          const Text('Exit training? Your progress will be saved.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
+      body: Builder(
+        builder: (context) {
+          final heroCards = spot.hand.heroCards
+              .split(RegExp(r'\s+'))
+              .where((e) => e.isNotEmpty)
+              .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
+              .toList();
+          final boardCards = [
+            for (final c in spot.hand.boardCardsForStreet(_currentStreet))
+              CardModel(rank: c[0], suit: c.substring(1)),
+          ];
+          final count = spot.hand.playerCount;
+          final names = [for (int i = 0; i < count; i++) 'P${i + 1}'];
+          final stacks = [
+            for (int i = 0; i < count; i++)
+              spot.hand.stacks['$i']?.toDouble() ?? 0.0,
+          ];
+          final hint = spot.note.trim().isNotEmpty
+              ? spot.note.trim()
+              : (spot.evalResult?.hint ?? '');
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: TrainingPackPlayScreenV2Toolbar(
+                  title: widget.template.name,
+                  index: _index,
+                  total: _spots.length,
+                  streetIndex: null,
+                  onExit: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text(
+                          'Exit training? Your progress will be saved.',
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Exit'),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (confirm == true) {
-                    save();
-                    Navigator.pop(context);
-                  }
-                },
-                onModeToggle: () async {
-                  final val = !AppSettingsService.instance.useIcm;
-                  await AppSettingsService.instance.setUseIcm(val);
-                  setState(() {});
-                },
-                onAdaptiveToggle: _toggleAdaptive,
-                onSRToggle: _toggleSRInterleave,
-                adaptive: _adaptiveMode,
-                srEnabled: _srEnabled,
-                mini: scale < 0.9,
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Exit'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      save();
+                      Navigator.pop(context);
+                    }
+                  },
+                  onModeToggle: () async {
+                    final val = !AppSettingsService.instance.useIcm;
+                    await AppSettingsService.instance.setUseIcm(val);
+                    setState(() {});
+                  },
+                  onAdaptiveToggle: _toggleAdaptive,
+                  onSRToggle: _toggleSRInterleave,
+                  adaptive: _adaptiveMode,
+                  srEnabled: _srEnabled,
+                  mini: scale < 0.9,
+                ),
               ),
-            ),
               if (_srEnabled && _srShowCTA && _srCurrent == null)
                 Positioned(
                   top: 48,
@@ -964,175 +1082,186 @@ class _TrainingPackPlayScreenV2State
                     },
                   ),
                 ),
-            if (_srCurrent != null)
-              const Positioned(
-                top: 48,
-                child: Chip(label: Text('Review mode')),
+              if (_srCurrent != null)
+                const Positioned(
+                  top: 48,
+                  child: Chip(label: Text('Review mode')),
+                ),
+              IgnorePointer(
+                child: PokerTableView(
+                  heroIndex: spot.hand.heroIndex,
+                  playerCount: count,
+                  playerNames: names,
+                  playerStacks: stacks,
+                  playerActions: List.filled(count, PlayerAction.none),
+                  playerBets: List.filled(count, 0.0),
+                  onHeroSelected: (_) {},
+                  onStackChanged: (_, __) {},
+                  onNameChanged: (_, __) {},
+                  onBetChanged: (_, __) {},
+                  onActionChanged: (_, __) {},
+                  potSize: 0,
+                  onPotChanged: (_) {},
+                  heroCards: heroCards,
+                  revealedCards: const [],
+                  boardCards: boardCards,
+                  currentStreet: _currentStreet,
+                  showPlayerActions: true,
+                  scale: scale,
+                ),
               ),
-            IgnorePointer(
-              child: PokerTableView(
-                heroIndex: spot.hand.heroIndex,
-                playerCount: count,
-                playerNames: names,
-                playerStacks: stacks,
-                playerActions: List.filled(count, PlayerAction.none),
-                playerBets: List.filled(count, 0.0),
-                onHeroSelected: (_) {},
-                onStackChanged: (_, __) {},
-                onNameChanged: (_, __) {},
-                onBetChanged: (_, __) {},
-                onActionChanged: (_, __) {},
-                potSize: 0,
-                onPotChanged: (_) {},
-                heroCards: heroCards,
-                revealedCards: const [],
-                boardCards: boardCards,
-                currentStreet: _currentStreet,
-                showPlayerActions: true,
-                scale: scale,
-              ),
-            ),
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onHorizontalDragEnd: (details) {
-                  if (details.primaryVelocity == null) return;
-                  if (details.primaryVelocity! > 0) {
-                    _handleAction('push');
-                  } else if (details.primaryVelocity! < 0) {
-                    _handleAction('fold');
-                  }
-                },
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTapDown: (_) => _handleAction('fold'),
-                        child: AnimatedScale(
-                          duration: const Duration(milliseconds: 100),
-                          scale: _pressedAction == 'fold' ? 0.95 : 1.0,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: _showActionHints ? 0.3 : 0.0,
-                            child: Container(
-                              alignment: Alignment.center,
-                              color: Colors.black26,
-                              child: Text(
-                                'FOLD',
-                                style: TextStyle(
-                                  fontSize: 24 * scale,
-                                  color: Colors.white,
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onHorizontalDragEnd: (details) {
+                    if (details.primaryVelocity == null) return;
+                    if (details.primaryVelocity! > 0) {
+                      _handleAction(_pushKey);
+                    } else if (details.primaryVelocity! < 0) {
+                      _handleAction('fold');
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTapDown: (_) => _handleAction('fold'),
+                          child: AnimatedScale(
+                            duration: const Duration(milliseconds: 100),
+                            scale: _pressedAction == 'fold' ? 0.95 : 1.0,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 300),
+                              opacity: _showActionHints ? 0.3 : 0.0,
+                              child: Container(
+                                alignment: Alignment.center,
+                                color: Colors.black26,
+                                child: Text(
+                                  'FOLD',
+                                  style: TextStyle(
+                                    fontSize: 24 * scale,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTapDown: (_) => _handleAction('push'),
-                        child: AnimatedScale(
-                          duration: const Duration(milliseconds: 100),
-                          scale: _pressedAction == 'push' ? 0.95 : 1.0,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: _showActionHints ? 0.3 : 0.0,
-                            child: Container(
-                              alignment: Alignment.center,
-                              color: Colors.black26,
-                              child: Text(
-                                'PUSH',
-                                style: TextStyle(
-                                  fontSize: 24 * scale,
-                                  color: Colors.white,
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTapDown: (_) => _handleAction(_pushKey),
+                          child: AnimatedScale(
+                            duration: const Duration(milliseconds: 100),
+                            scale: _pressedAction == _pushKey ? 0.95 : 1.0,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 300),
+                              opacity: _showActionHints ? 0.3 : 0.0,
+                              child: Container(
+                                alignment: Alignment.center,
+                                color: Colors.black26,
+                                child: Text(
+                                  'PUSH',
+                                  style: TextStyle(
+                                    fontSize: 24 * scale,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (_feedback != null)
-              Positioned(
-                top: 16,
-                left: 16,
-                right: 16,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 300),
-                  opacity: 1,
-                  child: GestureDetector(
-                    onTap: _hideFeedback,
-                    child: Card(
-                      color: _feedback!.correct ? Colors.green : Colors.red,
-                      child: Padding(
-                        padding: EdgeInsets.all(8 * scale),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Correct: ${_feedback!.action.toUpperCase()}',
-                              style: const TextStyle(
-                                  color: Colors.white, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "EV: ${_fmt(_feedback!.heroEv, ' BB')}  \u0394EV: ${_fmt(_feedback!.evDiff, ' BB')}${_feedback!.icmDiff != null ? '  \u0394ICM: ${_fmt(_feedback!.icmDiff)}' : ''}",
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            if (_feedback!.advice != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text(_feedback!.advice!,
-                                    style: const TextStyle(color: Colors.white70)),
+              if (_feedback != null)
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  right: 16,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: 1,
+                    child: GestureDetector(
+                      onTap: _hideFeedback,
+                      child: Card(
+                        color: _feedback!.correct ? Colors.green : Colors.red,
+                        child: Padding(
+                          padding: EdgeInsets.all(8 * scale),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Correct: ${_feedback!.action.toUpperCase()}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                "EV: ${_fmt(_feedback!.heroEv, ' BB')}  \u0394EV: ${_fmt(_feedback!.evDiff, ' BB')}${_feedback!.icmDiff != null ? '  \u0394ICM: ${_fmt(_feedback!.icmDiff)}' : ''}",
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              if (_feedback!.advice != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    _feedback!.advice!,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            if (hint.isNotEmpty && _results[spot.id] == null)
-              Positioned(
-                bottom: 72,
-                left: 16,
-                right: 16,
-                child: Card(
-                  color: Colors.black54,
-                  child: Padding(
-                    padding: EdgeInsets.all(8 * scale),
-                    child: Text(hint,
-                        style:
-                            const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
-                  ),
-                ),
-            // Street-specific controls removed
-            if (_showActionHints)
-              Positioned(
-                bottom: 32,
-                left: 16,
-                right: 16,
-                child: Card(
-                  color: Colors.black54,
-                  child: Padding(
-                    padding: EdgeInsets.all(8 * scale),
-                    child: const Text(
-                      'Тапните влево или вправо, чтобы выбрать действие',
-                      style: TextStyle(color: Colors.white70),
-                      textAlign: TextAlign.center,
+              if (hint.isNotEmpty && _results[spot.id] == null)
+                Positioned(
+                  bottom: 72,
+                  left: 16,
+                  right: 16,
+                  child: Card(
+                    color: Colors.black54,
+                    child: Padding(
+                      padding: EdgeInsets.all(8 * scale),
+                      child: Text(
+                        hint,
+                        style: const TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 ),
-          ],
-        );
-      }),
+              // Street-specific controls removed
+              if (_showActionHints)
+                Positioned(
+                  bottom: 32,
+                  left: 16,
+                  right: 16,
+                  child: Card(
+                    color: Colors.black54,
+                    child: Padding(
+                      padding: EdgeInsets.all(8 * scale),
+                      child: const Text(
+                        'Тапните влево или вправо, чтобы выбрать действие',
+                        style: TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
