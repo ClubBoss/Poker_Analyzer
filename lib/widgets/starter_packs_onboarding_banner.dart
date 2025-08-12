@@ -24,7 +24,7 @@ class StarterPacksOnboardingBanner extends StatefulWidget {
 
 class _StarterPacksOnboardingBannerState
     extends State<StarterPacksOnboardingBanner> {
-  static bool _shownLogged = false;
+  bool _shownLogged = false; // instance-scoped
   static const _kPrefSeen = 'starter_pack_seen';
   static const _kPrefDismissedLegacy = 'starter_pack_dismissed:v1';
   static const _kPrefDismissedAt = 'starter_pack_dismissed_at';
@@ -121,6 +121,8 @@ class _StarterPacksOnboardingBannerState
     try {
       final prefs = await _getPrefs();
       final now = DateTime.now().millisecondsSinceEpoch;
+
+      _shownLogged = false; // new appearance => allow one log
 
       final legacyDismissed = prefs.getBool(_kPrefDismissedLegacy) ?? false;
       int? dismissedAt = prefs.getInt(_kPrefDismissedAt);
