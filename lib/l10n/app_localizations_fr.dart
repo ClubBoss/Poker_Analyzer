@@ -63,6 +63,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String percentLabel(Object value) {
     return '$value %';
   }
+  @override
+  String get starter_packs_title => 'Pack de démarrage';
+
+  @override
+  String get starter_packs_subtitle => 'Commencez l'entraînement en un clic';
+
+  @override
+  String get starter_packs_start => 'Démarrer';
+
 
   @override
   String accuracySemantics(Object value) {
