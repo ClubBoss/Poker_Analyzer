@@ -262,10 +262,16 @@ class _StarterPacksOnboardingBannerState
         ];
       }
 
+      final seen = <String>{};
+      final unique = <TrainingPackTemplateV2>[];
+      for (final p in list) {
+        if (seen.add(p.id)) unique.add(p);
+      }
+
       final t = AppLocalizations.of(context)!;
 
       // Не блокируем UI: показываем сразу и донаполняем прогрессом
-      final all = [...list, if (recommended != null) recommended];
+      final all = [...unique, if (recommended != null) recommended];
       final prefill = <String, int>{};
       for (final p in all) {
         final c = prefs.getInt(_kPrefProgress(p.id));
@@ -294,7 +300,7 @@ class _StarterPacksOnboardingBannerState
             child: ValueListenableBuilder<Map<String, int>>(
               valueListenable: progress,
               builder: (_, prog, __) {
-                final items = [...list];
+                final items = [...unique];
                 items.sort((a, b) {
                   final aSelected = a.id == _pack?.id;
                   final bSelected = b.id == _pack?.id;
