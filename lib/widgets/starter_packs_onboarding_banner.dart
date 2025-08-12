@@ -335,6 +335,19 @@ class _StarterPacksOnboardingBannerState
               valueListenable: progress,
               builder: (_, prog, __) {
                 final items = [...unique];
+
+                final totals = <String, int>{
+                  for (final p in items) p.id: _totalHands(p),
+                  if (recommended != null) recommended.id: _totalHands(recommended),
+                };
+
+                final nameLower = <String, String>{
+                  for (final p in items) p.id: p.name.toLowerCase(),
+                };
+                if (recommended != null) {
+                  nameLower[recommended.id] = recommended.name.toLowerCase();
+                }
+
                 items.sort((a, b) {
                   final aSelected = a.id == _pack?.id;
                   final bSelected = b.id == _pack?.id;
@@ -342,11 +355,11 @@ class _StarterPacksOnboardingBannerState
                   final aDone = prog[a.id] ?? 0;
                   final bDone = prog[b.id] ?? 0;
                   if (aDone != bDone) return bDone.compareTo(aDone);
-                  final aTotal = _totalHands(a);
-                  final bTotal = _totalHands(b);
+                  final aTotal = totals[a.id] ?? 0;
+                  final bTotal = totals[b.id] ?? 0;
                   if (aTotal != bTotal) return bTotal.compareTo(aTotal);
                   final nameCmp =
-                      a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                      (nameLower[a.id] ?? '').compareTo(nameLower[b.id] ?? '');
                   if (nameCmp != 0) return nameCmp;
 
                   // New deterministic tiebreaker:
@@ -379,7 +392,8 @@ class _StarterPacksOnboardingBannerState
                             leading: const Icon(Icons.star),
                             title: Text(recommended.name),
                             subtitle: Text(() {
-                              final total = _totalHands(recommended);
+                              final total =
+                                  totals[recommended.id] ?? _totalHands(recommended);
                               final done = prog[recommended.id] ?? 0;
                               return _progressText(done, total, t);
                             }()),
@@ -399,7 +413,7 @@ class _StarterPacksOnboardingBannerState
                           ListTile(
                             title: Text(items[i].name),
                             subtitle: Text(() {
-                              final total = _totalHands(items[i]);
+                              final total = totals[items[i].id] ?? 0;
                               final done = prog[items[i].id] ?? 0;
                               return _progressText(done, total, t);
                             }()),
