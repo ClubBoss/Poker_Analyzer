@@ -1,5 +1,4 @@
 import 'learning_path_telemetry.dart';
-import '../../tool/metrics/recall_accuracy_aggregator.dart';
 
 /// Records the outcome of an inline recall prompt.
 Future<void> recordInlineRecallOutcome({
@@ -14,10 +13,6 @@ Future<void> recordInlineRecallOutcome({
       'correct': correct,
     });
   } catch (_) {
-    await RecallAccuracyAggregator().record(
-      stage: stage,
-      tag: tag,
-      correct: correct,
-    );
+    // TODO: fallback aggregation is handled in tool/ scripts.
   }
 }
