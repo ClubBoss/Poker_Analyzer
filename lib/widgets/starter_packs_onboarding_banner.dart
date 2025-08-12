@@ -210,6 +210,29 @@ class _StarterPacksOnboardingBannerState
           child: ValueListenableBuilder<Map<String, int>>(
             valueListenable: progress,
             builder: (_, prog, __) {
+              final items = [...list];
+              items.sort((a, b) {
+                final aSelected = a.id == _pack?.id;
+                final bSelected = b.id == _pack?.id;
+                if (aSelected != bSelected) return aSelected ? -1 : 1;
+                final aDone = prog[a.id] ?? 0;
+                final bDone = prog[b.id] ?? 0;
+                if (aDone != bDone) return bDone.compareTo(aDone);
+                final aTotal = _totalHands(a);
+                final bTotal = _totalHands(b);
+                if (aTotal != bTotal) return bTotal.compareTo(aTotal);
+                return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+              });
+
+              var dividerIndex = -1;
+              for (var i = 0; i < items.length; i++) {
+                final done = prog[items[i].id] ?? 0;
+                if (done == 0) {
+                  dividerIndex = i;
+                  break;
+                }
+              }
+
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -230,22 +253,26 @@ class _StarterPacksOnboardingBannerState
                           : null,
                       onTap: () => Navigator.of(context).pop(recommended),
                     ),
-                  if (recommended != null && list.isNotEmpty)
+                  if (recommended != null && items.isNotEmpty)
                     const Divider(height: 0),
-                  for (final p in list)
+                  for (var i = 0; i < items.length; i++) ...[
+                    if (i == dividerIndex && dividerIndex > 0)
+                      const Divider(height: 0),
                     ListTile(
-                      title: Text(p.name),
+                      title: Text(items[i].name),
                       subtitle: Text(() {
-                        final total = _totalHands(p);
-                        final done = prog[p.id];
+                        final total = _totalHands(items[i]);
+                        final done = prog[items[i].id];
                         return done != null && done > 0
                             ? '$done / $total ${t.hands}'
                             : '$total ${t.hands}';
                       }()),
-                      trailing:
-                          p.id == _pack?.id ? const Icon(Icons.check) : null,
-                      onTap: () => Navigator.of(context).pop(p),
+                      trailing: items[i].id == _pack?.id
+                          ? const Icon(Icons.check)
+                          : null,
+                      onTap: () => Navigator.of(context).pop(items[i]),
                     ),
+                  ],
                 ],
               );
             },
