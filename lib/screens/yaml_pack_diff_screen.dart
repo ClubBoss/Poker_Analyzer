@@ -22,7 +22,7 @@ class YamlPackDiffScreen extends StatelessWidget {
     final tagsB = {...packB.tags};
     final tagsDiff = tagsA.difference(tagsB).length + tagsB.difference(tagsA).length;
     final spotCountDiff = (packA.spotCount - packB.spotCount).abs();
-    final diffColor = Colors.amber.withOpacity(.2);
+    final diffColor = Colors.amber.withValues(alpha: .2);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Yaml Diff'),

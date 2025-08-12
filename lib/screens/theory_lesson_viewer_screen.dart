@@ -29,7 +29,7 @@ class _HighlightBuilder extends MarkdownElementBuilder {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
       decoration: BoxDecoration(
-        color: Colors.yellow.withOpacity(0.3),
+        color: Colors.yellow.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

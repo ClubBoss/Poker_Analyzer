@@ -63,7 +63,7 @@ class _GoalCardState extends State<GoalCard>
             boxShadow: widget.goal.completed
                 ? [
                     BoxShadow(
-                      color: Colors.green.withOpacity(glow),
+                      color: Colors.green.withValues(alpha: glow),
                       blurRadius: 20 * glow,
                       spreadRadius: 2 * glow,
                     )

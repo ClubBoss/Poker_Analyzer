@@ -40,7 +40,7 @@ Future<CardModel?> showCardSelector(BuildContext context,
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
+                            color: Colors.black.withValues(alpha: 0.25),
                             blurRadius: 3,
                             offset: const Offset(1, 2),
                           )

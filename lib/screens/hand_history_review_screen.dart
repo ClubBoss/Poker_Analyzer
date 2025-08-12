@@ -223,7 +223,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.redAccent.withOpacity(0.2),
+        color: Colors.redAccent.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

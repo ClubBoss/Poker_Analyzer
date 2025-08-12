@@ -93,7 +93,7 @@ class _Cell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected ? color : color.withOpacity(0.4);
+    final bg = selected ? color : color.withValues(alpha: 0.4);
     return GestureDetector(
       onTap: readOnly ? null : onTap,
       onLongPress: readOnly ? null : onTap,
@@ -124,7 +124,7 @@ class _Cell extends StatelessWidget {
                 height: 24,
                 margin: const EdgeInsets.all(1),
                 decoration: BoxDecoration(
-                  color: Colors.lightGreen.withOpacity(0.3),
+                  color: Colors.lightGreen.withValues(alpha: 0.3),
                   border: Border.all(color: Colors.transparent),
                 ),
               ),

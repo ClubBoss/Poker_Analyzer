@@ -39,11 +39,11 @@ class CardPickerWidget extends StatelessWidget {
             width: 36 * scale,
             height: 52 * scale,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+              color: Colors.white.withValues(alpha: card == null ? 0.3 : 1),
               borderRadius: BorderRadius.circular(6),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withValues(alpha: 0.25),
                   blurRadius: 3,
                   offset: const Offset(1, 2),
                 )

@@ -83,7 +83,7 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: _open ? Colors.black54 : Colors.black.withOpacity(0.4),
+        color: _open ? Colors.black54 : Colors.black.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

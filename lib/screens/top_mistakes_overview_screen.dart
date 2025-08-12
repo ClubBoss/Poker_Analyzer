@@ -45,7 +45,7 @@ class TopMistakesOverviewScreen extends StatelessWidget {
             width: 14,
             borderRadius: BorderRadius.circular(4),
             gradient: LinearGradient(
-              colors: [color.withOpacity(0.7), color],
+              colors: [color.withValues(alpha: 0.7), color],
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
             ),

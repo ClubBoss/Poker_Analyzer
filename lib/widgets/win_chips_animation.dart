@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'chip_stack_moving_widget.dart';
+import '../theme/app_colors.dart';
 
 /// Animation of chips flying from the pot to a player's stack.
 class WinChipsAnimation extends StatelessWidget {
@@ -25,7 +26,7 @@ class WinChipsAnimation extends StatelessWidget {
   final double fadeStart;
 
   /// Color of the chip stack.
-  final Color color;
+  final Color? color;
 
   const WinChipsAnimation({
     super.key,
@@ -36,16 +37,17 @@ class WinChipsAnimation extends StatelessWidget {
     this.control,
     this.onCompleted,
     this.fadeStart = 0.7,
-    this.color = const Color(0xFFD8B243),
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
+    final chipColor = color ?? AppColors.accent;
     return ChipStackMovingWidget(
       start: start,
       end: end,
       amount: amount,
-      color: color,
+      color: chipColor,
       scale: scale,
       control: control,
       fadeStart: fadeStart,

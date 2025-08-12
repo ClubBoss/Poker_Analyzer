@@ -75,7 +75,7 @@ class AchievementsCatalogScreen extends StatelessWidget {
                   boxShadow: highlight
                       ? [
                           BoxShadow(
-                            color: accent.withOpacity(0.6),
+                            color: accent.withValues(alpha: 0.6),
                             blurRadius: 12,
                             spreadRadius: 1,
                           ),

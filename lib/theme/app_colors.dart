@@ -9,7 +9,7 @@ class AppColors {
   static const cardBackground = darkCard;
   static const button = Color(0xFFB73239);
   static Color accent = const Color(0xFFD8B243);
-  static final errorBg = Colors.red.withOpacity(.2);
+  static final errorBg = Colors.red.withValues(alpha: .2);
   static const evPre = Color(0xFF009733);
   static const evPost = Color(0xFFC9A559);
   static const icmPre = Color(0xFF404B1E);

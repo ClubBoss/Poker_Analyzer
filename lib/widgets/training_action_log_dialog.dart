@@ -60,7 +60,7 @@ class TrainingActionLogDialog extends StatelessWidget {
                               builder: (ctx) {
                                 final c = TextEditingController(text: spot!.note);
                                 return AlertDialog(
-                                  backgroundColor: Colors.black.withOpacity(0.8),
+                                  backgroundColor: Colors.black.withValues(alpha: 0.8),
                                   title: const Text('Note', style: TextStyle(color: Colors.white)),
                                   content: TextField(
                                     controller: c,

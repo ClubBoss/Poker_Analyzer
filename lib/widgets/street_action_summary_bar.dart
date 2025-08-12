@@ -26,7 +26,7 @@ class StreetActionSummaryBar extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-      color: Colors.black.withOpacity(0.3),
+      color: Colors.black.withValues(alpha: 0.3),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(

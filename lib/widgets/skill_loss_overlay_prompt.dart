@@ -88,7 +88,7 @@ class _SkillLossOverlayPromptState extends State<SkillLossOverlayPrompt>
                       shape: BoxShape.circle,
                       border: Border.all(
                         color:
-                            accent.withOpacity(0.5 + 0.5 * _controller.value),
+                            accent.withValues(alpha: 0.5 + 0.5 * _controller.value),
                         width: 8,
                       ),
                     ),

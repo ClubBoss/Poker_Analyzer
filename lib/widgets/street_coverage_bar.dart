@@ -35,7 +35,7 @@ class StreetCoverageBar extends StatelessWidget {
                   Container(
                     width: segmentWidth(i),
                     height: 6,
-                    color: _color(i).withOpacity(totals[i] == 0 ? .3 : 1),
+                    color: _color(i).withValues(alpha: totals[i] == 0 ? .3 : 1),
                   ),
               ],
             ),

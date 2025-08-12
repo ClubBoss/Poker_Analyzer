@@ -348,9 +348,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                 spacing: 8,
                 children: [
                   Text(l.spotsLabel('$_total'), style: const TextStyle(color: Colors.white)),
-                  Text('•', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                  Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
                   Text(l.accuracyLabel(_rate.toStringAsFixed(0)), style: const TextStyle(color: Colors.white)),
-                  Text('•', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                  Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
                   Text(
                     l.evBb("${_evSum >= 0 ? '+' : ''}${_evSum.toStringAsFixed(1)}"),
                     style: TextStyle(
@@ -360,7 +360,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                     ),
                   ),
                   if (_icmEvs.isNotEmpty) ...[
-                    Text('•', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                    Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
                     Text(
                       l.icmLabel("${_icmSum >= 0 ? '+' : ''}${_icmSum.toStringAsFixed(1)}"),
                       style: TextStyle(

@@ -156,7 +156,7 @@ class _PokerTableViewState extends State<PokerTableView> {
                     final result = await showDialog<double>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        backgroundColor: Colors.black.withOpacity(0.3),
+                        backgroundColor: Colors.black.withValues(alpha: 0.3),
                         title: const Text('Edit Pot',
                             style: TextStyle(color: Colors.white)),
                         content: TextField(
@@ -282,7 +282,7 @@ class _PokerTableViewState extends State<PokerTableView> {
                 final result = await showDialog<double>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    backgroundColor: Colors.black.withOpacity(0.3),
+                    backgroundColor: Colors.black.withValues(alpha: 0.3),
                     title: Text(next.name.toUpperCase(),
                         style: const TextStyle(color: Colors.white)),
                     content: TextField(
@@ -339,7 +339,7 @@ class _PokerTableViewState extends State<PokerTableView> {
               final result = await showDialog<String>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  backgroundColor: Colors.black.withOpacity(0.3),
+                  backgroundColor: Colors.black.withValues(alpha: 0.3),
                   title: const Text('Rename Player',
                       style: TextStyle(color: Colors.white)),
                   content: TextField(
@@ -404,7 +404,7 @@ class _PokerTableViewState extends State<PokerTableView> {
               padding: EdgeInsets.symmetric(
                   horizontal: 2 * widget.scale, vertical: 1 * widget.scale),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -505,7 +505,7 @@ class _PokerTableViewState extends State<PokerTableView> {
               final result = await showDialog<double>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  backgroundColor: Colors.black.withOpacity(0.3),
+                  backgroundColor: Colors.black.withValues(alpha: 0.3),
                   title: const Text('Edit Stack',
                       style: TextStyle(color: Colors.white)),
                   content: TextField(
@@ -722,10 +722,10 @@ class _ActionSpotHighlightState extends State<_ActionSpotHighlight>
         height: radius * 2,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.yellow.withOpacity(0.6), width: 3),
+          border: Border.all(color: Colors.yellow.withValues(alpha: 0.6), width: 3),
           boxShadow: [
             BoxShadow(
-              color: Colors.yellow.withOpacity(0.4),
+              color: Colors.yellow.withValues(alpha: 0.4),
               blurRadius: 6 * widget.scale,
               spreadRadius: 2 * widget.scale,
             ),

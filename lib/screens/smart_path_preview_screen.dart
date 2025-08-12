@@ -74,7 +74,7 @@ class SmartPathPreviewScreen extends StatelessWidget {
             subtitle: Text(stage.packId),
             trailing: _buildPreviewButton(context, stage),
             tileColor:
-                stage.type == StageType.theory ? color.withOpacity(0.1) : null,
+                stage.type == StageType.theory ? color.withValues(alpha: 0.1) : null,
           ),
         const SizedBox(height: 12),
       ],

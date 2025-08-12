@@ -109,7 +109,7 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
     final res = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.black.withOpacity(0.8),
+        backgroundColor: Colors.black.withValues(alpha: 0.8),
         title: const Text('Note', style: TextStyle(color: Colors.white)),
         content: TextField(
           controller: c,

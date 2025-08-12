@@ -91,7 +91,7 @@ class _DecayRecallInsightPanelState extends State<DecayRecallInsightPanel> {
                   width: 3,
                   borderRadius: BorderRadius.circular(2),
                   gradient: LinearGradient(
-                    colors: [accent.withOpacity(0.7), accent],
+                    colors: [accent.withValues(alpha: 0.7), accent],
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                   ),

@@ -47,7 +47,7 @@ class ActionHistoryOverlay extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
         margin: const EdgeInsets.only(right: 4, bottom: 4),
         decoration: BoxDecoration(
-          color: ActionFormattingHelper.actionColor(a.action).withOpacity(0.8),
+          color: ActionFormattingHelper.actionColor(a.action).withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

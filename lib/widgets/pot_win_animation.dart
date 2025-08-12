@@ -103,7 +103,7 @@ class _PotWinAnimationState extends State<PotWinAnimation>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      Colors.yellow.withOpacity(0.8),
+                      Colors.yellow.withValues(alpha: 0.8),
                       Colors.transparent,
                     ],
                   ),

@@ -36,7 +36,7 @@ class PathNodeUnlockHintOverlay {
                     constraints: const BoxConstraints(maxWidth: 200),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.8),
+                      color: Colors.black.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(

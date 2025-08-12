@@ -707,7 +707,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                               horizontal: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.2),
+                              color: Colors.orange.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
@@ -797,7 +797,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                                               : 0,
                                           color: Colors.purpleAccent,
                                           backgroundColor: Colors.purpleAccent
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                         ),
                                       ),
                                       const SizedBox(width: 8),

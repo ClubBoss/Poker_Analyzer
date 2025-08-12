@@ -104,7 +104,7 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.black.withOpacity(0.8),
+        backgroundColor: Colors.black.withValues(alpha: 0.8),
         title: const Text('Note', style: TextStyle(color: Colors.white)),
         content: TextField(
           controller: controller,
@@ -140,7 +140,7 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          backgroundColor: Colors.black.withOpacity(0.8),
+          backgroundColor: Colors.black.withValues(alpha: 0.8),
           title: const Text('Tags', style: TextStyle(color: Colors.white)),
           content: SizedBox(
             width: 300,

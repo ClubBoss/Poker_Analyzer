@@ -176,7 +176,7 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: widget.glowColor!.withOpacity(0.8),
+              color: widget.glowColor!.withValues(alpha: 0.8),
               blurRadius: 12 * widget.scale,
               spreadRadius: 2 * widget.scale,
             ),

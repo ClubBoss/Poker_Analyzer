@@ -615,7 +615,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           vertical: AppConstants.defaultPadding / 2 - 2),
       shape: border,
       color: highlight
-          ? Colors.amber.withOpacity(0.2)
+          ? Colors.amber.withValues(alpha: 0.2)
           : state == LearningStageUIState.locked
           ? Colors.grey.shade800
           : null,

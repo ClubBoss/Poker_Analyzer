@@ -61,7 +61,7 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
             color: q.$2 == 'fail'
                 ? WidgetStateProperty.all(AppColors.errorBg)
                 : q.$2 == 'warning'
-                    ? WidgetStateProperty.all(Colors.orange.withOpacity(.2))
+                    ? WidgetStateProperty.all(Colors.orange.withValues(alpha: .2))
                     : null,
             cells: [DataCell(Text(q.$1)), DataCell(Text(q.$2))],
           ),

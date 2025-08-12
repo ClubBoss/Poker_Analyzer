@@ -19,7 +19,7 @@ class RewardBannerWidget extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withOpacity(0.2),
+            color: Colors.blueAccent.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(

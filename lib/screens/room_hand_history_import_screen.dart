@@ -470,7 +470,7 @@ class _RoomHandHistoryImportScreenState
                         selected: _tagFilter == tag,
                         backgroundColor: Colors
                             .primaries[tag.hashCode % Colors.primaries.length]
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                         selectedColor:
                             Colors.primaries[tag.hashCode % Colors.primaries.length],
                         onSelected: (_) => setState(() => _tagFilter = tag),
@@ -613,7 +613,7 @@ class _RoomHandHistoryImportScreenState
                           if (_undoActive)
                             Positioned.fill(
                               child: Container(
-                                  color: Colors.black.withOpacity(0.05)),
+                                  color: Colors.black.withValues(alpha: 0.05)),
                             ),
                         ],
                       );

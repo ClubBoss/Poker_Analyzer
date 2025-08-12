@@ -73,7 +73,7 @@ class _RefundAmountWidgetState extends State<RefundAmountWidget>
             vertical: 4 * widget.scale,
           ),
           decoration: BoxDecoration(
-            color: Colors.lightGreenAccent.withOpacity(0.9),
+            color: Colors.lightGreenAccent.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(8 * widget.scale),
             boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
           ),

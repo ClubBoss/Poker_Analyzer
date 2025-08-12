@@ -490,7 +490,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          backgroundColor: Colors.black.withOpacity(0.3),
+          backgroundColor: Colors.black.withValues(alpha: 0.3),
           title: const Text('Reveal', style: TextStyle(color: Colors.white)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -552,7 +552,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     final result = await showDialog<List<double>>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.black.withOpacity(0.3),
+        backgroundColor: Colors.black.withValues(alpha: 0.3),
         title: const Text('Distribute', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -678,11 +678,11 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             width: 36,
             height: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(c == null ? 0.3 : 1),
+              color: Colors.white.withValues(alpha: c == null ? 0.3 : 1),
               borderRadius: BorderRadius.circular(6),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withValues(alpha: 0.25),
                   blurRadius: 3,
                   offset: const Offset(1, 2),
                 )

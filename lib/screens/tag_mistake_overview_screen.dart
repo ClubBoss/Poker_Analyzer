@@ -626,7 +626,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           ? {
               for (final t in _activeTags)
                 t: colorFromHex(context.read<TagService>().colorOf(t))
-                    .withOpacity(0.5)
+                    .withValues(alpha: 0.5)
             }
           : {'Предыдущий': Colors.blueAccent};
     }

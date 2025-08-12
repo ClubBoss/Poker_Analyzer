@@ -943,7 +943,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          backgroundColor: Colors.black.withOpacity(0.3),
+          backgroundColor: Colors.black.withValues(alpha: 0.3),
           title: const Text(
             'Edit Stack',
             style: TextStyle(color: Colors.white),
@@ -1111,7 +1111,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                         borderRadius: BorderRadius.circular(6 * widget.scale),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.accent.withOpacity(0.6),
+                            color: AppColors.accent.withValues(alpha: 0.6),
                             blurRadius: 4 * widget.scale,
                           ),
                         ],
@@ -1273,11 +1273,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     width: 36 * widget.scale,
                     height: 52 * widget.scale,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                      color: Colors.white.withValues(alpha: card == null ? 0.3 : 1),
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
+                          color: Colors.black.withValues(alpha: 0.25),
                           blurRadius: 3,
                           offset: const Offset(1, 2),
                         )
@@ -1337,7 +1337,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                           borderRadius: BorderRadius.circular(8 * widget.scale),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.yellowAccent.withOpacity(glow),
+                              color: Colors.yellowAccent.withValues(alpha: glow),
                               blurRadius: 12 * glow * widget.scale,
                               spreadRadius: 2 * glow * widget.scale,
                             ),
@@ -1431,7 +1431,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                               boxShadow: [
                                 BoxShadow(
                                   color:
-                                      Colors.greenAccent.withOpacity(glow),
+                                      Colors.greenAccent.withValues(alpha: glow),
                                   blurRadius: 16 * glow * widget.scale,
                                   spreadRadius: 4 * glow * widget.scale,
                                 ),
@@ -1453,7 +1453,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.lightGreenAccent
-                                        .withOpacity(glow),
+                                        .withValues(alpha: glow),
                                     blurRadius: 16 * glow * widget.scale,
                                     spreadRadius: 4 * glow * widget.scale,
                                   ),
@@ -1610,7 +1610,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.6),
+                color: Colors.grey.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(10 * widget.scale),
               ),
               child: Text(
@@ -1727,7 +1727,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   borderRadius: BorderRadius.circular(12 * widget.scale),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blueAccent.withOpacity(0.6),
+                      color: Colors.blueAccent.withValues(alpha: 0.6),
                       blurRadius: blur,
                     )
                   ],
@@ -1746,7 +1746,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           border: Border.all(color: AppColors.accent, width: 2 * widget.scale),
           boxShadow: [
             BoxShadow(
-              color: AppColors.accent.withOpacity(0.7),
+              color: AppColors.accent.withValues(alpha: 0.7),
               blurRadius: 12 * widget.scale,
               spreadRadius: 2 * widget.scale,
             ),
@@ -1763,7 +1763,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               borderRadius: BorderRadius.circular(12 * widget.scale),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.greenAccent.withOpacity(0.6),
+                  color: Colors.greenAccent.withValues(alpha: 0.6),
                   blurRadius: 16,
                   spreadRadius: 4,
                 ),
@@ -1780,7 +1780,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               borderRadius: BorderRadius.circular(12 * widget.scale),
               boxShadow: [
                 BoxShadow(
-                  color: _actionGlowColor.withOpacity(0.7),
+                  color: _actionGlowColor.withValues(alpha: 0.7),
                   blurRadius: 16,
                   spreadRadius: 4,
                 ),
@@ -1804,7 +1804,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     borderRadius: BorderRadius.circular(12 * widget.scale),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.white.withOpacity(glow),
+                        color: Colors.white.withValues(alpha: glow),
                         blurRadius: 24 * glow * widget.scale,
                         spreadRadius: 4 * glow * widget.scale,
                       ),

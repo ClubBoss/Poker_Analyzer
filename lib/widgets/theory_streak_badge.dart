@@ -20,7 +20,7 @@ class StreakBadge extends StatelessWidget {
             final badge = Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.deepOrangeAccent.withOpacity(0.8),
+                color: Colors.deepOrangeAccent.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(

@@ -88,7 +88,7 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
