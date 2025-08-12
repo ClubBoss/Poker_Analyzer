@@ -1,0 +1,333 @@
+id: l2_of_btn
+name: L2 Open/Fold BTN
+stage:
+  id: L2
+  unlockAfter: l2_of_co
+subtype: open_fold
+position: BTN
+objective: Decide the correct action
+tags:
+  - L2
+  - open_fold
+  - position:BTN
+spots:
+  - id: l2_of_btn_s1
+    actionType: open_fold
+    heroCards: As Ah
+    correctAction: open
+  - id: l2_of_btn_s2
+    actionType: open_fold
+    heroCards: Ad Ac
+    correctAction: fold
+  - id: l2_of_btn_s3
+    actionType: open_fold
+    heroCards: Ks Kh
+    correctAction: open
+  - id: l2_of_btn_s4
+    actionType: open_fold
+    heroCards: Kd Kc
+    correctAction: fold
+  - id: l2_of_btn_s5
+    actionType: open_fold
+    heroCards: Qs Qh
+    correctAction: open
+  - id: l2_of_btn_s6
+    actionType: open_fold
+    heroCards: Qd Qc
+    correctAction: fold
+  - id: l2_of_btn_s7
+    actionType: open_fold
+    heroCards: Js Jh
+    correctAction: open
+  - id: l2_of_btn_s8
+    actionType: open_fold
+    heroCards: Jd Jc
+    correctAction: fold
+  - id: l2_of_btn_s9
+    actionType: open_fold
+    heroCards: Ts Th
+    correctAction: open
+  - id: l2_of_btn_s10
+    actionType: open_fold
+    heroCards: Td Tc
+    correctAction: fold
+  - id: l2_of_btn_s11
+    actionType: open_fold
+    heroCards: 9s 9h
+    correctAction: open
+  - id: l2_of_btn_s12
+    actionType: open_fold
+    heroCards: 9d 9c
+    correctAction: fold
+  - id: l2_of_btn_s13
+    actionType: open_fold
+    heroCards: 8s 8h
+    correctAction: open
+  - id: l2_of_btn_s14
+    actionType: open_fold
+    heroCards: 8d 8c
+    correctAction: fold
+  - id: l2_of_btn_s15
+    actionType: open_fold
+    heroCards: 7s 7h
+    correctAction: open
+  - id: l2_of_btn_s16
+    actionType: open_fold
+    heroCards: 7d 7c
+    correctAction: fold
+  - id: l2_of_btn_s17
+    actionType: open_fold
+    heroCards: 6s 6h
+    correctAction: open
+  - id: l2_of_btn_s18
+    actionType: open_fold
+    heroCards: 6d 6c
+    correctAction: fold
+  - id: l2_of_btn_s19
+    actionType: open_fold
+    heroCards: 5s 5h
+    correctAction: open
+  - id: l2_of_btn_s20
+    actionType: open_fold
+    heroCards: 5d 5c
+    correctAction: fold
+  - id: l2_of_btn_s21
+    actionType: open_fold
+    heroCards: 4s 4h
+    correctAction: open
+  - id: l2_of_btn_s22
+    actionType: open_fold
+    heroCards: 4d 4c
+    correctAction: fold
+  - id: l2_of_btn_s23
+    actionType: open_fold
+    heroCards: 3s 3h
+    correctAction: open
+  - id: l2_of_btn_s24
+    actionType: open_fold
+    heroCards: 3d 3c
+    correctAction: fold
+  - id: l2_of_btn_s25
+    actionType: open_fold
+    heroCards: 2s 2h
+    correctAction: open
+  - id: l2_of_btn_s26
+    actionType: open_fold
+    heroCards: 2d 2c
+    correctAction: fold
+  - id: l2_of_btn_s27
+    actionType: open_fold
+    heroCards: As Ah
+    correctAction: open
+  - id: l2_of_btn_s28
+    actionType: open_fold
+    heroCards: Ad Ac
+    correctAction: fold
+  - id: l2_of_btn_s29
+    actionType: open_fold
+    heroCards: Ks Kh
+    correctAction: open
+  - id: l2_of_btn_s30
+    actionType: open_fold
+    heroCards: Kd Kc
+    correctAction: fold
+  - id: l2_of_btn_s31
+    actionType: open_fold
+    heroCards: Qs Qh
+    correctAction: open
+  - id: l2_of_btn_s32
+    actionType: open_fold
+    heroCards: Qd Qc
+    correctAction: fold
+  - id: l2_of_btn_s33
+    actionType: open_fold
+    heroCards: Js Jh
+    correctAction: open
+  - id: l2_of_btn_s34
+    actionType: open_fold
+    heroCards: Jd Jc
+    correctAction: fold
+  - id: l2_of_btn_s35
+    actionType: open_fold
+    heroCards: Ts Th
+    correctAction: open
+  - id: l2_of_btn_s36
+    actionType: open_fold
+    heroCards: Td Tc
+    correctAction: fold
+  - id: l2_of_btn_s37
+    actionType: open_fold
+    heroCards: 9s 9h
+    correctAction: open
+  - id: l2_of_btn_s38
+    actionType: open_fold
+    heroCards: 9d 9c
+    correctAction: fold
+  - id: l2_of_btn_s39
+    actionType: open_fold
+    heroCards: 8s 8h
+    correctAction: open
+  - id: l2_of_btn_s40
+    actionType: open_fold
+    heroCards: 8d 8c
+    correctAction: fold
+  - id: l2_of_btn_s41
+    actionType: open_fold
+    heroCards: 7s 7h
+    correctAction: open
+  - id: l2_of_btn_s42
+    actionType: open_fold
+    heroCards: 7d 7c
+    correctAction: fold
+  - id: l2_of_btn_s43
+    actionType: open_fold
+    heroCards: 6s 6h
+    correctAction: open
+  - id: l2_of_btn_s44
+    actionType: open_fold
+    heroCards: 6d 6c
+    correctAction: fold
+  - id: l2_of_btn_s45
+    actionType: open_fold
+    heroCards: 5s 5h
+    correctAction: open
+  - id: l2_of_btn_s46
+    actionType: open_fold
+    heroCards: 5d 5c
+    correctAction: fold
+  - id: l2_of_btn_s47
+    actionType: open_fold
+    heroCards: 4s 4h
+    correctAction: open
+  - id: l2_of_btn_s48
+    actionType: open_fold
+    heroCards: 4d 4c
+    correctAction: fold
+  - id: l2_of_btn_s49
+    actionType: open_fold
+    heroCards: 3s 3h
+    correctAction: open
+  - id: l2_of_btn_s50
+    actionType: open_fold
+    heroCards: 3d 3c
+    correctAction: fold
+  - id: l2_of_btn_s51
+    actionType: open_fold
+    heroCards: 2s 2h
+    correctAction: open
+  - id: l2_of_btn_s52
+    actionType: open_fold
+    heroCards: 2d 2c
+    correctAction: fold
+  - id: l2_of_btn_s53
+    actionType: open_fold
+    heroCards: As Ah
+    correctAction: open
+  - id: l2_of_btn_s54
+    actionType: open_fold
+    heroCards: Ad Ac
+    correctAction: fold
+  - id: l2_of_btn_s55
+    actionType: open_fold
+    heroCards: Ks Kh
+    correctAction: open
+  - id: l2_of_btn_s56
+    actionType: open_fold
+    heroCards: Kd Kc
+    correctAction: fold
+  - id: l2_of_btn_s57
+    actionType: open_fold
+    heroCards: Qs Qh
+    correctAction: open
+  - id: l2_of_btn_s58
+    actionType: open_fold
+    heroCards: Qd Qc
+    correctAction: fold
+  - id: l2_of_btn_s59
+    actionType: open_fold
+    heroCards: Js Jh
+    correctAction: open
+  - id: l2_of_btn_s60
+    actionType: open_fold
+    heroCards: Jd Jc
+    correctAction: fold
+  - id: l2_of_btn_s61
+    actionType: open_fold
+    heroCards: Ts Th
+    correctAction: open
+  - id: l2_of_btn_s62
+    actionType: open_fold
+    heroCards: Td Tc
+    correctAction: fold
+  - id: l2_of_btn_s63
+    actionType: open_fold
+    heroCards: 9s 9h
+    correctAction: open
+  - id: l2_of_btn_s64
+    actionType: open_fold
+    heroCards: 9d 9c
+    correctAction: fold
+  - id: l2_of_btn_s65
+    actionType: open_fold
+    heroCards: 8s 8h
+    correctAction: open
+  - id: l2_of_btn_s66
+    actionType: open_fold
+    heroCards: 8d 8c
+    correctAction: fold
+  - id: l2_of_btn_s67
+    actionType: open_fold
+    heroCards: 7s 7h
+    correctAction: open
+  - id: l2_of_btn_s68
+    actionType: open_fold
+    heroCards: 7d 7c
+    correctAction: fold
+  - id: l2_of_btn_s69
+    actionType: open_fold
+    heroCards: 6s 6h
+    correctAction: open
+  - id: l2_of_btn_s70
+    actionType: open_fold
+    heroCards: 6d 6c
+    correctAction: fold
+  - id: l2_of_btn_s71
+    actionType: open_fold
+    heroCards: 5s 5h
+    correctAction: open
+  - id: l2_of_btn_s72
+    actionType: open_fold
+    heroCards: 5d 5c
+    correctAction: fold
+  - id: l2_of_btn_s73
+    actionType: open_fold
+    heroCards: 4s 4h
+    correctAction: open
+  - id: l2_of_btn_s74
+    actionType: open_fold
+    heroCards: 4d 4c
+    correctAction: fold
+  - id: l2_of_btn_s75
+    actionType: open_fold
+    heroCards: 3s 3h
+    correctAction: open
+  - id: l2_of_btn_s76
+    actionType: open_fold
+    heroCards: 3d 3c
+    correctAction: fold
+  - id: l2_of_btn_s77
+    actionType: open_fold
+    heroCards: 2s 2h
+    correctAction: open
+  - id: l2_of_btn_s78
+    actionType: open_fold
+    heroCards: 2d 2c
+    correctAction: fold
+  - id: l2_of_btn_s79
+    actionType: open_fold
+    heroCards: As Ah
+    correctAction: open
+  - id: l2_of_btn_s80
+    actionType: open_fold
+    heroCards: Ad Ac
+    correctAction: fold
