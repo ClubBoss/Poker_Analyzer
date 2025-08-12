@@ -83,12 +83,14 @@ class TrainingSessionScreen extends StatefulWidget {
   final TrainingSession? session;
   final TrainingPackV2? pack;
   final int startIndex;
+  final String? source;
   const TrainingSessionScreen({
     super.key,
     this.onSessionEnd,
     this.session,
     this.pack,
     this.startIndex = 0,
+    this.source,
   });
 
   @override
@@ -113,6 +115,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       tpl,
       persist: false,
       startIndex: 0,
+      source: widget.source ?? 'manual',
     );
     if (widget.onSessionEnd != null) _endlessStats.reset();
     setState(() {
@@ -150,6 +153,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           tpl,
           persist: false,
           startIndex: widget.startIndex,
+          source: widget.source ?? 'manual',
         ),
       );
     }

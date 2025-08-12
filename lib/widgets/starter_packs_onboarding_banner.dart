@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/error_logger.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../services/pack_library_service.dart';
+import '../services/starter_pack_telemetry.dart';
 import '../services/training_session_launcher.dart';
 import '../services/training_session_service.dart';
 import '../theme/app_colors.dart';
@@ -20,6 +23,7 @@ class StarterPacksOnboardingBanner extends StatefulWidget {
 
 class _StarterPacksOnboardingBannerState
     extends State<StarterPacksOnboardingBanner> {
+  static bool _shownLogged = false;
   TrainingPackTemplateV2? _pack;
   bool _loading = true;
   bool _launching = false;
@@ -55,6 +59,13 @@ class _StarterPacksOnboardingBannerState
         _pack = pack;
         _loading = false;
       });
+      if (!_shownLogged && pack != null) {
+        _shownLogged = true;
+        final count =
+            pack.spotCount != 0 ? pack.spotCount : pack.spots.length;
+        unawaited(const StarterPackTelemetry()
+            .logBanner('starter_banner_shown', pack.id, count));
+      }
     } catch (e, st) {
       ErrorLogger.instance
           .logError('starter_pack_banner_load_failed', e, st);
@@ -70,13 +81,25 @@ class _StarterPacksOnboardingBannerState
     setState(() => _launching = true);
     try {
       final full = await PackLibraryService.instance.getById(p.id) ?? p;
+      final count =
+          full.spotCount != 0 ? full.spotCount : full.spots.length;
+      unawaited(const StarterPackTelemetry()
+          .logBanner('starter_banner_start_tapped', full.id, count));
       if (!mounted) return;
-      await const TrainingSessionLauncher().launch(full);
+      await const TrainingSessionLauncher()
+          .launch(full, source: 'starter_banner');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('starter_pack_seen', true);
+      unawaited(const StarterPackTelemetry()
+          .logBanner('starter_banner_launch_success', full.id, count));
       if (!mounted) return;
       setState(() => _pack = null);
     } catch (e, st) {
+      final full = p;
+      final count =
+          full.spotCount != 0 ? full.spotCount : full.spots.length;
+      unawaited(const StarterPackTelemetry()
+          .logBanner('starter_banner_launch_failed', full.id, count));
       ErrorLogger.instance
           .logError('starter_pack_banner_start_failed', e, st);
       if (!mounted) return;
@@ -88,6 +111,12 @@ class _StarterPacksOnboardingBannerState
   }
 
   Future<void> _dismiss() async {
+    final p = _pack;
+    if (p != null) {
+      final count = p.spotCount != 0 ? p.spotCount : p.spots.length;
+      unawaited(const StarterPackTelemetry()
+          .logBanner('starter_banner_dismissed', p.id, count));
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('starter_pack_dismissed:v1', true);
