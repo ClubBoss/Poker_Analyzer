@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'training_pack_play_base.dart';
 import 'training_pack_result_screen_v2.dart';
 import '../../widgets/training_pack_play_screen_v2_toolbar.dart';
+import '../../services/analytics_service.dart';
 import '../../services/app_settings_service.dart';
 import '../../services/user_preferences_service.dart';
 import '../../services/adaptive_spot_scheduler.dart';
 import '../../services/user_error_rate_service.dart';
 import '../../services/spaced_review_service.dart';
 import '../../services/sr_queue_builder.dart';
+import '../../services/pinned_learning_service.dart';
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +30,7 @@ class TrainingPackPlayScreenV2 extends TrainingPackPlayBase {
 
 class _TrainingPackPlayScreenV2State
     extends TrainingPackPlayBaseState<TrainingPackPlayScreenV2> {
+  static const int _kInterleaveCadence = 2;
   List<TrainingPackSpot> get _spots => spots;
   set _spots(List<TrainingPackSpot> value) => spots = value;
   Map<String, String> get _results => results;
@@ -108,7 +113,14 @@ class _TrainingPackPlayScreenV2State
       await _startNew();
     }
     final sr = context.read<SpacedReviewService>();
-    final queue = buildSrQueue(sr, _spots.map((s) => s.id).toSet());
+    final queue = buildSrQueue(
+      sr,
+      {
+        ..._spots.map((s) => s.id),
+        ..._pool.map((s) => s.id),
+        ...widget.template.spots.map((s) => s.id),
+      }.toSet(),
+    );
     setState(() {
       _srQueue
         ..clear()
@@ -125,10 +137,28 @@ class _TrainingPackPlayScreenV2State
 
   Future<void> _toggleSRInterleave() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => _srEnabled = !_srEnabled);
+    final enabling = !_srEnabled;
+    setState(() => _srEnabled = enabling);
     await prefs.setBool('interleave_sr_enabled', _srEnabled);
-    unawaited(AnalyticsService.instance.logEvent(
-        'sr_interleave_enabled_toggled', {'enabled': _srEnabled}));
+    unawaited(AnalyticsService.instance
+        .logEvent('sr_interleave_enabled_toggled', {'enabled': _srEnabled}));
+    if (enabling) {
+      final sr = context.read<SpacedReviewService>();
+      final queue = buildSrQueue(
+        sr,
+        {
+          ..._spots.map((s) => s.id),
+          ..._pool.map((s) => s.id),
+          ...widget.template.spots.map((s) => s.id),
+        }.toSet(),
+      );
+      setState(() {
+        _srQueue
+          ..clear()
+          ..addAll(queue);
+        _srShowCTA = _srQueue.isNotEmpty;
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -223,7 +253,7 @@ class _TrainingPackPlayScreenV2State
 
   void _maybeInjectSR({bool force = false}) {
     if (!_srEnabled || _srQueue.isEmpty) return;
-    if (!force && _srCounter < 2) return;
+      if (!force && _srCounter < _kInterleaveCadence) return;
     final item = _srQueue.removeAt(0);
     setState(() {
       _srCurrent = item;
@@ -233,7 +263,7 @@ class _TrainingPackPlayScreenV2State
     unawaited(AnalyticsService.instance.logEvent('sr_interleave_injected', {
       'spotId': item.spot.id,
       'packId': item.packId,
-      'cadence': force ? 0 : 2,
+        'cadence': force ? 0 : _kInterleaveCadence,
     }));
     if (!_srUptakeLogged) {
       unawaited(AnalyticsService.instance.logEvent('sr_interleave_uptake', {}));
@@ -761,12 +791,13 @@ class _TrainingPackPlayScreenV2State
             spot.id,
             isSr ? _srCurrent!.packId : widget.template.id,
             !incorrect);
-      if (_autoAdvance && !incorrect && !isSr) {
-        _srCounter++;
-        if (_srEnabled && _srQueue.isNotEmpty && _srCounter >= 2) {
-          _maybeInjectSR();
-          return;
-        }
+        if (_autoAdvance && !incorrect && !isSr) {
+          _srCounter++;
+          if (_srEnabled && _srQueue.isNotEmpty &&
+              _srCounter >= _kInterleaveCadence) {
+            _maybeInjectSR();
+            return;
+          }
         await Future.delayed(const Duration(seconds: 2));
         if (!mounted) return;
         await _next();
@@ -834,18 +865,22 @@ class _TrainingPackPlayScreenV2State
       _showFeedback(spot, _expected(spot) ?? '', heroEv, evDiff, icmDiff,
           evaluation.correct, repeated);
     }
-    if (isSr) {
-      unawaited(AnalyticsService.instance.logEvent(
-          'sr_interleave_completed', {'correct': !incorrect}));
-      _srCurrent = null;
-      await _next();
-      return;
-    }
-    _srCounter++;
-    if (_srEnabled && _srQueue.isNotEmpty && _srCounter >= 2) {
-      _maybeInjectSR();
-      return;
-    }
+      if (isSr) {
+        unawaited(AnalyticsService.instance.logEvent('sr_interleave_completed', {
+          'spotId': spot.id,
+          'packId': _srCurrent!.packId,
+          'correct': !incorrect
+        }));
+        _srCurrent = null;
+        await _next();
+        return;
+      }
+      _srCounter++;
+      if (_srEnabled && _srQueue.isNotEmpty &&
+          _srCounter >= _kInterleaveCadence) {
+        _maybeInjectSR();
+        return;
+      }
     if (!_autoAdvance) await _next();
   }
 
@@ -925,16 +960,16 @@ class _TrainingPackPlayScreenV2State
                 mini: scale < 0.9,
               ),
             ),
-            if (_srShowCTA && _srCurrent == null)
-              Positioned(
-                top: 48,
-                child: ActionChip(
-                  label: Text('Review due (${_srQueue.length})'),
-                  onPressed: () {
-                    _maybeInjectSR(force: true);
-                  },
+              if (_srEnabled && _srShowCTA && _srCurrent == null)
+                Positioned(
+                  top: 48,
+                  child: ActionChip(
+                    label: Text('Review due (${_srQueue.length})'),
+                    onPressed: () {
+                      _maybeInjectSR(force: true);
+                    },
+                  ),
                 ),
-              ),
             if (_srCurrent != null)
               const Positioned(
                 top: 48,
