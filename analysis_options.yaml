@@ -48,8 +48,10 @@ analyzer:
     undefined_prefixed_name: ignore
     # и типовой «линт-шум»
     dead_code: ignore
-    prefer_const_constructors: ignore
-    prefer_final_fields: ignore
+    avoid_mutable_fields: error
+    unnecessary_mutable_fields: error
+    prefer_const_constructors: error
+    prefer_final_fields: error
     prefer_const_literals_to_create_immutables: ignore
     prefer_const_declarations: ignore
     lines_longer_than_80_chars: ignore
@@ -63,3 +65,7 @@ linter:
     avoid_unused_constructor_parameters: true
     unnecessary_import: true
     unused_local_variable: true
+    avoid_mutable_fields: true
+    unnecessary_mutable_fields: true
+    prefer_final_fields: true
+    prefer_const_constructors: true

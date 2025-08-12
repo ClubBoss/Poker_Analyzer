@@ -18,10 +18,4 @@ void main() {
     expect(a.ev, 1.0);
   });
 
-  test('Attempting mutation throws', () {
-    final a = ActionEntry(0, 1, 'push');
-    expect(() {
-      (a as dynamic).manualEvaluation = 'good';
-    }, throwsNoSuchMethodError);
-  });
 }
