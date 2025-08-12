@@ -5,7 +5,7 @@ stage:
   unlockAfter: l2_limped_sb_3
 subtype: limped
 position: BB
-limped: True
+limped: true
 objective: Play limped pot correctly
 tags:
   - l2
