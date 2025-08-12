@@ -13,6 +13,6 @@ Future<void> recordInlineRecallOutcome({
       'correct': correct,
     });
   } catch (_) {
-    // TODO: fallback aggregation is handled in tool/ scripts.
+    // Aggregation is handled by tool scripts; ignore failures.
   }
 }

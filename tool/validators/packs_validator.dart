@@ -74,13 +74,16 @@ List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
         if (s is! YamlMap) continue;
         final at = s['actionType'];
         if (subtype == 'open-fold' && at != 'open-fold') {
-          err('spot actionType mismatch'); break;
+          err('spot actionType mismatch');
+          break;
         }
         if (subtype == '3bet-push' && at != '3bet-push') {
-          err('spot actionType mismatch'); break;
+          err('spot actionType mismatch');
+          break;
         }
         if (subtype == 'limped' && at != 'limped') {
-          err('spot actionType mismatch'); break;
+          err('spot actionType mismatch');
+          break;
         }
       }
     }
@@ -93,6 +96,7 @@ List<String> validateL2Packs({String root = 'assets/packs/l2'}) {
     } else if (subtype == '3bet-push') {
       final bucket = doc['stackBucket'];
       if (bucket is! String || !RegExp(r'^\d+-\d+$').hasMatch(bucket)) {
+        // Expected format: "low-high" in big blinds.
         err('invalid stackBucket');
       }
     } else if (subtype == 'limped') {
