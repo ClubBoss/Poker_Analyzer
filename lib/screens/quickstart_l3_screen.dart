@@ -48,6 +48,14 @@ class _RevealLastIntent extends Intent {
   const _RevealLastIntent();
 }
 
+class _CopyLastPathIntent extends Intent {
+  const _CopyLastPathIntent();
+}
+
+class _CopyLastLogPathIntent extends Intent {
+  const _CopyLastLogPathIntent();
+}
+
 class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   final _weightsController = TextEditingController();
   String? _weightsPreset;
@@ -654,6 +662,14 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 children: [
                   TextButton(onPressed: _openReport, child: Text(loc.openReport)),
                   TextButton(onPressed: _exportLastCsv, child: Text(loc.exportCsv)),
+                  TextButton(
+                    onPressed: () {
+                      if (_lastReportPath == null) return;
+                      Clipboard.setData(ClipboardData(text: _lastReportPath!));
+                      showToast(context, loc.copied);
+                    },
+                    child: Text(loc.copyPath),
+                  ),
                 ],
               ),
             const SizedBox(height: 16),
@@ -775,6 +791,18 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const _RunIntent(),
         const SingleActivator(LogicalKeyboardKey.enter, meta: true):
             const _RunIntent(),
+        // Copy last report path
+        const SingleActivator(LogicalKeyboardKey.keyC, control: true):
+            const _CopyLastPathIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyC, meta: true):
+            const _CopyLastPathIntent(),
+        // Copy last logs path (Shift)
+        const SingleActivator(LogicalKeyboardKey.keyC,
+                control: true, shift: true):
+            const _CopyLastLogPathIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyC,
+                meta: true, shift: true):
+            const _CopyLastLogPathIntent(),
         // Export last report CSV
         const SingleActivator(LogicalKeyboardKey.keyE, control: true):
             const _ExportLastIntent(),
@@ -812,6 +840,28 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 return null;
               }
               _run();
+              return null;
+            },
+          ),
+          _CopyLastPathIntent: CallbackAction<_CopyLastPathIntent>(
+            onInvoke: (_) {
+              if (!(_isDesktop && _lastReportPath != null)) return null;
+              Clipboard.setData(ClipboardData(text: _lastReportPath!));
+              showToast(context, AppLocalizations.of(context).copied);
+              return null;
+            },
+          ),
+          _CopyLastLogPathIntent: CallbackAction<_CopyLastLogPathIntent>(
+            onInvoke: (_) {
+              if (!_isDesktop || _lastReportPath == null) return null;
+              final entry = _history.firstWhere(
+                (e) => e.outPath == _lastReportPath,
+                orElse: () => null as dynamic,
+              );
+              final log = (entry as L3RunHistoryEntry?)?.logPath;
+              if (log == null) return null;
+              Clipboard.setData(ClipboardData(text: log));
+              showToast(context, AppLocalizations.of(context).copied);
               return null;
             },
           ),
