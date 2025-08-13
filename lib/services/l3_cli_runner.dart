@@ -75,4 +75,15 @@ class L3CliRunner {
       warnings: warnings,
     );
   }
+
+  static Future<void> revealInFolder(String filePath) async {
+    final dir = p.dirname(filePath);
+    if (Platform.isMacOS) {
+      await Process.run('open', [dir]);
+    } else if (Platform.isWindows) {
+      await Process.run('explorer', [dir]);
+    } else if (Platform.isLinux) {
+      await Process.run('xdg-open', [dir]);
+    }
+  }
 }

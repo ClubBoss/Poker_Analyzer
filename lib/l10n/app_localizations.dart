@@ -975,6 +975,72 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'JSON весов'**
   String get weightsJson;
+
+  /// No description provided for @recentRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent runs'**
+  String get recentRuns;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @logs.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get logs;
+
+  /// No description provided for @folder.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder'**
+  String get folder;
+
+  /// No description provided for @copyPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy path'**
+  String get copyPath;
+
+  /// No description provided for @reRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-run'**
+  String get reRun;
+
+  /// No description provided for @pickTwoRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick two runs'**
+  String get pickTwoRuns;
+
+  /// No description provided for @compare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get compare;
+
+  /// No description provided for @noSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'No selection'**
+  String get noSelection;
+
+  /// No description provided for @rootKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'Root keys'**
+  String get rootKeys;
+
+  /// No description provided for @arrayLengths.
+  ///
+  /// In en, this message translates to:
+  /// **'Array lengths'**
+  String get arrayLengths;
 }
 
 class _AppLocalizationsDelegate
