@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
+import '../utils/csv_io.dart';
 import 'l3_ab_diff_screen.dart';
 
 class _ExportIntent extends Intent {
@@ -86,11 +87,7 @@ class L3ReportViewerScreen extends StatelessWidget {
         '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
       ).create(recursive: true);
       final out = File('${dir.path}/report.csv');
-      var csv = buffer.toString();
-      if (Platform.isWindows) {
-        csv = '\uFEFF' + csv.replaceAll('\n', '\r\n');
-      }
-      await out.writeAsString(csv);
+      await writeCsv(out, buffer);
       if (!_isDesktop) HapticFeedback.selectionClick();
       if (!context.mounted) return;
       final messenger = ScaffoldMessenger.of(context);
