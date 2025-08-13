@@ -63,7 +63,7 @@ class L3ReportViewerScreen extends StatelessWidget {
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
+                        child: Text(loc.ok),
                       ),
                     ],
                   ),
@@ -105,7 +105,7 @@ class L3ReportViewerScreen extends StatelessWidget {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
+                          child: Text(loc.ok),
                         ),
                       ],
                     ),
@@ -118,7 +118,7 @@ class L3ReportViewerScreen extends StatelessWidget {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
+                          child: Text(loc.ok),
                         ),
                       ],
                     ),
@@ -140,7 +140,7 @@ class L3ReportViewerScreen extends StatelessWidget {
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
+                        child: Text(loc.ok),
                       ),
                     ],
                   ),
