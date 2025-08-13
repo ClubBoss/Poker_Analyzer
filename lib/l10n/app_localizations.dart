@@ -976,6 +976,12 @@ abstract class AppLocalizations {
   /// **'JSON весов'**
   String get weightsJson;
 
+  /// No description provided for @invalidJson.
+  ///
+  /// In ru, this message translates to:
+  /// **'Некорректный JSON'**
+  String get invalidJson;
+
   /// No description provided for @recentRuns.
   ///
   /// In en, this message translates to:

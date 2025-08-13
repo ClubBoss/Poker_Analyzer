@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,7 @@ class QuickstartL3Screen extends StatefulWidget {
 class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   final _weightsController = TextEditingController();
   String? _weightsPreset;
+  String? _weightsJsonError;
   bool _running = false;
   L3CliResult? _result;
   String? _lastReportPath;
@@ -59,6 +61,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     final hist = await _historyService.load();
     setState(() {
       _lastReportPath = prefs.getString(SharedPrefsKeys.lastL3ReportPath);
+      _weightsPreset = prefs.getString(SharedPrefsKeys.l3WeightsPreset);
       _history = hist;
     });
   }
@@ -72,6 +75,21 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     var weights = _weightsController.text.trim();
     String? weightsArg = weights.isEmpty ? null : weights;
     var preset = _weightsPreset;
+    if (weightsArg != null) {
+      try {
+        jsonDecode(weightsArg);
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).invalidJson)),
+          );
+        }
+        setState(() {
+          _running = false;
+        });
+        return;
+      }
+    }
     if (weightsArg != null && preset != null) {
       weightsArg = null;
       _inlineWarning = AppLocalizations.of(context).presetWillBeUsed;
@@ -298,8 +316,20 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
           children: [
             TextField(
               controller: _weightsController,
-              decoration: InputDecoration(labelText: loc.weightsJson),
-              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: loc.weightsJson,
+                errorText: _weightsJsonError,
+              ),
+              onChanged: (_) {
+                final text = _weightsController.text.trim();
+                try {
+                  if (text.isNotEmpty) jsonDecode(text);
+                  _weightsJsonError = null;
+                } catch (_) {
+                  _weightsJsonError = loc.invalidJson;
+                }
+                setState(() {});
+              },
             ),
             const SizedBox(height: 8),
             DropdownButton<String>(
@@ -311,7 +341,15 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 DropdownMenuItem(value: 'aggro', child: Text('aggro')),
                 DropdownMenuItem(value: 'nitty', child: Text('nitty')),
               ],
-              onChanged: (v) => setState(() => _weightsPreset = v),
+              onChanged: (v) async {
+                setState(() => _weightsPreset = v);
+                final prefs = await SharedPreferences.getInstance();
+                if (v == null) {
+                  await prefs.remove(SharedPrefsKeys.l3WeightsPreset);
+                } else {
+                  await prefs.setString(SharedPrefsKeys.l3WeightsPreset, v);
+                }
+              },
             ),
             if (_weightsController.text.isNotEmpty && _weightsPreset != null)
               Padding(
@@ -320,7 +358,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _running ? null : _run,
+              onPressed:
+                  (_running || _weightsJsonError != null) ? null : _run,
               child: Text(loc.run),
             ),
             if (_lastReportPath != null)

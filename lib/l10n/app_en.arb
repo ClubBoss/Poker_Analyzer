@@ -145,6 +145,7 @@
   ,"export": "Export"
   ,"weightsPreset": "Weights preset"
   ,"weightsJson": "Weights JSON"
+  ,"invalidJson": "Invalid JSON"
   ,"recentRuns": "Recent runs"
   ,"open": "Open"
   ,"logs": "Logs"
