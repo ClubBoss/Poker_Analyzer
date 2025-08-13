@@ -46,12 +46,13 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     final decoded = jsonDecode(content);
     final result = <String, num>{};
     if (decoded is Map) {
+      result['rootKeys'] = decoded.length;
       decoded.forEach((key, value) {
-          if (value is num) {
-            result[key] = value;
-          } else if (value is List) {
-            result['array:$key'] = value.length;
-          }
+        if (value is num) {
+          result[key] = value;
+        } else if (value is List) {
+          result['array:$key'] = value.length;
+        }
       });
     }
     return result;
