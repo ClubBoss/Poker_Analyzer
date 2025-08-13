@@ -47,11 +47,11 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     final result = <String, num>{};
     if (decoded is Map) {
       decoded.forEach((key, value) {
-        if (value is num) {
-          result[key] = value;
-        } else if (value is List) {
-          result[key] = value.length;
-        }
+          if (value is num) {
+            result[key] = value;
+          } else if (value is List) {
+            result['array:$key'] = value.length;
+          }
       });
     }
     return result;
@@ -181,12 +181,17 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
       final a = _statsA?[k];
       final b = _statsB?[k];
       final delta = b != null && a != null ? b - a : null;
-      rows.add(DataRow(cells: [
-        DataCell(Text(k)),
-        DataCell(Text(a?.toString() ?? '-')),
-        DataCell(Text(b?.toString() ?? '-')),
-        DataCell(Text(delta?.toString() ?? '-')),
-      ]));
+        final label = k == 'rootKeys'
+            ? loc.rootKeys
+            : k.startsWith('array:')
+                ? '${loc.arrayLengths} ${k.substring(6)}'
+                : k;
+        rows.add(DataRow(cells: [
+          DataCell(Text(label)),
+          DataCell(Text(a?.toString() ?? '-')),
+          DataCell(Text(b?.toString() ?? '-')),
+          DataCell(Text(delta?.toString() ?? '-')),
+        ]));
     }
     return rows;
   }

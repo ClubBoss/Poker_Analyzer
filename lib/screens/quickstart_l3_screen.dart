@@ -82,25 +82,28 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     final collectedWarnings = <String>[];
     if (_inlineWarning != null) collectedWarnings.add(_inlineWarning!);
     collectedWarnings.addAll(res.warnings);
-    if (res.exitCode == 0) {
-      await prefs.setString(SharedPrefsKeys.lastL3ReportPath, res.outPath);
-      _lastReportPath = res.outPath;
-      final entry = L3RunHistoryEntry(
-        timestamp: DateTime.now(),
-        argsSummary: preset != null
-            ? 'preset=$preset'
-            : (weightsArg != null ? 'weights=json' : 'default'),
-        outPath: res.outPath,
-        logPath: res.logPath,
-        warnings: collectedWarnings,
-        weights: weightsArg,
-        preset: preset,
-      );
-      if (_history.isEmpty || !_history.first.sameAs(entry)) {
-        await _historyService.push(entry);
-        _history = await _historyService.load();
+      if (res.exitCode == 0) {
+        await prefs.setString(SharedPrefsKeys.lastL3ReportPath, res.outPath);
+        _lastReportPath = res.outPath;
+        final entry = L3RunHistoryEntry(
+          timestamp: DateTime.now(),
+          argsSummary: preset != null
+              ? 'preset=$preset'
+              : (weightsArg != null ? 'weights=json' : 'default'),
+          outPath: res.outPath,
+          logPath: res.logPath,
+          warnings: collectedWarnings,
+          weights: weightsArg,
+          preset: preset,
+        );
+        final current = await _historyService.load();
+        if (current.isEmpty || !current.first.sameAs(entry)) {
+          await _historyService.push(entry);
+          _history = await _historyService.load();
+        } else {
+          _history = current;
+        }
       }
-    }
     setState(() {
       _running = false;
       _result = res;
@@ -324,15 +327,32 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                               child:
                                   const Icon(Icons.delete, color: Colors.white),
                             ),
-                            onDismissed: (_) async {
-                              setState(() => _history.removeAt(index));
-                              await _historyService.save(_history);
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(loc.deleted)),
-                                );
-                              }
-                            },
+                              onDismissed: (_) async {
+                                final removed = _history.removeAt(index);
+                                await _historyService.save(_history);
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                if (_lastReportPath == removed.outPath) {
+                                  if (_history.isNotEmpty) {
+                                    final newPath = _history.first.outPath;
+                                    await prefs.setString(
+                                      SharedPrefsKeys.lastL3ReportPath,
+                                      newPath,
+                                    );
+                                    _lastReportPath = newPath;
+                                  } else {
+                                    await prefs.remove(
+                                        SharedPrefsKeys.lastL3ReportPath);
+                                    _lastReportPath = null;
+                                  }
+                                }
+                                setState(() {});
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(loc.deleted)),
+                                  );
+                                }
+                              },
                             child: ListTile(
                               title: Text('$ts ${e.argsSummary}'),
                               trailing: Wrap(
